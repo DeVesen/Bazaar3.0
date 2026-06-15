@@ -1,2448 +1,1708 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bazaar — Flohmarkt Management</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-      background: #FAFAFA;
-      color: #212121;
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* ── Sidebar ── */
-    .sidebar {
-      width: 200px;
-      min-width: 200px;
-      background: #263238;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-
-    .sidebar-logo {
-      padding: 20px 16px 12px;
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: .5px;
-      border-bottom: 1px solid rgba(255,255,255,.1);
-      color: #FF9800;
-    }
-
-    .sidebar-logo span {
-      display: block;
-      font-size: 11px;
-      font-weight: 400;
-      color: rgba(255,255,255,.5);
-      margin-top: 2px;
-    }
-
-    .nav-item {
-      padding: 13px 20px;
-      cursor: pointer;
-      font-size: 14px;
-      color: rgba(255,255,255,.75);
-      transition: background .15s, color .15s;
-      border-left: 3px solid transparent;
-      user-select: none;
-    }
-
-    .nav-item:hover {
-      background: rgba(255,255,255,.07);
-      color: #fff;
-    }
-
-    .nav-item.active {
-      background: rgba(25,118,210,.25);
-      color: #fff;
-      border-left-color: #1976D2;
-      font-weight: 600;
-    }
-
-    /* ── Main ── */
-    .main-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── Screens ── */
-    .screen { display: none; }
-    .screen.active { display: block; }
-
-    /* ── Top bar ── */
-    .top-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .top-bar h1 {
-      font-size: 22px;
-      font-weight: 600;
-      color: #212121;
-    }
-
-    /* ── Buttons ── */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: box-shadow .15s, opacity .15s;
-    }
-
-    .btn:hover { opacity: .88; }
-
-    .btn-primary {
-      background: #1976D2;
-      color: #fff;
-    }
-
-    .btn-accent {
-      background: #FF9800;
-      color: #fff;
-    }
-
-    .btn-danger {
-      background: #D32F2F;
-      color: #fff;
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: #1976D2;
-      border: 1px solid #1976D2;
-    }
-
-    .btn-sm {
-      padding: 5px 12px;
-      font-size: 12px;
-    }
-
-    .btn-icon {
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 50%;
-      font-size: 16px;
-      line-height: 1;
-      transition: background .15s;
-    }
-
-    .btn-icon:hover { background: rgba(0,0,0,.07); }
-
-    /* ── Chips ── */
-    .chip-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-      align-items: center;
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 14px;
-      border-radius: 16px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      border: 1.5px solid #ddd;
-      background: #fff;
-      color: #555;
-      transition: background .15s, color .15s, border-color .15s;
-      user-select: none;
-    }
-
-    .chip.active, .chip:hover {
-      background: #1976D2;
-      color: #fff;
-      border-color: #1976D2;
-    }
-
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #fff;
-      cursor: default;
-    }
-
-    .status-chip.clickable { cursor: pointer; }
-
-    .status-Offen         { background: #9E9E9E; }
-    .status-Im-Verkauf    { background: #1976D2; }
-    .status-Abgerechnet   { background: #388E3C; }
-    .status-Registriert   { background: #9E9E9E; }
-    .status-Verkauft      { background: #388E3C; }
-    .status-Zurueckgegeben{ background: #FF9800; }
-
-    /* ── Cards ── */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.12);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-name {
-      font-size: 16px;
-      font-weight: 700;
-      color: #212121;
-    }
-
-    .card-actions { display: flex; gap: 4px; }
-
-    .card-sub {
-      font-size: 13px;
-      color: #757575;
-    }
-
-    .card-divider {
-      border: none;
-      border-top: 1px solid #eee;
-      margin: 4px 0;
-    }
-
-    .card-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px 12px;
-      font-size: 13px;
-      color: #555;
-    }
-
-    .card-stat-label { color: #9E9E9E; font-size: 12px; }
-
-    /* ── Table ── */
-    .table-wrap { overflow-x: auto; }
-
-    table.table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    table.table th {
-      text-align: left;
-      padding: 10px 12px;
-      background: #ECEFF1;
-      color: #455A64;
-      font-weight: 600;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .4px;
-    }
-
-    table.table td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #F0F0F0;
-      color: #424242;
-    }
-
-    table.table tr:last-child td { border-bottom: none; }
-    table.table tr:hover td { background: #F9FBFD; }
-
-    /* ── Form fields ── */
-    .form-field {
-      margin-bottom: 14px;
-    }
-
-    .form-field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: #546E7A;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: .4px;
-    }
-
-    .form-field input,
-    .form-field select,
-    .form-field textarea {
-      width: 100%;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      padding: 8px 10px;
-      font-size: 14px;
-      color: #212121;
-      background: #fff;
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-
-    .form-field input:focus,
-    .form-field select:focus,
-    .form-field textarea:focus {
-      border-color: #1976D2;
-      box-shadow: 0 0 0 2px rgba(25,118,210,.15);
-    }
-
-    .form-field textarea { resize: vertical; min-height: 60px; }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .form-row-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-    }
-
-    /* ── Modal ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .modal-box {
-      background: #fff;
-      border-radius: 8px;
-      padding: 24px;
-      width: 100%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-      box-shadow: 0 8px 32px rgba(0,0,0,.24);
-    }
-
-    .modal-box.wide { max-width: 900px; }
-
-    .modal-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #212121;
-      margin-bottom: 20px;
-      padding-right: 32px;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: #757575;
-      line-height: 1;
-      padding: 4px 8px;
-      border-radius: 4px;
-    }
-
-    .modal-close:hover { background: #f5f5f5; color: #212121; }
-
-    .modal-footer {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid #eee;
-    }
-
-    /* ── Search ── */
-    .search-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .search-bar input {
-      flex: 1;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      padding: 9px 12px;
-      font-size: 14px;
-      outline: none;
-      transition: border-color .15s;
-    }
-
-    .search-bar input:focus { border-color: #1976D2; }
-
-    /* ── Verkauf Screen ── */
-    .verkauf-input-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .verkauf-input-row input {
-      width: 300px;
-      border: 2px solid #ddd;
-      border-radius: 4px;
-      padding: 12px 14px;
-      font-size: 18px;
-      outline: none;
-      transition: border-color .15s;
-    }
-
-    .verkauf-input-row input:focus { border-color: #1976D2; }
-
-    .artikel-info-box {
-      padding: 12px 16px;
-      border-radius: 6px;
-      margin-bottom: 16px;
-      font-size: 15px;
-      font-weight: 500;
-      display: none;
-    }
-
-    .artikel-info-box.found {
-      background: #E8F5E9;
-      color: #2E7D32;
-      border: 1px solid #A5D6A7;
-      display: block;
-    }
-
-    .artikel-info-box.not-found {
-      background: #FFEBEE;
-      color: #C62828;
-      border: 1px solid #EF9A9A;
-      display: block;
-    }
-
-    /* ── KPI tiles ── */
-    .kpi-row {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    .kpi-tile {
-      flex: 1;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.1);
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .kpi-label { font-size: 12px; color: #9E9E9E; text-transform: uppercase; letter-spacing: .4px; }
-    .kpi-value { font-size: 24px; font-weight: 700; color: #1976D2; }
-
-    /* ── Back link ── */
-    .back-link {
-      color: #1976D2;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      margin-bottom: 16px;
-      text-decoration: none;
-    }
-
-    .back-link:hover { text-decoration: underline; }
-
-    /* ── Seller list (search results) ── */
-    .seller-list-item {
-      background: #fff;
-      border-radius: 6px;
-      padding: 12px 16px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0,0,0,.08);
-      transition: box-shadow .15s;
-    }
-
-    .seller-list-item:hover { box-shadow: 0 3px 8px rgba(0,0,0,.14); }
-
-    /* ── Wizard layout ── */
-    .wizard-steps { margin-bottom: 8px; }
-    .wizard-step-indicator {
-      display: flex;
-      gap: 0;
-      margin-bottom: 24px;
-    }
-
-    .step-dot {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: #9E9E9E;
-    }
-
-    .step-dot.active { color: #1976D2; font-weight: 700; }
-    .step-dot .dot {
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: #ddd;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      color: #fff;
-    }
-    .step-dot.active .dot { background: #1976D2; }
-    .step-dot.done .dot { background: #388E3C; }
-    .step-line {
-      width: 40px; height: 2px;
-      background: #ddd;
-      align-self: center;
-      margin: 0 4px;
-    }
-
-    /* ── Wizard step 2 layout ── */
-    .wizard-step2-layout {
-      display: flex;
-      gap: 20px;
-    }
-
-    .wizard-step2-left { flex: 7; }
-    .wizard-step2-right {
-      flex: 3;
-      background: #F5F5F5;
-      border-radius: 8px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-width: 220px;
-    }
-
-    .session-article-list { flex: 1; overflow-y: auto; max-height: 280px; }
-
-    .session-article-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid #e0e0e0;
-      font-size: 13px;
-    }
-
-    .session-article-row:last-child { border-bottom: none; }
-
-    .fee-line {
-      font-size: 13px;
-      color: #555;
-      padding-top: 6px;
-      border-top: 1px solid #ddd;
-    }
-
-    /* ── Abrechnung detail ── */
-    .abr-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .abr-name { font-size: 20px; font-weight: 700; }
-    .abr-actions { display: flex; gap: 8px; }
-
-    /* ── Artikel status modal ── */
-    .status-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .status-row:last-child { border-bottom: none; }
-    .status-row-label { font-size: 13px; color: #546E7A; font-weight: 600; }
-    .status-row-value { font-size: 13px; color: #212121; }
-    .status-row-actions { display: flex; gap: 6px; }
-
-    /* ── Zahlung modal ── */
-    .zahlung-summary {
-      background: #E3F2FD;
-      border-radius: 6px;
-      padding: 14px 16px;
-      margin-bottom: 16px;
-    }
-
-    .zahlung-total {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1976D2;
-    }
-
-    .change-display {
-      margin-top: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      color: #388E3C;
-    }
-
-    /* ── Filter row ── */
-    .filter-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .filter-row select, .filter-row input {
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      padding: 7px 10px;
-      font-size: 13px;
-      outline: none;
-      background: #fff;
-    }
-
-    .filter-row input { min-width: 180px; }
-    .filter-row select:focus, .filter-row input:focus { border-color: #1976D2; }
-
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      .cards-grid { grid-template-columns: repeat(2,1fr); }
-      .wizard-step2-layout { flex-direction: column; }
-    }
-
-    @media (max-width: 600px) {
-      .cards-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ── Freigeben modal ── */
-    .freigeben-list { max-height: 260px; overflow-y: auto; }
-    .freigeben-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px;
-    }
-
-    /* ── Abrechnen modal ── */
-    .abr-calc-row {
-      display: flex; justify-content: space-between;
-      padding: 8px 0; border-bottom: 1px solid #eee; font-size: 14px;
-    }
-    .abr-calc-row.total { font-weight: 700; font-size: 16px; color: #1976D2; }
-
-    /* ── Misc ── */
-    .text-muted { color: #9E9E9E; font-size: 13px; }
-    .text-right { text-align: right; }
-    .mb-8 { margin-bottom: 8px; }
-    .mb-16 { margin-bottom: 16px; }
-    .mb-24 { margin-bottom: 24px; }
-    .flex { display: flex; }
-    .gap-8 { gap: 8px; }
-    .align-center { align-items: center; }
-    .empty-state {
-      text-align: center; padding: 48px 16px; color: #9E9E9E; font-size: 15px;
-    }
-    .divider { border: none; border-top: 1px solid #eee; margin: 12px 0; }
-
-    /* Cart table */
-    .cart-section { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); padding: 0; overflow: hidden; }
-    .cart-sum-row {
-      display: flex; justify-content: flex-end; padding: 12px 16px;
-      font-size: 18px; font-weight: 700; color: #212121;
-      border-top: 2px solid #1976D2;
-    }
-    .cart-actions { display: flex; justify-content: flex-end; margin-top: 16px; }
-
-    /* Master edit modal breadcrumb */
-    .modal-subtitle { font-size: 13px; color: #9E9E9E; margin-top: -14px; margin-bottom: 16px; }
-
-    /* Artikel status readonly */
-    .ts-readonly {
-      background: #F5F5F5; border-radius: 4px; padding: 4px 8px;
-      font-size: 13px; color: #555; font-family: monospace;
-    }
-
-    /* Camera toggle */
-    .cam-toggle-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
-    .cam-preview {
-      background: #263238; color: #4CAF50; border-radius: 6px;
-      padding: 24px; text-align: center; font-size: 13px; font-family: monospace;
-      margin-bottom: 12px; display: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bazaar — Flohmarkt Verwaltung</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#212121;display:flex;height:100vh;overflow:hidden}
+#sidebar{width:220px;min-width:220px;background:#263238;color:#fff;display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;z-index:100}
+#sidebar .logo{padding:20px 16px 16px;font-size:22px;font-weight:700;color:#FF9800;border-bottom:1px solid rgba(255,255,255,0.1);letter-spacing:1px}
+#sidebar .logo span{color:#fff;font-weight:300;font-size:14px;display:block;margin-top:2px}
+#sidebar nav a{display:flex;align-items:center;gap:10px;padding:12px 20px;color:rgba(255,255,255,0.75);text-decoration:none;font-size:14px;cursor:pointer;transition:background 0.15s,color 0.15s;border-left:3px solid transparent}
+#sidebar nav a:hover{background:rgba(255,255,255,0.07);color:#fff}
+#sidebar nav a.active{background:rgba(25,118,210,0.25);color:#90CAF9;border-left-color:#1976D2}
+#sidebar nav a .icon{font-size:18px;width:22px;text-align:center}
+#main{margin-left:220px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#topbar{background:#1976D2;color:#fff;padding:0 24px;height:56px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 4px rgba(0,0,0,0.2);flex-shrink:0}
+#topbar h1{font-size:18px;font-weight:500;flex:1}
+#content{flex:1;overflow-y:auto;padding:24px}
+.card{background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1);overflow:hidden;transition:box-shadow 0.2s}
+.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.card-header{padding:16px;border-bottom:1px solid #EEEEEE;display:flex;align-items:center;gap:8px}
+.card-body{padding:16px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:4px;border:none;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.15s,box-shadow 0.15s}
+.btn-primary{background:#1976D2;color:#fff}
+.btn-primary:hover{background:#1565C0;box-shadow:0 2px 6px rgba(25,118,210,0.4)}
+.btn-accent{background:#FF9800;color:#fff}
+.btn-accent:hover{background:#F57C00}
+.btn-outline{background:transparent;border:1px solid #1976D2;color:#1976D2}
+.btn-outline:hover{background:#E3F2FD}
+.btn-danger{background:#F44336;color:#fff}
+.btn-danger:hover{background:#D32F2F}
+.btn-text{background:transparent;color:#1976D2;padding:6px 8px}
+.btn-icon{background:transparent;border:none;cursor:pointer;padding:6px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:16px;color:#757575;transition:background 0.15s}
+.btn-icon:hover{background:rgba(0,0,0,0.08)}
+.btn-sm{padding:4px 10px;font-size:12px}
+.chip{display:inline-flex;align-items:center;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:500}
+.chip-gray{background:#E0E0E0;color:#616161}
+.chip-blue{background:#1976D2;color:#fff}
+.chip-green{background:#4CAF50;color:#fff}
+.chip-orange{background:#FF9800;color:#fff}
+.chip-clickable{cursor:pointer;transition:opacity 0.15s}
+.chip-clickable:hover{opacity:0.8}
+.filter-chips{display:flex;gap:8px;flex-wrap:wrap}
+.filter-chip{padding:6px 14px;border-radius:20px;border:1px solid #BDBDBD;background:#fff;cursor:pointer;font-size:13px;transition:all 0.15s}
+.filter-chip.active{background:#1976D2;color:#fff;border-color:#1976D2}
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;color:#757575;margin-bottom:4px;font-weight:500}
+.form-control{width:100%;padding:10px 12px;border:1px solid #BDBDBD;border-radius:4px;font-size:14px;background:#fff;transition:border-color 0.15s}
+.form-control:focus{outline:none;border-color:#1976D2;box-shadow:0 0 0 2px rgba(25,118,210,0.15)}
+.form-control.input-lg{font-size:20px;padding:14px 16px}
+.data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+.data-table th{background:#F5F5F5;padding:12px 16px;text-align:left;font-size:13px;font-weight:600;color:#616161;border-bottom:2px solid #E0E0E0}
+.data-table td{padding:12px 16px;font-size:14px;border-bottom:1px solid #EEEEEE}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#F5F9FF}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:#fff;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.25);width:100%;max-width:600px;max-height:90vh;overflow-y:auto;position:relative;transform:translateY(20px);transition:transform 0.2s}
+.modal-overlay.open .modal-box{transform:translateY(0)}
+.modal-box.modal-wide{max-width:900px}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid #EEEEEE;display:flex;align-items:center;justify-content:space-between}
+.modal-header h2{font-size:18px;font-weight:600;color:#212121}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid #EEEEEE;display:flex;justify-content:flex-end;gap:10px}
+.btn-close-modal{background:none;border:none;font-size:22px;cursor:pointer;color:#757575;line-height:1}
+.btn-close-modal:hover{color:#212121}
+.action-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.action-bar .spacer{flex:1}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-top:8px}
+.stat-item{font-size:12px;color:#757575}
+.stat-item strong{color:#212121}
+.info-banner{padding:12px 16px;border-radius:4px;font-size:14px;margin-bottom:12px}
+.info-banner.success{background:#E8F5E9;color:#2E7D32;border-left:4px solid #4CAF50}
+.info-banner.error{background:#FFEBEE;color:#C62828;border-left:4px solid #F44336}
+.info-banner.info{background:#E3F2FD;color:#1565C0;border-left:4px solid #1976D2}
+.cart-total{text-align:right;font-size:18px;font-weight:600;padding:12px 0;color:#1976D2}
+.kpi-row{display:flex;gap:16px;margin-bottom:20px}
+.kpi-tile{flex:1;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1);padding:16px;text-align:center}
+.kpi-tile .kpi-value{font-size:28px;font-weight:700;color:#1976D2}
+.kpi-tile .kpi-label{font-size:12px;color:#757575;margin-top:4px}
+.split-layout{display:flex;gap:20px}
+.split-left{flex:7;min-width:0}
+.split-right{flex:3;min-width:200px}
+.wizard-article-list{list-style:none;max-height:300px;overflow-y:auto;margin-top:8px}
+.wizard-article-list li{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #EEEEEE;font-size:13px}
+.wizard-article-list li:last-child{border-bottom:none}
+.freigabe-list{max-height:280px;overflow-y:auto;margin-top:8px;border:1px solid #EEEEEE;border-radius:4px}
+.freigabe-list .item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #F0F0F0;cursor:pointer;font-size:13px;transition:background 0.1s}
+.freigabe-list .item:last-child{border-bottom:none}
+.freigabe-list .item:hover{background:#F5F5F5}
+.freigabe-list .item.selected{background:#E3F2FD}
+.camera-placeholder{background:#E0E0E0;border-radius:4px;display:flex;align-items:center;justify-content:center;height:200px;font-size:14px;color:#757575;margin-bottom:12px;border:2px dashed #BDBDBD}
+.sep{border:none;border-top:1px solid #EEEEEE;margin:16px 0}
+.search-wrapper{position:relative;flex:1}
+.search-wrapper input{padding-left:36px}
+.search-wrapper .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9E9E9E;font-size:16px}
+.vendor-list{list-style:none;margin-top:12px}
+.vendor-list li{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,0.08);margin-bottom:8px;cursor:pointer;transition:box-shadow 0.15s}
+.vendor-list li:hover{box-shadow:0 3px 10px rgba(0,0,0,0.12)}
+.vendor-list .vname{font-weight:600;font-size:14px}
+.vendor-list .vinfo{font-size:12px;color:#757575}
+.provision-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;border-bottom:1px solid #F5F5F5}
+.provision-row.total{font-weight:700;font-size:16px;color:#1976D2;border-bottom:none;margin-top:8px}
+.screen{display:none}
+.screen.active{display:block}
+#toast{position:fixed;bottom:24px;right:24px;background:#323232;color:#fff;padding:12px 20px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none}
+#toast.show{opacity:1}
+.rueckgeld-display{font-size:24px;font-weight:700;color:#4CAF50;text-align:center;padding:12px;background:#E8F5E9;border-radius:4px;margin-top:8px}
+</style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════════
-     SIDEBAR
-════════════════════════════════════════════════════════ -->
-<nav class="sidebar">
-  <div class="sidebar-logo">
-    Bazaar
-    <span>Flohmarkt Management</span>
-  </div>
-  <div class="nav-item active" onclick="showScreen('verkaeufer')">Verkäufer</div>
-  <div class="nav-item" onclick="showScreen('artikelannahme')">Artikelannahme</div>
-  <div class="nav-item" onclick="showScreen('verkauf')">Verkauf</div>
-  <div class="nav-item" onclick="showScreen('abrechnung')">Abrechnung</div>
-  <div class="nav-item" onclick="showScreen('artikel')">Artikel</div>
-  <div class="nav-item" onclick="showScreen('marken')">Marken</div>
-  <div class="nav-item" onclick="showScreen('kategorien')">Kategorien</div>
-  <div class="nav-item" onclick="showScreen('verkaeufer-types')">Verkäufer-Types</div>
+<nav id="sidebar">
+  <div class="logo">Bazaar<span>Flohmarkt Mgmt</span></div>
+  <nav id="sidebarNav">
+    <a class="active" data-screen="verkaeufer"><span class="icon">👥</span>Verkäufer</a>
+    <a data-screen="artikelannahme"><span class="icon">📥</span>Artikelannahme</a>
+    <a data-screen="verkauf"><span class="icon">🛒</span>Verkauf</a>
+    <a data-screen="abrechnung"><span class="icon">💶</span>Abrechnung</a>
+    <a data-screen="artikel"><span class="icon">🏷️</span>Artikel</a>
+    <a data-screen="marken"><span class="icon">⭐</span>Marken</a>
+    <a data-screen="kategorien"><span class="icon">📁</span>Kategorien</a>
+    <a data-screen="verkaeuferTypes"><span class="icon">🔖</span>Verkäufer-Types</a>
+  </nav>
 </nav>
 
-<!-- ════════════════════════════════════════════════════════
-     MAIN CONTENT
-════════════════════════════════════════════════════════ -->
-<main class="main-content">
-
-  <!-- ─── SCREEN: Verkäufer ─── -->
-  <div id="screen-verkaeufer" class="screen active">
-    <div class="top-bar">
-      <h1>Verkäufer</h1>
-      <button class="btn btn-primary" onclick="openWizardNew()">+ NEU</button>
-    </div>
-
-    <div class="chip-row" id="vk-filter-chips">
-      <span class="chip active" data-filter="Alle" onclick="setVkFilter(this, 'Alle')">Alle</span>
-      <span class="chip" data-filter="Offen" onclick="setVkFilter(this, 'Offen')">Offen</span>
-      <span class="chip" data-filter="Im Verkauf" onclick="setVkFilter(this, 'Im Verkauf')">Im Verkauf</span>
-      <span class="chip" data-filter="Abgerechnet" onclick="setVkFilter(this, 'Abgerechnet')">Abgerechnet</span>
-      <input type="text" id="vk-search-input" placeholder="Name suchen…"
-             oninput="renderSellerCards()"
-             style="margin-left:auto; border:1px solid #ddd; border-radius:4px; padding:6px 10px; font-size:13px; outline:none; width:200px;">
-    </div>
-
-    <div class="cards-grid" id="seller-cards"></div>
+<div id="main">
+  <div id="topbar">
+    <h1 id="topbarTitle">Verkäufer</h1>
   </div>
+  <div id="content">
 
-  <!-- ─── SCREEN: Artikelannahme ─── -->
-  <div id="screen-artikelannahme" class="screen">
-    <div class="top-bar">
-      <h1>Artikelannahme</h1>
-    </div>
-
-    <div class="search-bar">
-      <input type="text" id="annahme-search" placeholder="Verkäufer suchen…"
-             oninput="renderAnnahmeList()" style="max-width:400px;">
-    </div>
-
-    <div id="annahme-list"></div>
-    <div id="annahme-new-btn" style="display:none; margin-top:12px;">
-      <button class="btn btn-accent" onclick="openWizardNew()">+ Neu anlegen</button>
-    </div>
-  </div>
-
-  <!-- ─── SCREEN: Verkauf ─── -->
-  <div id="screen-verkauf" class="screen">
-    <div class="top-bar">
-      <h1>Verkauf</h1>
-    </div>
-
-    <div class="verkauf-input-row">
-      <input type="text" id="verkauf-nummer-input"
-             placeholder="Artikelnummer…"
-             onkeydown="verkaufInputKey(event)"
-             autocomplete="off" />
-      <button class="btn-icon" onclick="alert('Kameramodus: In einem echten System würde hier ein Barcode-Scanner aktiviert.')" title="Scanner">📷</button>
-      <button class="btn btn-primary" onclick="verkaufLookup()">Suchen</button>
-    </div>
-
-    <div id="artikel-info-box" class="artikel-info-box"></div>
-
-    <div id="artikel-price-btn-wrap" style="display:none; margin-bottom:16px;">
-      <button class="btn btn-primary" id="artikel-price-btn" onclick="addToCart()"></button>
-    </div>
-
-    <div class="cart-section" id="cart-section" style="display:none;">
-      <table class="table" id="cart-table">
-        <thead>
-          <tr>
-            <th>Artikelnr.</th>
-            <th>Bezeichnung</th>
-            <th>Preis</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="cart-tbody"></tbody>
-      </table>
-      <div class="cart-sum-row">
-        Gesamt: <span id="cart-total" style="margin-left:12px; color:#1976D2;">0,00 €</span>
-      </div>
-    </div>
-
-    <div class="cart-actions" id="cart-actions" style="display:none;">
-      <button class="btn btn-primary" onclick="openKasse()">BUCHEN</button>
-    </div>
-  </div>
-
-  <!-- ─── SCREEN: Abrechnung ─── -->
-  <div id="screen-abrechnung" class="screen">
-    <div id="abr-search-view">
-      <div class="top-bar"><h1>Abrechnung</h1></div>
-      <div class="search-bar">
-        <input type="text" id="abr-search" placeholder="Verkäufer suchen…"
-               oninput="renderAbrList()" style="max-width:400px;">
-      </div>
-      <div id="abr-list"></div>
-    </div>
-
-    <div id="abr-detail-view" style="display:none;">
-      <a class="back-link" onclick="closeAbrDetail()">← Zurück</a>
-      <div class="abr-header">
-        <div>
-          <div class="abr-name" id="abr-detail-name"></div>
-          <div class="text-muted" id="abr-detail-sub"></div>
+    <!-- SCREEN: Verkäufer -->
+    <div class="screen active" id="screen-verkaeufer">
+      <div class="action-bar">
+        <div class="filter-chips" id="vkFilterChips">
+          <span class="filter-chip active" data-filter="Alle">Alle</span>
+          <span class="filter-chip" data-filter="Offen">Offen</span>
+          <span class="filter-chip" data-filter="Im Verkauf">Im Verkauf</span>
+          <span class="filter-chip" data-filter="Abgerechnet">Abgerechnet</span>
         </div>
-        <div class="abr-actions">
-          <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ Drucken</button>
-          <button class="btn btn-accent btn-sm" onclick="openZurueckModal()">Zurückgeben</button>
-          <button class="btn btn-primary btn-sm" onclick="openAbrModal()">Abrechnen</button>
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input class="form-control" id="vkSearchInput" type="text" placeholder="Suchen...">
+        </div>
+        <button class="btn btn-primary" id="btnNeuVerkaeufer">+ NEU</button>
+      </div>
+      <div class="card-grid" id="verkaeuferGrid"></div>
+    </div>
+
+    <!-- SCREEN: Artikelannahme -->
+    <div class="screen" id="screen-artikelannahme">
+      <div id="annahmeSearch">
+        <div class="action-bar">
+          <div class="search-wrapper" style="max-width:420px">
+            <span class="search-icon">🔍</span>
+            <input class="form-control" id="annahmeSearchInput" type="text" placeholder="Verkäufer suchen...">
+          </div>
+        </div>
+        <ul class="vendor-list" id="annahmeVendorList"></ul>
+        <div id="annahmeNoResult" style="display:none;margin-top:16px;text-align:center">
+          <p style="color:#757575;margin-bottom:12px">Kein Treffer gefunden.</p>
+          <button class="btn btn-primary" id="btnAnnahmeAnlegen">+ Anlegen</button>
         </div>
       </div>
+      <div id="annahmeWizard" style="display:none"></div>
+    </div>
 
-      <div class="kpi-row">
-        <div class="kpi-tile">
-          <div class="kpi-label">Offene Artikel</div>
-          <div class="kpi-value" id="kpi-offen">0</div>
+    <!-- SCREEN: Verkauf -->
+    <div class="screen" id="screen-verkauf">
+      <div style="max-width:700px;margin:0 auto">
+        <div class="card card-body" style="margin-bottom:20px">
+          <div style="display:flex;gap:10px;align-items:center">
+            <input class="form-control input-lg" id="verkaufArtikelNr" type="number" placeholder="Artikelnummer eingeben...">
+            <button class="btn-icon" style="font-size:24px" title="Kamera" onclick="showToast('Kamera nicht verfügbar im Prototyp.')">📷</button>
+          </div>
+          <div id="verkaufInfo" style="margin-top:12px"></div>
+          <div id="verkaufPreisButtons" style="margin-top:10px;display:flex;gap:8px"></div>
         </div>
-        <div class="kpi-tile">
-          <div class="kpi-label">Verkaufte Artikel</div>
-          <div class="kpi-value" id="kpi-verkauft">0</div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header"><strong>Warenkorb</strong></div>
+          <div style="padding:0">
+            <table class="data-table" style="border-radius:0;box-shadow:none">
+              <thead><tr><th>Artikelnr.</th><th>Bezeichnung</th><th>Preis</th><th></th></tr></thead>
+              <tbody id="verkaufCartBody"></tbody>
+            </table>
+          </div>
+          <div style="padding:12px 16px">
+            <div class="cart-total" id="verkaufTotal">Gesamt: 0,00 €</div>
+          </div>
         </div>
-        <div class="kpi-tile">
-          <div class="kpi-label">Umsatz</div>
-          <div class="kpi-value" id="kpi-umsatz">0,00 €</div>
+        <div style="text-align:right">
+          <button class="btn btn-primary" style="padding:14px 32px;font-size:16px" id="btnVerkaufBuchen">BUCHEN</button>
         </div>
       </div>
+    </div>
 
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Artikelnr.</th>
-              <th>Bezeichnung</th>
-              <th>Kategorie</th>
-              <th>Preis</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="abr-artikel-tbody"></tbody>
-        </table>
+    <!-- SCREEN: Abrechnung -->
+    <div class="screen" id="screen-abrechnung">
+      <div id="abrSearch">
+        <div class="action-bar">
+          <div class="search-wrapper" style="max-width:420px">
+            <span class="search-icon">🔍</span>
+            <input class="form-control" id="abrSearchInput" type="text" placeholder="Verkäufer suchen...">
+          </div>
+        </div>
+        <ul class="vendor-list" id="abrVendorList"></ul>
       </div>
+      <div id="abrDetail" style="display:none"></div>
     </div>
-  </div>
 
-  <!-- ─── SCREEN: Artikel ─── -->
-  <div id="screen-artikel" class="screen">
-    <div class="top-bar"><h1>Artikel</h1></div>
-    <div class="filter-row" id="artikel-filter-row">
-      <select id="flt-marke" onchange="renderArtikelTable()">
-        <option value="">Alle Marken</option>
-      </select>
-      <select id="flt-kat" onchange="renderArtikelTable()">
-        <option value="">Alle Kategorien</option>
-      </select>
-      <select id="flt-vkstatus" onchange="renderArtikelTable()">
-        <option value="">Alle Verkäufer-Status</option>
-        <option>Offen</option>
-        <option>Im Verkauf</option>
-        <option>Abgerechnet</option>
-      </select>
-      <select id="flt-artstatus" onchange="renderArtikelTable()">
-        <option value="">Alle Artikel-Status</option>
-        <option>Im Verkauf</option>
-        <option>Verkauft</option>
-        <option>Zurückgegeben</option>
-      </select>
-      <input type="text" id="flt-art-text" placeholder="Bezeichnung suchen…" oninput="renderArtikelTable()">
-    </div>
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Artikelnr.</th>
-            <th>Bezeichnung</th>
-            <th>Kategorie</th>
-            <th>Marke</th>
-            <th>Preis</th>
-            <th>Verkäufer</th>
-            <th>Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="artikel-tbody"></tbody>
+    <!-- SCREEN: Artikel -->
+    <div class="screen" id="screen-artikel">
+      <div class="action-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:16px">
+        <select class="form-control" id="artFilterMarke" style="width:140px">
+          <option value="">Alle Marken</option>
+        </select>
+        <select class="form-control" id="artFilterKat" style="width:155px">
+          <option value="">Alle Kategorien</option>
+        </select>
+        <select class="form-control" id="artFilterVStatus" style="width:170px">
+          <option value="">Alle Verk.-Status</option>
+          <option>Offen</option><option>Im Verkauf</option><option>Abgerechnet</option>
+        </select>
+        <select class="form-control" id="artFilterAStatus" style="width:165px">
+          <option value="">Alle Art.-Status</option>
+          <option>Registriert</option><option>Im Verkauf</option><option>Verkauft</option><option>Zurückgegeben</option>
+        </select>
+        <input class="form-control" id="artFilterSearch" style="width:180px" type="text" placeholder="Freitext...">
+      </div>
+      <table class="data-table" id="artikelTable">
+        <thead><tr><th>Artikelnr.</th><th>Bezeichnung</th><th>Kategorie</th><th>Marke</th><th>Preis</th><th>Verkäufer</th><th>Status</th><th></th></tr></thead>
+        <tbody id="artikelTableBody"></tbody>
       </table>
     </div>
-  </div>
 
-  <!-- ─── SCREEN: Marken ─── -->
-  <div id="screen-marken" class="screen">
-    <div class="top-bar">
-      <h1>Marken</h1>
-      <button class="btn btn-primary" onclick="openMasterNew('Marke')">+ NEU</button>
-    </div>
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr><th>#</th><th>Bezeichnung</th><th></th></tr>
-        </thead>
-        <tbody id="marken-tbody"></tbody>
+    <!-- SCREEN: Marken -->
+    <div class="screen" id="screen-marken">
+      <div class="action-bar">
+        <div class="spacer"></div>
+        <button class="btn btn-primary" id="btnNeuMarke">+ NEU</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Nr.</th><th>Name</th><th></th></tr></thead>
+        <tbody id="markenTableBody"></tbody>
       </table>
     </div>
-  </div>
 
-  <!-- ─── SCREEN: Kategorien ─── -->
-  <div id="screen-kategorien" class="screen">
-    <div class="top-bar">
-      <h1>Kategorien</h1>
-      <button class="btn btn-primary" onclick="openMasterNew('Kategorie')">+ NEU</button>
-    </div>
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr><th>#</th><th>Bezeichnung</th><th></th></tr>
-        </thead>
-        <tbody id="kat-tbody"></tbody>
+    <!-- SCREEN: Kategorien -->
+    <div class="screen" id="screen-kategorien">
+      <div class="action-bar">
+        <div class="spacer"></div>
+        <button class="btn btn-primary" id="btnNeuKategorie">+ NEU</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Nr.</th><th>Name</th><th></th></tr></thead>
+        <tbody id="kategorienTableBody"></tbody>
       </table>
     </div>
-  </div>
 
-  <!-- ─── SCREEN: Verkäufer-Types ─── -->
-  <div id="screen-verkaeufer-types" class="screen">
-    <div class="top-bar">
-      <h1>Verkäufer-Types</h1>
-      <button class="btn btn-primary" onclick="openMasterNew('SellerType')">+ NEU</button>
-    </div>
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Bezeichnung</th>
-            <th>Provision (%)</th>
-            <th>Gebühr (€)</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="types-tbody"></tbody>
+    <!-- SCREEN: Verkäufer-Types -->
+    <div class="screen" id="screen-verkaeuferTypes">
+      <div class="action-bar">
+        <div class="spacer"></div>
+        <button class="btn btn-primary" id="btnNeuVkType">+ NEU</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Nr.</th><th>Name</th><th>Provision %</th><th>Gebühr €</th><th></th></tr></thead>
+        <tbody id="vkTypesTableBody"></tbody>
       </table>
     </div>
-  </div>
 
-</main>
-
-<!-- ════════════════════════════════════════════════════════
-     MODALS
-════════════════════════════════════════════════════════ -->
-
-<!-- ─── STATUS MODAL (seller) ─── -->
-<div class="modal-overlay" id="status-modal" onclick="overlayClose(event,'status-modal')">
-  <div class="modal-box" style="max-width:420px;">
-    <button class="modal-close" onclick="closeModal('status-modal')">✕</button>
-    <div class="modal-title">Verkäufer Status</div>
-    <div id="status-modal-content"></div>
-    <div class="modal-footer">
-      <button class="btn btn-danger btn-sm" onclick="deleteSeller()">Löschen</button>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('status-modal')">Schließen</button>
-    </div>
   </div>
 </div>
 
-<!-- ─── SELLER EDIT MODAL ─── -->
-<div class="modal-overlay" id="seller-edit-modal" onclick="overlayClose(event,'seller-edit-modal')">
+<div id="toast"></div>
+
+<!-- Modal: Verkäufer Status -->
+<div class="modal-overlay" id="modalVkStatus">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('seller-edit-modal')">✕</button>
-    <div class="modal-title">Verkäufer bearbeiten</div>
-    <div id="seller-edit-form"></div>
+    <div class="modal-header">
+      <h2>Verkäufer Status</h2>
+      <button class="btn-close-modal" data-close="modalVkStatus">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Aktueller Status</label>
+        <div id="vkStatusChip" style="margin-top:6px"></div>
+      </div>
+      <div class="form-group">
+        <label>Abgerechnet Am</label>
+        <div id="vkStatusAbrDatum" style="font-size:14px;padding:8px 0;color:#212121"></div>
+      </div>
+      <div id="vkStatusDeleteWrap" style="display:none;margin-top:4px">
+        <button class="btn btn-danger btn-sm" id="btnVkStatusDelete">Datum löschen</button>
+      </div>
+    </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('seller-edit-modal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveSellerEdit()">Speichern</button>
+      <button class="btn btn-outline" data-close="modalVkStatus">Schließen</button>
     </div>
   </div>
 </div>
 
-<!-- ─── FREIGEBEN MODAL ─── -->
-<div class="modal-overlay" id="freigeben-modal" onclick="overlayClose(event,'freigeben-modal')">
+<!-- Modal: Verkäufer Formular -->
+<div class="modal-overlay" id="modalVkForm">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('freigeben-modal')">✕</button>
-    <div class="modal-title" id="freigeben-title">Artikel freigeben</div>
-    <div class="cam-toggle-row">
-      <button class="btn btn-ghost btn-sm" onclick="toggleCam('freigeben')">📷 Kamera</button>
-      <span class="text-muted">oder Artikelnummer eingeben</span>
+    <div class="modal-header">
+      <h2 id="modalVkFormTitle">Verkäufer bearbeiten</h2>
+      <button class="btn-close-modal" data-close="modalVkForm">×</button>
     </div>
-    <div class="cam-preview" id="cam-freigeben">[ Kamerabild-Simulation — Scan aktiv ]</div>
-    <div class="form-field">
-      <label>Artikelnummer</label>
-      <input type="text" id="freigeben-input" placeholder="z.B. 101" onkeydown="if(event.key==='Enter') doFreigeben()" />
-    </div>
-    <button class="btn btn-primary mb-16" onclick="doFreigeben()">Freigeben</button>
-    <div id="freigeben-msg" style="margin-bottom:10px; font-size:13px;"></div>
-    <hr class="divider">
-    <div style="font-size:13px; color:#546E7A; font-weight:600; margin-bottom:6px;">Artikel des Verkäufers</div>
-    <div class="freigeben-list" id="freigeben-list"></div>
-  </div>
-</div>
-
-<!-- ─── WIZARD MODAL ─── -->
-<div class="modal-overlay" id="wizard-modal" onclick="overlayClose(event,'wizard-modal')">
-  <div class="modal-box wide">
-    <button class="modal-close" onclick="closeModal('wizard-modal')">✕</button>
-
-    <div class="wizard-step-indicator">
-      <div class="step-dot" id="wiz-dot-1"><div class="dot">1</div><span>Verkäufer</span></div>
-      <div class="step-line"></div>
-      <div class="step-dot" id="wiz-dot-2"><div class="dot">2</div><span>Artikelannahme</span></div>
-    </div>
-
-    <!-- Step 1 -->
-    <div id="wizard-step-1">
-      <div class="modal-title">Verkäufer anlegen</div>
-      <div class="form-row">
-        <div class="form-field"><label>Vorname</label><input type="text" id="wiz-vorname" /></div>
-        <div class="form-field"><label>Nachname</label><input type="text" id="wiz-nachname" /></div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+        <div class="form-group">
+          <label>Vorname *</label>
+          <input class="form-control" id="vkFormVorname" type="text">
+        </div>
+        <div class="form-group">
+          <label>Nachname *</label>
+          <input class="form-control" id="vkFormNachname" type="text">
+        </div>
+        <div class="form-group">
+          <label>PLZ</label>
+          <input class="form-control" id="vkFormPlz" type="text">
+        </div>
+        <div class="form-group">
+          <label>Ort</label>
+          <input class="form-control" id="vkFormOrt" type="text">
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input class="form-control" id="vkFormTelefon" type="text">
+        </div>
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input class="form-control" id="vkFormEmail" type="email">
+        </div>
       </div>
-      <div class="form-row">
-        <div class="form-field"><label>PLZ</label><input type="text" id="wiz-plz" /></div>
-        <div class="form-field"><label>Ort</label><input type="text" id="wiz-ort" /></div>
-      </div>
-      <div class="form-row">
-        <div class="form-field"><label>Telefon</label><input type="text" id="wiz-telefon" /></div>
-        <div class="form-field"><label>E-Mail</label><input type="email" id="wiz-email" /></div>
-      </div>
-      <div class="form-field">
+      <div class="form-group">
         <label>Verkäufer-Type</label>
-        <select id="wiz-type"></select>
-      </div>
-      <div class="modal-footer" style="border:none; padding-top:0;">
-        <button class="btn btn-ghost" onclick="closeModal('wizard-modal')">Abbrechen</button>
-        <button class="btn btn-primary" onclick="wizardNext()">Weiter →</button>
+        <select class="form-control" id="vkFormType"></select>
       </div>
     </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-close="modalVkForm">Abbrechen</button>
+      <button class="btn btn-primary" id="btnVkFormSave">Speichern</button>
+    </div>
+  </div>
+</div>
 
-    <!-- Step 2 -->
-    <div id="wizard-step-2" style="display:none;">
-      <div class="modal-title" id="wiz-step2-title">Artikelannahme</div>
-      <div class="wizard-step2-layout">
-        <!-- Left -->
-        <div class="wizard-step2-left">
-          <div class="form-row">
-            <div class="form-field"><label>Artikelnummer</label><input type="text" id="wiz-art-nummer" /></div>
-            <div class="form-field"><label>Bezeichnung</label><input type="text" id="wiz-art-bez" /></div>
+<!-- Modal: Artikel Freigeben -->
+<div class="modal-overlay" id="modalFreigeben">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="modalFreigebenTitle">Artikel freigeben</h2>
+      <button class="btn-close-modal" data-close="modalFreigeben">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+        <button class="btn btn-outline btn-sm" id="btnFreigebenToggle">Kamera</button>
+      </div>
+      <div id="freigebenManuell">
+        <div class="form-group">
+          <label>Artikelnummer direkt eingeben</label>
+          <div style="display:flex;gap:8px">
+            <input class="form-control" id="freigebenNrInput" type="number" placeholder="Artikelnummer...">
+            <button class="btn btn-primary btn-sm" id="btnFreigebenNr">Freigeben</button>
           </div>
-          <div class="form-row">
-            <div class="form-field">
-              <label>Kategorie</label>
-              <input type="text" id="wiz-art-kat" list="kat-list" autocomplete="off" />
-              <datalist id="kat-list"></datalist>
-            </div>
-            <div class="form-field">
-              <label>Marke</label>
-              <input type="text" id="wiz-art-marke" list="marke-list" autocomplete="off" />
-              <datalist id="marke-list"></datalist>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-field"><label>Preis (€)</label><input type="number" id="wiz-art-preis" step="0.01" min="0" /></div>
-            <div class="form-field"><label>Alternativ-Preis (€)</label><input type="number" id="wiz-art-altpreis" step="0.01" min="0" placeholder="optional" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-field"><label>Größe</label><input type="text" id="wiz-art-groesse" placeholder="z.B. M, 42, 32/32" /></div>
-            <div class="form-field"><label>Farbe</label><input type="text" id="wiz-art-farbe" /></div>
-          </div>
-          <div class="form-field">
-            <label>Beschreibung</label>
-            <textarea id="wiz-art-desc" rows="2"></textarea>
-          </div>
-          <button class="btn btn-primary" onclick="addSessionArticle()">+ Übernehmen</button>
-          <div id="wiz-art-msg" style="margin-top:8px; font-size:13px; color:#D32F2F;"></div>
         </div>
-
-        <!-- Right -->
-        <div class="wizard-step2-right">
-          <div style="font-weight:700; font-size:15px; color:#212121;" id="wiz-seller-name-right">Verkäufer</div>
-          <div class="session-article-list" id="session-articles-list"></div>
-          <div class="fee-line" id="session-fee-line">0× Abgabegebühr (0,00 €) = 0,00 €</div>
-          <button class="btn btn-primary" style="width:100%; margin-top:8px;" onclick="openZahlungModal()">Speichern</button>
+        <label style="font-size:12px;color:#757575;font-weight:500;display:block;margin-bottom:4px">Nicht freigegebene Artikel (anklicken zum Auswählen)</label>
+        <div class="freigabe-list" id="freigebenList"></div>
+        <div style="margin-top:12px;display:flex;justify-content:flex-end">
+          <button class="btn btn-primary" id="btnFreigebenSaveSelected">Ausgewählte freigeben</button>
         </div>
       </div>
-      <div style="margin-top:16px;">
-        <button class="btn btn-ghost btn-sm" onclick="wizardBack()">← Zurück</button>
+      <div id="freigebenKamera" style="display:none">
+        <div class="camera-placeholder">📷 Kamera-Vorschau</div>
+        <div id="freigebenKameraInfo"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ─── ZAHLUNG MODAL (Artikelannahme) ─── -->
-<div class="modal-overlay" id="zahlung-modal" onclick="overlayClose(event,'zahlung-modal')">
-  <div class="modal-box" style="max-width:420px;">
-    <button class="modal-close" onclick="closeModal('zahlung-modal')">✕</button>
-    <div class="modal-title">Zahlung — Abgabegebühr</div>
-    <div class="zahlung-summary">
-      <div class="text-muted mb-8">Gesamtgebühr</div>
-      <div class="zahlung-total" id="zahlung-total">0,00 €</div>
-    </div>
-    <div class="form-field">
-      <label>Betrag erhalten (€)</label>
-      <input type="number" id="zahlung-erhalten" step="0.01" min="0"
-             oninput="calcZahlungChange()" placeholder="0,00" />
-    </div>
-    <div class="change-display" id="zahlung-change"></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('zahlung-modal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="buchenAnnahme()">Buchen</button>
-    </div>
-  </div>
-</div>
-
-<!-- ─── KASSE MODAL (Verkauf) ─── -->
-<div class="modal-overlay" id="kasse-modal" onclick="overlayClose(event,'kasse-modal')">
-  <div class="modal-box" style="max-width:420px;">
-    <button class="modal-close" onclick="closeModal('kasse-modal')">✕</button>
-    <div class="modal-title">Kasse — Bezahlung</div>
-    <div class="zahlung-summary">
-      <div class="text-muted mb-8">Gesamtbetrag</div>
-      <div class="zahlung-total" id="kasse-total">0,00 €</div>
-    </div>
-    <div class="form-field">
-      <label>Betrag erhalten (€)</label>
-      <input type="number" id="kasse-erhalten" step="0.01" min="0"
-             oninput="calcKasseChange()" placeholder="0,00" />
-    </div>
-    <div class="change-display" id="kasse-change"></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('kasse-modal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="buchenVerkauf()">Bezahlt</button>
-    </div>
-  </div>
-</div>
-
-<!-- ─── ARTIKEL STATUS MODAL ─── -->
-<div class="modal-overlay" id="artikel-status-modal" onclick="overlayClose(event,'artikel-status-modal')">
+<!-- Modal: Wizard Schritt 1 -->
+<div class="modal-overlay" id="modalWizard1">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('artikel-status-modal')">✕</button>
-    <div class="modal-title" id="art-status-title">Artikel-Status</div>
-    <div id="art-status-content"></div>
+    <div class="modal-header">
+      <h2>Schritt 1 — Verkäufer anlegen</h2>
+      <button class="btn-close-modal" data-close="modalWizard1">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+        <div class="form-group">
+          <label>Vorname *</label>
+          <input class="form-control" id="w1Vorname" type="text">
+        </div>
+        <div class="form-group">
+          <label>Nachname *</label>
+          <input class="form-control" id="w1Nachname" type="text">
+        </div>
+        <div class="form-group">
+          <label>PLZ</label>
+          <input class="form-control" id="w1Plz" type="text">
+        </div>
+        <div class="form-group">
+          <label>Ort</label>
+          <input class="form-control" id="w1Ort" type="text">
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input class="form-control" id="w1Telefon" type="text">
+        </div>
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input class="form-control" id="w1Email" type="email">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Verkäufer-Type</label>
+        <select class="form-control" id="w1Type"></select>
+      </div>
+    </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('artikel-status-modal')">Schließen</button>
+      <button class="btn btn-outline" data-close="modalWizard1">Abbrechen</button>
+      <button class="btn btn-primary" id="btnWizard1Weiter">Weiter →</button>
     </div>
   </div>
 </div>
 
-<!-- ─── ARTIKEL EDIT MODAL ─── -->
-<div class="modal-overlay" id="artikel-edit-modal" onclick="overlayClose(event,'artikel-edit-modal')">
+<!-- Modal: Wizard Speichern -->
+<div class="modal-overlay" id="modalWizardSpeichern">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('artikel-edit-modal')">✕</button>
-    <div class="modal-title">Artikel bearbeiten</div>
-    <div id="artikel-edit-form"></div>
+    <div class="modal-header">
+      <h2>Artikelannahme abschließen</h2>
+      <button class="btn-close-modal" data-close="modalWizardSpeichern">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="provision-row">
+        <span>Anzahl Artikel</span>
+        <span id="wsAnzahl">0</span>
+      </div>
+      <div class="provision-row">
+        <span>Gesamtgebühr</span>
+        <span id="wsGebuehr">0,00 €</span>
+      </div>
+      <hr class="sep">
+      <div class="form-group">
+        <label>Betrag erhalten (€)</label>
+        <input class="form-control" id="wsErhalten" type="number" step="0.01" min="0" placeholder="0,00">
+      </div>
+      <div class="rueckgeld-display" id="wsRueckgeld">Rückgeld: 0,00 €</div>
+    </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('artikel-edit-modal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveArtikelEdit()">Speichern</button>
+      <button class="btn btn-outline" data-close="modalWizardSpeichern">Abbrechen</button>
+      <button class="btn btn-primary" id="btnWsBuchen">Buchen</button>
     </div>
   </div>
 </div>
 
-<!-- ─── ABRECHNEN MODAL ─── -->
-<div class="modal-overlay" id="abrechnen-modal" onclick="overlayClose(event,'abrechnen-modal')">
-  <div class="modal-box" style="max-width:480px;">
-    <button class="modal-close" onclick="closeModal('abrechnen-modal')">✕</button>
-    <div class="modal-title">Abrechnung</div>
-    <div id="abr-modal-content"></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('abrechnen-modal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="doAbrechnen()">Buchen</button>
-    </div>
-  </div>
-</div>
-
-<!-- ─── ZURÜCK MODAL ─── -->
-<div class="modal-overlay" id="zurueck-modal" onclick="overlayClose(event,'zurueck-modal')">
+<!-- Modal: Verkauf Buchen -->
+<div class="modal-overlay" id="modalVerkaufBuchen">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('zurueck-modal')">✕</button>
-    <div class="modal-title">Artikel zurückgeben</div>
-    <div class="cam-toggle-row">
-      <button class="btn btn-ghost btn-sm" onclick="toggleCam('zurueck')">📷 Kamera</button>
-      <span class="text-muted">oder Artikelnummer eingeben</span>
+    <div class="modal-header">
+      <h2>Verkauf buchen</h2>
+      <button class="btn-close-modal" data-close="modalVerkaufBuchen">×</button>
     </div>
-    <div class="cam-preview" id="cam-zurueck">[ Kamerabild-Simulation — Scan aktiv ]</div>
-    <div class="form-field">
-      <label>Artikelnummer</label>
-      <input type="text" id="zurueck-input" placeholder="z.B. 102"
-             onkeydown="if(event.key==='Enter') doZurueck()" />
+    <div class="modal-body">
+      <div class="provision-row total" style="font-size:20px;margin-bottom:12px">
+        <span>Gesamtbetrag</span>
+        <span id="vbGesamt">0,00 €</span>
+      </div>
+      <hr class="sep">
+      <div class="form-group">
+        <label>Betrag erhalten (€)</label>
+        <input class="form-control" id="vbErhalten" type="number" step="0.01" min="0" placeholder="0,00">
+      </div>
+      <div class="rueckgeld-display" id="vbRueckgeld">Rückgeld: 0,00 €</div>
     </div>
-    <button class="btn btn-accent mb-16" onclick="doZurueck()">Zurückgeben</button>
-    <div id="zurueck-msg" style="margin-bottom:10px; font-size:13px;"></div>
-    <hr class="divider">
-    <div style="font-size:13px; color:#546E7A; font-weight:600; margin-bottom:6px;">Verkaufte Artikel</div>
-    <div class="freigeben-list" id="zurueck-list"></div>
-  </div>
-</div>
-
-<!-- ─── MASTER EDIT MODAL (Marken/Kat/Types) ─── -->
-<div class="modal-overlay" id="master-edit-modal" onclick="overlayClose(event,'master-edit-modal')">
-  <div class="modal-box" style="max-width:440px;">
-    <button class="modal-close" onclick="closeModal('master-edit-modal')">✕</button>
-    <div class="modal-title" id="master-modal-title">Bearbeiten</div>
-    <div class="modal-subtitle" id="master-modal-subtitle"></div>
-    <div id="master-edit-form"></div>
     <div class="modal-footer">
-      <button class="btn btn-danger btn-sm" id="master-delete-btn" onclick="doMasterDelete()" style="margin-right:auto;">Löschen</button>
-      <button class="btn btn-ghost" onclick="closeModal('master-edit-modal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="doMasterSave()">Speichern</button>
+      <button class="btn btn-outline" data-close="modalVerkaufBuchen">Abbrechen</button>
+      <button class="btn btn-primary" id="btnVbBezahlt">Bezahlt ✓</button>
     </div>
   </div>
 </div>
 
-<!-- Datalist for autocomplete -->
-<datalist id="kat-list-global"></datalist>
-<datalist id="marke-list-global"></datalist>
+<!-- Modal: Abrechnen -->
+<div class="modal-overlay" id="modalAbrechnen">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>Abrechnung durchführen</h2>
+      <button class="btn-close-modal" data-close="modalAbrechnen">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="abrModalContent"></div>
+      <div class="rueckgeld-display" id="abrAuszahlung" style="background:#E3F2FD;color:#1565C0">Auszahlung: 0,00 €</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-close="modalAbrechnen">Abbrechen</button>
+      <button class="btn btn-primary" id="btnAbrBuchen">Buchen</button>
+    </div>
+  </div>
+</div>
 
-<!-- ════════════════════════════════════════════════════════
-     SCRIPT
-════════════════════════════════════════════════════════ -->
+<!-- Modal: Zurückgeben -->
+<div class="modal-overlay" id="modalZurueckgeben">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>Artikel zurückgeben</h2>
+      <button class="btn-close-modal" data-close="modalZurueckgeben">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:#757575;margin-bottom:16px">Alle nicht verkauften Artikel werden als "Zurückgegeben" markiert.</p>
+      <div id="zurueckgebenList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-close="modalZurueckgeben">Abbrechen</button>
+      <button class="btn btn-accent" id="btnZurueckgebenOk">Zurückgeben bestätigen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Artikel Status -->
+<div class="modal-overlay" id="modalArtikelStatus">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="modalArtikelStatusTitle">Artikelstatus</h2>
+      <button class="btn-close-modal" data-close="modalArtikelStatus">×</button>
+    </div>
+    <div class="modal-body" id="modalArtikelStatusBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-close="modalArtikelStatus">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Artikel Formular -->
+<div class="modal-overlay" id="modalArtikelForm">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="modalArtikelFormTitle">Artikel bearbeiten</h2>
+      <button class="btn-close-modal" data-close="modalArtikelForm">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+        <div class="form-group">
+          <label>Bezeichnung *</label>
+          <input class="form-control" id="afBezeichnung" type="text">
+        </div>
+        <div class="form-group">
+          <label>Preis (€) *</label>
+          <input class="form-control" id="afPreis" type="number" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Kategorie</label>
+          <input class="form-control" id="afKategorie" list="afKatList">
+          <datalist id="afKatList"></datalist>
+        </div>
+        <div class="form-group">
+          <label>Marke</label>
+          <input class="form-control" id="afMarke" list="afMarkeList">
+          <datalist id="afMarkeList"></datalist>
+        </div>
+        <div class="form-group">
+          <label>Größe</label>
+          <input class="form-control" id="afGroesse" type="text">
+        </div>
+        <div class="form-group">
+          <label>Farbe</label>
+          <input class="form-control" id="afFarbe" type="text">
+        </div>
+        <div class="form-group">
+          <label>Alternativ-Preis (€)</label>
+          <input class="form-control" id="afAltPreis" type="number" step="0.01">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Beschreibung</label>
+        <textarea class="form-control" id="afBeschreibung" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-close="modalArtikelForm">Abbrechen</button>
+      <button class="btn btn-primary" id="btnAfSave">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Marke Formular -->
+<div class="modal-overlay" id="modalMarkeForm">
+  <div class="modal-box" style="max-width:400px">
+    <div class="modal-header">
+      <h2 id="modalMarkeFormTitle">Marke</h2>
+      <button class="btn-close-modal" data-close="modalMarkeForm">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Name *</label>
+        <input class="form-control" id="markeFormName" type="text">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btnMarkeDelete" style="margin-right:auto;display:none">Löschen</button>
+      <button class="btn btn-outline" data-close="modalMarkeForm">Abbrechen</button>
+      <button class="btn btn-primary" id="btnMarkeSave">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Kategorie Formular -->
+<div class="modal-overlay" id="modalKategorieForm">
+  <div class="modal-box" style="max-width:400px">
+    <div class="modal-header">
+      <h2 id="modalKategorieFormTitle">Kategorie</h2>
+      <button class="btn-close-modal" data-close="modalKategorieForm">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Name *</label>
+        <input class="form-control" id="kategorieFormName" type="text">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btnKategorieDelete" style="margin-right:auto;display:none">Löschen</button>
+      <button class="btn btn-outline" data-close="modalKategorieForm">Abbrechen</button>
+      <button class="btn btn-primary" id="btnKategorieSave">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: VkType Formular -->
+<div class="modal-overlay" id="modalVkTypeForm">
+  <div class="modal-box" style="max-width:450px">
+    <div class="modal-header">
+      <h2 id="modalVkTypeFormTitle">Verkäufer-Type</h2>
+      <button class="btn-close-modal" data-close="modalVkTypeForm">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Name *</label>
+        <input class="form-control" id="vkTypeFormName" type="text">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+        <div class="form-group">
+          <label>Provision (%)</label>
+          <input class="form-control" id="vkTypeFormProvision" type="number" step="0.1">
+        </div>
+        <div class="form-group">
+          <label>Gebühr (€)</label>
+          <input class="form-control" id="vkTypeFormGebuehr" type="number" step="0.01">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btnVkTypeDelete" style="margin-right:auto;display:none">Löschen</button>
+      <button class="btn btn-outline" data-close="modalVkTypeForm">Abbrechen</button>
+      <button class="btn btn-primary" id="btnVkTypeSave">Speichern</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ═══════════════════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════════════════
-let sellers = [
-  { id: 1, vorname: 'Anna',   nachname: 'Müller',  plz: '80331', ort: 'München', telefon: '089-123456', email: 'anna@example.com',   type: 'Privat',     status: 'Im Verkauf',  artikelGesamt: 12, freigegeben: 8, verkauft: 5, zurueckgegeben: 1, warenwert: 120.00, umsatz: 75.00,  abgerechnetAm: null },
-  { id: 2, vorname: 'Thomas', nachname: 'Schmidt', plz: '10115', ort: 'Berlin',  telefon: '030-654321', email: 'thomas@example.com', type: 'Gewerblich', status: 'Abgerechnet', artikelGesamt: 8,  freigegeben: 8, verkauft: 8, zurueckgegeben: 0, warenwert: 200.00, umsatz: 200.00, abgerechnetAm: '2026-06-10T14:30:00' },
-  { id: 3, vorname: 'Lisa',   nachname: 'Weber',   plz: '20095', ort: 'Hamburg', telefon: '040-111222', email: 'lisa@example.com',   type: 'Privat',     status: 'Offen',       artikelGesamt: 3,  freigegeben: 0, verkauft: 0, zurueckgegeben: 0, warenwert: 45.00,  umsatz: 0,      abgerechnetAm: null },
-  { id: 4, vorname: 'Klaus',  nachname: 'Fischer', plz: '50667', ort: 'Köln',   telefon: '0221-987654',email: 'klaus@example.com',  type: 'Verein',     status: 'Im Verkauf',  artikelGesamt: 6,  freigegeben: 6, verkauft: 2, zurueckgegeben: 0, warenwert: 90.00,  umsatz: 30.00,  abgerechnetAm: null }
+// ===== DATA =====
+let verkaeufer = [
+  { id:1, vorname:"Anna", nachname:"Müller", plz:"80331", ort:"München", telefon:"089-123456", email:"anna@example.com", type:"Privat", status:"Im Verkauf", artikelGesamt:12, freigegeben:8, verkauft:5, zurueckgegeben:1, warenwert:120, umsatz:75, abgerechnetAm:null },
+  { id:2, vorname:"Thomas", nachname:"Schmidt", plz:"10115", ort:"Berlin", telefon:"030-654321", email:"thomas@example.com", type:"Gewerblich", status:"Abgerechnet", artikelGesamt:8, freigegeben:8, verkauft:8, zurueckgegeben:0, warenwert:200, umsatz:200, abgerechnetAm:"2026-06-10T14:30:00" },
+  { id:3, vorname:"Lisa", nachname:"Weber", plz:"20095", ort:"Hamburg", telefon:"040-111222", email:"lisa@example.com", type:"Privat", status:"Offen", artikelGesamt:3, freigegeben:0, verkauft:0, zurueckgegeben:0, warenwert:45, umsatz:0, abgerechnetAm:null },
+  { id:4, vorname:"Klaus", nachname:"Fischer", plz:"50667", ort:"Köln", telefon:"0221-333444", email:"klaus@example.com", type:"Verein", status:"Im Verkauf", artikelGesamt:6, freigegeben:6, verkauft:2, zurueckgegeben:0, warenwert:90, umsatz:30, abgerechnetAm:null }
 ];
 
-let articles = [
-  { id: 1, nummer: '101', bezeichnung: 'Winterjacke', kategorie: 'Jacken',     marke: 'Nike',   preis: 25.00, beschreibung: 'Blaue Winterjacke Gr. L', groesse: 'L',     farbe: 'Blau',       alternativPreis: null, verkaeuferID: 1, status: 'Im Verkauf', erstelltAm: '2026-06-01T10:00:00', freigegebenAm: '2026-06-02T09:00:00', verkauftAm: null, zurueckgegebenAm: null, abgerechnetAm: null },
-  { id: 2, nummer: '102', bezeichnung: 'Hose',        kategorie: 'Hosen',      marke: 'Levis',  preis: 15.00, beschreibung: 'Jeans 32/32',             groesse: '32/32', farbe: 'Dunkelblau', alternativPreis: null, verkaeuferID: 1, status: 'Verkauft',   erstelltAm: '2026-06-01T10:05:00', freigegebenAm: '2026-06-02T09:05:00', verkauftAm: '2026-06-05T11:00:00', zurueckgegebenAm: null, abgerechnetAm: null },
-  { id: 3, nummer: '103', bezeichnung: 'Schuhe',      kategorie: 'Schuhe',     marke: 'Adidas', preis: 20.00, beschreibung: 'Sportschuhe Gr. 42',      groesse: '42',    farbe: 'Weiß',       alternativPreis: null, verkaeuferID: 1, status: 'Im Verkauf', erstelltAm: '2026-06-01T10:10:00', freigegebenAm: '2026-06-02T09:10:00', verkauftAm: null, zurueckgegebenAm: null, abgerechnetAm: null },
-  { id: 4, nummer: '201', bezeichnung: 'Shirt',       kategorie: 'Shirts',     marke: 'H&M',    preis: 8.00,  beschreibung: 'Basic T-Shirt',           groesse: 'M',     farbe: 'Weiß',       alternativPreis: null, verkaeuferID: 4, status: 'Im Verkauf', erstelltAm: '2026-06-03T11:00:00', freigegebenAm: '2026-06-03T12:00:00', verkauftAm: null, zurueckgegebenAm: null, abgerechnetAm: null },
-  { id: 5, nummer: '202', bezeichnung: 'Gürtel',      kategorie: 'Accessoires',marke: 'Zara',   preis: 12.00, beschreibung: 'Lederoptik',              groesse: 'One Size',farbe: 'Schwarz',   alternativPreis: null, verkaeuferID: 4, status: 'Verkauft',   erstelltAm: '2026-06-03T11:10:00', freigegebenAm: '2026-06-03T12:10:00', verkauftAm: '2026-06-06T15:00:00', zurueckgegebenAm: null, abgerechnetAm: null }
+let artikel = [
+  { id:101, bezeichnung:"Winterjacke", kategorie:"Jacken", marke:"Nike", preis:25.00, beschreibung:"Warm und komfortabel", groesse:"L", farbe:"Blau", altPreis:null, verkaeuferID:1, status:"Im Verkauf", erstelltAm:"2026-06-01T10:00:00", freigegebenAm:"2026-06-02T09:00:00", verkauftAm:null, zurueckgegebenAm:null, abgerechnetAm:null },
+  { id:102, bezeichnung:"Hose", kategorie:"Hosen", marke:"Levis", preis:15.00, beschreibung:"Jeans", groesse:"M", farbe:"Schwarz", altPreis:12.00, verkaeuferID:1, status:"Verkauft", erstelltAm:"2026-06-01T10:00:00", freigegebenAm:"2026-06-02T09:00:00", verkauftAm:"2026-06-05T11:00:00", zurueckgegebenAm:null, abgerechnetAm:null },
+  { id:103, bezeichnung:"Schuhe", kategorie:"Schuhe", marke:"Adidas", preis:20.00, beschreibung:"Sportschuhe", groesse:"42", farbe:"Weiß", altPreis:null, verkaeuferID:1, status:"Im Verkauf", erstelltAm:"2026-06-01T10:00:00", freigegebenAm:"2026-06-02T09:00:00", verkauftAm:null, zurueckgegebenAm:null, abgerechnetAm:null },
+  { id:104, bezeichnung:"T-Shirt", kategorie:"Shirts", marke:"H&M", preis:5.00, beschreibung:"Baumwolle", groesse:"S", farbe:"Weiß", altPreis:null, verkaeuferID:3, status:"Registriert", erstelltAm:"2026-06-03T08:00:00", freigegebenAm:null, verkauftAm:null, zurueckgegebenAm:null, abgerechnetAm:null },
+  { id:105, bezeichnung:"Schal", kategorie:"Accessoires", marke:"Zara", preis:8.00, beschreibung:"Winterschal", groesse:"One Size", farbe:"Rot", altPreis:null, verkaeuferID:4, status:"Im Verkauf", erstelltAm:"2026-06-04T09:00:00", freigegebenAm:"2026-06-04T10:00:00", verkauftAm:null, zurueckgegebenAm:null, abgerechnetAm:null }
 ];
 
-let brands = ['Nike', 'Adidas', 'Levis', 'H&M', 'Zara'];
-let categories = ['Jacken', 'Hosen', 'Schuhe', 'Shirts', 'Accessoires'];
-let sellerTypes = [
-  { id: 1, bezeichnung: 'Privat',     provision: 20, gebuehr: 0.50 },
-  { id: 2, bezeichnung: 'Gewerblich', provision: 30, gebuehr: 1.00 },
-  { id: 3, bezeichnung: 'Verein',     provision: 10, gebuehr: 0.25 }
+let marken = ["Nike","Adidas","Levis","H&M","Zara"];
+let kategorien = ["Jacken","Hosen","Schuhe","Shirts","Accessoires"];
+let verkaeuferTypes = [
+  { name:"Privat", provision:20, gebuehr:0.50 },
+  { name:"Gewerblich", provision:30, gebuehr:1.00 },
+  { name:"Verein", provision:10, gebuehr:0.25 }
 ];
 
-// ─── State ───
-let vkFilterActive = 'Alle';
-let currentStatusSellerId = null;
-let currentEditSellerId = null;
-let currentFreigebenSellerId = null;
-let wizardMode = 'new'; // 'new' | 'existing'
-let wizardSellerId = null;
-let sessionArticles = [];
-let cart = [];
-let currentVerkaufArtikel = null;
-let currentAbrSellerId = null;
-let currentArtikelStatusId = null;
-let currentArtikelEditId = null;
-let masterEditContext = null; // { type: 'Marke'|'Kategorie'|'SellerType', index, isNew }
-let currentZurueckSellerId = null;
+// ===== STATE =====
+let currentScreen = 'verkaeufer';
+let warenkorb = [];
+let wizardVerkaeufer = null;
+let wizardArtikel = [];
+let selectedVerkaeufer = null;
+let verkaeuferFilter = { status: 'Alle', search: '' };
+let artikelFilter = { marke: '', kategorie: '', vStatus: '', aStatus: '', search: '' };
+let editingVkId = null;
+let editingArtikelId = null;
+let editingMarkeIdx = null;
+let editingKategorieIdx = null;
+let editingVkTypeIdx = null;
+let freigebenVkId = null;
+let freigebenSelected = new Set();
+let freigebenMode = 'manuell';
+let abrVkId = null;
+let nextId = 200;
 
-// ═══════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════
-function fmt(num) {
-  return num.toFixed(2).replace('.', ',') + ' €';
+// ===== HELPERS =====
+function fmt(num) { return Number(num || 0).toFixed(2).replace('.', ',') + ' €'; }
+function fmtDate(ts) { if (!ts) return 'Nicht gesetzt'; return new Date(ts).toLocaleString('de-DE'); }
+function tsNow() { return new Date().toISOString(); }
+function getVk(id) { return verkaeufer.find(v => v.id === id); }
+function getArt(id) { return artikel.find(a => a.id === id); }
+function vkName(vk) { return vk ? vk.vorname + ' ' + vk.nachname : '—'; }
+function getTypeInfo(name) { return verkaeuferTypes.find(t => t.name === name) || { provision: 20, gebuehr: 0.50 }; }
+
+function showToast(msg, dur) {
+  dur = dur || 2500;
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, dur);
 }
 
-function fmtTs(ts) {
-  if (!ts) return '—';
-  const d = new Date(ts);
-  return d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
+function statusChipClass(status, ctx) {
+  if (ctx === 'vk') {
+    if (status === 'Offen') return 'chip-gray';
+    if (status === 'Im Verkauf') return 'chip-blue';
+    if (status === 'Abgerechnet') return 'chip-green';
+  } else {
+    if (status === 'Registriert') return 'chip-gray';
+    if (status === 'Im Verkauf') return 'chip-blue';
+    if (status === 'Verkauft') return 'chip-green';
+    if (status === 'Zurückgegeben') return 'chip-orange';
+  }
+  return 'chip-gray';
 }
 
-function statusClass(status) {
-  const map = {
-    'Offen': 'status-Offen',
-    'Im Verkauf': 'status-Im-Verkauf',
-    'Abgerechnet': 'status-Abgerechnet',
-    'Registriert': 'status-Registriert',
-    'Verkauft': 'status-Verkauft',
-    'Zurückgegeben': 'status-Zurueckgegeben'
-  };
-  return map[status] || 'status-Offen';
+function chipHtml(status, ctx, extra) {
+  extra = extra || '';
+  return '<span class="chip ' + statusChipClass(status, ctx) + ' chip-clickable" ' + extra + '>' + status + '</span>';
 }
 
-function sellerName(seller) {
-  return seller.vorname + ' ' + seller.nachname;
-}
-
-function getSellerById(id) {
-  return sellers.find(s => s.id === id);
-}
-
-function getArticlesBySellerID(id) {
-  return articles.filter(a => a.verkaeuferID === id);
-}
-
-function overlayClose(event, id) {
-  if (event.target === event.currentTarget) closeModal(id);
-}
-
-// ═══════════════════════════════════════════════════════
-// SCREEN NAVIGATION
-// ═══════════════════════════════════════════════════════
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-  const screen = document.getElementById('screen-' + name);
-  if (screen) screen.classList.add('active');
-
-  const navItems = document.querySelectorAll('.nav-item');
-  navItems.forEach(item => {
-    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + name + "'")) {
-      item.classList.add('active');
-    }
+// ===== NAVIGATION =====
+document.querySelectorAll('#sidebarNav a').forEach(function(a) {
+  a.addEventListener('click', function() {
+    navigateTo(a.dataset.screen);
   });
+});
 
-  if (name === 'verkaeufer')        renderSellerCards();
-  if (name === 'artikelannahme')    { document.getElementById('annahme-search').value = ''; renderAnnahmeList(); }
-  if (name === 'verkauf')           initVerkauf();
-  if (name === 'abrechnung')        { document.getElementById('abr-search').value = ''; renderAbrList(); closeAbrDetail(); }
-  if (name === 'artikel')           { initArtikelFilters(); renderArtikelTable(); }
-  if (name === 'marken')            renderMarken();
-  if (name === 'kategorien')        renderKategorien();
-  if (name === 'verkaeufer-types')  renderTypes();
+function navigateTo(s) {
+  currentScreen = s;
+  document.querySelectorAll('.screen').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('screen-' + s).classList.add('active');
+  document.querySelectorAll('#sidebarNav a').forEach(function(a) {
+    a.classList.toggle('active', a.dataset.screen === s);
+  });
+  var titles = {
+    verkaeufer: 'Verkäufer', artikelannahme: 'Artikelannahme', verkauf: 'Verkauf',
+    abrechnung: 'Abrechnung', artikel: 'Artikel', marken: 'Marken',
+    kategorien: 'Kategorien', verkaeuferTypes: 'Verkäufer-Types'
+  };
+  document.getElementById('topbarTitle').textContent = titles[s] || s;
+  if (s === 'artikelannahme') resetAnnahme();
+  if (s === 'abrechnung') resetAbrechnung();
+  if (s === 'verkaeufer') renderVerkaeufer();
+  if (s === 'artikel') renderArtikelTable();
+  if (s === 'marken') renderMarken();
+  if (s === 'kategorien') renderKategorien();
+  if (s === 'verkaeuferTypes') renderVkTypes();
 }
 
-// ═══════════════════════════════════════════════════════
-// MODAL OPEN / CLOSE
-// ═══════════════════════════════════════════════════════
-function openModal(id) {
-  document.getElementById(id).style.display = 'flex';
-}
+// ===== MODAL SYSTEM =====
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function closeModal(id) {
-  document.getElementById(id).style.display = 'none';
-}
+document.querySelectorAll('[data-close]').forEach(function(btn) {
+  btn.addEventListener('click', function() { closeModal(btn.dataset.close); });
+});
+document.querySelectorAll('.modal-overlay').forEach(function(ov) {
+  ov.addEventListener('click', function(e) { if (e.target === ov) closeModal(ov.id); });
+});
 
-// ═══════════════════════════════════════════════════════
-// SCREEN: VERKÄUFER
-// ═══════════════════════════════════════════════════════
-function setVkFilter(el, filter) {
-  vkFilterActive = filter;
-  document.querySelectorAll('#vk-filter-chips .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderSellerCards();
-}
-
-function renderSellerCards() {
-  const searchVal = (document.getElementById('vk-search-input').value || '').toLowerCase();
-  const container = document.getElementById('seller-cards');
-  const filtered = sellers.filter(s => {
-    const matchStatus = vkFilterActive === 'Alle' || s.status === vkFilterActive;
-    const matchSearch = !searchVal || sellerName(s).toLowerCase().includes(searchVal) ||
-                        (s.plz + ' ' + s.ort).toLowerCase().includes(searchVal);
+// ===== SCREEN: VERKÄUFER =====
+function renderVerkaeufer() {
+  var grid = document.getElementById('verkaeuferGrid');
+  var list = verkaeufer.filter(function(v) {
+    var matchStatus = verkaeuferFilter.status === 'Alle' || v.status === verkaeuferFilter.status;
+    var q = verkaeuferFilter.search.toLowerCase();
+    var matchSearch = !q || (v.vorname + ' ' + v.nachname + ' ' + v.ort).toLowerCase().includes(q);
     return matchStatus && matchSearch;
   });
-
-  if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty-state">Keine Verkäufer gefunden.</div>';
+  if (!list.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9E9E9E;padding:40px">Keine Verkäufer gefunden.</div>';
     return;
   }
-
-  container.innerHTML = filtered.map(s => `
-    <div class="card">
-      <div class="card-header">
-        <div class="card-name">${s.vorname} ${s.nachname}</div>
-        <div class="card-actions">
-          <button class="btn-icon" title="Bearbeiten" onclick="openSellerEdit(${s.id})">✏️</button>
-          <button class="btn-icon" title="Freigeben" onclick="openFreigeben(${s.id})">📷</button>
-        </div>
-      </div>
-      <div class="card-sub">${s.plz} ${s.ort}</div>
-      <div>
-        <span class="status-chip clickable ${statusClass(s.status)}"
-              onclick="openStatusModal(${s.id})">${s.status}</span>
-      </div>
-      <hr class="card-divider">
-      <div class="card-stats">
-        <div><span class="card-stat-label">Artikel gesamt</span><br>${s.artikelGesamt}</div>
-        <div><span class="card-stat-label">Freigegeben</span><br>${s.freigegeben}</div>
-        <div><span class="card-stat-label">Verkauft</span><br>${s.verkauft}</div>
-        <div><span class="card-stat-label">Rückgegeben</span><br>${s.zurueckgegeben}</div>
-        <div><span class="card-stat-label">Warenwert</span><br>${fmt(s.warenwert)}</div>
-        <div><span class="card-stat-label">Umsatz</span><br>${fmt(s.umsatz)}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ─── Status Modal ───
-function openStatusModal(sellerId) {
-  currentStatusSellerId = sellerId;
-  const s = getSellerById(sellerId);
-  document.getElementById('status-modal-content').innerHTML = `
-    <div class="status-row">
-      <div class="status-row-label">Name</div>
-      <div class="status-row-value">${sellerName(s)}</div>
-    </div>
-    <div class="status-row">
-      <div class="status-row-label">Status</div>
-      <div class="status-row-value">
-        <span class="status-chip ${statusClass(s.status)}">${s.status}</span>
-      </div>
-    </div>
-    <div class="status-row">
-      <div class="status-row-label">Typ</div>
-      <div class="status-row-value">${s.type}</div>
-    </div>
-    ${s.abgerechnetAm ? `<div class="status-row">
-      <div class="status-row-label">Abgerechnet am</div>
-      <div class="status-row-value">${fmtTs(s.abgerechnetAm)}</div>
-    </div>` : ''}
-  `;
-  openModal('status-modal');
-}
-
-function deleteSeller() {
-  if (!confirm('Verkäufer wirklich löschen?')) return;
-  sellers = sellers.filter(s => s.id !== currentStatusSellerId);
-  closeModal('status-modal');
-  renderSellerCards();
-}
-
-// ─── Seller Edit ───
-function openSellerEdit(sellerId) {
-  currentEditSellerId = sellerId;
-  const s = getSellerById(sellerId);
-  const typeOptions = sellerTypes.map(t =>
-    `<option value="${t.bezeichnung}" ${t.bezeichnung === s.type ? 'selected' : ''}>${t.bezeichnung}</option>`
-  ).join('');
-
-  document.getElementById('seller-edit-form').innerHTML = `
-    <div class="form-row">
-      <div class="form-field"><label>Vorname</label><input type="text" id="se-vorname" value="${s.vorname}" /></div>
-      <div class="form-field"><label>Nachname</label><input type="text" id="se-nachname" value="${s.nachname}" /></div>
-    </div>
-    <div class="form-row">
-      <div class="form-field"><label>PLZ</label><input type="text" id="se-plz" value="${s.plz}" /></div>
-      <div class="form-field"><label>Ort</label><input type="text" id="se-ort" value="${s.ort}" /></div>
-    </div>
-    <div class="form-row">
-      <div class="form-field"><label>Telefon</label><input type="text" id="se-telefon" value="${s.telefon}" /></div>
-      <div class="form-field"><label>E-Mail</label><input type="email" id="se-email" value="${s.email}" /></div>
-    </div>
-    <div class="form-field">
-      <label>Verkäufer-Type</label>
-      <select id="se-type">${typeOptions}</select>
-    </div>
-  `;
-  openModal('seller-edit-modal');
-}
-
-function saveSellerEdit() {
-  const s = getSellerById(currentEditSellerId);
-  s.vorname  = document.getElementById('se-vorname').value.trim();
-  s.nachname = document.getElementById('se-nachname').value.trim();
-  s.plz      = document.getElementById('se-plz').value.trim();
-  s.ort      = document.getElementById('se-ort').value.trim();
-  s.telefon  = document.getElementById('se-telefon').value.trim();
-  s.email    = document.getElementById('se-email').value.trim();
-  s.type     = document.getElementById('se-type').value;
-  closeModal('seller-edit-modal');
-  renderSellerCards();
-}
-
-// ─── Freigeben Modal ───
-function openFreigeben(sellerId) {
-  currentFreigebenSellerId = sellerId;
-  const s = getSellerById(sellerId);
-  document.getElementById('freigeben-title').textContent = 'Artikel freigeben — ' + sellerName(s);
-  document.getElementById('freigeben-input').value = '';
-  document.getElementById('freigeben-msg').textContent = '';
-  document.getElementById('cam-freigeben').style.display = 'none';
-  renderFreigebenList();
-  openModal('freigeben-modal');
-}
-
-function renderFreigebenList() {
-  const arts = getArticlesBySellerID(currentFreigebenSellerId);
-  const container = document.getElementById('freigeben-list');
-  if (!arts.length) {
-    container.innerHTML = '<div class="text-muted">Keine Artikel vorhanden.</div>';
-    return;
-  }
-  container.innerHTML = arts.map(a => `
-    <div class="freigeben-item">
-      <span><b>${a.nummer}</b> — ${a.bezeichnung}</span>
-      <span class="status-chip ${statusClass(a.status)}">${a.status}</span>
-    </div>
-  `).join('');
-}
-
-function doFreigeben() {
-  const nr = document.getElementById('freigeben-input').value.trim();
-  const msgEl = document.getElementById('freigeben-msg');
-  if (!nr) { msgEl.textContent = 'Bitte Artikelnummer eingeben.'; msgEl.style.color = '#D32F2F'; return; }
-
-  const art = articles.find(a => a.nummer === nr && a.verkaeuferID === currentFreigebenSellerId);
-  if (!art) {
-    msgEl.textContent = 'Artikel "' + nr + '" nicht gefunden oder gehört nicht zu diesem Verkäufer.';
-    msgEl.style.color = '#D32F2F';
-    return;
-  }
-  if (art.freigegebenAm) {
-    msgEl.textContent = 'Artikel bereits freigegeben am ' + fmtTs(art.freigegebenAm);
-    msgEl.style.color = '#FF9800';
-    return;
-  }
-  art.freigegebenAm = new Date().toISOString();
-  art.status = 'Im Verkauf';
-  const seller = getSellerById(currentFreigebenSellerId);
-  seller.freigegeben = (seller.freigegeben || 0) + 1;
-  msgEl.textContent = '✓ Artikel ' + nr + ' freigegeben.';
-  msgEl.style.color = '#388E3C';
-  document.getElementById('freigeben-input').value = '';
-  renderFreigebenList();
-}
-
-// ─── Wizard ───
-function openWizardNew() {
-  wizardMode = 'new';
-  wizardSellerId = null;
-  sessionArticles = [];
-  resetWizardStep1();
-  showWizardStep(1);
-  openModal('wizard-modal');
-}
-
-function openWizardExisting(sellerId) {
-  wizardMode = 'existing';
-  wizardSellerId = sellerId;
-  sessionArticles = [];
-  showWizardStep(2);
-  updateWizardStep2Header();
-  openModal('wizard-modal');
-}
-
-function resetWizardStep1() {
-  ['wiz-vorname','wiz-nachname','wiz-plz','wiz-ort','wiz-telefon','wiz-email'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  const typeSelect = document.getElementById('wiz-type');
-  typeSelect.innerHTML = sellerTypes.map(t => `<option value="${t.bezeichnung}">${t.bezeichnung}</option>`).join('');
-}
-
-function showWizardStep(step) {
-  document.getElementById('wizard-step-1').style.display = step === 1 ? 'block' : 'none';
-  document.getElementById('wizard-step-2').style.display = step === 2 ? 'block' : 'none';
-  document.getElementById('wiz-dot-1').className = 'step-dot' + (step === 1 ? ' active' : ' done');
-  document.getElementById('wiz-dot-2').className = 'step-dot' + (step === 2 ? ' active' : '');
-  if (step === 2) {
-    populateDatalistsWizard();
-    document.getElementById('wiz-art-msg').textContent = '';
-    renderSessionList();
-  }
-}
-
-function populateDatalistsWizard() {
-  document.getElementById('kat-list').innerHTML = categories.map(c => `<option value="${c}">`).join('');
-  document.getElementById('marke-list').innerHTML = brands.map(b => `<option value="${b}">`).join('');
-}
-
-function updateWizardStep2Header() {
-  const seller = wizardSellerId ? getSellerById(wizardSellerId) : null;
-  const name = seller ? sellerName(seller) : 'Neuer Verkäufer';
-  document.getElementById('wiz-step2-title').textContent = 'Artikelannahme — ' + name;
-  document.getElementById('wiz-seller-name-right').textContent = name;
-}
-
-function wizardNext() {
-  const vorname = document.getElementById('wiz-vorname').value.trim();
-  const nachname = document.getElementById('wiz-nachname').value.trim();
-  if (!vorname || !nachname) {
-    alert('Vor- und Nachname sind Pflichtfelder.');
-    return;
-  }
-  // Create temporary seller record
-  const newId = Math.max(...sellers.map(s => s.id), 0) + 1;
-  const newSeller = {
-    id: newId,
-    vorname,
-    nachname,
-    plz:      document.getElementById('wiz-plz').value.trim(),
-    ort:      document.getElementById('wiz-ort').value.trim(),
-    telefon:  document.getElementById('wiz-telefon').value.trim(),
-    email:    document.getElementById('wiz-email').value.trim(),
-    type:     document.getElementById('wiz-type').value,
-    status:   'Offen',
-    artikelGesamt: 0, freigegeben: 0, verkauft: 0, zurueckgegeben: 0,
-    warenwert: 0, umsatz: 0, abgerechnetAm: null
-  };
-  sellers.push(newSeller);
-  wizardSellerId = newId;
-  showWizardStep(2);
-  updateWizardStep2Header();
-}
-
-function wizardBack() {
-  if (wizardMode === 'new') {
-    // Remove the temp seller we added
-    sellers = sellers.filter(s => s.id !== wizardSellerId);
-    wizardSellerId = null;
-    showWizardStep(1);
-  } else {
-    closeModal('wizard-modal');
-  }
-}
-
-function addSessionArticle() {
-  const nummer   = document.getElementById('wiz-art-nummer').value.trim();
-  const bez      = document.getElementById('wiz-art-bez').value.trim();
-  const kat      = document.getElementById('wiz-art-kat').value.trim();
-  const marke    = document.getElementById('wiz-art-marke').value.trim();
-  const preisStr = document.getElementById('wiz-art-preis').value;
-  const msgEl    = document.getElementById('wiz-art-msg');
-
-  if (!nummer || !bez || !preisStr) {
-    msgEl.textContent = 'Artikelnummer, Bezeichnung und Preis sind Pflichtfelder.';
-    return;
-  }
-  if (articles.find(a => a.nummer === nummer)) {
-    msgEl.textContent = 'Artikelnummer "' + nummer + '" bereits vergeben.';
-    return;
-  }
-
-  const preis = parseFloat(preisStr);
-  const altpreisStr = document.getElementById('wiz-art-altpreis').value;
-  const altPreis = altpreisStr ? parseFloat(altpreisStr) : null;
-
-  sessionArticles.push({
-    nummer, bezeichnung: bez, kategorie: kat, marke,
-    preis, alternativPreis: altPreis,
-    groesse:      document.getElementById('wiz-art-groesse').value.trim(),
-    farbe:        document.getElementById('wiz-art-farbe').value.trim(),
-    beschreibung: document.getElementById('wiz-art-desc').value.trim()
-  });
-
-  // Add new kat/marke to globals if not present
-  if (kat && !categories.includes(kat)) categories.push(kat);
-  if (marke && !brands.includes(marke)) brands.push(marke);
-
-  msgEl.textContent = '';
-  // Clear article fields
-  ['wiz-art-nummer','wiz-art-bez','wiz-art-kat','wiz-art-marke','wiz-art-preis','wiz-art-altpreis','wiz-art-groesse','wiz-art-farbe','wiz-art-desc']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  renderSessionList();
-  document.getElementById('wiz-art-nummer').focus();
-}
-
-function removeSessionArticle(idx) {
-  sessionArticles.splice(idx, 1);
-  renderSessionList();
-}
-
-function renderSessionList() {
-  const seller = wizardSellerId ? getSellerById(wizardSellerId) : null;
-  const st = seller ? sellerTypes.find(t => t.bezeichnung === seller.type) : null;
-  const gebuehr = st ? st.gebuehr : 0.5;
-
-  const container = document.getElementById('session-articles-list');
-  if (!sessionArticles.length) {
-    container.innerHTML = '<div class="text-muted" style="padding:8px 0; font-size:12px;">Noch keine Artikel hinzugefügt.</div>';
-  } else {
-    container.innerHTML = sessionArticles.map((a, i) => `
-      <div class="session-article-row">
-        <span><b>${a.nummer}</b> ${a.bezeichnung}</span>
-        <span style="white-space:nowrap; margin-left:8px;">${fmt(a.preis)}</span>
-        <button class="btn-icon" style="font-size:13px;" onclick="removeSessionArticle(${i})">🗑️</button>
-      </div>
-    `).join('');
-  }
-
-  const totalFee = sessionArticles.length * gebuehr;
-  document.getElementById('session-fee-line').textContent =
-    sessionArticles.length + '× Abgabegebühr (' + fmt(gebuehr) + ') = ' + fmt(totalFee);
-}
-
-function openZahlungModal() {
-  if (!sessionArticles.length) {
-    alert('Bitte zuerst mindestens einen Artikel hinzufügen.');
-    return;
-  }
-  const seller = getSellerById(wizardSellerId);
-  const st = sellerTypes.find(t => t.bezeichnung === seller.type);
-  const gebuehr = st ? st.gebuehr : 0.5;
-  const total = sessionArticles.length * gebuehr;
-
-  document.getElementById('zahlung-total').textContent = fmt(total);
-  document.getElementById('zahlung-erhalten').value = '';
-  document.getElementById('zahlung-change').textContent = '';
-  openModal('zahlung-modal');
-}
-
-function calcZahlungChange() {
-  const totalStr = document.getElementById('zahlung-total').textContent.replace(',', '.').replace(' €','').replace('€','');
-  const total = parseFloat(totalStr) || 0;
-  const erhalten = parseFloat(document.getElementById('zahlung-erhalten').value) || 0;
-  const change = erhalten - total;
-  const el = document.getElementById('zahlung-change');
-  if (erhalten > 0) {
-    el.textContent = change >= 0 ? 'Rückgeld: ' + fmt(change) : 'Zu wenig: ' + fmt(Math.abs(change));
-    el.style.color = change >= 0 ? '#388E3C' : '#D32F2F';
-  } else {
-    el.textContent = '';
-  }
-}
-
-function buchenAnnahme() {
-  const seller = getSellerById(wizardSellerId);
-  const now = new Date().toISOString();
-  sessionArticles.forEach(sa => {
-    const newId = Math.max(...articles.map(a => a.id), 0) + 1;
-    articles.push({
-      id: newId,
-      nummer: sa.nummer,
-      bezeichnung: sa.bezeichnung,
-      kategorie: sa.kategorie,
-      marke: sa.marke,
-      preis: sa.preis,
-      beschreibung: sa.beschreibung,
-      groesse: sa.groesse,
-      farbe: sa.farbe,
-      alternativPreis: sa.alternativPreis,
-      verkaeuferID: wizardSellerId,
-      status: 'Im Verkauf',
-      erstelltAm: now,
-      freigegebenAm: now,
-      verkauftAm: null,
-      zurueckgegebenAm: null,
-      abgerechnetAm: null
-    });
-  });
-
-  const wert = sessionArticles.reduce((sum, a) => sum + a.preis, 0);
-  seller.artikelGesamt = (seller.artikelGesamt || 0) + sessionArticles.length;
-  seller.freigegeben   = (seller.freigegeben || 0) + sessionArticles.length;
-  seller.warenwert     = (seller.warenwert || 0) + wert;
-  if (seller.status === 'Offen') seller.status = 'Im Verkauf';
-
-  sessionArticles = [];
-  closeModal('zahlung-modal');
-  closeModal('wizard-modal');
-  renderSellerCards();
-  alert('✓ ' + sessionArticles.length + ' Artikel wurden gebucht.');
-}
-
-// ═══════════════════════════════════════════════════════
-// SCREEN: ARTIKELANNAHME
-// ═══════════════════════════════════════════════════════
-function renderAnnahmeList() {
-  const q = (document.getElementById('annahme-search').value || '').toLowerCase();
-  const container = document.getElementById('annahme-list');
-  const newBtn = document.getElementById('annahme-new-btn');
-
-  if (!q) {
-    container.innerHTML = '<div class="text-muted">Bitte Verkäufer-Name eingeben…</div>';
-    newBtn.style.display = 'none';
-    return;
-  }
-
-  const found = sellers.filter(s =>
-    sellerName(s).toLowerCase().includes(q) ||
-    (s.plz + ' ' + s.ort).toLowerCase().includes(q)
-  );
-
-  if (!found.length) {
-    container.innerHTML = '<div class="text-muted">Keine Verkäufer gefunden.</div>';
-    newBtn.style.display = 'block';
-    return;
-  }
-  newBtn.style.display = 'none';
-
-  container.innerHTML = found.map(s => `
-    <div class="seller-list-item" onclick="openWizardExisting(${s.id})">
-      <div>
-        <div style="font-weight:600;">${sellerName(s)}</div>
-        <div class="text-muted">${s.plz} ${s.ort}</div>
-      </div>
-      <span class="status-chip ${statusClass(s.status)}">${s.status}</span>
-    </div>
-  `).join('');
-}
-
-// ═══════════════════════════════════════════════════════
-// SCREEN: VERKAUF
-// ═══════════════════════════════════════════════════════
-function initVerkauf() {
-  cart = [];
-  currentVerkaufArtikel = null;
-  renderCart();
-  const infoBox = document.getElementById('artikel-info-box');
-  infoBox.className = 'artikel-info-box';
-  infoBox.textContent = '';
-  document.getElementById('artikel-price-btn-wrap').style.display = 'none';
-  document.getElementById('verkauf-nummer-input').value = '';
-  setTimeout(() => {
-    const el = document.getElementById('verkauf-nummer-input');
-    if (el) el.focus();
-  }, 100);
-}
-
-function verkaufInputKey(event) {
-  if (event.key === 'Enter') verkaufLookup();
-}
-
-function verkaufLookup() {
-  const nr = document.getElementById('verkauf-nummer-input').value.trim();
-  const infoBox = document.getElementById('artikel-info-box');
-  const priceBtnWrap = document.getElementById('artikel-price-btn-wrap');
-  const priceBtn = document.getElementById('artikel-price-btn');
-
-  if (!nr) return;
-
-  const art = articles.find(a => a.nummer === nr && a.status === 'Im Verkauf');
-  if (art) {
-    currentVerkaufArtikel = art;
-    infoBox.className = 'artikel-info-box found';
-    infoBox.textContent = 'Artikel gefunden: ' + art.bezeichnung + ' — ' + fmt(art.preis);
-    priceBtn.textContent = fmt(art.preis) + ' — Im Verkauf';
-    priceBtnWrap.style.display = 'block';
-  } else {
-    const artAny = articles.find(a => a.nummer === nr);
-    currentVerkaufArtikel = null;
-    infoBox.className = 'artikel-info-box not-found';
-    if (artAny) {
-      infoBox.textContent = 'Artikel "' + nr + '" hat Status: ' + artAny.status + ' — nicht verkäuflich.';
-    } else {
-      infoBox.textContent = 'Artikel "' + nr + '" nicht gefunden.';
-    }
-    priceBtnWrap.style.display = 'none';
-  }
-}
-
-function addToCart() {
-  if (!currentVerkaufArtikel) return;
-  if (cart.find(c => c.nummer === currentVerkaufArtikel.nummer)) {
-    alert('Artikel bereits im Warenkorb.');
-    return;
-  }
-  cart.push({ ...currentVerkaufArtikel });
-  currentVerkaufArtikel = null;
-  document.getElementById('artikel-info-box').className = 'artikel-info-box';
-  document.getElementById('artikel-price-btn-wrap').style.display = 'none';
-  document.getElementById('verkauf-nummer-input').value = '';
-  document.getElementById('verkauf-nummer-input').focus();
-  renderCart();
-}
-
-function removeFromCart(nummer) {
-  cart = cart.filter(c => c.nummer !== nummer);
-  renderCart();
-}
-
-function renderCart() {
-  const section = document.getElementById('cart-section');
-  const actions = document.getElementById('cart-actions');
-  if (!cart.length) {
-    section.style.display = 'none';
-    actions.style.display = 'none';
-    return;
-  }
-  section.style.display = 'block';
-  actions.style.display = 'flex';
-
-  document.getElementById('cart-tbody').innerHTML = cart.map(c => `
-    <tr>
-      <td>${c.nummer}</td>
-      <td>${c.bezeichnung}</td>
-      <td>${fmt(c.preis)}</td>
-      <td><button class="btn-icon" onclick="removeFromCart('${c.nummer}')">✕</button></td>
-    </tr>
-  `).join('');
-
-  const total = cart.reduce((s, c) => s + c.preis, 0);
-  document.getElementById('cart-total').textContent = fmt(total);
-}
-
-function openKasse() {
-  if (!cart.length) return;
-  const total = cart.reduce((s, c) => s + c.preis, 0);
-  document.getElementById('kasse-total').textContent = fmt(total);
-  document.getElementById('kasse-erhalten').value = '';
-  document.getElementById('kasse-change').textContent = '';
-  openModal('kasse-modal');
-}
-
-function calcKasseChange() {
-  const totalStr = document.getElementById('kasse-total').textContent.replace(',', '.').replace(' €','').replace('€','').trim();
-  const total = parseFloat(totalStr) || 0;
-  const erhalten = parseFloat(document.getElementById('kasse-erhalten').value) || 0;
-  const change = erhalten - total;
-  const el = document.getElementById('kasse-change');
-  if (erhalten > 0) {
-    el.textContent = change >= 0 ? 'Rückgeld: ' + fmt(change) : 'Zu wenig: ' + fmt(Math.abs(change));
-    el.style.color = change >= 0 ? '#388E3C' : '#D32F2F';
-  } else {
-    el.textContent = '';
-  }
-}
-
-function buchenVerkauf() {
-  const now = new Date().toISOString();
-  cart.forEach(c => {
-    const art = articles.find(a => a.nummer === c.nummer);
-    if (art) {
-      art.status = 'Verkauft';
-      art.verkauftAm = now;
-      const seller = getSellerById(art.verkaeuferID);
-      if (seller) {
-        seller.verkauft = (seller.verkauft || 0) + 1;
-        seller.umsatz   = (seller.umsatz || 0) + art.preis;
-      }
-    }
-  });
-  cart = [];
-  closeModal('kasse-modal');
-  renderCart();
-  document.getElementById('artikel-info-box').className = 'artikel-info-box';
-  alert('✓ Verkauf abgeschlossen!');
-}
-
-// ═══════════════════════════════════════════════════════
-// SCREEN: ABRECHNUNG
-// ═══════════════════════════════════════════════════════
-function renderAbrList() {
-  const q = (document.getElementById('abr-search').value || '').toLowerCase();
-  const container = document.getElementById('abr-list');
-
-  if (!q) {
-    container.innerHTML = '<div class="text-muted">Bitte Verkäufer-Name eingeben…</div>';
-    return;
-  }
-
-  const found = sellers.filter(s =>
-    sellerName(s).toLowerCase().includes(q) ||
-    (s.plz + ' ' + s.ort).toLowerCase().includes(q)
-  );
-
-  if (!found.length) {
-    container.innerHTML = '<div class="text-muted">Keine Verkäufer gefunden.</div>';
-    return;
-  }
-
-  container.innerHTML = found.map(s => `
-    <div class="seller-list-item" onclick="openAbrDetail(${s.id})">
-      <div>
-        <div style="font-weight:600;">${sellerName(s)}</div>
-        <div class="text-muted">${s.plz} ${s.ort}</div>
-      </div>
-      <span class="status-chip ${statusClass(s.status)}">${s.status}</span>
-    </div>
-  `).join('');
-}
-
-function openAbrDetail(sellerId) {
-  currentAbrSellerId = sellerId;
-  const s = getSellerById(sellerId);
-  const arts = getArticlesBySellerID(sellerId);
-
-  document.getElementById('abr-search-view').style.display = 'none';
-  document.getElementById('abr-detail-view').style.display = 'block';
-
-  document.getElementById('abr-detail-name').textContent = sellerName(s);
-  document.getElementById('abr-detail-sub').textContent = s.plz + ' ' + s.ort + ' · ' + s.type;
-
-  const offene = arts.filter(a => a.status === 'Im Verkauf').length;
-  const verkaufte = arts.filter(a => a.status === 'Verkauft').length;
-  const umsatz = arts.filter(a => a.status === 'Verkauft').reduce((sum, a) => sum + a.preis, 0);
-
-  document.getElementById('kpi-offen').textContent = offene;
-  document.getElementById('kpi-verkauft').textContent = verkaufte;
-  document.getElementById('kpi-umsatz').textContent = fmt(umsatz);
-
-  document.getElementById('abr-artikel-tbody').innerHTML = arts.length
-    ? arts.map(a => `
-      <tr>
-        <td>${a.nummer}</td>
-        <td>${a.bezeichnung}</td>
-        <td>${a.kategorie}</td>
-        <td>${fmt(a.preis)}</td>
-        <td><span class="status-chip ${statusClass(a.status)}">${a.status}</span></td>
-      </tr>
-    `).join('')
-    : '<tr><td colspan="5" class="text-muted" style="padding:16px; text-align:center;">Keine Artikel vorhanden.</td></tr>';
-}
-
-function closeAbrDetail() {
-  document.getElementById('abr-search-view').style.display = 'block';
-  document.getElementById('abr-detail-view').style.display = 'none';
-  currentAbrSellerId = null;
-}
-
-function openZurueckModal() {
-  if (!currentAbrSellerId) return;
-  currentZurueckSellerId = currentAbrSellerId;
-  document.getElementById('zurueck-input').value = '';
-  document.getElementById('zurueck-msg').textContent = '';
-  document.getElementById('cam-zurueck').style.display = 'none';
-  renderZurueckList();
-  openModal('zurueck-modal');
-}
-
-function renderZurueckList() {
-  const arts = getArticlesBySellerID(currentZurueckSellerId).filter(a => a.status === 'Verkauft');
-  const container = document.getElementById('zurueck-list');
-  if (!arts.length) {
-    container.innerHTML = '<div class="text-muted">Keine verkauften Artikel vorhanden.</div>';
-    return;
-  }
-  container.innerHTML = arts.map(a => `
-    <div class="freigeben-item">
-      <span><b>${a.nummer}</b> — ${a.bezeichnung} (${fmt(a.preis)})</span>
-      <button class="btn btn-accent btn-sm" onclick="doZurueckById(${a.id})">Zurück</button>
-    </div>
-  `).join('');
-}
-
-function doZurueck() {
-  const nr = document.getElementById('zurueck-input').value.trim();
-  const msgEl = document.getElementById('zurueck-msg');
-  if (!nr) { msgEl.textContent = 'Bitte Artikelnummer eingeben.'; msgEl.style.color = '#D32F2F'; return; }
-  const art = articles.find(a => a.nummer === nr && a.verkaeuferID === currentZurueckSellerId && a.status === 'Verkauft');
-  if (!art) {
-    msgEl.textContent = 'Artikel "' + nr + '" nicht gefunden oder nicht im Status "Verkauft".';
-    msgEl.style.color = '#D32F2F';
-    return;
-  }
-  doZurueckById(art.id);
-}
-
-function doZurueckById(artId) {
-  const art = articles.find(a => a.id === artId);
-  if (!art) return;
-  const msgEl = document.getElementById('zurueck-msg');
-  art.status = 'Zurückgegeben';
-  art.zurueckgegebenAm = new Date().toISOString();
-  const seller = getSellerById(art.verkaeuferID);
-  if (seller) {
-    seller.zurueckgegeben = (seller.zurueckgegeben || 0) + 1;
-    seller.verkauft = Math.max(0, (seller.verkauft || 0) - 1);
-    seller.umsatz   = Math.max(0, (seller.umsatz || 0) - art.preis);
-  }
-  msgEl.textContent = '✓ Artikel ' + art.nummer + ' zurückgegeben.';
-  msgEl.style.color = '#388E3C';
-  document.getElementById('zurueck-input').value = '';
-  renderZurueckList();
-  // Refresh detail view KPIs
-  openAbrDetail(currentZurueckSellerId);
-}
-
-function openAbrModal() {
-  if (!currentAbrSellerId) return;
-  const s = getSellerById(currentAbrSellerId);
-  const arts = getArticlesBySellerID(currentAbrSellerId);
-  const st = sellerTypes.find(t => t.bezeichnung === s.type) || sellerTypes[0];
-  const verkaufte = arts.filter(a => a.status === 'Verkauft');
-  const umsatz = verkaufte.reduce((sum, a) => sum + a.preis, 0);
-  const provision = (umsatz * st.provision) / 100;
-  const auszahlung = umsatz - provision;
-
-  document.getElementById('abr-modal-content').innerHTML = `
-    <div class="abr-calc-row">
-      <span>Umsatz (Verkäufe)</span>
-      <span>${fmt(umsatz)}</span>
-    </div>
-    <div class="abr-calc-row">
-      <span>Provision (${st.provision}%)</span>
-      <span>− ${fmt(provision)}</span>
-    </div>
-    <div class="abr-calc-row total">
-      <span>Auszahlung</span>
-      <span>${fmt(auszahlung)}</span>
-    </div>
-    <p style="margin-top:12px; font-size:13px; color:#757575;">
-      Verkäufer: <b>${sellerName(s)}</b> · Type: ${s.type}
-    </p>
-  `;
-  openModal('abrechnen-modal');
-}
-
-function doAbrechnen() {
-  const s = getSellerById(currentAbrSellerId);
-  const now = new Date().toISOString();
-  s.status = 'Abgerechnet';
-  s.abgerechnetAm = now;
-  getArticlesBySellerID(currentAbrSellerId)
-    .filter(a => a.status === 'Verkauft')
-    .forEach(a => { a.status = 'Abgerechnet'; a.abgerechnetAm = now; });
-  closeModal('abrechnen-modal');
-  openAbrDetail(currentAbrSellerId);
-  alert('✓ Abrechnung gespeichert.');
-}
-
-// ═══════════════════════════════════════════════════════
-// SCREEN: ARTIKEL
-// ═══════════════════════════════════════════════════════
-function initArtikelFilters() {
-  const markeEl = document.getElementById('flt-marke');
-  const katEl   = document.getElementById('flt-kat');
-  markeEl.innerHTML = '<option value="">Alle Marken</option>' + brands.map(b => `<option>${b}</option>`).join('');
-  katEl.innerHTML   = '<option value="">Alle Kategorien</option>' + categories.map(c => `<option>${c}</option>`).join('');
-}
-
-function renderArtikelTable() {
-  const marke     = document.getElementById('flt-marke').value;
-  const kat       = document.getElementById('flt-kat').value;
-  const vkStatus  = document.getElementById('flt-vkstatus').value;
-  const artStatus = document.getElementById('flt-artstatus').value;
-  const text      = (document.getElementById('flt-art-text').value || '').toLowerCase();
-
-  const filtered = articles.filter(a => {
-    const seller = getSellerById(a.verkaeuferID);
-    const matchMarke     = !marke || a.marke === marke;
-    const matchKat       = !kat || a.kategorie === kat;
-    const matchVkStatus  = !vkStatus || (seller && seller.status === vkStatus);
-    const matchArtStatus = !artStatus || a.status === artStatus;
-    const matchText      = !text || a.bezeichnung.toLowerCase().includes(text) || a.nummer.includes(text);
-    return matchMarke && matchKat && matchVkStatus && matchArtStatus && matchText;
-  });
-
-  const tbody = document.getElementById('artikel-tbody');
-  if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="8" class="text-muted" style="padding:16px; text-align:center;">Keine Artikel gefunden.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(a => {
-    const seller = getSellerById(a.verkaeuferID);
-    return `
-      <tr>
-        <td>${a.nummer}</td>
-        <td>${a.bezeichnung}</td>
-        <td>${a.kategorie}</td>
-        <td>${a.marke}</td>
-        <td>${fmt(a.preis)}</td>
-        <td>${seller ? sellerName(seller) : '—'}</td>
-        <td>
-          <span class="status-chip clickable ${statusClass(a.status)}"
-                onclick="openArtikelStatusModal(${a.id})">${a.status}</span>
-        </td>
-        <td>
-          <button class="btn-icon" onclick="openArtikelEdit(${a.id})">✏️</button>
-        </td>
-      </tr>
-    `;
+  grid.innerHTML = list.map(function(v) {
+    return '<div class="card">' +
+      '<div class="card-header">' +
+        '<div style="flex:1">' +
+          '<div style="font-weight:700;font-size:16px">' + v.vorname + ' ' + v.nachname + '</div>' +
+          '<div style="font-size:12px;color:#757575">' + v.plz + ' ' + v.ort + '</div>' +
+        '</div>' +
+        '<button class="btn-icon" title="Bearbeiten" onclick="openVkEdit(' + v.id + ')">✏️</button>' +
+        '<button class="btn-icon" title="Artikel freigeben" onclick="openFreigeben(' + v.id + ')">📷</button>' +
+      '</div>' +
+      '<div class="card-body">' +
+        chipHtml(v.status, 'vk', 'onclick="openVkStatus(' + v.id + ')"') +
+        '<div class="stats-grid" style="margin-top:10px">' +
+          '<div class="stat-item">Artikel gesamt: <strong>' + v.artikelGesamt + '</strong></div>' +
+          '<div class="stat-item">Freigegeben: <strong>' + v.freigegeben + '</strong></div>' +
+          '<div class="stat-item">Verkauft: <strong>' + v.verkauft + '</strong></div>' +
+          '<div class="stat-item">Rückgegeben: <strong>' + v.zurueckgegeben + '</strong></div>' +
+          '<div class="stat-item">Warenwert: <strong>' + fmt(v.warenwert) + '</strong></div>' +
+          '<div class="stat-item">Umsatz: <strong>' + fmt(v.umsatz) + '</strong></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
-function openArtikelStatusModal(artId) {
-  currentArtikelStatusId = artId;
-  const a = articles.find(x => x.id === artId);
-  document.getElementById('art-status-title').textContent = 'Artikel-Status — ' + a.nummer + ' ' + a.bezeichnung;
+document.getElementById('vkFilterChips').addEventListener('click', function(e) {
+  if (!e.target.dataset.filter) return;
+  verkaeuferFilter.status = e.target.dataset.filter;
+  document.querySelectorAll('#vkFilterChips .filter-chip').forEach(function(c) {
+    c.classList.toggle('active', c.dataset.filter === verkaeuferFilter.status);
+  });
+  renderVerkaeufer();
+});
 
-  const hasSold = !!a.verkauftAm;
+document.getElementById('vkSearchInput').addEventListener('input', function(e) {
+  verkaeuferFilter.search = e.target.value;
+  renderVerkaeufer();
+});
 
-  document.getElementById('art-status-content').innerHTML = `
-    <div class="status-row">
-      <div class="status-row-label">Erstellt am</div>
-      <div class="status-row-value"><span class="ts-readonly">${fmtTs(a.erstelltAm)}</span></div>
-    </div>
-    <div class="status-row">
-      <div class="status-row-label">Freigegeben am</div>
-      <div class="status-row-value"><span class="ts-readonly" id="ts-frei">${fmtTs(a.freigegebenAm)}</span></div>
-      <div class="status-row-actions">
-        <button class="btn-icon btn-sm" onclick="clearTs(${artId},'freigegebenAm','ts-frei')" title="Löschen">🗑️</button>
-        <button class="btn btn-primary btn-sm" onclick="setTsNow(${artId},'freigegebenAm','ts-frei')">✓</button>
-      </div>
-    </div>
-    <div class="status-row">
-      <div class="status-row-label">Verkauft am</div>
-      <div class="status-row-value"><span class="ts-readonly" id="ts-vk">${fmtTs(a.verkauftAm)}</span></div>
-      <div class="status-row-actions">
-        <button class="btn-icon btn-sm" onclick="clearTs(${artId},'verkauftAm','ts-vk')" title="Löschen">🗑️</button>
-        <button class="btn btn-primary btn-sm" onclick="setTsNow(${artId},'verkauftAm','ts-vk')">✓</button>
-      </div>
-    </div>
-    <div class="status-row">
-      <div class="status-row-label">Zurückgegeben am</div>
-      <div class="status-row-value"><span class="ts-readonly" id="ts-zr">${fmtTs(a.zurueckgegebenAm)}</span></div>
-      <div class="status-row-actions">
-        ${!hasSold ? `<button class="btn-icon btn-sm" onclick="clearTs(${artId},'zurueckgegebenAm','ts-zr')" title="Löschen">🗑️</button>
-        <button class="btn btn-primary btn-sm" onclick="setTsNow(${artId},'zurueckgegebenAm','ts-zr')">✓</button>` : '<span class="text-muted" style="font-size:11px;">Gesperrt</span>'}
-      </div>
-    </div>
-    <div class="status-row">
-      <div class="status-row-label">Abgerechnet am</div>
-      <div class="status-row-value"><span class="ts-readonly">${fmtTs(a.abgerechnetAm)}</span></div>
-    </div>
-  `;
-  openModal('artikel-status-modal');
+document.getElementById('btnNeuVerkaeufer').addEventListener('click', function() {
+  populateW1Types();
+  ['w1Vorname','w1Nachname','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  openModal('modalWizard1');
+});
+
+// ===== VK STATUS MODAL =====
+function openVkStatus(id) {
+  var vk = getVk(id);
+  if (!vk) return;
+  document.getElementById('vkStatusChip').innerHTML = chipHtml(vk.status, 'vk');
+  document.getElementById('vkStatusAbrDatum').textContent = fmtDate(vk.abgerechnetAm);
+  document.getElementById('vkStatusDeleteWrap').style.display = vk.abgerechnetAm ? 'block' : 'none';
+  document.getElementById('btnVkStatusDelete').onclick = function() {
+    vk.abgerechnetAm = null;
+    closeModal('modalVkStatus');
+    renderVerkaeufer();
+    showToast('Datum gelöscht.');
+  };
+  openModal('modalVkStatus');
 }
 
-function clearTs(artId, field, spanId) {
-  const a = articles.find(x => x.id === artId);
+// ===== VK EDIT MODAL =====
+function openVkEdit(id) {
+  editingVkId = id;
+  var vk = getVk(id);
+  document.getElementById('modalVkFormTitle').textContent = 'Verkäufer bearbeiten';
+  document.getElementById('vkFormVorname').value = vk.vorname;
+  document.getElementById('vkFormNachname').value = vk.nachname;
+  document.getElementById('vkFormPlz').value = vk.plz;
+  document.getElementById('vkFormOrt').value = vk.ort;
+  document.getElementById('vkFormTelefon').value = vk.telefon;
+  document.getElementById('vkFormEmail').value = vk.email;
+  populateTypeSelect('vkFormType', vk.type);
+  openModal('modalVkForm');
+}
+
+function populateTypeSelect(selectId, selected) {
+  selected = selected || '';
+  var s = document.getElementById(selectId);
+  s.innerHTML = verkaeuferTypes.map(function(t) {
+    return '<option' + (t.name === selected ? ' selected' : '') + '>' + t.name + '</option>';
+  }).join('');
+}
+
+document.getElementById('btnVkFormSave').addEventListener('click', function() {
+  var vorname = document.getElementById('vkFormVorname').value.trim();
+  var nachname = document.getElementById('vkFormNachname').value.trim();
+  if (!vorname || !nachname) { showToast('Vorname und Nachname sind Pflichtfelder.'); return; }
+  if (editingVkId) {
+    var vk = getVk(editingVkId);
+    vk.vorname = vorname; vk.nachname = nachname;
+    vk.plz = document.getElementById('vkFormPlz').value;
+    vk.ort = document.getElementById('vkFormOrt').value;
+    vk.telefon = document.getElementById('vkFormTelefon').value;
+    vk.email = document.getElementById('vkFormEmail').value;
+    vk.type = document.getElementById('vkFormType').value;
+  } else {
+    var newId = nextId++;
+    verkaeufer.push({
+      id: newId, vorname: vorname, nachname: nachname,
+      plz: document.getElementById('vkFormPlz').value,
+      ort: document.getElementById('vkFormOrt').value,
+      telefon: document.getElementById('vkFormTelefon').value,
+      email: document.getElementById('vkFormEmail').value,
+      type: document.getElementById('vkFormType').value,
+      status: 'Offen', artikelGesamt: 0, freigegeben: 0, verkauft: 0,
+      zurueckgegeben: 0, warenwert: 0, umsatz: 0, abgerechnetAm: null
+    });
+  }
+  closeModal('modalVkForm');
+  renderVerkaeufer();
+  showToast('Gespeichert.');
+});
+
+// ===== ARTIKEL FREIGEBEN MODAL =====
+function openFreigeben(id) {
+  freigebenVkId = id;
+  freigebenSelected.clear();
+  freigebenMode = 'manuell';
+  var vk = getVk(id);
+  document.getElementById('modalFreigebenTitle').textContent = 'Artikel freigeben — ' + vkName(vk);
+  document.getElementById('freigebenManuell').style.display = 'block';
+  document.getElementById('freigebenKamera').style.display = 'none';
+  document.getElementById('btnFreigebenToggle').textContent = 'Kamera';
+  document.getElementById('freigebenNrInput').value = '';
+  renderFreigebenList();
+  openModal('modalFreigeben');
+}
+
+function renderFreigebenList() {
+  var list = artikel.filter(function(a) { return a.verkaeuferID === freigebenVkId && !a.freigegebenAm; });
+  var el = document.getElementById('freigebenList');
+  if (!list.length) {
+    el.innerHTML = '<div style="padding:12px;text-align:center;color:#9E9E9E;font-size:13px">Alle Artikel sind bereits freigegeben.</div>';
+    return;
+  }
+  el.innerHTML = list.map(function(a) {
+    var sel = freigebenSelected.has(a.id);
+    return '<div class="item' + (sel ? ' selected' : '') + '" onclick="toggleFreigebenItem(' + a.id + ')">' +
+      '<span>' + (sel ? '☑' : '☐') + '</span>' +
+      '<span><strong>#' + a.id + '</strong> ' + a.bezeichnung + '</span>' +
+      '<span style="margin-left:auto;color:#757575">' + fmt(a.preis) + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleFreigebenItem(id) {
+  if (freigebenSelected.has(id)) freigebenSelected.delete(id);
+  else freigebenSelected.add(id);
+  renderFreigebenList();
+}
+
+document.getElementById('btnFreigebenNr').addEventListener('click', function() {
+  var nr = parseInt(document.getElementById('freigebenNrInput').value);
+  var a = getArt(nr);
+  if (!a || a.verkaeuferID !== freigebenVkId) { showToast('Artikel nicht gefunden oder falscher Verkäufer.'); return; }
+  if (a.freigegebenAm) { showToast('Artikel bereits freigegeben.'); return; }
+  a.freigegebenAm = tsNow();
+  a.status = 'Im Verkauf';
+  updateVkFreigegeben(freigebenVkId);
+  renderFreigebenList();
+  document.getElementById('freigebenNrInput').value = '';
+  showToast('Artikel #' + nr + ' freigegeben.');
+});
+
+document.getElementById('freigebenNrInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('btnFreigebenNr').click();
+});
+
+document.getElementById('btnFreigebenSaveSelected').addEventListener('click', function() {
+  if (!freigebenSelected.size) { showToast('Keine Artikel ausgewählt.'); return; }
+  freigebenSelected.forEach(function(id) {
+    var a = getArt(id);
+    if (a) { a.freigegebenAm = tsNow(); a.status = 'Im Verkauf'; }
+  });
+  updateVkFreigegeben(freigebenVkId);
+  freigebenSelected.clear();
+  renderFreigebenList();
+  showToast('Artikel freigegeben.');
+});
+
+function updateVkFreigegeben(vkId) {
+  var vk = getVk(vkId);
+  if (!vk) return;
+  vk.freigegeben = artikel.filter(function(a) { return a.verkaeuferID === vkId && a.freigegebenAm; }).length;
+  if (vk.freigegeben > 0 && vk.status === 'Offen') vk.status = 'Im Verkauf';
+  renderVerkaeufer();
+}
+
+document.getElementById('btnFreigebenToggle').addEventListener('click', function() {
+  freigebenMode = freigebenMode === 'manuell' ? 'kamera' : 'manuell';
+  document.getElementById('freigebenManuell').style.display = freigebenMode === 'manuell' ? 'block' : 'none';
+  document.getElementById('freigebenKamera').style.display = freigebenMode === 'kamera' ? 'block' : 'none';
+  document.getElementById('btnFreigebenToggle').textContent = freigebenMode === 'manuell' ? 'Kamera' : 'Manuell';
+  if (freigebenMode === 'kamera') {
+    document.getElementById('freigebenKameraInfo').innerHTML = '<div class="info-banner info">Kamera-Simulation aktiv. Im echten System würde hier die Kamera geöffnet.</div>';
+  }
+});
+
+// ===== WIZARD SCHRITT 1 =====
+function populateW1Types() {
+  var s = document.getElementById('w1Type');
+  s.innerHTML = verkaeuferTypes.map(function(t) { return '<option>' + t.name + '</option>'; }).join('');
+}
+
+document.getElementById('btnWizard1Weiter').addEventListener('click', function() {
+  var vorname = document.getElementById('w1Vorname').value.trim();
+  var nachname = document.getElementById('w1Nachname').value.trim();
+  if (!vorname || !nachname) { showToast('Vorname und Nachname sind Pflichtfelder.'); return; }
+  var newId = nextId++;
+  wizardVerkaeufer = {
+    id: newId, vorname: vorname, nachname: nachname,
+    plz: document.getElementById('w1Plz').value,
+    ort: document.getElementById('w1Ort').value,
+    telefon: document.getElementById('w1Telefon').value,
+    email: document.getElementById('w1Email').value,
+    type: document.getElementById('w1Type').value,
+    status: 'Offen', artikelGesamt: 0, freigegeben: 0, verkauft: 0,
+    zurueckgegeben: 0, warenwert: 0, umsatz: 0, abgerechnetAm: null
+  };
+  verkaeufer.push(wizardVerkaeufer);
+  wizardArtikel = [];
+  closeModal('modalWizard1');
+  navigateTo('artikelannahme');
+  showAnnahmeWizard(wizardVerkaeufer);
+});
+
+// ===== SCREEN: ARTIKELANNAHME =====
+function resetAnnahme() {
+  document.getElementById('annahmeSearch').style.display = 'block';
+  document.getElementById('annahmeWizard').style.display = 'none';
+  document.getElementById('annahmeSearchInput').value = '';
+  renderAnnahmeVendorList('');
+}
+
+function renderAnnahmeVendorList(q) {
+  var list = verkaeufer.filter(function(v) {
+    if (!q) return true;
+    return (v.vorname + ' ' + v.nachname + ' ' + v.ort).toLowerCase().includes(q.toLowerCase());
+  });
+  var ul = document.getElementById('annahmeVendorList');
+  var noResult = document.getElementById('annahmeNoResult');
+  if (!list.length && q) { ul.innerHTML = ''; noResult.style.display = 'block'; return; }
+  noResult.style.display = 'none';
+  ul.innerHTML = list.map(function(v) {
+    return '<li onclick="showAnnahmeWizard(getVk(' + v.id + '))">' +
+      '<div style="flex:1">' +
+        '<div class="vname">' + v.vorname + ' ' + v.nachname + '</div>' +
+        '<div class="vinfo">' + v.plz + ' ' + v.ort + '</div>' +
+      '</div>' +
+      chipHtml(v.status, 'vk') +
+    '</li>';
+  }).join('');
+}
+
+document.getElementById('annahmeSearchInput').addEventListener('input', function(e) {
+  renderAnnahmeVendorList(e.target.value);
+});
+
+document.getElementById('btnAnnahmeAnlegen').addEventListener('click', function() {
+  populateW1Types();
+  ['w1Vorname','w1Nachname','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  openModal('modalWizard1');
+});
+
+function showAnnahmeWizard(vk) {
+  selectedVerkaeufer = vk;
+  wizardArtikel = [];
+  document.getElementById('annahmeSearch').style.display = 'none';
+  document.getElementById('annahmeWizard').style.display = 'block';
+  renderAnnahmeWizardUI();
+}
+
+function renderAnnahmeWizardUI() {
+  var vk = selectedVerkaeufer;
+  var katOptions = kategorien.map(function(k) { return '<option>' + k + '</option>'; }).join('');
+  var markeOptions = marken.map(function(m) { return '<option>' + m + '</option>'; }).join('');
+  document.getElementById('annahmeWizard').innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
+      '<button class="btn btn-outline btn-sm" onclick="resetAnnahme()">← Zurück</button>' +
+      '<h2 style="font-size:16px;color:#1976D2">' + vkName(vk) + '</h2>' +
+    '</div>' +
+    '<div class="split-layout">' +
+      '<div class="split-left">' +
+        '<div class="card">' +
+          '<div class="card-header"><strong>Artikel erfassen</strong></div>' +
+          '<div class="card-body">' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">' +
+              '<div class="form-group"><label>Artikelnummer</label><input class="form-control" id="wzArtNr" type="number" placeholder="automatisch"></div>' +
+              '<div class="form-group"><label>Bezeichnung *</label><input class="form-control" id="wzBezeichnung" type="text"></div>' +
+              '<div class="form-group"><label>Kategorie</label><input class="form-control" id="wzKategorie" list="wzKatList"><datalist id="wzKatList">' + katOptions + '</datalist></div>' +
+              '<div class="form-group"><label>Marke</label><input class="form-control" id="wzMarke" list="wzMarkeList"><datalist id="wzMarkeList">' + markeOptions + '</datalist></div>' +
+              '<div class="form-group"><label>Preis (€) *</label><input class="form-control" id="wzPreis" type="number" step="0.01"></div>' +
+              '<div class="form-group"><label>Alternativ-Preis (€)</label><input class="form-control" id="wzAltPreis" type="number" step="0.01"></div>' +
+              '<div class="form-group"><label>Größe</label><input class="form-control" id="wzGroesse" type="text"></div>' +
+              '<div class="form-group"><label>Farbe</label><input class="form-control" id="wzFarbe" type="text"></div>' +
+            '</div>' +
+            '<div class="form-group"><label>Beschreibung</label><textarea class="form-control" id="wzBeschreibung" rows="2"></textarea></div>' +
+            '<div style="text-align:right"><button class="btn btn-primary" onclick="wzUebernehmen()">Übernehmen</button></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="split-right">' +
+        '<div class="card">' +
+          '<div class="card-header"><strong>' + vkName(vk) + '</strong></div>' +
+          '<div style="padding:0"><ul class="wizard-article-list" id="wzArtikelList"></ul></div>' +
+          '<div style="padding:12px 16px;border-top:1px solid #EEE">' +
+            '<div id="wzGebuehrLine" style="font-size:13px;color:#757575;margin-bottom:12px"></div>' +
+            '<button class="btn btn-primary" style="width:100%" onclick="openWizardSpeichern()">Speichern</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  renderWzArtikelList();
+}
+
+function renderWzArtikelList() {
+  var ul = document.getElementById('wzArtikelList');
+  if (!ul) return;
+  if (!wizardArtikel.length) {
+    ul.innerHTML = '<li style="justify-content:center;color:#9E9E9E;padding:16px">Noch keine Artikel</li>';
+  } else {
+    ul.innerHTML = wizardArtikel.map(function(a, i) {
+      return '<li>' +
+        '<span><strong>#' + a.id + '</strong> ' + a.bezeichnung + '</span>' +
+        '<span>' + fmt(a.preis) + '</span>' +
+        '<button class="btn-icon" onclick="wzDeleteArtikel(' + i + ')" style="color:#F44336">×</button>' +
+      '</li>';
+    }).join('');
+  }
+  var vk = selectedVerkaeufer;
+  var typeInfo = getTypeInfo(vk.type);
+  var total = wizardArtikel.length * typeInfo.gebuehr;
+  var el = document.getElementById('wzGebuehrLine');
+  if (el) el.textContent = 'Gebühr: ' + wizardArtikel.length + ' × ' + typeInfo.gebuehr.toFixed(2).replace('.', ',') + ' € = ' + total.toFixed(2).replace('.', ',') + ' €';
+}
+
+function wzUebernehmen() {
+  var bez = document.getElementById('wzBezeichnung').value.trim();
+  var preisVal = document.getElementById('wzPreis').value;
+  if (!bez || !preisVal) { showToast('Bezeichnung und Preis sind Pflichtfelder.'); return; }
+  var artNrVal = document.getElementById('wzArtNr').value;
+  var id = artNrVal ? parseInt(artNrVal) : nextId++;
+  var altP = document.getElementById('wzAltPreis').value;
+  var a = {
+    id: id,
+    bezeichnung: bez,
+    kategorie: document.getElementById('wzKategorie').value,
+    marke: document.getElementById('wzMarke').value,
+    preis: parseFloat(preisVal),
+    beschreibung: document.getElementById('wzBeschreibung').value,
+    groesse: document.getElementById('wzGroesse').value,
+    farbe: document.getElementById('wzFarbe').value,
+    altPreis: altP ? parseFloat(altP) : null,
+    verkaeuferID: selectedVerkaeufer.id,
+    status: 'Registriert',
+    erstelltAm: tsNow(),
+    freigegebenAm: null, verkauftAm: null, zurueckgegebenAm: null, abgerechnetAm: null
+  };
+  wizardArtikel.push(a);
+  artikel.push(a);
+  ['wzArtNr','wzBezeichnung','wzKategorie','wzMarke','wzPreis','wzAltPreis','wzGroesse','wzFarbe','wzBeschreibung'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  renderWzArtikelList();
+  showToast('Artikel übernommen.');
+}
+
+function wzDeleteArtikel(i) {
+  var a = wizardArtikel[i];
+  wizardArtikel.splice(i, 1);
+  var idx = artikel.findIndex(function(x) { return x.id === a.id; });
+  if (idx >= 0) artikel.splice(idx, 1);
+  renderWzArtikelList();
+}
+
+function openWizardSpeichern() {
+  if (!wizardArtikel.length) { showToast('Bitte mindestens einen Artikel erfassen.'); return; }
+  var vk = selectedVerkaeufer;
+  var typeInfo = getTypeInfo(vk.type);
+  var gebuehr = wizardArtikel.length * typeInfo.gebuehr;
+  document.getElementById('wsAnzahl').textContent = wizardArtikel.length;
+  document.getElementById('wsGebuehr').textContent = fmt(gebuehr);
+  document.getElementById('wsErhalten').value = '';
+  document.getElementById('wsRueckgeld').textContent = 'Rückgeld: 0,00 €';
+  document.getElementById('wsErhalten').oninput = function() {
+    var erh = parseFloat(document.getElementById('wsErhalten').value) || 0;
+    var rg = erh - gebuehr;
+    document.getElementById('wsRueckgeld').textContent = 'Rückgeld: ' + (rg >= 0 ? rg.toFixed(2).replace('.', ',') : '0,00') + ' €';
+    document.getElementById('wsRueckgeld').style.color = rg >= 0 ? '#4CAF50' : '#F44336';
+  };
+  openModal('modalWizardSpeichern');
+}
+
+document.getElementById('btnWsBuchen').addEventListener('click', function() {
+  var vk = selectedVerkaeufer;
+  vk.artikelGesamt += wizardArtikel.length;
+  vk.warenwert += wizardArtikel.reduce(function(s, a) { return s + a.preis; }, 0);
+  closeModal('modalWizardSpeichern');
+  showToast('Artikelannahme gespeichert!');
+  wizardArtikel = [];
+  resetAnnahme();
+});
+
+// ===== SCREEN: VERKAUF =====
+var verkaufScan = null;
+
+document.getElementById('verkaufArtikelNr').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') scanArtikel();
+});
+
+function scanArtikel() {
+  var nr = parseInt(document.getElementById('verkaufArtikelNr').value);
+  var a = getArt(nr);
+  var infoEl = document.getElementById('verkaufInfo');
+  var btnEl = document.getElementById('verkaufPreisButtons');
+  btnEl.innerHTML = '';
+  if (!a) {
+    infoEl.innerHTML = '<div class="info-banner error">Artikel #' + nr + ' nicht gefunden.</div>';
+    verkaufScan = null; return;
+  }
+  if (a.status === 'Verkauft') {
+    infoEl.innerHTML = '<div class="info-banner error">Artikel #' + nr + ' wurde bereits verkauft.</div>';
+    verkaufScan = null; return;
+  }
+  if (!a.freigegebenAm) {
+    infoEl.innerHTML = '<div class="info-banner error">Artikel #' + nr + ' ist nicht freigegeben.</div>';
+    verkaufScan = null; return;
+  }
+  verkaufScan = a;
+  infoEl.innerHTML = '<div class="info-banner success"><strong>' + a.bezeichnung + '</strong> — ' + fmt(a.preis) + (a.marke ? ' | ' + a.marke : '') + (a.groesse ? ' | Größe ' + a.groesse : '') + '</div>';
+  var btn = document.createElement('button');
+  btn.className = 'btn btn-primary';
+  btn.textContent = 'Preis: ' + fmt(a.preis);
+  btn.onclick = function() { addToCart(a, a.preis); };
+  btnEl.appendChild(btn);
+  if (a.altPreis) {
+    var btn2 = document.createElement('button');
+    btn2.className = 'btn btn-accent';
+    btn2.textContent = 'Alt-Preis: ' + fmt(a.altPreis);
+    btn2.onclick = function() { addToCart(a, a.altPreis); };
+    btnEl.appendChild(btn2);
+  }
+}
+
+function addToCart(a, preis) {
+  if (warenkorb.find(function(x) { return x.id === a.id; })) { showToast('Artikel bereits im Warenkorb.'); return; }
+  warenkorb.push({ id: a.id, bezeichnung: a.bezeichnung, preis: preis });
+  document.getElementById('verkaufArtikelNr').value = '';
+  document.getElementById('verkaufInfo').innerHTML = '';
+  document.getElementById('verkaufPreisButtons').innerHTML = '';
+  verkaufScan = null;
+  renderWarenkorb();
+}
+
+function renderWarenkorb() {
+  var tbody = document.getElementById('verkaufCartBody');
+  tbody.innerHTML = warenkorb.map(function(item, i) {
+    return '<tr><td>#' + item.id + '</td><td>' + item.bezeichnung + '</td><td>' + fmt(item.preis) + '</td>' +
+      '<td><button class="btn-icon" onclick="removeFromCart(' + i + ')" style="color:#F44336">🗑</button></td></tr>';
+  }).join('');
+  if (!warenkorb.length) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9E9E9E;padding:20px">Warenkorb ist leer.</td></tr>';
+  var total = warenkorb.reduce(function(s, x) { return s + x.preis; }, 0);
+  document.getElementById('verkaufTotal').textContent = 'Gesamt: ' + fmt(total);
+}
+
+function removeFromCart(i) {
+  warenkorb.splice(i, 1);
+  renderWarenkorb();
+}
+
+document.getElementById('btnVerkaufBuchen').addEventListener('click', function() {
+  if (!warenkorb.length) { showToast('Warenkorb ist leer.'); return; }
+  var total = warenkorb.reduce(function(s, x) { return s + x.preis; }, 0);
+  document.getElementById('vbGesamt').textContent = fmt(total);
+  document.getElementById('vbErhalten').value = '';
+  document.getElementById('vbRueckgeld').textContent = 'Rückgeld: 0,00 €';
+  document.getElementById('vbErhalten').oninput = function() {
+    var erh = parseFloat(document.getElementById('vbErhalten').value) || 0;
+    var rg = erh - total;
+    document.getElementById('vbRueckgeld').textContent = 'Rückgeld: ' + (rg >= 0 ? rg.toFixed(2).replace('.', ',') : '0,00') + ' €';
+    document.getElementById('vbRueckgeld').style.color = rg >= 0 ? '#4CAF50' : '#F44336';
+  };
+  openModal('modalVerkaufBuchen');
+});
+
+document.getElementById('btnVbBezahlt').addEventListener('click', function() {
+  var ts = tsNow();
+  warenkorb.forEach(function(item) {
+    var a = getArt(item.id);
+    if (a) { a.status = 'Verkauft'; a.verkauftAm = ts; }
+    if (a) {
+      var vk = getVk(a.verkaeuferID);
+      if (vk) { vk.verkauft++; vk.umsatz += item.preis; }
+    }
+  });
+  warenkorb = [];
+  renderWarenkorb();
+  closeModal('modalVerkaufBuchen');
+  showToast('Verkauf erfolgreich gebucht!');
+});
+
+// ===== SCREEN: ABRECHNUNG =====
+function resetAbrechnung() {
+  abrVkId = null;
+  document.getElementById('abrSearch').style.display = 'block';
+  document.getElementById('abrDetail').style.display = 'none';
+  document.getElementById('abrSearchInput').value = '';
+  renderAbrVendorList('');
+}
+
+function renderAbrVendorList(q) {
+  var list = verkaeufer.filter(function(v) {
+    if (v.status === 'Abgerechnet') return false;
+    if (!q) return true;
+    return (v.vorname + ' ' + v.nachname + ' ' + v.ort).toLowerCase().includes(q.toLowerCase());
+  });
+  var ul = document.getElementById('abrVendorList');
+  if (!list.length) {
+    ul.innerHTML = '<li style="justify-content:center;color:#9E9E9E;cursor:default;background:none;box-shadow:none">Keine Verkäufer gefunden.</li>';
+    return;
+  }
+  ul.innerHTML = list.map(function(v) {
+    return '<li onclick="openAbrDetail(' + v.id + ')">' +
+      '<div style="flex:1">' +
+        '<div class="vname">' + v.vorname + ' ' + v.nachname + '</div>' +
+        '<div class="vinfo">' + v.plz + ' ' + v.ort + '</div>' +
+      '</div>' +
+      chipHtml(v.status, 'vk') +
+    '</li>';
+  }).join('');
+}
+
+document.getElementById('abrSearchInput').addEventListener('input', function(e) {
+  renderAbrVendorList(e.target.value);
+});
+
+function openAbrDetail(id) {
+  abrVkId = id;
+  document.getElementById('abrSearch').style.display = 'none';
+  document.getElementById('abrDetail').style.display = 'block';
+  renderAbrDetailUI(getVk(id));
+}
+
+function renderAbrDetailUI(vk) {
+  var arts = artikel.filter(function(a) { return a.verkaeuferID === vk.id; });
+  var offen = arts.filter(function(a) { return a.status === 'Im Verkauf' || a.status === 'Registriert'; }).length;
+  var verkauft = arts.filter(function(a) { return a.status === 'Verkauft'; }).length;
+  var umsatz = arts.filter(function(a) { return a.status === 'Verkauft'; }).reduce(function(s, a) { return s + a.preis; }, 0);
+  var tableRows = arts.map(function(a) {
+    return '<tr><td>#' + a.id + '</td><td>' + a.bezeichnung + '</td><td>' + fmt(a.preis) + '</td>' +
+      '<td>' + chipHtml(a.status, 'art') + '</td>' +
+      '<td>' + (a.verkauftAm ? fmtDate(a.verkauftAm) : '—') + '</td></tr>';
+  }).join('');
+  document.getElementById('abrDetail').innerHTML =
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">' +
+      '<button class="btn btn-outline btn-sm" onclick="resetAbrechnung()">← Zurück</button>' +
+      '<h2 style="flex:1;font-size:16px">' + vkName(vk) + ' | ' + vk.plz + ' ' + vk.ort + '</h2>' +
+      '<button class="btn btn-outline" onclick="showToast(\'Druckfunktion nicht implementiert.\')">🖨 Drucken</button>' +
+      '<button class="btn btn-accent" onclick="openZurueckgebenModal(' + vk.id + ')">↩ Zurückgeben</button>' +
+      '<button class="btn btn-primary" onclick="openAbrechnenModal(' + vk.id + ')">💶 Abrechnen</button>' +
+    '</div>' +
+    '<div class="kpi-row">' +
+      '<div class="kpi-tile"><div class="kpi-value">' + offen + '</div><div class="kpi-label">Offene Artikel</div></div>' +
+      '<div class="kpi-tile"><div class="kpi-value">' + verkauft + '</div><div class="kpi-label">Verkaufte Artikel</div></div>' +
+      '<div class="kpi-tile"><div class="kpi-value">' + fmt(umsatz) + '</div><div class="kpi-label">Umsatz</div></div>' +
+    '</div>' +
+    '<table class="data-table">' +
+      '<thead><tr><th>Artikelnr.</th><th>Bezeichnung</th><th>Preis</th><th>Status</th><th>Verkauft Am</th></tr></thead>' +
+      '<tbody>' + (tableRows || '<tr><td colspan="5" style="text-align:center;color:#9E9E9E;padding:20px">Keine Artikel vorhanden.</td></tr>') + '</tbody>' +
+    '</table>';
+}
+
+function openZurueckgebenModal(vkId) {
+  var arts = artikel.filter(function(a) { return a.verkaeuferID === vkId && (a.status === 'Im Verkauf' || a.status === 'Registriert'); });
+  var el = document.getElementById('zurueckgebenList');
+  if (!arts.length) {
+    el.innerHTML = '<div style="text-align:center;color:#9E9E9E;padding:20px">Keine zurückzugebenden Artikel.</div>';
+  } else {
+    el.innerHTML = '<table class="data-table"><thead><tr><th>Artikelnr.</th><th>Bezeichnung</th><th>Preis</th></tr></thead><tbody>' +
+      arts.map(function(a) { return '<tr><td>#' + a.id + '</td><td>' + a.bezeichnung + '</td><td>' + fmt(a.preis) + '</td></tr>'; }).join('') +
+      '</tbody></table>';
+  }
+  document.getElementById('btnZurueckgebenOk').onclick = function() {
+    var ts = tsNow();
+    arts.forEach(function(a) { a.status = 'Zurückgegeben'; a.zurueckgegebenAm = ts; });
+    var vk = getVk(vkId);
+    if (vk) vk.zurueckgegeben = (vk.zurueckgegeben || 0) + arts.length;
+    closeModal('modalZurueckgeben');
+    renderAbrDetailUI(getVk(vkId));
+    showToast(arts.length + ' Artikel zurückgegeben.');
+  };
+  openModal('modalZurueckgeben');
+}
+
+function openAbrechnenModal(vkId) {
+  var vk = getVk(vkId);
+  var arts = artikel.filter(function(a) { return a.verkaeuferID === vkId && a.status === 'Verkauft'; });
+  var umsatz = arts.reduce(function(s, a) { return s + a.preis; }, 0);
+  var typeInfo = getTypeInfo(vk.type);
+  var provision = umsatz * (typeInfo.provision / 100);
+  var auszahlung = umsatz - provision;
+  document.getElementById('abrModalContent').innerHTML =
+    '<div class="provision-row"><span>Umsatz</span><span>' + fmt(umsatz) + '</span></div>' +
+    '<div class="provision-row"><span>Provision (' + typeInfo.provision + '%)</span><span>− ' + fmt(provision) + '</span></div>';
+  document.getElementById('abrAuszahlung').textContent = 'Auszahlung: ' + fmt(auszahlung);
+  document.getElementById('btnAbrBuchen').onclick = function() {
+    var ts = tsNow();
+    arts.forEach(function(a) { a.abgerechnetAm = ts; });
+    vk.status = 'Abgerechnet';
+    vk.abgerechnetAm = ts;
+    closeModal('modalAbrechnen');
+    showToast('Abrechnung abgeschlossen!');
+    resetAbrechnung();
+  };
+  openModal('modalAbrechnen');
+}
+
+// ===== SCREEN: ARTIKEL =====
+function renderArtikelTable() {
+  var sm = document.getElementById('artFilterMarke');
+  var existingMarke = sm.value;
+  sm.innerHTML = '<option value="">Alle Marken</option>' + marken.map(function(m) { return '<option' + (m === existingMarke ? ' selected' : '') + '>' + m + '</option>'; }).join('');
+  var sk = document.getElementById('artFilterKat');
+  var existingKat = sk.value;
+  sk.innerHTML = '<option value="">Alle Kategorien</option>' + kategorien.map(function(k) { return '<option' + (k === existingKat ? ' selected' : '') + '>' + k + '</option>'; }).join('');
+
+  var mf = document.getElementById('artFilterMarke').value;
+  var kf = document.getElementById('artFilterKat').value;
+  var vsf = document.getElementById('artFilterVStatus').value;
+  var asf = document.getElementById('artFilterAStatus').value;
+  var sf = document.getElementById('artFilterSearch').value.toLowerCase();
+
+  var list = artikel.filter(function(a) {
+    if (mf && a.marke !== mf) return false;
+    if (kf && a.kategorie !== kf) return false;
+    if (asf && a.status !== asf) return false;
+    if (vsf) { var vk = getVk(a.verkaeuferID); if (!vk || vk.status !== vsf) return false; }
+    if (sf && !(a.bezeichnung + ' ' + a.marke + ' ' + a.kategorie).toLowerCase().includes(sf)) return false;
+    return true;
+  });
+
+  var tbody = document.getElementById('artikelTableBody');
+  tbody.innerHTML = list.map(function(a) {
+    var vk = getVk(a.verkaeuferID);
+    return '<tr>' +
+      '<td>#' + a.id + '</td>' +
+      '<td>' + a.bezeichnung + '</td>' +
+      '<td>' + a.kategorie + '</td>' +
+      '<td>' + a.marke + '</td>' +
+      '<td>' + fmt(a.preis) + '</td>' +
+      '<td>' + (vk ? vkName(vk) : '—') + '</td>' +
+      '<td>' + chipHtml(a.status, 'art', 'onclick="openArtikelStatusModal(' + a.id + ')"') + '</td>' +
+      '<td><button class="btn-icon" onclick="openArtikelForm(' + a.id + ')">✏️</button></td>' +
+    '</tr>';
+  }).join('');
+  if (!list.length) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9E9E9E;padding:30px">Keine Artikel gefunden.</td></tr>';
+}
+
+['artFilterMarke','artFilterKat','artFilterVStatus','artFilterAStatus'].forEach(function(id) {
+  document.getElementById(id).addEventListener('change', renderArtikelTable);
+});
+document.getElementById('artFilterSearch').addEventListener('input', renderArtikelTable);
+
+function openArtikelStatusModal(id) {
+  var a = getArt(id);
   if (!a) return;
+  document.getElementById('modalArtikelStatusTitle').textContent = 'Artikelstatus — ' + a.bezeichnung;
+  var body = document.getElementById('modalArtikelStatusBody');
+  body.innerHTML =
+    '<div class="form-group"><label>Erstellt Am</label><div style="font-size:14px;padding:8px 0">' + fmtDate(a.erstelltAm) + '</div></div>' +
+    '<hr class="sep">' +
+    '<div class="form-group"><label>Freigegeben Am</label>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">' +
+        '<span style="font-size:14px;flex:1">' + fmtDate(a.freigegebenAm) + '</span>' +
+        '<button class="btn btn-outline btn-sm" onclick="setArtikelTimestamp(' + id + ',\'freigegebenAm\')">Setzen</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="clearArtikelTimestamp(' + id + ',\'freigegebenAm\')"' + (!a.freigegebenAm ? ' disabled' : '') + '>Löschen</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="form-group"><label>Verkauft Am</label>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">' +
+        '<span style="font-size:14px;flex:1">' + fmtDate(a.verkauftAm) + '</span>' +
+        '<button class="btn btn-outline btn-sm" onclick="setArtikelTimestamp(' + id + ',\'verkauftAm\')">Setzen</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="clearArtikelTimestamp(' + id + ',\'verkauftAm\')"' + (!a.verkauftAm ? ' disabled' : '') + '>Löschen</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="form-group"><label>Rückgegeben Am</label>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">' +
+        '<span style="font-size:14px;flex:1">' + fmtDate(a.zurueckgegebenAm) + '</span>' +
+        '<button class="btn btn-outline btn-sm" onclick="setArtikelTimestamp(' + id + ',\'zurueckgegebenAm\')"' + (a.verkauftAm ? ' disabled' : '') + '>Setzen</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="clearArtikelTimestamp(' + id + ',\'zurueckgegebenAm\')"' + (!a.zurueckgegebenAm ? ' disabled' : '') + '>Löschen</button>' +
+      '</div>' +
+    '</div>' +
+    '<hr class="sep">' +
+    '<div class="form-group"><label>Abgerechnet Am</label><div style="font-size:14px;padding:8px 0">' + fmtDate(a.abgerechnetAm) + '</div></div>';
+  openModal('modalArtikelStatus');
+}
+
+function setArtikelTimestamp(id, field) {
+  var a = getArt(id);
+  a[field] = tsNow();
+  updateArtikelStatus(a);
+  openArtikelStatusModal(id);
+  renderArtikelTable();
+  showToast('Gesetzt.');
+}
+
+function clearArtikelTimestamp(id, field) {
+  var a = getArt(id);
   a[field] = null;
-  document.getElementById(spanId).textContent = '—';
   updateArtikelStatus(a);
-}
-
-function setTsNow(artId, field, spanId) {
-  const a = articles.find(x => x.id === artId);
-  if (!a) return;
-  const now = new Date().toISOString();
-  a[field] = now;
-  document.getElementById(spanId).textContent = fmtTs(now);
-  updateArtikelStatus(a);
+  openArtikelStatusModal(id);
+  renderArtikelTable();
+  showToast('Gelöscht.');
 }
 
 function updateArtikelStatus(a) {
-  if (a.abgerechnetAm) a.status = 'Abgerechnet';
-  else if (a.zurueckgegebenAm) a.status = 'Zurückgegeben';
-  else if (a.verkauftAm) a.status = 'Verkauft';
-  else if (a.freigegebenAm) a.status = 'Im Verkauf';
-  else a.status = 'Registriert';
+  if (a.abgerechnetAm) return;
+  if (a.zurueckgegebenAm) { a.status = 'Zurückgegeben'; return; }
+  if (a.verkauftAm) { a.status = 'Verkauft'; return; }
+  if (a.freigegebenAm) { a.status = 'Im Verkauf'; return; }
+  a.status = 'Registriert';
 }
 
-function openArtikelEdit(artId) {
-  currentArtikelEditId = artId;
-  const a = articles.find(x => x.id === artId);
-  document.getElementById('artikel-edit-form').innerHTML = `
-    <div class="form-row">
-      <div class="form-field"><label>Artikelnummer</label><input type="text" id="ae-nummer" value="${a.nummer}" /></div>
-      <div class="form-field"><label>Bezeichnung</label><input type="text" id="ae-bez" value="${a.bezeichnung}" /></div>
-    </div>
-    <div class="form-row">
-      <div class="form-field">
-        <label>Kategorie</label>
-        <input type="text" id="ae-kat" value="${a.kategorie}" list="kat-list-global" autocomplete="off" />
-      </div>
-      <div class="form-field">
-        <label>Marke</label>
-        <input type="text" id="ae-marke" value="${a.marke}" list="marke-list-global" autocomplete="off" />
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-field"><label>Preis (€)</label><input type="number" id="ae-preis" value="${a.preis}" step="0.01" min="0" /></div>
-      <div class="form-field"><label>Alternativ-Preis (€)</label><input type="number" id="ae-altpreis" value="${a.alternativPreis || ''}" step="0.01" min="0" placeholder="optional" /></div>
-    </div>
-    <div class="form-row">
-      <div class="form-field"><label>Größe</label><input type="text" id="ae-groesse" value="${a.groesse || ''}" /></div>
-      <div class="form-field"><label>Farbe</label><input type="text" id="ae-farbe" value="${a.farbe || ''}" /></div>
-    </div>
-    <div class="form-field"><label>Beschreibung</label><textarea id="ae-desc" rows="2">${a.beschreibung || ''}</textarea></div>
-  `;
-  document.getElementById('kat-list-global').innerHTML = categories.map(c => `<option value="${c}">`).join('');
-  document.getElementById('marke-list-global').innerHTML = brands.map(b => `<option value="${b}">`).join('');
-  openModal('artikel-edit-modal');
+function openArtikelForm(id) {
+  editingArtikelId = id;
+  var a = getArt(id);
+  document.getElementById('modalArtikelFormTitle').textContent = 'Artikel bearbeiten — #' + id;
+  document.getElementById('afBezeichnung').value = a.bezeichnung;
+  document.getElementById('afPreis').value = a.preis;
+  document.getElementById('afKategorie').value = a.kategorie;
+  document.getElementById('afMarke').value = a.marke;
+  document.getElementById('afGroesse').value = a.groesse;
+  document.getElementById('afFarbe').value = a.farbe;
+  document.getElementById('afAltPreis').value = a.altPreis || '';
+  document.getElementById('afBeschreibung').value = a.beschreibung;
+  document.getElementById('afKatList').innerHTML = kategorien.map(function(k) { return '<option>' + k + '</option>'; }).join('');
+  document.getElementById('afMarkeList').innerHTML = marken.map(function(m) { return '<option>' + m + '</option>'; }).join('');
+  openModal('modalArtikelForm');
 }
 
-function saveArtikelEdit() {
-  const a = articles.find(x => x.id === currentArtikelEditId);
-  a.nummer      = document.getElementById('ae-nummer').value.trim();
-  a.bezeichnung = document.getElementById('ae-bez').value.trim();
-  a.kategorie   = document.getElementById('ae-kat').value.trim();
-  a.marke       = document.getElementById('ae-marke').value.trim();
-  a.preis       = parseFloat(document.getElementById('ae-preis').value) || 0;
-  const altVal  = document.getElementById('ae-altpreis').value;
-  a.alternativPreis = altVal ? parseFloat(altVal) : null;
-  a.groesse     = document.getElementById('ae-groesse').value.trim();
-  a.farbe       = document.getElementById('ae-farbe').value.trim();
-  a.beschreibung = document.getElementById('ae-desc').value.trim();
-  closeModal('artikel-edit-modal');
+document.getElementById('btnAfSave').addEventListener('click', function() {
+  var a = getArt(editingArtikelId);
+  if (!a) return;
+  a.bezeichnung = document.getElementById('afBezeichnung').value || a.bezeichnung;
+  a.preis = parseFloat(document.getElementById('afPreis').value) || a.preis;
+  a.kategorie = document.getElementById('afKategorie').value;
+  a.marke = document.getElementById('afMarke').value;
+  a.groesse = document.getElementById('afGroesse').value;
+  a.farbe = document.getElementById('afFarbe').value;
+  var ap = document.getElementById('afAltPreis').value;
+  a.altPreis = ap ? parseFloat(ap) : null;
+  a.beschreibung = document.getElementById('afBeschreibung').value;
+  closeModal('modalArtikelForm');
   renderArtikelTable();
-}
+  showToast('Artikel gespeichert.');
+});
 
-// ═══════════════════════════════════════════════════════
-// SCREEN: MARKEN
-// ═══════════════════════════════════════════════════════
+// ===== SCREEN: MARKEN =====
 function renderMarken() {
-  const tbody = document.getElementById('marken-tbody');
-  tbody.innerHTML = brands.map((b, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td>${b}</td>
-      <td><button class="btn-icon" onclick="openMasterEdit('Marke', ${i})">✏️</button></td>
-    </tr>
-  `).join('') || '<tr><td colspan="3" class="text-muted" style="padding:16px; text-align:center;">Keine Marken vorhanden.</td></tr>';
+  var tbody = document.getElementById('markenTableBody');
+  tbody.innerHTML = marken.map(function(m, i) {
+    return '<tr><td>' + (i + 1) + '</td><td>' + m + '</td><td><button class="btn-icon" onclick="openMarkeEdit(' + i + ')">✏️</button></td></tr>';
+  }).join('');
+  if (!marken.length) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#9E9E9E;padding:20px">Keine Marken vorhanden.</td></tr>';
 }
 
-// ═══════════════════════════════════════════════════════
-// SCREEN: KATEGORIEN
-// ═══════════════════════════════════════════════════════
+document.getElementById('btnNeuMarke').addEventListener('click', function() {
+  editingMarkeIdx = null;
+  document.getElementById('modalMarkeFormTitle').textContent = 'Neue Marke';
+  document.getElementById('markeFormName').value = '';
+  document.getElementById('btnMarkeDelete').style.display = 'none';
+  openModal('modalMarkeForm');
+});
+
+function openMarkeEdit(i) {
+  editingMarkeIdx = i;
+  document.getElementById('modalMarkeFormTitle').textContent = 'Marke bearbeiten';
+  document.getElementById('markeFormName').value = marken[i];
+  document.getElementById('btnMarkeDelete').style.display = 'inline-flex';
+  openModal('modalMarkeForm');
+}
+
+document.getElementById('btnMarkeSave').addEventListener('click', function() {
+  var name = document.getElementById('markeFormName').value.trim();
+  if (!name) { showToast('Name ist ein Pflichtfeld.'); return; }
+  if (editingMarkeIdx === null) marken.push(name);
+  else marken[editingMarkeIdx] = name;
+  closeModal('modalMarkeForm');
+  renderMarken();
+  showToast('Gespeichert.');
+});
+
+document.getElementById('btnMarkeDelete').addEventListener('click', function() {
+  if (editingMarkeIdx === null) return;
+  marken.splice(editingMarkeIdx, 1);
+  closeModal('modalMarkeForm');
+  renderMarken();
+  showToast('Gelöscht.');
+});
+
+// ===== SCREEN: KATEGORIEN =====
 function renderKategorien() {
-  const tbody = document.getElementById('kat-tbody');
-  tbody.innerHTML = categories.map((c, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td>${c}</td>
-      <td><button class="btn-icon" onclick="openMasterEdit('Kategorie', ${i})">✏️</button></td>
-    </tr>
-  `).join('') || '<tr><td colspan="3" class="text-muted" style="padding:16px; text-align:center;">Keine Kategorien vorhanden.</td></tr>';
+  var tbody = document.getElementById('kategorienTableBody');
+  tbody.innerHTML = kategorien.map(function(k, i) {
+    return '<tr><td>' + (i + 1) + '</td><td>' + k + '</td><td><button class="btn-icon" onclick="openKategorieEdit(' + i + ')">✏️</button></td></tr>';
+  }).join('');
+  if (!kategorien.length) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#9E9E9E;padding:20px">Keine Kategorien vorhanden.</td></tr>';
 }
 
-// ═══════════════════════════════════════════════════════
-// SCREEN: VERKÄUFER TYPES
-// ═══════════════════════════════════════════════════════
-function renderTypes() {
-  const tbody = document.getElementById('types-tbody');
-  tbody.innerHTML = sellerTypes.map((t, i) => `
-    <tr>
-      <td>${t.id}</td>
-      <td>${t.bezeichnung}</td>
-      <td>${t.provision}%</td>
-      <td>${fmt(t.gebuehr)}</td>
-      <td><button class="btn-icon" onclick="openMasterEdit('SellerType', ${i})">✏️</button></td>
-    </tr>
-  `).join('') || '<tr><td colspan="5" class="text-muted" style="padding:16px; text-align:center;">Keine Types vorhanden.</td></tr>';
+document.getElementById('btnNeuKategorie').addEventListener('click', function() {
+  editingKategorieIdx = null;
+  document.getElementById('modalKategorieFormTitle').textContent = 'Neue Kategorie';
+  document.getElementById('kategorieFormName').value = '';
+  document.getElementById('btnKategorieDelete').style.display = 'none';
+  openModal('modalKategorieForm');
+});
+
+function openKategorieEdit(i) {
+  editingKategorieIdx = i;
+  document.getElementById('modalKategorieFormTitle').textContent = 'Kategorie bearbeiten';
+  document.getElementById('kategorieFormName').value = kategorien[i];
+  document.getElementById('btnKategorieDelete').style.display = 'inline-flex';
+  openModal('modalKategorieForm');
 }
 
-// ─── Master Edit/New ───
-function openMasterNew(type) {
-  masterEditContext = { type, index: -1, isNew: true };
-  const titles = { Marke: 'Neue Marke', Kategorie: 'Neue Kategorie', SellerType: 'Neuer Verkäufer-Type' };
-  document.getElementById('master-modal-title').textContent = titles[type] || 'Neu';
-  document.getElementById('master-modal-subtitle').textContent = '';
-  document.getElementById('master-delete-btn').style.display = 'none';
-  document.getElementById('master-edit-form').innerHTML = masterFormHtml(type, null);
-  openModal('master-edit-modal');
+document.getElementById('btnKategorieSave').addEventListener('click', function() {
+  var name = document.getElementById('kategorieFormName').value.trim();
+  if (!name) { showToast('Name ist ein Pflichtfeld.'); return; }
+  if (editingKategorieIdx === null) kategorien.push(name);
+  else kategorien[editingKategorieIdx] = name;
+  closeModal('modalKategorieForm');
+  renderKategorien();
+  showToast('Gespeichert.');
+});
+
+document.getElementById('btnKategorieDelete').addEventListener('click', function() {
+  if (editingKategorieIdx === null) return;
+  kategorien.splice(editingKategorieIdx, 1);
+  closeModal('modalKategorieForm');
+  renderKategorien();
+  showToast('Gelöscht.');
+});
+
+// ===== SCREEN: VERKÄUFER-TYPES =====
+function renderVkTypes() {
+  var tbody = document.getElementById('vkTypesTableBody');
+  tbody.innerHTML = verkaeuferTypes.map(function(t, i) {
+    return '<tr><td>' + (i + 1) + '</td><td>' + t.name + '</td><td>' + t.provision + '%</td><td>' + t.gebuehr.toFixed(2).replace('.', ',') + ' €</td>' +
+      '<td><button class="btn-icon" onclick="openVkTypeEdit(' + i + ')">✏️</button></td></tr>';
+  }).join('');
+  if (!verkaeuferTypes.length) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9E9E9E;padding:20px">Keine Einträge vorhanden.</td></tr>';
 }
 
-function openMasterEdit(type, index) {
-  masterEditContext = { type, index, isNew: false };
-  const titles = { Marke: 'Marke bearbeiten', Kategorie: 'Kategorie bearbeiten', SellerType: 'Verkäufer-Type bearbeiten' };
-  document.getElementById('master-modal-title').textContent = titles[type] || 'Bearbeiten';
-  document.getElementById('master-delete-btn').style.display = 'inline-flex';
+document.getElementById('btnNeuVkType').addEventListener('click', function() {
+  editingVkTypeIdx = null;
+  document.getElementById('modalVkTypeFormTitle').textContent = 'Neuer Verkäufer-Type';
+  document.getElementById('vkTypeFormName').value = '';
+  document.getElementById('vkTypeFormProvision').value = '';
+  document.getElementById('vkTypeFormGebuehr').value = '';
+  document.getElementById('btnVkTypeDelete').style.display = 'none';
+  openModal('modalVkTypeForm');
+});
 
-  let val = null;
-  if (type === 'Marke') val = brands[index];
-  else if (type === 'Kategorie') val = categories[index];
-  else if (type === 'SellerType') val = sellerTypes[index];
-
-  document.getElementById('master-modal-subtitle').textContent = '';
-  document.getElementById('master-edit-form').innerHTML = masterFormHtml(type, val);
-  openModal('master-edit-modal');
+function openVkTypeEdit(i) {
+  editingVkTypeIdx = i;
+  var t = verkaeuferTypes[i];
+  document.getElementById('modalVkTypeFormTitle').textContent = 'Verkäufer-Type bearbeiten';
+  document.getElementById('vkTypeFormName').value = t.name;
+  document.getElementById('vkTypeFormProvision').value = t.provision;
+  document.getElementById('vkTypeFormGebuehr').value = t.gebuehr;
+  document.getElementById('btnVkTypeDelete').style.display = 'inline-flex';
+  openModal('modalVkTypeForm');
 }
 
-function masterFormHtml(type, val) {
-  if (type === 'Marke' || type === 'Kategorie') {
-    return `<div class="form-field"><label>Bezeichnung</label><input type="text" id="me-bez" value="${val || ''}" /></div>`;
-  }
-  if (type === 'SellerType') {
-    const v = val || { bezeichnung: '', provision: 20, gebuehr: 0.50 };
-    return `
-      <div class="form-field"><label>Bezeichnung</label><input type="text" id="me-bez" value="${v.bezeichnung}" /></div>
-      <div class="form-row">
-        <div class="form-field"><label>Provision (%)</label><input type="number" id="me-provision" value="${v.provision}" step="1" min="0" max="100" /></div>
-        <div class="form-field"><label>Gebühr (€)</label><input type="number" id="me-gebuehr" value="${v.gebuehr}" step="0.01" min="0" /></div>
-      </div>
-    `;
-  }
-  return '';
-}
+document.getElementById('btnVkTypeSave').addEventListener('click', function() {
+  var name = document.getElementById('vkTypeFormName').value.trim();
+  if (!name) { showToast('Name ist ein Pflichtfeld.'); return; }
+  var obj = {
+    name: name,
+    provision: parseFloat(document.getElementById('vkTypeFormProvision').value) || 0,
+    gebuehr: parseFloat(document.getElementById('vkTypeFormGebuehr').value) || 0
+  };
+  if (editingVkTypeIdx === null) verkaeuferTypes.push(obj);
+  else verkaeuferTypes[editingVkTypeIdx] = obj;
+  closeModal('modalVkTypeForm');
+  renderVkTypes();
+  showToast('Gespeichert.');
+});
 
-function doMasterSave() {
-  const ctx = masterEditContext;
-  const bez = (document.getElementById('me-bez').value || '').trim();
-  if (!bez) { alert('Bezeichnung darf nicht leer sein.'); return; }
+document.getElementById('btnVkTypeDelete').addEventListener('click', function() {
+  if (editingVkTypeIdx === null) return;
+  verkaeuferTypes.splice(editingVkTypeIdx, 1);
+  closeModal('modalVkTypeForm');
+  renderVkTypes();
+  showToast('Gelöscht.');
+});
 
-  if (ctx.type === 'Marke') {
-    if (ctx.isNew) brands.push(bez);
-    else brands[ctx.index] = bez;
-    closeModal('master-edit-modal');
-    renderMarken();
-  } else if (ctx.type === 'Kategorie') {
-    if (ctx.isNew) categories.push(bez);
-    else categories[ctx.index] = bez;
-    closeModal('master-edit-modal');
-    renderKategorien();
-  } else if (ctx.type === 'SellerType') {
-    const provision = parseFloat(document.getElementById('me-provision').value) || 0;
-    const gebuehr   = parseFloat(document.getElementById('me-gebuehr').value) || 0;
-    if (ctx.isNew) {
-      const newId = Math.max(...sellerTypes.map(t => t.id), 0) + 1;
-      sellerTypes.push({ id: newId, bezeichnung: bez, provision, gebuehr });
-    } else {
-      sellerTypes[ctx.index].bezeichnung = bez;
-      sellerTypes[ctx.index].provision   = provision;
-      sellerTypes[ctx.index].gebuehr     = gebuehr;
-    }
-    closeModal('master-edit-modal');
-    renderTypes();
-  }
-}
-
-function doMasterDelete() {
-  const ctx = masterEditContext;
-  if (ctx.isNew) { closeModal('master-edit-modal'); return; }
-  if (!confirm('Wirklich löschen?')) return;
-
-  if (ctx.type === 'Marke') {
-    brands.splice(ctx.index, 1);
-    closeModal('master-edit-modal');
-    renderMarken();
-  } else if (ctx.type === 'Kategorie') {
-    categories.splice(ctx.index, 1);
-    closeModal('master-edit-modal');
-    renderKategorien();
-  } else if (ctx.type === 'SellerType') {
-    sellerTypes.splice(ctx.index, 1);
-    closeModal('master-edit-modal');
-    renderTypes();
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-// CAMERA TOGGLE (Simulation)
-// ═══════════════════════════════════════════════════════
-function toggleCam(id) {
-  const el = document.getElementById('cam-' + id);
-  if (!el) return;
-  const isVisible = el.style.display === 'block';
-  el.style.display = isVisible ? 'none' : 'block';
-}
-
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
+// ===== INIT =====
 (function init() {
-  renderSellerCards();
+  renderVerkaeufer();
+  renderAnnahmeVendorList('');
+  renderAbrVendorList('');
+  populateTypeSelect('vkFormType');
+  populateW1Types();
+  renderWarenkorb();
 })();
 </script>
 </body>
