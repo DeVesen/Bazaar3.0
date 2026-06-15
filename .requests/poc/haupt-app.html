@@ -3,208 +3,274 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bazaar — Flohmarkt Verwaltung</title>
+<title>Bazaar — Haupt-App (POC)</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#212121;display:flex;height:100vh;overflow:hidden}
-#sidebar{width:220px;min-width:220px;background:#263238;color:#fff;display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;z-index:100}
-#sidebar .logo{padding:20px 16px 16px;font-size:22px;font-weight:700;color:#FF9800;border-bottom:1px solid rgba(255,255,255,0.1);letter-spacing:1px}
-#sidebar .logo span{color:#fff;font-weight:300;font-size:14px;display:block;margin-top:2px}
-#sidebar nav a{display:flex;align-items:center;gap:10px;padding:12px 20px;color:rgba(255,255,255,0.75);text-decoration:none;font-size:14px;cursor:pointer;transition:background 0.15s,color 0.15s;border-left:3px solid transparent}
-#sidebar nav a:hover{background:rgba(255,255,255,0.07);color:#fff}
-#sidebar nav a.active{background:rgba(25,118,210,0.25);color:#90CAF9;border-left-color:#1976D2}
-#sidebar nav a .icon{font-size:18px;width:22px;text-align:center}
-#main{margin-left:220px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
-#topbar{background:#1976D2;color:#fff;padding:0 24px;height:56px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 4px rgba(0,0,0,0.2);flex-shrink:0}
-#topbar h1{font-size:18px;font-weight:500;flex:1}
-#content{flex:1;overflow-y:auto;padding:24px}
-.card{background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1);overflow:hidden;transition:box-shadow 0.2s}
-.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.15)}
-.card-header{padding:16px;border-bottom:1px solid #EEEEEE;display:flex;align-items:center;gap:8px}
-.card-body{padding:16px}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:4px;border:none;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.15s,box-shadow 0.15s}
-.btn-primary{background:#1976D2;color:#fff}
-.btn-primary:hover{background:#1565C0;box-shadow:0 2px 6px rgba(25,118,210,0.4)}
-.btn-accent{background:#FF9800;color:#fff}
-.btn-accent:hover{background:#F57C00}
-.btn-outline{background:transparent;border:1px solid #1976D2;color:#1976D2}
-.btn-outline:hover{background:#E3F2FD}
-.btn-danger{background:#F44336;color:#fff}
-.btn-danger:hover{background:#D32F2F}
-.btn-text{background:transparent;color:#1976D2;padding:6px 8px}
-.btn-icon{background:transparent;border:none;cursor:pointer;padding:6px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:16px;color:#757575;transition:background 0.15s}
-.btn-icon:hover{background:rgba(0,0,0,0.08)}
-.btn-sm{padding:4px 10px;font-size:12px}
-.chip{display:inline-flex;align-items:center;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:500}
-.chip-gray{background:#E0E0E0;color:#616161}
-.chip-blue{background:#1976D2;color:#fff}
-.chip-green{background:#4CAF50;color:#fff}
-.chip-orange{background:#FF9800;color:#fff}
-.chip-clickable{cursor:pointer;transition:opacity 0.15s}
-.chip-clickable:hover{opacity:0.8}
-.filter-chips{display:flex;gap:8px;flex-wrap:wrap}
-.filter-chip{padding:6px 14px;border-radius:20px;border:1px solid #BDBDBD;background:#fff;cursor:pointer;font-size:13px;transition:all 0.15s}
-.filter-chip.active{background:#1976D2;color:#fff;border-color:#1976D2}
-.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:12px;color:#757575;margin-bottom:4px;font-weight:500}
-.form-control{width:100%;padding:10px 12px;border:1px solid #BDBDBD;border-radius:4px;font-size:14px;background:#fff;transition:border-color 0.15s}
-.form-control:focus{outline:none;border-color:#1976D2;box-shadow:0 0 0 2px rgba(25,118,210,0.15)}
-.form-control.input-lg{font-size:20px;padding:14px 16px}
-.data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
-.data-table th{background:#F5F5F5;padding:12px 16px;text-align:left;font-size:13px;font-weight:600;color:#616161;border-bottom:2px solid #E0E0E0}
-.data-table td{padding:12px 16px;font-size:14px;border-bottom:1px solid #EEEEEE}
-.data-table tr:last-child td{border-bottom:none}
-.data-table tr:hover td{background:#F5F9FF}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal-box{background:#fff;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.25);width:100%;max-width:600px;max-height:90vh;overflow-y:auto;position:relative;transform:translateY(20px);transition:transform 0.2s}
-.modal-overlay.open .modal-box{transform:translateY(0)}
-.modal-box.modal-wide{max-width:900px}
-.modal-header{padding:20px 24px 16px;border-bottom:1px solid #EEEEEE;display:flex;align-items:center;justify-content:space-between}
-.modal-header h2{font-size:18px;font-weight:600;color:#212121}
-.modal-body{padding:24px}
-.modal-footer{padding:16px 24px;border-top:1px solid #EEEEEE;display:flex;justify-content:flex-end;gap:10px}
-.btn-close-modal{background:none;border:none;font-size:22px;cursor:pointer;color:#757575;line-height:1}
-.btn-close-modal:hover{color:#212121}
-.action-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.action-bar .spacer{flex:1}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-top:8px}
-.stat-item{font-size:12px;color:#757575}
-.stat-item strong{color:#212121}
-.info-banner{padding:12px 16px;border-radius:4px;font-size:14px;margin-bottom:12px}
-.info-banner.success{background:#E8F5E9;color:#2E7D32;border-left:4px solid #4CAF50}
-.info-banner.error{background:#FFEBEE;color:#C62828;border-left:4px solid #F44336}
-.info-banner.info{background:#E3F2FD;color:#1565C0;border-left:4px solid #1976D2}
-.cart-total{text-align:right;font-size:18px;font-weight:600;padding:12px 0;color:#1976D2}
-.kpi-row{display:flex;gap:16px;margin-bottom:20px}
-.kpi-tile{flex:1;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1);padding:16px;text-align:center}
-.kpi-tile .kpi-value{font-size:28px;font-weight:700;color:#1976D2}
-.kpi-tile .kpi-label{font-size:12px;color:#757575;margin-top:4px}
-.split-layout{display:flex;gap:20px}
-.split-left{flex:7;min-width:0}
-.split-right{flex:3;min-width:200px}
-.wizard-article-list{list-style:none;max-height:300px;overflow-y:auto;margin-top:8px}
-.wizard-article-list li{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #EEEEEE;font-size:13px}
-.wizard-article-list li:last-child{border-bottom:none}
-.freigabe-list{max-height:280px;overflow-y:auto;margin-top:8px;border:1px solid #EEEEEE;border-radius:4px}
-.freigabe-list .item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #F0F0F0;cursor:pointer;font-size:13px;transition:background 0.1s}
-.freigabe-list .item:last-child{border-bottom:none}
-.freigabe-list .item:hover{background:#F5F5F5}
-.freigabe-list .item.selected{background:#E3F2FD}
-.camera-placeholder{background:#E0E0E0;border-radius:4px;display:flex;align-items:center;justify-content:center;height:200px;font-size:14px;color:#757575;margin-bottom:12px;border:2px dashed #BDBDBD}
-.sep{border:none;border-top:1px solid #EEEEEE;margin:16px 0}
-.search-wrapper{position:relative;flex:1}
-.search-wrapper input{padding-left:36px}
-.search-wrapper .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9E9E9E;font-size:16px}
-.vendor-list{list-style:none;margin-top:12px}
-.vendor-list li{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,0.08);margin-bottom:8px;cursor:pointer;transition:box-shadow 0.15s}
-.vendor-list li:hover{box-shadow:0 3px 10px rgba(0,0,0,0.12)}
-.vendor-list .vname{font-weight:600;font-size:14px}
-.vendor-list .vinfo{font-size:12px;color:#757575}
-.provision-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;border-bottom:1px solid #F5F5F5}
-.provision-row.total{font-weight:700;font-size:16px;color:#1976D2;border-bottom:none;margin-top:8px}
+body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#212121;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── TOPBAR ── */
+#topbar{background:#1565C0;color:#fff;padding:0 16px;height:56px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 4px rgba(0,0,0,.2);flex-shrink:0;z-index:200}
+#topbar h1{font-size:17px;font-weight:500;flex:1}
+#btnBurger{display:none;background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px 8px;line-height:1}
+
+/* ── LAYOUT ── */
+#layout{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ── */
+#sidebar{width:220px;min-width:220px;background:#263238;color:#fff;display:flex;flex-direction:column;height:100%;overflow-y:auto;flex-shrink:0;transition:transform .25s}
+#sidebar .logo{padding:16px 16px 12px;font-size:19px;font-weight:700;color:#FF9800;border-bottom:1px solid rgba(255,255,255,.1)}
+#sidebar .logo span{color:#fff;font-weight:300;font-size:12px;display:block;margin-top:2px}
+.nav-group-label{padding:16px 16px 4px;font-size:10px;color:#78909C;text-transform:uppercase;letter-spacing:1.5px}
+#sidebar nav a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:rgba(255,255,255,.75);text-decoration:none;font-size:14px;cursor:pointer;transition:background .15s,color .15s;border-left:3px solid transparent}
+#sidebar nav a:hover{background:rgba(255,255,255,.07);color:#fff}
+#sidebar nav a.active{background:rgba(21,101,192,.3);color:#90CAF9;border-left-color:#1976D2}
+#sidebar nav a .icon{font-size:16px;width:20px;text-align:center}
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:150}
+
+/* ── CONTENT ── */
+#content{flex:1;overflow-y:auto;padding:20px}
 .screen{display:none}
 .screen.active{display:block}
-#toast{position:fixed;bottom:24px;right:24px;background:#323232;color:#fff;padding:12px 20px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);overflow:hidden}
+.card-header{padding:14px 16px;border-bottom:1px solid #EEEEEE;display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
+.card-body{padding:16px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:4px;border:none;cursor:pointer;font-size:14px;font-weight:500;transition:background .15s,opacity .15s;white-space:nowrap}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn-primary{background:#1565C0;color:#fff}.btn-primary:hover:not(:disabled){background:#0D47A1}
+.btn-accent{background:#FF9800;color:#fff}.btn-accent:hover:not(:disabled){background:#F57C00}
+.btn-outline{background:transparent;border:1px solid #1565C0;color:#1565C0}.btn-outline:hover:not(:disabled){background:#E3F2FD}
+.btn-danger{background:#D32F2F;color:#fff}.btn-danger:hover:not(:disabled){background:#B71C1C}
+.btn-ghost{background:transparent;border:1px solid #BDBDBD;color:#616161}.btn-ghost:hover:not(:disabled){background:#F5F5F5}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-icon{background:transparent;border:none;cursor:pointer;padding:6px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:16px;color:#757575;transition:background .15s}.btn-icon:hover{background:rgba(0,0,0,.08)}
+
+/* ── FORMS ── */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;color:#757575;margin-bottom:4px;font-weight:500}
+.form-control{width:100%;padding:9px 12px;border:1px solid #BDBDBD;border-radius:4px;font-size:14px;background:#fff;transition:border-color .15s;font-family:inherit}
+.form-control:focus{outline:none;border-color:#1565C0;box-shadow:0 0 0 2px rgba(21,101,192,.15)}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.input-with-icon{position:relative}
+.input-with-icon .form-control{padding-right:40px}
+.input-with-icon .input-icon-right{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#9E9E9E;display:flex;align-items:center;padding:0}
+.input-with-icon .input-icon-right:hover{color:#1565C0}
+
+/* ── CHIPS ── */
+.chip{display:inline-flex;align-items:center;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:500}
+.chip-gray{background:#E0E0E0;color:#616161}
+.chip-blue{background:#1565C0;color:#fff}
+.chip-green{background:#388E3C;color:#fff}
+.chip-orange{background:#E65100;color:#fff}
+.chip-clickable{cursor:pointer}.chip-clickable:hover{opacity:.8}
+.filter-chips{display:flex;gap:8px;flex-wrap:wrap}
+.filter-chip{padding:6px 14px;border-radius:20px;border:1px solid #BDBDBD;background:#fff;cursor:pointer;font-size:13px;transition:all .15s}
+.filter-chip.active{background:#1565C0;color:#fff;border-color:#1565C0}
+
+/* ── TABLE ── */
+.data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.data-table th{background:#F5F5F5;padding:11px 14px;text-align:left;font-size:12px;font-weight:600;color:#616161;border-bottom:2px solid #E0E0E0}
+.data-table td{padding:11px 14px;font-size:14px;border-bottom:1px solid #EEEEEE;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#F5F9FF}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:#fff;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.25);width:70%;max-height:60vh;overflow-y:auto;position:relative;transform:translateY(16px);transition:transform .2s;display:flex;flex-direction:column}
+.modal-overlay.open .modal-box{transform:translateY(0)}
+.modal-box.modal-wide{width:85%}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid #EEEEEE;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-header h2{font-size:17px;font-weight:600}
+.modal-body{padding:20px 22px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 22px;border-top:1px solid #EEEEEE;display:flex;justify-content:flex-end;gap:10px;flex-shrink:0}
+.btn-close-modal{background:none;border:none;font-size:22px;cursor:pointer;color:#757575;line-height:1}.btn-close-modal:hover{color:#212121}
+
+/* ── ACTION BAR ── */
+.action-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.action-bar .spacer{flex:1}
+.search-wrapper{position:relative;flex:1;min-width:160px}
+.search-wrapper input{padding-left:34px}
+.search-wrapper .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9E9E9E;font-size:15px}
+
+/* ── VENDOR CARDS ── */
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;margin-top:8px}
+.stat-item{font-size:12px;color:#757575}.stat-item strong{color:#212121}
+
+/* ── VENDOR LIST ── */
+.vendor-list{list-style:none}
+.vendor-list li{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:8px;cursor:pointer;transition:box-shadow .15s}.vendor-list li:hover{box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.vname{font-weight:600;font-size:14px}.vinfo{font-size:12px;color:#757575}
+
+/* ── KPI ── */
+.kpi-row{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.kpi-tile{flex:1;min-width:120px;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);padding:16px;text-align:center}
+.kpi-value{font-size:26px;font-weight:700;color:#1565C0}.kpi-label{font-size:12px;color:#757575;margin-top:4px}
+
+/* ── INFO BANNER ── */
+.info-banner{padding:11px 14px;border-radius:4px;font-size:14px;margin:10px 0}
+.info-banner.success{background:#E8F5E9;color:#2E7D32;border-left:4px solid #388E3C}
+.info-banner.error{background:#FFEBEE;color:#C62828;border-left:4px solid #D32F2F}
+.info-banner.info{background:#E3F2FD;color:#0D47A1;border-left:4px solid #1565C0}
+.info-banner.warn{background:#FFF8E1;color:#E65100;border-left:4px solid #FF9800}
+
+/* ── VERKAUF SCREEN ── */
+.verkauf-layout{display:grid;grid-template-columns:1fr 2fr;gap:16px;align-items:start}
+.preise-label{font-size:12px;font-weight:600;color:#757575;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:12px}
+.preise-row{display:flex;gap:8px}
+.preise-row .btn-preis{flex:1;min-width:120px;height:60px;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-total{text-align:right;font-size:18px;font-weight:700;padding:10px 0;color:#1565C0}
+.rueckgeld-display{font-size:22px;font-weight:700;color:#388E3C;text-align:center;padding:10px;background:#E8F5E9;border-radius:4px;margin-top:8px}
+
+/* ── STATUS PANELS (VK Status Modal) ── */
+.status-panel{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:6px;background:#F9F9F9;border:1px solid #EEEEEE;margin-bottom:8px}
+.status-panel .sp-label{font-size:13px;font-weight:500;color:#424242;min-width:130px}
+.status-panel .sp-ts{flex:1;font-size:13px;color:#212121;text-align:right}
+.status-panel .sp-ts.empty{color:#9E9E9E;font-style:italic}
+.status-panel .sp-action{flex-shrink:0}
+
+/* ── ARTIKEL FREIGABE ── */
+.freigabe-input-row{display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.freigabe-list{max-height:240px;overflow-y:auto;border:1px solid #EEEEEE;border-radius:4px}
+.freigabe-list .item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #F5F5F5;cursor:pointer;font-size:13px;transition:background .1s}
+.freigabe-list .item:last-child{border-bottom:none}
+.freigabe-list .item:hover{background:#F5F9FF}
+.freigabe-list .item.selected{background:#E3F2FD}
+.freigabe-list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.camera-placeholder{background:#E0E0E0;border-radius:4px;display:flex;align-items:center;justify-content:center;height:180px;font-size:14px;color:#757575;border:2px dashed #BDBDBD}
+
+/* ── PROVISION TABLE ── */
+.provision-row{display:flex;justify-content:space-between;padding:7px 0;font-size:14px;border-bottom:1px solid #F5F5F5}
+.provision-row.total{font-weight:700;font-size:16px;color:#1565C0;border-bottom:none;margin-top:6px}
+
+/* ── WIZARD ARTICLE LIST ── */
+.wizard-article-list{list-style:none;max-height:280px;overflow-y:auto}
+.wizard-article-list li{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-bottom:1px solid #EEEEEE;font-size:13px}
+.wizard-article-list li:last-child{border-bottom:none}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:20px;right:20px;background:#323232;color:#fff;padding:11px 18px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
 #toast.show{opacity:1}
-.rueckgeld-display{font-size:24px;font-weight:700;color:#4CAF50;text-align:center;padding:12px;background:#E8F5E9;border-radius:4px;margin-top:8px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .card-grid{grid-template-columns:repeat(2,1fr)}
+  .modal-box{width:90%;max-height:90vh}
+  .modal-box.modal-wide{width:92%}
+  .form-grid-2{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  #btnBurger{display:block}
+  #sidebar{position:fixed;left:0;top:0;height:100vh;z-index:180;transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #sidebar-overlay.open{display:block}
+  #layout{flex-direction:column}
+  .card-grid{grid-template-columns:1fr}
+  .modal-box{width:100%;max-height:100vh;border-radius:0}
+  .modal-box.modal-wide{width:100%}
+  .verkauf-layout{grid-template-columns:1fr}
+  .kpi-row{gap:8px}
+  .preise-row .btn-preis{min-width:80px;height:52px;font-size:14px}
+}
+@media(max-width:480px){
+  #content{padding:12px}
+  .action-bar{gap:6px}
+}
 </style>
 </head>
 <body>
 
-<nav id="sidebar">
-  <div class="logo">Bazaar<span>Flohmarkt Mgmt</span></div>
-  <nav id="sidebarNav">
-    <a class="active" data-screen="verkaeufer"><span class="icon">👥</span>Verkäufer</a>
-    <a data-screen="artikelannahme"><span class="icon">📥</span>Artikelannahme</a>
-    <a data-screen="verkauf"><span class="icon">🛒</span>Verkauf</a>
-    <a data-screen="abrechnung"><span class="icon">💶</span>Abrechnung</a>
-    <a data-screen="artikel"><span class="icon">🏷️</span>Artikel</a>
-    <a data-screen="marken"><span class="icon">⭐</span>Marken</a>
-    <a data-screen="kategorien"><span class="icon">📁</span>Kategorien</a>
-    <a data-screen="verkaeuferTypes"><span class="icon">🔖</span>Verkäufer-Types</a>
-  </nav>
-</nav>
+<div id="topbar">
+  <button id="btnBurger" onclick="toggleSidebar()">☰</button>
+  <h1 id="topbarTitle">Annahme</h1>
+</div>
 
-<div id="main">
-  <div id="topbar">
-    <h1 id="topbarTitle">Verkäufer</h1>
-  </div>
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<div id="layout">
+  <nav id="sidebar">
+    <div class="logo">Bazaar<span>Haupt-App · POC</span></div>
+    <nav id="sidebarNav">
+      <a data-screen="artikelannahme"><span class="icon">📥</span>Annahme</a>
+      <a data-screen="verkauf"><span class="icon">🛒</span>Verkauf</a>
+      <a data-screen="abrechnung"><span class="icon">💶</span>Abrechnung</a>
+      <div class="nav-group-label">Verwaltung</div>
+      <a data-screen="verkaeufer"><span class="icon">👥</span>Verkäufer</a>
+      <a data-screen="artikel"><span class="icon">🏷️</span>Artikel</a>
+      <a data-screen="marken"><span class="icon">⭐</span>Marken</a>
+      <a data-screen="kategorien"><span class="icon">📁</span>Kategorien</a>
+      <a data-screen="verkaeuferTypes"><span class="icon">🔖</span>Verkäufer-Typen</a>
+    </nav>
+  </nav>
+
   <div id="content">
 
-    <!-- SCREEN: Verkäufer -->
-    <div class="screen active" id="screen-verkaeufer">
-      <div class="action-bar">
-        <div class="filter-chips" id="vkFilterChips">
-          <span class="filter-chip active" data-filter="Alle">Alle</span>
-          <span class="filter-chip" data-filter="Offen">Offen</span>
-          <span class="filter-chip" data-filter="Im Verkauf">Im Verkauf</span>
-          <span class="filter-chip" data-filter="Abgerechnet">Abgerechnet</span>
-        </div>
-        <div class="search-wrapper">
-          <span class="search-icon">🔍</span>
-          <input class="form-control" id="vkSearchInput" type="text" placeholder="Suchen...">
-        </div>
-        <button class="btn btn-primary" id="btnNeuVerkaeufer">+ NEU</button>
-      </div>
-      <div class="card-grid" id="verkaeuferGrid"></div>
-    </div>
-
-    <!-- SCREEN: Artikelannahme -->
+    <!-- ── ANNAHME ── -->
     <div class="screen" id="screen-artikelannahme">
-      <div id="annahmeSearch">
-        <div class="action-bar">
-          <div class="search-wrapper" style="max-width:420px">
-            <span class="search-icon">🔍</span>
-            <input class="form-control" id="annahmeSearchInput" type="text" placeholder="Verkäufer suchen...">
-          </div>
-        </div>
-        <ul class="vendor-list" id="annahmeVendorList"></ul>
-        <div id="annahmeNoResult" style="display:none;margin-top:16px;text-align:center">
-          <p style="color:#757575;margin-bottom:12px">Kein Treffer gefunden.</p>
-          <button class="btn btn-primary" id="btnAnnahmeAnlegen">+ Anlegen</button>
+      <div class="action-bar">
+        <div class="search-wrapper" style="max-width:420px">
+          <span class="si">🔍</span>
+          <input class="form-control" id="annahmeSearchInput" type="text" placeholder="Verkäufer suchen…">
         </div>
       </div>
-      <div id="annahmeWizard" style="display:none"></div>
+      <ul class="vendor-list" id="annahmeVendorList"></ul>
+      <div id="annahmeNoResult" style="display:none;margin-top:16px;text-align:center">
+        <p style="color:#757575;margin-bottom:12px">Kein Treffer.</p>
+        <button class="btn btn-primary" id="btnAnnahmeAnlegen">+ Verkäufer anlegen</button>
+      </div>
     </div>
 
-    <!-- SCREEN: Verkauf -->
+    <!-- ── VERKAUF ── -->
     <div class="screen" id="screen-verkauf">
-      <div style="max-width:700px;margin:0 auto">
-        <div class="card card-body" style="margin-bottom:20px">
-          <div style="display:flex;gap:10px;align-items:center">
-            <input class="form-control input-lg" id="verkaufArtikelNr" type="number" placeholder="Artikelnummer eingeben...">
-            <button class="btn-icon" style="font-size:24px" title="Kamera" onclick="showToast('Kamera nicht verfügbar im Prototyp.')">📷</button>
-          </div>
-          <div id="verkaufInfo" style="margin-top:12px"></div>
-          <div id="verkaufPreisButtons" style="margin-top:10px;display:flex;gap:8px"></div>
-        </div>
-        <div class="card" style="margin-bottom:20px">
-          <div class="card-header"><strong>Warenkorb</strong></div>
-          <div style="padding:0">
-            <table class="data-table" style="border-radius:0;box-shadow:none">
-              <thead><tr><th>Artikelnr.</th><th>Bezeichnung</th><th>Preis</th><th></th></tr></thead>
-              <tbody id="verkaufCartBody"></tbody>
-            </table>
-          </div>
-          <div style="padding:12px 16px">
-            <div class="cart-total" id="verkaufTotal">Gesamt: 0,00 €</div>
+      <div class="verkauf-layout">
+        <!-- Links: Eingabe 1/3 -->
+        <div>
+          <div class="card card-body" style="margin-bottom:12px">
+            <label class="form-group" style="margin-bottom:6px"><strong>Artikelnummer</strong></label>
+            <div class="input-with-icon">
+              <input class="form-control" id="verkaufArtikelNr" type="number" placeholder="Nummer eingeben…" autocomplete="off" style="font-size:18px;padding:12px 40px 12px 12px">
+              <button class="input-icon-right" title="Kamera" onclick="showToast('Kamera-Simulation: Artikel 101 gelesen'); document.getElementById(\'verkaufArtikelNr\').value=101; scanArtikel()">⏎</button>
+            </div>
+            <div id="verkaufInfo"></div>
+            <div id="verkaufPreiseArea" style="display:none">
+              <div class="preise-label">Preise</div>
+              <div class="preise-row" id="verkaufPreisButtons"></div>
+            </div>
           </div>
         </div>
-        <div style="text-align:right">
-          <button class="btn btn-primary" style="padding:14px 32px;font-size:16px" id="btnVerkaufBuchen">BUCHEN</button>
+        <!-- Rechts: Warenkorb 2/3 -->
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <div class="card-header">Warenkorb</div>
+            <div style="padding:0">
+              <table class="data-table" style="border-radius:0;box-shadow:none">
+                <thead><tr><th>Nr.</th><th>Bezeichnung</th><th>Preis</th><th></th></tr></thead>
+                <tbody id="verkaufCartBody"></tbody>
+              </table>
+            </div>
+            <div style="padding:10px 16px">
+              <div class="cart-total" id="verkaufTotal">Gesamt: 0,00 €</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end">
+            <button class="btn btn-ghost" id="btnVerkaufLeeren" onclick="leerenWarenkorb()">✕ Leeren</button>
+            <button class="btn btn-primary" style="padding:12px 28px;font-size:15px" id="btnVerkaufBuchen">BUCHEN</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- SCREEN: Abrechnung -->
+    <!-- ── ABRECHNUNG ── -->
     <div class="screen" id="screen-abrechnung">
       <div id="abrSearch">
         <div class="action-bar">
           <div class="search-wrapper" style="max-width:420px">
-            <span class="search-icon">🔍</span>
-            <input class="form-control" id="abrSearchInput" type="text" placeholder="Verkäufer suchen...">
+            <span class="si">🔍</span>
+            <input class="form-control" id="abrSearchInput" type="text" placeholder="Verkäufer suchen…">
           </div>
         </div>
         <ul class="vendor-list" id="abrVendorList"></ul>
@@ -212,145 +278,168 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
       <div id="abrDetail" style="display:none"></div>
     </div>
 
-    <!-- SCREEN: Artikel -->
+    <!-- ── VERKÄUFER ── -->
+    <div class="screen" id="screen-verkaeufer">
+      <div class="action-bar">
+        <div class="filter-chips" id="vkFilterChips">
+          <span class="filter-chip active" data-filter="Alle">Alle</span>
+          <span class="filter-chip" data-filter="Offen">Offen</span>
+          <span class="filter-chip" data-filter="Im Verkauf">Im Verkauf</span>
+          <span class="filter-chip" data-filter="Abgerechnet">Abgerechnet</span>
+        </div>
+        <div class="search-wrapper"><span class="si">🔍</span><input class="form-control" id="vkSearchInput" type="text" placeholder="Suchen…"></div>
+        <button class="btn btn-primary" id="btnNeuVerkaeufer">+ NEU</button>
+      </div>
+      <div class="card-grid" id="verkaeuferGrid"></div>
+    </div>
+
+    <!-- ── ARTIKEL ── -->
     <div class="screen" id="screen-artikel">
-      <div class="action-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:16px">
-        <select class="form-control" id="artFilterMarke" style="width:140px">
-          <option value="">Alle Marken</option>
-        </select>
-        <select class="form-control" id="artFilterKat" style="width:155px">
-          <option value="">Alle Kategorien</option>
-        </select>
-        <select class="form-control" id="artFilterVStatus" style="width:170px">
-          <option value="">Alle Verk.-Status</option>
-          <option>Offen</option><option>Im Verkauf</option><option>Abgerechnet</option>
-        </select>
-        <select class="form-control" id="artFilterAStatus" style="width:165px">
-          <option value="">Alle Art.-Status</option>
-          <option>Registriert</option><option>Im Verkauf</option><option>Verkauft</option><option>Zurückgegeben</option>
-        </select>
-        <input class="form-control" id="artFilterSearch" style="width:180px" type="text" placeholder="Freitext...">
+      <div class="action-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:14px">
+        <select class="form-control" id="artFilterMarke" style="width:140px"><option value="">Alle Marken</option></select>
+        <select class="form-control" id="artFilterKat" style="width:150px"><option value="">Alle Kategorien</option></select>
+        <select class="form-control" id="artFilterVStatus" style="width:160px"><option value="">Alle Verk.-Status</option><option>Offen</option><option>Im Verkauf</option><option>Abgerechnet</option></select>
+        <select class="form-control" id="artFilterAStatus" style="width:158px"><option value="">Alle Art.-Status</option><option>Registriert</option><option>Im Verkauf</option><option>Verkauft</option><option>Zurückgegeben</option></select>
+        <input class="form-control" id="artFilterSearch" style="width:180px" type="text" placeholder="Freitext…">
       </div>
       <table class="data-table" id="artikelTable">
-        <thead><tr><th>Artikelnr.</th><th>Bezeichnung</th><th>Kategorie</th><th>Marke</th><th>Preis</th><th>Verkäufer</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Nr.</th><th>Bezeichnung</th><th>Kategorie</th><th>Marke</th><th>Preis</th><th>Verkäufer</th><th>Status</th><th></th></tr></thead>
         <tbody id="artikelTableBody"></tbody>
       </table>
     </div>
 
-    <!-- SCREEN: Marken -->
+    <!-- ── MARKEN ── -->
     <div class="screen" id="screen-marken">
-      <div class="action-bar">
-        <div class="spacer"></div>
-        <button class="btn btn-primary" id="btnNeuMarke">+ NEU</button>
-      </div>
-      <table class="data-table">
-        <thead><tr><th>Nr.</th><th>Name</th><th></th></tr></thead>
-        <tbody id="markenTableBody"></tbody>
-      </table>
+      <div class="action-bar"><div class="spacer"></div><button class="btn btn-primary" id="btnNeuMarke">+ NEU</button></div>
+      <table class="data-table"><thead><tr><th>Nr.</th><th>Name</th><th></th></tr></thead><tbody id="markenTableBody"></tbody></table>
     </div>
 
-    <!-- SCREEN: Kategorien -->
+    <!-- ── KATEGORIEN ── -->
     <div class="screen" id="screen-kategorien">
-      <div class="action-bar">
-        <div class="spacer"></div>
-        <button class="btn btn-primary" id="btnNeuKategorie">+ NEU</button>
-      </div>
-      <table class="data-table">
-        <thead><tr><th>Nr.</th><th>Name</th><th></th></tr></thead>
-        <tbody id="kategorienTableBody"></tbody>
-      </table>
+      <div class="action-bar"><div class="spacer"></div><button class="btn btn-primary" id="btnNeuKategorie">+ NEU</button></div>
+      <table class="data-table"><thead><tr><th>Nr.</th><th>Name</th><th></th></tr></thead><tbody id="kategorienTableBody"></tbody></table>
     </div>
 
-    <!-- SCREEN: Verkäufer-Types -->
+    <!-- ── VK-TYPEN ── -->
     <div class="screen" id="screen-verkaeuferTypes">
-      <div class="action-bar">
-        <div class="spacer"></div>
-        <button class="btn btn-primary" id="btnNeuVkType">+ NEU</button>
-      </div>
-      <table class="data-table">
-        <thead><tr><th>Nr.</th><th>Name</th><th>Provision %</th><th>Gebühr €</th><th></th></tr></thead>
-        <tbody id="vkTypesTableBody"></tbody>
-      </table>
+      <div class="action-bar"><div class="spacer"></div><button class="btn btn-primary" id="btnNeuVkType">+ NEU</button></div>
+      <table class="data-table"><thead><tr><th>Nr.</th><th>Name</th><th>Provision %</th><th>Gebühr €</th><th></th></tr></thead><tbody id="vkTypesTableBody"></tbody></table>
     </div>
 
-  </div>
-</div>
+  </div><!-- /content -->
+</div><!-- /layout -->
 
 <div id="toast"></div>
 
-<!-- Modal: Verkäufer Status -->
-<div class="modal-overlay" id="modalVkStatus">
+<!-- ════ MODALS ════ -->
+
+<!-- Wizard Schritt 1: Verkäufer anlegen -->
+<div class="modal-overlay" id="modalWizard1">
   <div class="modal-box">
-    <div class="modal-header">
-      <h2>Verkäufer Status</h2>
-      <button class="btn-close-modal" data-close="modalVkStatus">×</button>
-    </div>
+    <div class="modal-header"><h2>Schritt 1 — Verkäufer anlegen</h2><button class="btn-close-modal" data-close="modalWizard1">×</button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label>Aktueller Status</label>
-        <div id="vkStatusChip" style="margin-top:6px"></div>
+      <div class="form-grid-2">
+        <div class="form-group"><label>Vorname *</label><input class="form-control" id="w1Vorname" type="text"></div>
+        <div class="form-group"><label>Nachname *</label><input class="form-control" id="w1Nachname" type="text"></div>
+        <div class="form-group"><label>PLZ</label><input class="form-control" id="w1Plz" type="text"></div>
+        <div class="form-group"><label>Ort</label><input class="form-control" id="w1Ort" type="text"></div>
+        <div class="form-group"><label>Telefon</label><input class="form-control" id="w1Telefon" type="text"></div>
+        <div class="form-group"><label>E-Mail</label><input class="form-control" id="w1Email" type="email"></div>
       </div>
-      <div class="form-group">
-        <label>Abgerechnet Am</label>
-        <div id="vkStatusAbrDatum" style="font-size:14px;padding:8px 0;color:#212121"></div>
-      </div>
-      <div id="vkStatusDeleteWrap" style="display:none;margin-top:4px">
-        <button class="btn btn-danger btn-sm" id="btnVkStatusDelete">Datum löschen</button>
-      </div>
+      <div class="form-group"><label>Verkäufer-Type</label><select class="form-control" id="w1Type"></select></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" data-close="modalVkStatus">Schließen</button>
+      <button class="btn btn-ghost" data-close="modalWizard1">Abbrechen</button>
+      <button class="btn btn-primary" id="btnWizard1Weiter">Weiter →</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: Verkäufer Formular -->
-<div class="modal-overlay" id="modalVkForm">
-  <div class="modal-box">
+<!-- Wizard Schritt 2: Artikelannahme -->
+<div class="modal-overlay" id="modalWizard2">
+  <div class="modal-box modal-wide" style="width:90%;max-height:90vh">
     <div class="modal-header">
-      <h2 id="modalVkFormTitle">Verkäufer bearbeiten</h2>
-      <button class="btn-close-modal" data-close="modalVkForm">×</button>
+      <h2 id="w2Title">Schritt 2 — Artikelannahme</h2>
+      <button class="btn-close-modal" data-close="modalWizard2">×</button>
     </div>
-    <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
-        <div class="form-group">
-          <label>Vorname *</label>
-          <input class="form-control" id="vkFormVorname" type="text">
+    <div class="modal-body" style="display:grid;grid-template-columns:60% 40%;gap:16px">
+      <!-- Links: Eingabe -->
+      <div>
+        <div class="form-grid-2">
+          <div class="form-group"><label>Artikelnummer</label><input class="form-control" id="wzArtNr" type="number" placeholder="automatisch"></div>
+          <div class="form-group"><label>Bezeichnung *</label><input class="form-control" id="wzBezeichnung" type="text"></div>
+          <div class="form-group"><label>Kategorie</label><input class="form-control" id="wzKategorie" list="wzKatList"><datalist id="wzKatList"></datalist></div>
+          <div class="form-group"><label>Marke</label><input class="form-control" id="wzMarke" list="wzMarkeList"><datalist id="wzMarkeList"></datalist></div>
+          <div class="form-group"><label>Preis (€) *</label><input class="form-control" id="wzPreis" type="number" step="0.01"></div>
+          <div class="form-group"><label>Alternativ-Preis (€)</label><input class="form-control" id="wzAltPreis" type="number" step="0.01"></div>
+          <div class="form-group"><label>Größe</label><input class="form-control" id="wzGroesse" type="text"></div>
+          <div class="form-group"><label>Farbe</label><input class="form-control" id="wzFarbe" type="text"></div>
         </div>
-        <div class="form-group">
-          <label>Nachname *</label>
-          <input class="form-control" id="vkFormNachname" type="text">
-        </div>
-        <div class="form-group">
-          <label>PLZ</label>
-          <input class="form-control" id="vkFormPlz" type="text">
-        </div>
-        <div class="form-group">
-          <label>Ort</label>
-          <input class="form-control" id="vkFormOrt" type="text">
-        </div>
-        <div class="form-group">
-          <label>Telefon</label>
-          <input class="form-control" id="vkFormTelefon" type="text">
-        </div>
-        <div class="form-group">
-          <label>E-Mail</label>
-          <input class="form-control" id="vkFormEmail" type="email">
-        </div>
+        <div class="form-group"><label>Beschreibung</label><textarea class="form-control" id="wzBeschreibung" rows="2"></textarea></div>
+        <div style="text-align:right"><button class="btn btn-primary" onclick="wzUebernehmen()">+ Übernehmen</button></div>
       </div>
-      <div class="form-group">
-        <label>Verkäufer-Type</label>
-        <select class="form-control" id="vkFormType"></select>
+      <!-- Rechts: Übersicht -->
+      <div style="border-left:1px solid #EEE;padding-left:16px;display:flex;flex-direction:column">
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px" id="w2VkName">—</div>
+        <div style="font-size:12px;color:#757575;margin-bottom:10px" id="w2VkType">—</div>
+        <div style="font-size:11px;font-weight:600;color:#9E9E9E;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Erfasste Artikel</div>
+        <ul class="wizard-article-list" id="wzArtikelList" style="flex:1;border:1px solid #EEE;border-radius:4px;min-height:80px"></ul>
+        <div style="padding:10px;background:#F5F5F5;border-radius:4px;font-size:13px;margin-top:8px" id="wzGebuehrLine"></div>
+        <button class="btn btn-primary" style="margin-top:10px;width:100%" onclick="openWizardSpeichern()">💾 Speichern</button>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" data-close="modalVkForm">Abbrechen</button>
-      <button class="btn btn-primary" id="btnVkFormSave">Speichern</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: Artikel Freigeben -->
+<!-- Wizard Speichern -->
+<div class="modal-overlay" id="modalWizardSpeichern">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-header"><h2>Artikelannahme abschließen</h2><button class="btn-close-modal" data-close="modalWizardSpeichern">×</button></div>
+    <div class="modal-body">
+      <div class="provision-row"><span>Anzahl Artikel</span><span id="wsAnzahl">0</span></div>
+      <div class="provision-row total"><span>Gesamtgebühr</span><span id="wsGebuehr">0,00 €</span></div>
+      <div class="form-group" style="margin-top:14px"><label>Betrag erhalten (€)</label><input class="form-control" id="wsErhalten" type="number" step="0.01" min="0" placeholder="0,00"></div>
+      <div class="rueckgeld-display" id="wsRueckgeld">Rückgeld: 0,00 €</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="modalWizardSpeichern">Abbrechen</button>
+      <button class="btn btn-primary" id="btnWsBuchen">🖨 Buchen & Drucken</button>
+    </div>
+  </div>
+</div>
+
+<!-- Verkauf Buchen -->
+<div class="modal-overlay" id="modalVerkaufBuchen">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-header"><h2>Verkauf buchen</h2><button class="btn-close-modal" data-close="modalVerkaufBuchen">×</button></div>
+    <div class="modal-body">
+      <div class="provision-row total" style="font-size:18px;margin-bottom:10px"><span>Gesamtbetrag</span><span id="vbGesamt">0,00 €</span></div>
+      <div class="form-group"><label>Betrag erhalten (€)</label><input class="form-control" id="vbErhalten" type="number" step="0.01" min="0" placeholder="0,00"></div>
+      <div class="rueckgeld-display" id="vbRueckgeld">Rückgeld: 0,00 €</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="modalVerkaufBuchen">Abbrechen</button>
+      <button class="btn btn-primary" id="btnVbBezahlt">✓ Bezahlt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Abrechnen -->
+<div class="modal-overlay" id="modalAbrechnen">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-header"><h2>Abrechnung</h2><button class="btn-close-modal" data-close="modalAbrechnen">×</button></div>
+    <div class="modal-body">
+      <div id="abrModalContent"></div>
+      <div class="rueckgeld-display" id="abrAuszahlung" style="background:#E3F2FD;color:#0D47A1">Auszahlung: 0,00 €</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="modalAbrechnen">Abbrechen</button>
+      <button class="btn btn-primary" id="btnAbrBuchen">Buchen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Artikel Freigeben / Zurückgeben (gemeinsam) -->
 <div class="modal-overlay" id="modalFreigeben">
   <div class="modal-box">
     <div class="modal-header">
@@ -358,341 +447,181 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
       <button class="btn-close-modal" data-close="modalFreigeben">×</button>
     </div>
     <div class="modal-body">
-      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-        <button class="btn btn-outline btn-sm" id="btnFreigebenToggle">Kamera</button>
-      </div>
+      <!-- Eingabe + Kamera Toggle in einer Zeile -->
       <div id="freigebenManuell">
-        <div class="form-group">
-          <label>Artikelnummer direkt eingeben</label>
-          <div style="display:flex;gap:8px">
-            <input class="form-control" id="freigebenNrInput" type="number" placeholder="Artikelnummer...">
-            <button class="btn btn-primary btn-sm" id="btnFreigebenNr">Freigeben</button>
+        <div class="freigabe-input-row">
+          <div class="input-with-icon" style="flex:1">
+            <input class="form-control" id="freigebenNrInput" type="number" placeholder="Artikelnummer…">
+            <button class="input-icon-right" id="btnFreigebenNr" title="Freigeben / Enter">⏎</button>
           </div>
+          <button class="btn btn-outline btn-sm" id="btnFreigebenToggle">📷 Kamera</button>
         </div>
-        <label style="font-size:12px;color:#757575;font-weight:500;display:block;margin-bottom:4px">Nicht freigegebene Artikel (anklicken zum Auswählen)</label>
+        <div id="freigebenInfo" style="min-height:32px;margin-bottom:6px"></div>
+        <div class="freigabe-list-header">
+          <span style="font-size:12px;color:#757575;font-weight:500">Nicht freigegebene Artikel</span>
+          <button class="btn btn-ghost btn-sm" id="btnFreigebenAlle" onclick="toggleAlleFreigeben()">Alle</button>
+        </div>
         <div class="freigabe-list" id="freigebenList"></div>
-        <div style="margin-top:12px;display:flex;justify-content:flex-end">
-          <button class="btn btn-primary" id="btnFreigebenSaveSelected">Ausgewählte freigeben</button>
+        <div style="margin-top:10px;display:flex;justify-content:flex-end">
+          <button class="btn btn-primary btn-sm" id="btnFreigebenSaveSelected">Ausgewählte freigeben</button>
         </div>
       </div>
+      <!-- Kamera-Modus -->
       <div id="freigebenKamera" style="display:none">
-        <div class="camera-placeholder">📷 Kamera-Vorschau</div>
-        <div id="freigebenKameraInfo"></div>
+        <div class="camera-placeholder">📷 Kamera-Vorschau (Simulation)</div>
+        <div id="freigebenKameraInfo" style="margin-top:8px"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-sm" style="background:#388E3C;color:#fff" onclick="simKameraScan('ok')">✓ Erfolg sim.</button>
+          <button class="btn btn-sm" style="background:#F57C00;color:#fff" onclick="simKameraScan('bereits')">⚠ Bereits frei</button>
+          <button class="btn btn-sm" style="background:#D32F2F;color:#fff" onclick="simKameraScan('nicht')">✗ Nicht bekannt</button>
+        </div>
+        <div style="margin-top:12px"><button class="btn btn-ghost btn-sm" id="btnFreigebenBack">← Eingabe-Modus</button></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal: Wizard Schritt 1 -->
-<div class="modal-overlay" id="modalWizard1">
+<!-- Verkäufer Status -->
+<div class="modal-overlay" id="modalVkStatus">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-header"><h2 id="vkStatusTitle">Verkäufer-Status</h2><button class="btn-close-modal" data-close="modalVkStatus">×</button></div>
+    <div class="modal-body" id="vkStatusBody"></div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-close="modalVkStatus">Schließen</button></div>
+  </div>
+</div>
+
+<!-- Verkäufer Formular -->
+<div class="modal-overlay" id="modalVkForm">
   <div class="modal-box">
-    <div class="modal-header">
-      <h2>Schritt 1 — Verkäufer anlegen</h2>
-      <button class="btn-close-modal" data-close="modalWizard1">×</button>
-    </div>
+    <div class="modal-header"><h2 id="modalVkFormTitle">Verkäufer</h2><button class="btn-close-modal" data-close="modalVkForm">×</button></div>
     <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
-        <div class="form-group">
-          <label>Vorname *</label>
-          <input class="form-control" id="w1Vorname" type="text">
-        </div>
-        <div class="form-group">
-          <label>Nachname *</label>
-          <input class="form-control" id="w1Nachname" type="text">
-        </div>
-        <div class="form-group">
-          <label>PLZ</label>
-          <input class="form-control" id="w1Plz" type="text">
-        </div>
-        <div class="form-group">
-          <label>Ort</label>
-          <input class="form-control" id="w1Ort" type="text">
-        </div>
-        <div class="form-group">
-          <label>Telefon</label>
-          <input class="form-control" id="w1Telefon" type="text">
-        </div>
-        <div class="form-group">
-          <label>E-Mail</label>
-          <input class="form-control" id="w1Email" type="email">
-        </div>
+      <div class="form-grid-2">
+        <div class="form-group"><label>Vorname *</label><input class="form-control" id="vkFormVorname" type="text"></div>
+        <div class="form-group"><label>Nachname *</label><input class="form-control" id="vkFormNachname" type="text"></div>
+        <div class="form-group"><label>PLZ</label><input class="form-control" id="vkFormPlz" type="text"></div>
+        <div class="form-group"><label>Ort</label><input class="form-control" id="vkFormOrt" type="text"></div>
+        <div class="form-group"><label>Telefon</label><input class="form-control" id="vkFormTelefon" type="text"></div>
+        <div class="form-group"><label>E-Mail</label><input class="form-control" id="vkFormEmail" type="email"></div>
       </div>
-      <div class="form-group">
-        <label>Verkäufer-Type</label>
-        <select class="form-control" id="w1Type"></select>
-      </div>
+      <div class="form-group"><label>Verkäufer-Type</label><select class="form-control" id="vkFormType"></select></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" data-close="modalWizard1">Abbrechen</button>
-      <button class="btn btn-primary" id="btnWizard1Weiter">Weiter →</button>
+      <button class="btn btn-ghost" data-close="modalVkForm">Abbrechen</button>
+      <button class="btn btn-primary" id="btnVkFormSave">Speichern</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: Wizard Speichern -->
-<div class="modal-overlay" id="modalWizardSpeichern">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h2>Artikelannahme abschließen</h2>
-      <button class="btn-close-modal" data-close="modalWizardSpeichern">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="provision-row">
-        <span>Anzahl Artikel</span>
-        <span id="wsAnzahl">0</span>
-      </div>
-      <div class="provision-row">
-        <span>Gesamtgebühr</span>
-        <span id="wsGebuehr">0,00 €</span>
-      </div>
-      <hr class="sep">
-      <div class="form-group">
-        <label>Betrag erhalten (€)</label>
-        <input class="form-control" id="wsErhalten" type="number" step="0.01" min="0" placeholder="0,00">
-      </div>
-      <div class="rueckgeld-display" id="wsRueckgeld">Rückgeld: 0,00 €</div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" data-close="modalWizardSpeichern">Abbrechen</button>
-      <button class="btn btn-primary" id="btnWsBuchen">Buchen</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Verkauf Buchen -->
-<div class="modal-overlay" id="modalVerkaufBuchen">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h2>Verkauf buchen</h2>
-      <button class="btn-close-modal" data-close="modalVerkaufBuchen">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="provision-row total" style="font-size:20px;margin-bottom:12px">
-        <span>Gesamtbetrag</span>
-        <span id="vbGesamt">0,00 €</span>
-      </div>
-      <hr class="sep">
-      <div class="form-group">
-        <label>Betrag erhalten (€)</label>
-        <input class="form-control" id="vbErhalten" type="number" step="0.01" min="0" placeholder="0,00">
-      </div>
-      <div class="rueckgeld-display" id="vbRueckgeld">Rückgeld: 0,00 €</div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" data-close="modalVerkaufBuchen">Abbrechen</button>
-      <button class="btn btn-primary" id="btnVbBezahlt">Bezahlt ✓</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Abrechnen -->
-<div class="modal-overlay" id="modalAbrechnen">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h2>Abrechnung durchführen</h2>
-      <button class="btn-close-modal" data-close="modalAbrechnen">×</button>
-    </div>
-    <div class="modal-body">
-      <div id="abrModalContent"></div>
-      <div class="rueckgeld-display" id="abrAuszahlung" style="background:#E3F2FD;color:#1565C0">Auszahlung: 0,00 €</div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" data-close="modalAbrechnen">Abbrechen</button>
-      <button class="btn btn-primary" id="btnAbrBuchen">Buchen</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Zurückgeben -->
-<div class="modal-overlay" id="modalZurueckgeben">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h2>Artikel zurückgeben</h2>
-      <button class="btn-close-modal" data-close="modalZurueckgeben">×</button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:14px;color:#757575;margin-bottom:16px">Alle nicht verkauften Artikel werden als "Zurückgegeben" markiert.</p>
-      <div id="zurueckgebenList"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" data-close="modalZurueckgeben">Abbrechen</button>
-      <button class="btn btn-accent" id="btnZurueckgebenOk">Zurückgeben bestätigen</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Artikel Status -->
+<!-- Artikel Status -->
 <div class="modal-overlay" id="modalArtikelStatus">
   <div class="modal-box">
-    <div class="modal-header">
-      <h2 id="modalArtikelStatusTitle">Artikelstatus</h2>
-      <button class="btn-close-modal" data-close="modalArtikelStatus">×</button>
-    </div>
+    <div class="modal-header"><h2 id="modalArtikelStatusTitle">Artikelstatus</h2><button class="btn-close-modal" data-close="modalArtikelStatus">×</button></div>
     <div class="modal-body" id="modalArtikelStatusBody"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" data-close="modalArtikelStatus">Schließen</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-close="modalArtikelStatus">Schließen</button></div>
   </div>
 </div>
 
-<!-- Modal: Artikel Formular -->
+<!-- Artikel Formular -->
 <div class="modal-overlay" id="modalArtikelForm">
   <div class="modal-box">
-    <div class="modal-header">
-      <h2 id="modalArtikelFormTitle">Artikel bearbeiten</h2>
-      <button class="btn-close-modal" data-close="modalArtikelForm">×</button>
-    </div>
+    <div class="modal-header"><h2 id="modalArtikelFormTitle">Artikel</h2><button class="btn-close-modal" data-close="modalArtikelForm">×</button></div>
     <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
-        <div class="form-group">
-          <label>Bezeichnung *</label>
-          <input class="form-control" id="afBezeichnung" type="text">
-        </div>
-        <div class="form-group">
-          <label>Preis (€) *</label>
-          <input class="form-control" id="afPreis" type="number" step="0.01">
-        </div>
-        <div class="form-group">
-          <label>Kategorie</label>
-          <input class="form-control" id="afKategorie" list="afKatList">
-          <datalist id="afKatList"></datalist>
-        </div>
-        <div class="form-group">
-          <label>Marke</label>
-          <input class="form-control" id="afMarke" list="afMarkeList">
-          <datalist id="afMarkeList"></datalist>
-        </div>
-        <div class="form-group">
-          <label>Größe</label>
-          <input class="form-control" id="afGroesse" type="text">
-        </div>
-        <div class="form-group">
-          <label>Farbe</label>
-          <input class="form-control" id="afFarbe" type="text">
-        </div>
-        <div class="form-group">
-          <label>Alternativ-Preis (€)</label>
-          <input class="form-control" id="afAltPreis" type="number" step="0.01">
-        </div>
+      <div class="form-grid-2">
+        <div class="form-group"><label>Bezeichnung *</label><input class="form-control" id="afBezeichnung" type="text"></div>
+        <div class="form-group"><label>Preis (€) *</label><input class="form-control" id="afPreis" type="number" step="0.01"></div>
+        <div class="form-group"><label>Kategorie</label><input class="form-control" id="afKategorie" list="afKatList"><datalist id="afKatList"></datalist></div>
+        <div class="form-group"><label>Marke</label><input class="form-control" id="afMarke" list="afMarkeList"><datalist id="afMarkeList"></datalist></div>
+        <div class="form-group"><label>Größe</label><input class="form-control" id="afGroesse" type="text"></div>
+        <div class="form-group"><label>Farbe</label><input class="form-control" id="afFarbe" type="text"></div>
+        <div class="form-group"><label>Alternativ-Preis (€)</label><input class="form-control" id="afAltPreis" type="number" step="0.01"></div>
       </div>
-      <div class="form-group">
-        <label>Beschreibung</label>
-        <textarea class="form-control" id="afBeschreibung" rows="3"></textarea>
-      </div>
+      <div class="form-group"><label>Beschreibung</label><textarea class="form-control" id="afBeschreibung" rows="3"></textarea></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" data-close="modalArtikelForm">Abbrechen</button>
+      <button class="btn btn-ghost" data-close="modalArtikelForm">Abbrechen</button>
       <button class="btn btn-primary" id="btnAfSave">Speichern</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: Marke Formular -->
+<!-- Marke Formular -->
 <div class="modal-overlay" id="modalMarkeForm">
   <div class="modal-box" style="max-width:400px">
-    <div class="modal-header">
-      <h2 id="modalMarkeFormTitle">Marke</h2>
-      <button class="btn-close-modal" data-close="modalMarkeForm">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>Name *</label>
-        <input class="form-control" id="markeFormName" type="text">
-      </div>
-    </div>
+    <div class="modal-header"><h2 id="modalMarkeFormTitle">Marke</h2><button class="btn-close-modal" data-close="modalMarkeForm">×</button></div>
+    <div class="modal-body"><div class="form-group"><label>Name *</label><input class="form-control" id="markeFormName" type="text"></div></div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="btnMarkeDelete" style="margin-right:auto;display:none">Löschen</button>
-      <button class="btn btn-outline" data-close="modalMarkeForm">Abbrechen</button>
+      <button class="btn btn-ghost" data-close="modalMarkeForm">Abbrechen</button>
       <button class="btn btn-primary" id="btnMarkeSave">Speichern</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: Kategorie Formular -->
+<!-- Kategorie Formular -->
 <div class="modal-overlay" id="modalKategorieForm">
   <div class="modal-box" style="max-width:400px">
-    <div class="modal-header">
-      <h2 id="modalKategorieFormTitle">Kategorie</h2>
-      <button class="btn-close-modal" data-close="modalKategorieForm">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>Name *</label>
-        <input class="form-control" id="kategorieFormName" type="text">
-      </div>
-    </div>
+    <div class="modal-header"><h2 id="modalKategorieFormTitle">Kategorie</h2><button class="btn-close-modal" data-close="modalKategorieForm">×</button></div>
+    <div class="modal-body"><div class="form-group"><label>Name *</label><input class="form-control" id="kategorieFormName" type="text"></div></div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="btnKategorieDelete" style="margin-right:auto;display:none">Löschen</button>
-      <button class="btn btn-outline" data-close="modalKategorieForm">Abbrechen</button>
+      <button class="btn btn-ghost" data-close="modalKategorieForm">Abbrechen</button>
       <button class="btn btn-primary" id="btnKategorieSave">Speichern</button>
     </div>
   </div>
 </div>
 
-<!-- Modal: VkType Formular -->
+<!-- VK-Type Formular -->
 <div class="modal-overlay" id="modalVkTypeForm">
   <div class="modal-box" style="max-width:450px">
-    <div class="modal-header">
-      <h2 id="modalVkTypeFormTitle">Verkäufer-Type</h2>
-      <button class="btn-close-modal" data-close="modalVkTypeForm">×</button>
-    </div>
+    <div class="modal-header"><h2 id="modalVkTypeFormTitle">Verkäufer-Type</h2><button class="btn-close-modal" data-close="modalVkTypeForm">×</button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label>Name *</label>
-        <input class="form-control" id="vkTypeFormName" type="text">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
-        <div class="form-group">
-          <label>Provision (%)</label>
-          <input class="form-control" id="vkTypeFormProvision" type="number" step="0.1">
-        </div>
-        <div class="form-group">
-          <label>Gebühr (€)</label>
-          <input class="form-control" id="vkTypeFormGebuehr" type="number" step="0.01">
-        </div>
+      <div class="form-group"><label>Name *</label><input class="form-control" id="vkTypeFormName" type="text"></div>
+      <div class="form-grid-2">
+        <div class="form-group"><label>Provision (%)</label><input class="form-control" id="vkTypeFormProvision" type="number" step="0.1"></div>
+        <div class="form-group"><label>Gebühr (€/Stück)</label><input class="form-control" id="vkTypeFormGebuehr" type="number" step="0.01"></div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="btnVkTypeDelete" style="margin-right:auto;display:none">Löschen</button>
-      <button class="btn btn-outline" data-close="modalVkTypeForm">Abbrechen</button>
+      <button class="btn btn-ghost" data-close="modalVkTypeForm">Abbrechen</button>
       <button class="btn btn-primary" id="btnVkTypeSave">Speichern</button>
     </div>
   </div>
 </div>
 
 <script>
-// ===== DATA =====
+// ════ DATA ════
 let verkaeufer = [
-  { id:1, vorname:"Anna", nachname:"Müller", plz:"80331", ort:"München", telefon:"089-123456", email:"anna@example.com", type:"Privat", status:"Im Verkauf", artikelGesamt:12, freigegeben:8, verkauft:5, zurueckgegeben:1, warenwert:120, umsatz:75, abgerechnetAm:null },
-  { id:2, vorname:"Thomas", nachname:"Schmidt", plz:"10115", ort:"Berlin", telefon:"030-654321", email:"thomas@example.com", type:"Gewerblich", status:"Abgerechnet", artikelGesamt:8, freigegeben:8, verkauft:8, zurueckgegeben:0, warenwert:200, umsatz:200, abgerechnetAm:"2026-06-10T14:30:00" },
-  { id:3, vorname:"Lisa", nachname:"Weber", plz:"20095", ort:"Hamburg", telefon:"040-111222", email:"lisa@example.com", type:"Privat", status:"Offen", artikelGesamt:3, freigegeben:0, verkauft:0, zurueckgegeben:0, warenwert:45, umsatz:0, abgerechnetAm:null },
-  { id:4, vorname:"Klaus", nachname:"Fischer", plz:"50667", ort:"Köln", telefon:"0221-333444", email:"klaus@example.com", type:"Verein", status:"Im Verkauf", artikelGesamt:6, freigegeben:6, verkauft:2, zurueckgegeben:0, warenwert:90, umsatz:30, abgerechnetAm:null }
+  {id:1,vorname:'Anna',nachname:'Müller',plz:'80331',ort:'München',telefon:'089-123456',email:'anna@example.com',type:'Privat',abgerechnetAm:null},
+  {id:2,vorname:'Thomas',nachname:'Schmidt',plz:'10115',ort:'Berlin',telefon:'030-654321',email:'thomas@example.com',type:'Gewerblich',abgerechnetAm:'2026-06-15T13:00:00'},
+  {id:3,vorname:'Lisa',nachname:'Weber',plz:'20095',ort:'Hamburg',telefon:'040-111222',email:'lisa@example.com',type:'Privat',abgerechnetAm:null},
+  {id:4,vorname:'Klaus',nachname:'Fischer',plz:'50667',ort:'Köln',telefon:'0221-333444',email:'klaus@example.com',type:'Verein',abgerechnetAm:null}
 ];
-
 let artikel = [
-  { id:101, bezeichnung:"Winterjacke", kategorie:"Jacken", marke:"Nike", preis:25.00, beschreibung:"Warm und komfortabel", groesse:"L", farbe:"Blau", altPreis:null, verkaeuferID:1, status:"Im Verkauf", erstelltAm:"2026-06-01T10:00:00", freigegebenAm:"2026-06-02T09:00:00", verkauftAm:null, zurueckgegebenAm:null, abgerechnetAm:null },
-  { id:102, bezeichnung:"Hose", kategorie:"Hosen", marke:"Levis", preis:15.00, beschreibung:"Jeans", groesse:"M", farbe:"Schwarz", altPreis:12.00, verkaeuferID:1, status:"Verkauft", erstelltAm:"2026-06-01T10:00:00", freigegebenAm:"2026-06-02T09:00:00", verkauftAm:"2026-06-05T11:00:00", zurueckgegebenAm:null, abgerechnetAm:null },
-  { id:103, bezeichnung:"Schuhe", kategorie:"Schuhe", marke:"Adidas", preis:20.00, beschreibung:"Sportschuhe", groesse:"42", farbe:"Weiß", altPreis:null, verkaeuferID:1, status:"Im Verkauf", erstelltAm:"2026-06-01T10:00:00", freigegebenAm:"2026-06-02T09:00:00", verkauftAm:null, zurueckgegebenAm:null, abgerechnetAm:null },
-  { id:104, bezeichnung:"T-Shirt", kategorie:"Shirts", marke:"H&M", preis:5.00, beschreibung:"Baumwolle", groesse:"S", farbe:"Weiß", altPreis:null, verkaeuferID:3, status:"Registriert", erstelltAm:"2026-06-03T08:00:00", freigegebenAm:null, verkauftAm:null, zurueckgegebenAm:null, abgerechnetAm:null },
-  { id:105, bezeichnung:"Schal", kategorie:"Accessoires", marke:"Zara", preis:8.00, beschreibung:"Winterschal", groesse:"One Size", farbe:"Rot", altPreis:null, verkaeuferID:4, status:"Im Verkauf", erstelltAm:"2026-06-04T09:00:00", freigegebenAm:"2026-06-04T10:00:00", verkauftAm:null, zurueckgegebenAm:null, abgerechnetAm:null }
+  {id:101,bezeichnung:'Winterjacke',kategorie:'Jacken',marke:'Nike',preis:25.00,altPreis:null,groesse:'L',farbe:'Blau',beschreibung:'Warm',verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:102,bezeichnung:'Jeanshose',kategorie:'Hosen',marke:'Levis',preis:15.00,altPreis:10.00,groesse:'M',farbe:'Schwarz',beschreibung:'',verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:'2026-06-15T10:30',zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:103,bezeichnung:'Turnschuhe',kategorie:'Schuhe',marke:'Adidas',preis:20.00,altPreis:null,groesse:'42',farbe:'Weiß',beschreibung:'',verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:104,bezeichnung:'T-Shirt',kategorie:'Shirts',marke:'H&M',preis:5.00,altPreis:null,groesse:'S',farbe:'Weiß',beschreibung:'',verkaeuferID:3,erstelltAm:'2026-06-03T08:00',freigegebenAm:null,verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:105,bezeichnung:'Schal',kategorie:'Accessoires',marke:'Zara',preis:8.00,altPreis:null,groesse:'',farbe:'Rot',beschreibung:'',verkaeuferID:4,erstelltAm:'2026-06-04T09:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:201,bezeichnung:'Wintermantel',kategorie:'Jacken',marke:'Zara',preis:45.00,altPreis:null,groesse:'L',farbe:'Schwarz',beschreibung:'',verkaeuferID:2,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:'2026-06-15T09:30',zurueckgegebenAm:null,abgerechnetAm:'2026-06-15T13:00'},
+  {id:401,bezeichnung:'Pullover rot',kategorie:'Shirts',marke:'Adidas',preis:14.00,altPreis:null,groesse:'L',farbe:'Rot',beschreibung:'',verkaeuferID:4,erstelltAm:'2026-06-04T09:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:'2026-06-15T11:30',zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:402,bezeichnung:'Jeans schwarz',kategorie:'Hosen',marke:'Levis',preis:22.00,altPreis:null,groesse:'32',farbe:'Schwarz',beschreibung:'',verkaeuferID:4,erstelltAm:'2026-06-04T09:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null},
 ];
-
-let marken = ["Nike","Adidas","Levis","H&M","Zara"];
-let kategorien = ["Jacken","Hosen","Schuhe","Shirts","Accessoires"];
+let marken = ['Nike','Adidas','Levis','H&M','Zara','Puma'];
+let kategorien = ['Jacken','Hosen','Schuhe','Shirts','Accessoires'];
 let verkaeuferTypes = [
-  { name:"Privat", provision:20, gebuehr:0.50 },
-  { name:"Gewerblich", provision:30, gebuehr:1.00 },
-  { name:"Verein", provision:10, gebuehr:0.25 }
+  {name:'Privat',provision:20,gebuehr:0.50},
+  {name:'Gewerblich',provision:30,gebuehr:1.00},
+  {name:'Verein',provision:10,gebuehr:0.25}
 ];
 
-// ===== STATE =====
-let currentScreen = 'verkaeufer';
+// ════ STATE ════
 let warenkorb = [];
-let wizardVerkaeufer = null;
+let wizardVk = null;
 let wizardArtikel = [];
-let selectedVerkaeufer = null;
-let verkaeuferFilter = { status: 'Alle', search: '' };
-let artikelFilter = { marke: '', kategorie: '', vStatus: '', aStatus: '', search: '' };
+let selectedVk = null;
+let vkFilter = {status:'Alle',search:''};
+let artFilter = {marke:'',kat:'',vstatus:'',astatus:'',search:''};
 let editingVkId = null;
 let editingArtikelId = null;
 let editingMarkeIdx = null;
@@ -701,713 +630,616 @@ let editingVkTypeIdx = null;
 let freigebenVkId = null;
 let freigebenSelected = new Set();
 let freigebenMode = 'manuell';
+let freigebenAction = 'freigabe'; // 'freigabe' | 'rueckgabe'
 let abrVkId = null;
-let nextId = 200;
+let nextId = 500;
 
-// ===== HELPERS =====
-function fmt(num) { return Number(num || 0).toFixed(2).replace('.', ',') + ' €'; }
-function fmtDate(ts) { if (!ts) return 'Nicht gesetzt'; return new Date(ts).toLocaleString('de-DE'); }
-function tsNow() { return new Date().toISOString(); }
-function getVk(id) { return verkaeufer.find(v => v.id === id); }
-function getArt(id) { return artikel.find(a => a.id === id); }
-function vkName(vk) { return vk ? vk.vorname + ' ' + vk.nachname : '—'; }
-function getTypeInfo(name) { return verkaeuferTypes.find(t => t.name === name) || { provision: 20, gebuehr: 0.50 }; }
-
-function showToast(msg, dur) {
-  dur = dur || 2500;
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(function() { t.classList.remove('show'); }, dur);
+// ════ HELPERS ════
+function fmt(n){return Number(n||0).toFixed(2).replace('.',',')+'&nbsp;€';}
+function fmtText(n){return Number(n||0).toFixed(2).replace('.',',')+'&nbsp;€';}
+function fmtDate(ts){if(!ts)return null;return new Date(ts).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function tsNow(){return new Date().toISOString();}
+function getVk(id){return verkaeufer.find(v=>v.id===id);}
+function getArt(id){return artikel.find(a=>a.id===id);}
+function vkName(vk){return vk?vk.vorname+' '+vk.nachname:'—';}
+function getTypeInfo(name){return verkaeuferTypes.find(t=>t.name===name)||{provision:20,gebuehr:0.50};}
+function getVkStatus(vk){
+  if(vk.abgerechnetAm)return'Abgerechnet';
+  var arts=artikel.filter(a=>a.verkaeuferID===vk.id);
+  if(arts.some(a=>a.freigegebenAm))return'Im Verkauf';
+  return'Offen';
+}
+function getArtStatus(a){
+  if(a.zurueckgegebenAm)return'Zurückgegeben';
+  if(a.verkauftAm)return'Verkauft';
+  if(a.freigegebenAm)return'Im Verkauf';
+  return'Registriert';
+}
+function chipHtml(status,ctx,extra){
+  extra=extra||'';
+  var cls={
+    'Offen':'chip-gray','Im Verkauf':'chip-blue','Abgerechnet':'chip-green',
+    'Registriert':'chip-gray','Verkauft':'chip-green','Zurückgegeben':'chip-orange'
+  }[status]||'chip-gray';
+  return '<span class="chip '+cls+(extra?' chip-clickable':'')+'" '+extra+'>'+status+'</span>';
 }
 
-function statusChipClass(status, ctx) {
-  if (ctx === 'vk') {
-    if (status === 'Offen') return 'chip-gray';
-    if (status === 'Im Verkauf') return 'chip-blue';
-    if (status === 'Abgerechnet') return 'chip-green';
-  } else {
-    if (status === 'Registriert') return 'chip-gray';
-    if (status === 'Im Verkauf') return 'chip-blue';
-    if (status === 'Verkauft') return 'chip-green';
-    if (status === 'Zurückgegeben') return 'chip-orange';
-  }
-  return 'chip-gray';
+// ════ AUDIO (error tone) ════
+function playErrorTone(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    var osc=ctx.createOscillator();
+    var gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='square';osc.frequency.setValueAtTime(220,ctx.currentTime);
+    gain.gain.setValueAtTime(0.3,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);
+    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.4);
+  }catch(e){}
 }
 
-function chipHtml(status, ctx, extra) {
-  extra = extra || '';
-  return '<span class="chip ' + statusChipClass(status, ctx) + ' chip-clickable" ' + extra + '>' + status + '</span>';
+// ════ SIDEBAR / NAVIGATION ════
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
 }
 
-// ===== NAVIGATION =====
-document.querySelectorAll('#sidebarNav a').forEach(function(a) {
-  a.addEventListener('click', function() {
-    navigateTo(a.dataset.screen);
-  });
+document.querySelectorAll('#sidebarNav a').forEach(a=>{
+  a.addEventListener('click',()=>{navigateTo(a.dataset.screen);closeSidebar();});
 });
 
-function navigateTo(s) {
-  currentScreen = s;
-  document.querySelectorAll('.screen').forEach(function(el) { el.classList.remove('active'); });
-  document.getElementById('screen-' + s).classList.add('active');
-  document.querySelectorAll('#sidebarNav a').forEach(function(a) {
-    a.classList.toggle('active', a.dataset.screen === s);
-  });
-  var titles = {
-    verkaeufer: 'Verkäufer', artikelannahme: 'Artikelannahme', verkauf: 'Verkauf',
-    abrechnung: 'Abrechnung', artikel: 'Artikel', marken: 'Marken',
-    kategorien: 'Kategorien', verkaeuferTypes: 'Verkäufer-Types'
-  };
-  document.getElementById('topbarTitle').textContent = titles[s] || s;
-  if (s === 'artikelannahme') resetAnnahme();
-  if (s === 'abrechnung') resetAbrechnung();
-  if (s === 'verkaeufer') renderVerkaeufer();
-  if (s === 'artikel') renderArtikelTable();
-  if (s === 'marken') renderMarken();
-  if (s === 'kategorien') renderKategorien();
-  if (s === 'verkaeuferTypes') renderVkTypes();
+function navigateTo(s){
+  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+  var el=document.getElementById('screen-'+s);
+  if(el)el.classList.add('active');
+  document.querySelectorAll('#sidebarNav a').forEach(a=>a.classList.toggle('active',a.dataset.screen===s));
+  var titles={artikelannahme:'Annahme',verkauf:'Verkauf',abrechnung:'Abrechnung',verkaeufer:'Verkäufer',artikel:'Artikel',marken:'Marken',kategorien:'Kategorien',verkaeuferTypes:'Verkäufer-Typen'};
+  document.getElementById('topbarTitle').textContent=titles[s]||s;
+  if(s==='artikelannahme')resetAnnahme();
+  if(s==='abrechnung')resetAbrechnung();
+  if(s==='verkaeufer')renderVerkaeufer();
+  if(s==='artikel')renderArtikelTable();
+  if(s==='marken')renderMarken();
+  if(s==='kategorien')renderKategorien();
+  if(s==='verkaeuferTypes')renderVkTypes();
 }
 
-// ===== MODAL SYSTEM =====
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+// ════ MODALS ════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',()=>closeModal(btn.dataset.close)));
+document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));});
 
-document.querySelectorAll('[data-close]').forEach(function(btn) {
-  btn.addEventListener('click', function() { closeModal(btn.dataset.close); });
-});
-document.querySelectorAll('.modal-overlay').forEach(function(ov) {
-  ov.addEventListener('click', function(e) { if (e.target === ov) closeModal(ov.id); });
-});
+function showToast(msg,dur){
+  dur=dur||2500;
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
 
-// ===== SCREEN: VERKÄUFER =====
-function renderVerkaeufer() {
-  var grid = document.getElementById('verkaeuferGrid');
-  var list = verkaeufer.filter(function(v) {
-    var matchStatus = verkaeuferFilter.status === 'Alle' || v.status === verkaeuferFilter.status;
-    var q = verkaeuferFilter.search.toLowerCase();
-    var matchSearch = !q || (v.vorname + ' ' + v.nachname + ' ' + v.ort).toLowerCase().includes(q);
-    return matchStatus && matchSearch;
+// ════ VERKÄUFER SCREEN ════
+function renderVerkaeufer(){
+  var list=verkaeufer.filter(v=>{
+    var st=getVkStatus(v);
+    if(vkFilter.status!=='Alle'&&st!==vkFilter.status)return false;
+    var q=vkFilter.search.toLowerCase();
+    return!q||(v.vorname+' '+v.nachname+' '+v.ort).toLowerCase().includes(q);
   });
-  if (!list.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9E9E9E;padding:40px">Keine Verkäufer gefunden.</div>';
-    return;
-  }
-  grid.innerHTML = list.map(function(v) {
+  var grid=document.getElementById('verkaeuferGrid');
+  if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#9E9E9E;padding:40px">Keine Verkäufer gefunden.</div>';return;}
+  grid.innerHTML=list.map(v=>{
+    var st=getVkStatus(v);
+    var arts=artikel.filter(a=>a.verkaeuferID===v.id);
+    var frg=arts.filter(a=>a.freigegebenAm).length;
+    var vk_=arts.filter(a=>a.verkauftAm).length;
+    var rk=arts.filter(a=>a.zurueckgegebenAm).length;
+    var ww=arts.filter(a=>a.freigegebenAm&&!a.verkauftAm&&!a.zurueckgegebenAm).reduce((s,a)=>s+a.preis,0);
+    var um=arts.filter(a=>a.verkauftAm).reduce((s,a)=>s+a.preis,0);
     return '<div class="card">' +
-      '<div class="card-header">' +
-        '<div style="flex:1">' +
-          '<div style="font-weight:700;font-size:16px">' + v.vorname + ' ' + v.nachname + '</div>' +
-          '<div style="font-size:12px;color:#757575">' + v.plz + ' ' + v.ort + '</div>' +
-        '</div>' +
-        '<button class="btn-icon" title="Bearbeiten" onclick="openVkEdit(' + v.id + ')">✏️</button>' +
-        '<button class="btn-icon" title="Artikel freigeben" onclick="openFreigeben(' + v.id + ')">📷</button>' +
+      '<div class="card-header" style="gap:8px">' +
+        '<div style="flex:1"><div style="font-weight:700;font-size:15px">'+v.vorname+' '+v.nachname+'</div><div style="font-size:12px;color:#757575">'+v.plz+' '+v.ort+'</div></div>' +
+        '<button class="btn-icon" title="Bearbeiten" onclick="openVkEdit('+v.id+')">✏️</button>' +
+        '<button class="btn-icon" title="Freigeben" onclick="openFreigeben('+v.id+',\'freigabe\')">📷</button>' +
       '</div>' +
       '<div class="card-body">' +
-        chipHtml(v.status, 'vk', 'onclick="openVkStatus(' + v.id + ')"') +
-        '<div class="stats-grid" style="margin-top:10px">' +
-          '<div class="stat-item">Artikel gesamt: <strong>' + v.artikelGesamt + '</strong></div>' +
-          '<div class="stat-item">Freigegeben: <strong>' + v.freigegeben + '</strong></div>' +
-          '<div class="stat-item">Verkauft: <strong>' + v.verkauft + '</strong></div>' +
-          '<div class="stat-item">Rückgegeben: <strong>' + v.zurueckgegeben + '</strong></div>' +
-          '<div class="stat-item">Warenwert: <strong>' + fmt(v.warenwert) + '</strong></div>' +
-          '<div class="stat-item">Umsatz: <strong>' + fmt(v.umsatz) + '</strong></div>' +
+        '<div onclick="openVkStatus('+v.id+')" style="display:inline-block;cursor:pointer;margin-bottom:10px">'+chipHtml(st,'vk')+'</div>' +
+        '<div class="stats-grid">' +
+          '<div class="stat-item">Gesamt: <strong>'+arts.length+'</strong></div>' +
+          '<div class="stat-item">Freigegeben: <strong>'+frg+'</strong></div>' +
+          '<div class="stat-item">Verkauft: <strong>'+vk_+'</strong></div>' +
+          '<div class="stat-item">Rückgegeben: <strong>'+rk+'</strong></div>' +
+        '</div>' +
+        '<div style="display:flex;gap:12px;margin-top:8px;font-size:12px;border-top:1px solid #F5F5F5;padding-top:8px">' +
+          '<span>Warenwert: <strong>'+ww.toFixed(2).replace('.',',')+' €</strong></span>' +
+          '<span>Umsatz: <strong>'+um.toFixed(2).replace('.',',')+' €</strong></span>' +
         '</div>' +
       '</div>' +
     '</div>';
   }).join('');
 }
 
-document.getElementById('vkFilterChips').addEventListener('click', function(e) {
-  if (!e.target.dataset.filter) return;
-  verkaeuferFilter.status = e.target.dataset.filter;
-  document.querySelectorAll('#vkFilterChips .filter-chip').forEach(function(c) {
-    c.classList.toggle('active', c.dataset.filter === verkaeuferFilter.status);
-  });
+document.getElementById('vkFilterChips').addEventListener('click',e=>{
+  if(!e.target.dataset.filter)return;
+  vkFilter.status=e.target.dataset.filter;
+  document.querySelectorAll('#vkFilterChips .filter-chip').forEach(c=>c.classList.toggle('active',c.dataset.filter===vkFilter.status));
   renderVerkaeufer();
 });
-
-document.getElementById('vkSearchInput').addEventListener('input', function(e) {
-  verkaeuferFilter.search = e.target.value;
-  renderVerkaeufer();
-});
-
-document.getElementById('btnNeuVerkaeufer').addEventListener('click', function() {
+document.getElementById('vkSearchInput').addEventListener('input',e=>{vkFilter.search=e.target.value;renderVerkaeufer();});
+document.getElementById('btnNeuVerkaeufer').addEventListener('click',()=>{
+  editingVkId=null;
   populateW1Types();
-  ['w1Vorname','w1Nachname','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(function(id) {
-    document.getElementById(id).value = '';
-  });
+  ['w1Vorname','w1Nachname','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(id=>document.getElementById(id).value='');
   openModal('modalWizard1');
 });
 
-// ===== VK STATUS MODAL =====
-function openVkStatus(id) {
-  var vk = getVk(id);
-  if (!vk) return;
-  document.getElementById('vkStatusChip').innerHTML = chipHtml(vk.status, 'vk');
-  document.getElementById('vkStatusAbrDatum').textContent = fmtDate(vk.abgerechnetAm);
-  document.getElementById('vkStatusDeleteWrap').style.display = vk.abgerechnetAm ? 'block' : 'none';
-  document.getElementById('btnVkStatusDelete').onclick = function() {
-    vk.abgerechnetAm = null;
-    closeModal('modalVkStatus');
-    renderVerkaeufer();
-    showToast('Datum gelöscht.');
-  };
+// ── VK STATUS MODAL (Panel-Layout) ──
+function openVkStatus(id){
+  var vk=getVk(id);if(!vk)return;
+  var st=getVkStatus(vk);
+  document.getElementById('vkStatusTitle').textContent=vkName(vk)+' — Status';
+  // Status-Panel für jeden relevanten Zeitstempel
+  var html='<div class="status-panel">' +
+    '<span class="sp-label">Aktueller Status</span>' +
+    '<span class="sp-ts">'+chipHtml(st,'vk')+'</span>' +
+    '<span class="sp-action"></span>' +
+  '</div>' +
+  '<div class="status-panel">' +
+    '<span class="sp-label">Abgerechnet Am</span>' +
+    '<span class="sp-ts'+(vk.abgerechnetAm?'':' empty')+'">'+(vk.abgerechnetAm?fmtDate(vk.abgerechnetAm):'Nicht gesetzt')+'</span>' +
+    '<span class="sp-action">' +
+      (vk.abgerechnetAm
+        ? '<button class="btn-icon" title="Löschen" onclick="clearVkAbrDatum('+id+')">🗑</button>'
+        : '<button class="btn-icon" title="Nicht manuell setzbar" disabled style="opacity:.3">＋</button>') +
+    '</span>' +
+  '</div>' +
+  '<p style="font-size:12px;color:#9E9E9E;margin-top:10px">Abgerechnet Am wird nur durch den Abrechnungsprozess gesetzt.</p>';
+  document.getElementById('vkStatusBody').innerHTML=html;
   openModal('modalVkStatus');
 }
+function clearVkAbrDatum(id){
+  var vk=getVk(id);if(!vk)return;
+  vk.abgerechnetAm=null;
+  openVkStatus(id);
+  renderVerkaeufer();
+  showToast('Datum gelöscht.');
+}
 
-// ===== VK EDIT MODAL =====
-function openVkEdit(id) {
-  editingVkId = id;
-  var vk = getVk(id);
-  document.getElementById('modalVkFormTitle').textContent = 'Verkäufer bearbeiten';
-  document.getElementById('vkFormVorname').value = vk.vorname;
-  document.getElementById('vkFormNachname').value = vk.nachname;
-  document.getElementById('vkFormPlz').value = vk.plz;
-  document.getElementById('vkFormOrt').value = vk.ort;
-  document.getElementById('vkFormTelefon').value = vk.telefon;
-  document.getElementById('vkFormEmail').value = vk.email;
-  populateTypeSelect('vkFormType', vk.type);
+// ── VK EDIT ──
+function openVkEdit(id){
+  editingVkId=id;
+  var vk=getVk(id);
+  document.getElementById('modalVkFormTitle').textContent='Verkäufer bearbeiten';
+  document.getElementById('vkFormVorname').value=vk.vorname;
+  document.getElementById('vkFormNachname').value=vk.nachname;
+  document.getElementById('vkFormPlz').value=vk.plz;
+  document.getElementById('vkFormOrt').value=vk.ort;
+  document.getElementById('vkFormTelefon').value=vk.telefon;
+  document.getElementById('vkFormEmail').value=vk.email;
+  populateTypeSelect('vkFormType',vk.type);
   openModal('modalVkForm');
 }
-
-function populateTypeSelect(selectId, selected) {
-  selected = selected || '';
-  var s = document.getElementById(selectId);
-  s.innerHTML = verkaeuferTypes.map(function(t) {
-    return '<option' + (t.name === selected ? ' selected' : '') + '>' + t.name + '</option>';
-  }).join('');
+function populateTypeSelect(selectId,selected){
+  document.getElementById(selectId).innerHTML=verkaeuferTypes.map(t=>'<option'+(t.name===selected?' selected':'')+'>'+t.name+'</option>').join('');
 }
-
-document.getElementById('btnVkFormSave').addEventListener('click', function() {
-  var vorname = document.getElementById('vkFormVorname').value.trim();
-  var nachname = document.getElementById('vkFormNachname').value.trim();
-  if (!vorname || !nachname) { showToast('Vorname und Nachname sind Pflichtfelder.'); return; }
-  if (editingVkId) {
-    var vk = getVk(editingVkId);
-    vk.vorname = vorname; vk.nachname = nachname;
-    vk.plz = document.getElementById('vkFormPlz').value;
-    vk.ort = document.getElementById('vkFormOrt').value;
-    vk.telefon = document.getElementById('vkFormTelefon').value;
-    vk.email = document.getElementById('vkFormEmail').value;
-    vk.type = document.getElementById('vkFormType').value;
+document.getElementById('btnVkFormSave').addEventListener('click',()=>{
+  var vn=document.getElementById('vkFormVorname').value.trim();
+  var nn=document.getElementById('vkFormNachname').value.trim();
+  if(!vn||!nn){showToast('Vorname und Nachname sind Pflicht.');return;}
+  if(editingVkId){
+    var vk=getVk(editingVkId);
+    vk.vorname=vn;vk.nachname=nn;vk.plz=document.getElementById('vkFormPlz').value;vk.ort=document.getElementById('vkFormOrt').value;vk.telefon=document.getElementById('vkFormTelefon').value;vk.email=document.getElementById('vkFormEmail').value;vk.type=document.getElementById('vkFormType').value;
   } else {
-    var newId = nextId++;
-    verkaeufer.push({
-      id: newId, vorname: vorname, nachname: nachname,
-      plz: document.getElementById('vkFormPlz').value,
-      ort: document.getElementById('vkFormOrt').value,
-      telefon: document.getElementById('vkFormTelefon').value,
-      email: document.getElementById('vkFormEmail').value,
-      type: document.getElementById('vkFormType').value,
-      status: 'Offen', artikelGesamt: 0, freigegeben: 0, verkauft: 0,
-      zurueckgegeben: 0, warenwert: 0, umsatz: 0, abgerechnetAm: null
-    });
+    verkaeufer.push({id:nextId++,vorname:vn,nachname:nn,plz:document.getElementById('vkFormPlz').value,ort:document.getElementById('vkFormOrt').value,telefon:document.getElementById('vkFormTelefon').value,email:document.getElementById('vkFormEmail').value,type:document.getElementById('vkFormType').value,abgerechnetAm:null});
   }
-  closeModal('modalVkForm');
-  renderVerkaeufer();
-  showToast('Gespeichert.');
+  closeModal('modalVkForm');renderVerkaeufer();showToast('Gespeichert.');
 });
 
-// ===== ARTIKEL FREIGEBEN MODAL =====
-function openFreigeben(id) {
-  freigebenVkId = id;
-  freigebenSelected.clear();
-  freigebenMode = 'manuell';
-  var vk = getVk(id);
-  document.getElementById('modalFreigebenTitle').textContent = 'Artikel freigeben — ' + vkName(vk);
-  document.getElementById('freigebenManuell').style.display = 'block';
-  document.getElementById('freigebenKamera').style.display = 'none';
-  document.getElementById('btnFreigebenToggle').textContent = 'Kamera';
-  document.getElementById('freigebenNrInput').value = '';
+// ════ ARTIKEL FREIGEBEN / ZURÜCKGEBEN ════
+function openFreigeben(id,action){
+  freigebenVkId=id;freigebenAction=action||'freigabe';
+  freigebenSelected.clear();freigebenMode='manuell';
+  var vk=getVk(id);
+  document.getElementById('modalFreigebenTitle').textContent=(freigebenAction==='rueckgabe'?'Artikel zurückgeben':'Artikel freigeben')+(vk?' — '+vkName(vk):'');
+  document.getElementById('freigebenManuell').style.display='';
+  document.getElementById('freigebenKamera').style.display='none';
+  document.getElementById('freigebenNrInput').value='';
+  document.getElementById('freigebenInfo').innerHTML='';
   renderFreigebenList();
   openModal('modalFreigeben');
 }
 
-function renderFreigebenList() {
-  var list = artikel.filter(function(a) { return a.verkaeuferID === freigebenVkId && !a.freigegebenAm; });
-  var el = document.getElementById('freigebenList');
-  if (!list.length) {
-    el.innerHTML = '<div style="padding:12px;text-align:center;color:#9E9E9E;font-size:13px">Alle Artikel sind bereits freigegeben.</div>';
+function renderFreigebenList(){
+  var list=artikel.filter(a=>{
+    if(a.verkaeuferID!==freigebenVkId)return false;
+    if(freigebenAction==='rueckgabe')return a.freigegebenAm&&!a.zurueckgegebenAm&&!a.verkauftAm;
+    return!a.freigegebenAm;
+  });
+  var el=document.getElementById('freigebenList');
+  var btn=document.getElementById('btnFreigebenAlle');
+  var allSelected=list.length>0&&list.every(a=>freigebenSelected.has(a.id));
+  if(btn)btn.textContent=allSelected?'Keinen':'Alle';
+  if(!list.length){
+    el.innerHTML='<div style="padding:14px;text-align:center;color:#9E9E9E;font-size:13px">'+
+      (freigebenAction==='rueckgabe'?'Alle Artikel bereits zurückgegeben oder verkauft.':'Alle Artikel sind bereits freigegeben.')+'</div>';
     return;
   }
-  el.innerHTML = list.map(function(a) {
-    var sel = freigebenSelected.has(a.id);
-    return '<div class="item' + (sel ? ' selected' : '') + '" onclick="toggleFreigebenItem(' + a.id + ')">' +
-      '<span>' + (sel ? '☑' : '☐') + '</span>' +
-      '<span><strong>#' + a.id + '</strong> ' + a.bezeichnung + '</span>' +
-      '<span style="margin-left:auto;color:#757575">' + fmt(a.preis) + '</span>' +
+  el.innerHTML=list.map(a=>{
+    var sel=freigebenSelected.has(a.id);
+    return '<div class="item'+(sel?' selected':'')+'" onclick="toggleFreigebenItem('+a.id+')">' +
+      '<span>'+(sel?'☑':'☐')+'</span>' +
+      '<span><strong>#'+a.id+'</strong> '+a.bezeichnung+'</span>' +
+      '<span style="margin-left:auto;color:#757575;font-size:12px">'+a.preis.toFixed(2).replace('.',',')+'&nbsp;€</span>' +
     '</div>';
   }).join('');
 }
 
-function toggleFreigebenItem(id) {
-  if (freigebenSelected.has(id)) freigebenSelected.delete(id);
-  else freigebenSelected.add(id);
+function toggleAlleFreigeben(){
+  var list=artikel.filter(a=>{
+    if(a.verkaeuferID!==freigebenVkId)return false;
+    if(freigebenAction==='rueckgabe')return a.freigegebenAm&&!a.zurueckgegebenAm&&!a.verkauftAm;
+    return!a.freigegebenAm;
+  });
+  var allSel=list.every(a=>freigebenSelected.has(a.id));
+  if(allSel){freigebenSelected.clear();}else{list.forEach(a=>freigebenSelected.add(a.id));}
   renderFreigebenList();
 }
 
-document.getElementById('btnFreigebenNr').addEventListener('click', function() {
-  var nr = parseInt(document.getElementById('freigebenNrInput').value);
-  var a = getArt(nr);
-  if (!a || a.verkaeuferID !== freigebenVkId) { showToast('Artikel nicht gefunden oder falscher Verkäufer.'); return; }
-  if (a.freigegebenAm) { showToast('Artikel bereits freigegeben.'); return; }
-  a.freigegebenAm = tsNow();
-  a.status = 'Im Verkauf';
-  updateVkFreigegeben(freigebenVkId);
+function toggleFreigebenItem(id){
+  if(freigebenSelected.has(id))freigebenSelected.delete(id);else freigebenSelected.add(id);
   renderFreigebenList();
-  document.getElementById('freigebenNrInput').value = '';
-  showToast('Artikel #' + nr + ' freigegeben.');
-});
+}
 
-document.getElementById('freigebenNrInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') document.getElementById('btnFreigebenNr').click();
+document.getElementById('btnFreigebenNr').addEventListener('click',()=>{
+  var nr=parseInt(document.getElementById('freigebenNrInput').value);
+  var a=getArt(nr);
+  var infoEl=document.getElementById('freigebenInfo');
+  if(!a||a.verkaeuferID!==freigebenVkId){
+    playErrorTone();
+    infoEl.innerHTML='<div class="info-banner error">Artikel nicht gefunden oder falscher Verkäufer.</div>';
+    return;
+  }
+  if(freigebenAction==='freigabe'&&a.freigegebenAm){
+    infoEl.innerHTML='<div class="info-banner warn">Artikel bereits freigegeben.</div>';return;
+  }
+  if(freigebenAction==='rueckgabe'){
+    if(!a.freigegebenAm||a.verkauftAm||a.zurueckgegebenAm){
+      playErrorTone();
+      infoEl.innerHTML='<div class="info-banner error">Artikel nicht zurückgebbar.</div>';return;
+    }
+    a.zurueckgegebenAm=tsNow();
+  } else {
+    a.freigegebenAm=tsNow();
+  }
+  infoEl.innerHTML='<div class="info-banner success">✓ Artikel #'+nr+' '+(freigebenAction==='rueckgabe'?'zurückgegeben.':'freigegeben.')+'</div>';
+  document.getElementById('freigebenNrInput').value='';
+  renderFreigebenList();
+  showToast('Artikel #'+nr+' '+(freigebenAction==='rueckgabe'?'zurückgegeben':'freigegeben')+'.');
 });
+document.getElementById('freigebenNrInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btnFreigebenNr').click();});
 
-document.getElementById('btnFreigebenSaveSelected').addEventListener('click', function() {
-  if (!freigebenSelected.size) { showToast('Keine Artikel ausgewählt.'); return; }
-  freigebenSelected.forEach(function(id) {
-    var a = getArt(id);
-    if (a) { a.freigegebenAm = tsNow(); a.status = 'Im Verkauf'; }
+document.getElementById('btnFreigebenSaveSelected').addEventListener('click',()=>{
+  if(!freigebenSelected.size){showToast('Keine Artikel ausgewählt.');return;}
+  var ts=tsNow();
+  freigebenSelected.forEach(id=>{
+    var a=getArt(id);
+    if(a){if(freigebenAction==='rueckgabe')a.zurueckgegebenAm=ts;else a.freigegebenAm=ts;}
   });
-  updateVkFreigegeben(freigebenVkId);
+  showToast(freigebenSelected.size+' Artikel '+(freigebenAction==='rueckgabe'?'zurückgegeben.':'freigegeben.'));
   freigebenSelected.clear();
   renderFreigebenList();
-  showToast('Artikel freigegeben.');
 });
 
-function updateVkFreigegeben(vkId) {
-  var vk = getVk(vkId);
-  if (!vk) return;
-  vk.freigegeben = artikel.filter(function(a) { return a.verkaeuferID === vkId && a.freigegebenAm; }).length;
-  if (vk.freigegeben > 0 && vk.status === 'Offen') vk.status = 'Im Verkauf';
-  renderVerkaeufer();
-}
-
-document.getElementById('btnFreigebenToggle').addEventListener('click', function() {
-  freigebenMode = freigebenMode === 'manuell' ? 'kamera' : 'manuell';
-  document.getElementById('freigebenManuell').style.display = freigebenMode === 'manuell' ? 'block' : 'none';
-  document.getElementById('freigebenKamera').style.display = freigebenMode === 'kamera' ? 'block' : 'none';
-  document.getElementById('btnFreigebenToggle').textContent = freigebenMode === 'manuell' ? 'Kamera' : 'Manuell';
-  if (freigebenMode === 'kamera') {
-    document.getElementById('freigebenKameraInfo').innerHTML = '<div class="info-banner info">Kamera-Simulation aktiv. Im echten System würde hier die Kamera geöffnet.</div>';
-  }
+document.getElementById('btnFreigebenToggle').addEventListener('click',()=>{
+  freigebenMode='kamera';
+  document.getElementById('freigebenManuell').style.display='none';
+  document.getElementById('freigebenKamera').style.display='';
+  document.getElementById('freigebenKameraInfo').innerHTML='<div class="info-banner info">Kamera aktiv — QR/Barcode scannen.</div>';
 });
-
-// ===== WIZARD SCHRITT 1 =====
-function populateW1Types() {
-  var s = document.getElementById('w1Type');
-  s.innerHTML = verkaeuferTypes.map(function(t) { return '<option>' + t.name + '</option>'; }).join('');
+document.getElementById('btnFreigebenBack').addEventListener('click',()=>{
+  freigebenMode='manuell';
+  document.getElementById('freigebenManuell').style.display='';
+  document.getElementById('freigebenKamera').style.display='none';
+});
+function simKameraScan(type){
+  var msg={ok:'<div class="info-banner success">✓ Artikel 101 freigegeben.</div>',bereits:'<div class="info-banner warn">⚠ Artikel bereits freigegeben.</div>',nicht:'<div class="info-banner error">✗ Artikel nicht bekannt.</div>'}[type];
+  if(type!=='ok')playErrorTone();
+  document.getElementById('freigebenKameraInfo').innerHTML=msg;
+  setTimeout(()=>{document.getElementById('freigebenKameraInfo').innerHTML='<div class="info-banner info">Kamera aktiv — QR/Barcode scannen.</div>';},5000);
 }
 
-document.getElementById('btnWizard1Weiter').addEventListener('click', function() {
-  var vorname = document.getElementById('w1Vorname').value.trim();
-  var nachname = document.getElementById('w1Nachname').value.trim();
-  if (!vorname || !nachname) { showToast('Vorname und Nachname sind Pflichtfelder.'); return; }
-  var newId = nextId++;
-  wizardVerkaeufer = {
-    id: newId, vorname: vorname, nachname: nachname,
-    plz: document.getElementById('w1Plz').value,
-    ort: document.getElementById('w1Ort').value,
-    telefon: document.getElementById('w1Telefon').value,
-    email: document.getElementById('w1Email').value,
-    type: document.getElementById('w1Type').value,
-    status: 'Offen', artikelGesamt: 0, freigegeben: 0, verkauft: 0,
-    zurueckgegeben: 0, warenwert: 0, umsatz: 0, abgerechnetAm: null
-  };
-  verkaeufer.push(wizardVerkaeufer);
-  wizardArtikel = [];
+// ════ WIZARD ════
+function populateW1Types(){document.getElementById('w1Type').innerHTML=verkaeuferTypes.map(t=>'<option>'+t.name+'</option>').join('');}
+
+document.getElementById('btnWizard1Weiter').addEventListener('click',()=>{
+  var vn=document.getElementById('w1Vorname').value.trim();
+  var nn=document.getElementById('w1Nachname').value.trim();
+  if(!vn||!nn){showToast('Vorname und Nachname sind Pflicht.');return;}
+  var newId=nextId++;
+  wizardVk={id:newId,vorname:vn,nachname:nn,plz:document.getElementById('w1Plz').value,ort:document.getElementById('w1Ort').value,telefon:document.getElementById('w1Telefon').value,email:document.getElementById('w1Email').value,type:document.getElementById('w1Type').value,abgerechnetAm:null};
+  verkaeufer.push(wizardVk);
+  wizardArtikel=[];
   closeModal('modalWizard1');
-  navigateTo('artikelannahme');
-  showAnnahmeWizard(wizardVerkaeufer);
+  openWizardStep2(wizardVk);
 });
 
-// ===== SCREEN: ARTIKELANNAHME =====
-function resetAnnahme() {
-  document.getElementById('annahmeSearch').style.display = 'block';
-  document.getElementById('annahmeWizard').style.display = 'none';
-  document.getElementById('annahmeSearchInput').value = '';
-  renderAnnahmeVendorList('');
-}
-
-function renderAnnahmeVendorList(q) {
-  var list = verkaeufer.filter(function(v) {
-    if (!q) return true;
-    return (v.vorname + ' ' + v.nachname + ' ' + v.ort).toLowerCase().includes(q.toLowerCase());
-  });
-  var ul = document.getElementById('annahmeVendorList');
-  var noResult = document.getElementById('annahmeNoResult');
-  if (!list.length && q) { ul.innerHTML = ''; noResult.style.display = 'block'; return; }
-  noResult.style.display = 'none';
-  ul.innerHTML = list.map(function(v) {
-    return '<li onclick="showAnnahmeWizard(getVk(' + v.id + '))">' +
-      '<div style="flex:1">' +
-        '<div class="vname">' + v.vorname + ' ' + v.nachname + '</div>' +
-        '<div class="vinfo">' + v.plz + ' ' + v.ort + '</div>' +
-      '</div>' +
-      chipHtml(v.status, 'vk') +
-    '</li>';
-  }).join('');
-}
-
-document.getElementById('annahmeSearchInput').addEventListener('input', function(e) {
-  renderAnnahmeVendorList(e.target.value);
-});
-
-document.getElementById('btnAnnahmeAnlegen').addEventListener('click', function() {
-  populateW1Types();
-  ['w1Vorname','w1Nachname','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(function(id) {
-    document.getElementById(id).value = '';
-  });
-  openModal('modalWizard1');
-});
-
-function showAnnahmeWizard(vk) {
-  selectedVerkaeufer = vk;
-  wizardArtikel = [];
-  document.getElementById('annahmeSearch').style.display = 'none';
-  document.getElementById('annahmeWizard').style.display = 'block';
-  renderAnnahmeWizardUI();
-}
-
-function renderAnnahmeWizardUI() {
-  var vk = selectedVerkaeufer;
-  var katOptions = kategorien.map(function(k) { return '<option>' + k + '</option>'; }).join('');
-  var markeOptions = marken.map(function(m) { return '<option>' + m + '</option>'; }).join('');
-  document.getElementById('annahmeWizard').innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
-      '<button class="btn btn-outline btn-sm" onclick="resetAnnahme()">← Zurück</button>' +
-      '<h2 style="font-size:16px;color:#1976D2">' + vkName(vk) + '</h2>' +
-    '</div>' +
-    '<div class="split-layout">' +
-      '<div class="split-left">' +
-        '<div class="card">' +
-          '<div class="card-header"><strong>Artikel erfassen</strong></div>' +
-          '<div class="card-body">' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">' +
-              '<div class="form-group"><label>Artikelnummer</label><input class="form-control" id="wzArtNr" type="number" placeholder="automatisch"></div>' +
-              '<div class="form-group"><label>Bezeichnung *</label><input class="form-control" id="wzBezeichnung" type="text"></div>' +
-              '<div class="form-group"><label>Kategorie</label><input class="form-control" id="wzKategorie" list="wzKatList"><datalist id="wzKatList">' + katOptions + '</datalist></div>' +
-              '<div class="form-group"><label>Marke</label><input class="form-control" id="wzMarke" list="wzMarkeList"><datalist id="wzMarkeList">' + markeOptions + '</datalist></div>' +
-              '<div class="form-group"><label>Preis (€) *</label><input class="form-control" id="wzPreis" type="number" step="0.01"></div>' +
-              '<div class="form-group"><label>Alternativ-Preis (€)</label><input class="form-control" id="wzAltPreis" type="number" step="0.01"></div>' +
-              '<div class="form-group"><label>Größe</label><input class="form-control" id="wzGroesse" type="text"></div>' +
-              '<div class="form-group"><label>Farbe</label><input class="form-control" id="wzFarbe" type="text"></div>' +
-            '</div>' +
-            '<div class="form-group"><label>Beschreibung</label><textarea class="form-control" id="wzBeschreibung" rows="2"></textarea></div>' +
-            '<div style="text-align:right"><button class="btn btn-primary" onclick="wzUebernehmen()">Übernehmen</button></div>' +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="split-right">' +
-        '<div class="card">' +
-          '<div class="card-header"><strong>' + vkName(vk) + '</strong></div>' +
-          '<div style="padding:0"><ul class="wizard-article-list" id="wzArtikelList"></ul></div>' +
-          '<div style="padding:12px 16px;border-top:1px solid #EEE">' +
-            '<div id="wzGebuehrLine" style="font-size:13px;color:#757575;margin-bottom:12px"></div>' +
-            '<button class="btn btn-primary" style="width:100%" onclick="openWizardSpeichern()">Speichern</button>' +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
+function openWizardStep2(vk){
+  selectedVk=vk;
+  wizardArtikel=[];
+  document.getElementById('w2Title').textContent='Schritt 2 — Artikelannahme: '+vkName(vk);
+  document.getElementById('w2VkName').textContent=vkName(vk);
+  document.getElementById('w2VkType').textContent=vk.type+' · '+getTypeInfo(vk.type).gebuehr.toFixed(2)+' €/Stück';
+  document.getElementById('wzKatList').innerHTML=kategorien.map(k=>'<option>'+k+'</option>').join('');
+  document.getElementById('wzMarkeList').innerHTML=marken.map(m=>'<option>'+m+'</option>').join('');
+  ['wzArtNr','wzBezeichnung','wzKategorie','wzMarke','wzPreis','wzAltPreis','wzGroesse','wzFarbe','wzBeschreibung'].forEach(id=>document.getElementById(id).value='');
   renderWzArtikelList();
+  openModal('modalWizard2');
 }
 
-function renderWzArtikelList() {
-  var ul = document.getElementById('wzArtikelList');
-  if (!ul) return;
-  if (!wizardArtikel.length) {
-    ul.innerHTML = '<li style="justify-content:center;color:#9E9E9E;padding:16px">Noch keine Artikel</li>';
+function renderWzArtikelList(){
+  var ul=document.getElementById('wzArtikelList');if(!ul)return;
+  var typeInfo=getTypeInfo(selectedVk?selectedVk.type:'Privat');
+  if(!wizardArtikel.length){
+    ul.innerHTML='<li style="justify-content:center;color:#9E9E9E;padding:14px;font-size:13px">Noch keine Artikel</li>';
   } else {
-    ul.innerHTML = wizardArtikel.map(function(a, i) {
-      return '<li>' +
-        '<span><strong>#' + a.id + '</strong> ' + a.bezeichnung + '</span>' +
-        '<span>' + fmt(a.preis) + '</span>' +
-        '<button class="btn-icon" onclick="wzDeleteArtikel(' + i + ')" style="color:#F44336">×</button>' +
-      '</li>';
-    }).join('');
+    ul.innerHTML=wizardArtikel.map((a,i)=>'<li><span><strong>#'+a.id+'</strong> '+a.bezeichnung+'</span><span style="display:flex;align-items:center;gap:6px">'+a.preis.toFixed(2).replace('.',',')+'&nbsp;€<button class="btn-icon" onclick="wzDeleteArtikel('+i+')" style="color:#D32F2F;font-size:18px">×</button></span></li>').join('');
   }
-  var vk = selectedVerkaeufer;
-  var typeInfo = getTypeInfo(vk.type);
-  var total = wizardArtikel.length * typeInfo.gebuehr;
-  var el = document.getElementById('wzGebuehrLine');
-  if (el) el.textContent = 'Gebühr: ' + wizardArtikel.length + ' × ' + typeInfo.gebuehr.toFixed(2).replace('.', ',') + ' € = ' + total.toFixed(2).replace('.', ',') + ' €';
+  var total=wizardArtikel.length*typeInfo.gebuehr;
+  var gl=document.getElementById('wzGebuehrLine');
+  if(gl)gl.innerHTML='Gebühr: '+wizardArtikel.length+' × '+typeInfo.gebuehr.toFixed(2).replace('.',',')+'&nbsp;€ = <strong>'+total.toFixed(2).replace('.',',')+'&nbsp;€</strong>';
 }
 
-function wzUebernehmen() {
-  var bez = document.getElementById('wzBezeichnung').value.trim();
-  var preisVal = document.getElementById('wzPreis').value;
-  if (!bez || !preisVal) { showToast('Bezeichnung und Preis sind Pflichtfelder.'); return; }
-  var artNrVal = document.getElementById('wzArtNr').value;
-  var id = artNrVal ? parseInt(artNrVal) : nextId++;
-  var altP = document.getElementById('wzAltPreis').value;
-  var a = {
-    id: id,
-    bezeichnung: bez,
-    kategorie: document.getElementById('wzKategorie').value,
-    marke: document.getElementById('wzMarke').value,
-    preis: parseFloat(preisVal),
-    beschreibung: document.getElementById('wzBeschreibung').value,
-    groesse: document.getElementById('wzGroesse').value,
-    farbe: document.getElementById('wzFarbe').value,
-    altPreis: altP ? parseFloat(altP) : null,
-    verkaeuferID: selectedVerkaeufer.id,
-    status: 'Registriert',
-    erstelltAm: tsNow(),
-    freigegebenAm: null, verkauftAm: null, zurueckgegebenAm: null, abgerechnetAm: null
-  };
+function wzUebernehmen(){
+  var bez=document.getElementById('wzBezeichnung').value.trim();
+  var pv=document.getElementById('wzPreis').value;
+  if(!bez||!pv){showToast('Bezeichnung und Preis sind Pflicht.');return;}
+  var nr=document.getElementById('wzArtNr').value;
+  var id=nr?parseInt(nr):nextId++;
+  var ap=document.getElementById('wzAltPreis').value;
+  var a={id,bezeichnung:bez,kategorie:document.getElementById('wzKategorie').value,marke:document.getElementById('wzMarke').value,preis:parseFloat(pv),altPreis:ap?parseFloat(ap):null,groesse:document.getElementById('wzGroesse').value,farbe:document.getElementById('wzFarbe').value,beschreibung:document.getElementById('wzBeschreibung').value,verkaeuferID:selectedVk.id,erstelltAm:tsNow(),freigegebenAm:null,verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null};
   wizardArtikel.push(a);
   artikel.push(a);
-  ['wzArtNr','wzBezeichnung','wzKategorie','wzMarke','wzPreis','wzAltPreis','wzGroesse','wzFarbe','wzBeschreibung'].forEach(function(id) {
-    document.getElementById(id).value = '';
-  });
+  ['wzArtNr','wzBezeichnung','wzKategorie','wzMarke','wzPreis','wzAltPreis','wzGroesse','wzFarbe','wzBeschreibung'].forEach(id=>document.getElementById(id).value='');
   renderWzArtikelList();
   showToast('Artikel übernommen.');
+  document.getElementById('wzArtNr').focus();
 }
 
-function wzDeleteArtikel(i) {
-  var a = wizardArtikel[i];
-  wizardArtikel.splice(i, 1);
-  var idx = artikel.findIndex(function(x) { return x.id === a.id; });
-  if (idx >= 0) artikel.splice(idx, 1);
+function wzDeleteArtikel(i){
+  var a=wizardArtikel[i];
+  wizardArtikel.splice(i,1);
+  var idx=artikel.findIndex(x=>x.id===a.id);
+  if(idx>=0)artikel.splice(idx,1);
   renderWzArtikelList();
 }
 
-function openWizardSpeichern() {
-  if (!wizardArtikel.length) { showToast('Bitte mindestens einen Artikel erfassen.'); return; }
-  var vk = selectedVerkaeufer;
-  var typeInfo = getTypeInfo(vk.type);
-  var gebuehr = wizardArtikel.length * typeInfo.gebuehr;
-  document.getElementById('wsAnzahl').textContent = wizardArtikel.length;
-  document.getElementById('wsGebuehr').textContent = fmt(gebuehr);
-  document.getElementById('wsErhalten').value = '';
-  document.getElementById('wsRueckgeld').textContent = 'Rückgeld: 0,00 €';
-  document.getElementById('wsErhalten').oninput = function() {
-    var erh = parseFloat(document.getElementById('wsErhalten').value) || 0;
-    var rg = erh - gebuehr;
-    document.getElementById('wsRueckgeld').textContent = 'Rückgeld: ' + (rg >= 0 ? rg.toFixed(2).replace('.', ',') : '0,00') + ' €';
-    document.getElementById('wsRueckgeld').style.color = rg >= 0 ? '#4CAF50' : '#F44336';
+function openWizardSpeichern(){
+  if(!wizardArtikel.length){showToast('Mindestens einen Artikel erfassen.');return;}
+  var typeInfo=getTypeInfo(selectedVk.type);
+  var gebuehr=wizardArtikel.length*typeInfo.gebuehr;
+  document.getElementById('wsAnzahl').textContent=wizardArtikel.length;
+  document.getElementById('wsGebuehr').innerHTML=gebuehr.toFixed(2).replace('.',',')+'&nbsp;€';
+  document.getElementById('wsErhalten').value='';
+  document.getElementById('wsRueckgeld').textContent='Rückgeld: 0,00 €';
+  document.getElementById('wsErhalten').oninput=function(){
+    var r=(parseFloat(this.value)||0)-gebuehr;
+    document.getElementById('wsRueckgeld').textContent='Rückgeld: '+(r>=0?r.toFixed(2).replace('.',','):'0,00')+' €';
+    document.getElementById('wsRueckgeld').style.color=r>=0?'#388E3C':'#D32F2F';
   };
   openModal('modalWizardSpeichern');
 }
 
-document.getElementById('btnWsBuchen').addEventListener('click', function() {
-  var vk = selectedVerkaeufer;
-  vk.artikelGesamt += wizardArtikel.length;
-  vk.warenwert += wizardArtikel.reduce(function(s, a) { return s + a.preis; }, 0);
+document.getElementById('btnWsBuchen').addEventListener('click',()=>{
+  var ts=tsNow();
+  wizardArtikel.forEach(a=>{a.freigegebenAm=ts;});
   closeModal('modalWizardSpeichern');
-  showToast('Artikelannahme gespeichert!');
-  wizardArtikel = [];
+  closeModal('modalWizard2');
+  showToast('Artikelannahme gespeichert! Druckdialog geöffnet…');
+  wizardArtikel=[];
   resetAnnahme();
+  navigateTo('artikelannahme');
 });
 
-// ===== SCREEN: VERKAUF =====
-var verkaufScan = null;
+// ════ ANNAHME SCREEN ════
+function resetAnnahme(){
+  document.getElementById('annahmeSearchInput').value='';
+  renderAnnahmeVendorList('');
+}
 
-document.getElementById('verkaufArtikelNr').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') scanArtikel();
-});
+function renderAnnahmeVendorList(q){
+  var list=verkaeufer.filter(v=>!q||(v.vorname+' '+v.nachname+' '+v.ort).toLowerCase().includes(q.toLowerCase()));
+  var ul=document.getElementById('annahmeVendorList');
+  var noRes=document.getElementById('annahmeNoResult');
+  if(!list.length&&q){ul.innerHTML='';noRes.style.display='';return;}
+  noRes.style.display='none';
+  ul.innerHTML=list.map(v=>'<li onclick="openWizardStep2(getVk('+v.id+'))"><div style="flex:1"><div class="vname">'+vkName(v)+'</div><div class="vinfo">'+v.plz+' '+v.ort+'</div></div>'+chipHtml(getVkStatus(v),'vk')+'</li>').join('');
+}
+document.getElementById('annahmeSearchInput').addEventListener('input',e=>renderAnnahmeVendorList(e.target.value));
+document.getElementById('btnAnnahmeAnlegen').addEventListener('click',()=>{populateW1Types();['w1Vorname','w1Nachname','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(id=>document.getElementById(id).value='');openModal('modalWizard1');});
 
-function scanArtikel() {
-  var nr = parseInt(document.getElementById('verkaufArtikelNr').value);
-  var a = getArt(nr);
-  var infoEl = document.getElementById('verkaufInfo');
-  var btnEl = document.getElementById('verkaufPreisButtons');
-  btnEl.innerHTML = '';
-  if (!a) {
-    infoEl.innerHTML = '<div class="info-banner error">Artikel #' + nr + ' nicht gefunden.</div>';
-    verkaufScan = null; return;
+// ════ VERKAUF SCREEN ════
+var verkaufScan=null;
+
+document.getElementById('verkaufArtikelNr').addEventListener('keydown',e=>{if(e.key==='Enter')scanArtikel();});
+
+function scanArtikel(){
+  var nr=parseInt(document.getElementById('verkaufArtikelNr').value);
+  var a=getArt(nr);
+  var infoEl=document.getElementById('verkaufInfo');
+  var preiseArea=document.getElementById('verkaufPreiseArea');
+  var btns=document.getElementById('verkaufPreisButtons');
+  btns.innerHTML='';preiseArea.style.display='none';verkaufScan=null;
+
+  if(!a){
+    playErrorTone();
+    infoEl.innerHTML='<div class="info-banner error">✗ Artikel #'+nr+' nicht gefunden.</div>';
+    return;
   }
-  if (a.status === 'Verkauft') {
-    infoEl.innerHTML = '<div class="info-banner error">Artikel #' + nr + ' wurde bereits verkauft.</div>';
-    verkaufScan = null; return;
+  if(a.status==='Verkauft'||a.verkauftAm){
+    playErrorTone();
+    infoEl.innerHTML='<div class="info-banner error">✗ Artikel #'+nr+' wurde bereits verkauft.</div>';
+    return;
   }
-  if (!a.freigegebenAm) {
-    infoEl.innerHTML = '<div class="info-banner error">Artikel #' + nr + ' ist nicht freigegeben.</div>';
-    verkaufScan = null; return;
+  if(!a.freigegebenAm){
+    playErrorTone();
+    infoEl.innerHTML='<div class="info-banner error">✗ Artikel #'+nr+' ist nicht freigegeben.</div>';
+    return;
   }
-  verkaufScan = a;
-  infoEl.innerHTML = '<div class="info-banner success"><strong>' + a.bezeichnung + '</strong> — ' + fmt(a.preis) + (a.marke ? ' | ' + a.marke : '') + (a.groesse ? ' | Größe ' + a.groesse : '') + '</div>';
-  var btn = document.createElement('button');
-  btn.className = 'btn btn-primary';
-  btn.textContent = 'Preis: ' + fmt(a.preis);
-  btn.onclick = function() { addToCart(a, a.preis); };
-  btnEl.appendChild(btn);
-  if (a.altPreis) {
-    var btn2 = document.createElement('button');
-    btn2.className = 'btn btn-accent';
-    btn2.textContent = 'Alt-Preis: ' + fmt(a.altPreis);
-    btn2.onclick = function() { addToCart(a, a.altPreis); };
-    btnEl.appendChild(btn2);
+  if(warenkorb.find(x=>x.id===a.id)){
+    playErrorTone();
+    infoEl.innerHTML='<div class="info-banner warn">⚠ Artikel #'+nr+' bereits im Warenkorb.</div>';
+    return;
+  }
+  verkaufScan=a;
+  infoEl.innerHTML='<div class="info-banner success">✓ <strong>'+a.bezeichnung+'</strong>'+(a.marke?' | '+a.marke:'')+(a.groesse?' | Gr. '+a.groesse:'')+'</div>';
+  preiseArea.style.display='';
+  // Preis-Button
+  var b1=document.createElement('button');
+  b1.className='btn btn-primary btn-preis';
+  b1.textContent=a.preis.toFixed(2).replace('.',',')+' €';
+  b1.title=a.preis.toFixed(2).replace('.',',')+' €';
+  b1.onclick=()=>addToCart(a,a.preis);
+  btns.appendChild(b1);
+  if(a.altPreis){
+    var b2=document.createElement('button');
+    b2.className='btn btn-accent btn-preis';
+    b2.textContent=a.altPreis.toFixed(2).replace('.',',')+' €';
+    b2.title=a.altPreis.toFixed(2).replace('.',',')+' €';
+    b2.onclick=()=>addToCart(a,a.altPreis);
+    btns.appendChild(b2);
   }
 }
 
-function addToCart(a, preis) {
-  if (warenkorb.find(function(x) { return x.id === a.id; })) { showToast('Artikel bereits im Warenkorb.'); return; }
-  warenkorb.push({ id: a.id, bezeichnung: a.bezeichnung, preis: preis });
-  document.getElementById('verkaufArtikelNr').value = '';
-  document.getElementById('verkaufInfo').innerHTML = '';
-  document.getElementById('verkaufPreisButtons').innerHTML = '';
-  verkaufScan = null;
+function addToCart(a,preis){
+  warenkorb.push({id:a.id,bezeichnung:a.bezeichnung,preis});
+  document.getElementById('verkaufArtikelNr').value='';
+  document.getElementById('verkaufInfo').innerHTML='<div class="info-banner info">Nächsten Artikel eingeben…</div>';
+  document.getElementById('verkaufPreiseArea').style.display='none';
+  document.getElementById('verkaufPreisButtons').innerHTML='';
+  verkaufScan=null;
   renderWarenkorb();
+  document.getElementById('verkaufArtikelNr').focus();
 }
 
-function renderWarenkorb() {
-  var tbody = document.getElementById('verkaufCartBody');
-  tbody.innerHTML = warenkorb.map(function(item, i) {
-    return '<tr><td>#' + item.id + '</td><td>' + item.bezeichnung + '</td><td>' + fmt(item.preis) + '</td>' +
-      '<td><button class="btn-icon" onclick="removeFromCart(' + i + ')" style="color:#F44336">🗑</button></td></tr>';
-  }).join('');
-  if (!warenkorb.length) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9E9E9E;padding:20px">Warenkorb ist leer.</td></tr>';
-  var total = warenkorb.reduce(function(s, x) { return s + x.preis; }, 0);
-  document.getElementById('verkaufTotal').textContent = 'Gesamt: ' + fmt(total);
+function removeFromCart(i){warenkorb.splice(i,1);renderWarenkorb();}
+
+function leerenWarenkorb(){
+  warenkorb=[];renderWarenkorb();
+  document.getElementById('verkaufArtikelNr').value='';
+  document.getElementById('verkaufInfo').innerHTML='';
+  document.getElementById('verkaufPreiseArea').style.display='none';
+  document.getElementById('verkaufArtikelNr').focus();
 }
 
-function removeFromCart(i) {
-  warenkorb.splice(i, 1);
-  renderWarenkorb();
+function renderWarenkorb(){
+  var tbody=document.getElementById('verkaufCartBody');
+  if(!warenkorb.length){
+    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:#9E9E9E;padding:18px">Warenkorb ist leer.</td></tr>';
+    document.getElementById('verkaufTotal').textContent='Gesamt: 0,00 €';
+    document.getElementById('btnVerkaufBuchen').disabled=true;
+    return;
+  }
+  tbody.innerHTML=warenkorb.map((item,i)=>'<tr><td>#'+item.id+'</td><td>'+item.bezeichnung+'</td><td>'+item.preis.toFixed(2).replace('.',',')+'&nbsp;€</td><td><button class="btn-icon" onclick="removeFromCart('+i+')" style="color:#D32F2F">🗑</button></td></tr>').join('');
+  var total=warenkorb.reduce((s,x)=>s+x.preis,0);
+  document.getElementById('verkaufTotal').innerHTML='Gesamt: <strong>'+total.toFixed(2).replace('.',',')+'&nbsp;€</strong>';
+  document.getElementById('btnVerkaufBuchen').disabled=false;
 }
 
-document.getElementById('btnVerkaufBuchen').addEventListener('click', function() {
-  if (!warenkorb.length) { showToast('Warenkorb ist leer.'); return; }
-  var total = warenkorb.reduce(function(s, x) { return s + x.preis; }, 0);
-  document.getElementById('vbGesamt').textContent = fmt(total);
-  document.getElementById('vbErhalten').value = '';
-  document.getElementById('vbRueckgeld').textContent = 'Rückgeld: 0,00 €';
-  document.getElementById('vbErhalten').oninput = function() {
-    var erh = parseFloat(document.getElementById('vbErhalten').value) || 0;
-    var rg = erh - total;
-    document.getElementById('vbRueckgeld').textContent = 'Rückgeld: ' + (rg >= 0 ? rg.toFixed(2).replace('.', ',') : '0,00') + ' €';
-    document.getElementById('vbRueckgeld').style.color = rg >= 0 ? '#4CAF50' : '#F44336';
+document.getElementById('btnVerkaufBuchen').addEventListener('click',()=>{
+  if(!warenkorb.length)return;
+  var total=warenkorb.reduce((s,x)=>s+x.preis,0);
+  document.getElementById('vbGesamt').innerHTML=total.toFixed(2).replace('.',',')+'&nbsp;€';
+  document.getElementById('vbErhalten').value='';
+  document.getElementById('vbRueckgeld').textContent='Rückgeld: 0,00 €';
+  document.getElementById('vbErhalten').oninput=function(){
+    var r=(parseFloat(this.value)||0)-total;
+    document.getElementById('vbRueckgeld').textContent='Rückgeld: '+(r>=0?r.toFixed(2).replace('.',','):'0,00')+' €';
+    document.getElementById('vbRueckgeld').style.color=r>=0?'#388E3C':'#D32F2F';
   };
   openModal('modalVerkaufBuchen');
 });
 
-document.getElementById('btnVbBezahlt').addEventListener('click', function() {
-  var ts = tsNow();
-  warenkorb.forEach(function(item) {
-    var a = getArt(item.id);
-    if (a) { a.status = 'Verkauft'; a.verkauftAm = ts; }
-    if (a) {
-      var vk = getVk(a.verkaeuferID);
-      if (vk) { vk.verkauft++; vk.umsatz += item.preis; }
-    }
-  });
-  warenkorb = [];
-  renderWarenkorb();
+document.getElementById('btnVbBezahlt').addEventListener('click',()=>{
+  var ts=tsNow();
+  warenkorb.forEach(item=>{var a=getArt(item.id);if(a)a.verkauftAm=ts;});
+  warenkorb=[];renderWarenkorb();
+  document.getElementById('verkaufInfo').innerHTML='<div class="info-banner info">Ersten Artikel eingeben…</div>';
   closeModal('modalVerkaufBuchen');
-  showToast('Verkauf erfolgreich gebucht!');
+  showToast('Verkauf gebucht!');
 });
 
-// ===== SCREEN: ABRECHNUNG =====
-function resetAbrechnung() {
-  abrVkId = null;
-  document.getElementById('abrSearch').style.display = 'block';
-  document.getElementById('abrDetail').style.display = 'none';
-  document.getElementById('abrSearchInput').value = '';
+// ════ ABRECHNUNG SCREEN ════
+function resetAbrechnung(){
+  abrVkId=null;
+  document.getElementById('abrSearch').style.display='';
+  document.getElementById('abrDetail').style.display='none';
+  document.getElementById('abrSearchInput').value='';
   renderAbrVendorList('');
 }
 
-function renderAbrVendorList(q) {
-  var list = verkaeufer.filter(function(v) {
-    if (v.status === 'Abgerechnet') return false;
-    if (!q) return true;
-    return (v.vorname + ' ' + v.nachname + ' ' + v.ort).toLowerCase().includes(q.toLowerCase());
+function renderAbrVendorList(q){
+  var list=verkaeufer.filter(v=>{
+    if(!q)return true;
+    return(v.vorname+' '+v.nachname+' '+v.ort).toLowerCase().includes(q.toLowerCase());
   });
-  var ul = document.getElementById('abrVendorList');
-  if (!list.length) {
-    ul.innerHTML = '<li style="justify-content:center;color:#9E9E9E;cursor:default;background:none;box-shadow:none">Keine Verkäufer gefunden.</li>';
-    return;
-  }
-  ul.innerHTML = list.map(function(v) {
-    return '<li onclick="openAbrDetail(' + v.id + ')">' +
-      '<div style="flex:1">' +
-        '<div class="vname">' + v.vorname + ' ' + v.nachname + '</div>' +
-        '<div class="vinfo">' + v.plz + ' ' + v.ort + '</div>' +
-      '</div>' +
-      chipHtml(v.status, 'vk') +
-    '</li>';
-  }).join('');
+  document.getElementById('abrVendorList').innerHTML=list.map(v=>'<li onclick="openAbrDetail('+v.id+')"><div style="flex:1"><div class="vname">'+vkName(v)+'</div><div class="vinfo">'+v.plz+' '+v.ort+'</div></div>'+chipHtml(getVkStatus(v),'vk')+'</li>').join('');
 }
+document.getElementById('abrSearchInput').addEventListener('input',e=>renderAbrVendorList(e.target.value));
 
-document.getElementById('abrSearchInput').addEventListener('input', function(e) {
-  renderAbrVendorList(e.target.value);
-});
-
-function openAbrDetail(id) {
-  abrVkId = id;
-  document.getElementById('abrSearch').style.display = 'none';
-  document.getElementById('abrDetail').style.display = 'block';
+function openAbrDetail(id){
+  abrVkId=id;
+  document.getElementById('abrSearch').style.display='none';
+  document.getElementById('abrDetail').style.display='';
   renderAbrDetailUI(getVk(id));
 }
 
-function renderAbrDetailUI(vk) {
-  var arts = artikel.filter(function(a) { return a.verkaeuferID === vk.id; });
-  var offen = arts.filter(function(a) { return a.status === 'Im Verkauf' || a.status === 'Registriert'; }).length;
-  var verkauft = arts.filter(function(a) { return a.status === 'Verkauft'; }).length;
-  var umsatz = arts.filter(function(a) { return a.status === 'Verkauft'; }).reduce(function(s, a) { return s + a.preis; }, 0);
-  var tableRows = arts.map(function(a) {
-    return '<tr><td>#' + a.id + '</td><td>' + a.bezeichnung + '</td><td>' + fmt(a.preis) + '</td>' +
-      '<td>' + chipHtml(a.status, 'art') + '</td>' +
-      '<td>' + (a.verkauftAm ? fmtDate(a.verkauftAm) : '—') + '</td></tr>';
-  }).join('');
-  document.getElementById('abrDetail').innerHTML =
-    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">' +
-      '<button class="btn btn-outline btn-sm" onclick="resetAbrechnung()">← Zurück</button>' +
-      '<h2 style="flex:1;font-size:16px">' + vkName(vk) + ' | ' + vk.plz + ' ' + vk.ort + '</h2>' +
-      '<button class="btn btn-outline" onclick="showToast(\'Druckfunktion nicht implementiert.\')">🖨 Drucken</button>' +
-      '<button class="btn btn-accent" onclick="openZurueckgebenModal(' + vk.id + ')">↩ Zurückgeben</button>' +
-      '<button class="btn btn-primary" onclick="openAbrechnenModal(' + vk.id + ')">💶 Abrechnen</button>' +
+function renderAbrDetailUI(vk){
+  var arts=artikel.filter(a=>a.verkaeuferID===vk.id);
+  var offen=arts.filter(a=>a.freigegebenAm&&!a.verkauftAm&&!a.zurueckgegebenAm).length;
+  var verkauft=arts.filter(a=>a.verkauftAm).length;
+  var umsatz=arts.filter(a=>a.verkauftAm).reduce((s,a)=>s+a.preis,0);
+  // Button-Regeln
+  var zurBtnDisabled=offen===0;
+  var abrBtnDisabled=offen>0||!arts.some(a=>a.freigegebenAm);
+  var rows=arts.map(a=>'<tr><td>#'+a.id+'</td><td>'+a.bezeichnung+'</td><td>'+a.preis.toFixed(2).replace('.',',')+'&nbsp;€</td><td>'+chipHtml(getArtStatus(a),'art')+'</td></tr>').join('');
+  document.getElementById('abrDetail').innerHTML=
+    '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap">' +
+      '<button class="btn btn-ghost btn-sm" onclick="resetAbrechnung()">← Zurück</button>' +
+      '<div style="flex:1"><strong style="font-size:16px">'+vkName(vk)+'</strong><div style="font-size:13px;color:#757575">'+vk.plz+' '+vk.ort+' · '+vk.type+'</div></div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button class="btn btn-ghost" onclick="showToast(\'Drucken…\')">🖨 Drucken</button>' +
+        '<button class="btn btn-accent" '+(zurBtnDisabled?'disabled':'')+' onclick="openFreigeben('+vk.id+',\'rueckgabe\')">↩ Zurückgeben</button>' +
+        '<button class="btn btn-primary" '+(abrBtnDisabled?'disabled':'')+' onclick="openAbrechnenModal('+vk.id+')">💶 Abrechnen</button>' +
+      '</div>' +
     '</div>' +
     '<div class="kpi-row">' +
-      '<div class="kpi-tile"><div class="kpi-value">' + offen + '</div><div class="kpi-label">Offene Artikel</div></div>' +
-      '<div class="kpi-tile"><div class="kpi-value">' + verkauft + '</div><div class="kpi-label">Verkaufte Artikel</div></div>' +
-      '<div class="kpi-tile"><div class="kpi-value">' + fmt(umsatz) + '</div><div class="kpi-label">Umsatz</div></div>' +
+      '<div class="kpi-tile"><div class="kpi-value">'+offen+'</div><div class="kpi-label">Offene Artikel</div></div>' +
+      '<div class="kpi-tile"><div class="kpi-value">'+verkauft+'</div><div class="kpi-label">Verkauft</div></div>' +
+      '<div class="kpi-tile"><div class="kpi-value">'+umsatz.toFixed(2).replace('.',',')+'&nbsp;€</div><div class="kpi-label">Umsatz</div></div>' +
     '</div>' +
-    '<table class="data-table">' +
-      '<thead><tr><th>Artikelnr.</th><th>Bezeichnung</th><th>Preis</th><th>Status</th><th>Verkauft Am</th></tr></thead>' +
-      '<tbody>' + (tableRows || '<tr><td colspan="5" style="text-align:center;color:#9E9E9E;padding:20px">Keine Artikel vorhanden.</td></tr>') + '</tbody>' +
-    '</table>';
+    '<table class="data-table"><thead><tr><th>Nr.</th><th>Bezeichnung</th><th>Preis</th><th>Status</th></tr></thead>' +
+    '<tbody>'+(rows||'<tr><td colspan="4" style="text-align:center;color:#9E9E9E;padding:20px">Keine Artikel.</td></tr>')+'</tbody></table>';
 }
 
-function openZurueckgebenModal(vkId) {
-  var arts = artikel.filter(function(a) { return a.verkaeuferID === vkId && (a.status === 'Im Verkauf' || a.status === 'Registriert'); });
-  var el = document.getElementById('zurueckgebenList');
-  if (!arts.length) {
-    el.innerHTML = '<div style="text-align:center;color:#9E9E9E;padding:20px">Keine zurückzugebenden Artikel.</div>';
-  } else {
-    el.innerHTML = '<table class="data-table"><thead><tr><th>Artikelnr.</th><th>Bezeichnung</th><th>Preis</th></tr></thead><tbody>' +
-      arts.map(function(a) { return '<tr><td>#' + a.id + '</td><td>' + a.bezeichnung + '</td><td>' + fmt(a.preis) + '</td></tr>'; }).join('') +
-      '</tbody></table>';
-  }
-  document.getElementById('btnZurueckgebenOk').onclick = function() {
-    var ts = tsNow();
-    arts.forEach(function(a) { a.status = 'Zurückgegeben'; a.zurueckgegebenAm = ts; });
-    var vk = getVk(vkId);
-    if (vk) vk.zurueckgegeben = (vk.zurueckgegeben || 0) + arts.length;
-    closeModal('modalZurueckgeben');
-    renderAbrDetailUI(getVk(vkId));
-    showToast(arts.length + ' Artikel zurückgegeben.');
-  };
-  openModal('modalZurueckgeben');
-}
-
-function openAbrechnenModal(vkId) {
-  var vk = getVk(vkId);
-  var arts = artikel.filter(function(a) { return a.verkaeuferID === vkId && a.status === 'Verkauft'; });
-  var umsatz = arts.reduce(function(s, a) { return s + a.preis; }, 0);
-  var typeInfo = getTypeInfo(vk.type);
-  var provision = umsatz * (typeInfo.provision / 100);
-  var auszahlung = umsatz - provision;
-  document.getElementById('abrModalContent').innerHTML =
-    '<div class="provision-row"><span>Umsatz</span><span>' + fmt(umsatz) + '</span></div>' +
-    '<div class="provision-row"><span>Provision (' + typeInfo.provision + '%)</span><span>− ' + fmt(provision) + '</span></div>';
-  document.getElementById('abrAuszahlung').textContent = 'Auszahlung: ' + fmt(auszahlung);
-  document.getElementById('btnAbrBuchen').onclick = function() {
-    var ts = tsNow();
-    arts.forEach(function(a) { a.abgerechnetAm = ts; });
-    vk.status = 'Abgerechnet';
-    vk.abgerechnetAm = ts;
+function openAbrechnenModal(vkId){
+  var vk=getVk(vkId);
+  var arts=artikel.filter(a=>a.verkaeuferID===vkId&&a.verkauftAm);
+  var umsatz=arts.reduce((s,a)=>s+a.preis,0);
+  var typeInfo=getTypeInfo(vk.type);
+  var provision=umsatz*(typeInfo.provision/100);
+  var auszahlung=umsatz-provision;
+  document.getElementById('abrModalContent').innerHTML=
+    '<div class="provision-row"><span>Umsatz (verkaufte Artikel)</span><span>'+umsatz.toFixed(2).replace('.',',')+'&nbsp;€</span></div>' +
+    '<div class="provision-row"><span>Provision ('+typeInfo.provision+'%)</span><span style="color:#D32F2F">− '+provision.toFixed(2).replace('.',',')+'&nbsp;€</span></div>';
+  document.getElementById('abrAuszahlung').innerHTML='Auszahlung: '+auszahlung.toFixed(2).replace('.',',')+'&nbsp;€';
+  document.getElementById('btnAbrBuchen').onclick=()=>{
+    var ts=tsNow();
+    arts.forEach(a=>a.abgerechnetAm=ts);
+    vk.abgerechnetAm=ts;
     closeModal('modalAbrechnen');
     showToast('Abrechnung abgeschlossen!');
     resetAbrechnung();
@@ -1415,294 +1247,129 @@ function openAbrechnenModal(vkId) {
   openModal('modalAbrechnen');
 }
 
-// ===== SCREEN: ARTIKEL =====
-function renderArtikelTable() {
-  var sm = document.getElementById('artFilterMarke');
-  var existingMarke = sm.value;
-  sm.innerHTML = '<option value="">Alle Marken</option>' + marken.map(function(m) { return '<option' + (m === existingMarke ? ' selected' : '') + '>' + m + '</option>'; }).join('');
-  var sk = document.getElementById('artFilterKat');
-  var existingKat = sk.value;
-  sk.innerHTML = '<option value="">Alle Kategorien</option>' + kategorien.map(function(k) { return '<option' + (k === existingKat ? ' selected' : '') + '>' + k + '</option>'; }).join('');
-
-  var mf = document.getElementById('artFilterMarke').value;
-  var kf = document.getElementById('artFilterKat').value;
-  var vsf = document.getElementById('artFilterVStatus').value;
-  var asf = document.getElementById('artFilterAStatus').value;
-  var sf = document.getElementById('artFilterSearch').value.toLowerCase();
-
-  var list = artikel.filter(function(a) {
-    if (mf && a.marke !== mf) return false;
-    if (kf && a.kategorie !== kf) return false;
-    if (asf && a.status !== asf) return false;
-    if (vsf) { var vk = getVk(a.verkaeuferID); if (!vk || vk.status !== vsf) return false; }
-    if (sf && !(a.bezeichnung + ' ' + a.marke + ' ' + a.kategorie).toLowerCase().includes(sf)) return false;
+// ════ ARTIKEL SCREEN ════
+function renderArtikelTable(){
+  var sm=document.getElementById('artFilterMarke');
+  var sk=document.getElementById('artFilterKat');
+  var em=sm.value,ek=sk.value;
+  sm.innerHTML='<option value="">Alle Marken</option>'+marken.map(m=>'<option'+(m===em?' selected':'')+'>'+m+'</option>').join('');
+  sk.innerHTML='<option value="">Alle Kategorien</option>'+kategorien.map(k=>'<option'+(k===ek?' selected':'')+'>'+k+'</option>').join('');
+  var mf=sm.value,kf=sk.value;
+  var vsf=document.getElementById('artFilterVStatus').value;
+  var asf=document.getElementById('artFilterAStatus').value;
+  var sf=document.getElementById('artFilterSearch').value.toLowerCase();
+  var list=artikel.filter(a=>{
+    if(mf&&a.marke!==mf)return false;
+    if(kf&&a.kategorie!==kf)return false;
+    if(asf&&getArtStatus(a)!==asf)return false;
+    if(vsf){var vk=getVk(a.verkaeuferID);if(!vk||getVkStatus(vk)!==vsf)return false;}
+    if(sf&&!(a.bezeichnung+' '+a.marke+' '+a.kategorie).toLowerCase().includes(sf))return false;
     return true;
   });
-
-  var tbody = document.getElementById('artikelTableBody');
-  tbody.innerHTML = list.map(function(a) {
-    var vk = getVk(a.verkaeuferID);
-    return '<tr>' +
-      '<td>#' + a.id + '</td>' +
-      '<td>' + a.bezeichnung + '</td>' +
-      '<td>' + a.kategorie + '</td>' +
-      '<td>' + a.marke + '</td>' +
-      '<td>' + fmt(a.preis) + '</td>' +
-      '<td>' + (vk ? vkName(vk) : '—') + '</td>' +
-      '<td>' + chipHtml(a.status, 'art', 'onclick="openArtikelStatusModal(' + a.id + ')"') + '</td>' +
-      '<td><button class="btn-icon" onclick="openArtikelForm(' + a.id + ')">✏️</button></td>' +
-    '</tr>';
+  var tbody=document.getElementById('artikelTableBody');
+  tbody.innerHTML=list.map(a=>{
+    var vk=getVk(a.verkaeuferID);
+    return '<tr><td>#'+a.id+'</td><td>'+a.bezeichnung+'</td><td>'+a.kategorie+'</td><td>'+a.marke+'</td><td>'+a.preis.toFixed(2).replace('.',',')+'&nbsp;€</td><td>'+(vk?vkName(vk):'—')+'</td>' +
+      '<td><span class="chip-clickable" onclick="openArtikelStatusModal('+a.id+')">'+chipHtml(getArtStatus(a),'art')+'</span></td>' +
+      '<td><button class="btn-icon" onclick="openArtikelForm('+a.id+')">✏️</button></td></tr>';
   }).join('');
-  if (!list.length) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9E9E9E;padding:30px">Keine Artikel gefunden.</td></tr>';
+  if(!list.length)tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#9E9E9E;padding:24px">Keine Artikel gefunden.</td></tr>';
 }
+['artFilterMarke','artFilterKat','artFilterVStatus','artFilterAStatus'].forEach(id=>document.getElementById(id).addEventListener('change',renderArtikelTable));
+document.getElementById('artFilterSearch').addEventListener('input',renderArtikelTable);
 
-['artFilterMarke','artFilterKat','artFilterVStatus','artFilterAStatus'].forEach(function(id) {
-  document.getElementById(id).addEventListener('change', renderArtikelTable);
-});
-document.getElementById('artFilterSearch').addEventListener('input', renderArtikelTable);
-
-function openArtikelStatusModal(id) {
-  var a = getArt(id);
-  if (!a) return;
-  document.getElementById('modalArtikelStatusTitle').textContent = 'Artikelstatus — ' + a.bezeichnung;
-  var body = document.getElementById('modalArtikelStatusBody');
-  body.innerHTML =
-    '<div class="form-group"><label>Erstellt Am</label><div style="font-size:14px;padding:8px 0">' + fmtDate(a.erstelltAm) + '</div></div>' +
-    '<hr class="sep">' +
-    '<div class="form-group"><label>Freigegeben Am</label>' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">' +
-        '<span style="font-size:14px;flex:1">' + fmtDate(a.freigegebenAm) + '</span>' +
-        '<button class="btn btn-outline btn-sm" onclick="setArtikelTimestamp(' + id + ',\'freigegebenAm\')">Setzen</button>' +
-        '<button class="btn btn-danger btn-sm" onclick="clearArtikelTimestamp(' + id + ',\'freigegebenAm\')"' + (!a.freigegebenAm ? ' disabled' : '') + '>Löschen</button>' +
-      '</div>' +
-    '</div>' +
-    '<div class="form-group"><label>Verkauft Am</label>' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">' +
-        '<span style="font-size:14px;flex:1">' + fmtDate(a.verkauftAm) + '</span>' +
-        '<button class="btn btn-outline btn-sm" onclick="setArtikelTimestamp(' + id + ',\'verkauftAm\')">Setzen</button>' +
-        '<button class="btn btn-danger btn-sm" onclick="clearArtikelTimestamp(' + id + ',\'verkauftAm\')"' + (!a.verkauftAm ? ' disabled' : '') + '>Löschen</button>' +
-      '</div>' +
-    '</div>' +
-    '<div class="form-group"><label>Rückgegeben Am</label>' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-top:4px">' +
-        '<span style="font-size:14px;flex:1">' + fmtDate(a.zurueckgegebenAm) + '</span>' +
-        '<button class="btn btn-outline btn-sm" onclick="setArtikelTimestamp(' + id + ',\'zurueckgegebenAm\')"' + (a.verkauftAm ? ' disabled' : '') + '>Setzen</button>' +
-        '<button class="btn btn-danger btn-sm" onclick="clearArtikelTimestamp(' + id + ',\'zurueckgegebenAm\')"' + (!a.zurueckgegebenAm ? ' disabled' : '') + '>Löschen</button>' +
-      '</div>' +
-    '</div>' +
-    '<hr class="sep">' +
-    '<div class="form-group"><label>Abgerechnet Am</label><div style="font-size:14px;padding:8px 0">' + fmtDate(a.abgerechnetAm) + '</div></div>';
+// ── Artikel Status Modal (Panel-Layout) ──
+function openArtikelStatusModal(id){
+  var a=getArt(id);if(!a)return;
+  document.getElementById('modalArtikelStatusTitle').textContent='Artikelstatus — '+a.bezeichnung;
+  function panel(label,ts,field,readonly){
+    var hasTs=!!ts;
+    var btn=readonly?'<button class="btn-icon" disabled style="opacity:.3" title="Nur lesbar">—</button>':
+      hasTs?'<button class="btn-icon" title="Löschen" onclick="clearArtikelTs('+id+',\''+field+'\')">🗑</button>':
+             '<button class="btn-icon" title="Jetzt setzen" onclick="setArtikelTs('+id+',\''+field+'\')">✛</button>';
+    return '<div class="status-panel"><span class="sp-label">'+label+'</span><span class="sp-ts'+(hasTs?'':' empty')+'">'+(hasTs?fmtDate(ts):'—')+'</span><span class="sp-action">'+btn+'</span></div>';
+  }
+  var vkAbrDatum=getVk(a.verkaeuferID)?.abgerechnetAm||null;
+  var body=
+    panel('Erstellt Am',a.erstelltAm,'erstelltAm',true)+
+    panel('Freigegeben Am',a.freigegebenAm,'freigegebenAm')+
+    panel('Verkauft Am',a.verkauftAm,'verkauftAm')+
+    panel('Rückgegeben Am',a.zurueckgegebenAm,'zurueckgegebenAm')+
+    panel('Abgerechnet Am',vkAbrDatum,'abgerechnetAm',true);
+  document.getElementById('modalArtikelStatusBody').innerHTML=body;
   openModal('modalArtikelStatus');
 }
+function setArtikelTs(id,field){
+  var a=getArt(id);a[field]=tsNow();renderArtikelTable();openArtikelStatusModal(id);showToast('Gesetzt.');}
+function clearArtikelTs(id,field){
+  var a=getArt(id);a[field]=null;renderArtikelTable();openArtikelStatusModal(id);showToast('Gelöscht.');}
 
-function setArtikelTimestamp(id, field) {
-  var a = getArt(id);
-  a[field] = tsNow();
-  updateArtikelStatus(a);
-  openArtikelStatusModal(id);
-  renderArtikelTable();
-  showToast('Gesetzt.');
-}
-
-function clearArtikelTimestamp(id, field) {
-  var a = getArt(id);
-  a[field] = null;
-  updateArtikelStatus(a);
-  openArtikelStatusModal(id);
-  renderArtikelTable();
-  showToast('Gelöscht.');
-}
-
-function updateArtikelStatus(a) {
-  if (a.abgerechnetAm) return;
-  if (a.zurueckgegebenAm) { a.status = 'Zurückgegeben'; return; }
-  if (a.verkauftAm) { a.status = 'Verkauft'; return; }
-  if (a.freigegebenAm) { a.status = 'Im Verkauf'; return; }
-  a.status = 'Registriert';
-}
-
-function openArtikelForm(id) {
-  editingArtikelId = id;
-  var a = getArt(id);
-  document.getElementById('modalArtikelFormTitle').textContent = 'Artikel bearbeiten — #' + id;
-  document.getElementById('afBezeichnung').value = a.bezeichnung;
-  document.getElementById('afPreis').value = a.preis;
-  document.getElementById('afKategorie').value = a.kategorie;
-  document.getElementById('afMarke').value = a.marke;
-  document.getElementById('afGroesse').value = a.groesse;
-  document.getElementById('afFarbe').value = a.farbe;
-  document.getElementById('afAltPreis').value = a.altPreis || '';
-  document.getElementById('afBeschreibung').value = a.beschreibung;
-  document.getElementById('afKatList').innerHTML = kategorien.map(function(k) { return '<option>' + k + '</option>'; }).join('');
-  document.getElementById('afMarkeList').innerHTML = marken.map(function(m) { return '<option>' + m + '</option>'; }).join('');
+function openArtikelForm(id){
+  editingArtikelId=id;
+  var a=getArt(id);
+  document.getElementById('modalArtikelFormTitle').textContent='Artikel bearbeiten — #'+id;
+  document.getElementById('afBezeichnung').value=a.bezeichnung;
+  document.getElementById('afPreis').value=a.preis;
+  document.getElementById('afKategorie').value=a.kategorie;
+  document.getElementById('afMarke').value=a.marke;
+  document.getElementById('afGroesse').value=a.groesse;
+  document.getElementById('afFarbe').value=a.farbe;
+  document.getElementById('afAltPreis').value=a.altPreis||'';
+  document.getElementById('afBeschreibung').value=a.beschreibung;
+  document.getElementById('afKatList').innerHTML=kategorien.map(k=>'<option>'+k+'</option>').join('');
+  document.getElementById('afMarkeList').innerHTML=marken.map(m=>'<option>'+m+'</option>').join('');
   openModal('modalArtikelForm');
 }
-
-document.getElementById('btnAfSave').addEventListener('click', function() {
-  var a = getArt(editingArtikelId);
-  if (!a) return;
-  a.bezeichnung = document.getElementById('afBezeichnung').value || a.bezeichnung;
-  a.preis = parseFloat(document.getElementById('afPreis').value) || a.preis;
-  a.kategorie = document.getElementById('afKategorie').value;
-  a.marke = document.getElementById('afMarke').value;
-  a.groesse = document.getElementById('afGroesse').value;
-  a.farbe = document.getElementById('afFarbe').value;
-  var ap = document.getElementById('afAltPreis').value;
-  a.altPreis = ap ? parseFloat(ap) : null;
-  a.beschreibung = document.getElementById('afBeschreibung').value;
-  closeModal('modalArtikelForm');
-  renderArtikelTable();
-  showToast('Artikel gespeichert.');
+document.getElementById('btnAfSave').addEventListener('click',()=>{
+  var a=getArt(editingArtikelId);if(!a)return;
+  a.bezeichnung=document.getElementById('afBezeichnung').value||a.bezeichnung;
+  a.preis=parseFloat(document.getElementById('afPreis').value)||a.preis;
+  a.kategorie=document.getElementById('afKategorie').value;
+  a.marke=document.getElementById('afMarke').value;
+  a.groesse=document.getElementById('afGroesse').value;
+  a.farbe=document.getElementById('afFarbe').value;
+  var ap=document.getElementById('afAltPreis').value;
+  a.altPreis=ap?parseFloat(ap):null;
+  a.beschreibung=document.getElementById('afBeschreibung').value;
+  closeModal('modalArtikelForm');renderArtikelTable();showToast('Gespeichert.');
 });
 
-// ===== SCREEN: MARKEN =====
-function renderMarken() {
-  var tbody = document.getElementById('markenTableBody');
-  tbody.innerHTML = marken.map(function(m, i) {
-    return '<tr><td>' + (i + 1) + '</td><td>' + m + '</td><td><button class="btn-icon" onclick="openMarkeEdit(' + i + ')">✏️</button></td></tr>';
-  }).join('');
-  if (!marken.length) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#9E9E9E;padding:20px">Keine Marken vorhanden.</td></tr>';
+// ════ MARKEN ════
+function renderMarken(){
+  document.getElementById('markenTableBody').innerHTML=marken.map((m,i)=>'<tr><td>'+(i+1)+'</td><td>'+m+'</td><td><button class="btn-icon" onclick="openMarkeEdit('+i+')">✏️</button></td></tr>').join('');
 }
+document.getElementById('btnNeuMarke').addEventListener('click',()=>{editingMarkeIdx=null;document.getElementById('modalMarkeFormTitle').textContent='Neue Marke';document.getElementById('markeFormName').value='';document.getElementById('btnMarkeDelete').style.display='none';openModal('modalMarkeForm');});
+function openMarkeEdit(i){editingMarkeIdx=i;document.getElementById('modalMarkeFormTitle').textContent='Marke bearbeiten';document.getElementById('markeFormName').value=marken[i];document.getElementById('btnMarkeDelete').style.display='inline-flex';openModal('modalMarkeForm');}
+document.getElementById('btnMarkeSave').addEventListener('click',()=>{var n=document.getElementById('markeFormName').value.trim();if(!n)return;if(editingMarkeIdx===null)marken.push(n);else marken[editingMarkeIdx]=n;closeModal('modalMarkeForm');renderMarken();showToast('Gespeichert.');});
+document.getElementById('btnMarkeDelete').addEventListener('click',()=>{if(editingMarkeIdx===null)return;marken.splice(editingMarkeIdx,1);closeModal('modalMarkeForm');renderMarken();showToast('Gelöscht.');});
 
-document.getElementById('btnNeuMarke').addEventListener('click', function() {
-  editingMarkeIdx = null;
-  document.getElementById('modalMarkeFormTitle').textContent = 'Neue Marke';
-  document.getElementById('markeFormName').value = '';
-  document.getElementById('btnMarkeDelete').style.display = 'none';
-  openModal('modalMarkeForm');
-});
-
-function openMarkeEdit(i) {
-  editingMarkeIdx = i;
-  document.getElementById('modalMarkeFormTitle').textContent = 'Marke bearbeiten';
-  document.getElementById('markeFormName').value = marken[i];
-  document.getElementById('btnMarkeDelete').style.display = 'inline-flex';
-  openModal('modalMarkeForm');
+// ════ KATEGORIEN ════
+function renderKategorien(){
+  document.getElementById('kategorienTableBody').innerHTML=kategorien.map((k,i)=>'<tr><td>'+(i+1)+'</td><td>'+k+'</td><td><button class="btn-icon" onclick="openKategorieEdit('+i+')">✏️</button></td></tr>').join('');
 }
+document.getElementById('btnNeuKategorie').addEventListener('click',()=>{editingKategorieIdx=null;document.getElementById('modalKategorieFormTitle').textContent='Neue Kategorie';document.getElementById('kategorieFormName').value='';document.getElementById('btnKategorieDelete').style.display='none';openModal('modalKategorieForm');});
+function openKategorieEdit(i){editingKategorieIdx=i;document.getElementById('modalKategorieFormTitle').textContent='Kategorie bearbeiten';document.getElementById('kategorieFormName').value=kategorien[i];document.getElementById('btnKategorieDelete').style.display='inline-flex';openModal('modalKategorieForm');}
+document.getElementById('btnKategorieSave').addEventListener('click',()=>{var n=document.getElementById('kategorieFormName').value.trim();if(!n)return;if(editingKategorieIdx===null)kategorien.push(n);else kategorien[editingKategorieIdx]=n;closeModal('modalKategorieForm');renderKategorien();showToast('Gespeichert.');});
+document.getElementById('btnKategorieDelete').addEventListener('click',()=>{if(editingKategorieIdx===null)return;kategorien.splice(editingKategorieIdx,1);closeModal('modalKategorieForm');renderKategorien();showToast('Gelöscht.');});
 
-document.getElementById('btnMarkeSave').addEventListener('click', function() {
-  var name = document.getElementById('markeFormName').value.trim();
-  if (!name) { showToast('Name ist ein Pflichtfeld.'); return; }
-  if (editingMarkeIdx === null) marken.push(name);
-  else marken[editingMarkeIdx] = name;
-  closeModal('modalMarkeForm');
-  renderMarken();
-  showToast('Gespeichert.');
-});
-
-document.getElementById('btnMarkeDelete').addEventListener('click', function() {
-  if (editingMarkeIdx === null) return;
-  marken.splice(editingMarkeIdx, 1);
-  closeModal('modalMarkeForm');
-  renderMarken();
-  showToast('Gelöscht.');
-});
-
-// ===== SCREEN: KATEGORIEN =====
-function renderKategorien() {
-  var tbody = document.getElementById('kategorienTableBody');
-  tbody.innerHTML = kategorien.map(function(k, i) {
-    return '<tr><td>' + (i + 1) + '</td><td>' + k + '</td><td><button class="btn-icon" onclick="openKategorieEdit(' + i + ')">✏️</button></td></tr>';
-  }).join('');
-  if (!kategorien.length) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#9E9E9E;padding:20px">Keine Kategorien vorhanden.</td></tr>';
+// ════ VK-TYPEN ════
+function renderVkTypes(){
+  document.getElementById('vkTypesTableBody').innerHTML=verkaeuferTypes.map((t,i)=>'<tr><td>'+(i+1)+'</td><td>'+t.name+'</td><td>'+t.provision+'%</td><td>'+t.gebuehr.toFixed(2).replace('.',',')+'&nbsp;€</td><td><button class="btn-icon" onclick="openVkTypeEdit('+i+')">✏️</button></td></tr>').join('');
 }
+document.getElementById('btnNeuVkType').addEventListener('click',()=>{editingVkTypeIdx=null;document.getElementById('modalVkTypeFormTitle').textContent='Neuer Verkäufer-Type';document.getElementById('vkTypeFormName').value='';document.getElementById('vkTypeFormProvision').value='';document.getElementById('vkTypeFormGebuehr').value='';document.getElementById('btnVkTypeDelete').style.display='none';openModal('modalVkTypeForm');});
+function openVkTypeEdit(i){editingVkTypeIdx=i;var t=verkaeuferTypes[i];document.getElementById('modalVkTypeFormTitle').textContent='Type bearbeiten';document.getElementById('vkTypeFormName').value=t.name;document.getElementById('vkTypeFormProvision').value=t.provision;document.getElementById('vkTypeFormGebuehr').value=t.gebuehr;document.getElementById('btnVkTypeDelete').style.display='inline-flex';openModal('modalVkTypeForm');}
+document.getElementById('btnVkTypeSave').addEventListener('click',()=>{var n=document.getElementById('vkTypeFormName').value.trim();if(!n)return;var o={name:n,provision:parseFloat(document.getElementById('vkTypeFormProvision').value)||0,gebuehr:parseFloat(document.getElementById('vkTypeFormGebuehr').value)||0};if(editingVkTypeIdx===null)verkaeuferTypes.push(o);else verkaeuferTypes[editingVkTypeIdx]=o;closeModal('modalVkTypeForm');renderVkTypes();showToast('Gespeichert.');});
+document.getElementById('btnVkTypeDelete').addEventListener('click',()=>{if(editingVkTypeIdx===null)return;verkaeuferTypes.splice(editingVkTypeIdx,1);closeModal('modalVkTypeForm');renderVkTypes();showToast('Gelöscht.');});
 
-document.getElementById('btnNeuKategorie').addEventListener('click', function() {
-  editingKategorieIdx = null;
-  document.getElementById('modalKategorieFormTitle').textContent = 'Neue Kategorie';
-  document.getElementById('kategorieFormName').value = '';
-  document.getElementById('btnKategorieDelete').style.display = 'none';
-  openModal('modalKategorieForm');
-});
-
-function openKategorieEdit(i) {
-  editingKategorieIdx = i;
-  document.getElementById('modalKategorieFormTitle').textContent = 'Kategorie bearbeiten';
-  document.getElementById('kategorieFormName').value = kategorien[i];
-  document.getElementById('btnKategorieDelete').style.display = 'inline-flex';
-  openModal('modalKategorieForm');
-}
-
-document.getElementById('btnKategorieSave').addEventListener('click', function() {
-  var name = document.getElementById('kategorieFormName').value.trim();
-  if (!name) { showToast('Name ist ein Pflichtfeld.'); return; }
-  if (editingKategorieIdx === null) kategorien.push(name);
-  else kategorien[editingKategorieIdx] = name;
-  closeModal('modalKategorieForm');
-  renderKategorien();
-  showToast('Gespeichert.');
-});
-
-document.getElementById('btnKategorieDelete').addEventListener('click', function() {
-  if (editingKategorieIdx === null) return;
-  kategorien.splice(editingKategorieIdx, 1);
-  closeModal('modalKategorieForm');
-  renderKategorien();
-  showToast('Gelöscht.');
-});
-
-// ===== SCREEN: VERKÄUFER-TYPES =====
-function renderVkTypes() {
-  var tbody = document.getElementById('vkTypesTableBody');
-  tbody.innerHTML = verkaeuferTypes.map(function(t, i) {
-    return '<tr><td>' + (i + 1) + '</td><td>' + t.name + '</td><td>' + t.provision + '%</td><td>' + t.gebuehr.toFixed(2).replace('.', ',') + ' €</td>' +
-      '<td><button class="btn-icon" onclick="openVkTypeEdit(' + i + ')">✏️</button></td></tr>';
-  }).join('');
-  if (!verkaeuferTypes.length) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9E9E9E;padding:20px">Keine Einträge vorhanden.</td></tr>';
-}
-
-document.getElementById('btnNeuVkType').addEventListener('click', function() {
-  editingVkTypeIdx = null;
-  document.getElementById('modalVkTypeFormTitle').textContent = 'Neuer Verkäufer-Type';
-  document.getElementById('vkTypeFormName').value = '';
-  document.getElementById('vkTypeFormProvision').value = '';
-  document.getElementById('vkTypeFormGebuehr').value = '';
-  document.getElementById('btnVkTypeDelete').style.display = 'none';
-  openModal('modalVkTypeForm');
-});
-
-function openVkTypeEdit(i) {
-  editingVkTypeIdx = i;
-  var t = verkaeuferTypes[i];
-  document.getElementById('modalVkTypeFormTitle').textContent = 'Verkäufer-Type bearbeiten';
-  document.getElementById('vkTypeFormName').value = t.name;
-  document.getElementById('vkTypeFormProvision').value = t.provision;
-  document.getElementById('vkTypeFormGebuehr').value = t.gebuehr;
-  document.getElementById('btnVkTypeDelete').style.display = 'inline-flex';
-  openModal('modalVkTypeForm');
-}
-
-document.getElementById('btnVkTypeSave').addEventListener('click', function() {
-  var name = document.getElementById('vkTypeFormName').value.trim();
-  if (!name) { showToast('Name ist ein Pflichtfeld.'); return; }
-  var obj = {
-    name: name,
-    provision: parseFloat(document.getElementById('vkTypeFormProvision').value) || 0,
-    gebuehr: parseFloat(document.getElementById('vkTypeFormGebuehr').value) || 0
-  };
-  if (editingVkTypeIdx === null) verkaeuferTypes.push(obj);
-  else verkaeuferTypes[editingVkTypeIdx] = obj;
-  closeModal('modalVkTypeForm');
-  renderVkTypes();
-  showToast('Gespeichert.');
-});
-
-document.getElementById('btnVkTypeDelete').addEventListener('click', function() {
-  if (editingVkTypeIdx === null) return;
-  verkaeuferTypes.splice(editingVkTypeIdx, 1);
-  closeModal('modalVkTypeForm');
-  renderVkTypes();
-  showToast('Gelöscht.');
-});
-
-// ===== INIT =====
-(function init() {
-  renderVerkaeufer();
-  renderAnnahmeVendorList('');
-  renderAbrVendorList('');
-  populateTypeSelect('vkFormType');
-  populateW1Types();
+// ════ INIT ════
+(function(){
+  // Start auf Annahme
+  navigateTo('artikelannahme');
+  // Activate first nav item
+  document.querySelector('#sidebarNav a[data-screen="artikelannahme"]').classList.add('active');
   renderWarenkorb();
+  populateW1Types();
+  populateTypeSelect('vkFormType');
 })();
 </script>
 </body>
