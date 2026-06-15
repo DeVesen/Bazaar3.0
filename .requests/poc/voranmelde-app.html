@@ -3,1712 +3,1651 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bazaar Voranmelde-App</title>
+<title>Voranmelde-App — POC</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --primary: #388E3C;
-    --primary-dark: #2E7D32;
-    --primary-light: #66BB6A;
-    --accent: #FF9800;
-    --accent-dark: #F57C00;
-    --sidebar-bg: #1B5E20;
-    --sidebar-text: #C8E6C9;
-    --sidebar-active: #388E3C;
-    --topbar-bg: #388E3C;
-    --surface: #FFFFFF;
-    --background: #F5F5F5;
-    --text-primary: #212121;
-    --text-secondary: #757575;
-    --divider: #E0E0E0;
-    --error: #D32F2F;
-    --error-light: #FFEBEE;
-    --shadow1: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24);
-    --shadow2: 0 3px 6px rgba(0,0,0,.16), 0 3px 6px rgba(0,0,0,.23);
-    --shadow3: 0 10px 20px rgba(0,0,0,.19), 0 6px 6px rgba(0,0,0,.23);
-    --radius: 4px;
-    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  }
+:root {
+  --primary: #388E3C;
+  --primary-dark: #1B5E20;
+  --primary-light: #C8E6C9;
+  --accent: #FF9800;
+  --surface: #FAFAFA;
+  --bg: #F0F4F0;
+  --text: #212121;
+  --text-secondary: #757575;
+  --border: #E0E0E0;
+  --danger: #D32F2F;
+  --shadow: 0 2px 4px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+  --radius: 8px;
+}
 
-  body { font-family: var(--font); background: var(--background); color: var(--text-primary); min-height: 100vh; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
 
-  /* ===== TOPBAR ===== */
-  .topbar {
-    position: fixed; top: 0; left: 0; right: 0; height: 56px; z-index: 100;
-    background: var(--topbar-bg); color: #fff;
-    display: flex; align-items: center; padding: 0 16px; gap: 16px;
-    box-shadow: var(--shadow2);
-  }
-  .topbar-title { font-size: 20px; font-weight: 500; flex: 1; }
-  .role-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-  .role-toggle span { opacity: .85; }
-  .toggle-wrap { display: flex; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,.4); }
-  .toggle-btn {
-    padding: 4px 14px; cursor: pointer; background: transparent; color: #fff;
-    border: none; font-size: 13px; font-family: var(--font); transition: background .2s;
-  }
-  .toggle-btn.active { background: rgba(255,255,255,.25); font-weight: 600; }
-  .toggle-btn:hover:not(.active) { background: rgba(255,255,255,.1); }
+/* TOPBAR */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--primary);
+  color: #fff;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  gap: 16px;
+}
+#topbar .app-title { font-size: 18px; font-weight: 600; flex: 1; }
 
-  /* ===== LAYOUT ===== */
-  .app-layout { display: flex; min-height: 100vh; padding-top: 56px; }
+.role-toggle {
+  display: flex; align-items: center; gap: 8px; font-size: 13px;
+  background: rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 12px;
+}
+.role-toggle span { opacity: 0.7; }
+.role-btn {
+  background: none; border: none; color: #fff; cursor: pointer;
+  padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: 500;
+  transition: background 0.2s;
+}
+.role-btn.active { background: rgba(255,255,255,0.3); }
+.role-btn:hover:not(.active) { background: rgba(255,255,255,0.15); }
 
-  /* ===== SIDEBAR ===== */
-  .sidebar {
-    width: 240px; min-height: calc(100vh - 56px); background: var(--sidebar-bg);
-    position: fixed; top: 56px; left: 0; bottom: 0; overflow-y: auto;
-    display: flex; flex-direction: column;
-  }
-  .sidebar-section { padding: 8px 0; }
-  .sidebar-label {
-    padding: 8px 16px 4px; font-size: 11px; font-weight: 600;
-    letter-spacing: 1px; color: rgba(200,230,201,.5); text-transform: uppercase;
-  }
-  .sidebar-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px; cursor: pointer; color: var(--sidebar-text);
-    font-size: 14px; font-weight: 400; transition: background .15s;
-    border: none; background: none; width: 100%; text-align: left;
-  }
-  .sidebar-item:hover { background: rgba(255,255,255,.08); }
-  .sidebar-item.active { background: var(--sidebar-active); color: #fff; font-weight: 500; }
-  .sidebar-icon { font-size: 18px; width: 22px; text-align: center; }
+/* LAYOUT */
+#app-layout { display: flex; margin-top: 56px; min-height: calc(100vh - 56px); }
 
-  /* ===== MAIN CONTENT ===== */
-  .main-content { margin-left: 240px; padding: 24px; min-height: calc(100vh - 56px); flex: 1; }
-  .screen { display: none; }
-  .screen.active { display: block; }
+/* SIDEBAR */
+#sidebar {
+  width: 220px;
+  background: var(--primary-dark);
+  min-height: calc(100vh - 56px);
+  position: fixed; top: 56px; left: 0; bottom: 0;
+  overflow-y: auto; z-index: 50;
+}
+.nav-section-label {
+  color: rgba(255,255,255,0.5);
+  font-size: 11px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; padding: 16px 16px 4px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  color: rgba(255,255,255,0.85);
+  cursor: pointer; transition: background 0.15s;
+  border-left: 3px solid transparent; font-size: 14px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); }
+.nav-item.active {
+  background: rgba(255,255,255,0.15);
+  border-left-color: var(--accent);
+  color: #fff; font-weight: 500;
+}
+.nav-icon { font-size: 18px; width: 22px; text-align: center; }
 
-  /* ===== CARDS ===== */
-  .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow1); margin-bottom: 16px; overflow: hidden; }
-  .card-header {
-    padding: 16px 20px; border-bottom: 1px solid var(--divider);
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  }
-  .card-title { font-size: 16px; font-weight: 500; color: var(--text-primary); }
-  .card-body { padding: 20px; }
+/* MAIN */
+#main-content { margin-left: 220px; flex: 1; padding: 24px; min-height: calc(100vh - 56px); }
 
-  /* ===== PAGE HEADER ===== */
-  .page-header { margin-bottom: 20px; }
-  .page-title { font-size: 24px; font-weight: 400; color: var(--text-primary); }
-  .page-subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+/* SCREENS */
+.screen { display: none; }
+.screen.active { display: block; }
 
-  /* ===== BUTTONS ===== */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    padding: 0 16px; height: 36px; border-radius: var(--radius); border: none;
-    font-size: 14px; font-weight: 500; font-family: var(--font); cursor: pointer;
-    text-transform: uppercase; letter-spacing: .5px; transition: box-shadow .2s, background .2s;
-  }
-  .btn:focus { outline: none; }
-  .btn-primary { background: var(--primary); color: #fff; }
-  .btn-primary:hover { background: var(--primary-dark); box-shadow: var(--shadow1); }
-  .btn-accent { background: var(--accent); color: #fff; }
-  .btn-accent:hover { background: var(--accent-dark); box-shadow: var(--shadow1); }
-  .btn-error { background: var(--error); color: #fff; }
-  .btn-error:hover { background: #B71C1C; box-shadow: var(--shadow1); }
-  .btn-outlined {
-    background: transparent; color: var(--primary);
-    border: 1px solid var(--primary);
-  }
-  .btn-outlined:hover { background: rgba(56,142,60,.08); }
-  .btn-text { background: transparent; color: var(--primary); box-shadow: none; text-transform: none; }
-  .btn-text:hover { background: rgba(56,142,60,.08); }
-  .btn-icon {
-    width: 36px; height: 36px; padding: 0; border-radius: 50%;
-    background: transparent; border: none; cursor: pointer; font-size: 16px;
-    display: inline-flex; align-items: center; justify-content: center;
-    transition: background .2s;
-  }
-  .btn-icon:hover { background: rgba(0,0,0,.08); }
-  .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+/* LOGIN */
+#screen-login {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--bg);
+}
+.login-card {
+  background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  padding: 40px 36px; width: 400px; max-width: 95vw;
+}
+.login-logo { text-align: center; margin-bottom: 28px; }
+.login-logo .logo-circle {
+  width: 64px; height: 64px; background: var(--primary); border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 28px; color: #fff; margin-bottom: 12px;
+}
+.login-logo h1 { font-size: 20px; color: var(--primary-dark); font-weight: 600; }
+.login-logo p { color: var(--text-secondary); font-size: 13px; }
 
-  /* ===== FORM FIELDS ===== */
-  .form-row { display: flex; gap: 16px; flex-wrap: wrap; }
-  .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px; margin-bottom: 16px; }
-  .form-group.full { flex: none; width: 100%; }
-  .form-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
-  .form-input {
-    height: 40px; border: 1px solid #BDBDBD; border-radius: var(--radius);
-    padding: 0 12px; font-size: 14px; font-family: var(--font);
-    color: var(--text-primary); background: var(--surface); outline: none;
-    transition: border-color .2s;
-  }
-  .form-input:focus { border-color: var(--primary); border-width: 2px; }
-  .form-input:read-only { background: #F5F5F5; color: var(--text-secondary); }
-  .form-textarea {
-    border: 1px solid #BDBDBD; border-radius: var(--radius);
-    padding: 10px 12px; font-size: 14px; font-family: var(--font);
-    color: var(--text-primary); background: var(--surface); outline: none;
-    transition: border-color .2s; resize: vertical; min-height: 80px; width: 100%;
-  }
-  .form-textarea:focus { border-color: var(--primary); border-width: 2px; }
-  .form-select {
-    height: 40px; border: 1px solid #BDBDBD; border-radius: var(--radius);
-    padding: 0 12px; font-size: 14px; font-family: var(--font);
-    color: var(--text-primary); background: var(--surface); outline: none;
-    cursor: pointer; width: 100%;
-  }
-  .form-select:focus { border-color: var(--primary); }
-  .form-hint { font-size: 11px; color: var(--text-secondary); }
+/* TYPOGRAPHY */
+.page-title { font-size: 22px; font-weight: 600; color: var(--primary-dark); margin-bottom: 20px; }
+.section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text); }
 
-  /* ===== AUTOCOMPLETE ===== */
-  .autocomplete-wrap { position: relative; }
-  .autocomplete-dropdown {
-    position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
-    background: var(--surface); border: 1px solid var(--divider);
-    border-radius: var(--radius); box-shadow: var(--shadow2);
-    max-height: 200px; overflow-y: auto; display: none;
-  }
-  .autocomplete-dropdown.open { display: block; }
-  .ac-item {
-    padding: 10px 12px; font-size: 14px; cursor: pointer;
-    transition: background .15s;
-  }
-  .ac-item:hover { background: rgba(56,142,60,.08); }
-  .ac-item.ac-new { color: var(--accent); font-style: italic; }
+/* CARD */
+.card {
+  background: #fff; border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px;
+}
+.card-title {
+  font-size: 15px; font-weight: 600; color: var(--primary-dark);
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 2px solid var(--primary-light);
+}
 
-  /* ===== TABS ===== */
-  .tabs { display: flex; border-bottom: 2px solid var(--divider); margin-bottom: 20px; }
-  .tab-btn {
-    padding: 12px 20px; font-size: 14px; font-weight: 500; color: var(--text-secondary);
-    background: none; border: none; cursor: pointer; position: relative;
-    font-family: var(--font); letter-spacing: .4px; transition: color .2s;
-  }
-  .tab-btn::after {
-    content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
-    height: 2px; background: var(--primary); transform: scaleX(0); transition: transform .2s;
-  }
-  .tab-btn.active { color: var(--primary); }
-  .tab-btn.active::after { transform: scaleX(1); }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
+/* FORM */
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block; font-size: 12px; font-weight: 500;
+  color: var(--text-secondary); margin-bottom: 4px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.form-control {
+  width: 100%; border: 1px solid var(--border); border-radius: 4px;
+  padding: 10px 12px; font-size: 14px; color: var(--text); background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s; outline: none; font-family: inherit;
+}
+.form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(56,142,60,0.15); }
+.form-control:read-only { background: #F5F5F5; color: var(--text-secondary); }
+select.form-control { cursor: pointer; }
+textarea.form-control { resize: vertical; }
 
-  /* ===== TABLE ===== */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { background: #FAFAFA; }
-  th {
-    padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600;
-    color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px;
-    border-bottom: 2px solid var(--divider); white-space: nowrap;
-  }
-  td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--divider); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tbody tr:hover { background: rgba(0,0,0,.02); }
+.form-row { display: flex; gap: 12px; }
+.form-row .form-group { flex: 1; }
 
-  /* ===== CHIPS ===== */
-  .chip {
-    display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 500;
-  }
-  .chip-green { background: #E8F5E9; color: #2E7D32; }
-  .chip-orange { background: #FFF3E0; color: #E65100; }
-  .chip-blue { background: #E3F2FD; color: #1565C0; }
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px; border-radius: 4px;
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  border: none; transition: all 0.2s; font-family: inherit; letter-spacing: 0.3px;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: #2E7D32; box-shadow: var(--shadow); }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { background: #F57C00; }
+.btn-outline { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+.btn-outline:hover { background: var(--primary-light); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #B71C1C; }
+.btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+.btn-ghost:hover { background: #F5F5F5; }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-icon {
+  background: none; border: none; cursor: pointer; padding: 6px;
+  border-radius: 4px; color: var(--primary); font-size: 16px;
+  display: inline-flex; align-items: center; transition: background 0.15s;
+}
+.btn-icon:hover { background: var(--primary-light); }
+.btn-icon.danger { color: var(--danger); }
+.btn-icon.danger:hover { background: #FFEBEE; }
 
-  /* ===== FILTER BAR ===== */
-  .filter-bar { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
-  .filter-bar .form-group { margin-bottom: 0; min-width: 140px; }
-  .filter-spacer { flex: 1; }
+/* TOOLBAR */
+.toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.toolbar-spacer { flex: 1; }
 
-  /* ===== MODALS ===== */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
-    z-index: 1000; align-items: center; justify-content: center; padding: 16px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow3);
-    width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto;
-  }
-  .modal-lg { max-width: 700px; }
-  .modal-sm { max-width: 360px; }
-  .modal-header {
-    padding: 16px 20px; border-bottom: 1px solid var(--divider);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .modal-title { font-size: 18px; font-weight: 500; }
-  .modal-body { padding: 20px; }
-  .modal-footer {
-    padding: 12px 20px; border-top: 1px solid var(--divider);
-    display: flex; justify-content: flex-end; gap: 8px;
-  }
+/* FILTER BAR */
+.filter-bar {
+  background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 16px; margin-bottom: 16px;
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+}
+.filter-bar .form-group { margin-bottom: 0; min-width: 160px; }
 
-  /* ===== LOGIN ===== */
-  #loginScreen, #registerScreen {
-    display: flex; min-height: 100vh; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, #1B5E20 0%, #388E3C 60%, #66BB6A 100%);
-  }
-  .login-card {
-    background: var(--surface); border-radius: 8px; box-shadow: var(--shadow3);
-    padding: 40px 36px; width: 100%; max-width: 400px;
-  }
-  .login-logo { text-align: center; margin-bottom: 28px; }
-  .login-logo-icon { font-size: 48px; }
-  .login-logo h1 { font-size: 22px; font-weight: 500; color: var(--primary); margin-top: 8px; }
-  .login-logo p { font-size: 13px; color: var(--text-secondary); }
-  .login-card .form-group { margin-bottom: 20px; }
-  .login-card .form-input { width: 100%; }
-  .login-footer { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-secondary); }
-  .link-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 13px; text-decoration: underline; }
+/* TABLE */
+.table-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  background: #F5F5F5; color: var(--text-secondary);
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border);
+}
+td { padding: 11px 14px; border-bottom: 1px solid #F0F0F0; color: var(--text); font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #F9FBF9; }
+.table-actions { display: flex; gap: 4px; align-items: center; }
 
-  /* ===== SNACKBAR / TOAST ===== */
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: #323232; color: #fff; padding: 12px 24px; border-radius: var(--radius);
-    font-size: 14px; z-index: 9999; box-shadow: var(--shadow2);
-    opacity: 0; transition: opacity .3s; pointer-events: none;
-  }
-  .toast.visible { opacity: 1; }
+/* CHIPS */
+.chip {
+  display: inline-flex; align-items: center;
+  padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500;
+}
+.chip-green { background: #E8F5E9; color: #2E7D32; }
+.chip-blue { background: #E3F2FD; color: #1565C0; }
+.chip-orange { background: #FFF3E0; color: #E65100; }
+.chip-purple { background: #F3E5F5; color: #6A1B9A; }
+.chip-gray { background: #F5F5F5; color: var(--text-secondary); }
 
-  /* ===== CONFIRM DIALOG ===== */
-  .confirm-text { margin-bottom: 16px; font-size: 15px; color: var(--text-primary); }
-  .warning-box {
-    background: var(--error-light); border-left: 4px solid var(--error);
-    padding: 12px 16px; border-radius: var(--radius); margin-bottom: 20px; font-size: 14px;
-  }
+/* TABS */
+.tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+.tab-btn {
+  padding: 10px 20px; background: none; border: none; cursor: pointer;
+  font-size: 14px; font-weight: 500; color: var(--text-secondary);
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  transition: color 0.2s; font-family: inherit;
+}
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-btn:hover:not(.active) { color: var(--text); background: #F5F5F5; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
-  /* ===== MISC ===== */
-  .info-box {
-    background: #E8F5E9; border-left: 4px solid var(--primary);
-    padding: 12px 16px; border-radius: var(--radius); margin-bottom: 16px; font-size: 14px;
-  }
-  .section-actions { display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 12px; }
-  .divider { border: none; border-top: 1px solid var(--divider); margin: 20px 0; }
-  .text-muted { color: var(--text-secondary); font-size: 13px; }
-  .badge {
-    display: inline-flex; align-items: center; justify-content: center;
-    background: var(--accent); color: #fff; border-radius: 10px;
-    font-size: 11px; padding: 1px 7px; font-weight: 600;
-  }
-  .flex { display: flex; }
-  .gap-8 { gap: 8px; }
-  .align-center { align-items: center; }
-  .json-preview {
-    background: #263238; color: #A5D6A7; font-family: 'Courier New', monospace;
-    font-size: 12px; padding: 16px; border-radius: var(--radius); max-height: 300px;
-    overflow-y: auto; white-space: pre; margin-bottom: 16px;
-  }
-  .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; margin-bottom: 10px; }
-  .checkbox-label input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary); }
-  .actions-cell { display: flex; gap: 4px; align-items: center; }
-  .inline-popup {
-    position: fixed; z-index: 2000; background: var(--surface);
-    border-radius: var(--radius); box-shadow: var(--shadow3); padding: 12px 16px;
-    font-size: 13px; max-width: 260px; display: none;
-  }
-  .inline-popup.open { display: block; }
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.45); align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  padding: 28px; width: 520px; max-width: 95vw; max-height: 90vh;
+  overflow-y: auto; position: relative;
+}
+.modal-sm { width: 380px; }
+.modal-lg { width: 640px; }
+.modal-title {
+  font-size: 18px; font-weight: 600; color: var(--primary-dark);
+  margin-bottom: 20px; padding-bottom: 12px;
+  border-bottom: 2px solid var(--primary-light);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-close {
+  background: none; border: none; cursor: pointer; font-size: 20px;
+  color: var(--text-secondary); line-height: 1; padding: 0 4px; border-radius: 4px;
+}
+.modal-close:hover { background: #F5F5F5; color: var(--text); }
+.modal-actions {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+}
+
+/* AUTOCOMPLETE */
+.ac-wrapper { position: relative; }
+.ac-dropdown {
+  display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 300;
+  background: #fff; border: 1px solid var(--border); border-top: none;
+  border-radius: 0 0 4px 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-height: 200px; overflow-y: auto;
+}
+.ac-dropdown.open { display: block; }
+.ac-item { padding: 10px 12px; cursor: pointer; font-size: 14px; transition: background 0.15s; }
+.ac-item:hover { background: var(--primary-light); }
+.ac-item.no-match { color: var(--text-secondary); font-style: italic; cursor: default; }
+
+/* SNACKBAR */
+#snackbar {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #323232; color: #fff; padding: 12px 24px;
+  border-radius: 4px; font-size: 14px; z-index: 999;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  box-shadow: var(--shadow-lg); white-space: nowrap;
+}
+#snackbar.show { opacity: 1; }
+
+/* MISC */
+.auth-link { text-align: center; margin-top: 14px; font-size: 13px; color: var(--text-secondary); }
+.auth-link a { color: var(--primary); cursor: pointer; text-decoration: underline; }
+.info-text {
+  background: #E8F5E9; border-left: 3px solid var(--primary);
+  padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 13px; color: #2E7D32; margin-bottom: 16px;
+}
+.warn-text {
+  background: #FFF3E0; border-left: 3px solid var(--accent);
+  padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 13px; color: #E65100; margin-bottom: 16px;
+}
+.danger-text {
+  background: #FFEBEE; border-left: 3px solid var(--danger);
+  padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 13px; color: var(--danger); margin-bottom: 16px;
+}
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+.text-muted { color: var(--text-secondary); }
+.text-right { text-align: right; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mb-16 { margin-bottom: 16px; }
+.hidden { display: none !important; }
+
+.json-preview {
+  background: #1E1E1E; color: #9CDCFE; padding: 16px; border-radius: 4px;
+  font-family: 'Courier New', monospace; font-size: 12px;
+  max-height: 300px; overflow-y: auto; white-space: pre; margin-bottom: 16px;
+}
+.checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; margin-bottom: 10px; }
+.checkbox-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
+
+.progress-bar { width: 80px; height: 6px; background: #E0E0E0; border-radius: 3px; display: inline-block; vertical-align: middle; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 3px; }
 </style>
 </head>
 <body>
 
-<!-- ===== LOGIN SCREEN ===== -->
-<div id="loginScreen">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="login-logo-icon">🏪</div>
-      <h1>Bazaar</h1>
-      <p>Voranmelde-App</p>
-    </div>
-    <div class="form-group">
-      <label class="form-label">E-Mail</label>
-      <input type="email" id="loginEmail" class="form-input" placeholder="name@example.com" value="anna@example.com">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Passwort</label>
-      <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" value="geheim">
-    </div>
-    <button class="btn btn-primary" style="width:100%;height:42px;" onclick="doLogin()">ANMELDEN</button>
-    <div class="login-footer">
-      Noch kein Konto?
-      <button class="link-btn" onclick="showRegister()">Registrieren</button>
+<!-- ===== LOGIN ===== -->
+<div id="screen-login">
+  <div id="login-view">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-circle">🏷</div>
+        <h1>Voranmelde-App</h1>
+        <p>Bazaar Artikelverwaltung</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-Mail</label>
+        <input class="form-control" id="login-email" type="email" value="anna@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Passwort</label>
+        <input class="form-control" id="login-pw" type="password" value="secret">
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Anmelden</button>
+      <div class="auth-link">Noch kein Konto? <a onclick="showRegister()">Registrieren</a></div>
     </div>
   </div>
-</div>
 
-<!-- ===== REGISTER SCREEN ===== -->
-<div id="registerScreen" style="display:none;">
-  <div class="login-card" style="max-width:480px;">
-    <div class="login-logo">
-      <div class="login-logo-icon">🏪</div>
-      <h1>Registrieren</h1>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Vorname</label><input type="text" class="form-input" placeholder="Max"></div>
-      <div class="form-group"><label class="form-label">Nachname</label><input type="text" class="form-input" placeholder="Müller"></div>
-    </div>
-    <div class="form-group"><label class="form-label">E-Mail</label><input type="email" class="form-input" placeholder="name@example.com"></div>
-    <div class="form-group"><label class="form-label">Passwort</label><input type="password" class="form-input" placeholder="••••••••"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">PLZ</label><input type="text" class="form-input" placeholder="12345"></div>
-      <div class="form-group"><label class="form-label">Ort</label><input type="text" class="form-input" placeholder="Berlin"></div>
-    </div>
-    <div class="form-group"><label class="form-label">Telefon</label><input type="tel" class="form-input" placeholder="+49 30 ..."></div>
-    <button class="btn btn-primary" style="width:100%;height:42px;margin-top:4px;" onclick="doRegister()">KONTO ERSTELLEN</button>
-    <div class="login-footer">
-      Bereits registriert?
-      <button class="link-btn" onclick="showLogin()">Anmelden</button>
+  <div id="register-view" style="display:none;">
+    <div class="login-card" style="width:480px;">
+      <div class="login-logo">
+        <div class="logo-circle">👤</div>
+        <h1>Registrieren</h1>
+        <p>Neues Konto erstellen</p>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Vorname</label>
+          <input class="form-control" placeholder="Vorname">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nachname</label>
+          <input class="form-control" placeholder="Nachname">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-Mail</label>
+        <input class="form-control" type="email" placeholder="name@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Passwort</label>
+        <input class="form-control" type="password" placeholder="Passwort">
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:0 0 100px;">
+          <label class="form-label">PLZ</label>
+          <input class="form-control" placeholder="PLZ">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ort</label>
+          <input class="form-control" placeholder="Ort">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefon</label>
+        <input class="form-control" type="tel" placeholder="+49 ...">
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doRegister()">Konto erstellen</button>
+      <div class="auth-link"><a onclick="showLogin()">← Zurück zum Login</a></div>
     </div>
   </div>
-</div>
-
-<!-- ===== TOPBAR ===== -->
-<div class="topbar" id="topbar" style="display:none;">
-  <div class="topbar-title">🏪 Bazaar</div>
-  <div class="role-toggle">
-    <span>Ansicht:</span>
-    <div class="toggle-wrap">
-      <button class="toggle-btn active" id="roleAdmin" onclick="setRole('admin')">Admin</button>
-      <button class="toggle-btn" id="roleVendor" onclick="setRole('vendor')">Verkäufer</button>
-    </div>
-  </div>
-  <button class="btn-icon" onclick="doLogout()" title="Abmelden" style="color:#fff;font-size:20px;">⏏</button>
 </div>
 
 <!-- ===== APP LAYOUT ===== -->
-<div class="app-layout" id="appLayout" style="display:none;">
+<div id="screen-app" style="display:none;">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <span class="app-title">🏷 Voranmelde-App</span>
+    <div class="role-toggle">
+      <span>Ansicht:</span>
+      <button class="role-btn active" id="role-btn-admin" onclick="setRole('admin')">Admin</button>
+      <button class="role-btn" id="role-btn-verkaeufer" onclick="setRole('verkaeufer')">Verkäufer</button>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="color:#fff;border-color:rgba(255,255,255,0.4);" onclick="doLogout()">Abmelden</button>
+  </div>
 
   <!-- SIDEBAR -->
-  <nav class="sidebar" id="sidebar">
-    <!-- Vendor nav -->
-    <div id="navVendor" style="display:none;" class="sidebar-section">
-      <div class="sidebar-label">Verkäufer</div>
-      <button class="sidebar-item" data-screen="profil" onclick="showScreen('profil')">
-        <span class="sidebar-icon">👤</span> Profil
-      </button>
-      <button class="sidebar-item" data-screen="meineArtikel" onclick="showScreen('meineArtikel')">
-        <span class="sidebar-icon">📦</span> Meine Artikel
-      </button>
-      <button class="sidebar-item" data-screen="nummernbloecke" onclick="showScreen('nummernbloecke')">
-        <span class="sidebar-icon">🔢</span> Nummernblöcke
-      </button>
-    </div>
-    <!-- Admin nav -->
-    <div id="navAdmin" style="display:none;" class="sidebar-section">
-      <div class="sidebar-label">Admin</div>
-      <button class="sidebar-item" data-screen="verkaeuferliste" onclick="showScreen('verkaeuferliste')">
-        <span class="sidebar-icon">👥</span> Verkäufer
-      </button>
-      <button class="sidebar-item" data-screen="alleArtikel" onclick="showScreen('alleArtikel')">
-        <span class="sidebar-icon">📋</span> Alle Artikel
-      </button>
-      <button class="sidebar-item" data-screen="marken" onclick="showScreen('marken')">
-        <span class="sidebar-icon">🏷️</span> Marken
-      </button>
-      <button class="sidebar-item" data-screen="kategorien" onclick="showScreen('kategorien')">
-        <span class="sidebar-icon">📁</span> Kategorien
-      </button>
-      <button class="sidebar-item" data-screen="verkaeuferTypes" onclick="showScreen('verkaeuferTypes')">
-        <span class="sidebar-icon">⚙️</span> Verkäufer-Types
-      </button>
-      <button class="sidebar-item" data-screen="einstellungen" onclick="showScreen('einstellungen')">
-        <span class="sidebar-icon">🔧</span> Einstellungen
-      </button>
-      <button class="sidebar-item" data-screen="export" onclick="showScreen('export')">
-        <span class="sidebar-icon">📤</span> Export
-      </button>
-    </div>
-  </nav>
-
-  <!-- MAIN -->
-  <main class="main-content" id="mainContent">
-
-    <!-- ===== PROFIL SCREEN ===== -->
-    <div class="screen" id="screen-profil">
-      <div class="page-header">
-        <div class="page-title">Mein Profil</div>
-        <div class="page-subtitle">Anna Müller — anna@example.com</div>
+  <div id="sidebar">
+    <div id="nav-admin">
+      <div class="nav-section-label">Administration</div>
+      <div class="nav-item" data-screen="admin-verkaeufer" onclick="showScreen('admin-verkaeufer')">
+        <span class="nav-icon">👥</span> Verkäufer
       </div>
-      <div class="card">
-        <div class="card-body" style="padding-bottom:0;">
-          <div class="tabs" id="tabs-profil">
-            <button class="tab-btn active" onclick="switchTab('profil','steckbrief')">Steckbrief</button>
-            <button class="tab-btn" onclick="switchTab('profil','zugangsdaten')">Zugangsdaten</button>
-            <button class="tab-btn" onclick="switchTab('profil','account')">Account löschen</button>
-          </div>
-        </div>
-        <!-- Steckbrief -->
-        <div class="card-body tab-panel active" id="tab-profil-steckbrief">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Vorname</label><input type="text" class="form-input" value="Anna"></div>
-            <div class="form-group"><label class="form-label">Nachname</label><input type="text" class="form-input" value="Müller"></div>
-          </div>
-          <div class="form-group"><label class="form-label">Anschrift</label><input type="text" class="form-input" value="Musterstraße 1"></div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">PLZ</label><input type="text" class="form-input" value="12345"></div>
-            <div class="form-group"><label class="form-label">Ort</label><input type="text" class="form-input" value="Berlin"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Telefon</label><input type="tel" class="form-input" value="+49 30 12345678"></div>
-            <div class="form-group"><label class="form-label">E-Mail</label><input type="email" class="form-input" value="anna@example.com"></div>
-          </div>
-          <div class="form-group"><label class="form-label">Verkäufer-Type</label><input type="text" class="form-input" value="Privat" readonly></div>
-          <div style="display:flex;justify-content:flex-end;margin-top:4px;">
-            <button class="btn btn-primary" onclick="showToast('Profil gespeichert.')">SPEICHERN</button>
-          </div>
-        </div>
-        <!-- Zugangsdaten -->
-        <div class="card-body tab-panel" id="tab-profil-zugangsdaten">
-          <div style="font-size:15px;font-weight:500;margin-bottom:16px;color:var(--text-secondary);">E-Mail ändern</div>
-          <div class="form-group"><label class="form-label">Aktuelle E-Mail</label><input type="email" class="form-input" value="anna@example.com"></div>
-          <div class="form-group"><label class="form-label">Neue E-Mail</label><input type="email" class="form-input" placeholder="neue@email.de"></div>
-          <div class="form-group"><label class="form-label">Neue E-Mail bestätigen</label><input type="email" class="form-input" placeholder="neue@email.de"></div>
-          <div style="display:flex;justify-content:flex-end;margin-bottom:24px;">
-            <button class="btn btn-primary" onclick="showToast('E-Mail wurde geändert.')">SPEICHERN</button>
-          </div>
-          <hr class="divider">
-          <div style="font-size:15px;font-weight:500;margin-bottom:16px;color:var(--text-secondary);">Passwort ändern</div>
-          <div class="form-group"><label class="form-label">Aktuelles Passwort</label><input type="password" class="form-input" placeholder="••••••••"></div>
-          <div class="form-group"><label class="form-label">Neues Passwort</label><input type="password" class="form-input" placeholder="••••••••"></div>
-          <div class="form-group"><label class="form-label">Neues Passwort bestätigen</label><input type="password" class="form-input" placeholder="••••••••"></div>
-          <div style="display:flex;justify-content:flex-end;">
-            <button class="btn btn-primary" onclick="showToast('Passwort wurde geändert.')">SPEICHERN</button>
-          </div>
-        </div>
-        <!-- Account löschen -->
-        <div class="card-body tab-panel" id="tab-profil-account">
-          <div class="warning-box">
-            <strong>Achtung:</strong> Das Löschen Ihres Accounts ist dauerhaft und kann nicht rückgängig gemacht werden.
-            Alle Ihre Artikel und Nummernblöcke werden ebenfalls gelöscht.
-          </div>
-          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:24px;">
-            Wenn Sie Ihren Account löschen, werden alle gespeicherten Daten unwiderruflich entfernt.
-            Bitte stellen Sie sicher, dass Sie keine offenen Transaktionen haben.
-          </p>
-          <button class="btn btn-error" onclick="openModal('modalDeleteAccount')">ACCOUNT LÖSCHEN</button>
-        </div>
+      <div class="nav-item" data-screen="admin-artikel" onclick="showScreen('admin-artikel')">
+        <span class="nav-icon">📦</span> Alle Artikel
+      </div>
+      <div class="nav-item" data-screen="admin-marken" onclick="showScreen('admin-marken')">
+        <span class="nav-icon">🏷</span> Marken
+      </div>
+      <div class="nav-item" data-screen="admin-kategorien" onclick="showScreen('admin-kategorien')">
+        <span class="nav-icon">📁</span> Kategorien
+      </div>
+      <div class="nav-item" data-screen="admin-types" onclick="showScreen('admin-types')">
+        <span class="nav-icon">🔖</span> Verkäufer-Types
+      </div>
+      <div class="nav-item" data-screen="admin-einstellungen" onclick="showScreen('admin-einstellungen')">
+        <span class="nav-icon">⚙️</span> Einstellungen
+      </div>
+      <div class="nav-item" data-screen="admin-export" onclick="showScreen('admin-export')">
+        <span class="nav-icon">📤</span> Export
       </div>
     </div>
-
-    <!-- ===== MEINE ARTIKEL SCREEN ===== -->
-    <div class="screen" id="screen-meineArtikel">
-      <div class="page-header">
-        <div class="page-title">Meine Artikel</div>
-        <div class="page-subtitle">Verwaltung Ihrer angemeldeten Artikel</div>
+    <div id="nav-verkaeufer" style="display:none;">
+      <div class="nav-section-label">Mein Bereich</div>
+      <div class="nav-item" data-screen="vk-profil" onclick="showScreen('vk-profil')">
+        <span class="nav-icon">👤</span> Profil
       </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="filter-bar" style="flex:1;margin-bottom:0;">
-            <div class="form-group" style="margin-bottom:0;min-width:160px;">
-              <label class="form-label">Marke</label>
-              <div class="autocomplete-wrap">
-                <input type="text" class="form-input" id="filterMarkeVendor" placeholder="Alle Marken" oninput="filterAC('filterMarkeVendor','acFilterMarkeVendor',marken)" onfocus="openAC('filterMarkeVendor','acFilterMarkeVendor',marken,false)" onblur="delayCloseAC('acFilterMarkeVendor')" autocomplete="off">
-                <div class="autocomplete-dropdown" id="acFilterMarkeVendor"></div>
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom:0;min-width:160px;">
-              <label class="form-label">Kategorie</label>
-              <div class="autocomplete-wrap">
-                <input type="text" class="form-input" id="filterKatVendor" placeholder="Alle Kategorien" oninput="filterAC('filterKatVendor','acFilterKatVendor',kategorien)" onfocus="openAC('filterKatVendor','acFilterKatVendor',kategorien,false)" onblur="delayCloseAC('acFilterKatVendor')" autocomplete="off">
-                <div class="autocomplete-dropdown" id="acFilterKatVendor"></div>
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom:0;flex:2;min-width:180px;">
-              <label class="form-label">Suche</label>
-              <input type="text" class="form-input" id="filterTextVendor" placeholder="Bezeichnung ..." oninput="renderArtikelVendor()">
-            </div>
-          </div>
-          <button class="btn btn-accent" onclick="openArtikelDialog(null,'vendor')" style="white-space:nowrap;margin-left:8px;">+ NEU</button>
-        </div>
-        <div class="card-body" style="padding:0;">
-          <div class="table-wrap">
-            <table id="tableArtikelVendor">
-              <thead><tr>
-                <th>Art.-Nr.</th><th>Bezeichnung</th><th>Kategorie</th><th>Marke</th><th>Preis</th><th></th>
-              </tr></thead>
-              <tbody id="tbodyArtikelVendor"></tbody>
-            </table>
-          </div>
-        </div>
+      <div class="nav-item" data-screen="vk-artikel" onclick="showScreen('vk-artikel')">
+        <span class="nav-icon">📦</span> Meine Artikel
+      </div>
+      <div class="nav-item" data-screen="vk-nummern" onclick="showScreen('vk-nummern')">
+        <span class="nav-icon">🔢</span> Nummernblöcke
       </div>
     </div>
+  </div>
 
-    <!-- ===== NUMMERNBLÖCKE SCREEN ===== -->
-    <div class="screen" id="screen-nummernbloecke">
-      <div class="page-header">
-        <div class="page-title">Nummernblöcke</div>
-        <div class="page-subtitle">Ihre zugewiesenen Artikelnummer-Blöcke</div>
-      </div>
-      <div class="info-box">
-        ℹ️ Weitere Blöcke werden automatisch zugewiesen, wenn der aktuelle Block zu 80% ausgelastet ist.
-      </div>
-      <div class="card">
-        <div class="card-body" style="padding:0;">
-          <div class="table-wrap">
-            <table>
-              <thead><tr>
-                <th>Block-Nr.</th><th>Von</th><th>Bis</th><th>Zugewiesen Am</th><th>Genutzt / Gesamt</th><th>Auslastung</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td><strong>Block 1</strong></td><td>101</td><td>110</td><td>01.03.2024</td>
-                  <td>8 / 10</td>
-                  <td>
-                    <div style="display:flex;align-items:center;gap:8px;">
-                      <div style="background:#E0E0E0;border-radius:4px;height:8px;width:80px;overflow:hidden;">
-                        <div style="background:var(--primary);height:100%;width:80%;"></div>
-                      </div>
-                      <span class="chip chip-orange">80%</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>Block 2</strong></td><td>201</td><td>210</td><td>01.04.2024</td>
-                  <td>0 / 10</td>
-                  <td>
-                    <div style="display:flex;align-items:center;gap:8px;">
-                      <div style="background:#E0E0E0;border-radius:4px;height:8px;width:80px;overflow:hidden;">
-                        <div style="background:var(--primary);height:100%;width:0%;"></div>
-                      </div>
-                      <span class="chip chip-green">0%</span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- MAIN CONTENT -->
+  <div id="main-content">
 
-    <!-- ===== VERKÄUFER LISTE SCREEN (ADMIN) ===== -->
-    <div class="screen" id="screen-verkaeuferliste">
-      <div class="page-header">
-        <div class="page-title">Verkäufer</div>
-        <div class="page-subtitle">Alle registrierten Verkäufer verwalten</div>
+    <!-- ===== VERKÄUFER: PROFIL ===== -->
+    <div id="screen-vk-profil" class="screen">
+      <div class="page-title">👤 Profil</div>
+      <div class="tabs" id="profil-tabs">
+        <button class="tab-btn active" onclick="switchTab('profil','steckbrief',this)">Steckbrief</button>
+        <button class="tab-btn" onclick="switchTab('profil','zugangsdaten',this)">Zugangsdaten</button>
+        <button class="tab-btn" onclick="switchTab('profil','loeschen',this)">Account löschen</button>
       </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="filter-bar" style="flex:1;margin-bottom:0;">
-            <div class="form-group" style="margin-bottom:0;flex:1;min-width:200px;">
-              <label class="form-label">Suche</label>
-              <input type="text" class="form-input" id="filterVendorAdmin" placeholder="Name, E-Mail ..." oninput="renderVendorTable()">
-            </div>
-          </div>
-          <button class="btn btn-accent" onclick="openVendorDialog(null)" style="white-space:nowrap;margin-left:8px;">+ NEU</button>
-        </div>
-        <div class="card-body" style="padding:0;">
-          <div class="table-wrap">
-            <table id="tableVendors">
-              <thead><tr>
-                <th>ID</th><th>Vorname</th><th>Nachname</th><th>PLZ</th><th>Ort</th><th>E-Mail</th><th>Type</th><th>Artikel</th><th></th>
-              </tr></thead>
-              <tbody id="tbodyVendors"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== ALLE ARTIKEL SCREEN (ADMIN) ===== -->
-    <div class="screen" id="screen-alleArtikel">
-      <div class="page-header">
-        <div class="page-title">Alle Artikel</div>
-        <div class="page-subtitle">Artikel aller Verkäufer</div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="filter-bar" style="flex:1;margin-bottom:0;">
-            <div class="form-group" style="margin-bottom:0;min-width:150px;">
-              <label class="form-label">Marke</label>
-              <div class="autocomplete-wrap">
-                <input type="text" class="form-input" id="filterMarkeAdmin" placeholder="Alle" oninput="filterAC('filterMarkeAdmin','acFilterMarkeAdmin',marken)" onfocus="openAC('filterMarkeAdmin','acFilterMarkeAdmin',marken,false)" onblur="delayCloseAC('acFilterMarkeAdmin')" autocomplete="off">
-                <div class="autocomplete-dropdown" id="acFilterMarkeAdmin"></div>
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom:0;min-width:150px;">
-              <label class="form-label">Kategorie</label>
-              <div class="autocomplete-wrap">
-                <input type="text" class="form-input" id="filterKatAdmin" placeholder="Alle" oninput="filterAC('filterKatAdmin','acFilterKatAdmin',kategorien)" onfocus="openAC('filterKatAdmin','acFilterKatAdmin',kategorien,false)" onblur="delayCloseAC('acFilterKatAdmin')" autocomplete="off">
-                <div class="autocomplete-dropdown" id="acFilterKatAdmin"></div>
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom:0;flex:2;min-width:180px;">
-              <label class="form-label">Suche</label>
-              <input type="text" class="form-input" id="filterTextAdmin" placeholder="Bezeichnung ..." oninput="renderAlleArtikel()">
-            </div>
-          </div>
-        </div>
-        <div class="card-body" style="padding:0;">
-          <div class="table-wrap">
-            <table>
-              <thead><tr>
-                <th>Art.-Nr.</th><th>Bezeichnung</th><th>Kategorie</th><th>Marke</th><th>Preis</th><th>Verkäufer</th><th></th>
-              </tr></thead>
-              <tbody id="tbodyAlleArtikel"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== MARKEN SCREEN (ADMIN) ===== -->
-    <div class="screen" id="screen-marken">
-      <div class="page-header">
-        <div class="page-title">Marken</div>
-        <div class="page-subtitle">Markenverwaltung</div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Alle Marken</div>
-          <div style="display:flex;gap:8px;">
-            <button class="btn btn-outlined btn-sm" onclick="simulateImport('Marken')">📥 Import</button>
-            <button class="btn btn-outlined btn-sm" onclick="simulateExportSimple('Marken')">📤 Export</button>
-            <button class="btn btn-accent btn-sm" onclick="openMarkeDialog(null)">+ NEU</button>
-          </div>
-        </div>
-        <div class="card-body" style="padding:0;">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>ID</th><th>Bezeichnung</th><th></th></tr></thead>
-              <tbody id="tbodyMarken"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== KATEGORIEN SCREEN (ADMIN) ===== -->
-    <div class="screen" id="screen-kategorien">
-      <div class="page-header">
-        <div class="page-title">Kategorien</div>
-        <div class="page-subtitle">Kategorieverwaltung</div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Alle Kategorien</div>
-          <div style="display:flex;gap:8px;">
-            <button class="btn btn-outlined btn-sm" onclick="simulateImport('Kategorien')">📥 Import</button>
-            <button class="btn btn-outlined btn-sm" onclick="simulateExportSimple('Kategorien')">📤 Export</button>
-            <button class="btn btn-accent btn-sm" onclick="openKategorieDialog(null)">+ NEU</button>
-          </div>
-        </div>
-        <div class="card-body" style="padding:0;">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>ID</th><th>Bezeichnung</th><th></th></tr></thead>
-              <tbody id="tbodyKategorien"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== VERKÄUFER TYPES SCREEN (ADMIN) ===== -->
-    <div class="screen" id="screen-verkaeuferTypes">
-      <div class="page-header">
-        <div class="page-title">Verkäufer-Types</div>
-        <div class="page-subtitle">Typkonfiguration und Konditionen</div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Alle Types</div>
-          <button class="btn btn-accent btn-sm" onclick="openTypeDialog(null)">+ NEU</button>
-        </div>
-        <div class="card-body" style="padding:0;">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>ID</th><th>Bezeichnung</th><th>Provision %</th><th>Gebühr/Stück</th><th></th></tr></thead>
-              <tbody id="tbodyTypes"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== EINSTELLUNGEN SCREEN (ADMIN) ===== -->
-    <div class="screen" id="screen-einstellungen">
-      <div class="page-header">
-        <div class="page-title">Einstellungen</div>
-        <div class="page-subtitle">Systemkonfiguration</div>
-      </div>
-      <div class="card" style="max-width:560px;">
-        <div class="card-header"><div class="card-title">🔢 Nummernblock-Konfiguration</div></div>
-        <div class="card-body">
-          <div class="info-box" style="margin-bottom:16px;">
-            Änderungen an der Nummernblock-Konfiguration gelten nur für neu zugewiesene Blöcke.
-            Bereits zugewiesene Blöcke behalten ihre ursprüngliche Größe.
-          </div>
+      <div id="profil-tab-steckbrief" class="tab-panel active">
+        <div class="card">
+          <div class="card-title">Persönliche Daten</div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Startnummer</label>
-              <input type="number" class="form-input" id="setStartNumber" value="101">
+              <label class="form-label">Vorname</label>
+              <input class="form-control" value="Anna">
             </div>
             <div class="form-group">
-              <label class="form-label">Blockgröße</label>
-              <input type="number" class="form-input" id="setBlockSize" value="10">
+              <label class="form-label">Nachname</label>
+              <input class="form-control" value="Müller">
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Standard Anzahl Blöcke (pro neuem Verkäufer)</label>
-            <input type="number" class="form-input" id="setDefaultBlockCount" value="1">
+            <label class="form-label">Anschrift</label>
+            <input class="form-control" value="Musterstraße 12">
           </div>
-          <div style="display:flex;justify-content:flex-end;">
-            <button class="btn btn-primary" onclick="showToast('Nummernblock-Konfiguration gespeichert.')">SPEICHERN</button>
+          <div class="form-row">
+            <div class="form-group" style="flex:0 0 100px;">
+              <label class="form-label">PLZ</label>
+              <input class="form-control" value="70173">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ort</label>
+              <input class="form-control" value="Stuttgart">
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="card" style="max-width:560px;">
-        <div class="card-header"><div class="card-title">⚙️ System</div></div>
-        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Telefon</label>
+              <input class="form-control" value="+49 711 123456">
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-Mail</label>
+              <input class="form-control" value="anna@example.com">
+            </div>
+          </div>
           <div class="form-group">
-            <label class="form-label">Kamera-Feedback-Dauer (Sekunden)</label>
-            <input type="number" class="form-input" id="setFeedbackDuration" value="5" style="max-width:160px;">
-            <span class="form-hint">Dauer der Bestätigungsanzeige nach erfolgreichem Scan</span>
+            <label class="form-label">Verkäufer-Type</label>
+            <input class="form-control" value="Privat" readonly>
           </div>
-          <div style="display:flex;justify-content:flex-end;">
-            <button class="btn btn-primary" onclick="showToast('Systemeinstellungen gespeichert.')">SPEICHERN</button>
+          <div class="text-right">
+            <button class="btn btn-primary" onclick="showSnackbar('Profil gespeichert ✓')">Speichern</button>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- ===== EXPORT SCREEN (ADMIN) ===== -->
-    <div class="screen" id="screen-export">
-      <div class="page-header">
-        <div class="page-title">Export</div>
-        <div class="page-subtitle">Daten exportieren</div>
+      <div id="profil-tab-zugangsdaten" class="tab-panel">
+        <div class="card">
+          <div class="card-title">E-Mail ändern</div>
+          <div class="form-group">
+            <label class="form-label">Aktuelle E-Mail</label>
+            <input class="form-control" type="email" value="anna@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Neue E-Mail</label>
+            <input class="form-control" type="email" placeholder="neue@email.de">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Neue E-Mail bestätigen</label>
+            <input class="form-control" type="email" placeholder="neue@email.de">
+          </div>
+          <div class="text-right">
+            <button class="btn btn-primary" onclick="showSnackbar('E-Mail aktualisiert ✓')">Speichern</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Passwort ändern</div>
+          <div class="form-group">
+            <label class="form-label">Aktuelles Passwort</label>
+            <input class="form-control" type="password" placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Neues Passwort</label>
+            <input class="form-control" type="password" placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Neues Passwort bestätigen</label>
+            <input class="form-control" type="password" placeholder="••••••••">
+          </div>
+          <div class="text-right">
+            <button class="btn btn-primary" onclick="showSnackbar('Passwort geändert ✓')">Speichern</button>
+          </div>
+        </div>
       </div>
-      <div class="card" style="max-width:520px;">
-        <div class="card-header"><div class="card-title">📤 Daten-Export</div></div>
-        <div class="card-body">
-          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">
-            Exportieren Sie alle Artikeldaten als JSON-Datei. Sie können wählen, ob Marken und
-            Kategorien als separate Listen eingeschlossen werden sollen.
+      <div id="profil-tab-loeschen" class="tab-panel">
+        <div class="card">
+          <div class="card-title" style="color:var(--danger);">⚠ Account löschen</div>
+          <div class="danger-text">
+            <strong>Achtung:</strong> Diese Aktion ist unwiderruflich. Ihr Account und alle zugehörigen Daten werden dauerhaft gelöscht.
+          </div>
+          <p class="text-muted" style="margin-bottom:16px;">
+            Wenn Sie sicher sind, klicken Sie auf den Button unten. Sie werden zur Bestätigung aufgefordert.
           </p>
-          <label class="checkbox-label">
-            <input type="checkbox" id="expMarken" checked>
-            <span>Marken einschließen</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" id="expKategorien" checked>
-            <span>Kategorien einschließen</span>
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" id="expVendors" checked>
-            <span>Verkäuferliste einschließen</span>
-          </label>
-          <hr class="divider">
-          <div style="display:flex;justify-content:flex-end;">
-            <button class="btn btn-primary" onclick="openExportPreview()">EXPORT ERSTELLEN</button>
-          </div>
+          <button class="btn btn-danger" onclick="openModal('modal-delete-account')">Account löschen</button>
         </div>
       </div>
     </div>
 
-  </main>
-</div>
+    <!-- ===== VERKÄUFER: MEINE ARTIKEL ===== -->
+    <div id="screen-vk-artikel" class="screen">
+      <div class="toolbar">
+        <div class="page-title" style="margin:0;">📦 Meine Artikel</div>
+        <div class="toolbar-spacer"></div>
+        <button class="btn btn-primary" onclick="openArtikelDialog(null,'vk')">+ Neuer Artikel</button>
+      </div>
+      <div class="filter-bar">
+        <div class="form-group">
+          <label class="form-label">Marke</label>
+          <div class="ac-wrapper">
+            <input class="form-control" id="f-vk-marke" placeholder="Alle Marken" autocomplete="off"
+              oninput="doAC('f-vk-marke','acd-vk-marke')"
+              onclick="doAC('f-vk-marke','acd-vk-marke')"
+              onfocus="doAC('f-vk-marke','acd-vk-marke')"
+              onblur="closeACD('acd-vk-marke')">
+            <div class="ac-dropdown" id="acd-vk-marke"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kategorie</label>
+          <div class="ac-wrapper">
+            <input class="form-control" id="f-vk-kat" placeholder="Alle Kategorien" autocomplete="off"
+              oninput="doAC('f-vk-kat','acd-vk-kat',null,'kat')"
+              onclick="doAC('f-vk-kat','acd-vk-kat',null,'kat')"
+              onfocus="doAC('f-vk-kat','acd-vk-kat',null,'kat')"
+              onblur="closeACD('acd-vk-kat')">
+            <div class="ac-dropdown" id="acd-vk-kat"></div>
+          </div>
+        </div>
+        <div class="form-group" style="flex:1;min-width:180px;">
+          <label class="form-label">Freitext</label>
+          <input class="form-control" id="f-vk-text" placeholder="Suche..." oninput="renderVkArtikel()">
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearFilter('f-vk-marke','f-vk-kat','f-vk-text');renderVkArtikel()">Zurücksetzen</button>
+      </div>
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Artikelnr.</th><th>Bezeichnung</th><th>Kategorie</th>
+                <th>Marke</th><th>Preis</th><th style="width:60px;">Aktion</th>
+              </tr>
+            </thead>
+            <tbody id="vk-art-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-<!-- ===== MODALS ===== -->
+    <!-- ===== VERKÄUFER: NUMMERNBLÖCKE ===== -->
+    <div id="screen-vk-nummern" class="screen">
+      <div class="page-title">🔢 Nummernblöcke</div>
+      <div class="info-text">Weitere Blöcke werden automatisch zugewiesen, wenn Sie mehr Artikelnummern benötigen.</div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Block-Nr.</th><th>Von</th><th>Bis</th>
+              <th>Zugewiesen Am</th><th>Genutzt / Gesamt</th><th>Auslastung</th>
+            </tr>
+          </thead>
+          <tbody id="nummern-tbody"></tbody>
+        </table>
+      </div>
+    </div>
 
-<!-- Delete Account Modal -->
-<div class="modal-overlay" id="modalDeleteAccount">
+    <!-- ===== ADMIN: VERKÄUFER ===== -->
+    <div id="screen-admin-verkaeufer" class="screen">
+      <div class="toolbar">
+        <div class="page-title" style="margin:0;">👥 Verkäufer</div>
+        <div class="toolbar-spacer"></div>
+        <button class="btn btn-primary" onclick="openVkDialog(null)">+ Neuer Verkäufer</button>
+      </div>
+      <div class="filter-bar">
+        <div class="form-group" style="flex:1;min-width:200px;">
+          <label class="form-label">Suche</label>
+          <input class="form-control" id="f-adm-vk" placeholder="Name, E-Mail, Ort..." oninput="renderAdmVk()">
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearFilter('f-adm-vk');renderAdmVk()">Zurücksetzen</button>
+      </div>
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Vorname</th><th>Nachname</th><th>PLZ</th><th>Ort</th>
+                <th>E-Mail</th><th>Type</th><th>Artikel</th><th style="width:100px;">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody id="adm-vk-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN: ALLE ARTIKEL ===== -->
+    <div id="screen-admin-artikel" class="screen">
+      <div class="toolbar">
+        <div class="page-title" style="margin:0;">📦 Alle Artikel</div>
+        <div class="toolbar-spacer"></div>
+      </div>
+      <div class="filter-bar">
+        <div class="form-group">
+          <label class="form-label">Marke</label>
+          <div class="ac-wrapper">
+            <input class="form-control" id="f-adm-marke" placeholder="Alle Marken" autocomplete="off"
+              oninput="doAC('f-adm-marke','acd-adm-marke')"
+              onclick="doAC('f-adm-marke','acd-adm-marke')"
+              onfocus="doAC('f-adm-marke','acd-adm-marke')"
+              onblur="closeACD('acd-adm-marke')">
+            <div class="ac-dropdown" id="acd-adm-marke"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kategorie</label>
+          <div class="ac-wrapper">
+            <input class="form-control" id="f-adm-kat" placeholder="Alle Kategorien" autocomplete="off"
+              oninput="doAC('f-adm-kat','acd-adm-kat',null,'kat')"
+              onclick="doAC('f-adm-kat','acd-adm-kat',null,'kat')"
+              onfocus="doAC('f-adm-kat','acd-adm-kat',null,'kat')"
+              onblur="closeACD('acd-adm-kat')">
+            <div class="ac-dropdown" id="acd-adm-kat"></div>
+          </div>
+        </div>
+        <div class="form-group" style="flex:1;min-width:180px;">
+          <label class="form-label">Freitext</label>
+          <input class="form-control" id="f-adm-art-text" placeholder="Suche..." oninput="renderAdmArtikel()">
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearFilter('f-adm-marke','f-adm-kat','f-adm-art-text');renderAdmArtikel()">Zurücksetzen</button>
+      </div>
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Artikelnr.</th><th>Bezeichnung</th><th>Kategorie</th>
+                <th>Marke</th><th>Preis</th><th>Verkäufer</th><th style="width:60px;">Aktion</th>
+              </tr>
+            </thead>
+            <tbody id="adm-art-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN: MARKEN ===== -->
+    <div id="screen-admin-marken" class="screen">
+      <div class="toolbar">
+        <div class="page-title" style="margin:0;">🏷 Marken</div>
+        <div class="toolbar-spacer"></div>
+        <button class="btn btn-outline btn-sm" onclick="showSnackbar('Import: Datei wird eingelesen...')">📥 Import</button>
+        <button class="btn btn-outline btn-sm" onclick="showSnackbar('Export als JSON gestartet...')">📤 Export</button>
+        <button class="btn btn-primary" onclick="openMarkeDialog(null)">+ Neue Marke</button>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead><tr><th>ID</th><th>Bezeichnung</th><th style="width:80px;">Aktion</th></tr></thead>
+          <tbody id="marken-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN: KATEGORIEN ===== -->
+    <div id="screen-admin-kategorien" class="screen">
+      <div class="toolbar">
+        <div class="page-title" style="margin:0;">📁 Kategorien</div>
+        <div class="toolbar-spacer"></div>
+        <button class="btn btn-outline btn-sm" onclick="showSnackbar('Import: Datei wird eingelesen...')">📥 Import</button>
+        <button class="btn btn-outline btn-sm" onclick="showSnackbar('Export als JSON gestartet...')">📤 Export</button>
+        <button class="btn btn-primary" onclick="openKatDialog(null)">+ Neue Kategorie</button>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead><tr><th>ID</th><th>Bezeichnung</th><th style="width:80px;">Aktion</th></tr></thead>
+          <tbody id="kat-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN: VERKÄUFER-TYPES ===== -->
+    <div id="screen-admin-types" class="screen">
+      <div class="toolbar">
+        <div class="page-title" style="margin:0;">🔖 Verkäufer-Types</div>
+        <div class="toolbar-spacer"></div>
+        <button class="btn btn-primary" onclick="openTypeDialog(null)">+ Neuer Type</button>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Bezeichnung</th><th>Provision %</th><th>Gebühr / Stück</th><th style="width:80px;">Aktion</th></tr>
+          </thead>
+          <tbody id="types-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN: EINSTELLUNGEN ===== -->
+    <div id="screen-admin-einstellungen" class="screen">
+      <div class="page-title">⚙️ Einstellungen</div>
+      <div class="card">
+        <div class="card-title">Nummernblock-Konfiguration</div>
+        <div class="info-text">Änderungen wirken sich nur auf neue Zuweisungen aus.</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Startpunkt (startNumber)</label>
+            <input class="form-control" id="cfg-start" type="number" value="101">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Blockgröße (blockSize)</label>
+            <input class="form-control" id="cfg-size" type="number" value="10">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Standard-Blöcke für neue Verkäufer</label>
+            <input class="form-control" id="cfg-default" type="number" value="1">
+          </div>
+        </div>
+        <div class="text-right">
+          <button class="btn btn-primary" onclick="saveEinstellungen()">Speichern</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">System</div>
+        <div class="form-group" style="max-width:300px;">
+          <label class="form-label">Kamera-Feedback-Dauer (Sekunden)</label>
+          <input class="form-control" id="cfg-feedback" type="number" value="5">
+        </div>
+        <div class="text-right">
+          <button class="btn btn-primary" onclick="showSnackbar('System-Einstellungen gespeichert ✓')">Speichern</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN: EXPORT ===== -->
+    <div id="screen-admin-export" class="screen">
+      <div class="page-title">📤 Export</div>
+      <div class="card">
+        <div class="card-title">Export erstellen</div>
+        <p class="text-muted" style="margin-bottom:16px;">
+          Exportiert alle Verkäufer mit Profil und Artikelliste als JSON-Datei.
+        </p>
+        <label class="checkbox-label">
+          <input type="checkbox" id="exp-marken" checked> Marken einschließen
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="exp-kategorien" checked> Kategorien einschließen
+        </label>
+        <div class="mt-16">
+          <button class="btn btn-primary" onclick="openExportPreview()">📤 Export erstellen</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /screen-app -->
+
+
+<!-- ===================== MODALS ===================== -->
+
+<!-- Account löschen -->
+<div class="modal-overlay" id="modal-delete-account">
   <div class="modal modal-sm">
-    <div class="modal-header">
-      <div class="modal-title" style="color:var(--error);">⚠️ Account löschen</div>
-      <button class="btn-icon" onclick="closeModal('modalDeleteAccount')">✕</button>
+    <div class="modal-title">
+      Account löschen
+      <button class="modal-close" onclick="closeModal('modal-delete-account')">✕</button>
     </div>
-    <div class="modal-body">
-      <p class="confirm-text">Sind Sie sicher, dass Sie Ihren Account dauerhaft löschen möchten?</p>
-      <p style="font-size:13px;color:var(--text-secondary);">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+    <div class="danger-text">
+      <strong>Sind Sie absolut sicher?</strong><br>
+      Diese Aktion kann nicht rückgängig gemacht werden.
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-text" onclick="closeModal('modalDeleteAccount')">ABBRECHEN</button>
-      <button class="btn btn-error" onclick="closeModal('modalDeleteAccount');showToast('Account wurde gelöscht.');doLogout();">LÖSCHEN</button>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-delete-account')">Abbrechen</button>
+      <button class="btn btn-danger" onclick="deleteAccount()">Ja, Account löschen</button>
     </div>
   </div>
 </div>
 
-<!-- Artikel Dialog (Vendor & Admin) -->
-<div class="modal-overlay" id="modalArtikel">
+<!-- Artikel Neu/Edit -->
+<div class="modal-overlay" id="modal-artikel">
   <div class="modal modal-lg">
-    <div class="modal-header">
-      <div class="modal-title" id="modalArtikelTitle">Neuer Artikel</div>
-      <button class="btn-icon" onclick="closeModal('modalArtikel')">✕</button>
+    <div class="modal-title">
+      <span id="art-modal-title">Artikel</span>
+      <button class="modal-close" onclick="closeModal('modal-artikel')">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Artikelnummer</label>
-          <input type="text" class="form-input" id="artNr" placeholder="z.B. 109">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Preis (€)</label>
-          <input type="number" class="form-input" id="artPreis" placeholder="0.00" step="0.01">
-        </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:0 0 160px;">
+        <label class="form-label">Artikelnummer</label>
+        <input class="form-control" id="art-nr" placeholder="z.B. 109">
       </div>
       <div class="form-group">
         <label class="form-label">Bezeichnung</label>
-        <input type="text" class="form-input" id="artBezeichnung" placeholder="z.B. Winterjacke blau">
+        <input class="form-control" id="art-bez" placeholder="Artikelname">
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Kategorie</label>
-          <div class="autocomplete-wrap">
-            <input type="text" class="form-input" id="artKategorie" placeholder="Kategorie wählen" oninput="filterAC('artKategorie','acArtKategorie',kategorien)" onfocus="openAC('artKategorie','acArtKategorie',kategorien,true)" onblur="delayCloseAC('acArtKategorie','artKategorie','Kategorie')" autocomplete="off">
-            <div class="autocomplete-dropdown" id="acArtKategorie"></div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Marke</label>
-          <div class="autocomplete-wrap">
-            <input type="text" class="form-input" id="artMarke" placeholder="Marke wählen" oninput="filterAC('artMarke','acArtMarke',marken)" onfocus="openAC('artMarke','acArtMarke',marken,true)" onblur="delayCloseAC('acArtMarke','artMarke','Marke')" autocomplete="off">
-            <div class="autocomplete-dropdown" id="acArtMarke"></div>
-          </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Kategorie</label>
+        <div class="ac-wrapper">
+          <input class="form-control" id="art-kat" placeholder="Kategorie wählen..." autocomplete="off"
+            oninput="doAC('art-kat','acd-art-kat',null,'kat')"
+            onclick="doAC('art-kat','acd-art-kat',null,'kat')"
+            onfocus="doAC('art-kat','acd-art-kat',null,'kat')"
+            onblur="acBlur('art-kat','acd-art-kat','kat')">
+          <div class="ac-dropdown" id="acd-art-kat"></div>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Beschreibung</label>
-        <textarea class="form-textarea" id="artBeschreibung" placeholder="Optionale Beschreibung..."></textarea>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Größe</label>
-          <input type="text" class="form-input" id="artGroesse" placeholder="z.B. M, 42, 176">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Farbe</label>
-          <input type="text" class="form-input" id="artFarbe" placeholder="z.B. Blau">
+        <label class="form-label">Marke</label>
+        <div class="ac-wrapper">
+          <input class="form-control" id="art-marke" placeholder="Marke wählen..." autocomplete="off"
+            oninput="doAC('art-marke','acd-art-marke')"
+            onclick="doAC('art-marke','acd-art-marke')"
+            onfocus="doAC('art-marke','acd-art-marke')"
+            onblur="acBlur('art-marke','acd-art-marke','marke')">
+          <div class="ac-dropdown" id="acd-art-marke"></div>
         </div>
       </div>
-      <input type="hidden" id="artEditId">
-      <input type="hidden" id="artEditRole">
     </div>
-    <div class="modal-footer" id="modalArtikelFooter">
-      <button class="btn btn-text" onclick="closeModal('modalArtikel')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveArtikel()">SPEICHERN</button>
+    <div class="form-row">
+      <div class="form-group" style="flex:0 0 140px;">
+        <label class="form-label">Preis (€)</label>
+        <input class="form-control" id="art-preis" type="number" step="0.5" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Größe</label>
+        <input class="form-control" id="art-groesse" placeholder="z.B. M, 42">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Farbe</label>
+        <input class="form-control" id="art-farbe" placeholder="z.B. Blau">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Beschreibung</label>
+      <textarea class="form-control" id="art-beschr" rows="3" placeholder="Optionale Beschreibung..."></textarea>
+    </div>
+    <div class="form-group hidden" id="art-vk-field">
+      <label class="form-label">Verkäufer</label>
+      <select class="form-control" id="art-vk-sel">
+        <option>Anna Müller</option>
+        <option>Thomas Schmidt</option>
+        <option>Lisa Weber</option>
+        <option>Klaus Fischer</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger hidden" id="btn-art-del" onclick="deleteArtikel()">Löschen</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" onclick="closeModal('modal-artikel')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveArtikel()">Speichern</button>
     </div>
   </div>
 </div>
 
-<!-- Vendor Dialog (Admin) -->
-<div class="modal-overlay" id="modalVendor">
+<!-- Verkäufer Neu/Edit -->
+<div class="modal-overlay" id="modal-vk">
   <div class="modal modal-lg">
-    <div class="modal-header">
-      <div class="modal-title" id="modalVendorTitle">Neuer Verkäufer</div>
-      <button class="btn-icon" onclick="closeModal('modalVendor')">✕</button>
+    <div class="modal-title">
+      <span id="vk-modal-title">Verkäufer</span>
+      <button class="modal-close" onclick="closeModal('modal-vk')">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Vorname</label><input type="text" class="form-input" id="vdVorname" placeholder="Max"></div>
-        <div class="form-group"><label class="form-label">Nachname</label><input type="text" class="form-input" id="vdNachname" placeholder="Müller"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Vorname</label>
+        <input class="form-control" id="vkd-vn" placeholder="Vorname">
       </div>
-      <div class="form-group"><label class="form-label">Anschrift</label><input type="text" class="form-input" id="vdAnschrift" placeholder="Musterstraße 1"></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">PLZ</label><input type="text" class="form-input" id="vdPLZ" placeholder="12345"></div>
-        <div class="form-group"><label class="form-label">Ort</label><input type="text" class="form-input" id="vdOrt" placeholder="Berlin"></div>
+      <div class="form-group">
+        <label class="form-label">Nachname</label>
+        <input class="form-control" id="vkd-nn" placeholder="Nachname">
       </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Telefon</label><input type="tel" class="form-input" id="vdTelefon" placeholder="+49 30 ..."></div>
-        <div class="form-group"><label class="form-label">E-Mail</label><input type="email" class="form-input" id="vdEmail" placeholder="name@example.com"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Verkäufer-Type</label>
-          <select class="form-select" id="vdType">
-            <option value="Privat">Privat</option>
-            <option value="Gewerblich">Gewerblich</option>
-            <option value="Verein">Verein</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Initiale Nummernblöcke</label>
-          <input type="number" class="form-input" id="vdBlocks" value="1" min="1" max="10">
-        </div>
-      </div>
-      <input type="hidden" id="vdEditId">
     </div>
-    <div class="modal-footer" id="modalVendorFooter">
-      <button class="btn btn-text" onclick="closeModal('modalVendor')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveVendor()">SPEICHERN</button>
+    <div class="form-group">
+      <label class="form-label">Anschrift</label>
+      <input class="form-control" id="vkd-anschr" placeholder="Straße + Hausnr.">
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:0 0 100px;">
+        <label class="form-label">PLZ</label>
+        <input class="form-control" id="vkd-plz" placeholder="PLZ">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ort</label>
+        <input class="form-control" id="vkd-ort" placeholder="Ort">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Telefon</label>
+        <input class="form-control" id="vkd-tel" type="tel" placeholder="+49 ...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-Mail</label>
+        <input class="form-control" id="vkd-email" type="email" placeholder="name@example.com">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Verkäufer-Type</label>
+        <select class="form-control" id="vkd-type">
+          <option>Privat</option>
+          <option>Gewerblich</option>
+          <option>Verein</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Initiale Nummernblöcke</label>
+        <input class="form-control" id="vkd-blocks" type="number" value="1" min="1">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger hidden" id="btn-vk-del" onclick="deleteVk()">Löschen</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" onclick="closeModal('modal-vk')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveVk()">Speichern</button>
     </div>
   </div>
 </div>
 
-<!-- Marke Dialog -->
-<div class="modal-overlay" id="modalMarke">
+<!-- Marke Neu/Edit -->
+<div class="modal-overlay" id="modal-marke">
   <div class="modal modal-sm">
-    <div class="modal-header">
-      <div class="modal-title" id="modalMarkeTitle">Neue Marke</div>
-      <button class="btn-icon" onclick="closeModal('modalMarke')">✕</button>
+    <div class="modal-title">
+      <span id="marke-modal-title">Marke</span>
+      <button class="modal-close" onclick="closeModal('modal-marke')">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-group"><label class="form-label">Bezeichnung</label><input type="text" class="form-input" id="markeBezeichnung" placeholder="Markenname"></div>
-      <input type="hidden" id="markeEditId">
+    <div class="form-group">
+      <label class="form-label">Bezeichnung</label>
+      <input class="form-control" id="marke-bez" placeholder="Markenname">
     </div>
-    <div class="modal-footer" id="modalMarkeFooter">
-      <button class="btn btn-text" onclick="closeModal('modalMarke')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveMarke()">SPEICHERN</button>
-    </div>
-  </div>
-</div>
-
-<!-- Kategorie Dialog -->
-<div class="modal-overlay" id="modalKategorie">
-  <div class="modal modal-sm">
-    <div class="modal-header">
-      <div class="modal-title" id="modalKategorieTitle">Neue Kategorie</div>
-      <button class="btn-icon" onclick="closeModal('modalKategorie')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group"><label class="form-label">Bezeichnung</label><input type="text" class="form-input" id="kategorieBezeichnung" placeholder="Kategoriename"></div>
-      <input type="hidden" id="kategorieEditId">
-    </div>
-    <div class="modal-footer" id="modalKategorieFooter">
-      <button class="btn btn-text" onclick="closeModal('modalKategorie')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveKategorie()">SPEICHERN</button>
+    <div class="modal-actions">
+      <button class="btn btn-danger hidden" id="btn-marke-del" onclick="deleteMarke()">Löschen</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" onclick="closeModal('modal-marke')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveMarke()">Speichern</button>
     </div>
   </div>
 </div>
 
-<!-- Type Dialog -->
-<div class="modal-overlay" id="modalType">
+<!-- Kategorie Neu/Edit -->
+<div class="modal-overlay" id="modal-kat">
   <div class="modal modal-sm">
-    <div class="modal-header">
-      <div class="modal-title" id="modalTypeTitle">Neuer Type</div>
-      <button class="btn-icon" onclick="closeModal('modalType')">✕</button>
+    <div class="modal-title">
+      <span id="kat-modal-title">Kategorie</span>
+      <button class="modal-close" onclick="closeModal('modal-kat')">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-group"><label class="form-label">Bezeichnung</label><input type="text" class="form-input" id="typeBezeichnung" placeholder="z.B. Privat"></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Provision (%)</label><input type="number" class="form-input" id="typeProvision" placeholder="20" step="0.5"></div>
-        <div class="form-group"><label class="form-label">Gebühr/Stück (€)</label><input type="number" class="form-input" id="typeGebuehr" placeholder="0.50" step="0.01"></div>
+    <div class="form-group">
+      <label class="form-label">Bezeichnung</label>
+      <input class="form-control" id="kat-bez" placeholder="Kategoriename">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger hidden" id="btn-kat-del" onclick="deleteKat()">Löschen</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" onclick="closeModal('modal-kat')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveKat()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Verkäufer-Type Neu/Edit -->
+<div class="modal-overlay" id="modal-type">
+  <div class="modal modal-sm">
+    <div class="modal-title">
+      <span id="type-modal-title">Verkäufer-Type</span>
+      <button class="modal-close" onclick="closeModal('modal-type')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Bezeichnung</label>
+      <input class="form-control" id="type-bez" placeholder="Typname">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Verkaufsprovision (%)</label>
+        <input class="form-control" id="type-prov" type="number" step="1" placeholder="20">
       </div>
-      <input type="hidden" id="typeEditId">
+      <div class="form-group">
+        <label class="form-label">Abgabegebühr / Stück (€)</label>
+        <input class="form-control" id="type-geb" type="number" step="0.01" placeholder="0.50">
+      </div>
     </div>
-    <div class="modal-footer" id="modalTypeFooter">
-      <button class="btn btn-text" onclick="closeModal('modalType')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveType()">SPEICHERN</button>
+    <div class="modal-actions">
+      <button class="btn btn-danger hidden" id="btn-type-del" onclick="deleteType()">Löschen</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" onclick="closeModal('modal-type')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveType()">Speichern</button>
     </div>
   </div>
 </div>
 
-<!-- Export Preview Modal -->
-<div class="modal-overlay" id="modalExport">
+<!-- Einladung gesendet -->
+<div class="modal-overlay" id="modal-einladung">
+  <div class="modal modal-sm">
+    <div class="modal-title">
+      Einladung gesendet
+      <button class="modal-close" onclick="closeModal('modal-einladung')">✕</button>
+    </div>
+    <div class="info-text">✅ Einladungs-Link wurde gesendet an:</div>
+    <p style="font-weight:600;margin:8px 0;" id="einl-email"></p>
+    <p class="text-muted" style="font-size:13px;">Der Verkäufer erhält eine E-Mail mit einem Registrierungslink.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="closeModal('modal-einladung')">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Neue Marke/Kategorie aus AutoComplete -->
+<div class="modal-overlay" id="modal-new-ac">
+  <div class="modal modal-sm">
+    <div class="modal-title">
+      <span id="new-ac-title">Neu erstellen</span>
+      <button class="modal-close" onclick="closeModal('modal-new-ac')">✕</button>
+    </div>
+    <p id="new-ac-text" style="margin-bottom:16px;"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="rejectNewAC()">Nein</button>
+      <button class="btn btn-primary" onclick="confirmNewAC()">Ja, speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export Preview -->
+<div class="modal-overlay" id="modal-export">
   <div class="modal modal-lg">
-    <div class="modal-header">
-      <div class="modal-title">Export-Vorschau</div>
-      <button class="btn-icon" onclick="closeModal('modalExport')">✕</button>
+    <div class="modal-title">
+      Export-Vorschau
+      <button class="modal-close" onclick="closeModal('modal-export')">✕</button>
     </div>
-    <div class="modal-body">
-      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">JSON-Vorschau (erste 50 Zeilen):</p>
-      <div class="json-preview" id="exportJsonPreview"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-text" onclick="closeModal('modalExport')">SCHLIESSEN</button>
-      <button class="btn btn-primary" onclick="simulateDownload()">💾 HERUNTERLADEN</button>
+    <p class="text-muted" style="margin-bottom:8px;">Vorschau der exportierten JSON-Datei:</p>
+    <div class="json-preview" id="export-json"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-export')">Schließen</button>
+      <button class="btn btn-primary" onclick="downloadExport()">📥 Herunterladen</button>
     </div>
   </div>
 </div>
 
-<!-- AC New Value Confirm Modal -->
-<div class="modal-overlay" id="modalAcConfirm">
-  <div class="modal modal-sm">
-    <div class="modal-header">
-      <div class="modal-title" id="modalAcConfirmTitle">Neu speichern?</div>
-      <button class="btn-icon" onclick="closeModal('modalAcConfirm')">✕</button>
-    </div>
-    <div class="modal-body">
-      <p class="confirm-text" id="modalAcConfirmText">Als neue Marke speichern?</p>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-text" onclick="acConfirmNo()">NEIN</button>
-      <button class="btn btn-primary" onclick="acConfirmYes()">JA, SPEICHERN</button>
-    </div>
-  </div>
-</div>
+<!-- Snackbar -->
+<div id="snackbar"></div>
 
-<!-- Confirm Delete Dialog (generic) -->
-<div class="modal-overlay" id="modalConfirmDelete">
-  <div class="modal modal-sm">
-    <div class="modal-header">
-      <div class="modal-title" style="color:var(--error);">Löschen bestätigen</div>
-      <button class="btn-icon" onclick="closeModal('modalConfirmDelete')">✕</button>
-    </div>
-    <div class="modal-body">
-      <p class="confirm-text" id="confirmDeleteText">Diesen Eintrag wirklich löschen?</p>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-text" onclick="closeModal('modalConfirmDelete')">ABBRECHEN</button>
-      <button class="btn btn-error" onclick="executeDelete()">LÖSCHEN</button>
-    </div>
-  </div>
-</div>
 
-<!-- Invite Popup -->
-<div class="inline-popup" id="invitePopup"></div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
+<!-- ===================== SCRIPT ===================== -->
 <script>
+'use strict';
+
 // ===== STATE =====
-let currentRole = 'admin';
-let currentScreen = '';
-let deleteCallback = null;
-let acConfirmCallback = null;
-let acDenyCallback = null;
-let nextId = 100;
+var S = {
+  role: 'admin',
+  currentScreen: null,
+  editId: null,
+  artContext: 'vk',
 
-// ===== MOCK DATA =====
-let marken = ['Nike', 'Adidas', 'Levis', 'H&M', 'Zara', 'Puma'];
-let kategorien = ['Jacken', 'Hosen', 'Schuhe', 'Shirts', 'Accessoires', 'Taschen'];
+  marken: ['Adidas','H&M','Levis','Nike','Puma','Zara'],
+  kategorien: ['Accessoires','Hosen','Jacken','Schuhe','Shirts','Taschen'],
 
-let verkaeuferTypes = [
-  { id: 1, bezeichnung: 'Privat', provision: 20, gebuehr: 0.50 },
-  { id: 2, bezeichnung: 'Gewerblich', provision: 30, gebuehr: 1.00 },
-  { id: 3, bezeichnung: 'Verein', provision: 10, gebuehr: 0.25 }
-];
+  types: [
+    { id:1, bez:'Privat',      prov:20, geb:0.50 },
+    { id:2, bez:'Gewerblich',  prov:30, geb:1.00 },
+    { id:3, bez:'Verein',      prov:10, geb:0.25 },
+  ],
 
-let vendors = [
-  { id: 1, vorname: 'Anna', nachname: 'Müller', anschrift: 'Musterstr. 1', plz: '12345', ort: 'Berlin', email: 'anna@example.com', telefon: '+49 30 1234', type: 'Privat', artikelCount: 8 },
-  { id: 2, vorname: 'Thomas', nachname: 'Schmidt', anschrift: 'Hauptstr. 5', plz: '54321', ort: 'Hamburg', email: 'thomas@example.com', telefon: '+49 40 5678', type: 'Gewerblich', artikelCount: 12 },
-  { id: 3, vorname: 'Lisa', nachname: 'Weber', anschrift: 'Parkweg 3', plz: '67890', ort: 'München', email: 'lisa@example.com', telefon: '+49 89 9012', type: 'Privat', artikelCount: 5 },
-  { id: 4, vorname: 'Klaus', nachname: 'Fischer', anschrift: 'Bergstr. 7', plz: '11111', ort: 'Köln', email: 'klaus@example.com', telefon: '+49 221 3456', type: 'Verein', artikelCount: 3 }
-];
+  verkaeufer: [
+    { id:1, vn:'Anna',   nn:'Müller',  plz:'70173', ort:'Stuttgart', email:'anna@example.com',   type:'Privat',     anschr:'Musterstraße 12',  tel:'+49 711 123456', anz:8  },
+    { id:2, vn:'Thomas', nn:'Schmidt', plz:'80331', ort:'München',   email:'thomas@example.com', type:'Gewerblich', anschr:'Hauptstraße 5',    tel:'+49 89 654321',  anz:12 },
+    { id:3, vn:'Lisa',   nn:'Weber',   plz:'10115', ort:'Berlin',    email:'lisa@example.com',   type:'Privat',     anschr:'Berliner Str. 77', tel:'+49 30 111222',  anz:3  },
+    { id:4, vn:'Klaus',  nn:'Fischer', plz:'50667', ort:'Köln',      email:'klaus@example.com',  type:'Verein',     anschr:'Domstraße 3',      tel:'+49 221 999888', anz:7  },
+  ],
 
-let artikel = [
-  { id: 1, nr: '101', bezeichnung: 'Winterjacke', kategorie: 'Jacken', marke: 'Nike', preis: 25, beschreibung: 'Tolle Winterjacke', groesse: 'L', farbe: 'Blau', vendorId: 1 },
-  { id: 2, nr: '102', bezeichnung: 'Hose', kategorie: 'Hosen', marke: 'Levis', preis: 15, beschreibung: '', groesse: '32', farbe: 'Schwarz', vendorId: 1 },
-  { id: 3, nr: '103', bezeichnung: 'Shirt', kategorie: 'Shirts', marke: 'H&M', preis: 8, beschreibung: '', groesse: 'M', farbe: 'Weiß', vendorId: 1 },
-  { id: 4, nr: '104', bezeichnung: 'Sneaker', kategorie: 'Schuhe', marke: 'Nike', preis: 45, beschreibung: 'Kaum getragen', groesse: '42', farbe: 'Weiß', vendorId: 1 },
-  { id: 5, nr: '105', bezeichnung: 'Rucksack', kategorie: 'Taschen', marke: 'Nike', preis: 35, beschreibung: '', groesse: '-', farbe: 'Grau', vendorId: 1 },
-  { id: 6, nr: '106', bezeichnung: 'Cap', kategorie: 'Accessoires', marke: 'Adidas', preis: 12, beschreibung: '', groesse: 'Universal', farbe: 'Rot', vendorId: 1 },
-  { id: 7, nr: '107', bezeichnung: 'Jacke', kategorie: 'Jacken', marke: 'Adidas', preis: 30, beschreibung: '', groesse: 'XL', farbe: 'Schwarz', vendorId: 1 },
-  { id: 8, nr: '108', bezeichnung: 'Jeans', kategorie: 'Hosen', marke: 'Levis', preis: 22, beschreibung: 'Slim fit', groesse: '30', farbe: 'Blau', vendorId: 1 },
-  { id: 9, nr: '201', bezeichnung: 'Polo Shirt', kategorie: 'Shirts', marke: 'Nike', preis: 18, beschreibung: '', groesse: 'L', farbe: 'Grün', vendorId: 2 },
-  { id: 10, nr: '202', bezeichnung: 'Trainingshose', kategorie: 'Hosen', marke: 'Adidas', preis: 28, beschreibung: '', groesse: 'M', farbe: 'Schwarz', vendorId: 2 },
-  { id: 11, nr: '301', bezeichnung: 'Kleid', kategorie: 'Shirts', marke: 'Zara', preis: 32, beschreibung: '', groesse: 'S', farbe: 'Rot', vendorId: 3 },
-  { id: 12, nr: '401', bezeichnung: 'Socken Set', kategorie: 'Accessoires', marke: 'H&M', preis: 5, beschreibung: '5er-Pack', groesse: '39-42', farbe: 'Weiß', vendorId: 4 }
-];
+  artikel: [
+    { id:1,  nr:101, bez:'Winterjacke', kat:'Jacken',      marke:'Nike',   preis:25, groesse:'L',  farbe:'Blau',      beschr:'',  vk:'Anna Müller'    },
+    { id:2,  nr:102, bez:'Hose',        kat:'Hosen',       marke:'Levis',  preis:15, groesse:'32', farbe:'Schwarz',   beschr:'',  vk:'Anna Müller'    },
+    { id:3,  nr:103, bez:'Sneaker',     kat:'Schuhe',      marke:'Nike',   preis:45, groesse:'42', farbe:'Weiß',      beschr:'',  vk:'Anna Müller'    },
+    { id:4,  nr:104, bez:'T-Shirt',     kat:'Shirts',      marke:'H&M',    preis:8,  groesse:'M',  farbe:'Grau',      beschr:'',  vk:'Anna Müller'    },
+    { id:5,  nr:105, bez:'Handtasche',  kat:'Taschen',     marke:'Zara',   preis:35, groesse:'-',  farbe:'Braun',     beschr:'',  vk:'Anna Müller'    },
+    { id:6,  nr:106, bez:'Schal',       kat:'Accessoires', marke:'H&M',    preis:12, groesse:'-',  farbe:'Rot',       beschr:'',  vk:'Anna Müller'    },
+    { id:7,  nr:107, bez:'Jogginghose', kat:'Hosen',       marke:'Adidas', preis:20, groesse:'XL', farbe:'Dunkelblau',beschr:'',  vk:'Anna Müller'    },
+    { id:8,  nr:108, bez:'Parka',       kat:'Jacken',      marke:'Puma',   preis:55, groesse:'L',  farbe:'Oliv',      beschr:'',  vk:'Anna Müller'    },
+    { id:9,  nr:201, bez:'Trainingsjacke',kat:'Jacken',    marke:'Adidas', preis:38, groesse:'M',  farbe:'Schwarz',   beschr:'',  vk:'Thomas Schmidt' },
+    { id:10, nr:202, bez:'Laufschuhe',  kat:'Schuhe',      marke:'Nike',   preis:65, groesse:'44', farbe:'Orange',    beschr:'',  vk:'Thomas Schmidt' },
+    { id:11, nr:301, bez:'Bluse',       kat:'Shirts',      marke:'Zara',   preis:18, groesse:'S',  farbe:'Weiß',      beschr:'',  vk:'Lisa Weber'     },
+    { id:12, nr:401, bez:'Sporttasche', kat:'Taschen',     marke:'Puma',   preis:28, groesse:'-',  farbe:'Schwarz',   beschr:'',  vk:'Klaus Fischer'  },
+  ],
+
+  bloecke: [
+    { nr:1, von:101, bis:110, datum:'2024-03-15', genutzt:8, gesamt:10 },
+    { nr:2, von:201, bis:210, datum:'2024-05-02', genutzt:0, gesamt:10 },
+  ],
+
+  cfg: { startNumber:101, blockSize:10, defaultBlockCount:1, feedbackDuration:5 },
+
+  // pending new AC item
+  _acField: null, _acType: null, _acValue: null,
+};
+
+var _nextId = 200;
+function uid() { return ++_nextId; }
+
+// ===== UTILS =====
+function gv(id) { return (document.getElementById(id)||{}).value || ''; }
+function sv(id, v) { var el=document.getElementById(id); if(el) el.value = v||''; }
+function show(id) { var el=document.getElementById(id); if(el) el.classList.remove('hidden'); }
+function hide(id) { var el=document.getElementById(id); if(el) el.classList.add('hidden'); }
+
+function showSnackbar(msg) {
+  var sb = document.getElementById('snackbar');
+  sb.textContent = msg;
+  sb.classList.add('show');
+  clearTimeout(sb._t);
+  sb._t = setTimeout(function(){ sb.classList.remove('show'); }, 3000);
+}
+
+function eur(v) { return parseFloat(v||0).toFixed(2).replace('.',',') + ' €'; }
+
+// ===== MODALS =====
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(function(el){
+  el.addEventListener('click', function(e){ if(e.target===this) closeModal(this.id); });
+});
 
 // ===== AUTH =====
 function doLogin() {
-  const email = document.getElementById('loginEmail').value;
-  if (!email) { showToast('Bitte E-Mail eingeben.'); return; }
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('topbar').style.display = 'flex';
-  document.getElementById('appLayout').style.display = 'flex';
+  document.getElementById('screen-login').style.display = 'none';
+  document.getElementById('screen-app').style.display = 'block';
   setRole('admin');
 }
-
 function doLogout() {
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('topbar').style.display = 'none';
-  document.getElementById('appLayout').style.display = 'none';
+  document.getElementById('screen-app').style.display = 'none';
+  document.getElementById('screen-login').style.display = 'flex';
 }
-
 function showRegister() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('registerScreen').style.display = 'flex';
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('register-view').style.display = 'block';
 }
-
 function showLogin() {
-  document.getElementById('registerScreen').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('register-view').style.display = 'none';
+  document.getElementById('login-view').style.display = 'block';
 }
-
-function doRegister() {
-  document.getElementById('registerScreen').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-  showToast('Registrierung erfolgreich! Bitte anmelden.');
-}
+function doRegister() { showSnackbar('Konto erstellt — bitte anmelden ✓'); showLogin(); }
+function deleteAccount() { closeModal('modal-delete-account'); doLogout(); showSnackbar('Account gelöscht'); }
 
 // ===== ROLE =====
 function setRole(role) {
-  currentRole = role;
-  document.getElementById('roleAdmin').classList.toggle('active', role === 'admin');
-  document.getElementById('roleVendor').classList.toggle('active', role === 'vendor');
-  document.getElementById('navAdmin').style.display = role === 'admin' ? 'block' : 'none';
-  document.getElementById('navVendor').style.display = role === 'vendor' ? 'block' : 'none';
-  if (role === 'admin') {
-    showScreen('verkaeuferliste');
-  } else {
-    showScreen('profil');
-  }
+  S.role = role;
+  document.getElementById('role-btn-admin').classList.toggle('active', role==='admin');
+  document.getElementById('role-btn-verkaeufer').classList.toggle('active', role==='verkaeufer');
+  document.getElementById('nav-admin').style.display = role==='admin' ? 'block' : 'none';
+  document.getElementById('nav-verkaeufer').style.display = role==='verkaeufer' ? 'block' : 'none';
+  if (role==='admin') showScreen('admin-verkaeufer');
+  else showScreen('vk-profil');
 }
 
-// ===== NAVIGATION =====
+// ===== SCREENS =====
 function showScreen(name) {
-  currentScreen = name;
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById('screen-' + name);
-  if (target) target.classList.add('active');
-
-  document.querySelectorAll('.sidebar-item').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-screen') === name);
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  var el = document.getElementById('screen-'+name);
+  if (el) el.classList.add('active');
+  S.currentScreen = name;
+  document.querySelectorAll('.nav-item').forEach(function(ni){
+    ni.classList.toggle('active', ni.dataset.screen===name);
   });
-
-  // Render dynamic screens
-  if (name === 'meineArtikel') renderArtikelVendor();
-  if (name === 'verkaeuferliste') renderVendorTable();
-  if (name === 'alleArtikel') renderAlleArtikel();
-  if (name === 'marken') renderMarken();
-  if (name === 'kategorien') renderKategorien();
-  if (name === 'verkaeuferTypes') renderTypes();
+  var renders = {
+    'vk-artikel': renderVkArtikel,
+    'vk-nummern': renderNummern,
+    'admin-verkaeufer': renderAdmVk,
+    'admin-artikel': renderAdmArtikel,
+    'admin-marken': renderMarken,
+    'admin-kategorien': renderKat,
+    'admin-types': renderTypes,
+  };
+  if (renders[name]) renders[name]();
 }
 
 // ===== TABS =====
-function switchTab(screen, tab) {
-  const container = document.getElementById('tabs-' + screen);
-  if (!container) return;
-  container.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('[id^="tab-' + screen + '-"]').forEach(p => p.classList.remove('active'));
-  event.target.classList.add('active');
-  const panel = document.getElementById('tab-' + screen + '-' + tab);
+function switchTab(screen, tab, btn) {
+  var prefix = screen + '-tab-';
+  document.querySelectorAll('[id^="'+prefix+'"]').forEach(function(p){ p.classList.remove('active'); });
+  var panel = document.getElementById(prefix+tab);
   if (panel) panel.classList.add('active');
-}
-
-// ===== MODAL =====
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-// ===== TOAST =====
-let toastTimer;
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('visible');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('visible'), 3000);
-}
-
-// ===== CONFIRM DELETE =====
-function confirmDelete(msg, cb) {
-  document.getElementById('confirmDeleteText').textContent = msg;
-  deleteCallback = cb;
-  openModal('modalConfirmDelete');
-}
-function executeDelete() {
-  closeModal('modalConfirmDelete');
-  if (deleteCallback) { deleteCallback(); deleteCallback = null; }
-}
-
-// ===== AUTOCOMPLETE =====
-function openAC(inputId, dropdownId, list, allowNew) {
-  const input = document.getElementById(inputId);
-  const dropdown = document.getElementById(dropdownId);
-  const val = input.value.toLowerCase();
-  const filtered = list.filter(i => i.toLowerCase().includes(val));
-  renderACItems(dropdown, filtered, inputId, allowNew, input.value);
-  dropdown.classList.add('open');
-}
-
-function filterAC(inputId, dropdownId, list) {
-  const input = document.getElementById(inputId);
-  const dropdown = document.getElementById(dropdownId);
-  const val = input.value.toLowerCase();
-  const filtered = list.filter(i => i.toLowerCase().includes(val));
-  renderACItems(dropdown, filtered, inputId, false, input.value);
-  dropdown.classList.add('open');
-  // trigger table filter
-  if (inputId.startsWith('filter')) {
-    if (inputId.includes('Vendor') || inputId.includes('vendor') || inputId === 'filterMarkeVendor' || inputId === 'filterKatVendor') renderArtikelVendor();
-    if (inputId.includes('Admin') || inputId === 'filterMarkeAdmin' || inputId === 'filterKatAdmin') renderAlleArtikel();
+  // deactivate sibling tab buttons
+  if (btn && btn.parentElement) {
+    btn.parentElement.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
   }
 }
 
-function renderACItems(dropdown, items, inputId, allowNew, currentVal) {
-  dropdown.innerHTML = '';
-  items.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'ac-item';
-    div.textContent = item;
-    div.onmousedown = () => {
-      document.getElementById(inputId).value = item;
-      dropdown.classList.remove('open');
-      if (inputId.startsWith('filter')) {
-        renderArtikelVendor(); renderAlleArtikel();
-      }
-    };
-    dropdown.appendChild(div);
-  });
+// ===== AUTOCOMPLETE =====
+function doAC(inputId, dropdownId, items, type) {
+  var inp = document.getElementById(inputId);
+  var dd = document.getElementById(dropdownId);
+  if (!inp || !dd) return;
+  var list = items || (type==='kat' ? S.kategorien : S.marken);
+  var val = inp.value.toLowerCase().trim();
+  var filtered = val==='' ? list : list.filter(function(i){ return i.toLowerCase().indexOf(val)!==-1; });
+
+  dd.innerHTML = '';
+  if (filtered.length===0) {
+    dd.innerHTML = '<div class="ac-item no-match">Keine Einträge</div>';
+  } else {
+    filtered.forEach(function(item){
+      var div = document.createElement('div');
+      div.className = 'ac-item';
+      div.textContent = item;
+      div.addEventListener('mousedown', function(e){
+        e.preventDefault();
+        inp.value = item;
+        dd.classList.remove('open');
+      });
+      dd.appendChild(div);
+    });
+  }
+  dd.classList.add('open');
 }
 
-function delayCloseAC(dropdownId, inputId, typeName) {
-  setTimeout(() => {
-    const dropdown = document.getElementById(dropdownId);
-    if (dropdown) dropdown.classList.remove('open');
-    if (inputId && typeName) {
-      const input = document.getElementById(inputId);
-      const val = input ? input.value.trim() : '';
-      if (val && !marken.concat(kategorien).includes(val)) {
-        // check if value belongs to correct list
-        const list = typeName === 'Marke' ? marken : kategorien;
-        if (!list.includes(val)) {
-          triggerAcConfirm(val, typeName, inputId, list);
-        }
-      }
+function closeACD(dropdownId) {
+  setTimeout(function(){
+    var d = document.getElementById(dropdownId);
+    if (d) d.classList.remove('open');
+  }, 180);
+}
+
+function acBlur(inputId, dropdownId, acType) {
+  setTimeout(function(){
+    var dd = document.getElementById(dropdownId);
+    if (dd) dd.classList.remove('open');
+    var inp = document.getElementById(inputId);
+    if (!inp) return;
+    var val = inp.value.trim();
+    if (!val) return;
+    var list = acType==='kat' ? S.kategorien : S.marken;
+    var exists = list.some(function(i){ return i.toLowerCase()===val.toLowerCase(); });
+    if (!exists) {
+      S._acField = inputId;
+      S._acType = acType;
+      S._acValue = val;
+      var label = acType==='kat' ? 'Kategorie' : 'Marke';
+      document.getElementById('new-ac-title').textContent = 'Neue '+label+' erstellen';
+      document.getElementById('new-ac-text').textContent = '"'+val+'" ist noch nicht als '+label+' vorhanden. Soll "'+val+'" als neue '+label+' gespeichert werden?';
+      openModal('modal-new-ac');
     }
-  }, 200);
+  }, 230);
 }
 
-function triggerAcConfirm(val, typeName, inputId, list) {
-  document.getElementById('modalAcConfirmTitle').textContent = 'Neu speichern?';
-  document.getElementById('modalAcConfirmText').textContent = `"${val}" als neue ${typeName} speichern?`;
-  acConfirmCallback = () => {
-    list.push(val);
-    showToast(`${typeName} "${val}" gespeichert.`);
-    if (typeName === 'Marke') renderMarken();
-    if (typeName === 'Kategorie') renderKategorien();
-  };
-  acDenyCallback = () => {
-    const inp = document.getElementById(inputId);
-    if (inp) inp.value = '';
-  };
-  openModal('modalAcConfirm');
+function confirmNewAC() {
+  var val = S._acValue;
+  var type = S._acType;
+  if (!val) { closeModal('modal-new-ac'); return; }
+  if (type==='marke') {
+    if (!S.marken.includes(val)) { S.marken.push(val); S.marken.sort(); }
+    showSnackbar('Marke "'+val+'" gespeichert ✓');
+  } else {
+    if (!S.kategorien.includes(val)) { S.kategorien.push(val); S.kategorien.sort(); }
+    showSnackbar('Kategorie "'+val+'" gespeichert ✓');
+  }
+  closeModal('modal-new-ac');
+  renderMarken(); renderKat();
 }
 
-function acConfirmYes() {
-  closeModal('modalAcConfirm');
-  if (acConfirmCallback) { acConfirmCallback(); acConfirmCallback = null; }
-}
-function acConfirmNo() {
-  closeModal('modalAcConfirm');
-  if (acDenyCallback) { acDenyCallback(); acDenyCallback = null; }
+function rejectNewAC() {
+  var inp = document.getElementById(S._acField);
+  if (inp) inp.value = '';
+  closeModal('modal-new-ac');
 }
 
-// ===== ARTIKEL VENDOR =====
-function renderArtikelVendor() {
-  const tbody = document.getElementById('tbodyArtikelVendor');
-  if (!tbody) return;
-  const markeFilter = (document.getElementById('filterMarkeVendor') || {}).value || '';
-  const katFilter = (document.getElementById('filterKatVendor') || {}).value || '';
-  const textFilter = (document.getElementById('filterTextVendor') || {}).value || '';
-  const list = artikel.filter(a => a.vendorId === 1
-    && (!markeFilter || a.marke.toLowerCase().includes(markeFilter.toLowerCase()))
-    && (!katFilter || a.kategorie.toLowerCase().includes(katFilter.toLowerCase()))
-    && (!textFilter || a.bezeichnung.toLowerCase().includes(textFilter.toLowerCase())));
-  tbody.innerHTML = list.map(a => `
-    <tr>
-      <td><strong>${a.nr}</strong></td>
-      <td>${a.bezeichnung}</td>
-      <td><span class="chip chip-blue">${a.kategorie}</span></td>
-      <td>${a.marke}</td>
-      <td><strong>${formatPreis(a.preis)}</strong></td>
-      <td><div class="actions-cell">
-        <button class="btn btn-outlined btn-sm" onclick="openArtikelDialog(${a.id},'vendor')">✏️ Bearbeiten</button>
-      </div></td>
-    </tr>`).join('');
+// ===== FILTER HELPERS =====
+function clearFilter() {
+  for (var i=0;i<arguments.length;i++) {
+    var el = document.getElementById(arguments[i]);
+    if (el) el.value = '';
+  }
 }
 
-// ===== ALLE ARTIKEL (ADMIN) =====
-function renderAlleArtikel() {
-  const tbody = document.getElementById('tbodyAlleArtikel');
-  if (!tbody) return;
-  const markeFilter = (document.getElementById('filterMarkeAdmin') || {}).value || '';
-  const katFilter = (document.getElementById('filterKatAdmin') || {}).value || '';
-  const textFilter = (document.getElementById('filterTextAdmin') || {}).value || '';
-  const list = artikel.filter(a =>
-    (!markeFilter || a.marke.toLowerCase().includes(markeFilter.toLowerCase()))
-    && (!katFilter || a.kategorie.toLowerCase().includes(katFilter.toLowerCase()))
-    && (!textFilter || a.bezeichnung.toLowerCase().includes(textFilter.toLowerCase())));
-  tbody.innerHTML = list.map(a => {
-    const v = vendors.find(v => v.id === a.vendorId);
-    return `<tr>
-      <td><strong>${a.nr}</strong></td>
-      <td>${a.bezeichnung}</td>
-      <td><span class="chip chip-blue">${a.kategorie}</span></td>
-      <td>${a.marke}</td>
-      <td><strong>${formatPreis(a.preis)}</strong></td>
-      <td>${v ? v.vorname + ' ' + v.nachname : '—'}</td>
-      <td><button class="btn btn-outlined btn-sm" onclick="openArtikelDialog(${a.id},'admin')">✏️</button></td>
-    </tr>`;
+// ===== VK ARTIKEL =====
+function renderVkArtikel() {
+  var fm = gv('f-vk-marke').toLowerCase();
+  var fk = gv('f-vk-kat').toLowerCase();
+  var ft = gv('f-vk-text').toLowerCase();
+  var rows = S.artikel.filter(function(a){
+    return a.vk==='Anna Müller' &&
+      (!fm || a.marke.toLowerCase().indexOf(fm)!==-1) &&
+      (!fk || a.kat.toLowerCase().indexOf(fk)!==-1) &&
+      (!ft || a.bez.toLowerCase().indexOf(ft)!==-1 || String(a.nr).indexOf(ft)!==-1);
+  });
+  var tb = document.getElementById('vk-art-tbody');
+  if (!tb) return;
+  tb.innerHTML = rows.length ? rows.map(function(a){
+    return '<tr>' +
+      '<td><span class="chip chip-green">'+a.nr+'</span></td>' +
+      '<td><strong>'+a.bez+'</strong></td>' +
+      '<td>'+a.kat+'</td>' +
+      '<td>'+a.marke+'</td>' +
+      '<td>'+eur(a.preis)+'</td>' +
+      '<td><button class="btn-icon" onclick="openArtikelDialog('+a.id+',\'vk\')">✏️</button></td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="6" class="text-muted" style="text-align:center;padding:24px;">Keine Artikel gefunden.</td></tr>';
+}
+
+// ===== NUMMERNBLÖCKE =====
+function renderNummern() {
+  var tb = document.getElementById('nummern-tbody');
+  if (!tb) return;
+  tb.innerHTML = S.bloecke.map(function(b){
+    var pct = Math.round(b.genutzt/b.gesamt*100);
+    return '<tr>' +
+      '<td><strong>Block '+b.nr+'</strong></td>' +
+      '<td>'+b.von+'</td><td>'+b.bis+'</td><td>'+b.datum+'</td>' +
+      '<td>'+b.genutzt+' / '+b.gesamt+'</td>' +
+      '<td><span class="progress-bar"><span class="progress-fill" style="width:'+pct+'%"></span></span>' +
+      ' <span class="text-muted" style="font-size:12px;">'+pct+'%</span></td>' +
+      '</tr>';
   }).join('');
 }
 
 // ===== ARTIKEL DIALOG =====
-function openArtikelDialog(id, role) {
-  document.getElementById('artEditId').value = id || '';
-  document.getElementById('artEditRole').value = role;
-  const footer = document.getElementById('modalArtikelFooter');
-  if (id) {
-    const a = artikel.find(x => x.id === id);
-    document.getElementById('modalArtikelTitle').textContent = 'Artikel bearbeiten';
-    document.getElementById('artNr').value = a.nr;
-    document.getElementById('artBezeichnung').value = a.bezeichnung;
-    document.getElementById('artKategorie').value = a.kategorie;
-    document.getElementById('artMarke').value = a.marke;
-    document.getElementById('artPreis').value = a.preis;
-    document.getElementById('artBeschreibung').value = a.beschreibung;
-    document.getElementById('artGroesse').value = a.groesse;
-    document.getElementById('artFarbe').value = a.farbe;
-    footer.innerHTML = `
-      <button class="btn btn-error btn-sm" onclick="deleteArtikel(${id})">🗑 LÖSCHEN</button>
-      <div style="flex:1;"></div>
-      <button class="btn btn-text" onclick="closeModal('modalArtikel')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveArtikel()">SPEICHERN</button>`;
+function openArtikelDialog(id, ctx) {
+  S.artContext = ctx;
+  S.editId = id;
+  var isEdit = id !== null;
+  document.getElementById('art-modal-title').textContent = isEdit ? 'Artikel bearbeiten' : 'Neuer Artikel';
+  document.getElementById('btn-art-del').classList.toggle('hidden', !isEdit);
+  document.getElementById('art-vk-field').classList.toggle('hidden', ctx!=='admin');
+
+  if (isEdit) {
+    var a = S.artikel.find(function(x){ return x.id===id; });
+    sv('art-nr', a.nr); sv('art-bez', a.bez); sv('art-kat', a.kat);
+    sv('art-marke', a.marke); sv('art-preis', a.preis);
+    sv('art-groesse', a.groesse); sv('art-farbe', a.farbe); sv('art-beschr', a.beschr);
   } else {
-    document.getElementById('modalArtikelTitle').textContent = 'Neuer Artikel';
-    const nextNr = 109;
-    document.getElementById('artNr').value = nextNr;
-    document.getElementById('artBezeichnung').value = '';
-    document.getElementById('artKategorie').value = '';
-    document.getElementById('artMarke').value = '';
-    document.getElementById('artPreis').value = '';
-    document.getElementById('artBeschreibung').value = '';
-    document.getElementById('artGroesse').value = '';
-    document.getElementById('artFarbe').value = '';
-    footer.innerHTML = `
-      <button class="btn btn-text" onclick="closeModal('modalArtikel')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveArtikel()">SPEICHERN</button>`;
+    ['art-nr','art-bez','art-kat','art-marke','art-preis','art-groesse','art-farbe','art-beschr'].forEach(function(f){ sv(f,''); });
+    if (ctx==='vk') {
+      var my = S.artikel.filter(function(a){ return a.vk==='Anna Müller'; });
+      var next = my.length ? Math.max.apply(null, my.map(function(a){ return a.nr; })) + 1 : 101;
+      sv('art-nr', next);
+    }
   }
-  openModal('modalArtikel');
+  openModal('modal-artikel');
 }
 
 function saveArtikel() {
-  const id = document.getElementById('artEditId').value;
-  const role = document.getElementById('artEditRole').value;
-  const data = {
-    nr: document.getElementById('artNr').value,
-    bezeichnung: document.getElementById('artBezeichnung').value,
-    kategorie: document.getElementById('artKategorie').value,
-    marke: document.getElementById('artMarke').value,
-    preis: parseFloat(document.getElementById('artPreis').value) || 0,
-    beschreibung: document.getElementById('artBeschreibung').value,
-    groesse: document.getElementById('artGroesse').value,
-    farbe: document.getElementById('artFarbe').value,
-    vendorId: 1
+  var data = {
+    nr: parseInt(gv('art-nr'))||0,
+    bez: gv('art-bez'), kat: gv('art-kat'), marke: gv('art-marke'),
+    preis: parseFloat(gv('art-preis'))||0,
+    groesse: gv('art-groesse'), farbe: gv('art-farbe'), beschr: gv('art-beschr'),
+    vk: S.artContext==='admin' ? gv('art-vk-sel') : 'Anna Müller',
   };
-  if (id) {
-    const idx = artikel.findIndex(a => a.id === parseInt(id));
-    if (idx >= 0) artikel[idx] = { ...artikel[idx], ...data };
-    showToast('Artikel gespeichert.');
+  if (S.editId !== null) {
+    var idx = S.artikel.findIndex(function(a){ return a.id===S.editId; });
+    if (idx!==-1) Object.assign(S.artikel[idx], data);
+    showSnackbar('Artikel aktualisiert ✓');
   } else {
-    artikel.push({ id: ++nextId, ...data });
-    showToast('Artikel angelegt.');
+    data.id = uid();
+    S.artikel.push(data);
+    showSnackbar('Artikel gespeichert ✓');
   }
-  closeModal('modalArtikel');
-  if (role === 'vendor') renderArtikelVendor();
-  else renderAlleArtikel();
+  closeModal('modal-artikel');
+  if (S.artContext==='vk') renderVkArtikel(); else renderAdmArtikel();
 }
 
-function deleteArtikel(id) {
-  closeModal('modalArtikel');
-  confirmDelete('Diesen Artikel wirklich löschen?', () => {
-    artikel = artikel.filter(a => a.id !== id);
-    renderArtikelVendor(); renderAlleArtikel();
-    showToast('Artikel gelöscht.');
+function deleteArtikel() {
+  S.artikel = S.artikel.filter(function(a){ return a.id!==S.editId; });
+  closeModal('modal-artikel');
+  showSnackbar('Artikel gelöscht');
+  if (S.artContext==='vk') renderVkArtikel(); else renderAdmArtikel();
+}
+
+// ===== ADMIN VK TABLE =====
+function renderAdmVk() {
+  var ft = gv('f-adm-vk').toLowerCase();
+  var rows = S.verkaeufer.filter(function(v){
+    return !ft || (v.vn+' '+v.nn+' '+v.email+' '+v.ort).toLowerCase().indexOf(ft)!==-1;
   });
+  var chips = {Privat:'chip-green',Gewerblich:'chip-orange',Verein:'chip-blue'};
+  var tb = document.getElementById('adm-vk-tbody');
+  if (!tb) return;
+  tb.innerHTML = rows.length ? rows.map(function(v){
+    return '<tr>' +
+      '<td class="text-muted">#'+v.id+'</td>' +
+      '<td>'+v.vn+'</td><td><strong>'+v.nn+'</strong></td>' +
+      '<td>'+v.plz+'</td><td>'+v.ort+'</td><td>'+v.email+'</td>' +
+      '<td><span class="chip '+(chips[v.type]||'chip-gray')+'">'+v.type+'</span></td>' +
+      '<td><span class="chip chip-gray">'+v.anz+'</span></td>' +
+      '<td><div class="table-actions">' +
+        '<button class="btn-icon" onclick="openVkDialog('+v.id+')" title="Bearbeiten">✏️</button>' +
+        '<button class="btn-icon" onclick="sendEinladung(\''+v.email+'\')" title="Einladen">📧</button>' +
+      '</div></td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="9" class="text-muted" style="text-align:center;padding:24px;">Keine Verkäufer gefunden.</td></tr>';
 }
 
-// ===== VENDOR TABLE =====
-function renderVendorTable() {
-  const tbody = document.getElementById('tbodyVendors');
-  if (!tbody) return;
-  const filter = (document.getElementById('filterVendorAdmin') || {}).value || '';
-  const list = vendors.filter(v =>
-    !filter || (v.vorname + ' ' + v.nachname + ' ' + v.email).toLowerCase().includes(filter.toLowerCase()));
-  tbody.innerHTML = list.map(v => `
-    <tr>
-      <td>${v.id}</td>
-      <td>${v.vorname}</td>
-      <td>${v.nachname}</td>
-      <td>${v.plz}</td>
-      <td>${v.ort}</td>
-      <td>${v.email}</td>
-      <td><span class="chip chip-green">${v.type}</span></td>
-      <td><span class="badge">${v.artikelCount}</span></td>
-      <td><div class="actions-cell">
-        <button class="btn btn-outlined btn-sm" onclick="openVendorDialog(${v.id})">✏️</button>
-        <button class="btn-icon" title="Einladen" onclick="sendInvite(event, '${v.email}')">📧</button>
-      </div></td>
-    </tr>`).join('');
-}
-
-function openVendorDialog(id) {
-  document.getElementById('vdEditId').value = id || '';
-  const footer = document.getElementById('modalVendorFooter');
-  if (id) {
-    const v = vendors.find(x => x.id === id);
-    document.getElementById('modalVendorTitle').textContent = 'Verkäufer bearbeiten';
-    document.getElementById('vdVorname').value = v.vorname;
-    document.getElementById('vdNachname').value = v.nachname;
-    document.getElementById('vdAnschrift').value = v.anschrift;
-    document.getElementById('vdPLZ').value = v.plz;
-    document.getElementById('vdOrt').value = v.ort;
-    document.getElementById('vdTelefon').value = v.telefon;
-    document.getElementById('vdEmail').value = v.email;
-    document.getElementById('vdType').value = v.type;
-    document.getElementById('vdBlocks').value = 1;
-    footer.innerHTML = `
-      <button class="btn btn-error btn-sm" onclick="deleteVendor(${id})">🗑 LÖSCHEN</button>
-      <div style="flex:1;"></div>
-      <button class="btn btn-text" onclick="closeModal('modalVendor')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveVendor()">SPEICHERN</button>`;
+function openVkDialog(id) {
+  S.editId = id;
+  var isEdit = id!==null;
+  document.getElementById('vk-modal-title').textContent = isEdit ? 'Verkäufer bearbeiten' : 'Neuer Verkäufer';
+  document.getElementById('btn-vk-del').classList.toggle('hidden', !isEdit);
+  if (isEdit) {
+    var v = S.verkaeufer.find(function(x){ return x.id===id; });
+    sv('vkd-vn',v.vn); sv('vkd-nn',v.nn); sv('vkd-anschr',v.anschr);
+    sv('vkd-plz',v.plz); sv('vkd-ort',v.ort); sv('vkd-tel',v.tel); sv('vkd-email',v.email);
+    document.getElementById('vkd-type').value = v.type;
+    sv('vkd-blocks','1');
   } else {
-    document.getElementById('modalVendorTitle').textContent = 'Neuer Verkäufer';
-    ['vdVorname','vdNachname','vdAnschrift','vdPLZ','vdOrt','vdTelefon','vdEmail'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('vdType').value = 'Privat';
-    document.getElementById('vdBlocks').value = 1;
-    footer.innerHTML = `
-      <button class="btn btn-text" onclick="closeModal('modalVendor')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveVendor()">SPEICHERN</button>`;
+    ['vkd-vn','vkd-nn','vkd-anschr','vkd-plz','vkd-ort','vkd-tel','vkd-email'].forEach(function(f){ sv(f,''); });
+    document.getElementById('vkd-type').value = 'Privat';
+    sv('vkd-blocks', S.cfg.defaultBlockCount);
   }
-  openModal('modalVendor');
+  openModal('modal-vk');
 }
 
-function saveVendor() {
-  const id = parseInt(document.getElementById('vdEditId').value);
-  const data = {
-    vorname: document.getElementById('vdVorname').value,
-    nachname: document.getElementById('vdNachname').value,
-    anschrift: document.getElementById('vdAnschrift').value,
-    plz: document.getElementById('vdPLZ').value,
-    ort: document.getElementById('vdOrt').value,
-    telefon: document.getElementById('vdTelefon').value,
-    email: document.getElementById('vdEmail').value,
-    type: document.getElementById('vdType').value,
+function saveVk() {
+  var data = {
+    vn:gv('vkd-vn'), nn:gv('vkd-nn'), anschr:gv('vkd-anschr'),
+    plz:gv('vkd-plz'), ort:gv('vkd-ort'), tel:gv('vkd-tel'), email:gv('vkd-email'),
+    type:gv('vkd-type'), anz:0,
   };
-  if (id) {
-    const idx = vendors.findIndex(v => v.id === id);
-    if (idx >= 0) vendors[idx] = { ...vendors[idx], ...data };
-    showToast('Verkäufer gespeichert.');
+  if (S.editId!==null) {
+    var idx = S.verkaeufer.findIndex(function(v){ return v.id===S.editId; });
+    if (idx!==-1){ data.anz=S.verkaeufer[idx].anz; Object.assign(S.verkaeufer[idx],data); }
+    showSnackbar('Verkäufer aktualisiert ✓');
   } else {
-    vendors.push({ id: ++nextId, artikelCount: 0, ...data });
-    showToast('Verkäufer angelegt.');
+    data.id = uid(); S.verkaeufer.push(data);
+    showSnackbar('Verkäufer erstellt ✓');
   }
-  closeModal('modalVendor');
-  renderVendorTable();
+  closeModal('modal-vk'); renderAdmVk();
 }
 
-function deleteVendor(id) {
-  closeModal('modalVendor');
-  confirmDelete('Diesen Verkäufer wirklich löschen?', () => {
-    vendors = vendors.filter(v => v.id !== id);
-    renderVendorTable();
-    showToast('Verkäufer gelöscht.');
+function deleteVk() {
+  S.verkaeufer = S.verkaeufer.filter(function(v){ return v.id!==S.editId; });
+  closeModal('modal-vk'); showSnackbar('Verkäufer gelöscht'); renderAdmVk();
+}
+
+function sendEinladung(email) {
+  document.getElementById('einl-email').textContent = email;
+  openModal('modal-einladung');
+}
+
+// ===== ADMIN ARTIKEL =====
+function renderAdmArtikel() {
+  var fm = gv('f-adm-marke').toLowerCase();
+  var fk = gv('f-adm-kat').toLowerCase();
+  var ft = gv('f-adm-art-text').toLowerCase();
+  var rows = S.artikel.filter(function(a){
+    return (!fm || a.marke.toLowerCase().indexOf(fm)!==-1) &&
+           (!fk || a.kat.toLowerCase().indexOf(fk)!==-1) &&
+           (!ft || a.bez.toLowerCase().indexOf(ft)!==-1 || String(a.nr).indexOf(ft)!==-1 || a.vk.toLowerCase().indexOf(ft)!==-1);
   });
-}
-
-function sendInvite(event, email) {
-  const popup = document.getElementById('invitePopup');
-  popup.textContent = `✉️ Einladungs-Link wurde gesendet an ${email}`;
-  const rect = event.target.getBoundingClientRect();
-  popup.style.top = (rect.bottom + 8 + window.scrollY) + 'px';
-  popup.style.left = Math.max(8, rect.left - 100) + 'px';
-  popup.classList.add('open');
-  setTimeout(() => popup.classList.remove('open'), 3000);
+  var tb = document.getElementById('adm-art-tbody');
+  if (!tb) return;
+  tb.innerHTML = rows.length ? rows.map(function(a){
+    return '<tr>' +
+      '<td><span class="chip chip-green">'+a.nr+'</span></td>' +
+      '<td><strong>'+a.bez+'</strong></td>' +
+      '<td>'+a.kat+'</td><td>'+a.marke+'</td><td>'+eur(a.preis)+'</td>' +
+      '<td>'+a.vk+'</td>' +
+      '<td><button class="btn-icon" onclick="openArtikelDialog('+a.id+',\'admin\')">✏️</button></td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="7" class="text-muted" style="text-align:center;padding:24px;">Keine Artikel gefunden.</td></tr>';
 }
 
 // ===== MARKEN =====
 function renderMarken() {
-  const tbody = document.getElementById('tbodyMarken');
-  if (!tbody) return;
-  tbody.innerHTML = marken.map((m, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td>${m}</td>
-      <td><div class="actions-cell">
-        <button class="btn btn-outlined btn-sm" onclick="openMarkeDialog(${i})">✏️</button>
-      </div></td>
-    </tr>`).join('');
+  var tb = document.getElementById('marken-tbody');
+  if (!tb) return;
+  tb.innerHTML = S.marken.map(function(m,i){
+    return '<tr><td class="text-muted">'+(i+1)+'</td><td><strong>'+m+'</strong></td>' +
+      '<td><button class="btn-icon" onclick="openMarkeDialog('+i+')">✏️</button></td></tr>';
+  }).join('');
 }
 
 function openMarkeDialog(idx) {
-  document.getElementById('markeEditId').value = idx !== null ? idx : '';
-  const footer = document.getElementById('modalMarkeFooter');
-  if (idx !== null) {
-    document.getElementById('modalMarkeTitle').textContent = 'Marke bearbeiten';
-    document.getElementById('markeBezeichnung').value = marken[idx];
-    footer.innerHTML = `
-      <button class="btn btn-error btn-sm" onclick="deleteMarke(${idx})">🗑 LÖSCHEN</button>
-      <div style="flex:1;"></div>
-      <button class="btn btn-text" onclick="closeModal('modalMarke')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveMarke()">SPEICHERN</button>`;
-  } else {
-    document.getElementById('modalMarkeTitle').textContent = 'Neue Marke';
-    document.getElementById('markeBezeichnung').value = '';
-    footer.innerHTML = `
-      <button class="btn btn-text" onclick="closeModal('modalMarke')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveMarke()">SPEICHERN</button>`;
-  }
-  openModal('modalMarke');
+  S.editId = idx;
+  var isEdit = idx!==null;
+  document.getElementById('marke-modal-title').textContent = isEdit ? 'Marke bearbeiten' : 'Neue Marke';
+  document.getElementById('btn-marke-del').classList.toggle('hidden', !isEdit);
+  sv('marke-bez', isEdit ? S.marken[idx] : '');
+  openModal('modal-marke');
 }
 
 function saveMarke() {
-  const idx = document.getElementById('markeEditId').value;
-  const val = document.getElementById('markeBezeichnung').value.trim();
-  if (!val) { showToast('Bitte Bezeichnung eingeben.'); return; }
-  if (idx !== '') { marken[parseInt(idx)] = val; showToast('Marke gespeichert.'); }
-  else { marken.push(val); showToast('Marke angelegt.'); }
-  closeModal('modalMarke');
-  renderMarken();
+  var val = gv('marke-bez').trim(); if (!val) return;
+  if (S.editId!==null) { S.marken[S.editId]=val; showSnackbar('Marke aktualisiert ✓'); }
+  else { S.marken.push(val); S.marken.sort(); showSnackbar('Marke gespeichert ✓'); }
+  closeModal('modal-marke'); renderMarken();
 }
 
-function deleteMarke(idx) {
-  closeModal('modalMarke');
-  confirmDelete(`Marke "${marken[idx]}" wirklich löschen?`, () => {
-    marken.splice(idx, 1);
-    renderMarken();
-    showToast('Marke gelöscht.');
-  });
+function deleteMarke() {
+  S.marken.splice(S.editId,1);
+  closeModal('modal-marke'); showSnackbar('Marke gelöscht'); renderMarken();
 }
 
 // ===== KATEGORIEN =====
-function renderKategorien() {
-  const tbody = document.getElementById('tbodyKategorien');
-  if (!tbody) return;
-  tbody.innerHTML = kategorien.map((k, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td>${k}</td>
-      <td><div class="actions-cell">
-        <button class="btn btn-outlined btn-sm" onclick="openKategorieDialog(${i})">✏️</button>
-      </div></td>
-    </tr>`).join('');
+function renderKat() {
+  var tb = document.getElementById('kat-tbody');
+  if (!tb) return;
+  tb.innerHTML = S.kategorien.map(function(k,i){
+    return '<tr><td class="text-muted">'+(i+1)+'</td><td><strong>'+k+'</strong></td>' +
+      '<td><button class="btn-icon" onclick="openKatDialog('+i+')">✏️</button></td></tr>';
+  }).join('');
 }
 
-function openKategorieDialog(idx) {
-  document.getElementById('kategorieEditId').value = idx !== null ? idx : '';
-  const footer = document.getElementById('modalKategorieFooter');
-  if (idx !== null) {
-    document.getElementById('modalKategorieTitle').textContent = 'Kategorie bearbeiten';
-    document.getElementById('kategorieBezeichnung').value = kategorien[idx];
-    footer.innerHTML = `
-      <button class="btn btn-error btn-sm" onclick="deleteKategorie(${idx})">🗑 LÖSCHEN</button>
-      <div style="flex:1;"></div>
-      <button class="btn btn-text" onclick="closeModal('modalKategorie')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveKategorie()">SPEICHERN</button>`;
-  } else {
-    document.getElementById('modalKategorieTitle').textContent = 'Neue Kategorie';
-    document.getElementById('kategorieBezeichnung').value = '';
-    footer.innerHTML = `
-      <button class="btn btn-text" onclick="closeModal('modalKategorie')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveKategorie()">SPEICHERN</button>`;
-  }
-  openModal('modalKategorie');
+function openKatDialog(idx) {
+  S.editId = idx;
+  var isEdit = idx!==null;
+  document.getElementById('kat-modal-title').textContent = isEdit ? 'Kategorie bearbeiten' : 'Neue Kategorie';
+  document.getElementById('btn-kat-del').classList.toggle('hidden', !isEdit);
+  sv('kat-bez', isEdit ? S.kategorien[idx] : '');
+  openModal('modal-kat');
 }
 
-function saveKategorie() {
-  const idx = document.getElementById('kategorieEditId').value;
-  const val = document.getElementById('kategorieBezeichnung').value.trim();
-  if (!val) { showToast('Bitte Bezeichnung eingeben.'); return; }
-  if (idx !== '') { kategorien[parseInt(idx)] = val; showToast('Kategorie gespeichert.'); }
-  else { kategorien.push(val); showToast('Kategorie angelegt.'); }
-  closeModal('modalKategorie');
-  renderKategorien();
+function saveKat() {
+  var val = gv('kat-bez').trim(); if (!val) return;
+  if (S.editId!==null) { S.kategorien[S.editId]=val; showSnackbar('Kategorie aktualisiert ✓'); }
+  else { S.kategorien.push(val); S.kategorien.sort(); showSnackbar('Kategorie gespeichert ✓'); }
+  closeModal('modal-kat'); renderKat();
 }
 
-function deleteKategorie(idx) {
-  closeModal('modalKategorie');
-  confirmDelete(`Kategorie "${kategorien[idx]}" wirklich löschen?`, () => {
-    kategorien.splice(idx, 1);
-    renderKategorien();
-    showToast('Kategorie gelöscht.');
-  });
+function deleteKat() {
+  S.kategorien.splice(S.editId,1);
+  closeModal('modal-kat'); showSnackbar('Kategorie gelöscht'); renderKat();
 }
 
 // ===== TYPES =====
 function renderTypes() {
-  const tbody = document.getElementById('tbodyTypes');
-  if (!tbody) return;
-  tbody.innerHTML = verkaeuferTypes.map(t => `
-    <tr>
-      <td>${t.id}</td>
-      <td>${t.bezeichnung}</td>
-      <td>${t.provision} %</td>
-      <td>${formatEuro(t.gebuehr)}</td>
-      <td><button class="btn btn-outlined btn-sm" onclick="openTypeDialog(${t.id})">✏️</button></td>
-    </tr>`).join('');
+  var tb = document.getElementById('types-tbody');
+  if (!tb) return;
+  tb.innerHTML = S.types.map(function(t){
+    return '<tr>' +
+      '<td class="text-muted">#'+t.id+'</td>' +
+      '<td><strong>'+t.bez+'</strong></td>' +
+      '<td>'+t.prov+' %</td>' +
+      '<td>'+t.geb.toFixed(2).replace('.',',')+' €</td>' +
+      '<td><button class="btn-icon" onclick="openTypeDialog('+t.id+')">✏️</button></td>' +
+      '</tr>';
+  }).join('');
 }
 
 function openTypeDialog(id) {
-  document.getElementById('typeEditId').value = id || '';
-  const footer = document.getElementById('modalTypeFooter');
-  if (id) {
-    const t = verkaeuferTypes.find(x => x.id === id);
-    document.getElementById('modalTypeTitle').textContent = 'Type bearbeiten';
-    document.getElementById('typeBezeichnung').value = t.bezeichnung;
-    document.getElementById('typeProvision').value = t.provision;
-    document.getElementById('typeGebuehr').value = t.gebuehr;
-    footer.innerHTML = `
-      <button class="btn btn-error btn-sm" onclick="deleteType(${id})">🗑 LÖSCHEN</button>
-      <div style="flex:1;"></div>
-      <button class="btn btn-text" onclick="closeModal('modalType')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveType()">SPEICHERN</button>`;
-  } else {
-    document.getElementById('modalTypeTitle').textContent = 'Neuer Type';
-    ['typeBezeichnung','typeProvision','typeGebuehr'].forEach(i => document.getElementById(i).value = '');
-    footer.innerHTML = `
-      <button class="btn btn-text" onclick="closeModal('modalType')">ABBRECHEN</button>
-      <button class="btn btn-primary" onclick="saveType()">SPEICHERN</button>`;
-  }
-  openModal('modalType');
+  S.editId = id;
+  var isEdit = id!==null;
+  document.getElementById('type-modal-title').textContent = isEdit ? 'Type bearbeiten' : 'Neuer Verkäufer-Type';
+  document.getElementById('btn-type-del').classList.toggle('hidden', !isEdit);
+  if (isEdit) {
+    var t = S.types.find(function(x){ return x.id===id; });
+    sv('type-bez',t.bez); sv('type-prov',t.prov); sv('type-geb',t.geb);
+  } else { sv('type-bez',''); sv('type-prov',''); sv('type-geb',''); }
+  openModal('modal-type');
 }
 
 function saveType() {
-  const id = parseInt(document.getElementById('typeEditId').value);
-  const data = {
-    bezeichnung: document.getElementById('typeBezeichnung').value.trim(),
-    provision: parseFloat(document.getElementById('typeProvision').value) || 0,
-    gebuehr: parseFloat(document.getElementById('typeGebuehr').value) || 0
-  };
-  if (id) {
-    const idx = verkaeuferTypes.findIndex(t => t.id === id);
-    if (idx >= 0) verkaeuferTypes[idx] = { ...verkaeuferTypes[idx], ...data };
-    showToast('Type gespeichert.');
-  } else {
-    verkaeuferTypes.push({ id: ++nextId, ...data });
-    showToast('Type angelegt.');
-  }
-  closeModal('modalType');
-  renderTypes();
+  var data = { bez:gv('type-bez'), prov:parseFloat(gv('type-prov'))||0, geb:parseFloat(gv('type-geb'))||0 };
+  if (S.editId!==null) {
+    var idx = S.types.findIndex(function(t){ return t.id===S.editId; });
+    if (idx!==-1) Object.assign(S.types[idx],data);
+    showSnackbar('Type aktualisiert ✓');
+  } else { data.id=uid(); S.types.push(data); showSnackbar('Type erstellt ✓'); }
+  closeModal('modal-type'); renderTypes();
 }
 
-function deleteType(id) {
-  closeModal('modalType');
-  const t = verkaeuferTypes.find(x => x.id === id);
-  confirmDelete(`Type "${t.bezeichnung}" wirklich löschen?`, () => {
-    verkaeuferTypes = verkaeuferTypes.filter(x => x.id !== id);
-    renderTypes();
-    showToast('Type gelöscht.');
-  });
+function deleteType() {
+  S.types = S.types.filter(function(t){ return t.id!==S.editId; });
+  closeModal('modal-type'); showSnackbar('Type gelöscht'); renderTypes();
+}
+
+// ===== EINSTELLUNGEN =====
+function saveEinstellungen() {
+  S.cfg.startNumber = parseInt(gv('cfg-start'))||101;
+  S.cfg.blockSize = parseInt(gv('cfg-size'))||10;
+  S.cfg.defaultBlockCount = parseInt(gv('cfg-default'))||1;
+  showSnackbar('Konfiguration gespeichert ✓');
 }
 
 // ===== EXPORT =====
 function openExportPreview() {
-  const inclMarken = document.getElementById('expMarken').checked;
-  const inclKat = document.getElementById('expKategorien').checked;
-  const inclVendors = document.getElementById('expVendors').checked;
-  const data = { exportDate: new Date().toISOString(), artikel: artikel };
-  if (inclMarken) data.marken = marken;
-  if (inclKat) data.kategorien = kategorien;
-  if (inclVendors) data.vendors = vendors.map(v => ({ id: v.id, name: v.vorname + ' ' + v.nachname, email: v.email, type: v.type }));
-  document.getElementById('exportJsonPreview').textContent = JSON.stringify(data, null, 2).substring(0, 3000);
-  openModal('modalExport');
+  var inclM = document.getElementById('exp-marken').checked;
+  var inclK = document.getElementById('exp-kategorien').checked;
+  var data = {
+    exportedAt: new Date().toISOString(),
+    verkaeufer: S.verkaeufer.map(function(v){
+      return Object.assign({}, v, {
+        artikel: S.artikel.filter(function(a){ return a.vk===v.vn+' '+v.nn; })
+      });
+    }),
+  };
+  if (inclM) data.marken = S.marken;
+  if (inclK) data.kategorien = S.kategorien;
+  document.getElementById('export-json').textContent = JSON.stringify(data, null, 2);
+  openModal('modal-export');
 }
 
-function simulateDownload() {
-  showToast('Export-Datei wurde heruntergeladen: bazaar-export.json');
-  closeModal('modalExport');
+function downloadExport() {
+  var content = document.getElementById('export-json').textContent;
+  var blob = new Blob([content], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'voranmelde-export-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(url);
+  showSnackbar('Export heruntergeladen ✓');
 }
-
-function simulateImport(typ) {
-  showToast(`${typ}-Import: Datei ausgewählt (simuliert). Daten wurden importiert.`);
-}
-
-function simulateExportSimple(typ) {
-  showToast(`${typ}-Export wurde heruntergeladen.`);
-}
-
-// ===== HELPERS =====
-function formatPreis(p) { return p.toFixed(2).replace('.', ',') + ' €'; }
-function formatEuro(p) { return p.toFixed(2).replace('.', ',') + ' €'; }
-
-// Close modal on overlay click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('open');
-  });
-});
 
 // ===== INIT =====
-// Start on login
+document.getElementById('screen-login').style.display = 'flex';
+document.getElementById('screen-app').style.display = 'none';
 </script>
 </body>
 </html>
