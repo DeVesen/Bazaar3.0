@@ -129,8 +129,16 @@ tr:hover td { background: rgba(56,142,60,0.04); }
 /* Modals */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.open { display: flex; }
-.modal { background: var(--white); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); width: 100%; max-width: 520px; max-height: 90vh; display: flex; flex-direction: column; }
-.modal-lg { max-width: 680px; }
+.modal { background: var(--white); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); width: 70%; max-height: 60vh; display: flex; flex-direction: column; }
+.modal-lg { width: 70%; max-height: 60vh; }
+@media(max-width:1024px){
+  .modal { width:90%; max-height:90vh; }
+  .modal-lg { width:90%; max-height:90vh; }
+}
+@media(max-width:768px){
+  .modal { width:100%; max-height:100vh; border-radius:0; }
+  .modal-lg { width:100%; max-height:100vh; border-radius:0; }
+}
 .modal-header { padding: 18px 24px 14px; border-bottom: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
 .modal-title { font-size: 16px; font-weight: 600; }
 .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-secondary); padding: 2px 6px; border-radius: var(--radius); line-height: 1; }
@@ -178,6 +186,16 @@ tr:hover td { background: rgba(56,142,60,0.04); }
 /* Invite popup */
 .invite-popup { position: fixed; background: var(--white); border: 1px solid var(--divider); box-shadow: var(--shadow-md); border-radius: 6px; padding: 14px 18px; z-index: 1500; font-size: 13px; max-width: 300px; display: none; }
 .invite-popup.show { display: block; }
+
+/* Burger / Responsive sidebar */
+#btnBurger { display:none; background:transparent; border:none; color:var(--white); font-size:24px; cursor:pointer; padding:0 4px; }
+.sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:199; }
+.sidebar-overlay.open { display:block; }
+@media(max-width:1024px){
+  #btnBurger { display:block; }
+  .sidebar { position:fixed; top:var(--topbar-h); left:0; bottom:0; z-index:200; transform:translateX(-100%); transition:transform .25s; }
+  .sidebar.open { transform:translateX(0); }
+}
 
 /* Helpers */
 .text-secondary { color: var(--text-secondary); }
@@ -274,6 +292,7 @@ tr:hover td { background: rgba(56,142,60,0.04); }
 <div id="main-layout">
   <!-- Topbar -->
   <div class="topbar">
+    <button id="btnBurger" onclick="toggleSidebar()">&#9776;</button>
     <div class="topbar-brand">&#128230; Voranmelde-App</div>
     <div class="role-toggle">
       <span>Ansicht:</span>
@@ -291,6 +310,7 @@ tr:hover td { background: rgba(56,142,60,0.04); }
 
   <!-- Layout Body -->
   <div class="layout-body">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
       <!-- Seller Nav -->
@@ -1235,6 +1255,15 @@ function doRegister() {
   showLoginForm();
   document.getElementById('login-email').value = em;
 }
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
 function doLogout() {
   document.getElementById('main-layout').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
