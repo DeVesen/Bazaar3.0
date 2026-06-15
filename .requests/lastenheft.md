@@ -188,6 +188,19 @@ Verkäufer können sich **vorab** registrieren und ihre Artikelliste pflegen. Ad
 
 ## 5. Technische Rahmenbedingungen
 
+### 5.0 Tech-Stack
+
+| Komponente | Technologie |
+|---|---|
+| **Frontend** | Angular 19 (zwei separate Apps: Haupt-App + Voranmelde-App) |
+| **Backend** | .NET 9 Web API (zwei separate Backends) |
+| **ORM** | Entity Framework Core |
+| **Datenbank** | PostgreSQL (beide Apps) |
+| **Containerisierung** | Docker / Docker Compose |
+| **Mehrsprachigkeit** | ngx-translate (DE + EN, nur Voranmelde-App) |
+| **Barcode/QR-Scan** | ZXing / ngx-scanner (Browser-Kamera, offline-fähig) |
+| **Icons** | Angular Material Icons (npm-Bundle, kein CDN) |
+
 ### 5.1 Offline-Fähigkeit (Haupt-App)
 
 Die Haupt-App **muss vollständig offline-fähig** sein.
@@ -517,9 +530,9 @@ Klick auf **„Buchen"** → `abgerechnetAm = jetzt` wird am Verkäufer gesetzt.
 | 2 | Gibt es eine maximale Artikel-Anzahl pro Verkäufer? | ✅ Keine harte Grenze — de facto unbegrenzt durch automatisches Nummernblock-Nachrücken |
 | 3 | Sollen Marken/Kategorien **Freitext** bleiben oder aus der verwalteten Liste gewählt werden müssen? | ✅ AutoComplete + Freitext möglich; neuer Wert per Popup bestätigen |
 | 4 | Welche **Einstellungen** soll der Admin in der Haupt-App konfigurieren können? | ✅ Aktuell keine — Nummernblock-Einstellungen nur in Voranmelde-App |
-| 5 | Soll die Voranmelde-App **Mehrsprachigkeit** unterstützen? | 🔲 Offen |
+| 5 | Soll die Voranmelde-App **Mehrsprachigkeit** unterstützen? | ✅ Ja — DE + EN via ngx-translate |
 | 6 | Gibt es ein **Provisionssystem** — d. h. unterschiedliche Konditionen je nach Verkäufer-Type? | ✅ Ja, via Verkäufer-Type |
 | 7 | Soll die Haupt-App **offline-fähig** sein (z. B. bei schlechtem WLAN am Basar)? | ✅ Ja — lokales LAN, kein Internetzugang; alles muss im Bundle sein |
 | 8 | Wie lange soll das Scan-Ergebnis im Kamera-Modus angezeigt werden? | ✅ Konfigurierbar, Default 5 Sekunden |
-| 9 | Kann der Anwender im Artikeleingabe-Wizard auch Artikel **löschen** die noch nicht gespeichert sind? | 🔲 Offen |
-| 10 | Soll beim Artikel-Freigeben-Popup der Scan-Feedback-Ton oder visuelle Signale (Vibration auf Mobile) geben? | 🔲 Offen |
+| 9 | Kann der Anwender im Artikeleingabe-Wizard auch Artikel **löschen** die noch nicht gespeichert sind? | ✅ Ja — Löschen-Button pro Eintrag in der Session-Liste; keine DB-Auswirkung |
+| 10 | Soll beim Artikel-Freigeben-Popup der Scan-Feedback-Ton oder visuelle Signale (Vibration auf Mobile) geben? | ✅ Beides — Ton via Web Audio API + Vibration via Navigator.vibrate() |

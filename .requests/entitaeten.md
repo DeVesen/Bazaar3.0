@@ -22,8 +22,9 @@ Legende: ✅ beide Apps | 🏠 nur Haupt-App | ☁️ nur Voranmelde-App
 | `groesse` | string | ❌ | ✅ | Optional |
 | `farbe` | string | ❌ | ✅ | Optional |
 | `alternativPreis` | double | ❌ | 🏠 | Optional; z. B. Mindestpreis |
-| `angenommenAm` | DateTime? | — | 🏠 | Wird bei Artikelannahme gesetzt |
-| `verkauftAm` | DateTime? | — | 🏠 | Wird beim Verkauf gesetzt |
+| `angenommenAm` | DateTime? | — | 🏠 | Wird bei Artikelannahme gesetzt (= Buchen im Wizard Schritt 2) |
+| `freigegebenAm` | DateTime? | — | 🏠 | Wird beim Buchen der Artikelannahme automatisch gesetzt (= „Im Verkauf") |
+| `verkauftAm` | DateTime? | — | 🏠 | Wird beim Kassenvorgang gesetzt |
 | `rueckgegebenAm` | DateTime? | — | 🏠 | Wird bei Rückgabe gesetzt |
 
 ---
@@ -130,7 +131,9 @@ Der Status eines Artikels ergibt sich aus den DateTime-Feldern:
 
 | Status | Bedingung |
 |---|---|
-| **Registriert** | `angenommenAm` = null |
-| **Im Verkauf** | `angenommenAm` gesetzt, `verkauftAm` = null, `rueckgegebenAm` = null |
+| **Registriert** | `freigegebenAm` = null |
+| **Im Verkauf** | `freigegebenAm` gesetzt, `verkauftAm` = null, `rueckgegebenAm` = null |
 | **Verkauft** | `verkauftAm` gesetzt |
 | **Zurückgegeben** | `rueckgegebenAm` gesetzt |
+
+**Hinweis:** `angenommenAm` und `freigegebenAm` werden beim Buchen der Artikelannahme gleichzeitig auf `now` gesetzt. Im Lastenheft (7.4) wird `freigegebenAm` als der statusgebende Zeitstempel verwendet.
