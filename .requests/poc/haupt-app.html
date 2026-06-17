@@ -5,25 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bazaar — Haupt-App (POC)</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#212121;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+/*
+ * ── DESIGN TOKENS (PrimeNG Styled Mode — Aura Preset, Green Palette) ──────────
+ * Primitive → Semantic → Component (3-Tier-Konzept laut primeng.org/theming/styled)
+ *
+ * In der Angular-App:
+ *   import { definePreset } from '@primeuix/themes';
+ *   import Aura from '@primeuix/themes/aura';
+ *   const BazaarPreset = definePreset(Aura, {
+ *     semantic: {
+ *       primary: { 50:'{green.50}', 500:'{green.600}', 950:'{green.950}' },
+ *       colorScheme: { light: { surface: { 0:'#fff', 50:'#f9fafb', ... } } }
+ *     }
+ *   });
+ *   providePrimeNG({ theme: { preset: BazaarPreset, options: { darkModeSelector: '.app-dark' } } })
+ */
+:root{
+  /* Primitive Tokens — Farbpalette */
+  --green-50:#f0fdf4;--green-100:#dcfce7;--green-200:#bbf7d0;--green-300:#86efac;
+  --green-400:#4ade80;--green-500:#22c55e;--green-600:#16a34a;--green-700:#15803d;
+  --green-800:#166534;--green-900:#14532d;--green-950:#052e16;
+  --orange-500:#f97316;--orange-600:#ea580c;
 
-/* ── TOPBAR ── */
-#topbar{background:#1565C0;color:#fff;padding:0 16px;height:56px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 4px rgba(0,0,0,.2);flex-shrink:0;z-index:200}
+  /* Semantic Tokens — var(--p-primary-color) entspricht Angular's $dt('primary.color') */
+  --p-primary-color:var(--green-600);
+  --p-primary-hover-color:var(--green-700);
+  --p-primary-light:var(--green-50);
+  --p-primary-rgba:rgba(22,163,74,.15);
+  --p-accent-color:var(--orange-500);
+  --p-accent-hover:var(--orange-600);
+
+  /* Surface / Content */
+  --p-surface-ground:#FAFAFA;
+  --p-surface-0:#ffffff;
+  --p-surface-100:#F5F5F5;
+  --p-surface-200:#EEEEEE;
+  --p-surface-300:#E0E0E0;
+  --p-text-color:#212121;
+  --p-text-secondary-color:#757575;
+  --p-content-border-color:#E0E0E0;
+  --p-error-color:#D32F2F;
+
+  /* Sidebar — Diamond Template Stil (sehr dunkles Grün) */
+  --p-sidebar-bg:var(--green-950);
+  --p-sidebar-active-bg:rgba(34,197,94,.12);
+  --p-sidebar-active-border:var(--green-400);
+  --p-sidebar-text:rgba(255,255,255,.75);
+  --p-sidebar-text-active:#bbf7d0;
+  --p-sidebar-label-color:rgba(255,255,255,.4);
+  --p-topbar-bg:var(--green-800);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--p-surface-ground);color:var(--p-text-color);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── TOPBAR (nur mobile < 768px) ── */
+#topbar{display:none;background:var(--p-sidebar-bg);color:#fff;padding:0 16px;height:56px;align-items:center;gap:12px;box-shadow:0 2px 4px rgba(0,0,0,.2);flex-shrink:0;z-index:200}
 #topbar h1{font-size:17px;font-weight:500;flex:1}
-#btnBurger{display:none;background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px 8px;line-height:1}
+#btnBurger{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px 8px;line-height:1}
 
 /* ── LAYOUT ── */
 #layout{display:flex;flex:1;overflow:hidden}
 
 /* ── SIDEBAR ── */
-#sidebar{width:220px;min-width:220px;background:#263238;color:#fff;display:flex;flex-direction:column;height:100%;overflow-y:auto;flex-shrink:0;transition:transform .25s}
-#sidebar .logo{padding:16px 16px 12px;font-size:19px;font-weight:700;color:#FF9800;border-bottom:1px solid rgba(255,255,255,.1)}
+#sidebar{width:220px;min-width:220px;background:var(--p-sidebar-bg);color:#fff;display:flex;flex-direction:column;height:100%;overflow-y:auto;flex-shrink:0;transition:transform .25s}
+#sidebar .logo{padding:16px 16px 12px;font-size:19px;font-weight:700;color:var(--p-accent-color);border-bottom:1px solid rgba(255,255,255,.1)}
 #sidebar .logo span{color:#fff;font-weight:300;font-size:12px;display:block;margin-top:2px}
-.nav-group-label{padding:16px 16px 4px;font-size:10px;color:#78909C;text-transform:uppercase;letter-spacing:1.5px}
-#sidebar nav a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:rgba(255,255,255,.75);text-decoration:none;font-size:14px;cursor:pointer;transition:background .15s,color .15s;border-left:3px solid transparent}
+.nav-group-label{padding:16px 16px 4px;font-size:10px;color:var(--p-sidebar-label-color);text-transform:uppercase;letter-spacing:1.5px}
+#sidebar nav a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:var(--p-sidebar-text);text-decoration:none;font-size:14px;cursor:pointer;transition:background .15s,color .15s;border-left:3px solid transparent}
 #sidebar nav a:hover{background:rgba(255,255,255,.07);color:#fff}
-#sidebar nav a.active{background:rgba(21,101,192,.3);color:#90CAF9;border-left-color:#1976D2}
+#sidebar nav a.active{background:var(--p-sidebar-active-bg);color:var(--p-sidebar-text-active);border-left-color:var(--p-sidebar-active-border)}
 #sidebar nav a .icon{font-size:16px;width:20px;text-align:center}
 #sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:150}
 
@@ -40,9 +91,9 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:4px;border:none;cursor:pointer;font-size:14px;font-weight:500;transition:background .15s,opacity .15s;white-space:nowrap}
 .btn:disabled{opacity:.38;cursor:not-allowed}
-.btn-primary{background:#1565C0;color:#fff}.btn-primary:hover:not(:disabled){background:#0D47A1}
-.btn-accent{background:#FF9800;color:#fff}.btn-accent:hover:not(:disabled){background:#F57C00}
-.btn-outline{background:transparent;border:1px solid #1565C0;color:#1565C0}.btn-outline:hover:not(:disabled){background:#E3F2FD}
+.btn-primary{background:var(--p-primary-color);color:#fff}.btn-primary:hover:not(:disabled){background:var(--p-primary-hover-color)}
+.btn-accent{background:var(--p-accent-color);color:#fff}.btn-accent:hover:not(:disabled){background:var(--p-accent-hover)}
+.btn-outline{background:transparent;border:1px solid var(--p-primary-color);color:var(--p-primary-color)}.btn-outline:hover:not(:disabled){background:var(--p-primary-light)}
 .btn-danger{background:#D32F2F;color:#fff}.btn-danger:hover:not(:disabled){background:#B71C1C}
 .btn-ghost{background:transparent;border:1px solid #BDBDBD;color:#616161}.btn-ghost:hover:not(:disabled){background:#F5F5F5}
 .btn-sm{padding:4px 10px;font-size:12px}
@@ -50,39 +101,102 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
 
 /* ── FORMS ── */
 .form-group{margin-bottom:14px}
+.form-panel{background:#F9FAFB;border:1px solid #E8EAED;border-radius:6px;padding:14px 16px;margin-bottom:10px}
+.form-panel:last-child{margin-bottom:0}
+.form-panel>.form-group:last-child,.form-panel>.form-grid-2:last-child>.form-group{margin-bottom:0}
 .form-group label{display:block;font-size:12px;color:#757575;margin-bottom:4px;font-weight:500}
 .form-control{width:100%;padding:9px 12px;border:1px solid #BDBDBD;border-radius:4px;font-size:14px;background:#fff;transition:border-color .15s;font-family:inherit}
-.form-control:focus{outline:none;border-color:#1565C0;box-shadow:0 0 0 2px rgba(21,101,192,.15)}
+.form-control:focus{outline:none;border-color:var(--p-primary-color);box-shadow:0 0 0 2px var(--p-primary-rgba)}
 .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 .input-with-icon{position:relative}
 .input-with-icon .form-control{padding-right:40px}
 .input-with-icon .input-icon-right{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#9E9E9E;display:flex;align-items:center;padding:0}
-.input-with-icon .input-icon-right:hover{color:#1565C0}
+.input-with-icon .input-icon-right:hover{color:var(--p-primary-color)}
+
+/* ── INPUT GROUP COMPONENT ── */
+.ig{display:flex;align-items:stretch;border:1px solid #BDBDBD;border-radius:4px;overflow:hidden;background:#fff;transition:border-color .15s}
+.ig:focus-within{border-color:var(--p-primary-color);box-shadow:0 0 0 2px var(--p-primary-rgba)}
+.ig-addon{display:flex;align-items:center;padding:0 10px;background:#F5F5F5;color:#757575;font-size:15px;border-right:1px solid #E0E0E0;flex-shrink:0;user-select:none}
+.ig-field{position:relative;flex:1;display:flex;align-items:center;min-width:0}
+.ig-input{border:none;outline:none;padding:9px 38px 9px 10px;font-size:14px;font-family:inherit;width:100%;background:transparent}
+.ig-input[type=number]::-webkit-outer-spin-button,.ig-input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.ig-icon-area{position:absolute;right:6px;display:flex;align-items:center;gap:2px;pointer-events:none}
+.ig-icon-area>*{pointer-events:all}
+.ig-clear-btn{background:none;border:none;cursor:pointer;color:#9E9E9E;font-size:13px;padding:3px 5px;line-height:1;border-radius:50%;display:flex;align-items:center;transition:background .1s}.ig-clear-btn:hover{background:rgba(0,0,0,.08);color:#424242}
+.ig-spinner{color:var(--p-primary-color);font-size:15px;display:inline-block;animation:ig-spin .7s linear infinite}
+@keyframes ig-spin{to{transform:rotate(360deg)}}
+.ig-action-btn{display:flex;align-items:center;justify-content:center;background:#F5F5F5;border:none;border-left:1px solid #E0E0E0;padding:0 12px;cursor:pointer;font-size:17px;color:#616161;transition:background .15s,color .15s;flex-shrink:0;min-width:44px;line-height:1}
+.ig-action-btn:hover{background:var(--p-primary-light);color:var(--p-primary-color)}
+.ig-addon-r{display:flex;align-items:center;padding:0 10px;background:#F5F5F5;color:#757575;font-size:13px;font-weight:500;border-left:1px solid #E0E0E0;flex-shrink:0;user-select:none}
+
+/* ── INFO AREA COMPONENT ── */
+.info-area{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:4px;font-size:15px;font-weight:700;margin:8px 0;line-height:1.3}
+.info-area .ia-icon{font-size:18px;flex-shrink:0}
+.info-area.success{background:#E8F5E9;color:#1B5E20}
+.info-area.error{background:#FFEBEE;color:#B71C1C}
+.info-area.warn{background:#FFF8E1;color:#E65100}
+.info-area.info{background:var(--p-primary-light);color:var(--p-primary-hover-color)}
+
+/* ── CAMERA POPUP ── */
+.camera-preview{width:100%;height:190px;background:#1A1A2E;border-radius:6px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:12px}
+.camera-scan-line{position:absolute;left:0;width:100%;height:2px;background:rgba(33,150,243,.8);animation:scanline 2s ease-in-out infinite}
+@keyframes scanline{0%,100%{top:15%}50%{top:85%}}
+
+/* ── INLINE CAMERA (Freigeben) ── */
+.fg-camera-view{width:100%;height:80px;background:#1A1A2E;border-radius:4px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:8px}
+.fg-camera-view .camera-scan-line{height:2px}
+.fg-camera-sim-btns{position:absolute;bottom:6px;left:0;right:0;display:flex;gap:4px;justify-content:center;z-index:2}
+.fg-camera-sim-btns button{font-size:11px;padding:2px 8px;border:none;border-radius:3px;cursor:pointer;color:#fff;opacity:.9}
+.fg-countdown{width:100%;height:80px;background:var(--p-sidebar-bg);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;margin-bottom:8px}
+.fg-countdown-label{font-size:11px;color:#90A4AE}
 
 /* ── CHIPS ── */
 .chip{display:inline-flex;align-items:center;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:500}
 .chip-gray{background:#E0E0E0;color:#616161}
-.chip-blue{background:#1565C0;color:#fff}
+.chip-blue{background:var(--p-primary-color);color:#fff}
 .chip-green{background:#388E3C;color:#fff}
 .chip-orange{background:#E65100;color:#fff}
 .chip-clickable{cursor:pointer}.chip-clickable:hover{opacity:.8}
 .filter-chips{display:flex;gap:8px;flex-wrap:wrap}
 .filter-chip{padding:6px 14px;border-radius:20px;border:1px solid #BDBDBD;background:#fff;cursor:pointer;font-size:13px;transition:all .15s}
-.filter-chip.active{background:#1565C0;color:#fff;border-color:#1565C0}
+.filter-chip.active{background:var(--p-primary-color);color:#fff;border-color:var(--p-primary-color)}
 
-/* ── TABLE ── */
+/* ── TABLE (PrimeNG striped style) ── */
 .data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-.data-table th{background:#F5F5F5;padding:11px 14px;text-align:left;font-size:12px;font-weight:600;color:#616161;border-bottom:2px solid #E0E0E0}
-.data-table td{padding:11px 14px;font-size:14px;border-bottom:1px solid #EEEEEE;vertical-align:middle}
+.data-table th{background:#F5F5F5;padding:11px 14px;text-align:left;font-size:12px;font-weight:600;color:#616161;border-bottom:2px solid #E0E0E0;white-space:nowrap;user-select:none}
+.data-table th.sortable{cursor:pointer}
+.data-table th.sortable:hover{background:#ECEFF1;color:#37474F}
+.data-table th .sort-icon{margin-left:5px;opacity:.4;font-style:normal;font-size:10px}
+.data-table th.sort-asc .sort-icon::after{content:'▲';opacity:1}
+.data-table th.sort-desc .sort-icon::after{content:'▼';opacity:1}
+.data-table th .sort-icon::after{content:'⇅'}
+.data-table td{padding:10px 14px;font-size:14px;border-bottom:1px solid #EEEEEE;vertical-align:middle}
 .data-table tr:last-child td{border-bottom:none}
-.data-table tr:hover td{background:#F5F9FF}
+.data-table tbody tr:nth-child(even) td{background:#FAFAFA}
+.data-table tbody tr:hover td{background:#EFF6FF!important}
+/* skeleton loading rows */
+.data-table .skel td{padding:10px 14px}
+.skel-line{height:14px;border-radius:6px;background:linear-gradient(90deg,#F0F0F0 25%,#E0E0E0 50%,#F0F0F0 75%);background-size:200% 100%;animation:skel-shimmer 1.4s infinite}
+@keyframes skel-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── FILTER PANEL ── */
+.filter-panel{background:#fff;border:1px solid #E0E0E0;border-radius:8px;padding:12px 14px;margin-bottom:14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.filter-panel-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-panel-row .fp-search{flex:1;min-width:160px}
+.filter-panel select,.filter-panel .form-control{font-size:13px;padding:6px 10px;height:34px}
+.filter-panel .btn{height:34px;padding:0 14px;font-size:13px}
+.filter-panel-row.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:900px){.filter-panel-row.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:540px){.filter-panel-row.grid-4{grid-template-columns:1fr}}
+/* multi-sort badge */
+.data-table th .sort-badge{display:inline-block;background:#3b82f6;color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;margin-left:4px;vertical-align:middle}
 
 /* ── MODALS ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal-box{background:#fff;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.25);width:70%;max-height:60vh;overflow-y:auto;position:relative;transform:translateY(16px);transition:transform .2s;display:flex;flex-direction:column}
+.modal-box{background:#fff;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.25);width:80%;max-height:90vh;overflow-y:auto;position:relative;transform:translateY(16px);transition:transform .2s;display:flex;flex-direction:column}
 .modal-overlay.open .modal-box{transform:translateY(0)}
-.modal-box.modal-wide{width:85%}
+.modal-box.modal-wide{width:80%}
 .modal-header{padding:18px 22px 14px;border-bottom:1px solid #EEEEEE;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .modal-header h2{font-size:17px;font-weight:600}
 .modal-body{padding:20px 22px;overflow-y:auto;flex:1}
@@ -109,21 +223,21 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
 /* ── KPI ── */
 .kpi-row{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
 .kpi-tile{flex:1;min-width:120px;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);padding:16px;text-align:center}
-.kpi-value{font-size:26px;font-weight:700;color:#1565C0}.kpi-label{font-size:12px;color:#757575;margin-top:4px}
+.kpi-value{font-size:26px;font-weight:700;color:var(--p-primary-color)}.kpi-label{font-size:12px;color:#757575;margin-top:4px}
 
 /* ── INFO BANNER ── */
 .info-banner{padding:11px 14px;border-radius:4px;font-size:14px;margin:10px 0}
 .info-banner.success{background:#E8F5E9;color:#2E7D32;border-left:4px solid #388E3C}
 .info-banner.error{background:#FFEBEE;color:#C62828;border-left:4px solid #D32F2F}
-.info-banner.info{background:#E3F2FD;color:#0D47A1;border-left:4px solid #1565C0}
-.info-banner.warn{background:#FFF8E1;color:#E65100;border-left:4px solid #FF9800}
+.info-banner.info{background:var(--p-primary-light);color:var(--p-primary-hover-color);border-left:4px solid var(--p-primary-color)}
+.info-banner.warn{background:#FFF8E1;color:#E65100;border-left:4px solid var(--p-accent-color)}
 
 /* ── VERKAUF SCREEN ── */
 .verkauf-layout{display:grid;grid-template-columns:1fr 2fr;gap:16px;align-items:start}
 .preise-label{font-size:12px;font-weight:600;color:#757575;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:12px}
 .preise-row{display:flex;gap:8px}
 .preise-row .btn-preis{flex:1;min-width:120px;height:60px;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cart-total{text-align:right;font-size:18px;font-weight:700;padding:10px 0;color:#1565C0}
+.cart-total{text-align:right;font-size:18px;font-weight:700;padding:10px 0;color:var(--p-primary-color)}
 .rueckgeld-display{font-size:22px;font-weight:700;color:#388E3C;text-align:center;padding:10px;background:#E8F5E9;border-radius:4px;margin-top:8px}
 
 /* ── STATUS PANELS (VK Status Modal) ── */
@@ -139,18 +253,46 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
 .freigabe-list .item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #F5F5F5;cursor:pointer;font-size:13px;transition:background .1s}
 .freigabe-list .item:last-child{border-bottom:none}
 .freigabe-list .item:hover{background:#F5F9FF}
-.freigabe-list .item.selected{background:#E3F2FD}
+.freigabe-list .item.selected{background:var(--p-primary-light)}
 .freigabe-list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .camera-placeholder{background:#E0E0E0;border-radius:4px;display:flex;align-items:center;justify-content:center;height:180px;font-size:14px;color:#757575;border:2px dashed #BDBDBD}
 
 /* ── PROVISION TABLE ── */
 .provision-row{display:flex;justify-content:space-between;padding:7px 0;font-size:14px;border-bottom:1px solid #F5F5F5}
-.provision-row.total{font-weight:700;font-size:16px;color:#1565C0;border-bottom:none;margin-top:6px}
+.provision-row.total{font-weight:700;font-size:16px;color:var(--p-primary-color);border-bottom:none;margin-top:6px}
 
 /* ── WIZARD ARTICLE LIST ── */
 .wizard-article-list{list-style:none;max-height:280px;overflow-y:auto}
 .wizard-article-list li{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-bottom:1px solid #EEEEEE;font-size:13px}
 .wizard-article-list li:last-child{border-bottom:none}
+
+/* ── WZ FORM GRID ── */
+.wz-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.wz-full{grid-column:1/-1}
+.wz-right{grid-column:2}
+
+/* ── AUTOCOMPLETE ── */
+.ac-wrap{position:relative}
+.ac-row{display:flex;align-items:stretch;border:1px solid #BDBDBD;border-radius:4px;background:#fff;transition:border-color .15s}
+.ac-row:focus-within{border-color:var(--p-primary-color);box-shadow:0 0 0 2px var(--p-primary-rgba)}
+.ac-row.ac-required-empty{border-color:#EF9A9A}
+.ac-row input{border:none;outline:none;padding:9px 10px;font-size:14px;font-family:inherit;flex:1;background:transparent;min-width:0}
+.ac-btn{background:#F5F5F5;border:none;border-left:1px solid #E0E0E0;padding:0 10px;cursor:pointer;font-size:13px;color:#757575;flex-shrink:0;transition:background .15s;border-radius:0 4px 4px 0;line-height:1}
+.ac-btn:hover{background:var(--p-primary-light);color:var(--p-primary-color)}
+.ac-btn.is-add{color:var(--p-primary-color);font-size:16px;font-weight:700}
+.ac-dropdown{position:absolute;top:calc(100% + 3px);left:0;right:0;background:#fff;border:1px solid #BDBDBD;border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:1300;max-height:200px;overflow-y:auto}
+.ac-item{padding:9px 12px;font-size:14px;cursor:pointer;border-bottom:1px solid #F5F5F5}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.ac-hl{background:var(--p-primary-light);color:var(--p-primary-color)}
+.ac-empty{padding:9px 12px;font-size:13px;color:#9E9E9E;font-style:italic}
+
+/* ── SETTINGS ── */
+.settings-row{display:flex;align-items:flex-start;gap:16px;justify-content:space-between}
+.settings-label{flex:1;display:flex;flex-direction:column;gap:4px}
+.settings-desc{font-size:12px;color:#757575;font-weight:400;line-height:1.5}
+.settings-control{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.settings-unit{font-size:13px;color:#757575;white-space:nowrap}
+.settings-default{font-size:11px;color:#BDBDBD;white-space:nowrap}
 
 /* ── TOAST ── */
 #toast{position:fixed;bottom:20px;right:20px;background:#323232;color:#fff;padding:11px 18px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
@@ -159,16 +301,13 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){
   .card-grid{grid-template-columns:repeat(2,1fr)}
-  .modal-box{width:90%;max-height:90vh}
-  .modal-box.modal-wide{width:92%}
   .form-grid-2{grid-template-columns:1fr}
 }
 @media(max-width:768px){
-  #btnBurger{display:block}
-  #sidebar{position:fixed;left:0;top:0;height:100vh;z-index:180;transform:translateX(-100%)}
+  #topbar{display:flex}
+  #sidebar{position:fixed;left:0;top:56px;height:calc(100vh - 56px);z-index:180;transform:translateX(-100%)}
   #sidebar.open{transform:translateX(0)}
   #sidebar-overlay.open{display:block}
-  #layout{flex-direction:column}
   .card-grid{grid-template-columns:1fr}
   .modal-box{width:100%;max-height:100vh;border-radius:0}
   .modal-box.modal-wide{width:100%}
@@ -180,6 +319,50 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
   #content{padding:12px}
   .action-bar{gap:6px}
 }
+.stat-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;background:var(--surface2);border:1px solid var(--border);}
+.stat-warn{background:#fff8e1;border-color:#f9a825;color:#e65100;}
+.stat-ok{background:#e8f5e9;border-color:#43a047;color:#1b5e20;}
+.alert-success{background:#e8f5e9;border:1px solid #81c784;color:#1b5e20;padding:10px 14px;border-radius:var(--radius);}
+/* ── STATISTIK PAGE ── */
+.stat-section{margin-bottom:20px}
+.stat-section-title{font-size:11px;font-weight:700;color:#9E9E9E;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px}
+.stat-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px}
+.stat-kpi{background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);padding:14px 12px;border-top:3px solid #E0E0E0}
+.stat-kpi.c-green{border-top-color:var(--p-primary-color)}.stat-kpi.c-orange{border-top-color:var(--p-accent-color)}
+.stat-kpi.c-blue{border-top-color:#1976D2}.stat-kpi.c-red{border-top-color:#D32F2F}
+.stat-kpi.c-purple{border-top-color:#7B1FA2}.stat-kpi.c-teal{border-top-color:#00838F}
+.stat-kpi-val{font-size:22px;font-weight:700;color:var(--p-text-color);line-height:1.1}
+.stat-kpi-label{font-size:10px;color:#757575;margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.stat-kpi-sub{font-size:11px;color:#BDBDBD;margin-top:2px}
+.stat-charts-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.stat-charts-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.stat-card{background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);padding:16px}
+.stat-card-title{font-size:11px;font-weight:700;color:#757575;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px}
+.hbar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.hbar-label{width:82px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:#424242}
+.hbar-track{flex:1;height:14px;background:#F0F0F0;border-radius:3px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.hbar-val{width:40px;flex-shrink:0;text-align:right;font-size:11px;color:#9E9E9E;font-weight:600}
+.leaderboard{width:100%;border-collapse:collapse}
+.leaderboard th{font-size:10px;font-weight:700;color:#9E9E9E;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px;border-bottom:2px solid #EEEEEE;text-align:left;white-space:nowrap}
+.leaderboard td{font-size:13px;padding:9px 8px;border-bottom:1px solid #F5F5F5;vertical-align:middle}
+.leaderboard tr:last-child td{border-bottom:none}
+.leaderboard tr:hover td{background:#F5F9FF}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;background:#E0E0E0;color:#616161}
+.rank-badge.r1{background:#FFD700;color:#5D4037}.rank-badge.r2{background:#C0C0C0;color:#37474F}.rank-badge.r3{background:#CD7F32;color:#fff}
+@media(max-width:1024px){.stat-charts-3{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.stat-charts-2,.stat-charts-3{grid-template-columns:1fr}.stat-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* Toggle Switch */
+.toggle-switch{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:22px;transition:.2s;}
+.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle-switch input:checked+.toggle-slider{background:var(--primary);}
+.toggle-switch input:checked+.toggle-slider::before{transform:translateX(18px);}
+/* Original / Neu Badges */
+.badge-orig{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;}
+.badge-neu{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:#fff8e1;color:#e65100;border:1px solid #ffcc80;}
 </style>
 </head>
 <body>
@@ -204,6 +387,9 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
       <a data-screen="marken"><span class="icon">⭐</span>Marken</a>
       <a data-screen="kategorien"><span class="icon">📁</span>Kategorien</a>
       <a data-screen="verkaeuferTypes"><span class="icon">🔖</span>Verkäufer-Typen</a>
+      <div class="nav-group-label">System</div>
+      <a data-screen="statistik"><span class="icon">📊</span>Statistik</a>
+      <a data-screen="einstellungen"><span class="icon">⚙️</span>Einstellungen</a>
     </nav>
   </nav>
 
@@ -212,9 +398,16 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
     <!-- ── ANNAHME ── -->
     <div class="screen" id="screen-artikelannahme">
       <div class="action-bar">
-        <div class="search-wrapper" style="max-width:420px">
-          <span class="si">🔍</span>
-          <input class="form-control" id="annahmeSearchInput" type="text" placeholder="Verkäufer suchen…">
+        <div class="ig" style="max-width:420px;flex:1">
+          <span class="ig-addon">🔍</span>
+          <div class="ig-field">
+            <input class="ig-input" id="annahmeSearchInput" type="text" placeholder="Verkäufer suchen…" autocomplete="off">
+            <div class="ig-icon-area">
+              <button class="ig-clear-btn" id="annahmeIgClear" style="display:none" title="Löschen">✕</button>
+              <span id="annahmeIgSpinner" class="ig-spinner" style="display:none">↻</span>
+            </div>
+          </div>
+          <button class="ig-action-btn" id="annahmeIgAction" title="Scanner öffnen">📷</button>
         </div>
       </div>
       <ul class="vendor-list" id="annahmeVendorList"></ul>
@@ -231,9 +424,16 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
         <div>
           <div class="card card-body" style="margin-bottom:12px">
             <label class="form-group" style="margin-bottom:6px"><strong>Artikelnummer</strong></label>
-            <div class="input-with-icon">
-              <input class="form-control" id="verkaufArtikelNr" type="number" placeholder="Nummer eingeben…" autocomplete="off" style="font-size:18px;padding:12px 40px 12px 12px">
-              <button class="input-icon-right" title="Kamera" onclick="showToast('Kamera-Simulation: Artikel 101 gelesen'); document.getElementById(\'verkaufArtikelNr\').value=101; scanArtikel()">⏎</button>
+            <div class="ig" id="verkaufIg">
+              <span class="ig-addon">🔍</span>
+              <div class="ig-field">
+                <input class="ig-input" id="verkaufArtikelNr" type="number" placeholder="Artikelnummer…" autocomplete="off" style="font-size:16px">
+                <div class="ig-icon-area">
+                  <button class="ig-clear-btn" id="verkaufIgClear" style="display:none" title="Löschen">✕</button>
+                  <span id="verkaufIgSpinner" class="ig-spinner" style="display:none">↻</span>
+                </div>
+              </div>
+              <button class="ig-action-btn" id="verkaufIgAction" title="Scanner öffnen">📷</button>
             </div>
             <div id="verkaufInfo"></div>
             <div id="verkaufPreiseArea" style="display:none">
@@ -268,9 +468,16 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
     <div class="screen" id="screen-abrechnung">
       <div id="abrSearch">
         <div class="action-bar">
-          <div class="search-wrapper" style="max-width:420px">
-            <span class="si">🔍</span>
-            <input class="form-control" id="abrSearchInput" type="text" placeholder="Verkäufer suchen…">
+          <div class="ig" style="max-width:420px;flex:1">
+            <span class="ig-addon">🔍</span>
+            <div class="ig-field">
+              <input class="ig-input" id="abrSearchInput" type="text" placeholder="Verkäufer suchen…" autocomplete="off">
+              <div class="ig-icon-area">
+                <button class="ig-clear-btn" id="abrIgClear" style="display:none" title="Löschen">✕</button>
+                <span id="abrIgSpinner" class="ig-spinner" style="display:none">↻</span>
+              </div>
+            </div>
+            <button class="ig-action-btn" id="abrIgAction" title="Scanner öffnen">📷</button>
           </div>
         </div>
         <ul class="vendor-list" id="abrVendorList"></ul>
@@ -280,30 +487,53 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
 
     <!-- ── VERKÄUFER ── -->
     <div class="screen" id="screen-verkaeufer">
-      <div class="action-bar">
-        <div class="filter-chips" id="vkFilterChips">
-          <span class="filter-chip active" data-filter="Alle">Alle</span>
-          <span class="filter-chip" data-filter="Offen">Offen</span>
-          <span class="filter-chip" data-filter="Im Verkauf">Im Verkauf</span>
-          <span class="filter-chip" data-filter="Abgerechnet">Abgerechnet</span>
+      <div class="filter-panel">
+        <div class="filter-panel-row">
+          <input class="form-control fp-search" id="vkSearchInput" type="text" placeholder="🔍 Name, Ort suchen…">
+          <select class="form-control" id="vkSortSelect" style="width:200px">
+            <option value="name">Sortierung: Name</option>
+            <option value="warenwert-ann">Sortierung: Angenom. Warenwert</option>
+            <option value="warenwert-offen">Sortierung: Offener Warenwert</option>
+            <option value="umsatz">Sortierung: Umsatz</option>
+          </select>
+          <button class="btn btn-primary" id="btnNeuVerkaeufer">+ NEU</button>
         </div>
-        <div class="search-wrapper"><span class="si">🔍</span><input class="form-control" id="vkSearchInput" type="text" placeholder="Suchen…"></div>
-        <button class="btn btn-primary" id="btnNeuVerkaeufer">+ NEU</button>
+        <div class="filter-panel-row">
+          <select class="form-control" id="vkStatusSelect" style="width:200px">
+            <option value="Alle">Status: Alle</option>
+            <option value="Offen">Status: Offen</option>
+            <option value="Im Verkauf">Status: Im Verkauf</option>
+            <option value="Abgerechnet">Status: Abgerechnet</option>
+          </select>
+        </div>
       </div>
       <div class="card-grid" id="verkaeuferGrid"></div>
     </div>
 
     <!-- ── ARTIKEL ── -->
     <div class="screen" id="screen-artikel">
-      <div class="action-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:14px">
-        <select class="form-control" id="artFilterMarke" style="width:140px"><option value="">Alle Marken</option></select>
-        <select class="form-control" id="artFilterKat" style="width:150px"><option value="">Alle Kategorien</option></select>
-        <select class="form-control" id="artFilterVStatus" style="width:160px"><option value="">Alle Verk.-Status</option><option>Offen</option><option>Im Verkauf</option><option>Abgerechnet</option></select>
-        <select class="form-control" id="artFilterAStatus" style="width:158px"><option value="">Alle Art.-Status</option><option>Registriert</option><option>Im Verkauf</option><option>Verkauft</option><option>Zurückgegeben</option></select>
-        <input class="form-control" id="artFilterSearch" style="width:180px" type="text" placeholder="Freitext…">
+      <div class="filter-panel">
+        <div class="filter-panel-row">
+          <input class="form-control fp-search" id="artFilterSearch" type="text" placeholder="🔍 Bezeichnung, Nr. suchen…">
+        </div>
+        <div class="filter-panel-row grid-4">
+          <select class="form-control" id="artFilterMarke"><option value="">Alle Marken</option></select>
+          <select class="form-control" id="artFilterKat"><option value="">Alle Kategorien</option></select>
+          <select class="form-control" id="artFilterVStatus"><option value="">Alle Verk.-Status</option><option>Offen</option><option>Im Verkauf</option><option>Abgerechnet</option></select>
+          <select class="form-control" id="artFilterAStatus"><option value="">Alle Art.-Status</option><option>Registriert</option><option>Im Verkauf</option><option>Verkauft</option><option>Zurückgegeben</option></select>
+        </div>
       </div>
       <table class="data-table" id="artikelTable">
-        <thead><tr><th>Nr.</th><th>Bezeichnung</th><th>Kategorie</th><th>Marke</th><th>Preis</th><th>Verkäufer</th><th>Status</th><th></th></tr></thead>
+        <thead><tr>
+          <th class="sortable" data-sortkey="id">Nr.<i class="sort-icon"></i></th>
+          <th class="sortable" data-sortkey="bezeichnung">Bezeichnung<i class="sort-icon"></i></th>
+          <th class="sortable" data-sortkey="kategorie">Kategorie<i class="sort-icon"></i></th>
+          <th class="sortable" data-sortkey="marke">Marke<i class="sort-icon"></i></th>
+          <th class="sortable" data-sortkey="preis">Preis<i class="sort-icon"></i></th>
+          <th>Verkäufer</th>
+          <th class="sortable" data-sortkey="status">Status<i class="sort-icon"></i></th>
+          <th></th>
+        </tr></thead>
         <tbody id="artikelTableBody"></tbody>
       </table>
     </div>
@@ -311,25 +541,198 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
     <!-- ── MARKEN ── -->
     <div class="screen" id="screen-marken">
       <div class="action-bar"><div class="spacer"></div><button class="btn btn-primary" id="btnNeuMarke">+ NEU</button></div>
-      <table class="data-table"><thead><tr><th>Nr.</th><th>Name</th><th></th></tr></thead><tbody id="markenTableBody"></tbody></table>
+      <table class="data-table" id="markenTable"><thead><tr>
+        <th>Nr.</th>
+        <th class="sortable" data-sortkey="name">Name<i class="sort-icon"></i></th>
+        <th>Original</th>
+        <th class="sortable" data-sortkey="cnt">Artikel<i class="sort-icon"></i></th>
+        <th class="sortable" data-sortkey="sold">Verkauft<i class="sort-icon"></i></th>
+        <th></th>
+      </tr></thead><tbody id="markenTableBody"></tbody></table>
     </div>
 
     <!-- ── KATEGORIEN ── -->
     <div class="screen" id="screen-kategorien">
       <div class="action-bar"><div class="spacer"></div><button class="btn btn-primary" id="btnNeuKategorie">+ NEU</button></div>
-      <table class="data-table"><thead><tr><th>Nr.</th><th>Name</th><th></th></tr></thead><tbody id="kategorienTableBody"></tbody></table>
+      <table class="data-table" id="kategorienTable"><thead><tr>
+        <th>Nr.</th>
+        <th class="sortable" data-sortkey="name">Name<i class="sort-icon"></i></th>
+        <th>Original</th>
+        <th class="sortable" data-sortkey="cnt">Artikel<i class="sort-icon"></i></th>
+        <th class="sortable" data-sortkey="sold">Verkauft<i class="sort-icon"></i></th>
+        <th></th>
+      </tr></thead><tbody id="kategorienTableBody"></tbody></table>
     </div>
 
     <!-- ── VK-TYPEN ── -->
     <div class="screen" id="screen-verkaeuferTypes">
       <div class="action-bar"><div class="spacer"></div><button class="btn btn-primary" id="btnNeuVkType">+ NEU</button></div>
-      <table class="data-table"><thead><tr><th>Nr.</th><th>Name</th><th>Provision %</th><th>Gebühr €</th><th></th></tr></thead><tbody id="vkTypesTableBody"></tbody></table>
+      <table class="data-table" id="vkTypenTable"><thead><tr>
+        <th>Nr.</th>
+        <th class="sortable" data-sortkey="name">Name<i class="sort-icon"></i></th>
+        <th class="sortable" data-sortkey="provision">Provision %<i class="sort-icon"></i></th>
+        <th class="sortable" data-sortkey="gebuehr">Gebühr €<i class="sort-icon"></i></th>
+        <th class="sortable" data-sortkey="anzahl">Anzahl VK<i class="sort-icon"></i></th>
+        <th></th>
+      </tr></thead><tbody id="vkTypesTableBody"></tbody></table>
     </div>
+
+    <!-- ── EINSTELLUNGEN ── -->
+    <div class="screen" id="screen-einstellungen">
+      <div style="max-width:620px;display:flex;flex-direction:column;gap:18px">
+
+        <!-- Gruppe: Suche -->
+        <div class="card">
+          <div class="card-header">🔍 Suche</div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong>Suche-Verzögerung</strong>
+                <span class="settings-desc">Wie lange nach dem letzten Tastendruck gewartet wird, bevor die Suche automatisch ausgelöst wird. Kürzere Werte reagieren schneller, erzeugen aber mehr Suchanfragen.</span>
+              </div>
+              <div class="settings-control">
+                <input class="form-control" id="sSuchDebounce" type="number" min="100" max="5000" step="100" style="width:100px;text-align:right">
+                <span class="settings-unit">ms</span>
+                <span class="settings-default" id="sSuchDebounceDefault"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gruppe: Scanner / Kamera -->
+        <div class="card">
+          <div class="card-header">📷 Scanner / Kamera</div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong>Pause nach Scan</strong>
+                <span class="settings-desc">Nach einem erkannten Scan bleibt die Kamera-Vorschau für diese Zeit pausiert und zeigt einen Countdown-Kreis. Danach wird die Kamera automatisch für den nächsten Scan aktiviert.</span>
+              </div>
+              <div class="settings-control">
+                <input class="form-control" id="sScannerPause" type="number" min="500" max="10000" step="500" style="width:100px;text-align:right">
+                <span class="settings-unit">ms</span>
+                <span class="settings-default" id="sScannerPauseDefault"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aktionen -->
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-ghost" onclick="resetSettingsUI()">↺ Zurücksetzen</button>
+          <button class="btn btn-primary" onclick="applySettings()">✓ Speichern</button>
+        </div>
+
+        <!-- Gruppe: Import -->
+        <div class="card">
+          <div class="card-header">&#128229; Import aus Voranmelde-App</div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+            <p class="text-secondary">W&#228;hlen Sie die JSON-Exportdatei der Voranmelde-App. Exportiert werden alle Verk&#228;ufer mit mindestens einem Artikel, jeweils mit vollst&#228;ndigem Profil und Artikelliste.<br><br>
+            <strong>Upsert-Logik:</strong> Wird ein Verk&#228;ufer anhand seiner ID erkannt, werden er und alle seine Artikel zuerst gel&#246;scht &#8212; anschlie&#223;end neu angelegt. Manuell angelegte Verk&#228;ufer bleiben unber&#252;hrt.</p>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <button class="btn btn-primary" onclick="triggerImportFile()">&#128193; Datei ausw&#228;hlen</button>
+              <span id="import-filename" class="text-secondary" style="font-size:13px;">Keine Datei ausgew&#228;hlt</span>
+            </div>
+            <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleImportFile(this)">
+          </div>
+        </div>
+
+        <!-- Vorschau (erscheint nach Dateiauswahl) -->
+        <div class="card" id="import-preview-card" style="display:none">
+          <div class="card-header">Vorschau</div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+            <div id="import-summary" style="display:flex;gap:12px;flex-wrap:wrap;"></div>
+            <div id="import-detail" style="font-size:13px;color:var(--text-secondary);max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius);padding:10px;background:var(--bg-body);font-family:monospace;white-space:pre-wrap;"></div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-ghost" onclick="resetImport()">Abbrechen</button>
+              <button class="btn btn-primary" onclick="executeImport()">&#9654; Import starten</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ergebnis (erscheint nach Import) -->
+        <div class="card" id="import-result-card" style="display:none">
+          <div class="card-header">Ergebnis</div>
+          <div class="card-body" id="import-result-body"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── STATISTIK ── -->
+    <div class="screen" id="screen-statistik">
+
+      <!-- Artikel-Status -->
+      <div class="stat-section">
+        <div class="stat-section-title">📦 Artikel-Übersicht</div>
+        <div class="stat-kpi-grid" id="stat-artikel-kpis"></div>
+      </div>
+
+      <!-- Rückblick -->
+      <div class="stat-section">
+        <div class="stat-section-title">📊 Rückblick</div>
+        <div class="stat-kpi-grid" id="stat-rueckblick-kpis"></div>
+      </div>
+
+      <!-- Finanzen -->
+      <div class="stat-section">
+        <div class="stat-section-title">💶 Finanzen</div>
+        <div class="stat-kpi-grid" id="stat-fin-kpis"></div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="stat-section">
+        <div class="stat-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="stat-card-title" style="margin-bottom:0">🏆 Verkäufer-Leaderboard</div>
+            <select id="leaderboard-type-filter" style="font-size:12px;padding:4px 8px;border:1px solid var(--p-surface-300,#e0e0e0);border-radius:6px;background:var(--p-surface-0,#fff);color:var(--p-text-color,#333);cursor:pointer">
+              <option value="">Alle Verkäufer-Typen</option>
+            </select>
+          </div>
+          <div id="stat-leaderboard"></div>
+        </div>
+      </div>
+
+    </div><!-- /screen-statistik -->
 
   </div><!-- /content -->
 </div><!-- /layout -->
 
 <div id="toast"></div>
+
+<!-- AutoComplete: Neu anlegen -->
+<div class="modal-overlay" id="modalAcNew" style="z-index:1400">
+  <div class="modal-box" style="max-width:360px">
+    <div class="modal-header"><h2 id="modalAcNewTitle">Neu anlegen</h2><button class="btn-close-modal" onclick="closeModal('modalAcNew')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label id="modalAcNewLabel">Name</label><input class="form-control" id="modalAcNewInput" type="text"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAcNew')">Abbrechen</button>
+      <button class="btn btn-primary" id="btnAcNewSave">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kamera / Scanner Popup -->
+<div class="modal-overlay" id="modalCamera" style="z-index:1500">
+  <div class="modal-box" style="max-width:380px">
+    <div class="modal-header"><h2>📷 Scanner</h2><button class="btn-close-modal" data-close="modalCamera">×</button></div>
+    <div class="modal-body">
+      <div class="camera-preview">
+        <div class="camera-scan-line"></div>
+        <span style="color:#546E7A;font-size:13px;z-index:1;text-align:center">Kamera-Vorschau<br><small style="color:#455A64">Scan wird erkannt…</small></span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:8px">
+        <button class="btn btn-sm" style="background:#388E3C;color:#fff" onclick="onCameraScan('101')">Scan: 101</button>
+        <button class="btn btn-sm" style="background:#388E3C;color:#fff" onclick="onCameraScan('103')">Scan: 103</button>
+        <button class="btn btn-sm" style="background:var(--p-primary-color);color:#fff" onclick="onCameraScan('1')">Scan: VK-1</button>
+        <button class="btn btn-sm btn-ghost" onclick="onCameraScan('999')">Scan: 999</button>
+      </div>
+      <p style="font-size:12px;color:#9E9E9E;text-align:center;margin:0">Warte auf Scan…</p>
+    </div>
+  </div>
+</div>
 
 <!-- ════ MODALS ════ -->
 
@@ -338,15 +741,30 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
   <div class="modal-box">
     <div class="modal-header"><h2>Schritt 1 — Verkäufer anlegen</h2><button class="btn-close-modal" data-close="modalWizard1">×</button></div>
     <div class="modal-body">
-      <div class="form-grid-2">
-        <div class="form-group"><label>Vorname *</label><input class="form-control" id="w1Vorname" type="text"></div>
-        <div class="form-group"><label>Nachname *</label><input class="form-control" id="w1Nachname" type="text"></div>
-        <div class="form-group"><label>PLZ</label><input class="form-control" id="w1Plz" type="text"></div>
-        <div class="form-group"><label>Ort</label><input class="form-control" id="w1Ort" type="text"></div>
-        <div class="form-group"><label>Telefon</label><input class="form-control" id="w1Telefon" type="text"></div>
-        <div class="form-group"><label>E-Mail</label><input class="form-control" id="w1Email" type="email"></div>
+      <div class="form-panel">
+        <div class="form-grid-2">
+          <div class="form-group"><label>Vorname *</label><input class="form-control" id="w1Vorname" type="text"></div>
+          <div class="form-group"><label>Nachname *</label><input class="form-control" id="w1Nachname" type="text"></div>
+        </div>
+        <div class="form-group"><label>Anschrift</label><input class="form-control" id="w1Anschrift" type="text"></div>
+        <div class="form-grid-2">
+          <div class="form-group" style="margin-bottom:0"><label>PLZ</label><input class="form-control" id="w1Plz" type="text"></div>
+          <div class="form-group" style="margin-bottom:0"><label>Ort</label><input class="form-control" id="w1Ort" type="text"></div>
+        </div>
       </div>
-      <div class="form-group"><label>Verkäufer-Type</label><select class="form-control" id="w1Type"></select></div>
+      <div class="form-panel">
+        <div class="form-grid-2">
+          <div class="form-group" style="margin-bottom:0"><label>Telefon</label><input class="form-control" id="w1Telefon" type="text"></div>
+          <div class="form-group" style="margin-bottom:0"><label>E-Mail</label><input class="form-control" id="w1Email" type="email"></div>
+        </div>
+      </div>
+      <div class="form-panel">
+        <div class="form-group"><label>Verkäufer-Type</label><select class="form-control" id="w1Type"></select></div>
+        <div class="form-grid-2">
+          <div class="form-group" style="margin-bottom:0"><label>Gebühr / Stück <span style="font-weight:400;color:#9E9E9E">(vorausgefüllt)</span></label><div class="ig"><div class="ig-field"><input class="ig-input" id="w1Gebuehr" type="number" step="0.01" min="0" placeholder="0,00"></div><span class="ig-addon-r">€</span></div></div>
+          <div class="form-group" style="margin-bottom:0"><label>Provision <span style="font-weight:400;color:#9E9E9E">(vorausgefüllt)</span></label><input class="form-control" id="w1Provision" type="number" step="0.1" min="0" max="100" placeholder="%"></div>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" data-close="modalWizard1">Abbrechen</button>
@@ -365,18 +783,69 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
     <div class="modal-body" style="display:grid;grid-template-columns:60% 40%;gap:16px">
       <!-- Links: Eingabe -->
       <div>
-        <div class="form-grid-2">
-          <div class="form-group"><label>Artikelnummer</label><input class="form-control" id="wzArtNr" type="number" placeholder="automatisch"></div>
-          <div class="form-group"><label>Bezeichnung *</label><input class="form-control" id="wzBezeichnung" type="text"></div>
-          <div class="form-group"><label>Kategorie</label><input class="form-control" id="wzKategorie" list="wzKatList"><datalist id="wzKatList"></datalist></div>
-          <div class="form-group"><label>Marke</label><input class="form-control" id="wzMarke" list="wzMarkeList"><datalist id="wzMarkeList"></datalist></div>
-          <div class="form-group"><label>Preis (€) *</label><input class="form-control" id="wzPreis" type="number" step="0.01"></div>
-          <div class="form-group"><label>Alternativ-Preis (€)</label><input class="form-control" id="wzAltPreis" type="number" step="0.01"></div>
-          <div class="form-group"><label>Größe</label><input class="form-control" id="wzGroesse" type="text"></div>
-          <div class="form-group"><label>Farbe</label><input class="form-control" id="wzFarbe" type="text"></div>
+        <div class="wz-grid">
+          <!-- Artikelnummer (50%) — IG ohne Lupe, mit Kamera-Popup -->
+          <div class="form-group">
+            <label>Artikelnummer *</label>
+            <div class="ig">
+              <div class="ig-field">
+                <input class="ig-input" id="wzArtNr" type="number" placeholder="Artikelnummer…" autocomplete="off">
+                <div class="ig-icon-area">
+                  <button class="ig-clear-btn" id="wzArtNrClear" style="display:none" title="Löschen">✕</button>
+                </div>
+              </div>
+              <button class="ig-action-btn" id="wzArtNrCam" title="Scanner öffnen">📷</button>
+            </div>
+          </div>
+          <!-- Bezeichnung (100%) -->
+          <div class="form-group wz-full">
+            <label>Bezeichnung *</label>
+            <input class="form-control" id="wzBezeichnung" type="text" placeholder="Bezeichnung…">
+          </div>
+          <!-- Kategorie (50%) -->
+          <div class="form-group">
+            <label>Kategorie *</label>
+            <div class="ac-wrap" id="wzKatWrap">
+              <div class="ac-row" id="wzKatRow">
+                <input id="wzKategorie" type="text" placeholder="Kategorie…" autocomplete="off">
+                <button class="ac-btn" id="wzKatBtn" tabindex="-1">▾</button>
+              </div>
+              <div class="ac-dropdown" id="wzKatDropdown" style="display:none"></div>
+            </div>
+          </div>
+          <!-- Marke (50%) -->
+          <div class="form-group">
+            <label>Marke *</label>
+            <div class="ac-wrap" id="wzMarkeWrap">
+              <div class="ac-row" id="wzMarkeRow">
+                <input id="wzMarke" type="text" placeholder="Marke…" autocomplete="off">
+                <button class="ac-btn" id="wzMarkeBtn" tabindex="-1">▾</button>
+              </div>
+              <div class="ac-dropdown" id="wzMarkeDropdown" style="display:none"></div>
+            </div>
+          </div>
+          <!-- Platzhalter leer (50%) + Preis (50%) -->
+          <div></div>
+          <div class="form-group">
+            <label>Preis *</label>
+            <div class="ig"><div class="ig-field"><input class="ig-input" id="wzPreis" type="number" step="0.01" min="0" placeholder="0,00"></div><span class="ig-addon-r">€</span></div>
+          </div>
+          <!-- Größe (50%) + Farbe (50%) -->
+          <div class="form-group">
+            <label>Größe</label>
+            <input class="form-control" id="wzGroesse" type="text" placeholder="z.B. M, 42…">
+          </div>
+          <div class="form-group">
+            <label>Farbe</label>
+            <input class="form-control" id="wzFarbe" type="text" placeholder="z.B. Blau…">
+          </div>
+          <!-- Beschreibung (100%) -->
+          <div class="form-group wz-full">
+            <label>Beschreibung</label>
+            <textarea class="form-control" id="wzBeschreibung" rows="2" placeholder="Optionale Beschreibung…"></textarea>
+          </div>
         </div>
-        <div class="form-group"><label>Beschreibung</label><textarea class="form-control" id="wzBeschreibung" rows="2"></textarea></div>
-        <div style="text-align:right"><button class="btn btn-primary" onclick="wzUebernehmen()">+ Übernehmen</button></div>
+        <div style="text-align:right;margin-top:4px"><button class="btn btn-primary" onclick="wzUebernehmen()">+ Übernehmen</button></div>
       </div>
       <!-- Rechts: Übersicht -->
       <div style="border-left:1px solid #EEE;padding-left:16px;display:flex;flex-direction:column">
@@ -398,7 +867,7 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
     <div class="modal-body">
       <div class="provision-row"><span>Anzahl Artikel</span><span id="wsAnzahl">0</span></div>
       <div class="provision-row total"><span>Gesamtgebühr</span><span id="wsGebuehr">0,00 €</span></div>
-      <div class="form-group" style="margin-top:14px"><label>Betrag erhalten (€)</label><input class="form-control" id="wsErhalten" type="number" step="0.01" min="0" placeholder="0,00"></div>
+      <div class="form-group" style="margin-top:14px"><label>Betrag erhalten</label><div class="ig"><div class="ig-field"><input class="ig-input" id="wsErhalten" type="number" step="0.01" min="0" placeholder="0,00"></div><span class="ig-addon-r">€</span></div></div>
       <div class="rueckgeld-display" id="wsRueckgeld">Rückgeld: 0,00 €</div>
     </div>
     <div class="modal-footer">
@@ -414,7 +883,7 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
     <div class="modal-header"><h2>Verkauf buchen</h2><button class="btn-close-modal" data-close="modalVerkaufBuchen">×</button></div>
     <div class="modal-body">
       <div class="provision-row total" style="font-size:18px;margin-bottom:10px"><span>Gesamtbetrag</span><span id="vbGesamt">0,00 €</span></div>
-      <div class="form-group"><label>Betrag erhalten (€)</label><input class="form-control" id="vbErhalten" type="number" step="0.01" min="0" placeholder="0,00"></div>
+      <div class="form-group"><label>Betrag erhalten</label><div class="ig"><div class="ig-field"><input class="ig-input" id="vbErhalten" type="number" step="0.01" min="0" placeholder="0,00"></div><span class="ig-addon-r">€</span></div></div>
       <div class="rueckgeld-display" id="vbRueckgeld">Rückgeld: 0,00 €</div>
     </div>
     <div class="modal-footer">
@@ -430,7 +899,7 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
     <div class="modal-header"><h2>Abrechnung</h2><button class="btn-close-modal" data-close="modalAbrechnen">×</button></div>
     <div class="modal-body">
       <div id="abrModalContent"></div>
-      <div class="rueckgeld-display" id="abrAuszahlung" style="background:#E3F2FD;color:#0D47A1">Auszahlung: 0,00 €</div>
+      <div class="rueckgeld-display" id="abrAuszahlung" style="background:var(--p-primary-light);color:var(--p-primary-hover-color)">Auszahlung: 0,00 €</div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" data-close="modalAbrechnen">Abbrechen</button>
@@ -447,16 +916,49 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
       <button class="btn-close-modal" data-close="modalFreigeben">×</button>
     </div>
     <div class="modal-body">
-      <!-- Eingabe + Kamera Toggle in einer Zeile -->
       <div id="freigebenManuell">
-        <div class="freigabe-input-row">
-          <div class="input-with-icon" style="flex:1">
-            <input class="form-control" id="freigebenNrInput" type="number" placeholder="Artikelnummer…">
-            <button class="input-icon-right" id="btnFreigebenNr" title="Freigeben / Enter">⏎</button>
+        <!-- Eingabe-Modus -->
+        <div id="fgInputArea" style="margin-bottom:8px">
+          <div class="ig">
+            <span class="ig-addon">🔍</span>
+            <div class="ig-field">
+              <input class="ig-input" id="freigebenNrInput" type="number" placeholder="Artikelnummer…" autocomplete="off">
+              <div class="ig-icon-area">
+                <button class="ig-clear-btn" id="freigebenIgClear" style="display:none" title="Löschen">✕</button>
+                <span id="freigebenIgSpinner" class="ig-spinner" style="display:none">↻</span>
+              </div>
+            </div>
+            <button class="ig-action-btn" id="freigebenIgAction" title="Kamera">📷</button>
           </div>
-          <button class="btn btn-outline btn-sm" id="btnFreigebenToggle">📷 Kamera</button>
         </div>
-        <div id="freigebenInfo" style="min-height:32px;margin-bottom:6px"></div>
+        <!-- Kamera-Modus (inline, selber Platz) -->
+        <div id="fgCameraArea" style="display:none;margin-bottom:8px">
+          <!-- Kamera-Vorschau -->
+          <div id="fgCameraView" class="fg-camera-view">
+            <div class="camera-scan-line"></div>
+            <span style="color:#546E7A;font-size:12px;z-index:1">Kamera aktiv — Barcode/QR scannen</span>
+            <div class="fg-camera-sim-btns">
+              <button style="background:#388E3C" onclick="simFGScan('101')">101</button>
+              <button style="background:#388E3C" onclick="simFGScan('103')">103</button>
+              <button style="background:#E65100" onclick="simFGScan('102')">102</button>
+              <button style="background:#D32F2F" onclick="simFGScan('999')">999</button>
+            </div>
+          </div>
+          <!-- Countdown nach Scan -->
+          <div id="fgCountdownArea" class="fg-countdown" style="display:none">
+            <svg width="48" height="48" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="4"/>
+              <circle id="fgCountdownCircle" cx="24" cy="24" r="20" fill="none" stroke="#42A5F5" stroke-width="4"
+                stroke-dasharray="125.7" stroke-dashoffset="0" stroke-linecap="round"
+                transform="rotate(-90 24 24)"/>
+            </svg>
+            <span class="fg-countdown-label">Weiter scannen…</span>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:2px">
+            <button class="btn btn-ghost btn-sm" onclick="closeFGCamera()">← Eingabe</button>
+          </div>
+        </div>
+        <div id="freigebenInfo" style="min-height:36px;margin-bottom:6px"></div>
         <div class="freigabe-list-header">
           <span style="font-size:12px;color:#757575;font-weight:500">Nicht freigegebene Artikel</span>
           <button class="btn btn-ghost btn-sm" id="btnFreigebenAlle" onclick="toggleAlleFreigeben()">Alle</button>
@@ -465,17 +967,6 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
         <div style="margin-top:10px;display:flex;justify-content:flex-end">
           <button class="btn btn-primary btn-sm" id="btnFreigebenSaveSelected">Ausgewählte freigeben</button>
         </div>
-      </div>
-      <!-- Kamera-Modus -->
-      <div id="freigebenKamera" style="display:none">
-        <div class="camera-placeholder">📷 Kamera-Vorschau (Simulation)</div>
-        <div id="freigebenKameraInfo" style="margin-top:8px"></div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-          <button class="btn btn-sm" style="background:#388E3C;color:#fff" onclick="simKameraScan('ok')">✓ Erfolg sim.</button>
-          <button class="btn btn-sm" style="background:#F57C00;color:#fff" onclick="simKameraScan('bereits')">⚠ Bereits frei</button>
-          <button class="btn btn-sm" style="background:#D32F2F;color:#fff" onclick="simKameraScan('nicht')">✗ Nicht bekannt</button>
-        </div>
-        <div style="margin-top:12px"><button class="btn btn-ghost btn-sm" id="btnFreigebenBack">← Eingabe-Modus</button></div>
       </div>
     </div>
   </div>
@@ -495,15 +986,30 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
   <div class="modal-box">
     <div class="modal-header"><h2 id="modalVkFormTitle">Verkäufer</h2><button class="btn-close-modal" data-close="modalVkForm">×</button></div>
     <div class="modal-body">
-      <div class="form-grid-2">
-        <div class="form-group"><label>Vorname *</label><input class="form-control" id="vkFormVorname" type="text"></div>
-        <div class="form-group"><label>Nachname *</label><input class="form-control" id="vkFormNachname" type="text"></div>
-        <div class="form-group"><label>PLZ</label><input class="form-control" id="vkFormPlz" type="text"></div>
-        <div class="form-group"><label>Ort</label><input class="form-control" id="vkFormOrt" type="text"></div>
-        <div class="form-group"><label>Telefon</label><input class="form-control" id="vkFormTelefon" type="text"></div>
-        <div class="form-group"><label>E-Mail</label><input class="form-control" id="vkFormEmail" type="email"></div>
+      <div class="form-panel">
+        <div class="form-grid-2">
+          <div class="form-group"><label>Vorname *</label><input class="form-control" id="vkFormVorname" type="text"></div>
+          <div class="form-group"><label>Nachname *</label><input class="form-control" id="vkFormNachname" type="text"></div>
+        </div>
+        <div class="form-group"><label>Anschrift</label><input class="form-control" id="vkFormAnschrift" type="text"></div>
+        <div class="form-grid-2">
+          <div class="form-group" style="margin-bottom:0"><label>PLZ</label><input class="form-control" id="vkFormPlz" type="text"></div>
+          <div class="form-group" style="margin-bottom:0"><label>Ort</label><input class="form-control" id="vkFormOrt" type="text"></div>
+        </div>
       </div>
-      <div class="form-group"><label>Verkäufer-Type</label><select class="form-control" id="vkFormType"></select></div>
+      <div class="form-panel">
+        <div class="form-grid-2">
+          <div class="form-group" style="margin-bottom:0"><label>Telefon</label><input class="form-control" id="vkFormTelefon" type="text"></div>
+          <div class="form-group" style="margin-bottom:0"><label>E-Mail</label><input class="form-control" id="vkFormEmail" type="email"></div>
+        </div>
+      </div>
+      <div class="form-panel">
+        <div class="form-group"><label>Verkäufer-Type</label><select class="form-control" id="vkFormType"></select></div>
+        <div class="form-grid-2">
+          <div class="form-group" style="margin-bottom:0"><label>Gebühr / Stück <span style="font-weight:400;color:#9E9E9E">(vorausgefüllt)</span></label><div class="ig"><div class="ig-field"><input class="ig-input" id="vkFormGebuehr" type="number" step="0.01" min="0" placeholder="0,00"></div><span class="ig-addon-r">€</span></div></div>
+          <div class="form-group" style="margin-bottom:0"><label>Provision <span style="font-weight:400;color:#9E9E9E">(vorausgefüllt)</span></label><input class="form-control" id="vkFormProvision" type="number" step="0.1" min="0" max="100" placeholder="%"></div>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" data-close="modalVkForm">Abbrechen</button>
@@ -523,21 +1029,66 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
 
 <!-- Artikel Formular -->
 <div class="modal-overlay" id="modalArtikelForm">
-  <div class="modal-box">
-    <div class="modal-header"><h2 id="modalArtikelFormTitle">Artikel</h2><button class="btn-close-modal" data-close="modalArtikelForm">×</button></div>
+  <div class="modal-box modal-wide">
+    <div class="modal-header"><h2 id="modalArtikelFormTitle">Artikel bearbeiten</h2><button class="btn-close-modal" data-close="modalArtikelForm">×</button></div>
     <div class="modal-body">
-      <div class="form-grid-2">
-        <div class="form-group"><label>Bezeichnung *</label><input class="form-control" id="afBezeichnung" type="text"></div>
-        <div class="form-group"><label>Preis (€) *</label><input class="form-control" id="afPreis" type="number" step="0.01"></div>
-        <div class="form-group"><label>Kategorie</label><input class="form-control" id="afKategorie" list="afKatList"><datalist id="afKatList"></datalist></div>
-        <div class="form-group"><label>Marke</label><input class="form-control" id="afMarke" list="afMarkeList"><datalist id="afMarkeList"></datalist></div>
-        <div class="form-group"><label>Größe</label><input class="form-control" id="afGroesse" type="text"></div>
-        <div class="form-group"><label>Farbe</label><input class="form-control" id="afFarbe" type="text"></div>
-        <div class="form-group"><label>Alternativ-Preis (€)</label><input class="form-control" id="afAltPreis" type="number" step="0.01"></div>
+      <div class="wz-grid">
+        <!-- Artikelnummer readonly (50%) -->
+        <div class="form-group">
+          <label>Artikelnummer</label>
+          <input class="form-control" id="afArtNr" type="text" readonly style="background:#F5F5F5;color:#757575;cursor:default">
+        </div>
+        <!-- Bezeichnung (100%) -->
+        <div class="form-group wz-full">
+          <label>Bezeichnung *</label>
+          <input class="form-control" id="afBezeichnung" type="text" placeholder="Bezeichnung…">
+        </div>
+        <!-- Kategorie (50%) -->
+        <div class="form-group">
+          <label>Kategorie *</label>
+          <div class="ac-wrap" id="afKatWrap">
+            <div class="ac-row" id="afKatRow">
+              <input id="afKategorie" type="text" placeholder="Kategorie…" autocomplete="off">
+              <button class="ac-btn" id="afKatBtn" tabindex="-1">▾</button>
+            </div>
+            <div class="ac-dropdown" id="afKatDropdown" style="display:none"></div>
+          </div>
+        </div>
+        <!-- Marke (50%) -->
+        <div class="form-group">
+          <label>Marke *</label>
+          <div class="ac-wrap" id="afMarkeWrap">
+            <div class="ac-row" id="afMarkeRow">
+              <input id="afMarke" type="text" placeholder="Marke…" autocomplete="off">
+              <button class="ac-btn" id="afMarkeBtn" tabindex="-1">▾</button>
+            </div>
+            <div class="ac-dropdown" id="afMarkeDropdown" style="display:none"></div>
+          </div>
+        </div>
+        <!-- Leer (50%) + Preis (50%) -->
+        <div></div>
+        <div class="form-group">
+          <label>Preis *</label>
+          <div class="ig"><div class="ig-field"><input class="ig-input" id="afPreis" type="number" step="0.01" min="0" placeholder="0,00"></div><span class="ig-addon-r">€</span></div>
+        </div>
+        <!-- Größe (50%) + Farbe (50%) -->
+        <div class="form-group">
+          <label>Größe</label>
+          <input class="form-control" id="afGroesse" type="text" placeholder="z.B. M, 42…">
+        </div>
+        <div class="form-group">
+          <label>Farbe</label>
+          <input class="form-control" id="afFarbe" type="text" placeholder="z.B. Blau…">
+        </div>
+        <!-- Beschreibung (100%) -->
+        <div class="form-group wz-full">
+          <label>Beschreibung</label>
+          <textarea class="form-control" id="afBeschreibung" rows="2" placeholder="Optionale Beschreibung…"></textarea>
+        </div>
       </div>
-      <div class="form-group"><label>Beschreibung</label><textarea class="form-control" id="afBeschreibung" rows="3"></textarea></div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btnAfDelete" style="margin-right:auto">🗑 Löschen</button>
       <button class="btn btn-ghost" data-close="modalArtikelForm">Abbrechen</button>
       <button class="btn btn-primary" id="btnAfSave">Speichern</button>
     </div>
@@ -548,7 +1099,14 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
 <div class="modal-overlay" id="modalMarkeForm">
   <div class="modal-box" style="max-width:400px">
     <div class="modal-header"><h2 id="modalMarkeFormTitle">Marke</h2><button class="btn-close-modal" data-close="modalMarkeForm">×</button></div>
-    <div class="modal-body"><div class="form-group"><label>Name *</label><input class="form-control" id="markeFormName" type="text"></div></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Name *</label><input class="form-control" id="markeFormName" type="text"></div>
+      <div class="form-group" style="display:flex;align-items:center;gap:12px;margin-top:4px;">
+        <label style="margin:0;font-weight:500;">Original</label>
+        <label class="toggle-switch"><input type="checkbox" id="markeFormOriginal"><span class="toggle-slider"></span></label>
+        <span class="settings-desc" style="margin:0;">Stammdaten-Eintrag (vom Admin angelegt)</span>
+      </div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="btnMarkeDelete" style="margin-right:auto;display:none">Löschen</button>
       <button class="btn btn-ghost" data-close="modalMarkeForm">Abbrechen</button>
@@ -561,7 +1119,14 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
 <div class="modal-overlay" id="modalKategorieForm">
   <div class="modal-box" style="max-width:400px">
     <div class="modal-header"><h2 id="modalKategorieFormTitle">Kategorie</h2><button class="btn-close-modal" data-close="modalKategorieForm">×</button></div>
-    <div class="modal-body"><div class="form-group"><label>Name *</label><input class="form-control" id="kategorieFormName" type="text"></div></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Name *</label><input class="form-control" id="kategorieFormName" type="text"></div>
+      <div class="form-group" style="display:flex;align-items:center;gap:12px;margin-top:4px;">
+        <label style="margin:0;font-weight:500;">Original</label>
+        <label class="toggle-switch"><input type="checkbox" id="kategorieFormOriginal"><span class="toggle-slider"></span></label>
+        <span class="settings-desc" style="margin:0;">Stammdaten-Eintrag (vom Admin angelegt)</span>
+      </div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="btnKategorieDelete" style="margin-right:auto;display:none">Löschen</button>
       <button class="btn btn-ghost" data-close="modalKategorieForm">Abbrechen</button>
@@ -578,7 +1143,7 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
       <div class="form-group"><label>Name *</label><input class="form-control" id="vkTypeFormName" type="text"></div>
       <div class="form-grid-2">
         <div class="form-group"><label>Provision (%)</label><input class="form-control" id="vkTypeFormProvision" type="number" step="0.1"></div>
-        <div class="form-group"><label>Gebühr (€/Stück)</label><input class="form-control" id="vkTypeFormGebuehr" type="number" step="0.01"></div>
+        <div class="form-group"><label>Gebühr /Stück</label><div class="ig"><div class="ig-field"><input class="ig-input" id="vkTypeFormGebuehr" type="number" step="0.01" min="0" placeholder="0,00"></div><span class="ig-addon-r">€</span></div></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -592,23 +1157,50 @@ body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#FAFAFA;color:#21
 <script>
 // ════ DATA ════
 let verkaeufer = [
-  {id:1,vorname:'Anna',nachname:'Müller',plz:'80331',ort:'München',telefon:'089-123456',email:'anna@example.com',type:'Privat',abgerechnetAm:null},
-  {id:2,vorname:'Thomas',nachname:'Schmidt',plz:'10115',ort:'Berlin',telefon:'030-654321',email:'thomas@example.com',type:'Gewerblich',abgerechnetAm:'2026-06-15T13:00:00'},
-  {id:3,vorname:'Lisa',nachname:'Weber',plz:'20095',ort:'Hamburg',telefon:'040-111222',email:'lisa@example.com',type:'Privat',abgerechnetAm:null},
-  {id:4,vorname:'Klaus',nachname:'Fischer',plz:'50667',ort:'Köln',telefon:'0221-333444',email:'klaus@example.com',type:'Verein',abgerechnetAm:null}
+  {id:1,vorname:'Anna',nachname:'Müller',anschrift:'Musterstraße 12',plz:'80331',ort:'München',telefon:'089-123456',email:'anna@example.com',type:'Privat',provision:20,gebuehr:0.50,abgerechnetAm:null},
+  {id:2,vorname:'Thomas',nachname:'Schmidt',anschrift:'Hauptstr. 5',plz:'10115',ort:'Berlin',telefon:'030-654321',email:'thomas@example.com',type:'Gewerblich',provision:30,gebuehr:1.00,abgerechnetAm:'2026-06-15T13:00:00'},
+  {id:3,vorname:'Lisa',nachname:'Weber',anschrift:'Parkweg 3',plz:'20095',ort:'Hamburg',telefon:'040-111222',email:'lisa@example.com',type:'Privat',provision:18,gebuehr:0.25,abgerechnetAm:null},
+  {id:4,vorname:'Klaus',nachname:'Fischer',anschrift:'Domstr. 7',plz:'50667',ort:'Köln',telefon:'0221-333444',email:'klaus@example.com',type:'Verein',provision:10,gebuehr:0.25,abgerechnetAm:null}
 ];
 let artikel = [
-  {id:101,bezeichnung:'Winterjacke',kategorie:'Jacken',marke:'Nike',preis:25.00,altPreis:null,groesse:'L',farbe:'Blau',beschreibung:'Warm',verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null},
-  {id:102,bezeichnung:'Jeanshose',kategorie:'Hosen',marke:'Levis',preis:15.00,altPreis:10.00,groesse:'M',farbe:'Schwarz',beschreibung:'',verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:'2026-06-15T10:30',zurueckgegebenAm:null,abgerechnetAm:null},
-  {id:103,bezeichnung:'Turnschuhe',kategorie:'Schuhe',marke:'Adidas',preis:20.00,altPreis:null,groesse:'42',farbe:'Weiß',beschreibung:'',verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null},
-  {id:104,bezeichnung:'T-Shirt',kategorie:'Shirts',marke:'H&M',preis:5.00,altPreis:null,groesse:'S',farbe:'Weiß',beschreibung:'',verkaeuferID:3,erstelltAm:'2026-06-03T08:00',freigegebenAm:null,verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null},
-  {id:105,bezeichnung:'Schal',kategorie:'Accessoires',marke:'Zara',preis:8.00,altPreis:null,groesse:'',farbe:'Rot',beschreibung:'',verkaeuferID:4,erstelltAm:'2026-06-04T09:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null},
-  {id:201,bezeichnung:'Wintermantel',kategorie:'Jacken',marke:'Zara',preis:45.00,altPreis:null,groesse:'L',farbe:'Schwarz',beschreibung:'',verkaeuferID:2,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:'2026-06-15T09:30',zurueckgegebenAm:null,abgerechnetAm:'2026-06-15T13:00'},
-  {id:401,bezeichnung:'Pullover rot',kategorie:'Shirts',marke:'Adidas',preis:14.00,altPreis:null,groesse:'L',farbe:'Rot',beschreibung:'',verkaeuferID:4,erstelltAm:'2026-06-04T09:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:'2026-06-15T11:30',zurueckgegebenAm:null,abgerechnetAm:null},
-  {id:402,bezeichnung:'Jeans schwarz',kategorie:'Hosen',marke:'Levis',preis:22.00,altPreis:null,groesse:'32',farbe:'Schwarz',beschreibung:'',verkaeuferID:4,erstelltAm:'2026-06-04T09:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null},
+  // ── Anna Müller (VK1 · Privat · 20% · 0,50 €) ──────────────────────────────
+  {id:101,bezeichnung:'Winterjacke', kategorie:'Jacken',      marke:'Nike',   preis:25.00,groesse:'L', farbe:'Blau',   beschreibung:'Warm', verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,                 zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:102,bezeichnung:'Jeanshose',   kategorie:'Hosen',       marke:'Levis',  preis:15.00,groesse:'M', farbe:'Schwarz',beschreibung:'',      verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:'2026-06-15T10:30',  zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:103,bezeichnung:'Turnschuhe',  kategorie:'Schuhe',      marke:'Nike',   preis:20.00,groesse:'42',farbe:'Weiß',  beschreibung:'',      verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,                 zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:106,bezeichnung:'Strickpulli', kategorie:'Shirts',      marke:'H&M',    preis:12.00,groesse:'M', farbe:'Grün',  beschreibung:'',      verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:15',verkauftAm:'2026-06-15T09:00',  zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:107,bezeichnung:'Parka',       kategorie:'Jacken',      marke:'Nike',   preis:45.00,groesse:'XL',farbe:'Oliv',  beschreibung:'',      verkaeuferID:1,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:15',verkauftAm:'2026-06-15T11:00',  zurueckgegebenAm:null,abgerechnetAm:null},
+  // ── Thomas Schmidt (VK2 · Gewerblich · 30% · 1,00 €) — abgerechnet ────────
+  {id:201,bezeichnung:'Wintermantel',kategorie:'Jacken',      marke:'Zara',   preis:45.00,groesse:'L', farbe:'Schwarz',beschreibung:'',      verkaeuferID:2,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:'2026-06-15T09:30',  zurueckgegebenAm:null,abgerechnetAm:'2026-06-15T13:00'},
+  {id:202,bezeichnung:'Laufschuhe',  kategorie:'Schuhe',      marke:'Adidas', preis:65.00,groesse:'44',farbe:'Weiß',  beschreibung:'',      verkaeuferID:2,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:'2026-06-15T10:00',  zurueckgegebenAm:null,abgerechnetAm:'2026-06-15T13:00'},
+  {id:203,bezeichnung:'Cap',         kategorie:'Accessoires', marke:'Adidas', preis:12.00,groesse:'',  farbe:'Schwarz',beschreibung:'',      verkaeuferID:2,erstelltAm:'2026-06-01T10:00',freigegebenAm:'2026-06-15T08:15',verkauftAm:null,                 zurueckgegebenAm:'2026-06-15T12:30',abgerechnetAm:'2026-06-15T13:00'},
+  // ── Lisa Weber (VK3 · Privat · 18% · 0,25 €) ───────────────────────────────
+  {id:104,bezeichnung:'T-Shirt',     kategorie:'Shirts',      marke:'H&M',    preis:5.00, groesse:'S', farbe:'Weiß',  beschreibung:'',      verkaeuferID:3,erstelltAm:'2026-06-03T08:00',freigegebenAm:null,              verkauftAm:null,                 zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:301,bezeichnung:'Sommerjacke', kategorie:'Jacken',      marke:'Zara',   preis:30.00,groesse:'M', farbe:'Beige', beschreibung:'',      verkaeuferID:3,erstelltAm:'2026-06-03T08:00',freigegebenAm:'2026-06-15T08:30',verkauftAm:'2026-06-15T10:30',  zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:302,bezeichnung:'Bluse',       kategorie:'Shirts',      marke:'H&M',    preis:12.00,groesse:'S', farbe:'Weiß',  beschreibung:'',      verkaeuferID:3,erstelltAm:'2026-06-03T08:00',freigegebenAm:'2026-06-15T08:30',verkauftAm:null,                 zurueckgegebenAm:null,abgerechnetAm:null},
+  // ── Klaus Fischer (VK4 · Verein · 10% · 0,25 €) ────────────────────────────
+  {id:105,bezeichnung:'Schal',       kategorie:'Accessoires', marke:'Zara',   preis:8.00, groesse:'',  farbe:'Rot',   beschreibung:'',      verkaeuferID:4,erstelltAm:'2026-06-04T09:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:null,                 zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:401,bezeichnung:'Pullover rot',kategorie:'Shirts',      marke:'Adidas', preis:14.00,groesse:'L', farbe:'Rot',   beschreibung:'',      verkaeuferID:4,erstelltAm:'2026-06-04T09:00',freigegebenAm:'2026-06-15T08:00',verkauftAm:'2026-06-15T11:30',  zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:402,bezeichnung:'Jeans schwarz',kategorie:'Hosen',      marke:'Levis',  preis:22.00,groesse:'32',farbe:'Schwarz',beschreibung:'',     verkaeuferID:4,erstelltAm:'2026-06-04T09:00',freigegebenAm:'2026-06-15T08:45',verkauftAm:null,                 zurueckgegebenAm:null,abgerechnetAm:null},
+  {id:403,bezeichnung:'Sporttasche', kategorie:'Taschen',     marke:'Puma',   preis:28.00,groesse:'',  farbe:'Schwarz',beschreibung:'',     verkaeuferID:4,erstelltAm:'2026-06-04T09:00',freigegebenAm:'2026-06-15T08:45',verkauftAm:'2026-06-15T09:00',  zurueckgegebenAm:null,abgerechnetAm:null},
 ];
-let marken = ['Nike','Adidas','Levis','H&M','Zara','Puma'];
-let kategorien = ['Jacken','Hosen','Schuhe','Shirts','Accessoires'];
+let marken = [
+  {id:1, name:'Nike',    original:true},
+  {id:2, name:'Adidas',  original:true},
+  {id:3, name:'Levis',   original:true},
+  {id:4, name:'H&M',     original:true},
+  {id:5, name:'Zara',    original:true},
+  {id:6, name:'Puma',    original:true}
+];
+let _markeNextId = 7;
+let kategorien = [
+  {id:1, name:'Jacken',     original:true},
+  {id:2, name:'Hosen',      original:true},
+  {id:3, name:'Schuhe',     original:true},
+  {id:4, name:'Shirts',     original:true},
+  {id:5, name:'Accessoires',original:true},
+  {id:6, name:'Taschen',    original:true}
+];
+let _katNextId = 7;
 let verkaeuferTypes = [
   {name:'Privat',provision:20,gebuehr:0.50},
   {name:'Gewerblich',provision:30,gebuehr:1.00},
@@ -620,7 +1212,7 @@ let warenkorb = [];
 let wizardVk = null;
 let wizardArtikel = [];
 let selectedVk = null;
-let vkFilter = {status:'Alle',search:''};
+let vkFilter = {status:'Alle',search:'',sort:'name'};
 let artFilter = {marke:'',kat:'',vstatus:'',astatus:'',search:''};
 let editingVkId = null;
 let editingArtikelId = null;
@@ -629,7 +1221,6 @@ let editingKategorieIdx = null;
 let editingVkTypeIdx = null;
 let freigebenVkId = null;
 let freigebenSelected = new Set();
-let freigebenMode = 'manuell';
 let freigebenAction = 'freigabe'; // 'freigabe' | 'rueckgabe'
 let abrVkId = null;
 let nextId = 500;
@@ -664,18 +1255,81 @@ function chipHtml(status,ctx,extra){
   return '<span class="chip '+cls+(extra?' chip-clickable':'')+'" '+extra+'>'+status+'</span>';
 }
 
-// ════ AUDIO (error tone) ════
+// ════ AUDIO ════
 function playErrorTone(){
   try{
     var ctx=new(window.AudioContext||window.webkitAudioContext)();
-    var osc=ctx.createOscillator();
-    var gain=ctx.createGain();
+    var osc=ctx.createOscillator();var gain=ctx.createGain();
     osc.connect(gain);gain.connect(ctx.destination);
-    osc.type='square';osc.frequency.setValueAtTime(220,ctx.currentTime);
+    osc.type='square';osc.frequency.setValueAtTime(180,ctx.currentTime);
+    osc.frequency.setValueAtTime(120,ctx.currentTime+0.15);
     gain.gain.setValueAtTime(0.3,ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);
-    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.4);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.45);
+    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.45);
   }catch(e){}
+}
+function playPingTone(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    var osc=ctx.createOscillator();var gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';osc.frequency.setValueAtTime(880,ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1320,ctx.currentTime+0.08);
+    gain.gain.setValueAtTime(0.18,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.25);
+    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.25);
+  }catch(e){}
+}
+
+// ════ DEBOUNCE ════
+function debounce(fn,ms){var t;return function(){var a=arguments;clearTimeout(t);t=setTimeout(function(){fn.apply(null,a);},ms);};}
+
+// ════ INFO AREA ════
+function showInfoArea(elId,type,icon,msg){
+  var el=document.getElementById(elId);if(!el)return;
+  if(!type){el.innerHTML='';return;}
+  el.innerHTML='<div class="info-area '+type+'"><span class="ia-icon">'+icon+'</span><span>'+msg+'</span></div>';
+  if(type==='success')playPingTone();
+  else if(type==='error'||type==='warn')playErrorTone();
+}
+
+// ════ CAMERA POPUP ════
+var _cameraCallback=null;
+function openCameraPopup(callback){_cameraCallback=callback;openModal('modalCamera');}
+function onCameraScan(val){
+  closeModal('modalCamera');
+  if(_cameraCallback){_cameraCallback(val);_cameraCallback=null;}
+}
+
+// ════ INPUT GROUP SETUP ════
+function setupIG(opts){
+  // opts: inputId, clearId, spinnerId, actionId, onSearch, onEnter, onCamera, debounceMs
+  var inp=document.getElementById(opts.inputId);
+  var clr=document.getElementById(opts.clearId);
+  var spn=document.getElementById(opts.spinnerId);
+  var act=document.getElementById(opts.actionId);
+  if(!inp)return{};
+  var ms=opts.debounceMs||SETTINGS.suchDebounceMs;
+  var dSearch=debounce(function(v){if(opts.onSearch)opts.onSearch(v);},ms);
+
+  function sync(){
+    var has=inp.value.length>0;
+    if(clr)clr.style.display=has?'':'none';
+    if(act){act.textContent=has?'↩':'📷';act.title=has?'Suchen / Enter':'Scanner öffnen';}
+  }
+  inp.addEventListener('input',function(){sync();if(inp.value)dSearch(inp.value);else if(opts.onSearch)opts.onSearch('');});
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&opts.onEnter)opts.onEnter(inp.value);});
+  if(clr)clr.addEventListener('click',function(){inp.value='';sync();inp.focus();if(opts.onSearch)opts.onSearch('');});
+  if(act)act.addEventListener('click',function(){
+    if(inp.value){if(opts.onEnter)opts.onEnter(inp.value);}
+    else if(opts.onCameraOpen){opts.onCameraOpen();}
+    else{openCameraPopup(function(v){inp.value=v;sync();if(opts.onSearch)opts.onSearch(v);if(opts.onCamera)opts.onCamera(v);});}
+  });
+  sync();
+  return{
+    setSearching:function(v){if(spn)spn.style.display=v?'':'none';},
+    setValue:function(v){inp.value=v;sync();}
+  };
 }
 
 // ════ SIDEBAR / NAVIGATION ════
@@ -697,15 +1351,18 @@ function navigateTo(s){
   var el=document.getElementById('screen-'+s);
   if(el)el.classList.add('active');
   document.querySelectorAll('#sidebarNav a').forEach(a=>a.classList.toggle('active',a.dataset.screen===s));
-  var titles={artikelannahme:'Annahme',verkauf:'Verkauf',abrechnung:'Abrechnung',verkaeufer:'Verkäufer',artikel:'Artikel',marken:'Marken',kategorien:'Kategorien',verkaeuferTypes:'Verkäufer-Typen'};
+  var titles={artikelannahme:'Annahme',verkauf:'Verkauf',abrechnung:'Abrechnung',verkaeufer:'Verkäufer',artikel:'Artikel',marken:'Marken',kategorien:'Kategorien',verkaeuferTypes:'Verkäufer-Typen',einstellungen:'Einstellungen',statistik:'Statistik'};
   document.getElementById('topbarTitle').textContent=titles[s]||s;
   if(s==='artikelannahme')resetAnnahme();
+  if(s==='verkauf')showInfoArea('verkaufInfo','info','→','Ersten Artikel eingeben…');
   if(s==='abrechnung')resetAbrechnung();
   if(s==='verkaeufer')renderVerkaeufer();
   if(s==='artikel')renderArtikelTable();
   if(s==='marken')renderMarken();
   if(s==='kategorien')renderKategorien();
   if(s==='verkaeuferTypes')renderVkTypes();
+  if(s==='einstellungen')renderSettingsUI();
+  if(s==='statistik')renderStatistik();
 }
 
 // ════ MODALS ════
@@ -723,6 +1380,10 @@ function showToast(msg,dur){
 }
 
 // ════ VERKÄUFER SCREEN ════
+function vkWarenwertAnn(v){ return artikel.filter(a=>a.verkaeuferID===v.id&&a.freigegebenAm).reduce((s,a)=>s+a.preis,0); }
+function vkWarenwertOffen(v){ return artikel.filter(a=>a.verkaeuferID===v.id&&a.freigegebenAm&&!a.verkauftAm&&!a.zurueckgegebenAm).reduce((s,a)=>s+a.preis,0); }
+function vkUmsatz(v){ return artikel.filter(a=>a.verkaeuferID===v.id&&a.verkauftAm).reduce((s,a)=>s+a.preis,0); }
+
 function renderVerkaeufer(){
   var list=verkaeufer.filter(v=>{
     var st=getVkStatus(v);
@@ -730,6 +1391,15 @@ function renderVerkaeufer(){
     var q=vkFilter.search.toLowerCase();
     return!q||(v.vorname+' '+v.nachname+' '+v.ort).toLowerCase().includes(q);
   });
+
+  // sort
+  list.sort((a,b)=>{
+    if(vkFilter.sort==='warenwert-ann') return vkWarenwertAnn(b)-vkWarenwertAnn(a);
+    if(vkFilter.sort==='warenwert-offen') return vkWarenwertOffen(b)-vkWarenwertOffen(a);
+    if(vkFilter.sort==='umsatz') return vkUmsatz(b)-vkUmsatz(a);
+    return (a.nachname+a.vorname).localeCompare(b.nachname+b.vorname);
+  });
+
   var grid=document.getElementById('verkaeuferGrid');
   if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#9E9E9E;padding:40px">Keine Verkäufer gefunden.</div>';return;}
   grid.innerHTML=list.map(v=>{
@@ -738,11 +1408,17 @@ function renderVerkaeufer(){
     var frg=arts.filter(a=>a.freigegebenAm).length;
     var vk_=arts.filter(a=>a.verkauftAm).length;
     var rk=arts.filter(a=>a.zurueckgegebenAm).length;
-    var ww=arts.filter(a=>a.freigegebenAm&&!a.verkauftAm&&!a.zurueckgegebenAm).reduce((s,a)=>s+a.preis,0);
-    var um=arts.filter(a=>a.verkauftAm).reduce((s,a)=>s+a.preis,0);
+    var wwAnn=vkWarenwertAnn(v);
+    var wwOff=vkWarenwertOffen(v);
+    var um=vkUmsatz(v);
+    var fmtV=n=>n.toFixed(2).replace('.',',')+' €';
+    var typChip='<span class="chip chip-gray" style="font-size:11px;padding:2px 8px;margin-left:6px">'+v.type+'</span>';
     return '<div class="card">' +
       '<div class="card-header" style="gap:8px">' +
-        '<div style="flex:1"><div style="font-weight:700;font-size:15px">'+v.vorname+' '+v.nachname+'</div><div style="font-size:12px;color:#757575">'+v.plz+' '+v.ort+'</div></div>' +
+        '<div style="flex:1">' +
+          '<div style="font-weight:700;font-size:15px;display:flex;align-items:center;flex-wrap:wrap;gap:4px">'+v.vorname+' '+v.nachname+typChip+'</div>' +
+          '<div style="font-size:12px;color:#757575">'+v.plz+' '+v.ort+'<span style="margin-left:12px;color:#BDBDBD">#'+v.id+'</span></div>' +
+        '</div>' +
         '<button class="btn-icon" title="Bearbeiten" onclick="openVkEdit('+v.id+')">✏️</button>' +
         '<button class="btn-icon" title="Freigeben" onclick="openFreigeben('+v.id+',\'freigabe\')">📷</button>' +
       '</div>' +
@@ -750,30 +1426,27 @@ function renderVerkaeufer(){
         '<div onclick="openVkStatus('+v.id+')" style="display:inline-block;cursor:pointer;margin-bottom:10px">'+chipHtml(st,'vk')+'</div>' +
         '<div class="stats-grid">' +
           '<div class="stat-item">Gesamt: <strong>'+arts.length+'</strong></div>' +
-          '<div class="stat-item">Freigegeben: <strong>'+frg+'</strong></div>' +
+          '<div class="stat-item">Angenommen: <strong>'+frg+'</strong></div>' +
           '<div class="stat-item">Verkauft: <strong>'+vk_+'</strong></div>' +
-          '<div class="stat-item">Rückgegeben: <strong>'+rk+'</strong></div>' +
+          '<div class="stat-item">Retour: <strong>'+rk+'</strong></div>' +
         '</div>' +
-        '<div style="display:flex;gap:12px;margin-top:8px;font-size:12px;border-top:1px solid #F5F5F5;padding-top:8px">' +
-          '<span>Warenwert: <strong>'+ww.toFixed(2).replace('.',',')+' €</strong></span>' +
-          '<span>Umsatz: <strong>'+um.toFixed(2).replace('.',',')+' €</strong></span>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;font-size:12px;border-top:1px solid #F5F5F5;padding-top:8px">' +
+          '<span style="display:flex;flex-direction:column;gap:2px"><span style="opacity:.6;font-size:11px">Angenom. Warenwert</span><strong>'+fmtV(wwAnn)+'</strong></span>' +
+          '<span style="display:flex;flex-direction:column;gap:2px"><span style="opacity:.6;font-size:11px">Offener Warenwert</span><strong>'+fmtV(wwOff)+'</strong></span>' +
+          '<span style="display:flex;flex-direction:column;gap:2px"><span style="opacity:.6;font-size:11px">Umsatz</span><strong>'+fmtV(um)+'</strong></span>' +
         '</div>' +
       '</div>' +
     '</div>';
   }).join('');
 }
 
-document.getElementById('vkFilterChips').addEventListener('click',e=>{
-  if(!e.target.dataset.filter)return;
-  vkFilter.status=e.target.dataset.filter;
-  document.querySelectorAll('#vkFilterChips .filter-chip').forEach(c=>c.classList.toggle('active',c.dataset.filter===vkFilter.status));
-  renderVerkaeufer();
-});
 document.getElementById('vkSearchInput').addEventListener('input',e=>{vkFilter.search=e.target.value;renderVerkaeufer();});
+document.getElementById('vkStatusSelect').addEventListener('change',e=>{vkFilter.status=e.target.value;renderVerkaeufer();});
+document.getElementById('vkSortSelect').addEventListener('change',e=>{vkFilter.sort=e.target.value;renderVerkaeufer();});
 document.getElementById('btnNeuVerkaeufer').addEventListener('click',()=>{
   editingVkId=null;
   populateW1Types();
-  ['w1Vorname','w1Nachname','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(id=>document.getElementById(id).value='');
+  ['w1Vorname','w1Nachname','w1Anschrift','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(id=>document.getElementById(id).value='');
   openModal('modalWizard1');
 });
 
@@ -815,12 +1488,16 @@ function openVkEdit(id){
   var vk=getVk(id);
   document.getElementById('modalVkFormTitle').textContent='Verkäufer bearbeiten';
   document.getElementById('vkFormVorname').value=vk.vorname;
+  document.getElementById('vkFormAnschrift').value=vk.anschrift||'';
   document.getElementById('vkFormNachname').value=vk.nachname;
   document.getElementById('vkFormPlz').value=vk.plz;
   document.getElementById('vkFormOrt').value=vk.ort;
   document.getElementById('vkFormTelefon').value=vk.telefon;
   document.getElementById('vkFormEmail').value=vk.email;
   populateTypeSelect('vkFormType',vk.type);
+  document.getElementById('vkFormProvision').value=vk.provision;
+  document.getElementById('vkFormGebuehr').value=vk.gebuehr;
+  document.getElementById('vkFormType').onchange=()=>prefillKonditionen('vkFormType','vkFormProvision','vkFormGebuehr');
   openModal('modalVkForm');
 }
 function populateTypeSelect(selectId,selected){
@@ -832,9 +1509,9 @@ document.getElementById('btnVkFormSave').addEventListener('click',()=>{
   if(!vn||!nn){showToast('Vorname und Nachname sind Pflicht.');return;}
   if(editingVkId){
     var vk=getVk(editingVkId);
-    vk.vorname=vn;vk.nachname=nn;vk.plz=document.getElementById('vkFormPlz').value;vk.ort=document.getElementById('vkFormOrt').value;vk.telefon=document.getElementById('vkFormTelefon').value;vk.email=document.getElementById('vkFormEmail').value;vk.type=document.getElementById('vkFormType').value;
+    vk.vorname=vn;vk.nachname=nn;vk.anschrift=document.getElementById('vkFormAnschrift').value;vk.plz=document.getElementById('vkFormPlz').value;vk.ort=document.getElementById('vkFormOrt').value;vk.telefon=document.getElementById('vkFormTelefon').value;vk.email=document.getElementById('vkFormEmail').value;vk.type=document.getElementById('vkFormType').value;vk.provision=parseFloat(document.getElementById('vkFormProvision').value)||0;vk.gebuehr=parseFloat(document.getElementById('vkFormGebuehr').value)||0;
   } else {
-    verkaeufer.push({id:nextId++,vorname:vn,nachname:nn,plz:document.getElementById('vkFormPlz').value,ort:document.getElementById('vkFormOrt').value,telefon:document.getElementById('vkFormTelefon').value,email:document.getElementById('vkFormEmail').value,type:document.getElementById('vkFormType').value,abgerechnetAm:null});
+    verkaeufer.push({id:nextId++,vorname:vn,nachname:nn,anschrift:document.getElementById('vkFormAnschrift').value,plz:document.getElementById('vkFormPlz').value,ort:document.getElementById('vkFormOrt').value,telefon:document.getElementById('vkFormTelefon').value,email:document.getElementById('vkFormEmail').value,type:document.getElementById('vkFormType').value,provision:parseFloat(document.getElementById('vkFormProvision').value)||0,gebuehr:parseFloat(document.getElementById('vkFormGebuehr').value)||0,abgerechnetAm:null});
   }
   closeModal('modalVkForm');renderVerkaeufer();showToast('Gespeichert.');
 });
@@ -842,13 +1519,16 @@ document.getElementById('btnVkFormSave').addEventListener('click',()=>{
 // ════ ARTIKEL FREIGEBEN / ZURÜCKGEBEN ════
 function openFreigeben(id,action){
   freigebenVkId=id;freigebenAction=action||'freigabe';
-  freigebenSelected.clear();freigebenMode='manuell';
+  freigebenSelected.clear();
   var vk=getVk(id);
   document.getElementById('modalFreigebenTitle').textContent=(freigebenAction==='rueckgabe'?'Artikel zurückgeben':'Artikel freigeben')+(vk?' — '+vkName(vk):'');
-  document.getElementById('freigebenManuell').style.display='';
-  document.getElementById('freigebenKamera').style.display='none';
+  if(_fgCountdownRaf){cancelAnimationFrame(_fgCountdownRaf);_fgCountdownRaf=null;}
+  document.getElementById('fgCameraArea').style.display='none';
+  document.getElementById('fgInputArea').style.display='';
   document.getElementById('freigebenNrInput').value='';
-  document.getElementById('freigebenInfo').innerHTML='';
+  var clr=document.getElementById('freigebenIgClear');if(clr)clr.style.display='none';
+  var act=document.getElementById('freigebenIgAction');if(act){act.textContent='📷';act.title='Kamera';}
+  showInfoArea('freigebenInfo','','','');
   renderFreigebenList();
   openModal('modalFreigeben');
 }
@@ -894,33 +1574,90 @@ function toggleFreigebenItem(id){
   renderFreigebenList();
 }
 
-document.getElementById('btnFreigebenNr').addEventListener('click',()=>{
-  var nr=parseInt(document.getElementById('freigebenNrInput').value);
+// ════ SETTINGS ════
+var SETTINGS_DEFAULTS={
+  suchDebounceMs:800,
+  scannerPauseMs:3000
+};
+var SETTINGS=Object.assign({},SETTINGS_DEFAULTS);
+function loadSettings(){try{var s=JSON.parse(localStorage.getItem('bzSettings')||'{}');Object.assign(SETTINGS,s);}catch(e){}}
+function saveSettingsToStorage(){try{localStorage.setItem('bzSettings',JSON.stringify(SETTINGS));}catch(e){}}
+loadSettings();
+var _fgCountdownRaf=null;
+
+function processFreigebenNr(val){
+  var nr=parseInt(val);
   var a=getArt(nr);
-  var infoEl=document.getElementById('freigebenInfo');
   if(!a||a.verkaeuferID!==freigebenVkId){
-    playErrorTone();
-    infoEl.innerHTML='<div class="info-banner error">Artikel nicht gefunden oder falscher Verkäufer.</div>';
-    return;
+    showInfoArea('freigebenInfo','error','✗','Artikel #'+nr+' nicht gefunden oder falscher Verkäufer.');
+    return false;
   }
   if(freigebenAction==='freigabe'&&a.freigegebenAm){
-    infoEl.innerHTML='<div class="info-banner warn">Artikel bereits freigegeben.</div>';return;
+    showInfoArea('freigebenInfo','warn','⚠','Artikel #'+nr+' bereits freigegeben.');
+    return false;
   }
   if(freigebenAction==='rueckgabe'){
     if(!a.freigegebenAm||a.verkauftAm||a.zurueckgegebenAm){
-      playErrorTone();
-      infoEl.innerHTML='<div class="info-banner error">Artikel nicht zurückgebbar.</div>';return;
+      showInfoArea('freigebenInfo','error','✗','Artikel #'+nr+' nicht zurückgebbar.');
+      return false;
     }
     a.zurueckgegebenAm=tsNow();
   } else {
     a.freigegebenAm=tsNow();
   }
-  infoEl.innerHTML='<div class="info-banner success">✓ Artikel #'+nr+' '+(freigebenAction==='rueckgabe'?'zurückgegeben.':'freigegeben.')+'</div>';
-  document.getElementById('freigebenNrInput').value='';
+  showInfoArea('freigebenInfo','success','✓','Artikel #'+nr+' '+(freigebenAction==='rueckgabe'?'zurückgegeben.':'freigegeben.'));
   renderFreigebenList();
   showToast('Artikel #'+nr+' '+(freigebenAction==='rueckgabe'?'zurückgegeben':'freigegeben')+'.');
-});
-document.getElementById('freigebenNrInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btnFreigebenNr').click();});
+  return true;
+}
+
+function freigebenEnter(val){
+  processFreigebenNr(val);
+  document.getElementById('freigebenNrInput').value='';
+  var clr=document.getElementById('freigebenIgClear');if(clr)clr.style.display='none';
+  var act=document.getElementById('freigebenIgAction');if(act){act.textContent='📷';act.title='Kamera';}
+}
+
+function openFGCamera(){
+  document.getElementById('fgInputArea').style.display='none';
+  document.getElementById('fgCameraArea').style.display='';
+  document.getElementById('fgCameraView').style.display='';
+  document.getElementById('fgCountdownArea').style.display='none';
+}
+
+function closeFGCamera(){
+  if(_fgCountdownRaf){cancelAnimationFrame(_fgCountdownRaf);_fgCountdownRaf=null;}
+  document.getElementById('fgCameraArea').style.display='none';
+  document.getElementById('fgInputArea').style.display='';
+  document.getElementById('freigebenNrInput').focus();
+}
+
+function simFGScan(val){
+  processFreigebenNr(val);
+  // Kamera ausblenden, Countdown zeigen
+  document.getElementById('fgCameraView').style.display='none';
+  var cd=document.getElementById('fgCountdownArea');cd.style.display='';
+  var circle=document.getElementById('fgCountdownCircle');
+  var circ=125.7;circle.style.strokeDashoffset='0';
+  var start=null;
+  if(_fgCountdownRaf)cancelAnimationFrame(_fgCountdownRaf);
+  function tick(ts){
+    if(!start)start=ts;
+    var p=Math.min((ts-start)/SETTINGS.scannerPauseMs,1);
+    circle.style.strokeDashoffset=(circ*p).toFixed(1);
+    if(p<1){_fgCountdownRaf=requestAnimationFrame(tick);}
+    else{
+      _fgCountdownRaf=null;
+      cd.style.display='none';
+      document.getElementById('fgCameraView').style.display='';
+    }
+  }
+  _fgCountdownRaf=requestAnimationFrame(tick);
+}
+
+setupIG({inputId:'freigebenNrInput',clearId:'freigebenIgClear',spinnerId:'freigebenIgSpinner',actionId:'freigebenIgAction',
+  onEnter:freigebenEnter,
+  onCameraOpen:openFGCamera});
 
 document.getElementById('btnFreigebenSaveSelected').addEventListener('click',()=>{
   if(!freigebenSelected.size){showToast('Keine Artikel ausgewählt.');return;}
@@ -934,33 +1671,136 @@ document.getElementById('btnFreigebenSaveSelected').addEventListener('click',()=
   renderFreigebenList();
 });
 
-document.getElementById('btnFreigebenToggle').addEventListener('click',()=>{
-  freigebenMode='kamera';
-  document.getElementById('freigebenManuell').style.display='none';
-  document.getElementById('freigebenKamera').style.display='';
-  document.getElementById('freigebenKameraInfo').innerHTML='<div class="info-banner info">Kamera aktiv — QR/Barcode scannen.</div>';
-});
-document.getElementById('btnFreigebenBack').addEventListener('click',()=>{
-  freigebenMode='manuell';
-  document.getElementById('freigebenManuell').style.display='';
-  document.getElementById('freigebenKamera').style.display='none';
-});
-function simKameraScan(type){
-  var msg={ok:'<div class="info-banner success">✓ Artikel 101 freigegeben.</div>',bereits:'<div class="info-banner warn">⚠ Artikel bereits freigegeben.</div>',nicht:'<div class="info-banner error">✗ Artikel nicht bekannt.</div>'}[type];
-  if(type!=='ok')playErrorTone();
-  document.getElementById('freigebenKameraInfo').innerHTML=msg;
-  setTimeout(()=>{document.getElementById('freigebenKameraInfo').innerHTML='<div class="info-banner info">Kamera aktiv — QR/Barcode scannen.</div>';},5000);
+
+// ════ AUTOCOMPLETE ════
+var _acNewCallback=null;
+
+function acSync(inputId,btnId,dropId,getList){
+  var inp=document.getElementById(inputId);
+  var btn=document.getElementById(btnId);
+  var drop=document.getElementById(dropId);
+  if(!inp||!btn||!drop)return;
+  var val=inp.value.trim();
+  var list=getList();
+  var exact=list.some(x=>x.toLowerCase()===val.toLowerCase());
+  var hasNew=val&&!exact;
+  btn.textContent=hasNew?'+':'▾';
+  btn.classList.toggle('is-add',hasNew);
+  btn.title=hasNew?val+' anlegen':'Auswahl öffnen';
 }
 
+function setupAC(inputId,btnId,dropId,getList,setList){
+  var inp=document.getElementById(inputId);
+  var btn=document.getElementById(btnId);
+  var drop=document.getElementById(dropId);
+  if(!inp)return;
+
+  function getFiltered(){
+    var q=inp.value.trim().toLowerCase();
+    return getList().filter(x=>!q||x.toLowerCase().includes(q));
+  }
+
+  function renderDrop(){
+    var items=getFiltered();
+    var q=inp.value.trim();
+    if(!items.length){
+      drop.innerHTML='<div class="ac-empty">Kein Treffer</div>';
+    } else {
+      drop.innerHTML=items.map(x=>'<div class="ac-item">'+x+'</div>').join('');
+      drop.querySelectorAll('.ac-item').forEach(el=>{
+        el.addEventListener('mousedown',function(e){
+          e.preventDefault();
+          inp.value=el.textContent;
+          closeDrop();
+          acSync(inputId,btnId,dropId,getList);
+        });
+      });
+    }
+    drop.style.display='';
+  }
+
+  function closeDrop(){drop.style.display='none';}
+
+  function openNew(){
+    var val=inp.value.trim();
+    var isKat=inputId==='wzKategorie'||inputId==='afKategorie';
+    document.getElementById('modalAcNewTitle').textContent=isKat?'Neue Kategorie':'Neue Marke';
+    document.getElementById('modalAcNewLabel').textContent=isKat?'Kategorie':'Marke';
+    document.getElementById('modalAcNewInput').value=val;
+    _acNewCallback=function(name){
+      if(!getList().some(x=>x.toLowerCase()===name.toLowerCase())){
+        if(isKat) kategorien.push({id:_katNextId++,name:name,original:false});
+        else       marken.push({id:_markeNextId++,name:name,original:false});
+      }
+      inp.value=name;
+      acSync(inputId,btnId,dropId,getList);
+    };
+    openModal('modalAcNew');
+    setTimeout(()=>document.getElementById('modalAcNewInput').focus(),50);
+  }
+
+  inp.addEventListener('input',function(){
+    renderDrop();
+    acSync(inputId,btnId,dropId,getList);
+  });
+  inp.addEventListener('focus',function(){renderDrop();});
+  inp.addEventListener('blur',function(){setTimeout(closeDrop,150);});
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){
+      var val=inp.value.trim();
+      var exact=getList().find(x=>x.toLowerCase()===val.toLowerCase());
+      if(exact){inp.value=exact;closeDrop();acSync(inputId,btnId,dropId,getList);}
+      else if(val){openNew();}
+      e.preventDefault();
+    }
+    if(e.key==='Escape')closeDrop();
+  });
+  btn.addEventListener('mousedown',function(e){
+    e.preventDefault();
+    var val=inp.value.trim();
+    var exact=getList().some(x=>x.toLowerCase()===val.toLowerCase());
+    if(val&&!exact){openNew();}
+    else{if(drop.style.display==='none')renderDrop();else closeDrop();}
+  });
+}
+
+document.getElementById('btnAcNewSave').addEventListener('click',function(){
+  var name=document.getElementById('modalAcNewInput').value.trim();
+  if(!name){showToast('Name darf nicht leer sein.');return;}
+  if(_acNewCallback){_acNewCallback(name);_acNewCallback=null;}
+  closeModal('modalAcNew');
+  showToast('Gespeichert.');
+});
+document.getElementById('modalAcNewInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter')document.getElementById('btnAcNewSave').click();
+});
+
+// ════ WZ ARTNR IG ════
+function wzArtNrSyncIG(){
+  var inp=document.getElementById('wzArtNr');
+  var clr=document.getElementById('wzArtNrClear');
+  if(clr)clr.style.display=inp&&inp.value?'':'none';
+}
+
+
 // ════ WIZARD ════
-function populateW1Types(){document.getElementById('w1Type').innerHTML=verkaeuferTypes.map(t=>'<option>'+t.name+'</option>').join('');}
+function prefillKonditionen(typeSelectId,provId,gebId){
+  var typeName=document.getElementById(typeSelectId).value;
+  var t=verkaeuferTypes.find(x=>x.name===typeName);
+  if(t){document.getElementById(provId).value=t.provision;document.getElementById(gebId).value=t.gebuehr;}
+}
+function populateW1Types(){
+  document.getElementById('w1Type').innerHTML=verkaeuferTypes.map(t=>'<option>'+t.name+'</option>').join('');
+  prefillKonditionen('w1Type','w1Provision','w1Gebuehr');
+  document.getElementById('w1Type').onchange=()=>prefillKonditionen('w1Type','w1Provision','w1Gebuehr');
+}
 
 document.getElementById('btnWizard1Weiter').addEventListener('click',()=>{
   var vn=document.getElementById('w1Vorname').value.trim();
   var nn=document.getElementById('w1Nachname').value.trim();
   if(!vn||!nn){showToast('Vorname und Nachname sind Pflicht.');return;}
   var newId=nextId++;
-  wizardVk={id:newId,vorname:vn,nachname:nn,plz:document.getElementById('w1Plz').value,ort:document.getElementById('w1Ort').value,telefon:document.getElementById('w1Telefon').value,email:document.getElementById('w1Email').value,type:document.getElementById('w1Type').value,abgerechnetAm:null};
+  wizardVk={id:newId,vorname:vn,nachname:nn,anschrift:document.getElementById('w1Anschrift').value,plz:document.getElementById('w1Plz').value,ort:document.getElementById('w1Ort').value,telefon:document.getElementById('w1Telefon').value,email:document.getElementById('w1Email').value,type:document.getElementById('w1Type').value,provision:parseFloat(document.getElementById('w1Provision').value)||0,gebuehr:parseFloat(document.getElementById('w1Gebuehr').value)||0,abgerechnetAm:null};
   verkaeufer.push(wizardVk);
   wizardArtikel=[];
   closeModal('modalWizard1');
@@ -972,38 +1812,41 @@ function openWizardStep2(vk){
   wizardArtikel=[];
   document.getElementById('w2Title').textContent='Schritt 2 — Artikelannahme: '+vkName(vk);
   document.getElementById('w2VkName').textContent=vkName(vk);
-  document.getElementById('w2VkType').textContent=vk.type+' · '+getTypeInfo(vk.type).gebuehr.toFixed(2)+' €/Stück';
-  document.getElementById('wzKatList').innerHTML=kategorien.map(k=>'<option>'+k+'</option>').join('');
-  document.getElementById('wzMarkeList').innerHTML=marken.map(m=>'<option>'+m+'</option>').join('');
-  ['wzArtNr','wzBezeichnung','wzKategorie','wzMarke','wzPreis','wzAltPreis','wzGroesse','wzFarbe','wzBeschreibung'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('w2VkType').textContent=vk.type+' · '+vk.gebuehr.toFixed(2)+' €/Stück ('+vk.provision+'% Provision)';
+  ['wzArtNr','wzBezeichnung','wzKategorie','wzMarke','wzPreis','wzGroesse','wzFarbe','wzBeschreibung'].forEach(id=>document.getElementById(id).value='');
+  wzArtNrSyncIG();
+  acSync('wzKategorie','wzKatBtn','wzKatDropdown',()=>kategorien.map(k=>k.name));
+  acSync('wzMarke','wzMarkeBtn','wzMarkeDropdown',()=>marken.map(m=>m.name));
   renderWzArtikelList();
   openModal('modalWizard2');
 }
 
 function renderWzArtikelList(){
   var ul=document.getElementById('wzArtikelList');if(!ul)return;
-  var typeInfo=getTypeInfo(selectedVk?selectedVk.type:'Privat');
+  var gebuehr=selectedVk?selectedVk.gebuehr:0;
   if(!wizardArtikel.length){
     ul.innerHTML='<li style="justify-content:center;color:#9E9E9E;padding:14px;font-size:13px">Noch keine Artikel</li>';
   } else {
     ul.innerHTML=wizardArtikel.map((a,i)=>'<li><span><strong>#'+a.id+'</strong> '+a.bezeichnung+'</span><span style="display:flex;align-items:center;gap:6px">'+a.preis.toFixed(2).replace('.',',')+'&nbsp;€<button class="btn-icon" onclick="wzDeleteArtikel('+i+')" style="color:#D32F2F;font-size:18px">×</button></span></li>').join('');
   }
-  var total=wizardArtikel.length*typeInfo.gebuehr;
+  var total=wizardArtikel.length*gebuehr;
   var gl=document.getElementById('wzGebuehrLine');
-  if(gl)gl.innerHTML='Gebühr: '+wizardArtikel.length+' × '+typeInfo.gebuehr.toFixed(2).replace('.',',')+'&nbsp;€ = <strong>'+total.toFixed(2).replace('.',',')+'&nbsp;€</strong>';
+  if(gl)gl.innerHTML='Gebühr: '+wizardArtikel.length+' × '+gebuehr.toFixed(2).replace('.',',')+'&nbsp;€ = <strong>'+total.toFixed(2).replace('.',',')+'&nbsp;€</strong>';
 }
 
 function wzUebernehmen(){
+  var nr=document.getElementById('wzArtNr').value.trim();
   var bez=document.getElementById('wzBezeichnung').value.trim();
+  var kat=document.getElementById('wzKategorie').value.trim();
+  var marke=document.getElementById('wzMarke').value.trim();
   var pv=document.getElementById('wzPreis').value;
-  if(!bez||!pv){showToast('Bezeichnung und Preis sind Pflicht.');return;}
-  var nr=document.getElementById('wzArtNr').value;
-  var id=nr?parseInt(nr):nextId++;
-  var ap=document.getElementById('wzAltPreis').value;
-  var a={id,bezeichnung:bez,kategorie:document.getElementById('wzKategorie').value,marke:document.getElementById('wzMarke').value,preis:parseFloat(pv),altPreis:ap?parseFloat(ap):null,groesse:document.getElementById('wzGroesse').value,farbe:document.getElementById('wzFarbe').value,beschreibung:document.getElementById('wzBeschreibung').value,verkaeuferID:selectedVk.id,erstelltAm:tsNow(),freigegebenAm:null,verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null};
+  if(!nr||!bez||!kat||!marke||!pv){showToast('Bitte alle Pflichtfelder ausfüllen (Nr, Bezeichnung, Kategorie, Marke, Preis).');return;}
+  var id=parseInt(nr);
+  if(isNaN(id)||id<=0){showToast('Artikelnummer muss eine positive Zahl sein.');return;}
+  var a={id,bezeichnung:bez,kategorie:kat,marke:marke,preis:parseFloat(pv),groesse:document.getElementById('wzGroesse').value,farbe:document.getElementById('wzFarbe').value,beschreibung:document.getElementById('wzBeschreibung').value,verkaeuferID:selectedVk.id,erstelltAm:tsNow(),freigegebenAm:null,verkauftAm:null,zurueckgegebenAm:null,abgerechnetAm:null};
   wizardArtikel.push(a);
   artikel.push(a);
-  ['wzArtNr','wzBezeichnung','wzKategorie','wzMarke','wzPreis','wzAltPreis','wzGroesse','wzFarbe','wzBeschreibung'].forEach(id=>document.getElementById(id).value='');
+  ['wzArtNr','wzBezeichnung','wzKategorie','wzMarke','wzPreis','wzGroesse','wzFarbe','wzBeschreibung'].forEach(id=>document.getElementById(id).value='');
   renderWzArtikelList();
   showToast('Artikel übernommen.');
   document.getElementById('wzArtNr').focus();
@@ -1019,8 +1862,7 @@ function wzDeleteArtikel(i){
 
 function openWizardSpeichern(){
   if(!wizardArtikel.length){showToast('Mindestens einen Artikel erfassen.');return;}
-  var typeInfo=getTypeInfo(selectedVk.type);
-  var gebuehr=wizardArtikel.length*typeInfo.gebuehr;
+  var gebuehr=wizardArtikel.length*selectedVk.gebuehr;
   document.getElementById('wsAnzahl').textContent=wizardArtikel.length;
   document.getElementById('wsGebuehr').innerHTML=gebuehr.toFixed(2).replace('.',',')+'&nbsp;€';
   document.getElementById('wsErhalten').value='';
@@ -1047,6 +1889,8 @@ document.getElementById('btnWsBuchen').addEventListener('click',()=>{
 // ════ ANNAHME SCREEN ════
 function resetAnnahme(){
   document.getElementById('annahmeSearchInput').value='';
+  var clr=document.getElementById('annahmeIgClear');if(clr)clr.style.display='none';
+  var act=document.getElementById('annahmeIgAction');if(act){act.textContent='📷';act.title='Scanner öffnen';}
   renderAnnahmeVendorList('');
 }
 
@@ -1058,81 +1902,67 @@ function renderAnnahmeVendorList(q){
   noRes.style.display='none';
   ul.innerHTML=list.map(v=>'<li onclick="openWizardStep2(getVk('+v.id+'))"><div style="flex:1"><div class="vname">'+vkName(v)+'</div><div class="vinfo">'+v.plz+' '+v.ort+'</div></div>'+chipHtml(getVkStatus(v),'vk')+'</li>').join('');
 }
-document.getElementById('annahmeSearchInput').addEventListener('input',e=>renderAnnahmeVendorList(e.target.value));
-document.getElementById('btnAnnahmeAnlegen').addEventListener('click',()=>{populateW1Types();['w1Vorname','w1Nachname','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(id=>document.getElementById(id).value='');openModal('modalWizard1');});
+
+function annahmeEnter(q){
+  var list=verkaeufer.filter(v=>!q||(v.vorname+' '+v.nachname+' '+v.ort).toLowerCase().includes(q.toLowerCase()));
+  if(!list.length&&q){populateW1Types();['w1Vorname','w1Nachname','w1Anschrift','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(id=>document.getElementById(id).value='');openModal('modalWizard1');}
+  else if(list.length===1){openWizardStep2(list[0]);}
+}
+
+document.getElementById('btnAnnahmeAnlegen').addEventListener('click',()=>{populateW1Types();['w1Vorname','w1Nachname','w1Anschrift','w1Plz','w1Ort','w1Telefon','w1Email'].forEach(id=>document.getElementById(id).value='');openModal('modalWizard1');});
+
+setupIG({inputId:'annahmeSearchInput',clearId:'annahmeIgClear',spinnerId:'annahmeIgSpinner',actionId:'annahmeIgAction',
+  onSearch:renderAnnahmeVendorList,onEnter:annahmeEnter});
 
 // ════ VERKAUF SCREEN ════
 var verkaufScan=null;
 
-document.getElementById('verkaufArtikelNr').addEventListener('keydown',e=>{if(e.key==='Enter')scanArtikel();});
-
 function scanArtikel(){
   var nr=parseInt(document.getElementById('verkaufArtikelNr').value);
   var a=getArt(nr);
-  var infoEl=document.getElementById('verkaufInfo');
   var preiseArea=document.getElementById('verkaufPreiseArea');
   var btns=document.getElementById('verkaufPreisButtons');
   btns.innerHTML='';preiseArea.style.display='none';verkaufScan=null;
 
-  if(!a){
-    playErrorTone();
-    infoEl.innerHTML='<div class="info-banner error">✗ Artikel #'+nr+' nicht gefunden.</div>';
-    return;
-  }
-  if(a.status==='Verkauft'||a.verkauftAm){
-    playErrorTone();
-    infoEl.innerHTML='<div class="info-banner error">✗ Artikel #'+nr+' wurde bereits verkauft.</div>';
-    return;
-  }
-  if(!a.freigegebenAm){
-    playErrorTone();
-    infoEl.innerHTML='<div class="info-banner error">✗ Artikel #'+nr+' ist nicht freigegeben.</div>';
-    return;
-  }
-  if(warenkorb.find(x=>x.id===a.id)){
-    playErrorTone();
-    infoEl.innerHTML='<div class="info-banner warn">⚠ Artikel #'+nr+' bereits im Warenkorb.</div>';
-    return;
-  }
+  if(!nr){showInfoArea('verkaufInfo','','','');return;}
+  if(!a){showInfoArea('verkaufInfo','error','✗','Artikel #'+nr+' nicht gefunden.');return;}
+  if(a.verkauftAm){showInfoArea('verkaufInfo','error','✗','Artikel #'+nr+' wurde bereits verkauft.');return;}
+  if(!a.freigegebenAm){showInfoArea('verkaufInfo','error','✗','Artikel #'+nr+' ist nicht freigegeben.');return;}
+  if(warenkorb.find(x=>x.id===a.id)){showInfoArea('verkaufInfo','warn','⚠','Artikel #'+nr+' bereits im Warenkorb.');return;}
+
   verkaufScan=a;
-  infoEl.innerHTML='<div class="info-banner success">✓ <strong>'+a.bezeichnung+'</strong>'+(a.marke?' | '+a.marke:'')+(a.groesse?' | Gr. '+a.groesse:'')+'</div>';
+  showInfoArea('verkaufInfo','success','✓','<strong>'+a.bezeichnung+'</strong>'+(a.marke?' | '+a.marke:'')+(a.groesse?' | Gr. '+a.groesse:''));
   preiseArea.style.display='';
-  // Preis-Button
   var b1=document.createElement('button');
   b1.className='btn btn-primary btn-preis';
   b1.textContent=a.preis.toFixed(2).replace('.',',')+' €';
-  b1.title=a.preis.toFixed(2).replace('.',',')+' €';
   b1.onclick=()=>addToCart(a,a.preis);
   btns.appendChild(b1);
-  if(a.altPreis){
-    var b2=document.createElement('button');
-    b2.className='btn btn-accent btn-preis';
-    b2.textContent=a.altPreis.toFixed(2).replace('.',',')+' €';
-    b2.title=a.altPreis.toFixed(2).replace('.',',')+' €';
-    b2.onclick=()=>addToCart(a,a.altPreis);
-    btns.appendChild(b2);
-  }
 }
 
 function addToCart(a,preis){
   warenkorb.push({id:a.id,bezeichnung:a.bezeichnung,preis});
-  document.getElementById('verkaufArtikelNr').value='';
-  document.getElementById('verkaufInfo').innerHTML='<div class="info-banner info">Nächsten Artikel eingeben…</div>';
+  var inp=document.getElementById('verkaufArtikelNr');inp.value='';
+  var clr=document.getElementById('verkaufIgClear');if(clr)clr.style.display='none';
+  var act=document.getElementById('verkaufIgAction');if(act){act.textContent='📷';act.title='Scanner öffnen';}
+  showInfoArea('verkaufInfo','info','→','Nächsten Artikel eingeben…');
   document.getElementById('verkaufPreiseArea').style.display='none';
   document.getElementById('verkaufPreisButtons').innerHTML='';
   verkaufScan=null;
   renderWarenkorb();
-  document.getElementById('verkaufArtikelNr').focus();
+  inp.focus();
 }
 
 function removeFromCart(i){warenkorb.splice(i,1);renderWarenkorb();}
 
 function leerenWarenkorb(){
   warenkorb=[];renderWarenkorb();
-  document.getElementById('verkaufArtikelNr').value='';
-  document.getElementById('verkaufInfo').innerHTML='';
+  var inp=document.getElementById('verkaufArtikelNr');inp.value='';
+  var clr=document.getElementById('verkaufIgClear');if(clr)clr.style.display='none';
+  var act=document.getElementById('verkaufIgAction');if(act){act.textContent='📷';act.title='Scanner öffnen';}
+  showInfoArea('verkaufInfo','info','→','Ersten Artikel eingeben…');
   document.getElementById('verkaufPreiseArea').style.display='none';
-  document.getElementById('verkaufArtikelNr').focus();
+  inp.focus();
 }
 
 function renderWarenkorb(){
@@ -1167,10 +1997,15 @@ document.getElementById('btnVbBezahlt').addEventListener('click',()=>{
   var ts=tsNow();
   warenkorb.forEach(item=>{var a=getArt(item.id);if(a)a.verkauftAm=ts;});
   warenkorb=[];renderWarenkorb();
-  document.getElementById('verkaufInfo').innerHTML='<div class="info-banner info">Ersten Artikel eingeben…</div>';
+  showInfoArea('verkaufInfo','info','→','Ersten Artikel eingeben…');
   closeModal('modalVerkaufBuchen');
   showToast('Verkauf gebucht!');
 });
+
+setupIG({inputId:'verkaufArtikelNr',clearId:'verkaufIgClear',spinnerId:'verkaufIgSpinner',actionId:'verkaufIgAction',
+  onSearch:function(v){if(v)scanArtikel();else{showInfoArea('verkaufInfo','','','');document.getElementById('verkaufPreiseArea').style.display='none';}},
+  onEnter:function(){scanArtikel();},
+  onCamera:function(){scanArtikel();}});
 
 // ════ ABRECHNUNG SCREEN ════
 function resetAbrechnung(){
@@ -1178,17 +2013,23 @@ function resetAbrechnung(){
   document.getElementById('abrSearch').style.display='';
   document.getElementById('abrDetail').style.display='none';
   document.getElementById('abrSearchInput').value='';
+  var clr=document.getElementById('abrIgClear');if(clr)clr.style.display='none';
+  var act=document.getElementById('abrIgAction');if(act){act.textContent='📷';act.title='Scanner öffnen';}
   renderAbrVendorList('');
 }
 
 function renderAbrVendorList(q){
-  var list=verkaeufer.filter(v=>{
-    if(!q)return true;
-    return(v.vorname+' '+v.nachname+' '+v.ort).toLowerCase().includes(q.toLowerCase());
-  });
+  var list=verkaeufer.filter(v=>!q||(v.vorname+' '+v.nachname+' '+v.ort).toLowerCase().includes(q.toLowerCase()));
   document.getElementById('abrVendorList').innerHTML=list.map(v=>'<li onclick="openAbrDetail('+v.id+')"><div style="flex:1"><div class="vname">'+vkName(v)+'</div><div class="vinfo">'+v.plz+' '+v.ort+'</div></div>'+chipHtml(getVkStatus(v),'vk')+'</li>').join('');
 }
-document.getElementById('abrSearchInput').addEventListener('input',e=>renderAbrVendorList(e.target.value));
+
+function abrEnter(q){
+  var list=verkaeufer.filter(v=>!q||(v.vorname+' '+v.nachname+' '+v.ort).toLowerCase().includes(q.toLowerCase()));
+  if(list.length===1)openAbrDetail(list[0].id);
+}
+
+setupIG({inputId:'abrSearchInput',clearId:'abrIgClear',spinnerId:'abrIgSpinner',actionId:'abrIgAction',
+  onSearch:renderAbrVendorList,onEnter:abrEnter});
 
 function openAbrDetail(id){
   abrVkId=id;
@@ -1204,7 +2045,7 @@ function renderAbrDetailUI(vk){
   var umsatz=arts.filter(a=>a.verkauftAm).reduce((s,a)=>s+a.preis,0);
   // Button-Regeln
   var zurBtnDisabled=offen===0;
-  var abrBtnDisabled=offen>0||!arts.some(a=>a.freigegebenAm);
+  var abrBtnDisabled=offen>0||!arts.some(a=>a.freigegebenAm)||!!vk.abgerechnetAm;
   var rows=arts.map(a=>'<tr><td>#'+a.id+'</td><td>'+a.bezeichnung+'</td><td>'+a.preis.toFixed(2).replace('.',',')+'&nbsp;€</td><td>'+chipHtml(getArtStatus(a),'art')+'</td></tr>').join('');
   document.getElementById('abrDetail').innerHTML=
     '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap">' +
@@ -1229,12 +2070,11 @@ function openAbrechnenModal(vkId){
   var vk=getVk(vkId);
   var arts=artikel.filter(a=>a.verkaeuferID===vkId&&a.verkauftAm);
   var umsatz=arts.reduce((s,a)=>s+a.preis,0);
-  var typeInfo=getTypeInfo(vk.type);
-  var provision=umsatz*(typeInfo.provision/100);
+  var provision=umsatz*(vk.provision/100);
   var auszahlung=umsatz-provision;
   document.getElementById('abrModalContent').innerHTML=
     '<div class="provision-row"><span>Umsatz (verkaufte Artikel)</span><span>'+umsatz.toFixed(2).replace('.',',')+'&nbsp;€</span></div>' +
-    '<div class="provision-row"><span>Provision ('+typeInfo.provision+'%)</span><span style="color:#D32F2F">− '+provision.toFixed(2).replace('.',',')+'&nbsp;€</span></div>';
+    '<div class="provision-row"><span>Provision ('+vk.provision+'%)</span><span style="color:#D32F2F">− '+provision.toFixed(2).replace('.',',')+'&nbsp;€</span></div>';
   document.getElementById('abrAuszahlung').innerHTML='Auszahlung: '+auszahlung.toFixed(2).replace('.',',')+'&nbsp;€';
   document.getElementById('btnAbrBuchen').onclick=()=>{
     var ts=tsNow();
@@ -1252,8 +2092,8 @@ function renderArtikelTable(){
   var sm=document.getElementById('artFilterMarke');
   var sk=document.getElementById('artFilterKat');
   var em=sm.value,ek=sk.value;
-  sm.innerHTML='<option value="">Alle Marken</option>'+marken.map(m=>'<option'+(m===em?' selected':'')+'>'+m+'</option>').join('');
-  sk.innerHTML='<option value="">Alle Kategorien</option>'+kategorien.map(k=>'<option'+(k===ek?' selected':'')+'>'+k+'</option>').join('');
+  sm.innerHTML='<option value="">Alle Marken</option>'+marken.map(m=>'<option'+(m.name===em?' selected':'')+'>'+m.name+'</option>').join('');
+  sk.innerHTML='<option value="">Alle Kategorien</option>'+kategorien.map(k=>'<option'+(k.name===ek?' selected':'')+'>'+k.name+'</option>').join('');
   var mf=sm.value,kf=sk.value;
   var vsf=document.getElementById('artFilterVStatus').value;
   var asf=document.getElementById('artFilterAStatus').value;
@@ -1263,8 +2103,18 @@ function renderArtikelTable(){
     if(kf&&a.kategorie!==kf)return false;
     if(asf&&getArtStatus(a)!==asf)return false;
     if(vsf){var vk=getVk(a.verkaeuferID);if(!vk||getVkStatus(vk)!==vsf)return false;}
-    if(sf&&!(a.bezeichnung+' '+a.marke+' '+a.kategorie).toLowerCase().includes(sf))return false;
+    if(sf&&!(a.bezeichnung+' '+a.marke+' '+a.kategorie+' '+a.id).toLowerCase().includes(sf))return false;
     return true;
+  });
+  // apply multi-sort
+  list = applySortToRows(list, 'artikelTable', (a,key)=>{
+    if(key==='id') return a.id;
+    if(key==='bezeichnung') return a.bezeichnung;
+    if(key==='kategorie') return a.kategorie;
+    if(key==='marke') return a.marke;
+    if(key==='preis') return a.preis;
+    if(key==='status') return getArtStatus(a);
+    return '';
   });
   var tbody=document.getElementById('artikelTableBody');
   tbody.innerHTML=list.map(a=>{
@@ -1282,42 +2132,56 @@ document.getElementById('artFilterSearch').addEventListener('input',renderArtike
 function openArtikelStatusModal(id){
   var a=getArt(id);if(!a)return;
   document.getElementById('modalArtikelStatusTitle').textContent='Artikelstatus — '+a.bezeichnung;
-  function panel(label,ts,field,readonly){
+  function panel(label,ts,field,readonly,blocked){
     var hasTs=!!ts;
     var btn=readonly?'<button class="btn-icon" disabled style="opacity:.3" title="Nur lesbar">—</button>':
       hasTs?'<button class="btn-icon" title="Löschen" onclick="clearArtikelTs('+id+',\''+field+'\')">🗑</button>':
+      blocked?'<button class="btn-icon" disabled style="opacity:.3" title="Nicht setzbar">⛔</button>':
              '<button class="btn-icon" title="Jetzt setzen" onclick="setArtikelTs('+id+',\''+field+'\')">✛</button>';
     return '<div class="status-panel"><span class="sp-label">'+label+'</span><span class="sp-ts'+(hasTs?'':' empty')+'">'+(hasTs?fmtDate(ts):'—')+'</span><span class="sp-action">'+btn+'</span></div>';
   }
-  var vkAbrDatum=getVk(a.verkaeuferID)?.abgerechnetAm||null;
+  var vk=getVk(a.verkaeuferID);
+  var vkAbrDatum=vk?.abgerechnetAm||null;
+  var locked=!!vkAbrDatum;
+  var lockedHint=locked?'Verkäufer bereits abgerechnet — keine Änderungen möglich':'';
   var body=
     panel('Erstellt Am',a.erstelltAm,'erstelltAm',true)+
-    panel('Freigegeben Am',a.freigegebenAm,'freigegebenAm')+
-    panel('Verkauft Am',a.verkauftAm,'verkauftAm')+
-    panel('Rückgegeben Am',a.zurueckgegebenAm,'zurueckgegebenAm')+
+    panel('Freigegeben Am',a.freigegebenAm,'freigegebenAm',locked)+
+    panel('Verkauft Am',a.verkauftAm,'verkauftAm',locked,!locked&&!!a.zurueckgegebenAm)+
+    panel('Rückgegeben Am',a.zurueckgegebenAm,'zurueckgegebenAm',locked,!locked&&!!a.verkauftAm)+
     panel('Abgerechnet Am',vkAbrDatum,'abgerechnetAm',true);
+  if(locked)body+='<p style="font-size:12px;color:#E65100;margin-top:10px">⚠ '+lockedHint+'</p>';
   document.getElementById('modalArtikelStatusBody').innerHTML=body;
   openModal('modalArtikelStatus');
 }
 function setArtikelTs(id,field){
-  var a=getArt(id);a[field]=tsNow();renderArtikelTable();openArtikelStatusModal(id);showToast('Gesetzt.');}
+  var a=getArt(id);
+  if(getVk(a.verkaeuferID)?.abgerechnetAm){showToast('Nicht möglich — Verkäufer bereits abgerechnet.');return;}
+  a[field]=tsNow();renderArtikelTable();openArtikelStatusModal(id);showToast('Gesetzt.');
+}
 function clearArtikelTs(id,field){
-  var a=getArt(id);a[field]=null;renderArtikelTable();openArtikelStatusModal(id);showToast('Gelöscht.');}
+  var a=getArt(id);
+  if(getVk(a.verkaeuferID)?.abgerechnetAm){showToast('Nicht möglich — Verkäufer bereits abgerechnet.');return;}
+  a[field]=null;
+  if(field==='freigegebenAm'){a.verkauftAm=null;a.zurueckgegebenAm=null;}
+  renderArtikelTable();openArtikelStatusModal(id);
+  showToast(field==='freigegebenAm'?'Freigegeben Am + Verkauft Am + Rückgegeben Am gelöscht.':'Gelöscht.');
+}
 
 function openArtikelForm(id){
   editingArtikelId=id;
   var a=getArt(id);
   document.getElementById('modalArtikelFormTitle').textContent='Artikel bearbeiten — #'+id;
+  document.getElementById('afArtNr').value='#'+id;
   document.getElementById('afBezeichnung').value=a.bezeichnung;
   document.getElementById('afPreis').value=a.preis;
   document.getElementById('afKategorie').value=a.kategorie;
   document.getElementById('afMarke').value=a.marke;
-  document.getElementById('afGroesse').value=a.groesse;
-  document.getElementById('afFarbe').value=a.farbe;
-  document.getElementById('afAltPreis').value=a.altPreis||'';
+  document.getElementById('afGroesse').value=a.groesse||'';
+  document.getElementById('afFarbe').value=a.farbe||'';
+  acSync('afKategorie','afKatBtn','afKatDropdown',()=>kategorien.map(k=>k.name));
+  acSync('afMarke','afMarkeBtn','afMarkeDropdown',()=>marken.map(m=>m.name));
   document.getElementById('afBeschreibung').value=a.beschreibung;
-  document.getElementById('afKatList').innerHTML=kategorien.map(k=>'<option>'+k+'</option>').join('');
-  document.getElementById('afMarkeList').innerHTML=marken.map(m=>'<option>'+m+'</option>').join('');
   openModal('modalArtikelForm');
 }
 document.getElementById('btnAfSave').addEventListener('click',()=>{
@@ -1328,48 +2192,548 @@ document.getElementById('btnAfSave').addEventListener('click',()=>{
   a.marke=document.getElementById('afMarke').value;
   a.groesse=document.getElementById('afGroesse').value;
   a.farbe=document.getElementById('afFarbe').value;
-  var ap=document.getElementById('afAltPreis').value;
-  a.altPreis=ap?parseFloat(ap):null;
   a.beschreibung=document.getElementById('afBeschreibung').value;
   closeModal('modalArtikelForm');renderArtikelTable();showToast('Gespeichert.');
 });
 
+document.getElementById('btnAfDelete').addEventListener('click',()=>{
+  if(!editingArtikelId)return;
+  if(!confirm('Artikel #'+editingArtikelId+' wirklich löschen?'))return;
+  var idx=artikel.findIndex(a=>a.id===editingArtikelId);
+  if(idx>=0)artikel.splice(idx,1);
+  closeModal('modalArtikelForm');renderArtikelTable();showToast('Artikel gelöscht.');
+});
+
 // ════ MARKEN ════
+function origBadge(original){return original?'<span class="badge-orig">&#10003; Original</span>':'<span class="badge-neu">Neu</span>';}
 function renderMarken(){
-  document.getElementById('markenTableBody').innerHTML=marken.map((m,i)=>'<tr><td>'+(i+1)+'</td><td>'+m+'</td><td><button class="btn-icon" onclick="openMarkeEdit('+i+')">✏️</button></td></tr>').join('');
+  var rows = marken.map((m,i)=>({...m, _i:i, cnt:artikel.filter(a=>a.marke===m.name).length, sold:artikel.filter(a=>a.marke===m.name&&a.verkauftAm).length}));
+  rows = applySortToRows(rows,'markenTable',(r,k)=>k==='cnt'?r.cnt:k==='sold'?r.sold:r[k]||'');
+  document.getElementById('markenTableBody').innerHTML=rows.map((m,i)=>
+    '<tr><td>'+(i+1)+'</td><td>'+m.name+'</td><td>'+origBadge(m.original)+'</td><td>'+m.cnt+'</td><td>'+m.sold+'</td><td><button class="btn-icon" onclick="openMarkeEdit('+m._i+')">✏️</button></td></tr>'
+  ).join('');
 }
-document.getElementById('btnNeuMarke').addEventListener('click',()=>{editingMarkeIdx=null;document.getElementById('modalMarkeFormTitle').textContent='Neue Marke';document.getElementById('markeFormName').value='';document.getElementById('btnMarkeDelete').style.display='none';openModal('modalMarkeForm');});
-function openMarkeEdit(i){editingMarkeIdx=i;document.getElementById('modalMarkeFormTitle').textContent='Marke bearbeiten';document.getElementById('markeFormName').value=marken[i];document.getElementById('btnMarkeDelete').style.display='inline-flex';openModal('modalMarkeForm');}
-document.getElementById('btnMarkeSave').addEventListener('click',()=>{var n=document.getElementById('markeFormName').value.trim();if(!n)return;if(editingMarkeIdx===null)marken.push(n);else marken[editingMarkeIdx]=n;closeModal('modalMarkeForm');renderMarken();showToast('Gespeichert.');});
+document.getElementById('btnNeuMarke').addEventListener('click',()=>{editingMarkeIdx=null;document.getElementById('modalMarkeFormTitle').textContent='Neue Marke';document.getElementById('markeFormName').value='';document.getElementById('markeFormOriginal').checked=false;document.getElementById('btnMarkeDelete').style.display='none';openModal('modalMarkeForm');});
+function openMarkeEdit(i){editingMarkeIdx=i;var m=marken[i];document.getElementById('modalMarkeFormTitle').textContent='Marke bearbeiten';document.getElementById('markeFormName').value=m.name;document.getElementById('markeFormOriginal').checked=m.original;document.getElementById('btnMarkeDelete').style.display='inline-flex';openModal('modalMarkeForm');}
+document.getElementById('btnMarkeSave').addEventListener('click',()=>{var n=document.getElementById('markeFormName').value.trim();if(!n)return;var orig=document.getElementById('markeFormOriginal').checked;if(editingMarkeIdx===null)marken.push({id:_markeNextId++,name:n,original:orig});else{marken[editingMarkeIdx].name=n;marken[editingMarkeIdx].original=orig;}closeModal('modalMarkeForm');renderMarken();showToast('Gespeichert.');});
 document.getElementById('btnMarkeDelete').addEventListener('click',()=>{if(editingMarkeIdx===null)return;marken.splice(editingMarkeIdx,1);closeModal('modalMarkeForm');renderMarken();showToast('Gelöscht.');});
 
 // ════ KATEGORIEN ════
 function renderKategorien(){
-  document.getElementById('kategorienTableBody').innerHTML=kategorien.map((k,i)=>'<tr><td>'+(i+1)+'</td><td>'+k+'</td><td><button class="btn-icon" onclick="openKategorieEdit('+i+')">✏️</button></td></tr>').join('');
+  var rows = kategorien.map((k,i)=>({...k, _i:i, cnt:artikel.filter(a=>a.kategorie===k.name).length, sold:artikel.filter(a=>a.kategorie===k.name&&a.verkauftAm).length}));
+  rows = applySortToRows(rows,'kategorienTable',(r,key)=>key==='cnt'?r.cnt:key==='sold'?r.sold:r[key]||'');
+  document.getElementById('kategorienTableBody').innerHTML=rows.map((k,i)=>
+    '<tr><td>'+(i+1)+'</td><td>'+k.name+'</td><td>'+origBadge(k.original)+'</td><td>'+k.cnt+'</td><td>'+k.sold+'</td><td><button class="btn-icon" onclick="openKategorieEdit('+k._i+')">✏️</button></td></tr>'
+  ).join('');
 }
-document.getElementById('btnNeuKategorie').addEventListener('click',()=>{editingKategorieIdx=null;document.getElementById('modalKategorieFormTitle').textContent='Neue Kategorie';document.getElementById('kategorieFormName').value='';document.getElementById('btnKategorieDelete').style.display='none';openModal('modalKategorieForm');});
-function openKategorieEdit(i){editingKategorieIdx=i;document.getElementById('modalKategorieFormTitle').textContent='Kategorie bearbeiten';document.getElementById('kategorieFormName').value=kategorien[i];document.getElementById('btnKategorieDelete').style.display='inline-flex';openModal('modalKategorieForm');}
-document.getElementById('btnKategorieSave').addEventListener('click',()=>{var n=document.getElementById('kategorieFormName').value.trim();if(!n)return;if(editingKategorieIdx===null)kategorien.push(n);else kategorien[editingKategorieIdx]=n;closeModal('modalKategorieForm');renderKategorien();showToast('Gespeichert.');});
+document.getElementById('btnNeuKategorie').addEventListener('click',()=>{editingKategorieIdx=null;document.getElementById('modalKategorieFormTitle').textContent='Neue Kategorie';document.getElementById('kategorieFormName').value='';document.getElementById('kategorieFormOriginal').checked=false;document.getElementById('btnKategorieDelete').style.display='none';openModal('modalKategorieForm');});
+function openKategorieEdit(i){editingKategorieIdx=i;var k=kategorien[i];document.getElementById('modalKategorieFormTitle').textContent='Kategorie bearbeiten';document.getElementById('kategorieFormName').value=k.name;document.getElementById('kategorieFormOriginal').checked=k.original;document.getElementById('btnKategorieDelete').style.display='inline-flex';openModal('modalKategorieForm');}
+document.getElementById('btnKategorieSave').addEventListener('click',()=>{var n=document.getElementById('kategorieFormName').value.trim();if(!n)return;var orig=document.getElementById('kategorieFormOriginal').checked;if(editingKategorieIdx===null)kategorien.push({id:_katNextId++,name:n,original:orig});else{kategorien[editingKategorieIdx].name=n;kategorien[editingKategorieIdx].original=orig;}closeModal('modalKategorieForm');renderKategorien();showToast('Gespeichert.');});
 document.getElementById('btnKategorieDelete').addEventListener('click',()=>{if(editingKategorieIdx===null)return;kategorien.splice(editingKategorieIdx,1);closeModal('modalKategorieForm');renderKategorien();showToast('Gelöscht.');});
 
 // ════ VK-TYPEN ════
 function renderVkTypes(){
-  document.getElementById('vkTypesTableBody').innerHTML=verkaeuferTypes.map((t,i)=>'<tr><td>'+(i+1)+'</td><td>'+t.name+'</td><td>'+t.provision+'%</td><td>'+t.gebuehr.toFixed(2).replace('.',',')+'&nbsp;€</td><td><button class="btn-icon" onclick="openVkTypeEdit('+i+')">✏️</button></td></tr>').join('');
+  var rows = verkaeuferTypes.map((t,i)=>({...t, _i:i, anzahl:verkaeufer.filter(v=>v.type===t.name).length}));
+  rows = applySortToRows(rows,'vkTypenTable',(r,key)=>key==='anzahl'?r.anzahl:key==='provision'?r.provision:key==='gebuehr'?r.gebuehr:r[key]||'');
+  document.getElementById('vkTypesTableBody').innerHTML=rows.map((t,i)=>
+    '<tr><td>'+(i+1)+'</td><td>'+t.name+'</td><td>'+t.provision+'%</td><td>'+t.gebuehr.toFixed(2).replace('.',',')+'&nbsp;€</td><td>'+t.anzahl+'</td><td><button class="btn-icon" onclick="openVkTypeEdit('+t._i+')">✏️</button></td></tr>'
+  ).join('');
 }
 document.getElementById('btnNeuVkType').addEventListener('click',()=>{editingVkTypeIdx=null;document.getElementById('modalVkTypeFormTitle').textContent='Neuer Verkäufer-Type';document.getElementById('vkTypeFormName').value='';document.getElementById('vkTypeFormProvision').value='';document.getElementById('vkTypeFormGebuehr').value='';document.getElementById('btnVkTypeDelete').style.display='none';openModal('modalVkTypeForm');});
 function openVkTypeEdit(i){editingVkTypeIdx=i;var t=verkaeuferTypes[i];document.getElementById('modalVkTypeFormTitle').textContent='Type bearbeiten';document.getElementById('vkTypeFormName').value=t.name;document.getElementById('vkTypeFormProvision').value=t.provision;document.getElementById('vkTypeFormGebuehr').value=t.gebuehr;document.getElementById('btnVkTypeDelete').style.display='inline-flex';openModal('modalVkTypeForm');}
 document.getElementById('btnVkTypeSave').addEventListener('click',()=>{var n=document.getElementById('vkTypeFormName').value.trim();if(!n)return;var o={name:n,provision:parseFloat(document.getElementById('vkTypeFormProvision').value)||0,gebuehr:parseFloat(document.getElementById('vkTypeFormGebuehr').value)||0};if(editingVkTypeIdx===null)verkaeuferTypes.push(o);else verkaeuferTypes[editingVkTypeIdx]=o;closeModal('modalVkTypeForm');renderVkTypes();showToast('Gespeichert.');});
 document.getElementById('btnVkTypeDelete').addEventListener('click',()=>{if(editingVkTypeIdx===null)return;verkaeuferTypes.splice(editingVkTypeIdx,1);closeModal('modalVkTypeForm');renderVkTypes();showToast('Gelöscht.');});
 
+// ════ EINSTELLUNGEN ════
+function renderSettingsUI(){
+  function set(id,val,def){
+    var el=document.getElementById(id);if(el)el.value=val;
+    var dl=document.getElementById(id+'Default');if(dl)dl.textContent='Standard: '+def;
+  }
+  set('sSuchDebounce',SETTINGS.suchDebounceMs,SETTINGS_DEFAULTS.suchDebounceMs);
+  set('sScannerPause',SETTINGS.scannerPauseMs,SETTINGS_DEFAULTS.scannerPauseMs);
+}
+
+function applySettings(){
+  var debounce=parseInt(document.getElementById('sSuchDebounce').value);
+  var pause=parseInt(document.getElementById('sScannerPause').value);
+  if(isNaN(debounce)||debounce<100){showToast('Suche-Verzögerung muss ≥ 100 ms sein.');return;}
+  if(isNaN(pause)||pause<500){showToast('Scanner-Pause muss ≥ 500 ms sein.');return;}
+  SETTINGS.suchDebounceMs=debounce;
+  SETTINGS.scannerPauseMs=pause;
+  saveSettingsToStorage();
+  showToast('Einstellungen gespeichert.');
+}
+
+function resetSettingsUI(){
+  Object.assign(SETTINGS,SETTINGS_DEFAULTS);
+  saveSettingsToStorage();
+  renderSettingsUI();
+  showToast('Einstellungen zurückgesetzt.');
+}
+
+// ════ IMPORT ════
+let _importData = null;
+
+function triggerImportFile() {
+  document.getElementById('import-file-input').click();
+}
+
+function handleImportFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('import-filename').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.verkaeufer || !Array.isArray(data.verkaeufer)) {
+        showToast('Ungültiges Format: "verkaeufer" fehlt.', 'error');
+        return;
+      }
+      _importData = data;
+      showImportPreview(data);
+    } catch(err) {
+      showToast('Datei konnte nicht gelesen werden: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+  input.value = '';
+}
+
+function showImportPreview(data) {
+  const vkCount  = data.verkaeufer.length;
+  const artCount = data.verkaeufer.reduce((sum, v) => sum + (v.artikel ? v.artikel.length : 0), 0);
+
+  // Welche Verkäufer existieren bereits → werden gelöscht + neu angelegt
+  const existing = data.verkaeufer.filter(v => verkaeufer.some(x => x.id === v.id));
+  const neu      = data.verkaeufer.filter(v => !verkaeufer.some(x => x.id === v.id));
+
+  const summaryEl = document.getElementById('import-summary');
+  summaryEl.innerHTML = `
+    <div class="stat-chip">&#128100; <strong>${vkCount}</strong> Verk&#228;ufer</div>
+    <div class="stat-chip">&#127991; <strong>${artCount}</strong> Artikel</div>
+    ${existing.length ? `<div class="stat-chip stat-warn">&#9888; <strong>${existing.length}</strong> werden ersetzt</div>` : ''}
+    ${neu.length ? `<div class="stat-chip stat-ok">&#43; <strong>${neu.length}</strong> neu</div>` : ''}
+    ${data.marken ? `<div class="stat-chip">&#11088; ${data.marken.length} Marken</div>` : ''}
+    ${data.kategorien ? `<div class="stat-chip">&#128193; ${data.kategorien.length} Kategorien</div>` : ''}
+  `;
+
+  const lines = data.verkaeufer.map(v => {
+    const tag = verkaeufer.some(x => x.id === v.id) ? '[ERSETZEN]' : '[NEU]     ';
+    return `${tag}  ${v.vorname} ${v.nachname}  (ID: ${v.id}, ${(v.artikel||[]).length} Artikel)`;
+  });
+  document.getElementById('import-detail').textContent = lines.join('\n');
+
+  document.getElementById('import-preview-card').style.display = '';
+  document.getElementById('import-result-card').style.display  = 'none';
+}
+
+function executeImport() {
+  if (!_importData) return;
+  const data = _importData;
+  let replaced = 0, added = 0, artCount = 0;
+
+  data.verkaeufer.forEach(importVk => {
+    // Schritt 1: existierenden Verkäufer + seine Artikel löschen
+    const existsIdx = verkaeufer.findIndex(x => x.id === importVk.id);
+    if (existsIdx > -1) {
+      verkaeufer.splice(existsIdx, 1);
+      artikel = artikel.filter(a => a.verkaeufer !== importVk.id);
+      replaced++;
+    } else {
+      added++;
+    }
+    // Schritt 2: Verkäufer neu anlegen
+    const { artikel: vkArtikel, ...vkData } = importVk;
+    verkaeufer.push(vkData);
+    // Artikel anlegen
+    (vkArtikel || []).forEach(a => {
+      artikel.push({ ...a, verkaeufer: importVk.id });
+      artCount++;
+    });
+  });
+
+  // Optionale Stammdaten
+  if (data.marken)     marken     = data.marken;
+  if (data.kategorien) kategorien = data.kategorien;
+
+  // Ergebnis anzeigen
+  const resultEl = document.getElementById('import-result-body');
+  resultEl.innerHTML = `
+    <div class="alert alert-success" style="margin-bottom:12px;">&#10003; Import abgeschlossen</div>
+    <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px;">
+      ${replaced ? `<li>&#8635; <strong>${replaced}</strong> Verk&#228;ufer ersetzt (gel&#246;scht + neu angelegt)</li>` : ''}
+      ${added    ? `<li>&#43; <strong>${added}</strong> neue Verk&#228;ufer angelegt</li>` : ''}
+      <li>&#127991; <strong>${artCount}</strong> Artikel importiert</li>
+      ${data.marken     ? `<li>&#11088; ${data.marken.length} Marken &#252;bernommen</li>`      : ''}
+      ${data.kategorien ? `<li>&#128193; ${data.kategorien.length} Kategorien &#252;bernommen</li>` : ''}
+    </ul>
+  `;
+  document.getElementById('import-preview-card').style.display = 'none';
+  document.getElementById('import-result-card').style.display  = '';
+  showToast('Import erfolgreich abgeschlossen.', 'success');
+  _importData = null;
+}
+
+function resetImport() {
+  _importData = null;
+  document.getElementById('import-filename').textContent = 'Keine Datei ausgewählt';
+  document.getElementById('import-preview-card').style.display = 'none';
+  document.getElementById('import-result-card').style.display  = 'none';
+}
+
+// ════ STATISTIK ════
+
+function renderStatistik(){
+  var now = new Date();
+
+  // ── compute base metrics ──
+  var freigegebene = artikel.filter(a=>a.freigegebenAm);
+  var verkaufte    = artikel.filter(a=>a.verkauftAm);
+  var retour       = artikel.filter(a=>a.zurueckgegebenAm);
+  var inSale       = artikel.filter(a=>a.freigegebenAm&&!a.verkauftAm&&!a.zurueckgegebenAm);
+
+  var totalAngenommen = freigegebene.length;
+  var totalVerkauft   = verkaufte.length;
+  var totalRetour     = retour.length;
+  var totalNoch       = inSale.length;
+  var totalArtikel    = artikel.length;
+
+  var umsatzBrutto = verkaufte.reduce((s,a)=>s+a.preis,0);
+
+  var provEinnahmen = 0, gebuehrenEinnahmen = 0;
+  verkaufte.forEach(a=>{
+    var vk = verkaeufer.find(v=>v.id===a.verkaeuferID)||{type:'Privat'};
+    var typ = verkaeuferTypes.find(t=>t.name===vk.type)||{provision:20, gebuehr:0.5};
+    provEinnahmen      += a.preis * (typ.provision/100);
+    gebuehrenEinnahmen += typ.gebuehr;
+  });
+
+  var verkaufsquote = totalAngenommen>0 ? Math.round(totalVerkauft/totalAngenommen*100) : 0;
+
+  function fmt(n){ return (Math.round(n*100)/100).toFixed(2)+' €'; }
+
+  var warenwertAngenommen = artikel.filter(a=>a.freigegebenAm).reduce((s,a)=>s+a.preis,0);
+  var warenwertRetour     = retour.reduce((s,a)=>s+a.preis,0);
+  var warenwertOffen      = inSale.reduce((s,a)=>s+a.preis,0);
+
+  // ── Artikel KPIs (Zeile 1) ──
+  var aKpis = document.getElementById('stat-artikel-kpis');
+  aKpis.innerHTML = [
+    {c:'c-blue',  val:totalArtikel,      lbl:'Gesamt',        sub:'registriert + freigegeben'},
+    {c:'c-teal',  val:totalAngenommen,   lbl:'Angenommen',    sub:'freigegeben gesamt'},
+    {c:'c-orange',val:totalNoch,         lbl:'Im Verkauf',    sub:'noch verfügbar'},
+    {c:'c-green', val:totalVerkauft,     lbl:'Verkauft',      sub:'inkl. abgerechnet'},
+    {c:'c-red',   val:totalRetour,       lbl:'Retour',        sub:'zurückgegeben'},
+    {c:'c-purple',val:verkaufsquote+'%', lbl:'Verkaufsquote', sub:'verkauft / angenommen'},
+  ].map(k=>`<div class="stat-kpi ${k.c}"><div class="stat-kpi-val">${k.val}</div><div class="stat-kpi-label">${k.lbl}</div><div class="stat-kpi-sub">${k.sub}</div></div>`).join('');
+
+  // ── Rückblick KPIs (Zeile 2) ──
+  var rKpis = document.getElementById('stat-rueckblick-kpis');
+  rKpis.innerHTML = [
+    {c:'c-blue',  val:fmt(warenwertAngenommen), lbl:'Warenwert Angenommen', sub:'Summe aller freigegebenen Artikel'},
+    {c:'c-red',   val:fmt(warenwertRetour),     lbl:'Warenwert Retour',     sub:'Summe zurückgegebener Artikel'},
+    {c:'c-orange',val:fmt(warenwertOffen),      lbl:'Offener Warenwert',    sub:'noch im Verkauf'},
+  ].map(k=>`<div class="stat-kpi ${k.c}"><div class="stat-kpi-val">${k.val}</div><div class="stat-kpi-label">${k.lbl}</div><div class="stat-kpi-sub">${k.sub}</div></div>`).join('');
+
+  // ── Finanz KPIs (Zeile 3) ──
+  var fKpis = document.getElementById('stat-fin-kpis');
+  fKpis.innerHTML = [
+    {c:'c-blue',  val:fmt(umsatzBrutto),                             lbl:'Einnahmen Brutto',    sub:'Summe Verkaufspreise'},
+    {c:'c-green', val:fmt(provEinnahmen),                            lbl:'Verdienst Provision', sub:'Provision-Anteil Veranstalter'},
+    {c:'c-teal',  val:fmt(gebuehrenEinnahmen),                      lbl:'Verdienst Gebühren',  sub:'Pauschalgebühren gesamt'},
+    {c:'c-purple',val:fmt(provEinnahmen+gebuehrenEinnahmen),         lbl:'Verdienst Gesamt',    sub:'Provision + Gebühren'},
+    {c:'c-orange',val:fmt(umsatzBrutto-(provEinnahmen+gebuehrenEinnahmen)), lbl:'Auszahlung VK', sub:'geht an Verkäufer'},
+  ].map(k=>`<div class="stat-kpi ${k.c}"><div class="stat-kpi-val">${k.val}</div><div class="stat-kpi-label">${k.lbl}</div><div class="stat-kpi-sub">${k.sub}</div></div>`).join('');
+
+  // ── Leaderboard Dropdown befüllen ──
+  var sel = document.getElementById('leaderboard-type-filter');
+  var existingVals = Array.from(sel.options).map(o=>o.value);
+  verkaeuferTypes.forEach(t=>{
+    if(!existingVals.includes(t.name)){
+      var opt=document.createElement('option');
+      opt.value=t.name; opt.textContent=t.name;
+      sel.appendChild(opt);
+    }
+  });
+  sel.onchange = ()=>renderLeaderboard('stat-leaderboard', sel.value||null);
+
+  // ── Leaderboard ──
+  renderLeaderboard('stat-leaderboard', null);
+}
+
+function renderDonut(containerId, segments){
+  var total = segments.reduce((s,x)=>s+x.val,0);
+  if(!total){document.getElementById(containerId).innerHTML='<p style="opacity:.5;text-align:center;padding:20px">Keine Daten</p>';return;}
+  var r=70, cx=90, cy=90, circ=2*Math.PI*r;
+  var paths=''; var offset=0;
+  segments.forEach(seg=>{
+    var pct = seg.val/total;
+    var dash = pct*circ;
+    paths+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="22"
+      stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})" opacity="0.9"/>`;
+    offset+=dash;
+  });
+  var legend = segments.map(s=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:10px;height:10px;border-radius:50%;background:${s.color};display:inline-block"></span>${s.label}: <b>${s.val}</b></div>`).join('');
+  document.getElementById(containerId).innerHTML=`
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        ${paths}
+        <text x="${cx}" y="${cy}" text-anchor="middle" dy="5" font-size="16" font-weight="bold" fill="var(--p-text-color)">${total}</text>
+        <text x="${cx}" y="${cy+18}" text-anchor="middle" font-size="10" fill="var(--p-text-muted-color)">Artikel</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:6px">${legend}</div>
+    </div>`;
+}
+
+function renderGauge(containerId, pct){
+  var angle = -180 + (pct/100)*180;
+  var rad = angle*(Math.PI/180);
+  var r=70, cx=90, cy=90;
+  var nx = cx + r*Math.cos(rad), ny = cy + r*Math.sin(rad);
+  var arcColor = pct>=70?'#22c55e':pct>=40?'#f59e0b':'#ef4444';
+  document.getElementById(containerId).innerHTML=`
+    <div style="text-align:center">
+      <svg width="180" height="110" viewBox="0 0 180 110">
+        <path d="M20,90 A70,70 0 0,1 160,90" fill="none" stroke="var(--p-surface-200)" stroke-width="18" stroke-linecap="round"/>
+        <path d="M20,90 A70,70 0 0,1 ${nx.toFixed(1)},${ny.toFixed(1)}" fill="none" stroke="${arcColor}" stroke-width="18" stroke-linecap="round"/>
+        <text x="90" y="82" text-anchor="middle" font-size="22" font-weight="bold" fill="${arcColor}">${pct}%</text>
+        <text x="90" y="100" text-anchor="middle" font-size="10" fill="var(--p-text-muted-color)">Verkaufsquote</text>
+        <text x="22" y="108" font-size="9" fill="var(--p-text-muted-color)">0%</text>
+        <text x="155" y="108" font-size="9" fill="var(--p-text-muted-color)">100%</text>
+      </svg>
+      <div style="font-size:12px;opacity:.7">${pct>=70?'Sehr gut 🎉':pct>=40?'Gut 👍':'Ausbaufähig ⚠️'}</div>
+    </div>`;
+}
+
+function renderPreisHistogram(containerId){
+  var buckets=[{l:'0–5',min:0,max:5},{l:'5–10',min:5,max:10},{l:'10–20',min:10,max:20},{l:'20–30',min:20,max:30},{l:'30–50',min:30,max:50},{l:'50+',min:50,max:9999}];
+  var counts = buckets.map(b=>artikel.filter(a=>a.preis>=b.min&&a.preis<b.max).length);
+  var maxC = Math.max(...counts,1);
+  var barH=60, bw=26, gap=6, svgW=buckets.length*(bw+gap)+10, svgH=barH+30;
+  var bars=buckets.map((b,i)=>{
+    var h=Math.round((counts[i]/maxC)*barH);
+    var x=i*(bw+gap)+5, y=barH-h;
+    return `<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="#6366f1" rx="3" opacity="0.85"/>
+      <text x="${x+bw/2}" y="${barH+12}" text-anchor="middle" font-size="8" fill="var(--p-text-muted-color)">${b.l}</text>
+      <text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="9" fill="var(--p-text-color)">${counts[i]||''}</text>`;
+  }).join('');
+  document.getElementById(containerId).innerHTML=`<svg width="100%" viewBox="0 0 ${svgW} ${svgH}" style="display:block;margin:0 auto">${bars}</svg>
+    <div style="text-align:center;font-size:11px;opacity:.6;margin-top:4px">Preisspanne (€)</div>`;
+}
+
+function renderVkTimeline(containerId){
+  var soldItems = [...artikel.filter(a=>a.status==='verkauft'||a.status==='abgerechnet')]
+    .filter(a=>a.verkauftAm)
+    .sort((a,b)=>new Date(a.verkauftAm)-new Date(b.verkauftAm));
+  if(!soldItems.length){document.getElementById(containerId).innerHTML='<p style="opacity:.5;padding:16px">Keine Verkäufe</p>';return;}
+  var tStart=new Date(soldItems[0].verkauftAm), tEnd=new Date(soldItems[soldItems.length-1].verkauftAm);
+  var span=Math.max(tEnd-tStart,1);
+  var W=260,H=80,pad=8;
+  var pts = soldItems.map((a,i)=>{
+    var x=pad+((new Date(a.verkauftAm)-tStart)/span)*(W-pad*2);
+    var y=H-pad-((i+1)/soldItems.length)*(H-pad*2);
+    return {x,y,label:a.bezeichnung,preis:a.preis,t:new Date(a.verkauftAm).toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'})};
+  });
+  var pathD=pts.map((p,i)=>(i===0?`M${p.x},${p.y}`:`L${p.x},${p.y}`)).join(' ');
+  var areaD=`${pathD} L${pts[pts.length-1].x},${H-pad} L${pts[0].x},${H-pad} Z`;
+  var dots=pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4" fill="#22c55e" stroke="var(--p-surface-0)" stroke-width="1.5"><title>${p.t} · ${p.label} · ${p.preis} €</title></circle>`).join('');
+  var fmtT=d=>new Date(d).toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById(containerId).innerHTML=`
+    <svg width="100%" viewBox="0 0 ${W} ${H+16}" style="display:block">
+      <defs><linearGradient id="vkGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22c55e" stop-opacity=".35"/><stop offset="100%" stop-color="#22c55e" stop-opacity="0"/></linearGradient></defs>
+      <path d="${areaD}" fill="url(#vkGrad)"/>
+      <path d="${pathD}" fill="none" stroke="#22c55e" stroke-width="2"/>
+      ${dots}
+      <text x="${pad}" y="${H+14}" font-size="9" fill="var(--p-text-muted-color)">${fmtT(soldItems[0].verkauftAm)}</text>
+      <text x="${W-pad}" y="${H+14}" text-anchor="end" font-size="9" fill="var(--p-text-muted-color)">${fmtT(soldItems[soldItems.length-1].verkauftAm)}</text>
+    </svg>
+    <div style="text-align:center;font-size:11px;opacity:.6">Kumulierter Umsatz über Zeit</div>`;
+}
+
+function renderAnnTimeline(containerId){
+  var angenommen = artikel.filter(a=>a.freigegebenAm);
+  if(!angenommen.length){document.getElementById(containerId).innerHTML='<p style="opacity:.5;padding:16px">Keine Daten</p>';return;}
+  var slots={};
+  angenommen.forEach(a=>{
+    var d=new Date(a.freigegebenAm);
+    var slot=d.getHours()+':'+(d.getMinutes()<30?'00':'30');
+    slots[slot]=(slots[slot]||0)+1;
+  });
+  var keys=Object.keys(slots).sort();
+  var maxV=Math.max(...Object.values(slots),1);
+  var bw=28,gap=6,H=70,svgW=keys.length*(bw+gap)+10,svgH=H+24;
+  var bars=keys.map((k,i)=>{
+    var v=slots[k],h=Math.round((v/maxV)*(H-10));
+    var x=i*(bw+gap)+5, y=H-h;
+    return `<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="#3b82f6" rx="3" opacity="0.85"/>
+      <text x="${x+bw/2}" y="${H+12}" text-anchor="middle" font-size="8" fill="var(--p-text-muted-color)">${k}</text>
+      <text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="9" fill="var(--p-text-color)">${v}</text>`;
+  }).join('');
+  document.getElementById(containerId).innerHTML=`<svg width="100%" viewBox="0 0 ${svgW} ${svgH}" style="display:block;margin:0 auto">${bars}</svg>
+    <div style="text-align:center;font-size:11px;opacity:.6;margin-top:4px">Annahme-Uhrzeit (30-min-Slots)</div>`;
+}
+
+function computeBestseller(field){
+  var sold = artikel.filter(a=>a.status==='verkauft'||a.status==='abgerechnet');
+  var map={};
+  sold.forEach(a=>{
+    var key;
+    if(field==='marke') key=marken.find(m=>m.id===a.marke)||{name:'?'};
+    else key=kategorien.find(k=>k.id===a.kategorie)||{name:'?'};
+    var name=key.name;
+    map[name]=(map[name]||0)+1;
+  });
+  return Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([name,val])=>({name,val}));
+}
+
+function renderHBars(containerId, data, color, unit){
+  if(!data.length){document.getElementById(containerId).innerHTML='<p style="opacity:.5;padding:16px">Keine Verkäufe</p>';return;}
+  var maxV=data[0].val;
+  var html=data.map(d=>`
+    <div class="hbar-row">
+      <div class="hbar-label">${d.name}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${Math.round(d.val/maxV*100)}%;background:${color}"></div></div>
+      <div class="hbar-val">${d.val} ${unit}</div>
+    </div>`).join('');
+  document.getElementById(containerId).innerHTML=html;
+}
+
+function renderRestbestand(containerId){
+  var inSale = artikel.filter(a=>a.status==='freigegeben');
+  var map={};
+  inSale.forEach(a=>{
+    var k=kategorien.find(c=>c.id===a.kategorie)||{name:'?'};
+    map[k.name]=(map[k.name]||0)+1;
+  });
+  var entries=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){document.getElementById(containerId).innerHTML='<p style="opacity:.5;padding:16px">Kein Restbestand</p>';return;}
+  var total=entries.reduce((s,e)=>s+e[1],0);
+  var colors=['#3b82f6','#22c55e','#f59e0b','#ef4444','#a855f7','#06b6d4','#ec4899'];
+  var segments=entries.map((e,i)=>({name:e[0],val:e[1],color:colors[i%colors.length],pct:Math.round(e[1]/total*100)}));
+  var bar=segments.map(s=>`<div title="${s.name}: ${s.val}" style="flex:${s.val};background:${s.color};height:28px;min-width:6px" ></div>`).join('');
+  var legend=segments.map(s=>`<div style="display:flex;align-items:center;gap:5px;font-size:12px"><span style="width:10px;height:10px;border-radius:2px;background:${s.color};display:inline-block"></span>${s.name} <b>${s.val}</b> <span style="opacity:.6">(${s.pct}%)</span></div>`).join('');
+  document.getElementById(containerId).innerHTML=`
+    <div style="display:flex;border-radius:6px;overflow:hidden;gap:1px;margin-bottom:10px">${bar}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 16px">${legend}</div>`;
+}
+
+function renderLeaderboard(containerId, filterTypeName){
+  var vkList = filterTypeName ? verkaeufer.filter(vk=>vk.type===filterTypeName) : verkaeufer;
+  var stats={};
+  vkList.forEach(vk=>{
+    var typ=verkaeuferTypes.find(t=>t.name===vk.type)||{provision:20,gebuehr:0.5};
+    var mineAll=artikel.filter(a=>a.verkaeuferID===vk.id);
+    var mineSold=mineAll.filter(a=>a.verkauftAm);
+    var umsatz=mineSold.reduce((s,a)=>s+a.preis,0);
+    var prov=mineSold.reduce((s,a)=>s+a.preis*(typ.provision/100),0);
+    var gebuehr=mineSold.length*typ.gebuehr;
+    stats[vk.id]={name:vk.vorname+' '+vk.nachname, typName:vk.type, angenommen:mineAll.filter(a=>a.freigegebenAm).length, verkauft:mineSold.length, umsatz, auszahlung:umsatz-prov-gebuehr};
+  });
+  var rows=Object.values(stats).sort((a,b)=>b.verkauft-a.verkauft);
+  if(!rows.length){document.getElementById(containerId).innerHTML='<p style="opacity:.5;padding:12px">Keine Verkäufer für diesen Typ</p>';return;}
+  var showTyp = filterTypeId==null;
+  var html=`<table class="leaderboard"><thead><tr><th>Rang</th><th>Verkäufer</th>${showTyp?'<th>Typ</th>':''}<th>Angenommen</th><th>Verkauft</th><th>Umsatz</th><th>Auszahlung</th></tr></thead><tbody>`;
+  rows.forEach((r,i)=>{
+    var badge=i<3?`<span class="rank-badge r${i+1}">${i+1}</span>`:`<span class="rank-badge">${i+1}</span>`;
+    html+=`<tr><td>${badge}</td><td>${r.name}</td>${showTyp?`<td style="font-size:11px;opacity:.7">${r.typName}</td>`:''}<td>${r.angenommen}</td><td><b>${r.verkauft}</b></td><td>${r.umsatz.toFixed(2)} €</td><td>${r.auszahlung.toFixed(2)} €</td></tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById(containerId).innerHTML=html;
+}
+
+// ════ MULTI-SORT ════
+// sortState: { tableId: [{key, dir}] }
+var _sortState = {};
+
+function initTableSort(tableId, renderFn){
+  var table = document.getElementById(tableId);
+  if(!table) return;
+  table.querySelectorAll('th.sortable').forEach(th=>{
+    th.addEventListener('click', function(e){
+      var key = this.dataset.sortkey;
+      var state = _sortState[tableId] = _sortState[tableId]||[];
+      var existing = state.find(s=>s.key===key);
+      if(e.shiftKey){
+        // add/toggle in multi-sort
+        if(existing){ existing.dir = existing.dir==='asc'?'desc':'asc'; }
+        else { state.push({key, dir:'asc'}); }
+      } else {
+        // single sort — replace
+        if(existing && state.length===1){ existing.dir = existing.dir==='asc'?'desc':'asc'; }
+        else { _sortState[tableId]=[{key, dir:'asc'}]; }
+      }
+      updateSortHeaders(tableId);
+      if(renderFn) renderFn();
+    });
+  });
+}
+
+function updateSortHeaders(tableId){
+  var table = document.getElementById(tableId);
+  if(!table) return;
+  var state = _sortState[tableId]||[];
+  table.querySelectorAll('th.sortable').forEach(th=>{
+    var key = th.dataset.sortkey;
+    var idx = state.findIndex(s=>s.key===key);
+    th.classList.remove('sort-asc','sort-desc');
+    // remove old badge
+    var old = th.querySelector('.sort-badge');
+    if(old) old.remove();
+    if(idx>=0){
+      th.classList.add(state[idx].dir==='asc'?'sort-asc':'sort-desc');
+      if(state.length>1){
+        var badge = document.createElement('span');
+        badge.className='sort-badge';
+        badge.textContent=idx+1;
+        th.appendChild(badge);
+      }
+    }
+  });
+}
+
+function applySortToRows(rows, tableId, getValFn){
+  var state = _sortState[tableId]||[];
+  if(!state.length) return rows;
+  return [...rows].sort((a,b)=>{
+    for(var i=0;i<state.length;i++){
+      var {key,dir}=state[i];
+      var va=getValFn(a,key), vb=getValFn(b,key);
+      var cmp = typeof va==='number'&&typeof vb==='number' ? va-vb : String(va).localeCompare(String(vb));
+      if(cmp!==0) return dir==='asc'?cmp:-cmp;
+    }
+    return 0;
+  });
+}
+
 // ════ INIT ════
 (function(){
-  // Start auf Annahme
+  // wire up multi-sort for all sortable tables
+  initTableSort('artikelTable',   renderArtikelTable);
+  initTableSort('markenTable',    renderMarken);
+  initTableSort('kategorienTable',renderKategorien);
+  initTableSort('vkTypenTable',   renderVkTypes);
+
   navigateTo('artikelannahme');
-  // Activate first nav item
   document.querySelector('#sidebarNav a[data-screen="artikelannahme"]').classList.add('active');
   renderWarenkorb();
   populateW1Types();
   populateTypeSelect('vkFormType');
+  prefillKonditionen('vkFormType','vkFormProvision','vkFormGebuehr');
+  document.getElementById('vkFormType').onchange=()=>prefillKonditionen('vkFormType','vkFormProvision','vkFormGebuehr');
+  setupAC('wzKategorie','wzKatBtn','wzKatDropdown',()=>kategorien.map(k=>k.name));
+  setupAC('wzMarke','wzMarkeBtn','wzMarkeDropdown',()=>marken.map(m=>m.name));
+  setupAC('afKategorie','afKatBtn','afKatDropdown',()=>kategorien.map(k=>k.name));
+  setupAC('afMarke','afMarkeBtn','afMarkeDropdown',()=>marken.map(m=>m.name));
+  var wzInp=document.getElementById('wzArtNr');
+  var wzClr=document.getElementById('wzArtNrClear');
+  var wzCam=document.getElementById('wzArtNrCam');
+  if(wzInp){
+    wzInp.addEventListener('input',wzArtNrSyncIG);
+    wzClr.addEventListener('click',function(){wzInp.value='';wzArtNrSyncIG();wzInp.focus();});
+    wzCam.addEventListener('click',function(){openCameraPopup(function(v){wzInp.value=v;wzArtNrSyncIG();});});
+  }
 })();
 </script>
 </body>

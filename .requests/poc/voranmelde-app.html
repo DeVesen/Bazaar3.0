@@ -5,12 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Voranmelde-App</title>
 <style>
+/*
+ * ── DESIGN TOKENS (PrimeNG Styled Mode — Aura Preset, Green Palette) ──────────
+ * Primitive → Semantic → Component (3-Tier-Konzept laut primeng.org/theming/styled)
+ *
+ * In der Angular-App:
+ *   const BazaarPreset = definePreset(Aura, {
+ *     semantic: {
+ *       primary: { 50:'{green.50}', 500:'{green.500}', 600:'{green.600}', 950:'{green.950}' },
+ *       colorScheme: { light: { surface: { 0:'#fff' } }, dark: { surface: { 0:'#0f1f14' } } }
+ *     }
+ *   });
+ */
 :root {
-  --primary: #388E3C;
-  --primary-dark: #1B5E20;
-  --primary-light: #C8E6C9;
-  --accent: #FF9800;
-  --accent-dark: #E65100;
+  /* Primitive Tokens */
+  --green-50: #f0fdf4;
+  --green-100: #dcfce7;
+  --green-200: #bbf7d0;
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --green-800: #166534;
+  --green-900: #14532d;
+  --green-950: #052e16;
+
+  /* Semantic Tokens */
+  --primary: var(--green-600);
+  --primary-dark: var(--green-950);      /* Diamond-Stil: sehr dunkle Sidebar */
+  --primary-light: var(--green-50);
+  --primary-rgba: rgba(22,163,74,0.15);
+  --accent: #f97316;
+  --accent-dark: #ea580c;
+  --sidebar-active-border: var(--green-400);
+  --sidebar-active-text: var(--green-200);
+
+  /* Surface / Layout */
   --surface: #FAFAFA;
   --surface2: #F5F5F5;
   --white: #FFFFFF;
@@ -33,6 +63,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxyge
 .login-card h1 { color: var(--primary); font-size: 22px; font-weight: 600; margin-bottom: 6px; }
 .login-card p.subtitle { color: var(--text-secondary); margin-bottom: 28px; font-size: 13px; }
 .form-group { margin-bottom: 18px; }
+.form-panel { background: var(--surface2); border: 1px solid var(--divider); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; }
+.form-panel:last-child { margin-bottom: 0; }
+.form-panel > .form-group:last-child, .form-panel > .row:last-child .form-group { margin-bottom: 0; }
 .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
 .form-group input, .form-group select, .form-group textarea {
   width: 100%; padding: 10px 12px; border: 1px solid var(--divider); border-radius: var(--radius);
@@ -43,6 +76,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxyge
   outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(56,142,60,0.15);
 }
 .form-group textarea { resize: vertical; min-height: 72px; }
+.price-ig { display: flex; align-items: stretch; border: 1px solid var(--divider); border-radius: var(--radius); overflow: hidden; background: var(--white); transition: border-color .2s; }
+.price-ig:focus-within { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(56,142,60,0.15); }
+.price-ig input { border: none !important; outline: none !important; box-shadow: none !important; flex: 1; padding: 10px 12px; font-size: 14px; font-family: inherit; color: var(--text); background: transparent; min-width: 0; }
+.price-ig-addon { display: flex; align-items: center; padding: 0 12px; background: var(--surface); color: var(--text-secondary); font-size: 13px; font-weight: 500; border-left: 1px solid var(--divider); flex-shrink: 0; user-select: none; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 20px; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; transition: background .15s, box-shadow .15s; font-family: inherit; }
 .btn-primary { background: var(--primary); color: var(--white); }
 .btn-primary:hover { background: #2E7D32; box-shadow: var(--shadow); }
@@ -64,15 +101,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxyge
 #main-layout { display: none; height: 100vh; flex-direction: column; }
 #main-layout.visible { display: flex; }
 
-/* Topbar */
-.topbar { height: var(--topbar-h); background: var(--primary); color: var(--white); display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 100; }
+/* Topbar (nur mobile < 1024px) */
+.topbar { display: none; height: var(--topbar-h); background: var(--primary-dark); color: var(--white); align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 100; }
 .topbar-brand { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; flex: 1; }
+.topbar-user { font-size: 13px; opacity: 0.9; display: flex; align-items: center; gap: 8px; }
+
+/* Role-Toggle (in Sidebar-Footer) */
 .role-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; }
 .role-toggle span { opacity: 0.8; }
 .toggle-group { display: flex; border: 1px solid rgba(255,255,255,0.4); border-radius: 20px; overflow: hidden; }
 .toggle-btn { padding: 5px 14px; background: transparent; border: none; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 13px; font-weight: 500; transition: background .15s, color .15s; font-family: inherit; }
 .toggle-btn.active { background: var(--white); color: var(--primary); }
-.topbar-user { font-size: 13px; opacity: 0.9; display: flex; align-items: center; gap: 8px; }
 .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: var(--white); }
 
 /* Body area */
@@ -84,7 +123,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxyge
 .sidebar-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.5; padding: 0 16px 6px; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; cursor: pointer; color: rgba(255,255,255,0.75); transition: background .15s, color .15s; font-size: 14px; border-left: 3px solid transparent; }
 .nav-item:hover { background: rgba(255,255,255,0.08); color: var(--white); }
-.nav-item.active { background: rgba(255,255,255,0.12); color: var(--white); border-left-color: var(--accent); }
+.nav-item.active { background: rgba(34,197,94,0.12); color: var(--sidebar-active-text); border-left-color: var(--sidebar-active-border); }
 .nav-icon { font-size: 18px; width: 22px; text-align: center; }
 
 /* Content */
@@ -112,6 +151,16 @@ table { width: 100%; border-collapse: collapse; }
 thead { background: var(--surface2); }
 th { padding: 10px 14px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid var(--divider); white-space: nowrap; }
 td { padding: 11px 14px; border-bottom: 1px solid var(--divider); color: var(--text); font-size: 14px; }
+tbody tr:nth-child(even) td { background: var(--surface2); }
+tbody tr:hover td { background: color-mix(in srgb, var(--primary) 6%, transparent) !important; }
+/* multi-sort */
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { color: var(--primary); }
+th .sort-icon { margin-left: 4px; opacity: .35; font-style: normal; font-size: 10px; }
+th.sort-icon::after { content: '⇅'; }
+th.sort-asc .sort-icon::after { content: '▲'; opacity: 1; }
+th.sort-desc .sort-icon::after { content: '▼'; opacity: 1; }
+th .sort-badge { display: inline-block; background: var(--primary); color: #fff; border-radius: 10px; font-size: 9px; font-weight: 700; padding: 1px 5px; margin-left: 3px; vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: rgba(56,142,60,0.04); }
 
@@ -129,12 +178,8 @@ tr:hover td { background: rgba(56,142,60,0.04); }
 /* Modals */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.open { display: flex; }
-.modal { background: var(--white); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); width: 70%; max-height: 60vh; display: flex; flex-direction: column; }
-.modal-lg { width: 70%; max-height: 60vh; }
-@media(max-width:1024px){
-  .modal { width:90%; max-height:90vh; }
-  .modal-lg { width:90%; max-height:90vh; }
-}
+.modal { background: var(--white); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); width: 80%; max-height: 90vh; display: flex; flex-direction: column; }
+.modal-lg { width: 80%; max-height: 90vh; }
 @media(max-width:768px){
   .modal { width:100%; max-height:100vh; border-radius:0; }
   .modal-lg { width:100%; max-height:100vh; border-radius:0; }
@@ -148,11 +193,30 @@ tr:hover td { background: rgba(56,142,60,0.04); }
 
 /* Autocomplete */
 .ac-wrap { position: relative; }
+.ac-row { display:flex; align-items:stretch; border:1px solid var(--divider); border-radius:var(--radius); background:var(--white); transition:border-color .15s; }
+.ac-row:focus-within { border-color:var(--primary); box-shadow:0 0 0 2px var(--primary-rgba,rgba(76,175,80,.2)); }
+.ac-row input { border:none; outline:none; background:transparent; padding:8px 10px; font-size:14px; flex:1; min-width:0; }
+.ac-btn { background:#F5F5F5; border:none; border-left:1px solid var(--divider); padding:0 10px; cursor:pointer; font-size:13px; color:var(--text-secondary); flex-shrink:0; transition:background .15s; border-radius:0 var(--radius) var(--radius) 0; line-height:1; }
+.ac-btn:hover { background:var(--primary-light); color:var(--primary); }
+.ac-btn.is-add { color:var(--primary); font-size:16px; font-weight:700; }
 .ac-dropdown { position: absolute; top: calc(100% + 2px); left: 0; right: 0; background: var(--white); border: 1px solid var(--divider); border-radius: var(--radius); box-shadow: var(--shadow-md); z-index: 500; max-height: 200px; overflow-y: auto; display: none; }
 .ac-dropdown.open { display: block; }
 .ac-item { padding: 9px 12px; cursor: pointer; font-size: 14px; }
 .ac-item:hover, .ac-item.highlighted { background: var(--primary-light); }
 .ac-empty { padding: 9px 12px; color: var(--text-secondary); font-size: 13px; font-style: italic; }
+/* Nummernblock Panel */
+.nb-list { display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+.nb-item { display:flex; align-items:center; justify-content:space-between; background:var(--surface); border:1px solid var(--divider); border-radius:var(--radius); padding:6px 12px; font-size:14px; }
+.nb-item-label { font-weight:600; color:var(--text-primary); }
+.nb-add-row { display:flex; align-items:center; gap:8px; }
+/* Admin toggle */
+.toggle-wrap { display:flex; align-items:center; gap:12px; }
+.toggle-switch { position:relative; width:44px; height:24px; flex-shrink:0; }
+.toggle-switch input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; inset:0; background:#ccc; border-radius:12px; cursor:pointer; transition:.2s; }
+.toggle-slider:before { content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+.toggle-switch input:checked + .toggle-slider { background:var(--primary); }
+.toggle-switch input:checked + .toggle-slider:before { transform:translateX(20px); }
 
 /* Toast */
 .toast { position: fixed; bottom: 24px; right: 24px; background: #323232; color: var(--white); padding: 12px 20px; border-radius: 6px; font-size: 14px; z-index: 2000; box-shadow: var(--shadow-md); transform: translateY(80px); opacity: 0; transition: transform .25s, opacity .25s; max-width: 360px; pointer-events: none; }
@@ -188,11 +252,23 @@ tr:hover td { background: rgba(56,142,60,0.04); }
 .invite-popup.show { display: block; }
 
 /* Burger / Responsive sidebar */
-#btnBurger { display:none; background:transparent; border:none; color:var(--white); font-size:24px; cursor:pointer; padding:0 4px; }
+#btnBurger { background:transparent; border:none; color:var(--white); font-size:24px; cursor:pointer; padding:0 4px; }
 .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:199; }
 .sidebar-overlay.open { display:block; }
+
+/* Sidebar-Footer (User-Info + Role-Toggle) */
+.sidebar-footer { margin-top:auto; padding:14px 16px 16px; border-top:1px solid rgba(255,255,255,.12); flex-shrink:0; }
+.sidebar-user-row { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.sidebar-user-name { font-size:13px; color:rgba(255,255,255,.85); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sidebar-logout-btn { background:transparent; border:none; color:rgba(255,255,255,.6); font-size:20px; cursor:pointer; padding:4px; border-radius:4px; transition:color .15s; }
+.sidebar-logout-btn:hover { color:var(--white); }
+.sidebar-role-label { font-size:10px; text-transform:uppercase; letter-spacing:1px; opacity:.5; margin-bottom:6px; }
+.sidebar-toggle-group { display:flex; border:1px solid rgba(255,255,255,.3); border-radius:20px; overflow:hidden; }
+.sidebar-toggle-btn { flex:1; padding:5px; background:transparent; border:none; color:rgba(255,255,255,.65); cursor:pointer; font-size:12px; font-weight:500; transition:background .15s,color .15s; font-family:inherit; }
+.sidebar-toggle-btn.active { background:rgba(255,255,255,.2); color:var(--white); }
+
 @media(max-width:1024px){
-  #btnBurger { display:block; }
+  .topbar { display:flex; }
   .sidebar { position:fixed; top:var(--topbar-h); left:0; bottom:0; z-index:200; transform:translateX(-100%); transition:transform .25s; }
   .sidebar.open { transform:translateX(0); }
 }
@@ -205,6 +281,91 @@ tr:hover td { background: rgba(56,142,60,0.04); }
 .mb-0 { margin-bottom: 0; }
 .flex-gap { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .section-divider { border: none; border-top: 1px solid var(--divider); margin: 20px 0; }
+
+/* Sidebar divider between nav groups */
+.sidebar-divider { border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 6px 0; }
+
+/* Activity Heatmap */
+.activity-heatmap { background: var(--white); border-radius: 8px; box-shadow: var(--shadow); padding: 18px 22px; margin-bottom: 24px; }
+.activity-heatmap-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.activity-heatmap-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
+.activity-heatmap-legend { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); }
+.activity-heatmap-legend-label { margin-right: 2px; }
+.heatmap-grid-wrap { overflow-x: auto; }
+.heatmap-grid { display: flex; gap: 3px; align-items: flex-start; }
+.heatmap-week { display: flex; flex-direction: column; gap: 3px; }
+.heatmap-day { width: 13px; height: 13px; border-radius: 2px; cursor: default; transition: opacity .15s; flex-shrink: 0; }
+.heatmap-day:hover { opacity: 0.75; }
+.hm-0 { background: #EEEEEE; }
+.hm-1 { background: #BBF7D0; }
+.hm-2 { background: #4ADE80; }
+.hm-3 { background: #16A34A; }
+.hm-4 { background: #052E16; }
+.heatmap-months { display: flex; gap: 3px; margin-bottom: 4px; font-size: 10px; color: var(--text-secondary); overflow: hidden; }
+.heatmap-month-label { white-space: nowrap; overflow: hidden; }
+.heatmap-days-label { display: flex; flex-direction: column; gap: 3px; margin-right: 6px; font-size: 10px; color: var(--text-secondary); flex-shrink: 0; }
+.heatmap-days-label span { height: 13px; line-height: 13px; }
+
+/* Home Kacheln */
+.kachel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kachel { background: var(--white); border-radius: 8px; box-shadow: var(--shadow); padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; }
+.kachel-icon { font-size: 24px; margin-bottom: 4px; }
+.kachel-value { font-size: 28px; font-weight: 700; color: var(--primary); line-height: 1.1; }
+.kachel-value-sm { font-size: 18px; font-weight: 600; color: var(--primary); }
+.kachel-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
+.kachel-sub { font-size: 13px; color: var(--text-secondary); }
+.kachel-countdown { font-size: 22px; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+.kachel-countdown-date { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.kachel.accent { border-left: 4px solid var(--accent); }
+.kachel.primary { border-left: 4px solid var(--primary); }
+
+/* Info Panel (Markdown) */
+.info-panel { background: var(--white); border-radius: 8px; box-shadow: var(--shadow); padding: 24px 28px; }
+.info-panel-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 14px; }
+.md-content h1, .md-content h2, .md-content h3 { color: var(--text); font-weight: 600; margin: 12px 0 6px; }
+.md-content h1 { font-size: 20px; }
+.md-content h2 { font-size: 17px; }
+.md-content h3 { font-size: 15px; }
+.md-content p { margin: 0 0 10px; color: var(--text); line-height: 1.6; }
+.md-content ul, .md-content ol { margin: 0 0 10px 20px; color: var(--text); line-height: 1.8; }
+.md-content strong { font-weight: 700; }
+.md-content em { font-style: italic; }
+.md-content hr { border: none; border-top: 1px solid var(--divider); margin: 14px 0; }
+.md-content a { color: var(--primary); }
+.md-content code { background: var(--surface2); padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 13px; }
+
+/* Login Split Layout */
+#login-screen { flex-direction: row; align-items: stretch; }
+.login-info-area { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 48px 44px; background: var(--primary-dark); overflow-y: auto; }
+.login-form-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; background: var(--surface); min-height: 100vh; overflow-y: auto; }
+@media(max-width:768px){
+  #login-screen { flex-direction: column; }
+  .login-info-area { display: none; }
+  .login-form-area { width: 100%; }
+}
+.login-info-brand { font-size: 22px; font-weight: 700; color: var(--white); margin-bottom: 32px; letter-spacing: -0.3px; }
+.login-info-kachel { background: rgba(255,255,255,0.08); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; }
+.login-info-kachel-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.45); margin-bottom: 4px; }
+.login-info-kachel-value { font-size: 20px; font-weight: 700; color: var(--white); font-variant-numeric: tabular-nums; }
+.login-info-kachel-sub { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+.login-info-markdown { margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 20px; }
+.login-info-markdown .md-content h1,
+.login-info-markdown .md-content h2,
+.login-info-markdown .md-content h3 { color: rgba(255,255,255,0.95); }
+.login-info-markdown .md-content p,
+.login-info-markdown .md-content li { color: rgba(255,255,255,0.72); }
+.login-info-markdown .md-content strong { color: var(--white); font-weight: 700; }
+.login-info-markdown .md-content hr { border-color: rgba(255,255,255,0.15); }
+/* Toggle Switch */
+.toggle-switch{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:22px;transition:.2s;}
+.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle-switch input:checked+.toggle-slider{background:var(--primary);}
+.toggle-switch input:checked+.toggle-slider::before{transform:translateX(18px);}
+/* Original / Neu Badges */
+.badge-orig{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;}
+.badge-neu{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:#fff8e1;color:#e65100;border:1px solid #ffcc80;}
 </style>
 </head>
 <body>
@@ -213,98 +374,118 @@ tr:hover td { background: rgba(56,142,60,0.04); }
      LOGIN SCREEN
 ══════════════════════════════════════════════════════════════ -->
 <div id="login-screen">
-  <div class="login-card">
-    <h1>&#128230; Voranmelde-App</h1>
-    <p class="subtitle">Bitte melden Sie sich an, um fortzufahren</p>
 
-    <!-- Login Form -->
-    <div id="login-form">
-      <div class="form-group">
-        <label>E-Mail</label>
-        <input type="email" id="login-email" value="anna@example.com" placeholder="ihre@email.de" autocomplete="email">
-      </div>
-      <div class="form-group">
-        <label>Passwort</label>
-        <input type="password" id="login-password" value="password" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" autocomplete="current-password">
-      </div>
-      <div id="login-error" style="display:none; color:var(--error); font-size:13px; margin-bottom:12px; padding:8px; background:#FFEBEE; border-radius:var(--radius);"></div>
-      <button class="btn btn-primary btn-full" onclick="doLogin()">Anmelden</button>
-      <div style="text-align:center; margin-top:16px;">
-        <button class="link-btn" onclick="showRegisterForm()">Noch kein Konto? Registrieren</button>
-      </div>
+  <!-- Info-Area (links, 50%) -->
+  <div class="login-info-area">
+    <div class="login-info-brand">&#128230; Voranmelde-App</div>
+
+    <!-- Countdown -->
+    <div class="login-info-kachel">
+      <div class="login-info-kachel-label">&#9200; Countdown bis zum Basar</div>
+      <div class="login-info-kachel-value" id="login-countdown">–</div>
+      <div class="login-info-kachel-sub" id="login-basar-date"></div>
     </div>
 
-    <!-- Registration Form -->
-    <div id="register-form" style="display:none;">
-      <div style="font-size:15px; font-weight:600; margin-bottom:16px; color:var(--text);">Neues Konto erstellen</div>
-      <div class="row">
-        <div class="col">
-          <div class="form-group">
-            <label>Vorname *</label>
-            <input type="text" id="reg-firstname" placeholder="Max">
-          </div>
+    <!-- Default-Konditionen -->
+    <div class="login-info-kachel">
+      <div class="login-info-kachel-label">&#128176; Konditionen (Standard)</div>
+      <div class="login-info-kachel-value" id="login-provision">–</div>
+      <div class="login-info-kachel-sub" id="login-gebuehr">–</div>
+    </div>
+
+    <!-- Markdown Info-Text -->
+    <div class="login-info-markdown">
+      <div class="md-content" id="login-info-text"></div>
+    </div>
+  </div>
+
+  <!-- Form-Area (rechts, 50%) -->
+  <div class="login-form-area">
+    <div class="login-card">
+      <h1 style="color:var(--primary); font-size:22px; font-weight:600; margin-bottom:6px;">Anmelden</h1>
+      <p class="subtitle">Bitte melden Sie sich an, um fortzufahren</p>
+
+      <!-- Login Form -->
+      <div id="login-form">
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input type="email" id="login-email" value="anna@example.com" placeholder="ihre@email.de" autocomplete="email">
         </div>
-        <div class="col">
-          <div class="form-group">
-            <label>Nachname *</label>
-            <input type="text" id="reg-lastname" placeholder="Mustermann">
-          </div>
+        <div class="form-group">
+          <label>Passwort</label>
+          <input type="password" id="login-password" value="password" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" autocomplete="current-password">
         </div>
-      </div>
-      <div class="form-group">
-        <label>E-Mail *</label>
-        <input type="email" id="reg-email" placeholder="ihre@email.de">
-      </div>
-      <div class="form-group">
-        <label>Passwort *</label>
-        <input type="password" id="reg-password" placeholder="Mindestens 8 Zeichen">
-      </div>
-      <div class="row">
-        <div class="col">
-          <div class="form-group">
-            <label>PLZ</label>
-            <input type="text" id="reg-plz" placeholder="10115">
-          </div>
-        </div>
-        <div class="col">
-          <div class="form-group">
-            <label>Ort</label>
-            <input type="text" id="reg-ort" placeholder="Berlin">
-          </div>
+        <div id="login-error" style="display:none; color:var(--error); font-size:13px; margin-bottom:12px; padding:8px; background:#FFEBEE; border-radius:var(--radius);"></div>
+        <button class="btn btn-primary btn-full" onclick="doLogin()">Anmelden</button>
+        <div style="text-align:center; margin-top:16px;">
+          <button class="link-btn" onclick="showRegisterForm()">Noch kein Konto? Registrieren</button>
         </div>
       </div>
-      <div class="form-group">
-        <label>Telefon</label>
-        <input type="tel" id="reg-phone" placeholder="+49 30 1234567">
-      </div>
-      <div id="reg-error" style="display:none; color:var(--error); font-size:13px; margin-bottom:12px; padding:8px; background:#FFEBEE; border-radius:var(--radius);"></div>
-      <button class="btn btn-primary btn-full" onclick="doRegister()">Konto erstellen</button>
-      <div style="text-align:center; margin-top:14px;">
-        <button class="link-btn" onclick="showLoginForm()">&larr; Zurück zur Anmeldung</button>
+
+      <!-- Registration Form -->
+      <div id="register-form" style="display:none;">
+        <div style="font-size:15px; font-weight:600; margin-bottom:16px; color:var(--text);">Neues Konto erstellen</div>
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label>Vorname *</label>
+              <input type="text" id="reg-firstname" placeholder="Max">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label>Nachname *</label>
+              <input type="text" id="reg-lastname" placeholder="Mustermann">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>E-Mail *</label>
+          <input type="email" id="reg-email" placeholder="ihre@email.de">
+        </div>
+        <div class="form-group">
+          <label>Passwort *</label>
+          <input type="password" id="reg-password" placeholder="Mindestens 8 Zeichen">
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label>PLZ</label>
+              <input type="text" id="reg-plz" placeholder="10115">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label>Ort</label>
+              <input type="text" id="reg-ort" placeholder="Berlin">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input type="tel" id="reg-phone" placeholder="+49 30 1234567">
+        </div>
+        <div id="reg-error" style="display:none; color:var(--error); font-size:13px; margin-bottom:12px; padding:8px; background:#FFEBEE; border-radius:var(--radius);"></div>
+        <button class="btn btn-primary btn-full" onclick="doRegister()">Konto erstellen</button>
+        <div style="text-align:center; margin-top:14px;">
+          <button class="link-btn" onclick="showLoginForm()">&larr; Zur&#252;ck zur Anmeldung</button>
+        </div>
       </div>
     </div>
   </div>
+
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
      MAIN LAYOUT
 ══════════════════════════════════════════════════════════════ -->
 <div id="main-layout">
-  <!-- Topbar -->
+  <!-- Topbar (nur mobile < 1024px) -->
   <div class="topbar">
     <button id="btnBurger" onclick="toggleSidebar()">&#9776;</button>
     <div class="topbar-brand">&#128230; Voranmelde-App</div>
-    <div class="role-toggle">
-      <span>Ansicht:</span>
-      <div class="toggle-group">
-        <button class="toggle-btn" id="role-admin-btn" onclick="setRole('admin')">Admin</button>
-        <button class="toggle-btn active" id="role-seller-btn" onclick="setRole('seller')">Verk&#228;ufer</button>
-      </div>
-    </div>
     <div class="topbar-user">
       <div class="avatar" id="topbar-avatar">AM</div>
-      <span id="topbar-username">Anna M&#252;ller</span>
-      <button class="btn-icon" onclick="doLogout()" title="Abmelden" style="color:rgba(255,255,255,0.75); font-size:20px; margin-left:4px;">&#x23CF;</button>
     </div>
   </div>
 
@@ -317,11 +498,18 @@ tr:hover td { background: rgba(56,142,60,0.04); }
       <div id="seller-nav">
         <div class="sidebar-section">
           <div class="sidebar-label">Mein Bereich</div>
-          <div class="nav-item active" onclick="showScreen('profil')" data-screen="profil">
-            <span class="nav-icon">&#128100;</span> Profil
+          <div class="nav-item active" onclick="showScreen('home')" data-screen="home">
+            <span class="nav-icon">&#127968;</span> Home
           </div>
           <div class="nav-item" onclick="showScreen('meine-artikel')" data-screen="meine-artikel">
             <span class="nav-icon">&#127991;</span> Meine Artikel
+          </div>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Konto</div>
+          <div class="nav-item" onclick="showScreen('profil')" data-screen="profil">
+            <span class="nav-icon">&#128100;</span> Profil
           </div>
           <div class="nav-item" onclick="showScreen('nummernbloecke')" data-screen="nummernbloecke">
             <span class="nav-icon">&#128290;</span> Nummernbl&#246;cke
@@ -331,13 +519,27 @@ tr:hover td { background: rgba(56,142,60,0.04); }
       <!-- Admin Nav -->
       <div id="admin-nav" style="display:none;">
         <div class="sidebar-section">
+          <div class="sidebar-label">Mein Bereich</div>
+          <div class="nav-item" onclick="showScreen('admin-home')" data-screen="admin-home">
+            <span class="nav-icon">&#127968;</span> Home
+          </div>
+          <div class="nav-item" onclick="showScreen('meine-artikel')" data-screen="meine-artikel">
+            <span class="nav-icon">&#127991;</span> Meine Artikel
+          </div>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section">
           <div class="sidebar-label">Verwaltung</div>
           <div class="nav-item" onclick="showScreen('admin-verkaeufer')" data-screen="admin-verkaeufer">
             <span class="nav-icon">&#128101;</span> Verk&#228;ufer
           </div>
           <div class="nav-item" onclick="showScreen('admin-artikel')" data-screen="admin-artikel">
-            <span class="nav-icon">&#127991;</span> Alle Artikel
+            <span class="nav-icon">&#128203;</span> Artikel
           </div>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Stammdaten</div>
           <div class="nav-item" onclick="showScreen('admin-marken')" data-screen="admin-marken">
             <span class="nav-icon">&#174;</span> Marken
           </div>
@@ -345,7 +547,14 @@ tr:hover td { background: rgba(56,142,60,0.04); }
             <span class="nav-icon">&#128193;</span> Kategorien
           </div>
           <div class="nav-item" onclick="showScreen('admin-types')" data-screen="admin-types">
-            <span class="nav-icon">&#127991;</span> Verk&#228;ufer-Types
+            <span class="nav-icon">&#128100;</span> Verk&#228;ufer-Types
+          </div>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">System</div>
+          <div class="nav-item" onclick="showScreen('profil')" data-screen="profil">
+            <span class="nav-icon">&#128100;</span> Profil
           </div>
           <div class="nav-item" onclick="showScreen('admin-einstellungen')" data-screen="admin-einstellungen">
             <span class="nav-icon">&#9881;</span> Einstellungen
@@ -355,10 +564,97 @@ tr:hover td { background: rgba(56,142,60,0.04); }
           </div>
         </div>
       </div>
+
+      <!-- Sidebar Footer: User + Role -->
+      <div class="sidebar-footer">
+        <div class="sidebar-user-row">
+          <div class="avatar" id="sidebar-avatar">AM</div>
+          <span class="sidebar-user-name" id="sidebar-username">Anna M&#252;ller</span>
+          <button class="sidebar-logout-btn" onclick="doLogout()" title="Abmelden">&#x23CF;</button>
+        </div>
+        <div class="sidebar-role-label">Ansicht</div>
+        <div class="sidebar-toggle-group">
+          <button class="sidebar-toggle-btn" id="sidebar-role-admin-btn" onclick="setRole('admin')">Admin</button>
+          <button class="sidebar-toggle-btn active" id="sidebar-role-seller-btn" onclick="setRole('seller')">Verk&#228;ufer</button>
+        </div>
+      </div>
     </div>
 
     <!-- Content Area -->
     <div class="content-area">
+
+      <!-- ══════════════════════════════
+           HOME (Verkäufer)
+      ══════════════════════════════ -->
+      <div class="screen active" id="screen-home">
+        <div class="screen-header">
+          <h2 class="screen-title">&#127968; Willkommen, Anna!</h2>
+        </div>
+        <div class="kachel-grid" id="home-kacheln">
+          <!-- Countdown -->
+          <div class="kachel primary">
+            <div class="kachel-icon">&#9200;</div>
+            <div class="kachel-label">Countdown bis zum Basar</div>
+            <div class="kachel-countdown" id="home-countdown">–</div>
+            <div class="kachel-countdown-date" id="home-basar-date"></div>
+          </div>
+          <!-- Artikel-Anzahl -->
+          <div class="kachel primary">
+            <div class="kachel-icon">&#127991;</div>
+            <div class="kachel-label">Meine Artikel</div>
+            <div class="kachel-value" id="home-artikel-count">–</div>
+            <div class="kachel-sub">erfasste Artikel</div>
+          </div>
+          <!-- Konditionen -->
+          <div class="kachel">
+            <div class="kachel-icon">&#128176;</div>
+            <div class="kachel-label">Meine Konditionen</div>
+            <div class="kachel-value-sm" id="home-provision">–</div>
+            <div class="kachel-sub" id="home-gebuehr-stueck">–</div>
+          </div>
+          <!-- Gesamtgebühr -->
+          <div class="kachel accent">
+            <div class="kachel-icon">&#129534;</div>
+            <div class="kachel-label">Abgabegeb&#252;hr gesamt</div>
+            <div class="kachel-value" id="home-gebuehr-gesamt">–</div>
+            <div class="kachel-sub" id="home-gebuehr-formel">bei Abgabe aller Artikel</div>
+          </div>
+        </div>
+        <!-- Activity Heatmap (Admin only) -->
+        <div class="activity-heatmap" id="heatmap-section" style="display:none">
+          <div class="activity-heatmap-header">
+            <span class="activity-heatmap-title">&#128197; Artikel-Aktivität (letzte 12 Wochen)</span>
+            <div class="activity-heatmap-legend">
+              <span class="activity-heatmap-legend-label">Weniger</span>
+              <div class="heatmap-day hm-0" style="cursor:default"></div>
+              <div class="heatmap-day hm-1" style="cursor:default"></div>
+              <div class="heatmap-day hm-2" style="cursor:default"></div>
+              <div class="heatmap-day hm-3" style="cursor:default"></div>
+              <div class="heatmap-day hm-4" style="cursor:default"></div>
+              <span style="margin-left:2px">Mehr</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:flex-start;">
+            <div class="heatmap-days-label">
+              <span style="height:13px;display:block">&nbsp;</span><!-- month label spacer -->
+              <span>Mo</span><span>&nbsp;</span><span>Mi</span><span>&nbsp;</span><span>Fr</span><span>&nbsp;</span><span>&nbsp;</span>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div class="heatmap-months" id="heatmap-months"></div>
+              <div class="heatmap-grid-wrap">
+                <div class="heatmap-grid" id="heatmap-grid"></div>
+              </div>
+            </div>
+          </div>
+          <div id="heatmap-tooltip" style="font-size:12px;color:var(--text-secondary);margin-top:8px;min-height:16px;"></div>
+        </div>
+
+        <!-- Info-Panel -->
+        <div class="info-panel">
+          <div class="info-panel-title">&#128203; Informationen vom Veranstalter</div>
+          <div class="md-content" id="home-info-text"></div>
+        </div>
+      </div>
 
       <!-- ══════════════════════════════
            PROFIL (Verkäufer)
@@ -377,55 +673,78 @@ tr:hover td { background: rgba(56,142,60,0.04); }
         <div class="tab-panel active" id="tab-profil-steckbrief">
           <div class="card">
             <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <div class="form-group">
-                    <label>Vorname</label>
-                    <input type="text" value="Anna" id="profil-vorname">
+              <div class="form-panel">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Vorname</label>
+                      <input type="text" value="Anna" id="profil-vorname">
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Nachname</label>
+                      <input type="text" value="M&#252;ller" id="profil-nachname">
+                    </div>
                   </div>
                 </div>
-                <div class="col">
-                  <div class="form-group">
-                    <label>Nachname</label>
-                    <input type="text" value="M&#252;ller" id="profil-nachname">
+                <div class="form-group">
+                  <label>Anschrift</label>
+                  <input type="text" value="Musterstra&#223;e 12" id="profil-anschrift">
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group" style="margin-bottom:0">
+                      <label>PLZ</label>
+                      <input type="text" value="10115" id="profil-plz">
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group" style="margin-bottom:0">
+                      <label>Ort</label>
+                      <input type="text" value="Berlin" id="profil-ort">
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="form-group">
-                <label>Anschrift</label>
-                <input type="text" value="Musterstra&#223;e 12" id="profil-anschrift">
-              </div>
-              <div class="row">
-                <div class="col">
-                  <div class="form-group">
-                    <label>PLZ</label>
-                    <input type="text" value="10115" id="profil-plz">
+              <div class="form-panel">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group" style="margin-bottom:0">
+                      <label>Telefon</label>
+                      <input type="tel" value="+49 30 1234567" id="profil-telefon">
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group" style="margin-bottom:0">
+                      <label>E-Mail <span class="text-small text-secondary">(&#228;nderbar unter Zugangsdaten)</span></label>
+                      <div class="field-readonly" id="profil-email">anna@example.com</div>
+                    </div>
                   </div>
                 </div>
-                <div class="col">
-                  <div class="form-group">
-                    <label>Ort</label>
-                    <input type="text" value="Berlin" id="profil-ort">
+              </div>
+              <div class="form-panel">
+                <div class="form-group">
+                  <label>Verk&#228;ufer-Type</label>
+                  <div class="field-readonly">Privat</div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group" style="margin-bottom:0">
+                      <label>Geb&#252;hr / St&#252;ck</label>
+                      <div class="field-readonly">0,50 &#x20AC;</div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group" style="margin-bottom:0">
+                      <label>Provision</label>
+                      <div class="field-readonly">20 %</div>
+                    </div>
                   </div>
                 </div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:10px">Konditionen werden vom Admin festgelegt.</div>
               </div>
-              <div class="form-group">
-                <label>Telefon</label>
-                <input type="tel" value="+49 30 1234567" id="profil-telefon">
-              </div>
-              <div class="form-group">
-                <label>E-Mail</label>
-                <input type="email" value="anna@example.com" id="profil-email">
-              </div>
-              <div class="form-group">
-                <label>Verk&#228;ufer-Type</label>
-                <div class="field-readonly" style="display:flex; align-items:center; gap:10px;">
-                  <span>Privat</span>
-                  <span class="chip chip-green">20 % Provision</span>
-                  <span class="chip chip-grey">0,50 &#x20AC;/St&#252;ck</span>
-                </div>
-              </div>
-              <button class="btn btn-primary" onclick="showToast('Profil gespeichert.','success')">Speichern</button>
+              <button class="btn btn-primary" style="margin-top:10px" onclick="showToast('Profil gespeichert.','success')">Speichern</button>
             </div>
           </div>
         </div>
@@ -525,14 +844,14 @@ tr:hover td { background: rgba(56,142,60,0.04); }
             </div>
           </div>
           <div class="table-wrap">
-            <table>
+            <table id="table-meine-artikel">
               <thead>
                 <tr>
-                  <th>Artikelnr.</th>
-                  <th>Bezeichnung</th>
-                  <th>Kategorie</th>
-                  <th>Marke</th>
-                  <th>Preis</th>
+                  <th class="sortable" data-sortkey="id">Artikelnr.<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="bezeichnung">Bezeichnung<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="kategorie">Kategorie<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="marke">Marke<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="preis">Preis<i class="sort-icon"></i></th>
                   <th></th>
                 </tr>
               </thead>
@@ -597,6 +916,47 @@ tr:hover td { background: rgba(56,142,60,0.04); }
       </div>
 
       <!-- ══════════════════════════════
+           ADMIN: HOME
+      ══════════════════════════════ -->
+      <div class="screen" id="screen-admin-home">
+        <div class="screen-header">
+          <h2 class="screen-title">&#127968; Admin-Übersicht</h2>
+        </div>
+        <div class="kachel-grid">
+          <div class="kachel primary">
+            <div class="kachel-icon">&#9200;</div>
+            <div class="kachel-label">Countdown bis zum Basar</div>
+            <div class="kachel-countdown" id="admin-home-countdown">–</div>
+            <div class="kachel-countdown-date" id="admin-home-basar-date"></div>
+          </div>
+          <div class="kachel primary">
+            <div class="kachel-icon">&#128101;</div>
+            <div class="kachel-label">Verkäufer</div>
+            <div class="kachel-value" id="admin-home-verkaeufer-count">–</div>
+            <div class="kachel-sub">registrierte Verkäufer</div>
+          </div>
+          <div class="kachel primary">
+            <div class="kachel-icon">&#127991;</div>
+            <div class="kachel-label">Artikel gesamt</div>
+            <div class="kachel-value" id="admin-home-artikel-count">–</div>
+            <div class="kachel-sub">erfasste Artikel</div>
+          </div>
+          <div class="kachel">
+            <div class="kachel-icon">&#128193;</div>
+            <div class="kachel-label">Kategorien</div>
+            <div class="kachel-value" id="admin-home-kat-count">–</div>
+            <div class="kachel-sub">aktive Kategorien</div>
+          </div>
+          <div class="kachel">
+            <div class="kachel-icon">&#174;</div>
+            <div class="kachel-label">Marken</div>
+            <div class="kachel-value" id="admin-home-marken-count">–</div>
+            <div class="kachel-sub">aktive Marken</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
            ADMIN: VERKÄUFER
       ══════════════════════════════ -->
       <div class="screen" id="screen-admin-verkaeufer">
@@ -617,17 +977,19 @@ tr:hover td { background: rgba(56,142,60,0.04); }
             </div>
           </div>
           <div class="table-wrap">
-            <table>
+            <table id="table-admin-verkaeufer">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Vorname</th>
-                  <th>Nachname</th>
-                  <th>PLZ</th>
-                  <th>Ort</th>
+                  <th class="sortable" data-sortkey="id">ID<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="vorname">Vorname<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="nachname">Nachname<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="plz">PLZ<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="ort">Ort<i class="sort-icon"></i></th>
                   <th>E-Mail</th>
-                  <th>Type</th>
-                  <th>Artikel</th>
+                  <th class="sortable" data-sortkey="type">Type<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="provision">Provision<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="gebuehr">Geb&#252;hr<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="artikel">Artikel<i class="sort-icon"></i></th>
                   <th></th>
                 </tr>
               </thead>
@@ -677,15 +1039,15 @@ tr:hover td { background: rgba(56,142,60,0.04); }
             </div>
           </div>
           <div class="table-wrap">
-            <table>
+            <table id="table-admin-artikel">
               <thead>
                 <tr>
-                  <th>Artikelnr.</th>
-                  <th>Bezeichnung</th>
-                  <th>Kategorie</th>
-                  <th>Marke</th>
-                  <th>Preis</th>
-                  <th>Verk&#228;ufer</th>
+                  <th class="sortable" data-sortkey="id">Artikelnr.<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="bezeichnung">Bezeichnung<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="kategorie">Kategorie<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="marke">Marke<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="preis">Preis<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="verkaeufer">Verk&#228;ufer<i class="sort-icon"></i></th>
                   <th></th>
                 </tr>
               </thead>
@@ -709,9 +1071,15 @@ tr:hover td { background: rgba(56,142,60,0.04); }
         </div>
         <div class="card">
           <div class="table-wrap">
-            <table>
+            <table id="table-marken">
               <thead>
-                <tr><th>ID</th><th>Bezeichnung</th><th></th></tr>
+                <tr>
+                  <th>ID</th>
+                  <th class="sortable" data-sortkey="name">Bezeichnung<i class="sort-icon"></i></th>
+                  <th>Original</th>
+                  <th class="sortable" data-sortkey="cnt">Artikel<i class="sort-icon"></i></th>
+                  <th></th>
+                </tr>
               </thead>
               <tbody id="tbody-marken"></tbody>
             </table>
@@ -733,9 +1101,15 @@ tr:hover td { background: rgba(56,142,60,0.04); }
         </div>
         <div class="card">
           <div class="table-wrap">
-            <table>
+            <table id="table-kategorien">
               <thead>
-                <tr><th>ID</th><th>Bezeichnung</th><th></th></tr>
+                <tr>
+                  <th>ID</th>
+                  <th class="sortable" data-sortkey="name">Bezeichnung<i class="sort-icon"></i></th>
+                  <th>Original</th>
+                  <th class="sortable" data-sortkey="cnt">Artikel<i class="sort-icon"></i></th>
+                  <th></th>
+                </tr>
               </thead>
               <tbody id="tbody-kategorien"></tbody>
             </table>
@@ -753,13 +1127,13 @@ tr:hover td { background: rgba(56,142,60,0.04); }
         </div>
         <div class="card">
           <div class="table-wrap">
-            <table>
+            <table id="table-types">
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Bezeichnung</th>
-                  <th>Provision %</th>
-                  <th>Geb&#252;hr/St&#252;ck</th>
+                  <th class="sortable" data-sortkey="bezeichnung">Bezeichnung<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="provision">Provision %<i class="sort-icon"></i></th>
+                  <th class="sortable" data-sortkey="gebuehr">Geb&#252;hr/St&#252;ck<i class="sort-icon"></i></th>
                   <th></th>
                 </tr>
               </thead>
@@ -776,6 +1150,60 @@ tr:hover td { background: rgba(56,142,60,0.04); }
         <div class="screen-header">
           <h2 class="screen-title">Einstellungen</h2>
         </div>
+
+        <!-- Basar-Konfiguration -->
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header">&#127881; Basar-Konfiguration</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <div class="form-group">
+                  <label>Basar-Datum</label>
+                  <input type="date" id="cfg-basar-datum" value="2024-05-15">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-group">
+                  <label>Abgabe-Zeitraum: Von</label>
+                  <input type="datetime-local" id="cfg-abgabe-von" value="2024-05-15T08:00">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-group">
+                  <label>Abgabe-Zeitraum: Bis</label>
+                  <input type="datetime-local" id="cfg-abgabe-bis" value="2024-05-15T10:00">
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveBasarConfig()">Speichern</button>
+          </div>
+        </div>
+
+        <!-- Info-Text -->
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header">&#128203; Info-Text f&#252;r Verk&#228;ufer <span class="text-small text-secondary" style="font-weight:400; margin-left:8px;">Markdown wird unterst&#252;tzt</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Text (Markdown)</label>
+              <textarea id="cfg-info-text" style="min-height:160px; font-family:monospace; font-size:13px;">## Willkommen beim Fr&#252;hjahrsbasar!
+
+**Abgabe:** 15. Mai, 8&#8211;10 Uhr im Gemeindehaus
+
+Bitte bringen Sie alle Artikel mit **Preisschild** mit.
+
+- Kleidungst&#252;cke bitte auf B&#252;gel
+- Keine Elektroger&#228;te
+- Mindestpreis: 1,00 &#x20AC;</textarea>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="btn btn-primary" onclick="saveInfoText()">Speichern</button>
+              <button class="btn btn-ghost btn-sm" onclick="previewInfoText()">&#128065; Vorschau</button>
+            </div>
+          </div>
+        </div>
+
         <div class="alert alert-info">
           &#8505;&#65039; &#196;nderungen an der Nummernblock-Konfiguration wirken sich nur auf neu zugewiesene Bl&#246;cke aus. Bestehende Bl&#246;cke werden nicht ver&#228;ndert.
         </div>
@@ -827,19 +1255,15 @@ tr:hover td { background: rgba(56,142,60,0.04); }
         <div class="card">
           <div class="card-header">Daten exportieren</div>
           <div class="card-body">
-            <p class="text-secondary" style="margin-bottom:20px;">Exportieren Sie alle relevanten Daten als JSON-Datei. W&#228;hlen Sie aus, welche zus&#228;tzlichen Stammdaten im Export enthalten sein sollen.</p>
+            <p class="text-secondary" style="margin-bottom:20px;">Erstellt eine JSON-Datei f&#252;r den Import in die Haupt-App. Exportiert werden alle Verk&#228;ufer (inkl. Admins) die mindestens einen Artikel erfasst haben &#8212; jeweils mit vollst&#228;ndigem Profil und Artikelliste.</p>
             <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
               <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px;">
                 <input type="checkbox" id="export-marken" checked style="width:16px; height:16px; accent-color:var(--primary);">
-                Marken einschlie&#223;en
+                Marken einschlie&#223;en <span class="text-secondary" style="font-size:12px;">(Stammdaten-Sync)</span>
               </label>
               <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px;">
                 <input type="checkbox" id="export-kategorien" checked style="width:16px; height:16px; accent-color:var(--primary);">
-                Kategorien einschlie&#223;en
-              </label>
-              <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px;">
-                <input type="checkbox" id="export-verkaeufer" style="width:16px; height:16px; accent-color:var(--primary);">
-                Verk&#228;ufer einschlie&#223;en
+                Kategorien einschlie&#223;en <span class="text-secondary" style="font-size:12px;">(Stammdaten-Sync)</span>
               </label>
             </div>
             <button class="btn btn-primary" onclick="openExportModal()">&#128228; Export erstellen</button>
@@ -885,73 +1309,179 @@ tr:hover td { background: rgba(56,142,60,0.04); }
       <button class="modal-close" onclick="closeModal('modal-artikel')">&#x2715;</button>
     </div>
     <div class="modal-body">
-      <div class="row">
-        <div class="col">
+      <!-- Zeile 1: Artikelnummer allein (50%) -->
+      <div style="display:flex;">
+        <div style="flex:0 0 calc(50% - 8px);">
           <div class="form-group">
-            <label>Artikelnummer</label>
-            <input type="text" id="art-nummer" readonly class="field-readonly" placeholder="Automatisch">
-          </div>
-        </div>
-        <div class="col">
-          <div class="form-group">
-            <label>Preis (&#x20AC;)</label>
-            <input type="number" id="art-preis" placeholder="0.00" step="0.01" min="0">
+            <label>Artikelnummer <span class="text-small text-secondary">(automatisch)</span></label>
+            <div class="field-readonly" id="art-nummer" style="font-weight:600; font-size:15px;">–</div>
           </div>
         </div>
       </div>
+      <!-- Zeile 2: Bezeichnung (100%) -->
       <div class="form-group">
         <label>Bezeichnung *</label>
         <input type="text" id="art-bezeichnung" placeholder="Artikelbezeichnung">
       </div>
+      <!-- Zeile 3: Kategorie (50%) | Marke (50%) -->
       <div class="row">
         <div class="col">
           <div class="form-group">
-            <label>Kategorie</label>
-            <div class="ac-wrap">
-              <input type="text" id="art-kat" placeholder="Kategorie w&#228;hlen ..."
-                oninput="acFilter(this,'ac-art-kat',kategorien)"
-                onfocus="acOpen(this,'ac-art-kat',kategorien)"
-                onblur="acBlurSave(event,'art-kat','ac-art-kat',kategorien,'Kategorie')">
+            <label>Kategorie *</label>
+            <div class="ac-wrap" id="art-kat-wrap">
+              <div class="ac-row" id="art-kat-row">
+                <input type="text" id="art-kat" placeholder="Kategorie w&#228;hlen &#8230;" autocomplete="off">
+                <button class="ac-btn" id="art-kat-btn" tabindex="-1">&#9660;</button>
+              </div>
               <div class="ac-dropdown" id="ac-art-kat"></div>
             </div>
           </div>
         </div>
         <div class="col">
           <div class="form-group">
-            <label>Marke</label>
-            <div class="ac-wrap">
-              <input type="text" id="art-marke" placeholder="Marke w&#228;hlen ..."
-                oninput="acFilter(this,'ac-art-marke',marken)"
-                onfocus="acOpen(this,'ac-art-marke',marken)"
-                onblur="acBlurSave(event,'art-marke','ac-art-marke',marken,'Marke')">
+            <label>Marke *</label>
+            <div class="ac-wrap" id="art-marke-wrap">
+              <div class="ac-row" id="art-marke-row">
+                <input type="text" id="art-marke" placeholder="Marke w&#228;hlen &#8230;" autocomplete="off">
+                <button class="ac-btn" id="art-marke-btn" tabindex="-1">&#9660;</button>
+              </div>
               <div class="ac-dropdown" id="ac-art-marke"></div>
             </div>
           </div>
         </div>
       </div>
+      <!-- Zeile 4: Größe (50%) | Farbe (50%) -->
       <div class="row">
         <div class="col">
           <div class="form-group">
-            <label>Gr&#246;&#223;e</label>
+            <label>Gr&#246;&#223;e *</label>
             <input type="text" id="art-groesse" placeholder="M, 42, XL ...">
           </div>
         </div>
         <div class="col">
           <div class="form-group">
-            <label>Farbe</label>
+            <label>Farbe *</label>
             <input type="text" id="art-farbe" placeholder="Blau, Rot ...">
           </div>
         </div>
       </div>
+      <!-- Zeile 5: Preis (50%) allein -->
+      <div style="display:flex;">
+        <div style="flex:0 0 calc(50% - 8px);">
+          <div class="form-group">
+            <label>Preis *</label>
+            <div class="price-ig"><input type="number" id="art-preis" placeholder="0,00" step="0.01" min="0"><span class="price-ig-addon">€</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Zeile 6: Beschreibung (100%) -->
       <div class="form-group">
-        <label>Beschreibung</label>
-        <textarea id="art-beschreibung" placeholder="Optionale Beschreibung ..."></textarea>
+        <label>Beschreibung *</label>
+        <textarea id="art-beschreibung" placeholder="Kurze Beschreibung des Artikels ..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="btn-artikel-delete" onclick="deleteArtikel()" style="display:none; margin-right:auto;">L&#246;schen</button>
       <button class="btn btn-ghost" onclick="closeModal('modal-artikel')">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveArtikel()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Artikel Detail-Ansicht (readonly, Admin) -->
+<div class="modal-overlay" id="modal-artikel-view">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">&#x1F50D; Artikel-Details</span>
+      <button class="modal-close" onclick="closeModal('modal-artikel-view')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Zeile 1: Artikelnummer allein (50%) -->
+      <div style="display:flex;">
+        <div style="flex:0 0 calc(50% - 8px);">
+          <div class="form-group">
+            <label>Artikelnummer</label>
+            <div class="field-readonly" id="view-art-nummer" style="font-weight:600; font-size:15px;">–</div>
+          </div>
+        </div>
+      </div>
+      <!-- Zeile 2: Bezeichnung (100%) -->
+      <div class="form-group">
+        <label>Bezeichnung</label>
+        <div class="field-readonly" id="view-art-bezeichnung">–</div>
+      </div>
+      <!-- Zeile 3: Kategorie (50%) | Marke (50%) -->
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <label>Kategorie</label>
+            <div class="field-readonly" id="view-art-kat">–</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label>Marke</label>
+            <div class="field-readonly" id="view-art-marke">–</div>
+          </div>
+        </div>
+      </div>
+      <!-- Zeile 4: Größe (50%) | Farbe (50%) -->
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <label>Gr&#246;&#223;e</label>
+            <div class="field-readonly" id="view-art-groesse">–</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label>Farbe</label>
+            <div class="field-readonly" id="view-art-farbe">–</div>
+          </div>
+        </div>
+      </div>
+      <!-- Zeile 5: Preis (50%) allein -->
+      <div style="display:flex;">
+        <div style="flex:0 0 calc(50% - 8px);">
+          <div class="form-group">
+            <label>Preis</label>
+            <div class="field-readonly" id="view-art-preis">–</div>
+          </div>
+        </div>
+      </div>
+      <!-- Zeile 6: Beschreibung (100%) -->
+      <div class="form-group">
+        <label>Beschreibung</label>
+        <div class="field-readonly" id="view-art-beschreibung" style="min-height:72px; white-space:pre-wrap;">–</div>
+      </div>
+      <!-- Zeile 7: Verkäufer (100%) — nur in Admin-Ansicht relevant -->
+      <div class="form-group">
+        <label>Verk&#228;ufer</label>
+        <div class="field-readonly" id="view-art-verkaeufer">–</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-artikel-view')">Schlie&#223;en</button>
+    </div>
+  </div>
+</div>
+
+<!-- AutoComplete: Neu anlegen Modal -->
+<div class="modal-overlay" id="modal-ac-new" style="z-index:1400">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-ac-new-title">Neu anlegen</span>
+      <button class="modal-close" onclick="closeModal('modal-ac-new')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:0">
+        <label id="modal-ac-new-label">Name</label>
+        <input class="form-control" id="modal-ac-new-input" type="text">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-ac-new')">Abbrechen</button>
+      <button class="btn btn-primary" id="btn-ac-new-save">Speichern</button>
     </div>
   </div>
 </div>
@@ -964,62 +1494,114 @@ tr:hover td { background: rgba(56,142,60,0.04); }
       <button class="modal-close" onclick="closeModal('modal-verkaeufer')">&#x2715;</button>
     </div>
     <div class="modal-body">
-      <div class="row">
-        <div class="col">
-          <div class="form-group">
-            <label>Vorname *</label>
-            <input type="text" id="vk-vorname" placeholder="Max">
+      <div class="form-panel">
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label>Vorname *</label>
+              <input type="text" id="vk-vorname" placeholder="Max">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label>Nachname *</label>
+              <input type="text" id="vk-nachname" placeholder="Mustermann">
+            </div>
           </div>
         </div>
-        <div class="col">
-          <div class="form-group">
-            <label>Nachname *</label>
-            <input type="text" id="vk-nachname" placeholder="Mustermann">
+        <div class="form-group">
+          <label>Anschrift</label>
+          <input type="text" id="vk-anschrift" placeholder="Musterstra&#223;e 1">
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-group" style="margin-bottom:0">
+              <label>PLZ</label>
+              <input type="text" id="vk-plz" placeholder="10115">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Ort</label>
+              <input type="text" id="vk-ort" placeholder="Berlin">
+            </div>
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Anschrift</label>
-        <input type="text" id="vk-anschrift" placeholder="Musterstra&#223;e 1">
-      </div>
-      <div class="row">
-        <div class="col">
-          <div class="form-group">
-            <label>PLZ</label>
-            <input type="text" id="vk-plz" placeholder="10115">
+      <div class="form-panel">
+        <div class="row">
+          <div class="col">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Telefon</label>
+              <input type="tel" id="vk-telefon" placeholder="+49 30 1234567">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group" style="margin-bottom:0">
+              <label>E-Mail *</label>
+              <input type="email" id="vk-email" placeholder="max@example.com">
+            </div>
           </div>
         </div>
-        <div class="col">
-          <div class="form-group">
-            <label>Ort</label>
-            <input type="text" id="vk-ort" placeholder="Berlin">
+      </div>
+      <div class="form-panel">
+        <div class="form-group">
+          <label>Verk&#228;ufer-Type</label>
+          <select id="vk-type" onchange="prefillVkKonditionen()">
+            <option value="Privat">Privat</option>
+            <option value="Gewerblich">Gewerblich</option>
+            <option value="Verein">Verein</option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Geb&#252;hr / St&#252;ck <span style="font-weight:400;color:var(--text-secondary)">(vorausgef&#252;llt)</span></label>
+              <div class="price-ig"><input type="number" id="vk-gebuehr" step="0.01" min="0" placeholder="0,50"><span class="price-ig-addon">&#x20AC;</span></div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Provision <span style="font-weight:400;color:var(--text-secondary)">(vorausgef&#252;llt)</span></label>
+              <div class="price-ig"><input type="number" id="vk-provision" step="0.1" min="0" max="100" placeholder="20"><span class="price-ig-addon">%</span></div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Telefon</label>
-        <input type="tel" id="vk-telefon" placeholder="+49 30 1234567">
-      </div>
-      <div class="form-group">
-        <label>E-Mail *</label>
-        <input type="email" id="vk-email" placeholder="max@example.com">
-      </div>
-      <div class="row">
-        <div class="col">
-          <div class="form-group">
-            <label>Verk&#228;ufer-Type</label>
-            <select id="vk-type">
-              <option value="Privat">Privat</option>
-              <option value="Gewerblich">Gewerblich</option>
-              <option value="Verein">Verein</option>
-            </select>
+      <!-- Nummernblöcke: Panel für NEUEN Verkäufer -->
+      <div class="form-panel" id="panel-nb-new">
+        <div style="font-weight:600; margin-bottom:10px; font-size:13px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.04em;">Nummernblöcke</div>
+        <div class="row">
+          <div class="col">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Startnummer</label>
+              <input type="number" id="vk-startnummer" value="1" min="1">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Anzahl initialer Blöcke</label>
+              <input type="number" id="vk-bloecke" value="1" min="1" max="20">
+            </div>
           </div>
         </div>
-        <div class="col">
-          <div class="form-group">
-            <label>Anzahl initialer Nummernbl&#246;cke</label>
-            <input type="number" id="vk-bloecke" value="1" min="1" max="20">
-          </div>
+      </div>
+      <!-- Nummernblöcke: Panel für BESTEHENDEN Verkäufer -->
+      <div class="form-panel" id="panel-nb-edit" style="display:none">
+        <div style="font-weight:600; margin-bottom:10px; font-size:13px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.04em;">Nummernblöcke</div>
+        <div class="nb-list" id="vk-nb-list"></div>
+        <div class="nb-add-row">
+          <button class="btn btn-ghost btn-sm" onclick="addNummernblock()" title="Weiteren Block hinzufügen">&#xFF0B; Block hinzufügen</button>
+        </div>
+      </div>
+      <!-- Admin-Toggle -->
+      <div class="form-panel" style="margin-bottom:0">
+        <div class="toggle-wrap">
+          <label class="toggle-switch">
+            <input type="checkbox" id="vk-is-admin">
+            <span class="toggle-slider"></span>
+          </label>
+          <span>Dieser Verkäufer hat <strong>Admin-Rechte</strong></span>
         </div>
       </div>
     </div>
@@ -1043,6 +1625,11 @@ tr:hover td { background: rgba(56,142,60,0.04); }
         <label>Bezeichnung *</label>
         <input type="text" id="marke-bezeichnung" placeholder="z. B. Nike">
       </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:12px;margin-top:4px;">
+        <label style="margin:0;font-weight:500;">Original</label>
+        <label class="toggle-switch"><input type="checkbox" id="marke-original"><span class="toggle-slider"></span></label>
+        <span style="font-size:12px;color:var(--text-secondary);">Stammdaten-Eintrag (vom Admin angelegt)</span>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="btn-marke-delete" onclick="deleteMarke()" style="display:none; margin-right:auto;">L&#246;schen</button>
@@ -1063,6 +1650,11 @@ tr:hover td { background: rgba(56,142,60,0.04); }
       <div class="form-group">
         <label>Bezeichnung *</label>
         <input type="text" id="kategorie-bezeichnung" placeholder="z. B. Jacken">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:12px;margin-top:4px;">
+        <label style="margin:0;font-weight:500;">Original</label>
+        <label class="toggle-switch"><input type="checkbox" id="kategorie-original"><span class="toggle-slider"></span></label>
+        <span style="font-size:12px;color:var(--text-secondary);">Stammdaten-Eintrag (vom Admin angelegt)</span>
       </div>
     </div>
     <div class="modal-footer">
@@ -1090,8 +1682,8 @@ tr:hover td { background: rgba(56,142,60,0.04); }
         <input type="number" id="type-provision" placeholder="20" step="0.5" min="0" max="100">
       </div>
       <div class="form-group">
-        <label>Abgabegeb&#252;hr pro St&#252;ck (&#x20AC;)</label>
-        <input type="number" id="type-gebuehr" placeholder="0.50" step="0.01" min="0">
+        <label>Abgabegebühr pro Stück</label>
+        <div class="price-ig"><input type="number" id="type-gebuehr" placeholder="0,50" step="0.01" min="0"><span class="price-ig-addon">€</span></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1163,8 +1755,24 @@ let currentRole = 'seller';
 let editingId = null;
 let artikelContext = 'seller';
 
-let marken = ['Nike', 'Adidas', 'Levis', 'H&M', 'Zara', 'Puma'];
-let kategorien = ['Jacken', 'Hosen', 'Schuhe', 'Shirts', 'Accessoires', 'Taschen'];
+let marken = [
+  {id:1, name:'Nike',    original:true},
+  {id:2, name:'Adidas',  original:true},
+  {id:3, name:'Levis',   original:true},
+  {id:4, name:'H&M',     original:true},
+  {id:5, name:'Zara',    original:true},
+  {id:6, name:'Puma',    original:true}
+];
+let _markeNextId = 7;
+let kategorien = [
+  {id:1, name:'Jacken',     original:true},
+  {id:2, name:'Hosen',      original:true},
+  {id:3, name:'Schuhe',     original:true},
+  {id:4, name:'Shirts',     original:true},
+  {id:5, name:'Accessoires',original:true},
+  {id:6, name:'Taschen',    original:true}
+];
+let _katNextId = 7;
 
 let verkaeuferTypes = [
   { id: 1, bezeichnung: 'Privat',      provision: 20, gebuehr: 0.50 },
@@ -1174,34 +1782,308 @@ let verkaeuferTypes = [
 let nextTypeId = 4;
 
 let verkaeufer = [
-  { id: 1, vorname: 'Anna',   nachname: 'Müller',   anschrift: 'Musterstraße 12', plz: '10115', ort: 'Berlin',  email: 'anna@example.com',   telefon: '+49 30 1234567', type: 'Privat',     bloecke: 1 },
-  { id: 2, vorname: 'Thomas', nachname: 'Schmidt',  anschrift: 'Hauptstr. 5',     plz: '20095', ort: 'Hamburg', email: 'thomas@example.com', telefon: '+49 40 9876543', type: 'Gewerblich', bloecke: 2 },
-  { id: 3, vorname: 'Lisa',   nachname: 'Weber',    anschrift: 'Parkweg 3',       plz: '80331', ort: 'München', email: 'lisa@example.com',   telefon: '+49 89 1112223', type: 'Privat',     bloecke: 1 },
-  { id: 4, vorname: 'Klaus',  nachname: 'Fischer',  anschrift: 'Domstr. 7',       plz: '50667', ort: 'Köln',   email: 'klaus@example.com',  telefon: '+49 221 5556677',type: 'Verein',     bloecke: 1 }
+  { id: 1, vorname: 'Anna',   nachname: 'Müller',   anschrift: 'Musterstraße 12', plz: '10115', ort: 'Berlin',  email: 'anna@example.com',   telefon: '+49 30 1234567', type: 'Privat',     provision: 20, gebuehr: 0.50, isAdmin: true,  nummernbloecke: [{von:1,  bis:10}] },
+  { id: 2, vorname: 'Thomas', nachname: 'Schmidt',  anschrift: 'Hauptstr. 5',     plz: '20095', ort: 'Hamburg', email: 'thomas@example.com', telefon: '+49 40 9876543', type: 'Gewerblich', provision: 30, gebuehr: 1.00, isAdmin: false, nummernbloecke: [{von:11, bis:20}, {von:21, bis:30}] },
+  { id: 3, vorname: 'Lisa',   nachname: 'Weber',    anschrift: 'Parkweg 3',       plz: '80331', ort: 'München', email: 'lisa@example.com',   telefon: '+49 89 1112223', type: 'Privat',     provision: 18, gebuehr: 0.25, isAdmin: false, nummernbloecke: [{von:31, bis:40}] },
+  { id: 4, vorname: 'Klaus',  nachname: 'Fischer',  anschrift: 'Domstr. 7',       plz: '50667', ort: 'Köln',   email: 'klaus@example.com',  telefon: '+49 221 5556677', type: 'Verein',    provision: 10, gebuehr: 0.25, isAdmin: false, nummernbloecke: [{von:41, bis:50}] }
 ];
 let nextVerkaeuferId = 5;
 
 let artikel = [
-  { id: 101, bezeichnung: 'Winterjacke',  kategorie: 'Jacken',      marke: 'Nike',   preis: 25, groesse: 'M',  farbe: 'Blau',       beschreibung: '', verkaeufer: 1 },
-  { id: 102, bezeichnung: 'Hose',         kategorie: 'Hosen',       marke: 'Levis',  preis: 15, groesse: '32', farbe: 'Blau',       beschreibung: '', verkaeufer: 1 },
-  { id: 103, bezeichnung: 'Sneaker',      kategorie: 'Schuhe',      marke: 'Nike',   preis: 45, groesse: '42', farbe: 'Weiß',       beschreibung: '', verkaeufer: 1 },
-  { id: 104, bezeichnung: 'T-Shirt',      kategorie: 'Shirts',      marke: 'H&M',    preis: 8,  groesse: 'L',  farbe: 'Grau',       beschreibung: '', verkaeufer: 1 },
-  { id: 105, bezeichnung: 'Handtasche',   kategorie: 'Taschen',     marke: 'Zara',   preis: 35, groesse: '',   farbe: 'Schwarz',    beschreibung: '', verkaeufer: 1 },
-  { id: 106, bezeichnung: 'Schal',        kategorie: 'Accessoires', marke: 'H&M',    preis: 12, groesse: '',   farbe: 'Rot',        beschreibung: '', verkaeufer: 1 },
-  { id: 107, bezeichnung: 'Jogginghose',  kategorie: 'Hosen',       marke: 'Adidas', preis: 20, groesse: 'S',  farbe: 'Schwarz',    beschreibung: '', verkaeufer: 1 },
-  { id: 108, bezeichnung: 'Parka',        kategorie: 'Jacken',      marke: 'Puma',   preis: 55, groesse: 'XL', farbe: 'Oliv',       beschreibung: '', verkaeufer: 1 },
-  { id: 201, bezeichnung: 'Laufschuhe',   kategorie: 'Schuhe',      marke: 'Adidas', preis: 80, groesse: '44', farbe: 'Weiß',       beschreibung: '', verkaeufer: 2 },
-  { id: 202, bezeichnung: 'Daunenjacke',  kategorie: 'Jacken',      marke: 'Nike',   preis: 120,groesse: 'L',  farbe: 'Schwarz',    beschreibung: '', verkaeufer: 2 },
-  { id: 203, bezeichnung: 'Jeans',        kategorie: 'Hosen',       marke: 'Levis',  preis: 55, groesse: '34', farbe: 'Dunkelblau', beschreibung: '', verkaeufer: 2 },
-  { id: 204, bezeichnung: 'Polo-Shirt',   kategorie: 'Shirts',      marke: 'Adidas', preis: 25, groesse: 'M',  farbe: 'Weiß',       beschreibung: '', verkaeufer: 2 },
-  { id: 301, bezeichnung: 'Bluse',        kategorie: 'Shirts',      marke: 'Zara',   preis: 18, groesse: 'S',  farbe: 'Weiß',       beschreibung: '', verkaeufer: 3 },
-  { id: 302, bezeichnung: 'Rock',         kategorie: 'Hosen',       marke: 'H&M',    preis: 22, groesse: 'S',  farbe: 'Beige',      beschreibung: '', verkaeufer: 3 },
-  { id: 303, bezeichnung: 'Strickjacke', kategorie: 'Jacken',       marke: 'Zara',   preis: 38, groesse: 'M',  farbe: 'Creme',      beschreibung: '', verkaeufer: 3 },
-  { id: 401, bezeichnung: 'Vereinsjacke',kategorie: 'Jacken',       marke: 'Adidas', preis: 40, groesse: 'M',  farbe: 'Grün',       beschreibung: '', verkaeufer: 4 },
-  { id: 402, bezeichnung: 'Sporttasche', kategorie: 'Taschen',       marke: 'Puma',   preis: 30, groesse: '',   farbe: 'Schwarz',    beschreibung: '', verkaeufer: 4 },
-  { id: 403, bezeichnung: 'Trainingshose',kategorie:'Hosen',         marke: 'Adidas', preis: 28, groesse: 'L',  farbe: 'Dunkelblau', beschreibung: '', verkaeufer: 4 }
+  { id: 101, bezeichnung: 'Winterjacke',   kategorie: 'Jacken',      marke: 'Nike',   preis: 25,  groesse: 'M',  farbe: 'Blau',       beschreibung: '', verkaeufer: 1, erstelltAm: '2026-04-28T10:12', updatedAm: '2026-05-03T14:22' },
+  { id: 102, bezeichnung: 'Hose',          kategorie: 'Hosen',       marke: 'Levis',  preis: 15,  groesse: '32', farbe: 'Blau',       beschreibung: '', verkaeufer: 1, erstelltAm: '2026-04-28T10:35', updatedAm: '2026-04-28T10:35' },
+  { id: 103, bezeichnung: 'Sneaker',       kategorie: 'Schuhe',      marke: 'Nike',   preis: 45,  groesse: '42', farbe: 'Weiß',       beschreibung: '', verkaeufer: 1, erstelltAm: '2026-05-05T09:00', updatedAm: '2026-05-05T09:00' },
+  { id: 104, bezeichnung: 'T-Shirt',       kategorie: 'Shirts',      marke: 'H&M',    preis: 8,   groesse: 'L',  farbe: 'Grau',       beschreibung: '', verkaeufer: 1, erstelltAm: '2026-05-05T09:15', updatedAm: '2026-05-12T11:44' },
+  { id: 105, bezeichnung: 'Handtasche',    kategorie: 'Taschen',     marke: 'Zara',   preis: 35,  groesse: '',   farbe: 'Schwarz',    beschreibung: '', verkaeufer: 1, erstelltAm: '2026-05-12T11:30', updatedAm: '2026-05-12T11:30' },
+  { id: 106, bezeichnung: 'Schal',         kategorie: 'Accessoires', marke: 'H&M',    preis: 12,  groesse: '',   farbe: 'Rot',        beschreibung: '', verkaeufer: 1, erstelltAm: '2026-05-12T11:50', updatedAm: '2026-05-12T11:50' },
+  { id: 107, bezeichnung: 'Jogginghose',   kategorie: 'Hosen',       marke: 'Adidas', preis: 20,  groesse: 'S',  farbe: 'Schwarz',    beschreibung: '', verkaeufer: 1, erstelltAm: '2026-05-19T16:05', updatedAm: '2026-05-19T16:05' },
+  { id: 108, bezeichnung: 'Parka',         kategorie: 'Jacken',      marke: 'Puma',   preis: 55,  groesse: 'XL', farbe: 'Oliv',       beschreibung: '', verkaeufer: 1, erstelltAm: '2026-06-02T08:30', updatedAm: '2026-06-09T10:18' },
+  { id: 201, bezeichnung: 'Laufschuhe',    kategorie: 'Schuhe',      marke: 'Adidas', preis: 80,  groesse: '44', farbe: 'Weiß',       beschreibung: '', verkaeufer: 2, erstelltAm: '2026-05-10T14:00', updatedAm: '2026-05-10T14:00' },
+  { id: 202, bezeichnung: 'Daunenjacke',   kategorie: 'Jacken',      marke: 'Nike',   preis: 120, groesse: 'L',  farbe: 'Schwarz',    beschreibung: '', verkaeufer: 2, erstelltAm: '2026-05-10T14:20', updatedAm: '2026-05-10T14:20' },
+  { id: 203, bezeichnung: 'Jeans',         kategorie: 'Hosen',       marke: 'Levis',  preis: 55,  groesse: '34', farbe: 'Dunkelblau', beschreibung: '', verkaeufer: 2, erstelltAm: '2026-05-17T09:45', updatedAm: '2026-05-17T09:45' },
+  { id: 204, bezeichnung: 'Polo-Shirt',    kategorie: 'Shirts',      marke: 'Adidas', preis: 25,  groesse: 'M',  farbe: 'Weiß',       beschreibung: '', verkaeufer: 2, erstelltAm: '2026-06-07T13:10', updatedAm: '2026-06-07T13:10' },
+  { id: 301, bezeichnung: 'Bluse',         kategorie: 'Shirts',      marke: 'Zara',   preis: 18,  groesse: 'S',  farbe: 'Weiß',       beschreibung: '', verkaeufer: 3, erstelltAm: '2026-05-20T10:00', updatedAm: '2026-05-20T10:00' },
+  { id: 302, bezeichnung: 'Rock',          kategorie: 'Hosen',       marke: 'H&M',    preis: 22,  groesse: 'S',  farbe: 'Beige',      beschreibung: '', verkaeufer: 3, erstelltAm: '2026-05-26T15:30', updatedAm: '2026-06-02T09:10' },
+  { id: 303, bezeichnung: 'Strickjacke',   kategorie: 'Jacken',      marke: 'Zara',   preis: 38,  groesse: 'M',  farbe: 'Creme',      beschreibung: '', verkaeufer: 3, erstelltAm: '2026-06-09T11:00', updatedAm: '2026-06-09T11:00' },
+  { id: 401, bezeichnung: 'Vereinsjacke',  kategorie: 'Jacken',      marke: 'Adidas', preis: 40,  groesse: 'M',  farbe: 'Grün',       beschreibung: '', verkaeufer: 4, erstelltAm: '2026-06-14T08:00', updatedAm: '2026-06-14T08:00' },
+  { id: 402, bezeichnung: 'Sporttasche',   kategorie: 'Taschen',     marke: 'Puma',   preis: 30,  groesse: '',   farbe: 'Schwarz',    beschreibung: '', verkaeufer: 4, erstelltAm: '2026-06-14T08:15', updatedAm: '2026-06-15T14:50' },
+  { id: 403, bezeichnung: 'Trainingshose', kategorie: 'Hosen',       marke: 'Adidas', preis: 28,  groesse: 'L',  farbe: 'Dunkelblau', beschreibung: '', verkaeufer: 4, erstelltAm: '2026-06-16T07:45', updatedAm: '2026-06-16T07:45' }
 ];
 let nextArtikelId = 500;
+
+// ── BASAR CONFIG ──────────────────────────────────────────────────────────────
+let basarConfig = {
+  basarDatum:    '2024-05-15',
+  abgabeVon:     '2024-05-15T08:00',
+  abgabeBis:     '2024-05-15T10:00',
+  defaultTypeId: 1,
+  blockSize:     10,
+  infoText:      '## Willkommen beim Frühjahrsbasar!\n\n**Abgabe:** 15. Mai, 8–10 Uhr im Gemeindehaus\n\nBitte bringen Sie alle Artikel mit **Preisschild** mit.\n\n- Kleidungsstücke bitte auf Bügel\n- Keine Elektrogeräte\n- Mindestpreis: 1,00 €'
+};
+
+// ── MARKDOWN (minimal renderer) ───────────────────────────────────────────────
+function simpleMarkdown(md) {
+  if (!md) return '';
+  let html = md
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,  '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,   '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,    '<em>$1</em>')
+    .replace(/`(.+?)`/g,      '<code>$1</code>')
+    .replace(/^---$/gm,       '<hr>')
+    .replace(/^\- (.+)$/gm,   '<li>$1</li>');
+  // wrap consecutive <li> in <ul>
+  html = html.replace(/(<li>.*<\/li>\n?)+/gs, m => '<ul>' + m + '</ul>');
+  // wrap plain lines (not block elements) in <p>
+  html = html.split('\n').map(line => {
+    if (!line.trim()) return '';
+    if (/^<(h[123]|ul|li|hr|p)/.test(line)) return line;
+    return '<p>' + line + '</p>';
+  }).join('\n');
+  return html;
+}
+
+// ── HOME RENDER ───────────────────────────────────────────────────────────────
+let _countdownTimer = null;
+
+function renderHome() {
+  // Artikel-Count (Verkäufer 1 = eingeloggter User im POC)
+  const count = artikel.filter(a => a.verkaeufer === 1).length;
+  document.getElementById('home-artikel-count').textContent = count;
+
+  // Konditionen aus Verkäufer-Type
+  const v = verkaeufer.find(x => x.id === 1);
+  const t = v ? verkaeuferTypes.find(x => x.bezeichnung === v.type) : null;
+  const provision = t ? t.provision : (v ? v.provision : 0);
+  const gebuehr   = t ? t.gebuehr   : (v ? v.gebuehr   : 0);
+  document.getElementById('home-provision').textContent    = provision + ' % Provision';
+  document.getElementById('home-gebuehr-stueck').textContent = gebuehr.toFixed(2) + ' € Gebühr pro Artikel';
+
+  // Gesamtgebühr
+  const gesamt = count * gebuehr;
+  document.getElementById('home-gebuehr-gesamt').textContent = gesamt.toFixed(2) + ' €';
+  document.getElementById('home-gebuehr-formel').textContent =
+    count + ' Artikel × ' + gebuehr.toFixed(2) + ' €';
+
+  // Basar-Datum
+  const basarDate = new Date(basarConfig.basarDatum + 'T00:00:00');
+  const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
+  document.getElementById('home-basar-date').textContent =
+    'Basar: ' + basarDate.toLocaleDateString('de-DE', opts);
+
+  // Countdown
+  clearInterval(_countdownTimer);
+  function updateCountdown() {
+    const now    = new Date();
+    const target = new Date(basarConfig.abgabeVon);
+    const diff   = target - now;
+    const el     = document.getElementById('home-countdown');
+    if (!el) { clearInterval(_countdownTimer); return; }
+    if (diff <= 0) {
+      el.textContent = 'Basar läuft!';
+      clearInterval(_countdownTimer);
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000)  / 60000);
+    const s = Math.floor((diff % 60000)    / 1000);
+    el.textContent = (d > 0 ? d + ' T  ' : '') +
+      String(h).padStart(2,'0') + ':' +
+      String(m).padStart(2,'0') + ':' +
+      String(s).padStart(2,'0');
+  }
+  updateCountdown();
+  _countdownTimer = setInterval(updateCountdown, 1000);
+
+  // Info-Text
+  document.getElementById('home-info-text').innerHTML = simpleMarkdown(basarConfig.infoText);
+
+  // Heatmap — Admin only, shows all articles
+  var heatmapSection = document.getElementById('heatmap-section');
+  if(currentRole === 'admin'){
+    heatmapSection.style.display = '';
+    renderHeatmap(artikel);
+  } else {
+    heatmapSection.style.display = 'none';
+  }
+}
+
+// ── ACTIVITY HEATMAP ──────────────────────────────────────────────────────────
+function renderHeatmap(artikelList) {
+  const grid   = document.getElementById('heatmap-grid');
+  const months = document.getElementById('heatmap-months');
+  if (!grid || !months) return;
+
+  const WEEKS = 12;
+  const today = new Date(); today.setHours(23,59,59,999);
+
+  // Collect activity counts per day-string (YYYY-MM-DD)
+  const counts = {};
+  artikelList.forEach(a => {
+    [a.erstelltAm, a.updatedAm].forEach(ts => {
+      if (!ts) return;
+      const d = ts.slice(0, 10);
+      counts[d] = (counts[d] || 0) + 1;
+    });
+  });
+
+  // Find Sunday that starts the grid (go back WEEKS weeks from today's Sunday)
+  const startDay = new Date(today);
+  startDay.setDate(startDay.getDate() - startDay.getDay()); // this Sunday
+  startDay.setDate(startDay.getDate() - (WEEKS - 1) * 7);  // go back
+  startDay.setHours(0,0,0,0);
+
+  const max = Math.max(1, ...Object.values(counts));
+  function level(n) {
+    if (n === 0) return 0;
+    if (n <= max * 0.25) return 1;
+    if (n <= max * 0.5)  return 2;
+    if (n <= max * 0.75) return 3;
+    return 4;
+  }
+
+  // Build month labels (one per week column)
+  const monthLabels = [];
+  for (let w = 0; w < WEEKS; w++) {
+    const d = new Date(startDay); d.setDate(d.getDate() + w * 7);
+    if (w === 0 || d.getDate() <= 7) {
+      monthLabels.push({ w, label: d.toLocaleDateString('de-DE', { month: 'short' }) });
+    } else {
+      monthLabels.push({ w, label: '' });
+    }
+  }
+
+  months.innerHTML = '';
+  monthLabels.forEach(({ label }) => {
+    const span = document.createElement('span');
+    span.className = 'heatmap-month-label';
+    span.style.cssText = 'min-width:16px; width:16px; font-size:10px;';
+    span.textContent = label;
+    months.appendChild(span);
+  });
+
+  // Build grid
+  grid.innerHTML = '';
+  for (let w = 0; w < WEEKS; w++) {
+    const col = document.createElement('div');
+    col.className = 'heatmap-week';
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(startDay);
+      date.setDate(date.getDate() + w * 7 + d);
+      if (date > today) {
+        const empty = document.createElement('div');
+        empty.className = 'heatmap-day';
+        empty.style.background = 'transparent';
+        col.appendChild(empty);
+        continue;
+      }
+      const key = date.toISOString().slice(0, 10);
+      const n   = counts[key] || 0;
+      const cell = document.createElement('div');
+      cell.className = 'heatmap-day hm-' + level(n);
+      const label = date.toLocaleDateString('de-DE', { weekday:'short', day:'numeric', month:'short' });
+      cell.title = label + (n ? ': ' + n + ' Aktivität(en)' : ': Keine Aktivität');
+      cell.addEventListener('mouseenter', () => {
+        document.getElementById('heatmap-tooltip').textContent =
+          n ? label + ' — ' + n + ' Aktivität(en)' : label + ' — Keine Aktivität';
+      });
+      cell.addEventListener('mouseleave', () => {
+        document.getElementById('heatmap-tooltip').textContent = '';
+      });
+      col.appendChild(cell);
+    }
+    grid.appendChild(col);
+  }
+}
+
+// ── ADMIN HOME RENDER ─────────────────────────────────────────────────────────
+let _adminCountdownTimer = null;
+
+function renderAdminHome() {
+  document.getElementById('admin-home-verkaeufer-count').textContent = verkaeufer.length;
+  document.getElementById('admin-home-artikel-count').textContent    = artikel.length;
+  document.getElementById('admin-home-kat-count').textContent        = kategorien.length;
+  document.getElementById('admin-home-marken-count').textContent     = marken.length;
+
+  const basarDate = new Date(basarConfig.basarDatum + 'T00:00:00');
+  const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
+  document.getElementById('admin-home-basar-date').textContent =
+    'Basar: ' + basarDate.toLocaleDateString('de-DE', opts);
+
+  clearInterval(_adminCountdownTimer);
+  function tick() {
+    const el   = document.getElementById('admin-home-countdown');
+    if (!el) { clearInterval(_adminCountdownTimer); return; }
+    const diff = new Date(basarConfig.abgabeVon) - new Date();
+    if (diff <= 0) { el.textContent = 'Basar läuft!'; clearInterval(_adminCountdownTimer); return; }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000)  / 60000);
+    const s = Math.floor((diff % 60000)    / 1000);
+    el.textContent = (d > 0 ? d + ' T  ' : '') +
+      String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+  tick();
+  _adminCountdownTimer = setInterval(tick, 1000);
+}
+
+// ── LOGIN INFO AREA ───────────────────────────────────────────────────────────
+let _loginCountdownTimer = null;
+
+function initLoginInfo() {
+  // Countdown
+  const basarDate = new Date(basarConfig.basarDatum + 'T00:00:00');
+  const opts = { day:'numeric', month:'long', year:'numeric' };
+  const datEl = document.getElementById('login-basar-date');
+  if (datEl) datEl.textContent = basarDate.toLocaleDateString('de-DE', opts);
+
+  clearInterval(_loginCountdownTimer);
+  function tick() {
+    const el   = document.getElementById('login-countdown');
+    if (!el) { clearInterval(_loginCountdownTimer); return; }
+    const diff = new Date(basarConfig.abgabeVon) - new Date();
+    if (diff <= 0) { el.textContent = 'Basar läuft!'; clearInterval(_loginCountdownTimer); return; }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000)  / 60000);
+    const s = Math.floor((diff % 60000)    / 1000);
+    el.textContent = (d > 0 ? d + ' T  ' : '') +
+      String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+  tick();
+  _loginCountdownTimer = setInterval(tick, 1000);
+
+  // Default-Konditionen aus basarConfig.defaultTypeId
+  const t = verkaeuferTypes.find(x => x.id === basarConfig.defaultTypeId);
+  const provEl = document.getElementById('login-provision');
+  const gebEl  = document.getElementById('login-gebuehr');
+  if (provEl) provEl.textContent = t ? t.provision + ' % Provision' : '–';
+  if (gebEl)  gebEl.textContent  = t ? t.gebuehr.toFixed(2) + ' € Abgabegebühr / Artikel' : '–';
+
+  // Markdown Info-Text
+  const infoEl = document.getElementById('login-info-text');
+  if (infoEl) infoEl.innerHTML = simpleMarkdown(basarConfig.infoText);
+}
+
+// ── BASAR EINSTELLUNGEN SPEICHERN ─────────────────────────────────────────────
+function saveBasarConfig() {
+  basarConfig.basarDatum = document.getElementById('cfg-basar-datum').value;
+  basarConfig.abgabeVon  = document.getElementById('cfg-abgabe-von').value;
+  basarConfig.abgabeBis  = document.getElementById('cfg-abgabe-bis').value;
+  showToast('Basar-Konfiguration gespeichert.', 'success');
+}
+function saveInfoText() {
+  basarConfig.infoText = document.getElementById('cfg-info-text').value;
+  showToast('Info-Text gespeichert.', 'success');
+}
+function previewInfoText() {
+  const raw = document.getElementById('cfg-info-text').value;
+  document.getElementById('home-info-text').innerHTML = simpleMarkdown(raw);
+  showToast('Vorschau aktualisiert — wechsle zu Home.', 'info');
+}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function artikelCountFor(vid) {
@@ -1237,7 +2119,7 @@ function doLogin() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('main-layout').style.display = 'flex';
   setRole('seller');
-  showScreen('profil');
+  showScreen('home');
 }
 function doRegister() {
   const fn  = document.getElementById('reg-firstname').value.trim();
@@ -1278,16 +2160,18 @@ function confirmDeleteAccount() {
 // ── ROLE ──────────────────────────────────────────────────────────────────────
 function setRole(role) {
   currentRole = role;
-  document.getElementById('role-admin-btn').classList.toggle('active', role === 'admin');
-  document.getElementById('role-seller-btn').classList.toggle('active', role === 'seller');
+  document.getElementById('sidebar-role-admin-btn').classList.toggle('active', role === 'admin');
+  document.getElementById('sidebar-role-seller-btn').classList.toggle('active', role === 'seller');
   document.getElementById('seller-nav').style.display = role === 'seller' ? 'block' : 'none';
   document.getElementById('admin-nav').style.display  = role === 'admin'  ? 'block' : 'none';
-  if (role === 'seller') showScreen('profil');
-  else showScreen('admin-verkaeufer');
+  if (role === 'seller') showScreen('home');
+  else showScreen('admin-home');
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
 function showScreen(name) {
+  // Stop countdown when leaving home
+  if (name !== 'home') clearInterval(_countdownTimer);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const el  = document.getElementById('screen-' + name);
@@ -1296,6 +2180,8 @@ function showScreen(name) {
   if (nav) nav.classList.add('active');
   // lazy render
   const renders = {
+    'home':              renderHome,
+    'admin-home':        renderAdminHome,
     'meine-artikel':     renderMeineArtikel,
     'admin-verkaeufer':  renderAdminVerkaeufer,
     'admin-artikel':     renderAllArtikel,
@@ -1347,8 +2233,108 @@ function showToast(msg, type) {
 
 // ── AUTOCOMPLETE ──────────────────────────────────────────────────────────────
 // ac state for save-new-item confirmation
-let _acSavePending = null; // { inputEl, list, type }
+// ── AUTOCOMPLETE (Haupt-App-Stil) ─────────────────────────────────────────────
+let _acNewCallback = null;
 
+function acSync(inputId, btnId, dropId, getList) {
+  const inp = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (!inp || !btn) return;
+  const val = inp.value.trim();
+  const list = getList();
+  const exact = list.some(x => x.toLowerCase() === val.toLowerCase());
+  const hasNew = val && !exact;
+  btn.textContent = hasNew ? '+' : '▾';
+  btn.classList.toggle('is-add', hasNew);
+  btn.title = hasNew ? val + ' anlegen' : 'Auswahl öffnen';
+}
+
+function setupAC(inputId, btnId, dropId, getList, label) {
+  const inp  = document.getElementById(inputId);
+  const btn  = document.getElementById(btnId);
+  const drop = document.getElementById(dropId);
+  if (!inp) return;
+
+  function getFiltered() {
+    const q = inp.value.trim().toLowerCase();
+    return getList().filter(x => !q || x.toLowerCase().includes(q));
+  }
+
+  function renderDrop() {
+    const items = getFiltered();
+    if (!items.length) {
+      drop.innerHTML = '<div class="ac-empty">Kein Treffer</div>';
+    } else {
+      drop.innerHTML = items.map(x => '<div class="ac-item">' + x + '</div>').join('');
+      drop.querySelectorAll('.ac-item').forEach(el => {
+        el.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          inp.value = el.textContent;
+          closeDrop();
+          acSync(inputId, btnId, dropId, getList);
+        });
+      });
+    }
+    drop.classList.add('open');
+  }
+
+  function closeDrop() { drop.classList.remove('open'); }
+
+  function openNew() {
+    const val = inp.value.trim();
+    document.getElementById('modal-ac-new-title').textContent = 'Neue ' + label + ' anlegen';
+    document.getElementById('modal-ac-new-label').textContent = label;
+    document.getElementById('modal-ac-new-input').value = val;
+    _acNewCallback = function(name) {
+      const isKat = inputId === 'art-kat';
+      if (!getList().some(x => x.toLowerCase() === name.toLowerCase())) {
+        if (isKat) kategorien.push({ id: _katNextId++,   name, original: false });
+        else       marken.push(    { id: _markeNextId++, name, original: false });
+      }
+      inp.value = name;
+      acSync(inputId, btnId, dropId, getList);
+    };
+    openModal('modal-ac-new');
+    setTimeout(() => document.getElementById('modal-ac-new-input').focus(), 50);
+  }
+
+  inp.addEventListener('input', function() {
+    renderDrop();
+    acSync(inputId, btnId, dropId, getList);
+  });
+  inp.addEventListener('focus', function() { renderDrop(); });
+  inp.addEventListener('blur',  function() { setTimeout(closeDrop, 150); });
+  inp.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const val   = inp.value.trim();
+      const exact = getList().find(x => x.toLowerCase() === val.toLowerCase());
+      if (exact) { inp.value = exact; closeDrop(); acSync(inputId, btnId, dropId, getList); }
+      else if (val) { openNew(); }
+      e.preventDefault();
+    }
+    if (e.key === 'Escape') closeDrop();
+  });
+  btn.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    const val   = inp.value.trim();
+    const exact = getList().some(x => x.toLowerCase() === val.toLowerCase());
+    if (val && !exact) { openNew(); }
+    else { if (!drop.classList.contains('open')) renderDrop(); else closeDrop(); }
+  });
+}
+
+document.getElementById('btn-ac-new-save').addEventListener('click', function() {
+  const name = document.getElementById('modal-ac-new-input').value.trim();
+  if (!name) { showToast('Name darf nicht leer sein.', 'error'); return; }
+  if (_acNewCallback) { _acNewCallback(name); _acNewCallback = null; }
+  closeModal('modal-ac-new');
+  showToast('Gespeichert.', 'success');
+});
+document.getElementById('modal-ac-new-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('btn-ac-new-save').click();
+});
+
+// ── FILTER-AUTOCOMPLETE (für Listen-Filter, kein New-anlegen) ─────────────────
 function acBuildDropdown(ddId, items, inputEl) {
   const dd = document.getElementById(ddId);
   dd.innerHTML = '';
@@ -1373,56 +2359,15 @@ function acBuildDropdown(ddId, items, inputEl) {
   }
   dd.classList.add('open');
 }
-
 function acOpen(inputEl, ddId, list) {
   const val = inputEl.value.toLowerCase();
-  const filtered = val ? list.filter(x => x.toLowerCase().includes(val)) : [...list];
-  acBuildDropdown(ddId, filtered, inputEl);
+  acBuildDropdown(ddId, list.filter(x => !val || x.toLowerCase().includes(val)), inputEl);
 }
-
 function acFilter(inputEl, ddId, list) {
-  const val = inputEl.value.toLowerCase();
-  const filtered = list.filter(x => x.toLowerCase().includes(val));
-  acBuildDropdown(ddId, filtered, inputEl);
+  acBuildDropdown(ddId, list.filter(x => x.toLowerCase().includes(inputEl.value.toLowerCase())), inputEl);
 }
-
-// For filter fields: just close dropdown on blur, no save prompt
 function acBlurFilter(e, ddId) {
-  setTimeout(() => {
-    document.getElementById(ddId).classList.remove('open');
-  }, 150);
-}
-
-// For form fields: close dropdown and optionally prompt to save unknown value
-function acBlurSave(e, inputId, ddId, list, label) {
-  setTimeout(() => {
-    document.getElementById(ddId).classList.remove('open');
-    const inputEl = document.getElementById(inputId);
-    const val = inputEl.value.trim();
-    if (val && !list.map(x=>x.toLowerCase()).includes(val.toLowerCase())) {
-      _acSavePending = { inputEl, list, label, val };
-      document.getElementById('modal-ac-title').textContent = 'Neue ' + label + ' speichern?';
-      document.getElementById('modal-ac-text').textContent =
-        '„' + val + '" ist noch nicht als ' + label + ' vorhanden. Soll „' + val + '" als neue ' + label + ' gespeichert werden?';
-      openModal('modal-ac-confirm');
-    }
-  }, 180);
-}
-
-function acConfirmClose(confirmed) {
-  closeModal('modal-ac-confirm');
-  if (_acSavePending) {
-    if (confirmed) {
-      const { list, label, val } = _acSavePending;
-      // add to the right master list
-      if (label === 'Marke')    { if (!marken.includes(val))     marken.push(val); }
-      if (label === 'Kategorie'){ if (!kategorien.includes(val)) kategorien.push(val); }
-      showToast('„' + val + '" als neue ' + label + ' gespeichert.', 'success');
-    } else {
-      _acSavePending.inputEl.value = '';
-    }
-    _acSavePending = null;
-  }
+  setTimeout(() => { document.getElementById(ddId).classList.remove('open'); }, 150);
 }
 
 // Close all dropdowns when clicking outside
@@ -1451,18 +2396,81 @@ function fval(id) {
   return el ? el.value.trim().toLowerCase() : '';
 }
 
+// ── MULTI-SORT ────────────────────────────────────────────────────────────────
+var _sortState = {};
+
+function initTableSort(tableId, renderFn) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  table.querySelectorAll('th.sortable').forEach(th => {
+    th.addEventListener('click', function(e) {
+      const key = this.dataset.sortkey;
+      const state = _sortState[tableId] = _sortState[tableId] || [];
+      const existing = state.find(s => s.key === key);
+      if (e.shiftKey) {
+        if (existing) { existing.dir = existing.dir === 'asc' ? 'desc' : 'asc'; }
+        else { state.push({ key, dir: 'asc' }); }
+      } else {
+        if (existing && state.length === 1) { existing.dir = existing.dir === 'asc' ? 'desc' : 'asc'; }
+        else { _sortState[tableId] = [{ key, dir: 'asc' }]; }
+      }
+      _updateSortHeaders(tableId);
+      if (renderFn) renderFn();
+    });
+  });
+}
+
+function _updateSortHeaders(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const state = _sortState[tableId] || [];
+  table.querySelectorAll('th.sortable').forEach(th => {
+    const key = th.dataset.sortkey;
+    const idx = state.findIndex(s => s.key === key);
+    th.classList.remove('sort-asc', 'sort-desc');
+    const old = th.querySelector('.sort-badge');
+    if (old) old.remove();
+    if (idx >= 0) {
+      th.classList.add(state[idx].dir === 'asc' ? 'sort-asc' : 'sort-desc');
+      if (state.length > 1) {
+        const badge = document.createElement('span');
+        badge.className = 'sort-badge';
+        badge.textContent = idx + 1;
+        th.appendChild(badge);
+      }
+    }
+  });
+}
+
+function _applySortToRows(rows, tableId, getValFn) {
+  const state = _sortState[tableId] || [];
+  if (!state.length) return rows;
+  return [...rows].sort((a, b) => {
+    for (const { key, dir } of state) {
+      const va = getValFn(a, key), vb = getValFn(b, key);
+      const cmp = typeof va === 'number' && typeof vb === 'number'
+        ? va - vb
+        : String(va).localeCompare(String(vb), 'de');
+      if (cmp !== 0) return dir === 'asc' ? cmp : -cmp;
+    }
+    return 0;
+  });
+}
+
 // ── MEINE ARTIKEL ─────────────────────────────────────────────────────────────
 function renderMeineArtikel() {
   const fm = fval('filter-ma-marke');
   const fk = fval('filter-ma-kat');
   const ft = fval('filter-ma-text');
-  const rows = artikel.filter(a => {
+  let rows = artikel.filter(a => {
     if (a.verkaeufer !== 1) return false;
     if (fm && !a.marke.toLowerCase().includes(fm)) return false;
     if (fk && !a.kategorie.toLowerCase().includes(fk)) return false;
     if (ft && !a.bezeichnung.toLowerCase().includes(ft) && !String(a.id).includes(ft)) return false;
     return true;
   });
+  rows = _applySortToRows(rows, 'table-meine-artikel', (r, k) =>
+    k === 'preis' ? r.preis : k === 'id' ? r.id : r[k] || '');
   const tbody = document.getElementById('tbody-meine-artikel');
   if (!tbody) return;
   if (!rows.length) {
@@ -1484,10 +2492,13 @@ function renderMeineArtikel() {
 // ── ADMIN VERKÄUFER ───────────────────────────────────────────────────────────
 function renderAdminVerkaeufer() {
   const ft = fval('filter-av-text');
-  const rows = verkaeufer.filter(v => {
+  let rows = verkaeufer.filter(v => {
     if (!ft) return true;
     return (v.vorname + ' ' + v.nachname + ' ' + v.email + ' ' + v.ort + ' ' + v.plz).toLowerCase().includes(ft);
   });
+  rows = _applySortToRows(rows, 'table-admin-verkaeufer', (r, k) =>
+    k === 'artikel' ? artikelCountFor(r.id) : k === 'id' ? r.id :
+    k === 'provision' ? r.provision : k === 'gebuehr' ? r.gebuehr : r[k] || '');
   const tbody = document.getElementById('tbody-admin-verkaeufer');
   if (!tbody) return;
   if (!rows.length) {
@@ -1504,6 +2515,8 @@ function renderAdminVerkaeufer() {
     '<td>' + esc(v.ort) + '</td>' +
     '<td>' + esc(v.email) + '</td>' +
     '<td><span class="chip ' + (typeColor[v.type]||'chip-grey') + '">' + esc(v.type) + '</span></td>' +
+    '<td>' + esc(v.provision) + ' %</td>' +
+    '<td>' + (v.gebuehr||0).toFixed(2) + ' €</td>' +
     '<td><span class="badge">' + artikelCountFor(v.id) + '</span></td>' +
     '<td style="white-space:nowrap;">' +
       '<button class="btn btn-ghost btn-sm" onclick="openVerkaeuferDialog(' + v.id + ')" title="Bearbeiten">&#x270F;&#xFE0F;</button> ' +
@@ -1536,12 +2549,15 @@ function renderAllArtikel() {
   const fm = fval('filter-aa-marke');
   const fk = fval('filter-aa-kat');
   const ft = fval('filter-aa-text');
-  const rows = artikel.filter(a => {
+  let rows = artikel.filter(a => {
     if (fm && !a.marke.toLowerCase().includes(fm)) return false;
     if (fk && !a.kategorie.toLowerCase().includes(fk)) return false;
     if (ft && !a.bezeichnung.toLowerCase().includes(ft) && !String(a.id).includes(ft)) return false;
     return true;
   });
+  rows = _applySortToRows(rows, 'table-admin-artikel', (r, k) =>
+    k === 'preis' ? r.preis : k === 'id' ? r.id :
+    k === 'verkaeufer' ? getVerkaeuferName(r.verkaeufer) : r[k] || '');
   const tbody = document.getElementById('tbody-admin-artikel');
   if (!tbody) return;
   if (!rows.length) {
@@ -1556,40 +2572,51 @@ function renderAllArtikel() {
     '<td>' + esc(a.marke) + '</td>' +
     '<td><strong>' + esc(a.preis) + ' €</strong></td>' +
     '<td>' + esc(getVerkaeuferName(a.verkaeufer)) + '</td>' +
-    '<td><button class="btn btn-ghost btn-sm" onclick="openArtikelDialog(' + a.id + ',\'admin\')">&#x270F;&#xFE0F; Bearbeiten</button></td>' +
+    '<td><button class="btn btn-ghost btn-sm" onclick="openArtikelView(' + a.id + ')" title="Details anzeigen">&#x1F50D;</button></td>' +
     '</tr>'
   ).join('');
 }
 
 // ── MARKEN ────────────────────────────────────────────────────────────────────
+function origBadge(original) {
+  return original
+    ? '<span class="badge-orig">&#10003; Original</span>'
+    : '<span class="badge-neu">Neu</span>';
+}
 function renderMarken() {
   const tbody = document.getElementById('tbody-marken');
   if (!tbody) return;
   if (!marken.length) {
-    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-secondary);padding:24px;">Keine Marken vorhanden.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:24px;">Keine Marken vorhanden.</td></tr>';
     return;
   }
-  tbody.innerHTML = marken.map((m, i) =>
-    '<tr>' +
-    '<td>' + (i + 1) + '</td>' +
-    '<td><strong>' + esc(m) + '</strong></td>' +
-    '<td><button class="btn btn-ghost btn-sm" onclick="openMarkeDialog(' + i + ')">&#x270F;&#xFE0F; Bearbeiten</button></td>' +
-    '</tr>'
-  ).join('');
+  let markenRows = marken.map((m, i) => ({...m, _idx: i, cnt: artikel.filter(a => a.marke === m.name).length}));
+  markenRows = _applySortToRows(markenRows, 'table-marken', (r, k) => k === 'cnt' ? r.cnt : r[k] || '');
+  tbody.innerHTML = markenRows.map((m, i) => {
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td><strong>' + esc(m.name) + '</strong></td>' +
+      '<td>' + origBadge(m.original) + '</td>' +
+      '<td>' + m.cnt + '</td>' +
+      '<td><button class="btn btn-ghost btn-sm" onclick="openMarkeDialog(' + m._idx + ')">&#x270F;&#xFE0F; Bearbeiten</button></td>' +
+      '</tr>';
+  }).join('');
 }
 function openMarkeDialog(idx) {
   editingId = idx;
   document.getElementById('modal-marke-title').textContent = idx === null ? 'Neue Marke' : 'Marke bearbeiten';
-  document.getElementById('marke-bezeichnung').value = idx !== null ? marken[idx] : '';
+  document.getElementById('marke-bezeichnung').value = idx !== null ? marken[idx].name : '';
+  document.getElementById('marke-original').checked = idx !== null ? marken[idx].original : false;
   document.getElementById('btn-marke-delete').style.display = idx !== null ? 'inline-flex' : 'none';
   openModal('modal-marke');
   setTimeout(() => document.getElementById('marke-bezeichnung').focus(), 100);
 }
 function saveMarke() {
-  const val = document.getElementById('marke-bezeichnung').value.trim();
+  const val  = document.getElementById('marke-bezeichnung').value.trim();
+  const orig = document.getElementById('marke-original').checked;
   if (!val) { showToast('Bezeichnung ist erforderlich.', 'error'); return; }
-  if (editingId !== null) marken[editingId] = val;
-  else marken.push(val);
+  if (editingId !== null) { marken[editingId].name = val; marken[editingId].original = orig; }
+  else marken.push({ id: _markeNextId++, name: val, original: orig });
   closeModal('modal-marke');
   renderMarken();
   showToast('Marke gespeichert.', 'success');
@@ -1606,30 +2633,36 @@ function renderKategorien() {
   const tbody = document.getElementById('tbody-kategorien');
   if (!tbody) return;
   if (!kategorien.length) {
-    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-secondary);padding:24px;">Keine Kategorien vorhanden.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:24px;">Keine Kategorien vorhanden.</td></tr>';
     return;
   }
-  tbody.innerHTML = kategorien.map((k, i) =>
-    '<tr>' +
-    '<td>' + (i + 1) + '</td>' +
-    '<td><strong>' + esc(k) + '</strong></td>' +
-    '<td><button class="btn btn-ghost btn-sm" onclick="openKategorieDialog(' + i + ')">&#x270F;&#xFE0F; Bearbeiten</button></td>' +
-    '</tr>'
-  ).join('');
+  let katRows = kategorien.map((k, i) => ({...k, _idx: i, cnt: artikel.filter(a => a.kategorie === k.name).length}));
+  katRows = _applySortToRows(katRows, 'table-kategorien', (r, k) => k === 'cnt' ? r.cnt : r[k] || '');
+  tbody.innerHTML = katRows.map((k, i) => {
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td><strong>' + esc(k.name) + '</strong></td>' +
+      '<td>' + origBadge(k.original) + '</td>' +
+      '<td>' + k.cnt + '</td>' +
+      '<td><button class="btn btn-ghost btn-sm" onclick="openKategorieDialog(' + k._idx + ')">&#x270F;&#xFE0F; Bearbeiten</button></td>' +
+      '</tr>';
+  }).join('');
 }
 function openKategorieDialog(idx) {
   editingId = idx;
   document.getElementById('modal-kategorie-title').textContent = idx === null ? 'Neue Kategorie' : 'Kategorie bearbeiten';
-  document.getElementById('kategorie-bezeichnung').value = idx !== null ? kategorien[idx] : '';
+  document.getElementById('kategorie-bezeichnung').value = idx !== null ? kategorien[idx].name : '';
+  document.getElementById('kategorie-original').checked = idx !== null ? kategorien[idx].original : false;
   document.getElementById('btn-kategorie-delete').style.display = idx !== null ? 'inline-flex' : 'none';
   openModal('modal-kategorie');
   setTimeout(() => document.getElementById('kategorie-bezeichnung').focus(), 100);
 }
 function saveKategorie() {
-  const val = document.getElementById('kategorie-bezeichnung').value.trim();
+  const val  = document.getElementById('kategorie-bezeichnung').value.trim();
+  const orig = document.getElementById('kategorie-original').checked;
   if (!val) { showToast('Bezeichnung ist erforderlich.', 'error'); return; }
-  if (editingId !== null) kategorien[editingId] = val;
-  else kategorien.push(val);
+  if (editingId !== null) { kategorien[editingId].name = val; kategorien[editingId].original = orig; }
+  else kategorien.push({ id: _katNextId++, name: val, original: orig });
   closeModal('modal-kategorie');
   renderKategorien();
   showToast('Kategorie gespeichert.', 'success');
@@ -1645,7 +2678,9 @@ function deleteKategorie() {
 function renderTypes() {
   const tbody = document.getElementById('tbody-types');
   if (!tbody) return;
-  tbody.innerHTML = verkaeuferTypes.map(t =>
+  let typeRows = _applySortToRows([...verkaeuferTypes], 'table-types', (r, k) =>
+    k === 'provision' ? r.provision : k === 'gebuehr' ? r.gebuehr : r[k] || '');
+  tbody.innerHTML = typeRows.map(t =>
     '<tr>' +
     '<td>' + esc(t.id) + '</td>' +
     '<td><strong>' + esc(t.bezeichnung) + '</strong></td>' +
@@ -1694,6 +2729,22 @@ function deleteType() {
   showToast('Verkäufer-Type gelöscht.');
 }
 
+// ── ARTIKEL VIEW (readonly, Admin) ────────────────────────────────────────────
+function openArtikelView(id) {
+  const a = artikel.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('view-art-nummer').textContent     = a.id;
+  document.getElementById('view-art-preis').textContent      = a.preis.toFixed(2) + ' €';
+  document.getElementById('view-art-bezeichnung').textContent = a.bezeichnung;
+  document.getElementById('view-art-kat').textContent        = a.kategorie || '–';
+  document.getElementById('view-art-marke').textContent      = a.marke     || '–';
+  document.getElementById('view-art-groesse').textContent    = a.groesse   || '–';
+  document.getElementById('view-art-farbe').textContent      = a.farbe     || '–';
+  document.getElementById('view-art-beschreibung').textContent = a.beschreibung || '–';
+  document.getElementById('view-art-verkaeufer').textContent = getVerkaeuferName(a.verkaeufer);
+  openModal('modal-artikel-view');
+}
+
 // ── ARTIKEL DIALOG ────────────────────────────────────────────────────────────
 function openArtikelDialog(id, context) {
   artikelContext = context || 'seller';
@@ -1702,24 +2753,28 @@ function openArtikelDialog(id, context) {
   document.getElementById('modal-artikel-title').textContent = a ? 'Artikel bearbeiten' : 'Neuer Artikel';
   document.getElementById('btn-artikel-delete').style.display = a ? 'inline-flex' : 'none';
   if (a) {
-    document.getElementById('art-nummer').value      = a.id;
-    document.getElementById('art-bezeichnung').value = a.bezeichnung;
-    document.getElementById('art-kat').value         = a.kategorie;
-    document.getElementById('art-marke').value       = a.marke;
-    document.getElementById('art-preis').value       = a.preis;
-    document.getElementById('art-groesse').value     = a.groesse;
-    document.getElementById('art-farbe').value       = a.farbe;
-    document.getElementById('art-beschreibung').value= a.beschreibung;
+    document.getElementById('art-nummer').textContent    = a.id;
+    document.getElementById('art-bezeichnung').value     = a.bezeichnung;
+    document.getElementById('art-kat').value             = a.kategorie;
+    document.getElementById('art-marke').value           = a.marke;
+    document.getElementById('art-preis').value           = a.preis;
+    document.getElementById('art-groesse').value         = a.groesse;
+    document.getElementById('art-farbe').value           = a.farbe;
+    document.getElementById('art-beschreibung').value    = a.beschreibung;
   } else {
-    document.getElementById('art-nummer').value      = nextArtikelId;
-    document.getElementById('art-bezeichnung').value = '';
-    document.getElementById('art-kat').value         = '';
-    document.getElementById('art-marke').value       = '';
-    document.getElementById('art-preis').value       = '';
-    document.getElementById('art-groesse').value     = '';
-    document.getElementById('art-farbe').value       = '';
-    document.getElementById('art-beschreibung').value= '';
+    document.getElementById('art-nummer').textContent    = nextArtikelId;
+    document.getElementById('art-bezeichnung').value     = '';
+    document.getElementById('art-kat').value             = '';
+    document.getElementById('art-marke').value           = '';
+    document.getElementById('art-preis').value           = '';
+    document.getElementById('art-groesse').value         = '';
+    document.getElementById('art-farbe').value           = '';
+    document.getElementById('art-beschreibung').value    = '';
   }
+  setupAC('art-kat',   'art-kat-btn',   'ac-art-kat',   () => kategorien.map(k => k.name), 'Kategorie');
+  setupAC('art-marke', 'art-marke-btn', 'ac-art-marke', () => marken.map(m => m.name),     'Marke');
+  acSync('art-kat',   'art-kat-btn',   'ac-art-kat',   () => kategorien.map(k => k.name));
+  acSync('art-marke', 'art-marke-btn', 'ac-art-marke', () => marken.map(m => m.name));
   openModal('modal-artikel');
   setTimeout(() => document.getElementById('art-bezeichnung').focus(), 100);
 }
@@ -1759,20 +2814,65 @@ function deleteArtikel() {
 }
 
 // ── VERKÄUFER DIALOG ──────────────────────────────────────────────────────────
+function prefillVkKonditionen() {
+  const typeName = document.getElementById('vk-type').value;
+  const t = verkaeuferTypes.find(x => x.bezeichnung === typeName);
+  if (t) {
+    document.getElementById('vk-provision').value = t.provision;
+    document.getElementById('vk-gebuehr').value   = t.gebuehr;
+  }
+}
+function renderNbList(nummernbloecke) {
+  const list = document.getElementById('vk-nb-list');
+  list.innerHTML = '';
+  (nummernbloecke || []).forEach(b => {
+    const row = document.createElement('div');
+    row.className = 'nb-item';
+    row.innerHTML = '<span class="nb-item-label">Nr. ' + b.von + ' – ' + b.bis + '</span>' +
+                    '<span style="color:var(--text-secondary);font-size:12px;">' + (b.bis - b.von + 1) + ' Nummern</span>';
+    list.appendChild(row);
+  });
+}
+function addNummernblock() {
+  const v = verkaeufer.find(x => x.id === editingId);
+  if (!v) return;
+  const blockSize = basarConfig.blockSize || 10;
+  const allHighest = verkaeufer.reduce((max, vk) => {
+    if (!vk.nummernbloecke || !vk.nummernbloecke.length) return max;
+    return Math.max(max, ...vk.nummernbloecke.map(b => b.bis));
+  }, 0);
+  const newVon = allHighest + 1;
+  const newBis = newVon + blockSize - 1;
+  v.nummernbloecke.push({ von: newVon, bis: newBis });
+  renderNbList(v.nummernbloecke);
+  showToast('Block ' + newVon + '–' + newBis + ' hinzugefügt.', 'success');
+}
 function openVerkaeuferDialog(id) {
   editingId = id;
   const v = id !== null ? verkaeufer.find(x => x.id === id) : null;
   document.getElementById('modal-verkaeufer-title').textContent = v ? 'Verkäufer bearbeiten' : 'Neuer Verkäufer';
   document.getElementById('btn-vk-delete').style.display = v ? 'inline-flex' : 'none';
-  document.getElementById('vk-vorname').value  = v ? v.vorname  : '';
-  document.getElementById('vk-nachname').value = v ? v.nachname : '';
-  document.getElementById('vk-anschrift').value= v ? v.anschrift: '';
-  document.getElementById('vk-plz').value      = v ? v.plz      : '';
-  document.getElementById('vk-ort').value      = v ? v.ort      : '';
-  document.getElementById('vk-telefon').value  = v ? v.telefon  : '';
-  document.getElementById('vk-email').value    = v ? v.email    : '';
-  document.getElementById('vk-type').value     = v ? v.type     : 'Privat';
-  document.getElementById('vk-bloecke').value  = v ? v.bloecke  : 1;
+  document.getElementById('vk-vorname').value   = v ? v.vorname   : '';
+  document.getElementById('vk-nachname').value  = v ? v.nachname  : '';
+  document.getElementById('vk-anschrift').value = v ? v.anschrift : '';
+  document.getElementById('vk-plz').value       = v ? v.plz       : '';
+  document.getElementById('vk-ort').value       = v ? v.ort       : '';
+  document.getElementById('vk-telefon').value   = v ? v.telefon   : '';
+  document.getElementById('vk-email').value     = v ? v.email     : '';
+  document.getElementById('vk-type').value      = v ? v.type      : 'Privat';
+  document.getElementById('vk-is-admin').checked = v ? !!v.isAdmin : false;
+  // Konditionen
+  if (v) {
+    document.getElementById('vk-provision').value = v.provision;
+    document.getElementById('vk-gebuehr').value   = v.gebuehr;
+  } else {
+    prefillVkKonditionen();
+  }
+  // Nummernblock-Panels: nur das passende anzeigen
+  document.getElementById('panel-nb-new').style.display  = v ? 'none' : '';
+  document.getElementById('panel-nb-edit').style.display = v ? '' : 'none';
+  if (v) { renderNbList(v.nummernbloecke || []); }
+  else   { document.getElementById('vk-bloecke').value = 1; }
   openModal('modal-verkaeufer');
   setTimeout(() => document.getElementById('vk-vorname').focus(), 100);
 }
@@ -1781,19 +2881,38 @@ function saveVerkaeufer() {
   const nn = document.getElementById('vk-nachname').value.trim();
   const em = document.getElementById('vk-email').value.trim();
   if (!vn || !nn) { showToast('Vor- und Nachname sind erforderlich.', 'error'); return; }
+  const isNew = editingId === null;
+  const existing = isNew ? null : verkaeufer.find(x => x.id === editingId);
+  // Nummernblöcke für neuen Verkäufer generieren
+  let nummernbloecke;
+  if (isNew) {
+    const blockSize  = basarConfig.blockSize || 10;
+    const count      = parseInt(document.getElementById('vk-bloecke').value) || 1;
+    const startNr    = parseInt(document.getElementById('vk-startnummer').value) || 1;
+    nummernbloecke = [];
+    for (let i = 0; i < count; i++) {
+      const von = startNr + i * blockSize;
+      nummernbloecke.push({ von, bis: von + blockSize - 1 });
+    }
+  } else {
+    nummernbloecke = existing ? existing.nummernbloecke : [];
+  }
   const data = {
-    id:        editingId !== null ? editingId : nextVerkaeuferId++,
-    vorname:   vn,
-    nachname:  nn,
-    anschrift: document.getElementById('vk-anschrift').value.trim(),
-    plz:       document.getElementById('vk-plz').value.trim(),
-    ort:       document.getElementById('vk-ort').value.trim(),
-    telefon:   document.getElementById('vk-telefon').value.trim(),
-    email:     em,
-    type:      document.getElementById('vk-type').value,
-    bloecke:   parseInt(document.getElementById('vk-bloecke').value) || 1
+    id:              isNew ? nextVerkaeuferId++ : editingId,
+    vorname:         vn,
+    nachname:        nn,
+    anschrift:       document.getElementById('vk-anschrift').value.trim(),
+    plz:             document.getElementById('vk-plz').value.trim(),
+    ort:             document.getElementById('vk-ort').value.trim(),
+    telefon:         document.getElementById('vk-telefon').value.trim(),
+    email:           em,
+    type:            document.getElementById('vk-type').value,
+    provision:       parseFloat(document.getElementById('vk-provision').value) || 0,
+    gebuehr:         parseFloat(document.getElementById('vk-gebuehr').value)   || 0,
+    isAdmin:         document.getElementById('vk-is-admin').checked,
+    nummernbloecke:  nummernbloecke
   };
-  if (editingId !== null) {
+  if (!isNew) {
     const idx = verkaeufer.findIndex(x => x.id === editingId);
     if (idx > -1) verkaeufer[idx] = data;
   } else {
@@ -1813,13 +2932,24 @@ function deleteVerkaeufer() {
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 let _lastExportData = null;
 function openExportModal() {
-  const inclMarken   = document.getElementById('export-marken').checked;
-  const inclKat      = document.getElementById('export-kategorien').checked;
-  const inclVk       = document.getElementById('export-verkaeufer').checked;
-  const data = { exportedAt: new Date().toISOString(), artikel: artikel };
+  const inclMarken = document.getElementById('export-marken').checked;
+  const inclKat    = document.getElementById('export-kategorien').checked;
+
+  // Nur Verkäufer exportieren, die mindestens einen Artikel haben (inkl. Admins)
+  const exportVerkaeufer = verkaeufer
+    .filter(v => artikel.some(a => a.verkaeufer === v.id))
+    .map(v => ({
+      ...v,
+      artikel: artikel.filter(a => a.verkaeufer === v.id)
+    }));
+
+  const data = {
+    exportedAt: new Date().toISOString(),
+    verkaeufer: exportVerkaeufer
+  };
   if (inclMarken) data.marken = marken;
   if (inclKat)    data.kategorien = kategorien;
-  if (inclVk)     data.verkaeufer = verkaeufer.map(v => Object.assign({}, v));
+
   _lastExportData = data;
   document.getElementById('export-preview').textContent = JSON.stringify(data, null, 2);
   openModal('modal-export');
@@ -1853,9 +2983,16 @@ function simulateExport(label) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-// Pre-render so tables are ready when user switches to admin role without visiting first
 (function init() {
+  initLoginInfo();   // Login-Seite: Countdown + Konditionen + Markdown
   renderMeineArtikel();
+  // wire multi-sort for all tables
+  initTableSort('table-meine-artikel',    renderMeineArtikel);
+  initTableSort('table-admin-verkaeufer', renderAdminVerkaeufer);
+  initTableSort('table-admin-artikel',    renderAllArtikel);
+  initTableSort('table-marken',           renderMarken);
+  initTableSort('table-kategorien',       renderKategorien);
+  initTableSort('table-types',            renderTypes);
 })();
 </script>
 </body>
