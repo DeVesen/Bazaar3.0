@@ -1,148 +1,229 @@
-# Dv.Ai.Development — Claude Code Guide
+# Bazaar 3.0 — Claude Code Guide
 
-This repository contains **AI workflow artifacts** (skills, agents, references) for Claude Code and **MCP server implementations** for Angular/.NET development.
+## Projekt-Steckbrief
+
+Zwei-App-Suite für Nummern-Basar:
+- **Haupt-App (bazaar):** Lokal betrieben, verwaltet den laufenden Basar
+- **Voranmelde-App (advance-registration):** Cloud-betrieben, nimmt Voranmeldungen entgegen
+
+| | |
+|---|---|
+| **Tech-Stack** | Angular 19, PrimeNG, .NET 9, EF Core, PostgreSQL, Docker |
+| **Tests** | Jest (Angular), xUnit (.NET), Integration Tests, Cypress (E2E) |
+| **Deployment** | Docker-only (dev-deploy, build-and-push, docker-compose pro App) |
+| **Sprache** | Kommunikation: Deutsch · UI: Deutsch · Code/Scripts/Docker: Englisch |
 
 ---
 
-## Repository Structure
+## Workspace-Root-Struktur
 
 ```
-.claude/                Claude Code — direkt nutzbar
-├── skills/             27 Skills (via /skill-name oder automatisch)
-│   ├── workflows/          Planungs- und Prozess-Orchestrierung
-│   │   ├── planning-workflow/
-│   │   ├── implementation-workflow/
-│   │   ├── buddy-agent/
-│   │   ├── repo-scout-protocol/
-│   │   └── ado/
-│   ├── angular/            Angular-Entwicklung (fachlich)
-│   │   ├── angular-developer/
-│   │   ├── angular-developer-extension/
-│   │   ├── angular-new-app/
-│   │   ├── angular-new-app-extension/
-│   │   ├── angular-refactor/
-│   │   ├── angular-material/
-│   │   ├── angular-material-custom-input/
-│   │   └── angular-cache-busting/
-│   ├── dotnet/             .NET-Entwicklung (fachlich)
-│   │   └── backend-ef-migrations/
-│   ├── mcp/                MCP-Server-Kanons
-│   │   ├── dev-angular-mcp/
-│   │   ├── dev-dotnet-mcp/
-│   │   ├── dev-filesystem-mcp/
-│   │   ├── dev-tooling-mcp/
-│   │   ├── build-log-filter/
-│   │   └── codebase-analyzer/
-│   ├── meta/               Claude-Code-Selbstverwaltung & Skill-Tooling
-│   │   ├── skill-creator/
-│   │   ├── work-review/
-│   │   ├── work-review-iterative/
-│   │   ├── conversation-insights/
-│   │   ├── describe-as/
-│   │   └── commit-message/
-│   └── style/              Antwort-/Kommunikationsstil
-│       └── caveman/
-│   ├── skill-creator/       Meta-skill: create/improve skills and agent profiles
-│   ├── work-review/         Quality review: 4 parallel reviewer agents
-│   └── work-review-iterative/  Iterative review loop until no findings remain
-├── agents/             21 Sub-Agent-Profile (auto-discovered)
-└── references/         Shared references (compliance, output-style, boilerplate)
-
-Mcp-Servers/            MCP server implementations (Docker)
-├── Build.Log.Filter.Mcp/   build-log-filter — Build/Test log compression
-├── Codebase.Analyzer.Mcp/  codebase-analyzer — static analysis, index, review
-├── Dev.Filesystem.Mcp/     dev-filesystem-mcp — token-efficient read/search
-├── Dev.Angular.Mcp/        dev-angular-mcp — Angular scaffolding + build/test
-└── Dev.Dotnet.Mcp/         dev-dotnet-mcp — .NET scaffolding + build/test
-
-docs/                   Skill docs, MCP docs, enforcement references
-├── skills/             Skill usage docs (usage, sub-agents, examples)
-│   ├── planning-workflow.md
-│   ├── implementation-workflow.md
-│   ├── buddy-agent.md
-│   ├── repo-scout-protocol.md
-│   ├── codebase-analyzer.md
-│   ├── build-log-filter.md
-│   ├── dev-tooling-mcp.md
-│   ├── angular-developer.md
-│   ├── ado.md
-│   ├── utility-skills.md
-│   └── angular-material-v22-components.md
-├── mcp/                MCP server reference docs
-│   ├── dev-angular.md
-│   ├── dev-dotnet.md
-│   ├── dev-filesystem.md
-│   ├── codebase-analyzer.md
-│   ├── build-log-filter.md
-│   └── scout-fallback-chain.md
-├── silent-shortcut-prevention.md
-└── output-style-enforcement.md
+C:\Develop\Bazaar-3.0\          ← Workspace-Root = Repo-Root
+  src/
+    bazaar/                     ← Haupt-App
+      backend/                  (.NET 9 Clean Architecture Solution)
+      frontend/                 (Angular 19 + PrimeNG)
+      deploy/
+        docker/                 (Dockerfiles, docker-compose)
+        scripts/                (PowerShell Deploy-Skripte)
+    advance-registration/       ← Voranmelde-App
+      backend/
+      frontend/
+      deploy/
+        docker/
+        scripts/
+  requests/                     ← Anforderungsartefakte: Lastenheft, Entitäten, POC-HTMLs, Druck-Vorlagen
+  .claude/                      ← Harness-Konfiguration (Skills, Settings)
+  .mcp.json
 ```
+
+---
+
+## Anforderungsartefakte (`requests/`)
+
+Alle Spezifikationen, Prototypen und Druck-Vorlagen liegen in `requests/`.
+Details → [`requests/README.md`](requests/README.md)
+
+| Begriff / Datei | Bedeutung |
+|---|---|
+| **Lastenheft** | `requests/lastenheft.md` — Anforderungsspezifikation (Auftraggeber-Sicht); Kapitel-Refs wie `Lastenheft 3.6.5` verweisen dorthin |
+| **Entitäten** | `requests/entitaeten.md` — Datenmodell beider Apps (Felder, Typen, App-Zugehörigkeit 🏠☁️✅) |
+| **POC** / **Prototyp** | `requests/poc/` (v1) und `requests/POC-v2/` (v2, Responsive) — klickbare HTML-Einzeldateien, direkt im Browser öffnen |
+| **Druck-Vorlage** | `requests/Druck-Beispiele/` — PDF-Vorlagen für physische Ausdrucke (Abgabe-Info, Abrechnungs-Info) |
+
+---
+
+## Backend-Architektur
+
+Beide Apps verwenden **Microservices** — je App eine Solution, je Service ein eigenes schlankes .NET-Projekt (eigener Prozess, eigener Docker-Container).
+
+**Datenbankstrategie:** Eine gemeinsame PostgreSQL-Instanz pro App. Jeder Service verwendet ausschließlich seinen eigenen DB-Schema-Namespace — kein Cross-Schema-Joining.
+
+### Voranmelde-App — Services
+
+```
+src/advance-registration/backend/
+  AdvanceRegistration.sln
+  Gateway/            ← einziger extern erreichbarer Service (YARP + JWT-Validierung)
+  AuthService/        (schema: auth)    Login, Registrierung, Einladungs-Links, JWT, Rollen
+  SellerService/      (schema: seller)  Verkäufer-Profile, Verkäufer-Types, Nummernblöcke
+  CatalogService/     (schema: catalog) Marken, Kategorien (inkl. Import/Export zwischen Apps)
+  ItemService/        (schema: item)    Artikel pro Verkäufer, CRUD, Aktivitäts-Zeitstempel
+  SettingsService/    (schema: settings)Basar-Konfiguration, Info-Text, System-Parameter
+```
+
+> Export (JSON-Datei) ist rein client-seitig — kein Backend-Endpunkt (Lastenheft 11.9).
+
+### Haupt-App — Services
+
+```
+src/bazaar/backend/
+  Bazaar.sln
+  Gateway/            ← einziger extern erreichbarer Service (YARP)
+  SellerService/      (schema: seller)  Verkäufer CRUD, Verkäufer-Types
+  ItemService/        (schema: item)    Artikel CRUD, Artikelstatus, Artikelannahme
+  SalesService/       (schema: sales)   Buchungen, Kassenvorgang
+  SettlementService/  (schema: settle)  Abrechnung, Rückgabe nicht verkaufter Artikel
+  CatalogService/     (schema: catalog) Marken, Kategorien
+  SettingsService/    (schema: settings)System-Konfiguration + Import aus Voranmelde-App
+```
+
+> Kein AuthService (Haupt-App ist lokales Tool ohne Login-Flow).
+> Keine Statistik-Service (Statistik-Seite ist 100% client-seitig, Lastenheft 3.6.5).
+
+### Gateway-Architektur
+
+```
+Frontend (Angular)
+    │
+    │  HTTPS (einziger öffentlicher Port)
+    ▼
+┌─────────────────────────────────────────┐
+│  Gateway (YARP)                         │
+│  - Routing → interne Services           │
+│  - JWT-Validierung (Voranmelde-App)     │
+│  - Einziger Docker-Port nach außen      │
+└───────────────┬─────────────────────────┘
+                │  Internes Docker-Netzwerk (nicht öffentlich)
+    ┌───────────┼───────────┬───────────┐
+    ▼           ▼           ▼           ▼
+AuthService  SellerService  ItemService  ...
+```
+
+- Alle Backend-Services laufen **nur im internen Docker-Netzwerk**
+- Kein Service außer dem Gateway hat einen nach außen gemappten Port
+- Authentifizierung (JWT) wird im Gateway geprüft — Services vertrauen intern
+
+### Typische Service-Struktur (schlank)
+
+```
+ServiceName/
+  ServiceName.csproj     (Minimal API, .NET 9)
+  Program.cs
+  Endpoints/             (Minimal API Endpoint-Gruppen)
+  Domain/                (Entities, Value Objects)
+  Infrastructure/        (EF Core DbContext, Migrations, Repositories)
+  Tests/                 (xUnit — Unit + Integration Tests im selben Projekt)
+```
+
+### Backend-Entscheidungen
+
+| Thema | Entscheidung |
+|-------|-------------|
+| **Gateway** | YARP (Yet Another Reverse Proxy) — je App ein Gateway-Projekt in der Solution |
+| **Fehlerbehandlung** | Result-Pattern (kein Exception-Flooding zum Client) |
+| **API-Fehlerformat** | ProblemDetails / RFC 7807 — Endpoint mappt Result auf HTTP-Codes |
+| **Logging** | Serilog — keine PII in Logs |
+| **Tracing** | Correlation-IDs in jedem Request (Header + Logs) |
+| **API-Versionierung** | URL-Versioning (`/api/v1/...`) |
+| **Secrets** | User Secrets (Dev) · Environment-Variablen (Prod) |
+| **Resilience** | Nicht nötig — beide Apps laufen unabhängig voneinander |
+
+---
+
+## Frontend-Architektur
+
+Zwei **separate Angular 19 Projekte** (kein Nx, keine gemeinsamen Libs):
+- `src/bazaar/frontend/` — Haupt-App
+- `src/advance-registration/frontend/` — Voranmelde-App
+
+UI-Bibliothek: **PrimeNG** (kein Angular Material)
+Signals-basierte Architektur, Standalone Components, moderne Control-Flow-Syntax (@if/@for).
 
 ---
 
 ## Key Skills
 
-| Skill | Trigger | Purpose |
-|-------|---------|---------|
-| `/planning-workflow` | `plane`, `Roadmap`, `Architektur` | 6-Phasen-Planung mit Scouts, Topic-Planern, 5 Reviews |
-| `/implementation-workflow` | `implementiere`, `fix`, `IMP-*` | Hard Gate, Slices, iterativer Review-Loop |
-| `/buddy-agent` | `buddy intake`, `Sparring`, `plan-prompt` | Pre-Planning Sparring Partner |
-| `/repo-scout-protocol` | `repo-check`, `Code-Scout` | MCP-First Repo-Recherche-Kette |
-| `/codebase-analyzer` | Code-Gespräch, Review, Analyse | 31 MCP-Tools für Angular/.NET |
-| `/build-log-filter` | `ng serve`, Shell-Fallback | Build/Test-Log-Filterung |
-| `/angular-developer` | Angular-Arbeit | Signals, DI, Routing, Testing |
-| `/skill-creator` | `create skill`, `agent profil` | Skills und Agents erstellen/verbessern |
-| `/work-review` | Nach jedem Deliverable | 4-Reviewer Qualitäts-Gate |
+| Skill | Trigger / Zweck |
+|-------|----------------|
+| `feature-delivery` | Zentraler Orchestrator — bei jedem Feature-Start; Modi: Lean (Default), Strong (mit Scouts + 6 Reviewer), Check/Check-Plus (Bewertung ohne Implementierung) |
+| `angular-developer` | Angular-Implementierung: Komponenten, Signals, Formulare, DI, Routing, Testing, Migrations |
+| `angular-new-app` | Neue Angular-App anlegen — Decision Gate + Implementierungsplan vor `ng new` |
+| `angular-cache-busting` | Cache-Probleme im Deployment |
+| `backend-ef-migrations` | EF Core Migrationen (dotnet ef migrations add, Triplet-Pflicht, View-SQL) |
+| `dev-tooling` | MCP-Gateway — Routing-Einstieg wenn unklar ist welcher MCP zu verwenden ist |
+| `dev-mcp` | Dateien lesen/suchen, Scaffolding, Build, Test, Git — 49 Tools, MCP-First-Gate |
+| `codebase-analyzer` | Code-Review, Analyse, Index, Symbol-Suche, Metriken — 43 Tools |
+| `build-log-filter` | Shell-Logs verdichten (ng serve, npm start, Shell-Fallback nach BLOCKER) |
+| `code-intel-workflow` | MCP-Routing für Code-Intelligence-Ketten: Symbol suchen, Batch-Reads, Rename-Impact, Post-Slice |
+| `acceptance-design` | Anforderungen auf Testbarkeit prüfen und in F1-Format schärfen (WAS testen) |
+| `test-design` | Test-Konventionen Backend (.NET: xUnit, FluentAssertions, Moq) + Frontend (Angular: Karma/Jasmine, TestBed) |
+| `software-design-principles` | Design-Nordstern (sauber · funktional · getestet · wartbar · nachhaltig) — automatisch für feature-delivery |
+| `delivery-inspection` | Anforderungserfüllungs-Gate vor Auslieferung — 6 parallele Reviewer |
+| `commit-message` | Commit-Titel (max. 50 Zeichen) + Beschreibung (max. 500 Zeichen) generieren |
+| `skill-creator` | Neue Skills (SKILL.md) und Agent-Profile (.claude/agents/) anlegen und optimieren |
 
 ---
 
-## Adding or Changing a Skill / Agent
+## Verhaltensregeln
 
-| Step | File |
-|------|------|
-| 1. Edit content | `.claude/skills/<name>/SKILL.md` + `references/` |
-| 2. Edit agent | `.claude/agents/<name>.md` |
-| 3. Update shared refs | `.claude/references/` |
+### Verbotene Anti-Patterns (sofort ansprechen, niemals einbauen)
 
-Use `/skill-creator` to create new skills or agent profiles.
+**Allgemein:** God Class, Spaghetti Code, Big Ball of Mud, Golden Hammer,
+Magic Numbers/Strings, Copy-Paste-Programmierung, Premature Optimization,
+Hard Coding, Exception Swallowing, Error Hiding, Cargo Cult Programming,
+Not Invented Here, Boat Anchor.
 
----
+**C# / .NET:**
+- `async void` — nur bei Event-Handlern erlaubt; immer `async Task`
+- `.Result` / `.Wait()` / `.GetAwaiter().GetResult()` — nie (Deadlock-Gefahr)
+- Captive Dependency (Scoped in Singleton, z.B. DbContext in Singleton)
+- Service Locator statt Constructor-Injection
+- N+1-Queries (Lazy Loading in Schleifen) — `.Include()` / Projektionen nutzen
+- `SaveChanges()` in Schleifen
+- Entities direkt nach außen (immer DTOs)
+- Fehlendes `AsNoTracking()` bei Lese-Queries
+- Exceptions für Kontrollfluss
+- Statischer veränderlicher State
 
-## Adding or Changing an MCP Server
+**Angular:**
+- Nicht abonnierte Subscriptions — `async`-Pipe, `takeUntilDestroyed()` oder `takeUntil(destroy$)`
+- Nested Subscriptions — stattdessen `switchMap` / `mergeMap`
+- Funktionsaufrufe im Template `{{ getValue() }}` — Properties, Pipes oder Signals
+- Kein `track` bei `@for`
+- Default Change Detection — OnPush bevorzugen
+- Fat Components (Business-Logik in Service auslagern)
+- `any` überall — TypeScript-Typen konsequent nutzen
+- Veraltete Muster: `*ngIf`/`*ngFor` → `@if`/`@for`; `@Input()` → `input()` Signal
 
-| Folder | MCP Server Key | Skills |
-|--------|---------------|--------|
-| `Mcp-Servers/Build.Log.Filter.Mcp/` | `build-log-filter` | build-log-filter |
-| `Mcp-Servers/Codebase.Analyzer.Mcp/` | `codebase-analyzer` | codebase-analyzer |
-| `Mcp-Servers/Dev.Filesystem.Mcp/` | `dev-filesystem-mcp` | dev-filesystem-mcp, dev-tooling-mcp |
-| `Mcp-Servers/Dev.Angular.Mcp/` | `dev-angular-mcp` | dev-angular-mcp, dev-tooling-mcp |
-| `Mcp-Servers/Dev.Dotnet.Mcp/` | `dev-dotnet-mcp` | dev-dotnet-mcp, dev-tooling-mcp |
+### Compliance
 
-When changing an MCP: update `Mcp-Servers/<name>/`, update `docs/mcp/<name>.md`, and update the matching skill under `.claude/skills/`.
-
----
-
-## MCP Configuration
-
-MCP servers run as Docker containers. Configure in Claude Code settings (`mcpServers`):
-
-| Server | Port | Volume |
-|--------|------|--------|
-| build-log-filter | 8089 | — |
-| codebase-analyzer | 8090 | `${workspaceFolder}:/workspace:ro` |
-| dev-filesystem-mcp | 8091 | `${workspaceFolder}:/project:ro` |
-| dev-angular-mcp | 8092 | `${workspaceFolder}:/workspace` |
-| dev-dotnet-mcp | 8093 | `${workspaceFolder}:/workspace` |
-
-Reference config: `.claude/mcp.json`.
-
-**Path convention:** All MCP calls use `/workspace/` prefix (codebase-analyzer, dev-angular-mcp, dev-dotnet-mcp) or `/project/` prefix (dev-filesystem-mcp). Never use host paths or `{parameter}` placeholders.
+- **OWASP Top 10** als Mindeststandard (XSS, SQL-Injection via EF-Parametrisierung, CSRF)
+- **Secrets-Management:** Keine Credentials im Code/Repo — User Secrets (Dev), Environment-Variablen (Prod)
+- **DSGVO/GDPR:** Datensparsamkeit, Recht auf Löschung technisch umsetzbar, Privacy by Design
+- **Authentifizierung:** OAuth2/OIDC — keine selbstgebaute Krypto
+- **Audit-Logging:** Serilog im Backend, keine PII in Logs
+- **Dependency-Scanning:** `dotnet list package --vulnerable`, `npm audit`
 
 ---
 
-## Enforcement
+## MCP-Konfiguration
 
-Silent-shortcut prevention and MCP-first policy: `docs/silent-shortcut-prevention.md`
+Konfiguriert in `.mcp.json` im Workspace-Root:
 
-Agent compliance and output style: `.claude/references/agent-compliance.md`, `.claude/references/output-style-canon.md`
+| MCP | Zweck | Status |
+|-----|-------|--------|
+| `dev-mcp` | Dev-Tools (Filesystem, Git, Scaffolding, Build) | Pflicht |
+| `codebase-analyzer` | Code-Review, Analyse, Metriken | Pflicht |
+| `browser-inspector` | Browser-Inspektion | Optional |
+| `primeng` | PrimeNG-Komponenten-Dokumentation & Code-Generierung | Aktiv |
