@@ -1,7 +1,7 @@
 # Lastenheft — Bazaar Suite
 
-**Version:** 0.4  
-**Datum:** 2026-06-15  
+**Version:** 0.6  
+**Datum:** 2026-06-18  
 **Autor:** Sven Reichert  
 **Status:** Entwurf
 
@@ -49,6 +49,7 @@ Die Haupt-App ist das operative Herzstück am Basar-Tag. Sie läuft lokal und ve
 - **Einstellungen (Admin)** — systemweite Parameter + Import aus Voranmelde-App
 
 #### Operative Prozesse
+- **Home** — leitet automatisch auf **Artikelannahme** weiter (kein eigener Inhalt)
 - **Artikelannahme** — Verkäufer + Artikel werden aufgenommen; Artikel erhalten den Status "Im Verkauf"
 - **Verkauf** — Kassenvorgang (siehe 3.3 Verkaufsprozess)
 - **Abrechnung** — Rückgabe nicht verkaufter Artikel + finanzielle Abrechnung mit dem Verkäufer
@@ -72,21 +73,23 @@ Nach der Eingabe / dem Scan wird der Artikel gesucht:
 | **Nicht erkannt / falscher Status** | Roter Infotext mit Hinweis |
 
 **Preis-Button (nach erfolgreicher Erkennung):**
-- **Preis-Button** (immer vorhanden, da Preis Pflichtfeld) — zeigt den Artikel-Preis an
+- **Preis-Button** (immer vorhanden, da Preis Pflichtfeld) — Caption ist ausschließlich der Preis (z. B. `24,00 €`), kein weiterer Text
 
 Klick auf den Preis-Button → Artikel landet im **Warenkorb**, Eingabefeld leert sich, InfoArea zeigt: *„Nächsten Artikel eingeben …"* (grün)
 
 #### Warenkorb
 
 - Liste aller hinzugefügten Artikel der aktuellen Transaktion
-- Jeder Eintrag kann einzeln **gelöscht** werden
+- **Footer (`space-between`):** Links **„Leeren"**-Button, rechts **„Buchen"**-Button — keiner ist `full-width`, beide nebeneinander
+  - Klick auf **Leeren**: Warenkorb und Eingabefeld werden geleert; Eingabefeld erhält den Fokus
+- **Löschen-Button pro Eintrag**: Entfernt den Eintrag aus dem Warenkorb; Eingabefeld wird geleert; Eingabefeld erhält den Fokus
 - Der Warenkorb wird **nicht** persistent in der DB gespeichert — nur die finale Buchung
 
 #### Buchung / Bezahlung
 
 1. Kassierer klickt **„BUCHEN"**
-2. Popup öffnet sich:
-   - Gesamtbetrag (Summe aller Warenkorb-Artikel)
+2. Popup öffnet sich **ohne** nochmalige Artikelauflistung — nur:
+   - **Gesamtbetrag** (Summe aller Warenkorb-Artikel)
    - Eingabefeld: „Betrag erhalten (€)" — **Dezimalzahl** (Komma oder Punkt als Trennzeichen), InputGroup mit €-Addon
    - Anzeige: **Rückgeld** (wird live berechnet)
 3. Kassierer legt Geld in die Kasse (keine Kassenbuch-Anbindung)
@@ -165,8 +168,10 @@ Reihenfolge der Kacheln:
 
 - Tabelle mit Rang-Badge (Gold/Silber/Bronze), sortiert nach Verkaufsanzahl
 - Spalten: Rang, Verkäufer, (Typ — nur bei "Alle Verkäufer-Typen"), Angenommen, Verkauft, Umsatz, Auszahlung
+- **Alle Spalten sind sortierbar** (Multi-Sort per Shift+Klick)
 - **Dropdown-Filter** oberhalb der Tabelle: Umschalten zwischen "Alle Verkäufer-Typen" und einem einzelnen Verkäufer-Typ
 - Bei gefilterter Ansicht wird die Typ-Spalte ausgeblendet
+- **Maximale Höhe der Tabelle: 300 px** — bei mehr Einträgen vertikales Scrollen innerhalb der Tabelle
 
 #### 3.6.5 Technische Anforderungen
 
@@ -184,8 +189,10 @@ Reihenfolge der Kacheln:
 
 | Zeile | Elemente |
 |---|---|
-| 1 | Freitext-Suche (Name, Ort) · Sortierung-Dropdown · Neu-Button |
+| 1 | Freitext-Suche (Name, Ort) · Sortierung-Dropdown |
 | 2 | Status-Dropdown |
+
+**Neu-Button** befindet sich ausschließlich im Seitentitel (Page-Header) — nicht in der Filter-Toolbar.
 
 **Status-Dropdown:** Alle · Offen · Im Verkauf · Abgerechnet
 
@@ -212,12 +219,18 @@ Reihenfolge der Kacheln:
 
 #### 3.7.2 Abrechnung
 
-**Abrechnen-Button** ist deaktiviert (`disabled`) wenn:
-- noch offene Artikel vorhanden sind, **oder**
-- kein Artikel jemals freigegeben wurde, **oder**
-- der Verkäufer bereits abgerechnet ist (`abgerechnetAm` gesetzt)
+**Einstieg:** Beim Navigieren auf die Abrechnung-Seite wird **immer** zuerst die Verkäufer-Auswahl angezeigt — nie direkt der zuletzt gewählte Verkäufer.
+
+**Button-Regeln:**
+
+| Button | Aktiv wenn |
+|---|---|
+| **Zurückgeben** | Mindestens 1 Artikel hat Status „freigegeben" (noch im Verkauf) |
+| **Abrechnen** | Verkäufer noch **nicht** abgerechnet (`abgerechnetAm` ist NULL) |
 
 #### 3.7.3 Artikel-Seite
+
+**Kein „+ Neu"-Button** — Artikel werden ausschließlich über die Artikelannahme angelegt.
 
 **Filter-Panel** (2-zeiliges Panel oberhalb der Tabelle):
 
@@ -228,25 +241,34 @@ Reihenfolge der Kacheln:
 
 Zeile 2 verwendet ein **4-Spalten-Grid** (je 25% Breite bei vollem Platz), bricht bei schmalen Viewports auf 2 bzw. 1 Spalte um.
 
-**Sortierbare Spalten:** Nr. · Bezeichnung · Kategorie · Marke · Preis · Status (Multi-Sort per Shift+Klick)
+**Sortierbare Spalten:** Nr. · Bezeichnung · Kategorie · Marke · Preis · Status · **Verkäufer** (Multi-Sort per Shift+Klick)
 
 #### 3.7.4 Marken-Tabelle
 
 Spalten: Nr. · Name · Original · **Artikel** (Gesamtanzahl) · **Verkauft** (Anzahl mit `verkauftAm`) · Aktionen
 
-Sortierbare Spalten: Name · Artikel · Verkauft (Multi-Sort per Shift+Klick)
+Sortierbare Spalten: **Nr.** · Name · **Original** · Artikel · Verkauft (Multi-Sort per Shift+Klick)
+
+**„+ Neu"-Button** (Seitentitel) → öffnet Popup mit Feldern „Name" und „Original" (Switch).  
+**„Edit"-Button** pro Zeile → öffnet Popup mit denselben Feldern vorausgefüllt.
 
 #### 3.7.5 Kategorien-Tabelle
 
 Spalten: Nr. · Name · Original · **Artikel** (Gesamtanzahl) · **Verkauft** (Anzahl mit `verkauftAm`) · Aktionen
 
-Sortierbare Spalten: Name · Artikel · Verkauft (Multi-Sort per Shift+Klick)
+Sortierbare Spalten: **Nr.** · Name · **Original** · Artikel · Verkauft (Multi-Sort per Shift+Klick)
+
+**„+ Neu"-Button** (Seitentitel) → öffnet Popup mit Feldern „Name" und „Original" (Switch).  
+**„Edit"-Button** pro Zeile → öffnet Popup mit denselben Feldern vorausgefüllt.
 
 #### 3.7.6 Verkäufer-Typen-Tabelle
 
 Spalten: Nr. · Name · Provision % · Gebühr € · **Anzahl VK** (Anzahl Verkäufer mit diesem Typ) · Aktionen
 
-Sortierbare Spalten: Name · Provision % · Gebühr € · Anzahl VK (Multi-Sort per Shift+Klick)
+Sortierbare Spalten: **Nr.** · Name · Provision % · Gebühr € · Anzahl VK (Multi-Sort per Shift+Klick)
+
+**„+ Neu"-Button** (Seitentitel) → öffnet Popup mit Feldern „Name", „Provision (%)" und „Gebühr (€)".  
+**„Edit"-Button** pro Zeile → öffnet Popup mit denselben Feldern vorausgefüllt.
 
 ---
 
@@ -469,25 +491,34 @@ Auf Mobile (≤ 768 px) wird die Info-Area ausgeblendet — nur die Login-Form i
 
 ### 4.5g Admin — Verkäufer anlegen / bearbeiten
 
+Der Dialog gliedert sich in Panels (siehe auch 5.3):
+
 #### Neuer Verkäufer
 
-Der Admin-Dialog „Neuer Verkäufer" enthält ein eigenes **Nummernblock-Panel** mit zwei Feldern:
+Enthält Panel 01–03 (Personendaten, Kontakt, Konditionen) sowie ein **Nummernblock-Initialfeld** mit:
 
 | Feld | Beschreibung |
 |---|---|
 | **Startnummer** | Erste Artikelnummer für diesen Verkäufer (Standard: nächste freie Nummer) |
 | **Anzahl initialer Blöcke** | Wie viele zusammenhängende Blöcke der Verkäufer beim Anlegen erhält (Standard: 1) |
 
-#### Verkäufer bearbeiten
+#### Verkäufer bearbeiten (Panel-04: Nummernblöcke)
 
-Das Nummernblock-Panel zeigt beim Bearbeiten eines bestehenden Verkäufers:
+**Panel 04 — Nummernblöcke** ist ausschließlich beim Bearbeiten sichtbar (nicht beim Neu-anlegen).
 
-- **Liste aller bereits zugewiesenen Blöcke** (schreibgeschützt, nicht löschbar): je Block Anzeige von `Nr. X – Y` und Anzahl der Nummern
-- **Plus-Button „Block hinzufügen"**: weist dem Verkäufer den nächsten freien Block zu (berechnet aus dem höchsten vergebenen `bis`-Wert aller Verkäufer + 1)
+- **Eingabefeld „Anzahl Blöcke"**: Anzahl der zusätzlich zu reservierenden Blöcke
+- **Eingabefeld „Startnummer"**: System schlägt automatisch die nächste freie Startnummer vor — berechnet nach der Logik: Startpunkt, ab dem die gewünschte Gesamtzahl von Nummern (`Anzahl Blöcke × BlockSize`) lückenlos frei ist
+  - Beispiel: BlockSize = 10, Anzahl = 2 → benötigt 20 freie Nummern; 1–10 und 21–30 sind belegt → Vorschlag: 31
+- **„Reservieren"-Button**: Prüft vor dem Speichern erneut, ob von der Startnummer aus die gewünschte Anzahl Nummern frei ist — bei Konflikt: Fehlermeldung; bei Erfolg: Block wird für diesen Verkäufer reserviert
+- **Liste der bereits reservierten Blöcke** (je Block: Bereich `Nr. X – Y`, Anzahl Nummern, Anzahl bereits vergebener Nummern)
+- **Löschen-Button pro Block**: nur aktiv, wenn in diesem Block noch **keine** Nummer an einen Artikel vergeben wurde
 
-#### Admin-Rechte-Toggle
+#### Verkäufer bearbeiten (Panel-05: Sonstiges)
 
-Im Dialog (sowohl Neu als auch Bearbeiten) gibt es einen **Toggle-Schalter** „Dieser Verkäufer hat Admin-Rechte". Ein Verkäufer mit Admin-Rechten erhält nach dem Login die vollständige Admin-Ansicht. Der Toggle ist nur für Admins sichtbar.
+**Panel 05 — Sonstiges** enthält:
+
+- **Toggle-Schalter „Admin-Rechte"**: „Dieser Verkäufer hat Admin-Rechte" — gibt nach dem Login die vollständige Admin-Ansicht frei; nur für Admins sichtbar
+- **„Einladungs-Link generieren"-Button**: Kopiert einen personalisierten Einladungs-Link in die Zwischenablage (Toast-Bestätigung)
 
 ### 4.5h Admin — Alle Artikel (Ansicht)
 
@@ -507,9 +538,16 @@ Alle Tabellen in der Voranmelde-App verwenden dasselbe PrimeNG-Tabellen-Styling 
 | Meine Artikel (Verkäufer) | `table-meine-artikel` | Nr. · Bezeichnung · Kategorie · Marke · Preis |
 | Admin — Verkäufer | `table-admin-verkaeufer` | Nr. · Vorname · Nachname · PLZ · Ort · Typ · Provision · Gebühr · Artikel |
 | Admin — Alle Artikel | `table-admin-artikel` | Nr. · Bezeichnung · Kategorie · Marke · Preis · Verkäufer |
-| Marken | `table-marken` | Name · Artikel |
-| Kategorien | `table-kategorien` | Name · Artikel |
+| Marken | `table-marken` | **ID** · Name · **Original** · Artikel |
+| Kategorien | `table-kategorien` | **ID** · Name · **Original** · Artikel |
 | Verkäufer-Typen | `table-types` | Bezeichnung · Provision % · Gebühr € |
+
+**Voranmelde-App — Marken & Kategorien:**  
+„+ Neu"-Button → öffnet Popup mit Feldern „Name" und „Original" (Switch).  
+„Edit"-Button pro Zeile → öffnet Popup mit denselben Feldern vorausgefüllt.
+
+**Voranmelde-App — Verkäufer Übersicht:**  
+„+ Neu"-Button befindet sich ausschließlich im Seitentitel (Page-Header) — nicht in der Filter-Toolbar.
 
 **Verhalten (identisch mit Haupt-App):**
 - Klick auf Spaltenheader → einfache Sortierung (aufsteigend → absteigend → keine)
@@ -860,10 +898,12 @@ Klick auf den Artikelstatus-Badge öffnet ein Popup mit Zeitstempeln und Aktions
 | Feld | Wert vorhanden | Wert NULL |
 |---|---|---|
 | Erstellt Am | Zeitstempel (read-only) | — |
-| Freigegeben Am | Zeitstempel + **Löschen-Button** | **Setzen-Button** |
-| Verkauft Am | Zeitstempel + **Löschen-Button** | **Setzen-Button** |
-| Rückgegeben Am | Zeitstempel + **Löschen-Button** | **Setzen-Button** |
+| Freigegeben Am | Zeitstempel + **Löschen-Icon-Button** | **Setzen-Icon-Button** |
+| Verkauft Am | Zeitstempel + **Löschen-Icon-Button** | **Setzen-Icon-Button** |
+| Rückgegeben Am | Zeitstempel + **Löschen-Icon-Button** | **Setzen-Icon-Button** |
 | Abgerechnet Am | Zeitstempel (read-only) | — |
+
+**Button-Stil:** Löschen- und Setzen-Buttons sind **Icon-Buttons** (Style: `rounded` + `text`) — kein ausgefüllter Hintergrund, Icon + optional kurzer Label.
 
 **Kaskadierungs-Regel beim Löschen:**  
 Wird ein früherer Zeitstempel gelöscht, werden alle nachfolgenden ebenfalls auf NULL gesetzt.  
@@ -1124,3 +1164,702 @@ Klick auf **„Buchen"** → `abgerechnetAm = jetzt` wird am Verkäufer gesetzt.
 | 8 | Wie lange soll das Scan-Ergebnis im Kamera-Modus angezeigt werden? | ✅ Konfigurierbar, Default 5 Sekunden |
 | 9 | Kann der Anwender im Artikeleingabe-Wizard auch Artikel **löschen** die noch nicht gespeichert sind? | ✅ Ja — Löschen-Button pro Eintrag in der Session-Liste; keine DB-Auswirkung |
 | 10 | Soll beim Artikel-Freigeben-Popup der Scan-Feedback-Ton oder visuelle Signale (Vibration auf Mobile) geben? | ✅ Beides — Ton via Web Audio API + Vibration via Navigator.vibrate() |
+
+---
+
+## 11. Design-Entscheidungen (festgelegt in POC v2)
+
+Alle Punkte dieses Abschnitts waren im Lastenheft nicht explizit beschrieben. Sie wurden im POC v2 entschieden und gelten hiermit als verbindlich.
+
+---
+
+### 11.1 Visuelles Branding & Farben
+
+#### App-Farben (Sidebar-Akzent)
+
+Beide Apps erhalten unterschiedliche Akzentfarben, um sie visuell klar zu trennen:
+
+| App | Sidebar-Hintergrund | Akzentfarbe (aktiver Menüpunkt, Buttons) |
+|---|---|---|
+| **Haupt-App** | Dunkles Navy `#1a2e4a` | Blau `#2e86c1` |
+| **Voranmelde-App** | Dunkles Teal `#1b3a4b` | Grün `#0e8a5f` |
+
+#### App-Branding
+
+| App | Sidebar-Logo | Topbar-Text |
+|---|---|---|
+| **Haupt-App** | „Bazaar **Suite**" (Wort „Suite" in Akzentfarbe) | „Bazaar Haupt-App" |
+| **Voranmelde-App** | „Basar **Voranmelde**" (Wort in Akzentfarbe) | „Bazaar Voranmelde" |
+
+---
+
+### 11.2 Haupt-App — Sidebar-Reihenfolge & Gruppen
+
+Das Lastenheft listet die Seiten der Haupt-App, definiert aber keine Reihenfolge oder Gruppenstruktur. Festgelegt:
+
+```
+── Tagesgeschäft ─────────────
+  Artikelannahme
+  Verkauf
+  Abrechnung
+  ─────────────── (Trennlinie)
+── Stammdaten ────────────────
+  Verkäufer
+  Artikel
+  Marken
+  Kategorien
+  Verkäufer-Types
+  ─────────────── (Trennlinie)
+── System ────────────────────
+  Statistik
+  Einstellungen
+```
+
+---
+
+### 11.3 Statistik-Seite — Abschnittstitel über KPI-Zeilen
+
+Die drei KPI-Zeilen (3.6.1–3.6.3) erhalten jeweils einen kleinen UPPERCASE-Label als visuelle Trennlinie oberhalb der Kacheln:
+
+| KPI-Zeile | Label |
+|---|---|
+| Zeile 1 (3.6.1) | `ARTIKEL-ÜBERSICHT` |
+| Zeile 2 (3.6.2) | `RÜCKBLICK` |
+| Zeile 3 (3.6.3) | `FINANZ-KENNZAHLEN` |
+
+---
+
+### 11.4 Verkäufer-Karte (Haupt-App) — Status-Badge
+
+Die Karte zeigt genau **einen** Status-Badge. Die Logik:
+
+| Bedingung | Badge |
+|---|---|
+| `abgerechnetAm` gesetzt | `Abgerechnet` (grün) |
+| Mind. 1 Artikel freigegeben, nicht abgerechnet | `Im Verkauf` (blau) |
+| Kein freigegebener Artikel | `Offen` (grau) |
+
+---
+
+### 11.5 Toast-Benachrichtigungen
+
+Zusätzlich zur **InfoArea** (die kontextuell auf einer Seite erscheint) gibt es **Toast-Benachrichtigungen**: kurze Einblendungen unten rechts im Viewport, die nach 3 Sekunden automatisch verschwinden.
+
+Einsatzbereich: Bestätigungen von Aktionen ohne eigene Ergebnisseite (z. B. „✓ Import erfolgreich", „✓ Buchung erfolgreich", „Einladungs-Link kopiert").
+
+Toast erscheint **nicht** bei Fehlern, die eine Reaktion erfordern — dort bleibt die InfoArea zuständig.
+
+---
+
+### 11.6 Aktivitäts-Heatmap — Visuelles Design
+
+Das Lastenheft (4.5a) beschreibt Verhalten und Inhalt, aber nicht die visuellen Details:
+
+| Parameter | Wert |
+|---|---|
+| Zellgröße | 12 × 12 px |
+| Zellenabstand | 3 px |
+| Zellenform | abgerundete Ecken (2 px radius) |
+| Farb-Palette (4 Stufen + leer) | leer: `#ebedf0` · L1: `#9be9a8` · L2: `#40c463` · L3: `#30a14e` · L4: `#216e39` |
+| Legende-Position | oben rechts neben Heatmap-Titel |
+| Legende-Text | „Weniger [Farbscala] Mehr" |
+| Wochentag-Labels | Mo, Mi, Fr (links, linksbündig mit den Zellen) |
+| Monats-Labels | über dem Grid, linksbündig pro erstem Auftreten |
+
+---
+
+### 11.7 Voranmelde-App — Role-Toggle in Sidebar-Footer
+
+Der Sidebar-Footer enthält einen **Role-Toggle** (Admin / Verkäufer), der in der finalen Implementierung für Admins sichtbar ist, um schnell zwischen Admin-Ansicht und Verkäufer-Ansicht wechseln zu können — ohne erneuten Login.
+
+**Verhalten:**
+- Wechsel zu „Verkäufer": Admin sieht die Seiten und KPI-Kacheln wie ein Verkäufer (seine eigenen Artikel, sein Profil)
+- Wechsel zurück zu „Admin": volle Admin-Ansicht
+- Der Toggle ist **nur für Admins** sichtbar — Verkäufer ohne Admin-Rechte sehen ihn nicht
+- Die Aktivitäts-Heatmap ist nur sichtbar, wenn der Toggle auf „Admin" steht
+
+---
+
+### 11.8 Voranmelde-App — Login-Seite Demo-Hinweis
+
+Auf der Login-Seite wird ein kleiner Hinweis angezeigt, welche Demo-Accounts existieren. In der Produktion entfällt dieser Hinweis.
+
+---
+
+### 11.9 Export (Voranmelde-App) — Technische Umsetzung
+
+Der Export-Button löst direkt einen **Browser-Download** aus (kein separater Server-Endpunkt, kein Zwischenscreen). Dateiname-Muster:
+
+```
+basar-export-YYYY-MM-DD.json
+```
+
+---
+
+### 11.10 Haupt-App — Import: Vorschau-Trigger
+
+Die Import-Vorschau (Abschnitt 3.5) erscheint **sofort nach Dateiauswahl** (ohne zusätzlichen Bestätigungs-Klick). Erst nach der Vorschau gibt es den expliziten „Import bestätigen"-Button.
+
+---
+
+### 11.11 Countdown-Darstellung (KPI-Kachel)
+
+Countdown-Kacheln zeigen das Format:
+
+```
+12T
+06:44:22
+```
+
+Erste Zeile: Tage (ganzzahlig, kein Padding).  
+Zweite Zeile: HH:MM:SS (zero-padded).  
+Aktualisierung: jede Sekunde per `setInterval`.
+
+---
+
+### 11.12 Artikel-Formular — Feld-Reihenfolge im Wizard (Haupt-App Schritt 2)
+
+Das Lastenheft (9.4) definiert die Felder und Spalten, aber nicht die exakte Reihenfolge innerhalb des 2-Spalten-Grids. Festgelegt:
+
+| Zeile | Links | Rechts |
+|---|---|---|
+| 1 | Artikelnummer (mit Kamera-Button) | *(leer)* |
+| 2 | Bezeichnung (volle Breite) | — |
+| 3 | Kategorie | Marke |
+| 4 | Preis (mit €-Addon) | *(leer)* |
+| 5 | Größe | Farbe |
+| 6 | Beschreibung (volle Breite) | — |
+
+---
+
+### 11.13 Artikel-Formular — Feld-Reihenfolge (Voranmelde-App)
+
+Entspricht exakt Abschnitt 4.5e des Lastenhefts. Keine Abweichung.
+
+---
+
+## 12. Verbindliche Visual Specs (POC v2) & PrimeNG-Mapping
+
+Alle folgenden Details sind aus dem POC v2 abgeleitet und gelten als verbindlich. Sie ergänzen die funktionalen Anforderungen der Abschnitte 3–11 um exakte Layout-, Abstands- und Klick-Verhalten-Details.
+
+> **Hinweis:** Die POC-Implementierung verwendet Custom-HTML. Für alle **PrimeNG-Komponenten** (Abschnitt 12.1) ist die POC-Darstellung der Borders und internen Struktur **nicht** maßgeblich — es gelten die PrimeNG-Defaults zuzüglich der hier beschriebenen inhaltlichen und strukturellen Vorgaben.
+
+---
+
+### 12.1 PrimeNG-Komponenten-Mapping
+
+Alle Form- und UI-Elemente werden ausschließlich mit PrimeNG-Komponenten umgesetzt (PrimeNG 18, Angular 19).
+
+#### Form & Eingaben
+
+| UI-Element | PrimeNG-Komponente | Hinweis |
+|---|---|---|
+| Text-Eingabe | `pInputText` (Direktive auf `<input>`) | — |
+| Passwort | `p-password` | — |
+| Zahl (Preis, Provision, Gebühr, …) | `p-inputnumber` | Locale DE; `minFractionDigits="2"` für Preisfelder |
+| Textarea | `pTextarea` (Direktive auf `<textarea>`) | — |
+| Dropdown / Select | `p-select` | PrimeNG 18+ |
+| AutoComplete (Marke/Kategorie) | `p-autocomplete [dropdown]="true" [forceSelection]="false"` | Neuer Wert → eigener `p-dialog` (via `DialogService`) |
+| InputGroup (Suche/Scan/€) | `p-inputgroup` + `p-inputgroupaddon` + `pInputText` | Suchfelder + €-Addon |
+| Datum / Uhrzeit | `p-datepicker` | Einstellungen Voranmelde-App |
+| Datei-Upload | `p-fileupload mode="basic"` | Import JSON (Einstellungen Haupt-App) |
+| Checkbox | `p-checkbox` | Export-Optionen |
+| Toggle-Schalter | `p-toggleswitch` | „Original"-Flag (Marken/Kat-Popup) · „Admin-Rechte" (Panel-05) |
+
+#### Buttons
+
+| Typ | PrimeNG | Einsatz |
+|---|---|---|
+| Primär | `p-button severity="primary"` | Hauptaktion |
+| Erfolg (grün) | `p-button severity="success"` | Buchen, Abrechnen, Speichern |
+| Gefahr (rot) | `p-button severity="danger"` | Löschen |
+| Sekundär / Outline | `p-button severity="secondary" [outlined]="true"` | Abbrechen, Zurück, Drucken |
+| Klein | `p-button size="small"` | Karten-Aktionen, Panel-Inline-Aktionen |
+| Icon-Button (Text-Stil) | `p-button [text]="true" [rounded]="true"` | Artikel-Status Löschen/Setzen |
+
+#### Tabellen, Overlays & Feedback
+
+| UI-Element | PrimeNG-Komponente | Hinweis |
+|---|---|---|
+| Tabelle | `p-table [sortMode]="'multiple'"` | PrimeNG-eigene Multi-Sort-Anzeige (kein Custom-Badge) |
+| Dialog / Modal | `p-dialog [modal]="true"` | Instanziierung via `DialogService` (dynamisch injiziert) |
+| Toast | `p-toast` + `MessageService` | Aktionsbestätigungen |
+
+---
+
+### 12.2 Globales Layout & Abstände
+
+#### Content-Bereich
+
+| Eigenschaft | Desktop | Mobile (≤ 768 px) |
+|---|---|---|
+| Padding oben/unten | 26 px | 14 px |
+| Padding links/rechts | 22 px | 12 px |
+| Hintergrundfarbe | `#f0f2f5` (Haupt) / `#f0f4f7` (Voranmelde) | — |
+
+#### Page-Header
+
+`display: flex; align-items: center; justify-content: space-between; margin-bottom: 20 px`
+
+- **Titel:** font-size 20 px, font-weight 800, Farbe `#0f1f30` (Haupt) / `#0d1f2a` (Voranmelde)
+- **Actions-Bereich** (rechts): `display: flex; gap: 8 px` — enthält ausschließlich Seitentitel-Buttons (z. B. „+ Neu")
+
+#### Sidebar-Details
+
+| Element | Wert |
+|---|---|
+| Breite Haupt-App | 228 px |
+| Breite Voranmelde-App | 240 px |
+| Logo-Block Padding | 20 px 18 px 16 px |
+| Logo Font-Size | 17 px, font-weight 800, weiß |
+| Logo Border-Bottom | 1 px solid rgba(255,255,255,0.1) |
+| Section-Label Padding | 10 px 18 px 4 px, mt 6 px |
+| Section-Label Stil | 10 px, 700, uppercase, letter-spacing 1.2 px |
+| Trennlinie | 1 px solid rgba(255,255,255,0.07), mx 14 px |
+| Nav-Item Padding | 9 px 18 px |
+| Nav-Item Font | 13.5 px |
+| Nav-Item Layout | flex row, gap 10 px, align-items center |
+| Nav-Icon | 16 px, Breite 18 px, text-align center |
+| Nav-Item Hover | Sidebar-Hover-Farbe |
+| Nav-Item Aktiv | Sidebar-Active-Farbe + weiß |
+
+---
+
+### 12.3 KPI-Kacheln
+
+| Eigenschaft | Wert |
+|---|---|
+| Hintergrund | `#ffffff` |
+| Border | 1 px solid `--border` |
+| Border-radius | 8 px |
+| Padding | 16 px 14 px |
+| Text-align | center |
+| Grid-Gap | 12 px |
+
+**Typographie:**
+
+| Element | Font-Size | Font-Weight | Farbe |
+|---|---|---|---|
+| Label | 10.5 px | 700 | `--muted` (uppercase, letter-spacing 0.5 px) |
+| Hauptwert | 28 px | 800 | `#0f1f30` oder farbig |
+| Sub-Label | 12 px | 400 | `--muted`, mt 3 px |
+
+**Farbige Werte:** Primärfarbe (blau) · Erfolgsfarbe (grün) · Muted (grau) · Warning (orange)
+
+**Grid-Klassen:**
+
+| Klasse | Spalten | Einsatz |
+|---|---|---|
+| `c6` | 6 gleichbreit | Statistik Zeile 1 |
+| `c5` | 5 gleichbreit | Statistik Zeile 3 |
+| `c4` | 4 gleichbreit | Voranmelde Home |
+| `c3` | 3 gleichbreit | Statistik Zeile 2, Abrechnung |
+
+**Abschnitts-Label** (über KPI-Zeilen, z. B. auf Statistik-Seite):
+12 px, 700, uppercase, letter-spacing 0.8 px, Farbe `#4a6080`, margin-bottom 8 px, margin-top 6 px (bei Folgezeilen).
+
+#### Statistik-Seite — Abschnitts-Labels
+
+| KPI-Zeile | Label | Kacheln |
+|---|---|---|
+| Zeile 1 | `ARTIKEL-ÜBERSICHT` | 6 Stück |
+| Zeile 2 | `RÜCKBLICK` | 3 Stück |
+| Zeile 3 | `FINANZ-KENNZAHLEN` | 5 Stück |
+
+#### Statistik-Leaderboard
+
+In einer Standard-Card. Header-Zeile:
+- Titel links (700, 14 px) + Dropdown rechts — `display: flex; justify-content: space-between; align-items: center; margin-bottom: 12 px`
+- Tabellen-Wrapper: **max-height 300 px**, overflow-y auto
+- Rang-Spalte: Breite 50 px (fix)
+
+---
+
+### 12.4 Cards & Panel-Blöcke
+
+#### Standard-Card
+
+| Eigenschaft | Wert |
+|---|---|
+| Hintergrund | `#ffffff` |
+| Border | 1 px solid `--border` |
+| Border-radius | 8 px |
+| Padding | 18 px 16 px |
+| Margin-bottom | 14 px |
+| Card-Titel | 700, 14 px, `#0f1f30`, margin-bottom 12 px |
+
+#### Filter-Panel
+
+Gleiche Optik wie Standard-Card, Padding **13 px 15 px**, margin-bottom 14 px.
+
+Zeilen-Aufbau:
+- Zeile 1: Suchfeld (`flex: 1`) + optionale Dropdowns (feste Breite: 180 px Sortierung / 200 px Status)
+- Zeile 2: Dropdowns in **4-Spalten-Grid** (je 25 %), gap 10 px (nur Artikel-Seite)
+- Abstand zwischen Zeilen: 8 px
+- Inner-Gap zwischen Items: 10 px
+
+#### Panel-Blöcke (Formular-Panels 01–05)
+
+| Eigenschaft | Haupt-App | Voranmelde-App |
+|---|---|---|
+| Hintergrund | `#f8fafc` | `#f5f9f6` |
+| Border | 1 px `#dde6ee` | 1 px `#d4e8dc` |
+| Border-radius | 8 px | 8 px |
+| Padding | 15 px 16 px | 15 px 16 px |
+| Margin-bottom | 12 px | 12 px |
+| Titel Font-Size | 11 px | 11 px |
+| Titel Font-Weight | 700 | 700 |
+| Titel Transform | uppercase | uppercase |
+| Titel Letter-Spacing | 0.8 px | 0.8 px |
+| Titel Farbe | `#4a6080` | `#3a7057` |
+| Titel Margin-Bottom | 12 px | 12 px |
+
+#### Form-Grid
+
+- 2-Spalten-Grid, gap 12 px
+- `.full` → ganze Breite (beide Spalten)
+- **Label:** 11.5 px, 700, uppercase, letter-spacing 0.4 px, `--muted`; Pflicht-Marker `*` in Danger-Farbe
+- Abstand Label → Input: 4 px
+
+---
+
+### 12.5 Modals / Dialoge (`p-dialog`)
+
+| Eigenschaft | Wert |
+|---|---|
+| Backdrop | `rgba(0,0,0,0.52)` |
+| Box-Shadow | `0 20px 60px rgba(0,0,0,0.3)` |
+| Border-radius | 10 px (Desktop) / 0 (Mobile ≤ 768 px) |
+| Max-Height | 90 vh |
+| Body overflow | auto (scrollbar bei viel Inhalt) |
+
+**Größen:**
+
+| Größe | Max-Breite | Einsatz |
+|---|---|---|
+| `sm` | 420 px (max 95 vw) | Checkout, Speichern, Marke, Kategorie, Typ |
+| Standard | 80 % / max 700 px | Seller-Edit, Freigabe, Rückgabe |
+| `lg` | max 940 px | Admin-Seller (Voranmelde-App) |
+
+**Mobile (≤ 768 px):** 100 % Breite, 100 % Höhe, kein border-radius.
+
+**Dialog-Bereiche:**
+
+| Bereich | Padding | Details |
+|---|---|---|
+| Header | 17 px 20 px | flex space-between, align-items center; Titel: 700, 16 px; Schließen-Button: kein Hintergrund, kein Border, 22 px, muted |
+| Body | 20 px | overflow-y auto, flex: 1 |
+| Footer | 13 px 20 px | Standard: flex-end, gap 8 px. Mit Löschen-Button: space-between |
+
+**Footer-Muster:**
+
+| Muster | Layout |
+|---|---|
+| Standard | Rechts: `[Abbrechen (secondary outlined)]` `[Speichern (primary)]` |
+| Mit Löschen | Links: `[Löschen (danger)]` · Rechts: `[Abbrechen]` `[Speichern]` |
+| Nur Schließen | Rechts: `[Schließen (secondary outlined)]` |
+
+---
+
+### 12.6 Badges & Tags
+
+Alle Status-Badges: border-radius 4 px, padding 2 px 8 px, font-size 11 px, font-weight 600.
+
+| Typ | Hintergrund | Textfarbe | Einsatz |
+|---|---|---|---|
+| `success` | `#d5f5e3` | `#1a5c38` | Abgerechnet, Verkauft |
+| `danger` | `#fadbd8` | `#7b241c` | Fehler-Status |
+| `warn` | `#fef9e7` | `#7e5109` | Händler-Typ, Teilweise belegt |
+| `info` | `#d6eaf8` | `#1a5276` | Im Verkauf, Privat-Typ |
+| `sec` | `#eaecee` | `#566573` | Offen, neutral |
+| `original` (grün) | `#d5f5e3` | `#1a5c38` | „✓ Original"-Flag |
+| `neu` (orange) | `#fdebd0` | `#784212` | „Neu"-Flag (nicht Original) |
+
+**Rang-Badges** (Leaderboard, kreisförmig, 26 × 26 px, font-weight 700, 12 px):
+
+| Rang | Hintergrund | Textfarbe |
+|---|---|---|
+| 1 | `#ffd700` (Gold) | `#5d4e00` |
+| 2 | `#c0c0c0` (Silber) | `#3d3d3d` |
+| 3 | `#cd7f32` (Bronze) | `#4a2800` |
+| ≥ 4 | `#eaecee` (Grau) | `#566573` |
+
+---
+
+### 12.7 Verkauf-Seite — Layout
+
+```
+┌─────────────────────────┬─────────────────────────┐
+│  Artikelnummer eingeben │  🛒 Warenkorb            │
+│  (50 %)                 │  (50 %)                  │
+│                         │                          │
+│  [InputGroup]           │  [Artikel-Liste]         │
+│  [InfoArea]             │  [Gesamt: XX,XX €]       │
+│  [Preis-Button ggf.]    │  [🗑 Leeren] [💳 BUCHEN] │
+└─────────────────────────┴─────────────────────────┘
+```
+
+- Outer-Grid: `grid-template-columns: 1fr 1fr`, gap 14 px
+- **Preis-Button:** nur sichtbar nach erfolgreicher Erkennung; volle Breite (`width: 100 %`), font-size 16 px, `p-button severity="success"`; Caption = **ausschließlich der Preis** (z. B. `24,00 €`), kein weiterer Text
+- **Warenkorb leer:** Hinweistext „Warenkorb ist leer" (muted, 13 px, text-align center, padding 20 px 0)
+- **Cart-Item:** flex space-between, align-items center, padding 8 px 0, border-bottom 1 px `#f2f4f6`, font-size 13.5 px
+- **Gesamt-Zeile:** font-weight 700, font-size 18 px, text-align right, padding-top 10 px
+- **Footer** (nur sichtbar wenn Warenkorb nicht leer): `display: flex; justify-content: space-between; gap: 8 px; margin-top: 12 px`
+  - Links: „🗑 Leeren" (`p-button severity="secondary" [outlined]="true"`)
+  - Rechts: „💳 BUCHEN" (`p-button severity="primary"`, font-size 15 px)
+
+#### Checkout-Popup (Bezahlung) — Body-Layout
+
+Größe `sm`. Bereiche:
+
+1. **Gesamt-Zeile:** flex space-between, font-weight 700, font-size 19 px, border-top 2 px solid `--border`, margin-top 6 px, padding-top 10 px
+2. **InputGroup** „Betrag erhalten (€)": `p-inputgroup` + `pInputText type="number"` + `p-inputgroupaddon "€"`, margin-top 16 px
+3. **Rückgeld-Box:** font-size 32 px, font-weight 800, text-align center, padding 14 px, background `#e8f8f0`, border-radius 8 px, color `#1a5c38`, margin 12 px 0
+
+---
+
+### 12.8 Abrechnung — Detail-Ansicht
+
+**Such-Ansicht:** InputGroup in Card, max-width 500 px. Hinweistext darunter: „ENTER bei 1 Treffer oder direkt klicken" (12.5 px, muted, mt 8 px).
+
+**Kopfzeile** (nach Verkäufer-Selektion):
+
+`display: flex; align-items: center; gap: 14 px; background: white; border: 1 px solid --border; border-radius: 8 px; padding: 14 px 16 px; margin-bottom: 14 px`
+
+- Links (flex-column): Name (700, 16 px) + Adresse (13 px, muted)
+- Rechts (`margin-left: auto; display: flex; gap: 8 px`): Buttons in dieser Reihenfolge:
+  1. „← Zurück" (`secondary outlined`)
+  2. „🖨️ Drucken" (`secondary outlined`)
+  3. „↩ Zurückgeben" (`primary`)
+  4. „✓ Abrechnen" (`success`)
+
+**KPI-Zeile** (3 Kacheln, `c3`): Offene Artikel (warning-Farbe) · Verkaufte Artikel (success-Farbe) · Umsatz.
+
+**Abrechnen-Popup** (Größe `sm`):
+
+```
+Umsatz (Summe verkaufter Artikel)          XX,XX €   ← 15 px
+Provision (VK.provision %)              − XX,XX €   ← danger-Farbe
+──────────────────────────────────────────────────
+Auszahlung an Verkäufer                   XX,XX €   ← success-Farbe, 18 px, 700
+```
+
+Jede Zeile: flex space-between, padding 7 px 0, 15 px, border-bottom 1 px `#f2f4f6`.  
+Total-Zeile: border-top 2 px, kein border-bottom, margin-top 8 px, padding-top 10 px.
+
+---
+
+### 12.9 Verkäufer-Karte — Detailaufbau
+
+**Grid:** `repeat(auto-fill, minmax(340 px, 1fr))`, gap 12 px
+
+Aufbau der Karte (padding 16 px):
+
+```
+┌──────────────────────────────────────────────┐
+│ [Name 700/15px]  [Typ-Badge]  [✏️] [📷]      │
+│ [PLZ Ort  #ID]  ← 12px, muted, mb 8px        │
+│ [Status-Badge]  ← mb 8px                      │
+│ ┌──────────────────────────────────────────┐  │
+│ │ Artikel gesamt: X  │ Freigegeben: X      │  │
+│ │ Verkauft: X        │ Rückgegeben: X      │  │
+│ └──────────────────────────────────────────┘  │
+│ ┌──────────────┬───────────────┬──────────┐   │
+│ │ Angenom. WW  │ Offener WW    │ Umsatz   │   │
+│ └──────────────┴───────────────┴──────────┘   │
+└──────────────────────────────────────────────┘
+```
+
+| Element | Stil |
+|---|---|
+| Kopfzeile | flex, justify-content space-between, align-items flex-start |
+| Name + Typ-Badge | nebeneinander (gap 8 px), Typ-Badge font-size 10 px |
+| Action-Buttons | flex, gap 6 px, align-items flex-start |
+| Adresse + ID | 12 px, muted, `#ID` in font-weight 600 |
+| Stats-Grid | 2×2 Spalten (`dt` links, `dd` rechts), gap row 3 px / col 16 px, 12.5 px; dt=muted, dd=600 |
+| Footer-Grid | 3 gleichbreite Spalten; border-top 1 px, padding-top 10 px, margin-top 6 px |
+| Footer-Label | 10 px, muted, uppercase |
+| Footer-Wert | 700, 14 px |
+
+**Aktions-Buttons** (top-right):
+- Edit: `p-button severity="secondary" [outlined]="true" size="small"`, Edit-Icon
+- Scan / Freigabe: `p-button severity="secondary" [outlined]="true" size="small"`, Kamera-Icon; Klick → öffnet Artikel-Freigeben-Dialog
+
+---
+
+### 12.10 Artikelannahme — Such-Ansicht
+
+InputGroup in Card, **max-width 500 px**.  
+Hinweistext darunter: `ENTER bei 1 Treffer öffnet Wizard · Kein Treffer: Anlegen-Button erscheint` (12.5 px, muted, margin-top 10 px).
+
+- Bei 0 Treffern → Button „+ Neuen Verkäufer anlegen" (`p-button severity="primary"`) erscheint unterhalb der Liste (display: none → block)
+- Die Suche filtert nach: Verkäufer-ID, Vorname, Nachname
+
+---
+
+### 12.11 Wizard — Tab-Navigation (Artikelannahme)
+
+```
+┌──────────────────────┬───────────────────────────┐
+│  Schritt 1 — Verkäufer  │  Schritt 2 — Artikelannahme │
+└──────────────────────┴───────────────────────────┘
+```
+
+- Tabs: flex row, border-bottom 2 px solid `--border`, margin-bottom 20 px
+- Tab-Item: padding 10 px 20 px, font-weight 600, font-size 13 px, muted, border-bottom 2 px solid transparent, margin-bottom -2 px
+- Aktiver Tab: primary-Farbe, border-bottom primary-Farbe
+
+**Schritt 2 — Layout:**
+- Outer-Grid: `7fr 3fr` (70 % Artikel-Eingabe, 30 % Übersicht), gap 14 px
+- Rechte Seite (Übersicht): Artikelliste-Card + darunter Speichern-Button (volle Breite, `p-button severity="success"`)
+
+---
+
+### 12.12 Voranmelde-App — Login-Seite
+
+Zweispaltiges Flex-Layout (Desktop), je 50 %:
+
+**Linke Seite (Info-Area):**
+- Hintergrund: `#1b3a4b`, padding 60 px 48 px
+- 3 Info-Boxen (je): `background: rgba(255,255,255,0.06–0.08); border-radius: 10 px; padding: 14–18 px; margin-bottom: 20 px`
+
+| Box | Inhalt / Stil |
+|---|---|
+| Countdown | Label 11 px uppercase 0.7 opacity · Wert 32 px 800 letter-spacing 2 px weiß · Datum 13 px 0.7 opacity |
+| Konditionen | Zeilen flex space-between 14 px; Wert in Akzentfarbe `#3ecf8e`, 700 |
+| Markdown-Info | 13 px, line-height 1.7, opacity 0.9 |
+
+**Rechte Seite (Login-Form):**
+- Hintergrund: weiß, padding 60 px 48 px
+- Form: **max-width 360 px**, zentriert (margin auto)
+- Überschrift: 22 px, 800; Subtitle: 13.5 px, muted, mb 28 px
+- Field-Label: 12 px, 700, uppercase, letter-spacing 0.4 px, muted, mb 5 px
+- Input: `pInputText`, padding 10 px 13 px, font-size 14.5 px
+- Login-Button: `p-button severity="primary"`, volle Breite, 15 px, 700, mt 6 px
+- Registrierung-Link: text-align center, mt 16 px, 13 px, muted + primary-Farbe-Link
+
+**Mobile (≤ 768 px):** Linke Seite (Info-Area) ausgeblendet → nur Login-Form sichtbar.
+
+---
+
+### 12.13 Voranmelde-App — Sidebar-Footer
+
+```
+┌─────────────────────────────────────────┐
+│  [A]  Admin User              ← Avatar  │
+│       Administrator           ← Rolle   │
+│  ┌──────────┬──────────┐                │
+│  │  Admin   │ Verkäufer│  ← Role-Toggle │
+│  └──────────┴──────────┘                │
+│  🚪 Abmelden                            │
+└─────────────────────────────────────────┘
+```
+
+| Element | Stil |
+|---|---|
+| Avatar-Kreis | 36 px, Akzentfarbe `#3ecf8e`, weiß, Initial-Buchstabe 15 px 700 |
+| Username | 13 px, 600, weiß |
+| Role-Label | 11 px, `--sidebar-section`-Farbe |
+| Role-Toggle-Container | flex row, `background: rgba(255,255,255,0.08)`, border-radius 6 px |
+| Toggle-Button | `flex: 1`, padding 6 px 10 px, 12 px, 600; aktiv = Akzentfarbe + weiß; inaktiv = muted |
+| Logout | flex row, Icon + „Abmelden", 13 px, muted; hover = weiß; mt 8 px |
+
+**Sichtbarkeit:** Role-Toggle nur für Admins — Verkäufer sehen nur User-Info und Logout.
+
+---
+
+### 12.14 Nummernblock-Anzeige (Admin-Seller-Dialog, Voranmelde-App)
+
+**Jeder Block in der Liste:**
+
+`display: flex; justify-content: space-between; align-items: center; background: #f5f9f6; border: 1 px solid #d4e8dc; border-radius: 6 px; padding: 10 px 14 px; margin-bottom: 8 px`
+
+| Element | Stil |
+|---|---|
+| Bereich (z. B. „101 – 110") | 700, 14 px, `--primary` (grün) |
+| Zähler (z. B. „10 Nummern · 3 vergeben") | 12 px, muted |
+| Löschen-Button (wenn 0 vergeben) | `p-button severity="secondary" [outlined]="true" size="small"`, Icon 🗑 in danger-Farbe |
+| Bei ≥ 1 vergeben | Kein Löschen-Button — stattdessen Badge „Voll — nicht löschbar" (`warn`) |
+
+**Neue Blöcke reservieren** (im Bearbeiten-Modus, unterhalb der Block-Liste):
+- Trennlinie (border-top 1 px), pt 12 px, mt 14 px
+- Label (12 px, muted): „Zusätzliche Blöcke reservieren:"
+- 2-Spalten-Grid: `p-inputnumber` „Anzahl Blöcke" + `p-inputnumber` „Startnummer (Vorschlag)"
+- Hinweistext (12 px, muted): Berechnungsregel für Vorschlag
+- „✓ Reservieren": `p-button severity="primary" size="small"`
+
+---
+
+### 12.15 Panel-05 (Admin-Seller-Dialog, Voranmelde-App)
+
+**Admin-Rechte:**
+```
+[ p-checkbox ]  Dieser Verkäufer hat Admin-Rechte
+```
+`p-checkbox` + `<label>` nebeneinander (gap 10 px), cursor pointer, font-size 14 px.
+
+**Einladungs-Link:**
+```
+[ 📋 Einladungs-Link generieren ]  ← p-button secondary outlined small
+```
+Klick → personalisierten Link in Zwischenablage kopieren + Toast „✓ Einladungs-Link kopiert!".
+
+---
+
+### 12.16 PrimeNG MISC-Komponenten
+
+Zusätzlich zum Kern-Mapping (12.1) werden folgende PrimeNG-Hilfs-Komponenten und -Direktiven eingesetzt, um eine vollständige PrimeNG-konforme UX zu erreichen:
+
+#### Fokus & Tastatur
+
+| Komponente | Einsatz |
+|---|---|
+| `pAutoFocus` | Automatischer Fokus beim Öffnen: Suchfeld (Artikelannahme, Abrechnung), Artikelnummer-Feld (Verkauf, Wizard Schritt 2), erstes Eingabefeld in Dialogen |
+| `pFocusTrap` | Fokus bleibt innerhalb offener `p-dialog` — verhindert Tab-Out aus dem Modal |
+
+#### Animationen
+
+| Komponente | Einsatz |
+|---|---|
+| `pAnimateOnScroll` | Sanftes Einblenden von KPI-Kacheln und Karten-Grids beim ersten Scrollen in den Viewport |
+
+#### Anzeige & Status
+
+| Komponente | Einsatz |
+|---|---|
+| `p-avatar` | Sidebar-Footer (Voranmelde-App): Benutzer-Avatar mit Initial-Buchstabe; Farbe = App-Akzentfarbe |
+| `p-badge` | Benachrichtigungs-/Zähl-Badges (z. B. offene Artikel-Anzahl im Sidebar-Menüpunkt) |
+| `p-chip` | Aktive Filter-Tags im Filter-Panel (Anzeige gesetzter Filter als entfernbare Chips) |
+| `p-progressbar` | Import-Fortschritt beim JSON-Import (Haupt-App Einstellungen) |
+| `p-metergroup` | Statistik-Seite: Visueller Anteil Verkauft / Im Verkauf / Retour als Meter-Balken |
+| `p-progressspinner` | Ladeindikator bei Such-Debounce (ersetzt Clear-Button-Bereich temporär während Suche) |
+| `p-skeleton` | Tabellen-Lade-Skelett (streifende Shimmer-Animation in Zellen während Daten geladen werden) — bereits in 3.8 referenziert |
+| `p-scrolltop` | Scroll-nach-oben-Button — erscheint bei langen Listen (Artikel-Tabelle, Leaderboard) und beim Verkäufer-Karten-Grid wenn scrollbar |
+
+#### Einsatz-Details
+
+**`p-avatar` (Sidebar-Footer):**
+- Shape `circle`, size `large`
+- Label = erster Buchstabe des Vornamens (Großbuchstabe)
+- Hintergrundfarbe = App-Akzentfarbe (`#3ecf8e` Voranmelde / `#2e86c1` Haupt)
+- Schriftfarbe weiß
+
+**`p-chip` (aktive Filter):**
+- Erscheinen unterhalb des Filter-Panels wenn ein Filter gesetzt ist
+- Entfernen-Icon (×) löscht den Filter und aktualisiert die Liste sofort
+- Einsatz: Verkäufer-Seite (Status-Filter), Artikel-Seite (Marke-, Kategorie-, Status-Filter)
+
+**`p-skeleton` (Tabellen-Loading):**
+- Anzahl der Skeleton-Zeilen: 5 (Default)
+- Skelett-Zellen entsprechen den echten Spaltenbreiten
+- Erscheint während der ersten Daten-Abfrage; danach nie wieder (keine Refresh-Skeleton)
+
+**`p-metergroup` (Statistik):**
+- Wird direkt unterhalb der Finanz-KPI-Zeile platziert
+- Zeigt anteilig: `Im Verkauf` (primary) · `Verkauft` (success) · `Retour` (warn) von allen Angenommenen
+- Label: Prozent-Wert + Bezeichnung je Segment
+
+**`p-scrolltop` (Listen):**
+- Threshold: 400 px Scrolltiefe
+- Behavior: `smooth`
+- Target: `window` (globaler Scroll)

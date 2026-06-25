@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bazaar — Haupt-App POC v2</title>
+  <style>
+    :root {
+      --sidebar-bg: #1a2e4a;
+      --sidebar-text: #b8cce0;
+      --sidebar-active: #2e86c1;
+      --sidebar-hover: #243b56;
+      --sidebar-section: #5b7fa6;
+      --sidebar-w: 228px;
+      --topbar-h: 52px;
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --border: #dde3e9;
+      --text: #1e2a36;
+      --muted: #6b7a8d;
+      --primary: #2e86c1;
+      --success: #1e8449;
+      --danger: #c0392b;
+      --warning: #d68910;
+      --stripe: #fafbfc;
+      --hover: #eaf2fb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: var(--text); background: var(--bg); }
+
+    /* ── Topbar ──────────────────────────────────── */
+    #topbar {
+      display: none; position: fixed; top: 0; left: 0; right: 0;
+      height: var(--topbar-h); background: var(--sidebar-bg);
+      color: white; align-items: center; padding: 0 14px; z-index: 300;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    #topbar.show { display: flex; }
+    #btnBurger { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 4px 8px; line-height: 1; }
+    #topbar-brand { font-size: 15px; font-weight: 700; margin-left: 8px; letter-spacing: 0.3px; }
+
+    /* ── Sidebar ─────────────────────────────────── */
+    #sidebar {
+      position: fixed; top: 0; left: 0; width: var(--sidebar-w);
+      height: 100vh; background: var(--sidebar-bg); color: var(--sidebar-text);
+      display: flex; flex-direction: column; z-index: 200; overflow-y: auto;
+      transition: transform 0.25s ease;
+    }
+    #overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 199;
+    }
+    #overlay.show { display: block; }
+
+    .sb-logo {
+      padding: 20px 18px 16px; font-size: 17px; font-weight: 800; color: white;
+      letter-spacing: 0.4px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+    .sb-logo span { color: #5dade2; }
+    .sb-section {
+      padding: 10px 18px 4px; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1.2px; color: var(--sidebar-section);
+      margin-top: 6px;
+    }
+    .sb-sep { height: 1px; background: rgba(255,255,255,0.07); margin: 4px 14px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 9px 18px;
+      cursor: pointer; font-size: 13.5px; transition: background 0.15s;
+    }
+    .nav-item:hover { background: var(--sidebar-hover); }
+    .nav-item.active { background: var(--sidebar-active); color: white; }
+    .nav-icon { font-size: 16px; width: 18px; text-align: center; flex-shrink: 0; }
+
+    /* ── Main content ─────────────────────────────── */
+    #main { margin-left: var(--sidebar-w); min-height: 100vh; }
+    .page { display: none; padding: 26px 22px; }
+    .page.active { display: block; }
+
+    /* ── Page header ─────────────────────────────── */
+    .ph { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .ph-title { font-size: 20px; font-weight: 800; color: #0f1f30; }
+    .ph-actions { display: flex; gap: 8px; }
+
+    /* ── KPI Tiles ──────────────────────────────── */
+    .kpi-row { display: grid; gap: 12px; margin-bottom: 14px; }
+    .kpi-row.c6 { grid-template-columns: repeat(6, 1fr); }
+    .kpi-row.c5 { grid-template-columns: repeat(5, 1fr); }
+    .kpi-row.c3 { grid-template-columns: repeat(3, 1fr); }
+    .kpi {
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px 14px; text-align: center;
+    }
+    .kpi-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 6px; }
+    .kpi-val { font-size: 28px; font-weight: 800; color: #0f1f30; line-height: 1; }
+    .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+    /* ── InfoArea ───────────────────────────────── */
+    .info-area {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px; border-radius: 6px; font-weight: 600;
+      font-size: 14px; margin-bottom: 12px;
+    }
+    .ia-success { background: #d5f5e3; color: #1a5c38; border: 1px solid #a9dfbf; }
+    .ia-error   { background: #fadbd8; color: #7b241c; border: 1px solid #f1948a; }
+    .ia-warn    { background: #fef9e7; color: #7e5109; border: 1px solid #f9e79f; }
+    .ia-info    { background: #d6eaf8; color: #1a5276; border: 1px solid #a9cce3; }
+
+    /* ── InputGroup ─────────────────────────────── */
+    .ig {
+      display: flex; border: 1.5px solid var(--border); border-radius: 6px;
+      overflow: hidden; background: white;
+    }
+    .ig:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46,134,193,0.14); }
+    .ig-addon {
+      padding: 8px 12px; background: #f4f6f8; border-right: 1px solid var(--border);
+      color: var(--muted); display: flex; align-items: center; font-size: 15px;
+    }
+    .ig input {
+      flex: 1; border: none; outline: none; padding: 8px 10px;
+      font-size: 14px; background: transparent;
+    }
+    .ig-clear, .ig-cam, .ig-enter {
+      padding: 8px 12px; background: none; border: none; border-left: 1px solid var(--border);
+      cursor: pointer; color: var(--muted); font-size: 14px; transition: background 0.15s;
+    }
+    .ig-clear:hover, .ig-cam:hover, .ig-enter:hover { background: #f0f4f8; }
+    .ig-cam { color: var(--primary); }
+
+    /* ── AutoComplete ───────────────────────────── */
+    .ac-wrap { position: relative; }
+    .ac-row {
+      display: flex; border: 1.5px solid var(--border); border-radius: 6px;
+      overflow: hidden; background: white;
+    }
+    .ac-row:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46,134,193,0.14); }
+    .ac-input { flex: 1; border: none; outline: none; padding: 7px 10px; font-size: 14px; }
+    .ac-toggle {
+      padding: 7px 11px; border: none; border-left: 1px solid var(--border);
+      cursor: pointer; background: #f4f6f8; font-size: 14px; min-width: 36px; text-align: center;
+    }
+    .ac-toggle.add { color: var(--success); font-weight: 700; }
+    .ac-list {
+      position: absolute; top: 100%; left: 0; right: 0; background: white;
+      border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px;
+      max-height: 180px; overflow-y: auto; z-index: 60; display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .ac-list.open { display: block; }
+    .ac-opt { padding: 8px 12px; cursor: pointer; font-size: 13px; }
+    .ac-opt:hover, .ac-opt.hl { background: #eaf2fb; }
+
+    /* ── Tables ─────────────────────────────────── */
+    .tbl-wrap { overflow-x: auto; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--border); }
+    thead th {
+      background: #f4f6f8; padding: 10px 13px; text-align: left;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--muted); border-bottom: 2px solid var(--border);
+      cursor: pointer; user-select: none; white-space: nowrap;
+    }
+    thead th:hover { background: #eaeef2; }
+    .sort-indicator { margin-left: 4px; }
+    .sort-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--primary); color: white; border-radius: 3px;
+      padding: 0 4px; font-size: 9px; height: 14px; margin-left: 2px;
+    }
+    tbody td { padding: 9px 13px; border-bottom: 1px solid #f2f4f6; vertical-align: middle; }
+    tbody tr:nth-child(even) td { background: var(--stripe); }
+    tbody tr:hover td { background: var(--hover) !important; }
+    .skeleton td { color: transparent; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ── Badges ─────────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; padding: 2px 8px;
+      border-radius: 4px; font-size: 11px; font-weight: 600;
+    }
+    .bg-success { background: #d5f5e3; color: #1a5c38; }
+    .bg-danger  { background: #fadbd8; color: #7b241c; }
+    .bg-warn    { background: #fef9e7; color: #7e5109; }
+    .bg-info    { background: #d6eaf8; color: #1a5276; }
+    .bg-sec     { background: #eaecee; color: #566573; }
+    .bg-original { background: #d5f5e3; color: #1a5c38; }
+    .bg-neu     { background: #fdebd0; color: #784212; }
+
+    /* ── Rank Badges ────────────────────────────── */
+    .rank {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 50%; font-weight: 700; font-size: 12px;
+    }
+    .rank-1 { background: #ffd700; color: #5d4e00; }
+    .rank-2 { background: #c0c0c0; color: #3d3d3d; }
+    .rank-3 { background: #cd7f32; color: #4a2800; }
+    .rank-n { background: #eaecee; color: #566573; }
+
+    /* ── Cards ──────────────────────────────────── */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px 16px; margin-bottom: 14px; }
+    .card-title { font-weight: 700; font-size: 14px; margin-bottom: 12px; color: #0f1f30; }
+
+    /* ── Seller Cards ───────────────────────────── */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+    .seller-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .sc-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .sc-name { font-weight: 700; font-size: 15px; }
+    .sc-sub { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .sc-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 16px; font-size: 12.5px; margin-bottom: 10px; background: #f8f9fa; padding: 8px 10px; border-radius: 5px; }
+    .sc-stats dt { color: var(--muted); }
+    .sc-stats dd { font-weight: 600; }
+    .sc-footer { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 6px; }
+    .sc-fi { text-align: center; }
+    .sc-fi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+    .sc-fi-val { font-weight: 700; font-size: 14px; }
+    .sc-actions { display: flex; gap: 6px; align-items: flex-start; }
+
+    /* ── Filter Panel ───────────────────────────── */
+    .filter-panel { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 13px 15px; margin-bottom: 14px; }
+    .fp-row { display: flex; gap: 10px; align-items: center; }
+    .fp-row + .fp-row { margin-top: 8px; }
+    .fp-row .grow { flex: 1; }
+    select, input[type=text], input[type=number], input[type=email], input[type=password], textarea {
+      border: 1.5px solid var(--border); border-radius: 5px; padding: 7px 10px;
+      font-size: 13.5px; outline: none; width: 100%; background: white;
+    }
+    select:focus, input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(46,134,193,0.12); }
+    select { cursor: pointer; }
+
+    /* ── Buttons ────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px; padding: 8px 15px;
+      border-radius: 5px; border: none; font-size: 13.5px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #2471a3; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #186a3b; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #a93226; }
+    .btn-sec { background: #6b7a8d; color: white; }
+    .btn-sec:hover { background: #566573; }
+    .btn-outline { background: white; border: 1.5px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: #f4f6f8; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── Modals ─────────────────────────────────── */
+    .modal-bg {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.52);
+      z-index: 500; align-items: center; justify-content: center;
+    }
+    .modal-bg.open { display: flex; }
+    .modal-box {
+      background: white; border-radius: 10px; width: 80%; max-width: 700px;
+      max-height: 90vh; display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-box.sm { width: 420px; max-width: 95vw; }
+    .modal-box.lg { max-width: 940px; }
+    .modal-hd {
+      padding: 17px 20px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+    }
+    .modal-ttl { font-weight: 700; font-size: 16px; }
+    .modal-x { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; }
+    .modal-bd { padding: 20px; overflow-y: auto; flex: 1; }
+    .modal-ft {
+      padding: 13px 20px; border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0;
+    }
+    .modal-ft.between { justify-content: space-between; }
+
+    /* ── Form grid ──────────────────────────────── */
+    .fg { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .fg .full { grid-column: 1 / -1; }
+    .fgroup { display: flex; flex-direction: column; gap: 4px; }
+    .flabel { font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .flabel .req { color: var(--danger); }
+
+    /* ── Panel blocks ───────────────────────────── */
+    .panel-block {
+      background: #f8fafc; border: 1px solid #dde6ee;
+      border-radius: 8px; padding: 15px 16px; margin-bottom: 12px;
+    }
+    .panel-block-title { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #4a6080; margin-bottom: 12px; }
+
+    /* ── Wizard ─────────────────────────────────── */
+    .wizard-steps { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+    .wizard-step { padding: 10px 20px; font-weight: 600; font-size: 13px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; }
+    .wizard-step.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .wizard-pane { display: none; }
+    .wizard-pane.active { display: block; }
+    .wizard-layout { display: grid; grid-template-columns: 7fr 3fr; gap: 14px; }
+
+    /* ── Cart ────────────────────────────────────── */
+    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f2f4f6; font-size: 13.5px; }
+    .cart-total { font-weight: 700; font-size: 18px; text-align: right; padding-top: 10px; color: #0f1f30; }
+
+    /* ── Checkout / Billing ─────────────────────── */
+    .chk-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 15px; }
+    .chk-total-row { font-weight: 700; font-size: 19px; border-top: 2px solid var(--border); margin-top: 6px; padding-top: 10px; }
+    .change-box { font-size: 32px; font-weight: 800; text-align: center; padding: 14px; background: #e8f8f0; border-radius: 8px; color: #1a5c38; margin: 12px 0; }
+    .billing-line { display: flex; justify-content: space-between; padding: 7px 0; font-size: 15px; border-bottom: 1px solid #f2f4f6; }
+    .billing-line.total { font-weight: 700; font-size: 18px; color: var(--success); border-top: 2px solid var(--border); border-bottom: none; margin-top: 8px; padding-top: 10px; }
+
+    /* ── Abrechnung view ────────────────────────── */
+    .abrech-header { display: flex; align-items: center; gap: 14px; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+    .abrech-name { font-weight: 700; font-size: 16px; }
+    .abrech-adr { font-size: 13px; color: var(--muted); }
+    .abrech-actions { margin-left: auto; display: flex; gap: 8px; }
+
+    /* ── Status popup ───────────────────────────── */
+    .ts-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f2f4f6; font-size: 13.5px; }
+    .ts-row:last-child { border-bottom: none; }
+    .ts-label { color: var(--muted); font-weight: 600; font-size: 12px; }
+
+    /* ── Leaderboard ─────────────────────────────── */
+    .lb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+
+    /* ── Einstellungen ──────────────────────────── */
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ── Responsive ─────────────────────────────── */
+    @media (max-width: 768px) {
+      #topbar { display: flex; }
+      #sidebar { top: var(--topbar-h); height: calc(100vh - var(--topbar-h)); transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #overlay.show { display: block; }
+      #main { margin-left: 0; padding-top: var(--topbar-h); }
+      .page { padding: 14px 12px; }
+      .kpi-row.c6, .kpi-row.c5 { grid-template-columns: repeat(2, 1fr); }
+      .kpi-row.c3 { grid-template-columns: 1fr 1fr; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .fg { grid-template-columns: 1fr; }
+      .fg .full { grid-column: 1; }
+      .wizard-layout { grid-template-columns: 1fr; }
+      .modal-box { width: 100%; max-width: 100%; height: 100%; max-height: 100vh; border-radius: 0; }
+      .settings-grid { grid-template-columns: 1fr; }
+      .fp-row { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Topbar (mobile only) -->
+<div id="topbar">
+  <button id="btnBurger" onclick="toggleSidebar()">&#9776;</button>
+  <span id="topbar-brand">Bazaar Haupt-App</span>
+</div>
+
+<!-- Overlay -->
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<nav id="sidebar">
+  <div class="sb-logo">Bazaar <span>Suite</span></div>
+
+  <div class="sb-section">Tagesgeschäft</div>
+  <div class="nav-item active" onclick="nav('annahme')"><span class="nav-icon">📥</span> Artikelannahme</div>
+  <div class="nav-item" onclick="nav('verkauf')"><span class="nav-icon">🛒</span> Verkauf</div>
+  <div class="nav-item" onclick="nav('abrechnung')"><span class="nav-icon">💰</span> Abrechnung</div>
+  <div class="sb-sep"></div>
+
+  <div class="sb-section">Stammdaten</div>
+  <div class="nav-item" onclick="nav('verkaeufer')"><span class="nav-icon">👤</span> Verkäufer</div>
+  <div class="nav-item" onclick="nav('artikel')"><span class="nav-icon">🏷️</span> Artikel</div>
+  <div class="nav-item" onclick="nav('marken')"><span class="nav-icon">⭐</span> Marken</div>
+  <div class="nav-item" onclick="nav('kategorien')"><span class="nav-icon">📂</span> Kategorien</div>
+  <div class="nav-item" onclick="nav('types')"><span class="nav-icon">🏷️</span> Verkäufer-Types</div>
+  <div class="sb-sep"></div>
+
+  <div class="sb-section">System</div>
+  <div class="nav-item" onclick="nav('statistik')"><span class="nav-icon">📊</span> Statistik</div>
+  <div class="nav-item" onclick="nav('einstellungen')"><span class="nav-icon">⚙️</span> Einstellungen</div>
+</nav>
+
+<!-- Main Content -->
+<div id="main">
+
+  <!-- ══════════════════════════════════════════════════════════
+       STATISTIK
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-statistik">
+    <div class="ph">
+      <div class="ph-title">📊 Statistik</div>
+    </div>
+
+    <!-- Artikel-Übersicht -->
+    <div class="card-title" style="margin-bottom:8px; color:#4a6080; font-size:12px; text-transform:uppercase; letter-spacing:.8px;">Artikel-Übersicht</div>
+    <div class="kpi-row c6">
+      <div class="kpi"><div class="kpi-label">Gesamt</div><div class="kpi-val">143</div></div>
+      <div class="kpi"><div class="kpi-label">Angenommen</div><div class="kpi-val">128</div></div>
+      <div class="kpi"><div class="kpi-label">Im Verkauf</div><div class="kpi-val" style="color:var(--primary)">52</div></div>
+      <div class="kpi"><div class="kpi-label">Verkauft</div><div class="kpi-val" style="color:var(--success)">71</div></div>
+      <div class="kpi"><div class="kpi-label">Retour</div><div class="kpi-val" style="color:var(--muted)">5</div></div>
+      <div class="kpi"><div class="kpi-label">Verkaufsquote</div><div class="kpi-val" style="color:var(--warning)">55,5%</div></div>
+    </div>
+
+    <!-- Rückblick -->
+    <div class="card-title" style="margin-bottom:8px; margin-top:6px; color:#4a6080; font-size:12px; text-transform:uppercase; letter-spacing:.8px;">Rückblick</div>
+    <div class="kpi-row c3">
+      <div class="kpi"><div class="kpi-label">Warenwert Angenommen</div><div class="kpi-val">2.340,00</div><div class="kpi-sub">€</div></div>
+      <div class="kpi"><div class="kpi-label">Warenwert Retour</div><div class="kpi-val" style="color:var(--muted)">84,50</div><div class="kpi-sub">€</div></div>
+      <div class="kpi"><div class="kpi-label">Offener Warenwert</div><div class="kpi-val" style="color:var(--primary)">980,00</div><div class="kpi-sub">€</div></div>
+    </div>
+
+    <!-- Finanz-Kennzahlen -->
+    <div class="card-title" style="margin-bottom:8px; margin-top:6px; color:#4a6080; font-size:12px; text-transform:uppercase; letter-spacing:.8px;">Finanz-Kennzahlen</div>
+    <div class="kpi-row c5">
+      <div class="kpi"><div class="kpi-label">Einnahmen Brutto</div><div class="kpi-val">1.275,50</div><div class="kpi-sub">€</div></div>
+      <div class="kpi"><div class="kpi-label">Verdienst Provision</div><div class="kpi-val" style="color:var(--success)">191,33</div><div class="kpi-sub">€</div></div>
+      <div class="kpi"><div class="kpi-label">Verdienst Gebühren</div><div class="kpi-val" style="color:var(--success)">142,00</div><div class="kpi-sub">€</div></div>
+      <div class="kpi"><div class="kpi-label">Verdienst Gesamt</div><div class="kpi-val" style="color:var(--success)">333,33</div><div class="kpi-sub">€</div></div>
+      <div class="kpi"><div class="kpi-label">Auszahlung VK</div><div class="kpi-val" style="color:#0f1f30">942,17</div><div class="kpi-sub">€</div></div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="card" style="margin-top:8px;">
+      <div class="lb-header">
+        <div class="card-title" style="margin-bottom:0">🏆 Verkäufer-Leaderboard</div>
+        <select id="lb-filter" onchange="renderLeaderboard()" style="width:auto">
+          <option value="all">Alle Verkäufer-Typen</option>
+          <option value="privat">Privat</option>
+          <option value="händler">Händler</option>
+        </select>
+      </div>
+      <div class="tbl-wrap" style="max-height:300px; overflow-y:auto">
+        <table id="lb-table">
+          <thead>
+            <tr>
+              <th style="width:50px">Rang</th>
+              <th onclick="lbSort('name',event)">Verkäufer <span class="sort-indicator" id="si-lb-name"></span></th>
+              <th id="lb-typ-th" onclick="lbSort('typ',event)">Typ <span class="sort-indicator" id="si-lb-typ"></span></th>
+              <th onclick="lbSort('angenom',event)">Angenommen <span class="sort-indicator" id="si-lb-angenom"></span></th>
+              <th onclick="lbSort('verkauft',event)">Verkauft <span class="sort-indicator" id="si-lb-verkauft"></span></th>
+              <th onclick="lbSort('umsatz',event)">Umsatz <span class="sort-indicator" id="si-lb-umsatz"></span></th>
+              <th onclick="lbSort('auszahlung',event)">Auszahlung <span class="sort-indicator" id="si-lb-auszahlung"></span></th>
+            </tr>
+          </thead>
+          <tbody id="lb-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       ARTIKELANNAHME
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page active" id="page-annahme">
+    <div class="ph">
+      <div class="ph-title">📥 Artikelannahme</div>
+    </div>
+
+    <div id="annahme-search-view">
+      <div class="card" style="margin-bottom:16px">
+        <div class="ig" style="max-width:500px">
+          <div class="ig-addon">🔍</div>
+          <input type="text" id="annahme-search" placeholder="Verkäufer suchen (Name, ID)…" oninput="filterAnnahmeList()" onkeydown="annahmeEnter(event)">
+          <button class="ig-clear" onclick="clearAnnahmeSearch()" title="Löschen">✕</button>
+        </div>
+        <div style="margin-top:10px; font-size:12.5px; color:var(--muted)">ENTER bei 1 Treffer öffnet Wizard · Kein Treffer: Anlegen-Button erscheint</div>
+      </div>
+      <div id="annahme-list"></div>
+      <div id="annahme-neu-btn" style="display:none; margin-top:12px">
+        <button class="btn btn-primary" onclick="startWizardStep1()">+ Neuen Verkäufer anlegen</button>
+      </div>
+    </div>
+
+    <!-- Wizard -->
+    <div id="annahme-wizard" style="display:none">
+      <div class="wizard-steps">
+        <div class="wizard-step active" id="wstep1">Schritt 1 — Verkäufer</div>
+        <div class="wizard-step" id="wstep2">Schritt 2 — Artikelannahme</div>
+      </div>
+
+      <!-- Schritt 1 -->
+      <div class="wizard-pane active" id="wpane1">
+        <div class="card">
+          <div class="panel-block">
+            <div class="panel-block-title">Panel 01 — Personendaten</div>
+            <div class="fg">
+              <div class="fgroup"><div class="flabel">Vorname <span class="req">*</span></div><input type="text" id="w-vorname" placeholder="Vorname"></div>
+              <div class="fgroup"><div class="flabel">Nachname <span class="req">*</span></div><input type="text" id="w-nachname" placeholder="Nachname"></div>
+              <div class="fgroup full"><div class="flabel">Anschrift</div><input type="text" placeholder="Straße und Hausnummer"></div>
+              <div class="fgroup"><div class="flabel">PLZ</div><input type="text" placeholder="PLZ"></div>
+              <div class="fgroup"><div class="flabel">Ort</div><input type="text" placeholder="Ort"></div>
+            </div>
+          </div>
+          <div class="panel-block">
+            <div class="panel-block-title">Panel 02 — Kontakt</div>
+            <div class="fg">
+              <div class="fgroup"><div class="flabel">Telefon</div><input type="text" placeholder="Telefon"></div>
+              <div class="fgroup"><div class="flabel">E-Mail <span class="req">*</span></div><input type="email" placeholder="E-Mail"></div>
+            </div>
+          </div>
+          <div class="panel-block">
+            <div class="panel-block-title">Panel 03 — Konditionen</div>
+            <div class="fg">
+              <div class="fgroup full"><div class="flabel">Verkäufer-Type</div>
+                <select onchange="prefillKonditionen(this)">
+                  <option>Privat (15% / 2,00 €)</option>
+                  <option>Händler (20% / 3,00 €)</option>
+                </select>
+              </div>
+              <div class="fgroup"><div class="flabel">Gebühr je Stück (€)</div><input type="number" id="w-gebuehr" value="2.00" step="0.01"></div>
+              <div class="fgroup"><div class="flabel">Provision (%)</div><input type="number" id="w-provision" value="15" step="0.1"></div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
+            <button class="btn btn-outline" onclick="cancelWizard()">← Zurück zur Suche</button>
+            <button class="btn btn-primary" onclick="wizardToStep2()">Weiter → Artikelannahme</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schritt 2 -->
+      <div class="wizard-pane" id="wpane2">
+        <div class="wizard-layout">
+          <!-- Links: Artikeleingabe -->
+          <div class="card">
+            <div class="card-title">Artikel erfassen</div>
+            <div class="fg">
+              <div class="fgroup">
+                <div class="flabel">Artikelnummer <span class="req">*</span></div>
+                <div class="ig">
+                  <input type="text" id="w-artnr" placeholder="Nummer eingeben…">
+                  <button class="ig-cam" title="Kamera-Scan">📷</button>
+                </div>
+              </div>
+              <div></div>
+              <div class="fgroup full">
+                <div class="flabel">Bezeichnung <span class="req">*</span></div>
+                <input type="text" id="w-bezeichnung" placeholder="Bezeichnung">
+              </div>
+              <div class="fgroup">
+                <div class="flabel">Kategorie <span class="req">*</span></div>
+                <div class="ac-wrap">
+                  <div class="ac-row">
+                    <input class="ac-input" type="text" id="w-kat" placeholder="Kategorie…" oninput="acUpdate('w-kat','ac-kat')">
+                    <button class="ac-toggle" id="ac-kat-btn" onclick="acToggle('ac-kat')">▾</button>
+                  </div>
+                  <div class="ac-list" id="ac-kat">
+                    <div class="ac-opt" onclick="acSelect('w-kat','ac-kat','Jacken')">Jacken</div>
+                    <div class="ac-opt" onclick="acSelect('w-kat','ac-kat','Hosen')">Hosen</div>
+                    <div class="ac-opt" onclick="acSelect('w-kat','ac-kat','Schuhe')">Schuhe</div>
+                    <div class="ac-opt" onclick="acSelect('w-kat','ac-kat','Spielzeug')">Spielzeug</div>
+                    <div class="ac-opt" onclick="acSelect('w-kat','ac-kat','Bücher')">Bücher</div>
+                  </div>
+                </div>
+              </div>
+              <div class="fgroup">
+                <div class="flabel">Marke <span class="req">*</span></div>
+                <div class="ac-wrap">
+                  <div class="ac-row">
+                    <input class="ac-input" type="text" id="w-marke" placeholder="Marke…" oninput="acUpdate('w-marke','ac-marke')">
+                    <button class="ac-toggle" id="ac-marke-btn" onclick="acToggle('ac-marke')">▾</button>
+                  </div>
+                  <div class="ac-list" id="ac-marke">
+                    <div class="ac-opt" onclick="acSelect('w-marke','ac-marke','Nike')">Nike</div>
+                    <div class="ac-opt" onclick="acSelect('w-marke','ac-marke','Adidas')">Adidas</div>
+                    <div class="ac-opt" onclick="acSelect('w-marke','ac-marke','H&M')">H&M</div>
+                    <div class="ac-opt" onclick="acSelect('w-marke','ac-marke','Zara')">Zara</div>
+                    <div class="ac-opt" onclick="acSelect('w-marke','ac-marke','LEGO')">LEGO</div>
+                  </div>
+                </div>
+              </div>
+              <div class="fgroup">
+                <div class="flabel">Preis <span class="req">*</span></div>
+                <div class="ig">
+                  <input type="number" id="w-preis" placeholder="0,00" step="0.50" min="0">
+                  <div class="ig-addon" style="border-left:1px solid var(--border); border-right:none">€</div>
+                </div>
+              </div>
+              <div></div>
+              <div class="fgroup">
+                <div class="flabel">Größe</div>
+                <input type="text" placeholder="z. B. 152, M, 38">
+              </div>
+              <div class="fgroup">
+                <div class="flabel">Farbe</div>
+                <input type="text" placeholder="z. B. Rot, Blau">
+              </div>
+              <div class="fgroup full">
+                <div class="flabel">Beschreibung</div>
+                <textarea rows="2" placeholder="Optionale Beschreibung…"></textarea>
+              </div>
+            </div>
+            <div style="margin-top:12px; text-align:right">
+              <button class="btn btn-primary" onclick="addArtikelToWizard()">✓ Übernehmen</button>
+            </div>
+          </div>
+
+          <!-- Rechts: Übersicht + Speichern -->
+          <div>
+            <div class="card">
+              <div class="card-title">Erfasste Artikel</div>
+              <div id="wizard-artikel-list" style="min-height:80px">
+                <div style="color:var(--muted); font-size:13px; text-align:center; padding:20px 0">Noch keine Artikel erfasst</div>
+              </div>
+              <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); font-size:13px; color:var(--muted)">
+                Gebühr: <strong id="wizard-gebuehr">0,00 €</strong>
+              </div>
+            </div>
+            <button class="btn btn-success" style="width:100%" onclick="openSpeichernPopup()">💾 Speichern &amp; Buchen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       VERKAUF
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-verkauf">
+    <div class="ph">
+      <div class="ph-title">🛒 Verkauf</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px">
+      <!-- Linke Spalte: Eingabe -->
+      <div>
+        <div class="card">
+          <div class="card-title">Artikelnummer eingeben</div>
+          <div class="ig" style="margin-bottom:10px">
+            <input type="text" id="vk-artnr" placeholder="Artikelnummer (Scanner oder Tastatur)…" onkeydown="vkEnter(event)" oninput="vkInput()" autofocus>
+            <button class="ig-clear" onclick="clearVkInput()" title="Löschen">✕</button>
+            <button class="ig-cam" title="Kamera-Scan" onclick="showCamHint()">📷</button>
+          </div>
+          <div id="vk-info" class="info-area ia-info">ℹ Ersten Artikel eingeben …</div>
+
+          <!-- Preis-Button (erscheint nach erfolgreicher Erkennung) -->
+          <div id="vk-preis-btn-wrap" style="display:none; margin-top:10px">
+            <button id="vk-preis-btn" class="btn btn-success" style="width:100%; font-size:16px" onclick="addToCart()"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rechte Spalte: Warenkorb -->
+      <div>
+        <div class="card">
+          <div class="card-title">🛒 Warenkorb</div>
+          <div id="cart-list">
+            <div style="color:var(--muted); font-size:13px; text-align:center; padding:20px 0">Warenkorb ist leer</div>
+          </div>
+          <div id="cart-total-wrap" style="display:none">
+            <div class="cart-total" id="cart-total">Gesamt: 0,00 €</div>
+            <div style="display:flex; justify-content:space-between; gap:8px; margin-top:12px">
+              <button class="btn btn-outline" style="font-size:13.5px" onclick="clearCart()">🗑 Leeren</button>
+              <button class="btn btn-primary" style="font-size:15px" onclick="openCheckout()">💳 BUCHEN</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       ABRECHNUNG
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-abrechnung">
+    <div class="ph">
+      <div class="ph-title">💰 Abrechnung</div>
+    </div>
+
+    <div id="abrech-search-view">
+      <div class="card" style="margin-bottom:16px">
+        <div class="ig" style="max-width:500px">
+          <div class="ig-addon">🔍</div>
+          <input type="text" id="abrech-search" placeholder="Verkäufer suchen (Name, ID)…" oninput="filterAbreachList()" onkeydown="abreachEnter(event)">
+          <button class="ig-clear" onclick="clearAbreachSearch()">✕</button>
+        </div>
+        <div style="margin-top:8px; font-size:12.5px; color:var(--muted)">ENTER bei 1 Treffer oder direkt klicken</div>
+      </div>
+      <div id="abrech-list"></div>
+    </div>
+
+    <div id="abrech-detail" style="display:none">
+      <div class="abrech-header">
+        <div>
+          <div class="abrech-name" id="ad-name"></div>
+          <div class="abrech-adr" id="ad-adr"></div>
+        </div>
+        <div class="abrech-actions">
+          <button class="btn btn-outline" onclick="backToAbreachSearch()">← Zurück</button>
+          <button class="btn btn-outline">🖨️ Drucken</button>
+          <button class="btn btn-primary" id="btn-zurueckgeben" onclick="openZurueckgeben()">↩ Zurückgeben</button>
+          <button class="btn btn-success" id="btn-abrechnen" onclick="openAbrechnen()">✓ Abrechnen</button>
+        </div>
+      </div>
+
+      <div class="kpi-row c3" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-label">Offene Artikel</div><div class="kpi-val" id="ad-offen" style="color:var(--warning)">0</div></div>
+        <div class="kpi"><div class="kpi-label">Verkaufte Artikel</div><div class="kpi-val" id="ad-verkauft" style="color:var(--success)">0</div></div>
+        <div class="kpi"><div class="kpi-label">Umsatz</div><div class="kpi-val" id="ad-umsatz">0,00 €</div></div>
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Nr.</th><th>Bezeichnung</th><th>Kategorie</th><th>Marke</th><th>Preis</th><th>Status</th>
+          </tr></thead>
+          <tbody id="ad-artikel-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       VERKÄUFER
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-verkaeufer">
+    <div class="ph">
+      <div class="ph-title">👤 Verkäufer</div>
+      <div class="ph-actions"><button class="btn btn-primary" onclick="openSellerModal()">+ Neu</button></div>
+    </div>
+
+    <div class="filter-panel">
+      <div class="fp-row">
+        <div class="grow">
+          <div class="ig">
+            <div class="ig-addon">🔍</div>
+            <input type="text" placeholder="Suche nach Name, Ort…" oninput="filterSellers()">
+            <button class="ig-clear">✕</button>
+          </div>
+        </div>
+        <select style="width:180px">
+          <option>Name (Standard)</option>
+          <option>Angenom. Warenwert</option>
+          <option>Offener Warenwert</option>
+          <option>Umsatz</option>
+        </select>
+      </div>
+      <div class="fp-row">
+        <select style="width:200px">
+          <option>Alle Status</option>
+          <option>Offen</option>
+          <option>Im Verkauf</option>
+          <option>Abgerechnet</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="cards-grid" id="sellers-grid"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       ARTIKEL
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-artikel">
+    <div class="ph">
+      <div class="ph-title">🏷️ Artikel</div>
+    </div>
+
+    <div class="filter-panel">
+      <div class="fp-row">
+        <div class="grow">
+          <div class="ig">
+            <div class="ig-addon">🔍</div>
+            <input type="text" placeholder="Suche nach Bezeichnung, Nummer…">
+            <button class="ig-clear">✕</button>
+          </div>
+        </div>
+      </div>
+      <div class="fp-row" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px">
+        <select><option>Alle Marken</option><option>Nike</option><option>Adidas</option><option>H&M</option></select>
+        <select><option>Alle Kategorien</option><option>Jacken</option><option>Hosen</option><option>Schuhe</option></select>
+        <select><option>Verkauf-Status (alle)</option><option>Im Verkauf</option><option>Verkauft</option></select>
+        <select><option>Artikel-Status (alle)</option><option>Registriert</option><option>Freigegeben</option><option>Verkauft</option><option>Retour</option></select>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table id="artikel-table">
+        <thead><tr>
+          <th onclick="sortTable('artikel','nr',event)">Nr. <span class="sort-indicator" id="si-artikel-nr"></span></th>
+          <th onclick="sortTable('artikel','bez',event)">Bezeichnung <span class="sort-indicator" id="si-artikel-bez"></span></th>
+          <th onclick="sortTable('artikel','kat',event)">Kategorie <span class="sort-indicator" id="si-artikel-kat"></span></th>
+          <th onclick="sortTable('artikel','marke',event)">Marke <span class="sort-indicator" id="si-artikel-marke"></span></th>
+          <th onclick="sortTable('artikel','preis',event)">Preis <span class="sort-indicator" id="si-artikel-preis"></span></th>
+          <th onclick="sortTable('artikel','status',event)">Status <span class="sort-indicator" id="si-artikel-status"></span></th>
+          <th onclick="sortTable('artikel','vk',event)">Verkäufer <span class="sort-indicator" id="si-artikel-vk"></span></th>
+          <th style="width:80px"></th>
+        </tr></thead>
+        <tbody id="artikel-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MARKEN
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-marken">
+    <div class="ph">
+      <div class="ph-title">⭐ Marken</div>
+      <div class="ph-actions"><button class="btn btn-primary" onclick="openMarkeModal('', false)">+ Neu</button></div>
+    </div>
+    <div class="tbl-wrap">
+      <table id="marken-table">
+        <thead><tr>
+          <th onclick="sortTable('marken','nr',event)" style="width:60px">Nr. <span class="sort-indicator" id="si-marken-nr"></span></th>
+          <th onclick="sortTable('marken','name',event)">Name <span class="sort-indicator" id="si-marken-name"></span></th>
+          <th onclick="sortTable('marken','original',event)">Original <span class="sort-indicator" id="si-marken-original"></span></th>
+          <th onclick="sortTable('marken','artikel',event)">Artikel <span class="sort-indicator" id="si-marken-artikel"></span></th>
+          <th onclick="sortTable('marken','verkauft',event)">Verkauft <span class="sort-indicator" id="si-marken-verkauft"></span></th>
+          <th style="width:100px">Aktionen</th>
+        </tr></thead>
+        <tbody id="marken-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       KATEGORIEN
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-kategorien">
+    <div class="ph">
+      <div class="ph-title">📂 Kategorien</div>
+      <div class="ph-actions"><button class="btn btn-primary" onclick="openKatModal('', false)">+ Neu</button></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortTable('kat','nr',event)" style="width:60px">Nr. <span class="sort-indicator" id="si-kat-nr"></span></th>
+          <th onclick="sortTable('kat','name',event)">Name <span class="sort-indicator" id="si-kat-name"></span></th>
+          <th onclick="sortTable('kat','original',event)">Original <span class="sort-indicator" id="si-kat-original"></span></th>
+          <th onclick="sortTable('kat','artikel',event)">Artikel <span class="sort-indicator" id="si-kat-artikel"></span></th>
+          <th onclick="sortTable('kat','verkauft',event)">Verkauft <span class="sort-indicator" id="si-kat-verkauft"></span></th>
+          <th style="width:100px">Aktionen</th>
+        </tr></thead>
+        <tbody id="kat-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       VERKÄUFER-TYPES
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-types">
+    <div class="ph">
+      <div class="ph-title">🏷️ Verkäufer-Types</div>
+      <div class="ph-actions"><button class="btn btn-primary" onclick="openTypeModal('', '', '')">+ Neu</button></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortTable('types','nr',event)" style="width:60px">Nr. <span class="sort-indicator" id="si-types-nr"></span></th>
+          <th onclick="sortTable('types','name',event)">Name <span class="sort-indicator" id="si-types-name"></span></th>
+          <th onclick="sortTable('types','prov',event)">Provision % <span class="sort-indicator" id="si-types-prov"></span></th>
+          <th onclick="sortTable('types','geb',event)">Gebühr € <span class="sort-indicator" id="si-types-geb"></span></th>
+          <th onclick="sortTable('types','anz',event)">Anzahl VK <span class="sort-indicator" id="si-types-anz"></span></th>
+          <th style="width:100px">Aktionen</th>
+        </tr></thead>
+        <tbody id="types-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       EINSTELLUNGEN
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="page-einstellungen">
+    <div class="ph">
+      <div class="ph-title">⚙️ Einstellungen</div>
+    </div>
+
+    <div class="settings-grid">
+      <div class="card">
+        <div class="card-title">Systemparameter</div>
+        <div class="fgroup" style="margin-bottom:12px">
+          <div class="flabel">Such-Debounce (ms)</div>
+          <input type="number" value="800" min="0" max="5000">
+          <div style="font-size:11.5px; color:var(--muted); margin-top:3px">Verzögerung vor Suchanfrage (Default: 800 ms)</div>
+        </div>
+        <div class="fgroup" style="margin-bottom:12px">
+          <div class="flabel">Scanner-Pause (ms)</div>
+          <input type="number" value="3000" min="500" max="10000">
+          <div style="font-size:11.5px; color:var(--muted); margin-top:3px">Anzeigedauer Scan-Ergebnis im Kamera-Modus (Default: 3 000 ms)</div>
+        </div>
+        <div style="font-size:11.5px; color:var(--muted); margin-bottom:10px; padding:8px; background:#f8fafc; border-radius:5px">
+          ℹ️ Einstellungen werden im <code>localStorage</code> des Browsers gespeichert.
+        </div>
+        <button class="btn btn-primary">💾 Speichern</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📥 Import aus Voranmelde-App</div>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:14px">
+          Importiert Verkäufer und Artikel aus einer JSON-ASCII-Datei der Voranmelde-App.<br><br>
+          <strong>Upsert-Logik:</strong> Existierende Verkäufer werden inkl. ihrer Artikel vollständig ersetzt. Manuell angelegte Artikel ohne Import-Bezug bleiben unberührt.
+        </p>
+        <div class="fgroup" style="margin-bottom:12px">
+          <div class="flabel">JSON-Datei auswählen</div>
+          <input type="file" accept=".json" style="border:none; padding:0; font-size:13px" onchange="previewImport(this)">
+        </div>
+        <div id="import-preview" style="display:none; background:#f8fafc; border:1px solid var(--border); border-radius:6px; padding:12px; margin-bottom:12px; font-size:13px">
+          <strong>Vorschau:</strong><br>
+          <span id="ip-verkaeufer">0 Verkäufer</span> · <span id="ip-artikel">0 Artikel</span><br>
+          <span style="color:var(--muted)"><span id="ip-neu">0 neue</span> · <span id="ip-update">0 werden ersetzt</span></span>
+        </div>
+        <button class="btn btn-success" id="btn-import" disabled onclick="confirmImport()">✓ Import bestätigen</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════════════════ -->
+
+<!-- Checkout Modal -->
+<div class="modal-bg" id="modal-checkout">
+  <div class="modal-box sm">
+    <div class="modal-hd"><div class="modal-ttl">💳 Bezahlung</div><button class="modal-x" onclick="closeModal('modal-checkout')">×</button></div>
+    <div class="modal-bd">
+      <div class="chk-row chk-total-row"><span>Gesamt</span><span id="chk-total-val"></span></div>
+      <div class="fgroup" style="margin-top:16px; margin-bottom:8px">
+        <div class="flabel">Betrag erhalten (€)</div>
+        <div class="ig">
+          <input type="number" id="chk-erhalten" placeholder="0,00" step="0.50" oninput="calcChange()">
+          <div class="ig-addon" style="border-left:1px solid var(--border); border-right:none">€</div>
+        </div>
+      </div>
+      <div class="change-box" id="chk-change">— €</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeModal('modal-checkout')">Abbrechen</button>
+      <button class="btn btn-success" onclick="doBuchen()">✓ Bezahlt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Speichern Popup (Annahme) -->
+<div class="modal-bg" id="modal-speichern">
+  <div class="modal-box sm">
+    <div class="modal-hd"><div class="modal-ttl">💾 Speichern &amp; Buchen</div><button class="modal-x" onclick="closeModal('modal-speichern')">×</button></div>
+    <div class="modal-bd">
+      <div class="chk-row"><span>Anzahl Artikel</span><span id="sp-anz">0</span></div>
+      <div class="chk-row"><span>Gebühr je Stück</span><span id="sp-geb">2,00 €</span></div>
+      <div class="chk-row chk-total-row"><span>Gesamt-Gebühr</span><span id="sp-total">0,00 €</span></div>
+      <div class="fgroup" style="margin-top:14px; margin-bottom:8px">
+        <div class="flabel">Betrag erhalten (€)</div>
+        <div class="ig">
+          <input type="number" id="sp-erhalten" placeholder="0,00" step="0.50" oninput="calcSpChange()">
+          <div class="ig-addon" style="border-left:1px solid var(--border); border-right:none">€</div>
+        </div>
+      </div>
+      <div class="change-box" id="sp-change">— €</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeModal('modal-speichern')">Abbrechen</button>
+      <button class="btn btn-success" onclick="doSpeichern()">✓ Buchen &amp; Drucken</button>
+    </div>
+  </div>
+</div>
+
+<!-- Freigabe Popup -->
+<div class="modal-bg" id="modal-freigabe">
+  <div class="modal-box">
+    <div class="modal-hd"><div class="modal-ttl">📷 Artikel freigeben</div><button class="modal-x" onclick="closeModal('modal-freigabe')">×</button></div>
+    <div class="modal-bd">
+      <div class="info-area ia-info" style="margin-bottom:14px">ℹ Artikelnummer eingeben oder QR-Code scannen</div>
+      <div class="ig" style="margin-bottom:12px">
+        <input type="text" placeholder="Artikelnummer…">
+        <button class="ig-clear">✕</button>
+        <button class="ig-cam" title="Kamera-Scan">📷</button>
+      </div>
+      <div style="color:var(--muted); font-size:13px; margin-bottom:10px">Noch nicht freigegebene Artikel:</div>
+      <table>
+        <thead><tr><th>Nr.</th><th>Bezeichnung</th><th>Preis</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>101</td><td>Nike Jacke blau</td><td>24,00 €</td><td><button class="btn btn-sm btn-primary" onclick="doFreigabe(101)">Freigeben</button></td></tr>
+          <tr><td>102</td><td>Adidas Hose schwarz</td><td>15,00 €</td><td><button class="btn btn-sm btn-primary" onclick="doFreigabe(102)">Freigeben</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeModal('modal-freigabe')">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Zurückgeben Popup -->
+<div class="modal-bg" id="modal-zurueck">
+  <div class="modal-box">
+    <div class="modal-hd"><div class="modal-ttl">↩ Artikel zurückgeben</div><button class="modal-x" onclick="closeModal('modal-zurueck')">×</button></div>
+    <div class="modal-bd">
+      <div class="info-area ia-info" style="margin-bottom:14px">ℹ Artikelnummer eingeben oder QR-Code scannen</div>
+      <div class="ig" style="margin-bottom:12px">
+        <input type="text" placeholder="Artikelnummer…">
+        <button class="ig-clear">✕</button>
+        <button class="ig-cam" title="Kamera-Scan">📷</button>
+      </div>
+      <div style="color:var(--muted); font-size:13px; margin-bottom:10px">Noch nicht zurückgegebene Artikel:</div>
+      <table>
+        <thead><tr><th>Nr.</th><th>Bezeichnung</th><th>Preis</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>101</td><td>Nike Jacke blau</td><td>24,00 €</td><td><button class="btn btn-sm btn-primary" onclick="doZurueck(101)">Zurückgeben</button></td></tr>
+          <tr><td>102</td><td>Adidas Hose</td><td>15,00 €</td><td><button class="btn btn-sm btn-primary" onclick="doZurueck(102)">Zurückgeben</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeModal('modal-zurueck')">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Abrechnen Popup -->
+<div class="modal-bg" id="modal-abrechnen">
+  <div class="modal-box sm">
+    <div class="modal-hd"><div class="modal-ttl">✓ Abrechnung</div><button class="modal-x" onclick="closeModal('modal-abrechnen')">×</button></div>
+    <div class="modal-bd">
+      <div class="billing-line"><span>Umsatz (Summe verkaufter Artikel)</span><span>85,00 €</span></div>
+      <div class="billing-line"><span>Provision (15 %)</span><span style="color:var(--danger)">−12,75 €</span></div>
+      <div class="billing-line total"><span>Auszahlung an Verkäufer</span><span>72,25 €</span></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeModal('modal-abrechnen')">Abbrechen</button>
+      <button class="btn btn-success" onclick="doAbrechnen()">✓ Buchen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Seller Modal -->
+<div class="modal-bg" id="modal-seller">
+  <div class="modal-box">
+    <div class="modal-hd"><div class="modal-ttl">Verkäufer bearbeiten</div><button class="modal-x" onclick="closeModal('modal-seller')">×</button></div>
+    <div class="modal-bd">
+      <div class="panel-block">
+        <div class="panel-block-title">Panel 01 — Personendaten</div>
+        <div class="fg">
+          <div class="fgroup"><div class="flabel">Vorname <span class="req">*</span></div><input type="text" placeholder="Vorname" value="Anna"></div>
+          <div class="fgroup"><div class="flabel">Nachname <span class="req">*</span></div><input type="text" placeholder="Nachname" value="Müller"></div>
+          <div class="fgroup full"><div class="flabel">Anschrift</div><input type="text" placeholder="Straße" value="Hauptstr. 12"></div>
+          <div class="fgroup"><div class="flabel">PLZ</div><input type="text" placeholder="PLZ" value="12345"></div>
+          <div class="fgroup"><div class="flabel">Ort</div><input type="text" placeholder="Ort" value="Musterstadt"></div>
+        </div>
+      </div>
+      <div class="panel-block">
+        <div class="panel-block-title">Panel 02 — Kontakt</div>
+        <div class="fg">
+          <div class="fgroup"><div class="flabel">Telefon</div><input type="text" placeholder="Telefon" value="0123 456789"></div>
+          <div class="fgroup"><div class="flabel">E-Mail <span class="req">*</span></div><input type="email" placeholder="E-Mail" value="anna@example.com"></div>
+        </div>
+      </div>
+      <div class="panel-block">
+        <div class="panel-block-title">Panel 03 — Konditionen</div>
+        <div class="fg">
+          <div class="fgroup full"><div class="flabel">Verkäufer-Type</div><select><option>Privat (15% / 2,00 €)</option><option>Händler (20% / 3,00 €)</option></select></div>
+          <div class="fgroup"><div class="flabel">Gebühr je Stück (€)</div><input type="number" value="2.00" step="0.01"></div>
+          <div class="fgroup"><div class="flabel">Provision (%)</div><input type="number" value="15" step="0.1"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft between">
+      <button class="btn btn-danger">🗑 Löschen</button>
+      <div style="display:flex; gap:8px">
+        <button class="btn btn-outline" onclick="closeModal('modal-seller')">Abbrechen</button>
+        <button class="btn btn-primary">💾 Speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Marke Neu/Edit Popup -->
+<div class="modal-bg" id="modal-marke">
+  <div class="modal-box sm">
+    <div class="modal-hd"><div class="modal-ttl" id="modal-marke-ttl">Neue Marke</div><button class="modal-x" onclick="closeModal('modal-marke')">×</button></div>
+    <div class="modal-bd">
+      <div class="fg">
+        <div class="fgroup full"><div class="flabel">Name <span class="req">*</span></div><input type="text" id="marke-name" placeholder="Markenname"></div>
+        <div class="fgroup full" style="flex-direction:row; align-items:center; gap:12px; margin-top:4px">
+          <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px">
+            <input type="checkbox" id="marke-original" style="width:16px; height:16px; accent-color:var(--primary)">
+            <span>Original (Stammdaten)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeModal('modal-marke')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-marke'); showToast('✓ Marke gespeichert')">💾 Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kategorie Neu/Edit Popup -->
+<div class="modal-bg" id="modal-kategorie">
+  <div class="modal-box sm">
+    <div class="modal-hd"><div class="modal-ttl" id="modal-kategorie-ttl">Neue Kategorie</div><button class="modal-x" onclick="closeModal('modal-kategorie')">×</button></div>
+    <div class="modal-bd">
+      <div class="fg">
+        <div class="fgroup full"><div class="flabel">Name <span class="req">*</span></div><input type="text" id="kat-name" placeholder="Kategoriename"></div>
+        <div class="fgroup full" style="flex-direction:row; align-items:center; gap:12px; margin-top:4px">
+          <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px">
+            <input type="checkbox" id="kat-original" style="width:16px; height:16px; accent-color:var(--primary)">
+            <span>Original (Stammdaten)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeModal('modal-kategorie')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-kategorie'); showToast('✓ Kategorie gespeichert')">💾 Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Verkäufer-Type Neu/Edit Popup -->
+<div class="modal-bg" id="modal-type">
+  <div class="modal-box sm">
+    <div class="modal-hd"><div class="modal-ttl" id="modal-type-ttl">Neuer Verkäufer-Type</div><button class="modal-x" onclick="closeModal('modal-type')">×</button></div>
+    <div class="modal-bd">
+      <div class="fg">
+        <div class="fgroup full"><div class="flabel">Name <span class="req">*</span></div><input type="text" id="type-name" placeholder="Bezeichnung"></div>
+        <div class="fgroup"><div class="flabel">Provision (%)</div><input type="number" id="type-prov" placeholder="15" step="0.1" min="0"></div>
+        <div class="fgroup"><div class="flabel">Gebühr (€)</div><input type="number" id="type-geb" placeholder="2.00" step="0.01" min="0"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeModal('modal-type')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-type'); showToast('✓ Verkäufer-Type gespeichert')">💾 Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Artikel Status Popup -->
+<div class="modal-bg" id="modal-art-status">
+  <div class="modal-box sm">
+    <div class="modal-hd"><div class="modal-ttl">Artikel-Status</div><button class="modal-x" onclick="closeModal('modal-art-status')">×</button></div>
+    <div class="modal-bd">
+      <div class="ts-row"><span class="ts-label">Erstellt Am</span><span>15.06.2026 08:14:33</span></div>
+      <div class="ts-row">
+        <span class="ts-label">Freigegeben Am</span>
+        <div style="display:flex; align-items:center; gap:8px">
+          <span>15.06.2026 09:02:11</span>
+          <button style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:18px;border-radius:50%;padding:4px 8px" title="Löschen">✕</button>
+        </div>
+      </div>
+      <div class="ts-row">
+        <span class="ts-label">Verkauft Am</span>
+        <button style="background:none;border:none;cursor:pointer;color:var(--primary);font-size:18px;border-radius:50%;padding:4px 8px" title="Setzen">＋</button>
+      </div>
+      <div class="ts-row">
+        <span class="ts-label">Rückgegeben Am</span>
+        <button style="background:none;border:none;cursor:pointer;color:var(--primary);font-size:18px;border-radius:50%;padding:4px 8px" title="Setzen">＋</button>
+      </div>
+      <div class="ts-row"><span class="ts-label">Abgerechnet Am</span><span style="color:var(--muted)">—</span></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-outline" onclick="closeModal('modal-art-status')">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+const sellers = [
+  { id:'AB123456', name:'Anna Müller', adr:'Hauptstr. 12, 12345 Musterstadt', typ:'Privat', typColor:'bg-info',
+    gesamt:18, angenom:16, verkauft:11, retour:2, warenwert:320, offen:98, umsatz:215, provision:15, gebuehr:2 },
+  { id:'CD789012', name:'Bob Schmidt', adr:'Parkweg 5, 54321 Beispielort', typ:'Händler', typColor:'bg-warn',
+    gesamt:34, angenom:32, verkauft:24, retour:1, warenwert:680, offen:180, umsatz:520, provision:20, gebuehr:3 },
+  { id:'EF345678', name:'Clara Weber', adr:'Seestraße 99, 67890 Seestadt', typ:'Privat', typColor:'bg-info',
+    gesamt:12, angenom:10, verkauft:6, retour:3, warenwert:185, offen:60, umsatz:120, provision:15, gebuehr:2 },
+  { id:'GH901234', name:'Dieter Braun', adr:'Bergweg 3, 11223 Bergheim', typ:'Händler', typColor:'bg-warn',
+    gesamt:41, angenom:38, verkauft:30, retour:1, warenwert:880, offen:210, umsatz:650, provision:20, gebuehr:3 },
+];
+
+const artikelData = [
+  { nr:101, bez:'Nike Jacke blau', kat:'Jacken', marke:'Nike', preis:24.00, status:'freigegeben', vk:'Anna Müller' },
+  { nr:102, bez:'Adidas Hose schwarz', kat:'Hosen', marke:'Adidas', preis:15.00, status:'freigegeben', vk:'Anna Müller' },
+  { nr:103, bez:'H&M Pullover rot', kat:'Pullover', marke:'H&M', preis:8.00, status:'verkauft', vk:'Anna Müller' },
+  { nr:201, bez:'LEGO City Set', kat:'Spielzeug', marke:'LEGO', preis:35.00, status:'verkauft', vk:'Bob Schmidt' },
+  { nr:202, bez:'Zara Kleid geblümt', kat:'Kleider', marke:'Zara', preis:18.00, status:'freigegeben', vk:'Bob Schmidt' },
+  { nr:203, bez:'Converse Sneaker 42', kat:'Schuhe', marke:'Converse', preis:28.00, status:'retour', vk:'Bob Schmidt' },
+  { nr:301, bez:'Harry Potter Bd. 1', kat:'Bücher', marke:'Bloomsbury', preis:6.00, status:'freigegeben', vk:'Clara Weber' },
+  { nr:401, bez:'Nike Air Max 44', kat:'Schuhe', marke:'Nike', preis:45.00, status:'verkauft', vk:'Dieter Braun' },
+];
+
+const markenData = [
+  { nr:1, name:'Nike', original:true, artikel:3, verkauft:2 },
+  { nr:2, name:'Adidas', original:true, artikel:2, verkauft:1 },
+  { nr:3, name:'H&M', original:true, artikel:2, verkauft:0 },
+  { nr:4, name:'Zara', original:true, artikel:1, verkauft:0 },
+  { nr:5, name:'LEGO', original:false, artikel:1, verkauft:1 },
+  { nr:6, name:'Converse', original:false, artikel:1, verkauft:0 },
+];
+
+const katData = [
+  { nr:1, name:'Jacken', original:true, artikel:3, verkauft:1 },
+  { nr:2, name:'Hosen', original:true, artikel:2, verkauft:0 },
+  { nr:3, name:'Schuhe', original:true, artikel:2, verkauft:1 },
+  { nr:4, name:'Spielzeug', original:false, artikel:1, verkauft:1 },
+  { nr:5, name:'Bücher', original:false, artikel:1, verkauft:0 },
+  { nr:6, name:'Kleider', original:false, artikel:1, verkauft:0 },
+];
+
+const typesData = [
+  { nr:1, name:'Privat', prov:15, geb:2.00, anzVk:2 },
+  { nr:2, name:'Händler', prov:20, geb:3.00, anzVk:2 },
+];
+
+// Mock articles in the shop (for sales)
+const shopArtikel = {
+  101: { bez:'Nike Jacke blau', preis:24.00, status:'freigegeben' },
+  102: { bez:'Adidas Hose schwarz', preis:15.00, status:'freigegeben' },
+  202: { bez:'Zara Kleid geblümt', preis:18.00, status:'freigegeben' },
+  301: { bez:'Harry Potter Bd. 1', preis:6.00, status:'freigegeben' },
+  999: { bez:'Artikel bereits verkauft', preis:0, status:'verkauft' },
+};
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  // Activate sidebar item
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + page + "'")) n.classList.add('active');
+  });
+  closeSidebar();
+  // Lazy render
+  if (page === 'verkaeufer') renderSellers();
+  if (page === 'artikel') renderArtikels();
+  if (page === 'marken') renderMarken();
+  if (page === 'kategorien') renderKategorien();
+  if (page === 'types') renderTypes();
+  if (page === 'statistik') renderLeaderboard();
+  if (page === 'annahme') { renderAnnahmeList(); }
+  if (page === 'abrechnung') {
+    // Immer zur Verkäufer-Auswahl zurück
+    document.getElementById('abrech-detail').style.display = 'none';
+    document.getElementById('abrech-search-view').style.display = 'block';
+    document.getElementById('abrech-search').value = '';
+    renderAbreachList();
+  }
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ─── Topbar responsive ───────────────────────────────────────────────────────
+function checkTopbar() {
+  const tb = document.getElementById('topbar');
+  if (window.innerWidth <= 768) tb.classList.add('show');
+  else tb.classList.remove('show');
+}
+window.addEventListener('resize', checkTopbar);
+checkTopbar();
+
+// ─── Sellers ─────────────────────────────────────────────────────────────────
+function renderSellers() {
+  const grid = document.getElementById('sellers-grid');
+  grid.innerHTML = sellers.map(s => {
+    const statusBadge = s.retour < s.angenom
+      ? `<span class="badge bg-info">Im Verkauf</span>`
+      : `<span class="badge bg-success">Abgerechnet</span>`;
+    return `
+    <div class="seller-card">
+      <div class="sc-head">
+        <div>
+          <span class="sc-name">${s.name}</span>
+          <span class="badge ${s.typColor}" style="margin-left:8px; font-size:10px">${s.typ}</span>
+        </div>
+        <div class="sc-actions">
+          <button class="btn btn-sm btn-outline" onclick="openSellerModal()">✏️</button>
+          <button class="btn btn-sm btn-outline" title="Artikel freigeben" onclick="openModal('modal-freigabe')">📷</button>
+        </div>
+      </div>
+      <div class="sc-sub">${s.adr} · <span style="font-weight:600">#${s.id}</span></div>
+      <div style="margin-bottom:8px">${statusBadge}</div>
+      <dl class="sc-stats">
+        <dt>Artikel gesamt</dt><dd>${s.gesamt}</dd>
+        <dt>Freigegeben</dt><dd>${s.angenom}</dd>
+        <dt>Verkauft</dt><dd>${s.verkauft}</dd>
+        <dt>Rückgegeben</dt><dd>${s.retour}</dd>
+      </dl>
+      <div class="sc-footer">
+        <div class="sc-fi"><div class="sc-fi-label">Angenom. WW</div><div class="sc-fi-val">${s.warenwert.toFixed(2)} €</div></div>
+        <div class="sc-fi"><div class="sc-fi-label">Offener WW</div><div class="sc-fi-val">${s.offen.toFixed(2)} €</div></div>
+        <div class="sc-fi"><div class="sc-fi-label">Umsatz</div><div class="sc-fi-val">${s.umsatz.toFixed(2)} €</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openSellerModal() { openModal('modal-seller'); }
+
+// ─── Artikel ─────────────────────────────────────────────────────────────────
+const statusBadgeMap = {
+  freigegeben: 'bg-info',
+  verkauft: 'bg-success',
+  retour: 'bg-warn',
+  registriert: 'bg-sec',
+};
+function renderArtikels() {
+  const body = document.getElementById('artikel-body');
+  body.innerHTML = artikelData.map(a => `
+    <tr>
+      <td>${a.nr}</td>
+      <td>${a.bez}</td>
+      <td>${a.kat}</td>
+      <td>${a.marke}</td>
+      <td>${a.preis.toFixed(2)} €</td>
+      <td><span class="badge ${statusBadgeMap[a.status] || 'bg-sec'}" onclick="openModal('modal-art-status')" style="cursor:pointer">${a.status}</span></td>
+      <td>${a.vk}</td>
+      <td><button class="btn btn-sm btn-outline">✏️</button></td>
+    </tr>`).join('');
+}
+
+// ─── Marken ───────────────────────────────────────────────────────────────────
+function renderMarken() {
+  const body = document.getElementById('marken-body');
+  body.innerHTML = markenData.map(m => `
+    <tr>
+      <td>${m.nr}</td>
+      <td>${m.name}</td>
+      <td><span class="badge ${m.original ? 'bg-original' : 'bg-neu'}">${m.original ? '✓ Original' : 'Neu'}</span></td>
+      <td>${m.artikel}</td>
+      <td>${m.verkauft}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="openMarkeModal('${m.name}', ${m.original})">✏️</button></td>
+    </tr>`).join('');
+}
+
+function openMarkeModal(name, original) {
+  document.getElementById('modal-marke-ttl').textContent = name ? 'Marke bearbeiten' : 'Neue Marke';
+  document.getElementById('marke-name').value = name || '';
+  document.getElementById('marke-original').checked = !!original;
+  openModal('modal-marke');
+}
+
+// ─── Kategorien ───────────────────────────────────────────────────────────────
+function renderKategorien() {
+  const body = document.getElementById('kat-body');
+  body.innerHTML = katData.map(k => `
+    <tr>
+      <td>${k.nr}</td>
+      <td>${k.name}</td>
+      <td><span class="badge ${k.original ? 'bg-original' : 'bg-neu'}">${k.original ? '✓ Original' : 'Neu'}</span></td>
+      <td>${k.artikel}</td>
+      <td>${k.verkauft}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="openKatModal('${k.name}', ${k.original})">✏️</button></td>
+    </tr>`).join('');
+}
+
+function openKatModal(name, original) {
+  document.getElementById('modal-kategorie-ttl').textContent = name ? 'Kategorie bearbeiten' : 'Neue Kategorie';
+  document.getElementById('kat-name').value = name || '';
+  document.getElementById('kat-original').checked = !!original;
+  openModal('modal-kategorie');
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+function renderTypes() {
+  const body = document.getElementById('types-body');
+  body.innerHTML = typesData.map(t => `
+    <tr>
+      <td>${t.nr}</td>
+      <td>${t.name}</td>
+      <td>${t.prov} %</td>
+      <td>${t.geb.toFixed(2)} €</td>
+      <td>${t.anzVk}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="openTypeModal('${t.name}', ${t.prov}, ${t.geb})">✏️</button></td>
+    </tr>`).join('');
+}
+
+function openTypeModal(name, prov, geb) {
+  document.getElementById('modal-type-ttl').textContent = name ? 'Verkäufer-Type bearbeiten' : 'Neuer Verkäufer-Type';
+  document.getElementById('type-name').value = name || '';
+  document.getElementById('type-prov').value = prov || '';
+  document.getElementById('type-geb').value = geb || '';
+  openModal('modal-type');
+}
+
+// ─── Leaderboard ─────────────────────────────────────────────────────────────
+let lbSortCol = 'verkauft', lbSortDir = 'desc';
+
+function lbSort(col, event) {
+  if (lbSortCol === col) lbSortDir = lbSortDir === 'asc' ? 'desc' : 'asc';
+  else { lbSortCol = col; lbSortDir = 'desc'; }
+  document.querySelectorAll('[id^="si-lb-"]').forEach(el => el.innerHTML = '');
+  const el = document.getElementById('si-lb-' + col);
+  if (el) el.innerHTML = `<span class="sort-num">${lbSortDir === 'asc' ? '▲' : '▼'}</span>`;
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  const filter = document.getElementById('lb-filter').value;
+  const typTh = document.getElementById('lb-typ-th');
+  typTh.style.display = filter === 'all' ? '' : 'none';
+
+  let data = [...sellers].map(s => ({ ...s, auszahlung: s.umsatz * (1 - s.provision/100) }));
+  if (filter !== 'all') data = data.filter(s => s.typ.toLowerCase() === filter);
+
+  const colMap = { name:'name', typ:'typ', angenom:'angenom', verkauft:'verkauft', umsatz:'umsatz', auszahlung:'auszahlung' };
+  const key = colMap[lbSortCol] || 'verkauft';
+  data.sort((a, b) => {
+    const va = typeof a[key] === 'string' ? a[key].localeCompare(b[key]) : a[key] - b[key];
+    return lbSortDir === 'asc' ? va : -va;
+  });
+
+  const rankClass = i => i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+  const body = document.getElementById('lb-body');
+  body.innerHTML = data.map((s, i) => `
+    <tr>
+      <td><span class="rank ${rankClass(i)}">${i + 1}</span></td>
+      <td><strong>${s.name}</strong></td>
+      <td style="display:${filter === 'all' ? '' : 'none'}"><span class="badge ${s.typColor}">${s.typ}</span></td>
+      <td>${s.angenom}</td>
+      <td>${s.verkauft}</td>
+      <td>${s.umsatz.toFixed(2)} €</td>
+      <td>${s.auszahlung.toFixed(2)} €</td>
+    </tr>`).join('');
+}
+
+// ─── Artikelannahme ───────────────────────────────────────────────────────────
+let wizardArtikel = [];
+let wizardGeb = 2.00;
+
+function renderAnnahmeList(q = '') {
+  const div = document.getElementById('annahme-list');
+  const neu = document.getElementById('annahme-neu-btn');
+  const filtered = sellers.filter(s =>
+    !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.id.includes(q));
+  if (q && filtered.length === 0) {
+    div.innerHTML = '';
+    neu.style.display = 'block';
+    return;
+  }
+  neu.style.display = 'none';
+  div.innerHTML = `<div class="cards-grid">` + filtered.map(s => `
+    <div class="seller-card" style="cursor:pointer" onclick="startWizardStep2Existing('${s.id}')">
+      <div class="sc-head">
+        <span class="sc-name">${s.name}</span>
+        <span class="badge ${s.typColor}">${s.typ}</span>
+      </div>
+      <div class="sc-sub">#${s.id} · ${s.adr}</div>
+    </div>`).join('') + `</div>`;
+}
+
+function filterAnnahmeList() {
+  const q = document.getElementById('annahme-search').value;
+  renderAnnahmeList(q);
+}
+
+function annahmeEnter(e) {
+  if (e.key !== 'Enter') return;
+  const q = document.getElementById('annahme-search').value;
+  const filtered = sellers.filter(s =>
+    !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.id.includes(q));
+  if (filtered.length === 1) startWizardStep2Existing(filtered[0].id);
+}
+
+function clearAnnahmeSearch() {
+  document.getElementById('annahme-search').value = '';
+  renderAnnahmeList();
+}
+
+function startWizardStep1() {
+  document.getElementById('annahme-search-view').style.display = 'none';
+  document.getElementById('annahme-wizard').style.display = 'block';
+  document.getElementById('wstep1').classList.add('active');
+  document.getElementById('wstep2').classList.remove('active');
+  document.getElementById('wpane1').classList.add('active');
+  document.getElementById('wpane2').classList.remove('active');
+  // Pre-fill from search
+  const q = document.getElementById('annahme-search').value;
+  if (q) {
+    const parts = q.split(' ');
+    document.getElementById('w-vorname').value = parts[0] || '';
+    document.getElementById('w-nachname').value = parts.slice(1).join(' ') || '';
+  }
+}
+
+function startWizardStep2Existing(id) {
+  document.getElementById('annahme-search-view').style.display = 'none';
+  document.getElementById('annahme-wizard').style.display = 'block';
+  wizardToStep2();
+}
+
+function wizardToStep2() {
+  document.getElementById('wstep1').classList.remove('active');
+  document.getElementById('wstep2').classList.add('active');
+  document.getElementById('wpane1').classList.remove('active');
+  document.getElementById('wpane2').classList.add('active');
+  wizardArtikel = [];
+  renderWizardArtikel();
+}
+
+function cancelWizard() {
+  document.getElementById('annahme-wizard').style.display = 'none';
+  document.getElementById('annahme-search-view').style.display = 'block';
+}
+
+function addArtikelToWizard() {
+  const nr = document.getElementById('w-artnr').value;
+  const bez = document.getElementById('w-bezeichnung').value;
+  const preis = parseFloat(document.getElementById('w-preis').value) || 0;
+  if (!nr || !bez || preis <= 0) { alert('Bitte Pflichtfelder ausfüllen (Nummer, Bezeichnung, Preis)'); return; }
+  wizardArtikel.push({ nr, bez, preis });
+  document.getElementById('w-artnr').value = '';
+  document.getElementById('w-bezeichnung').value = '';
+  document.getElementById('w-preis').value = '';
+  document.getElementById('w-kat').value = '';
+  document.getElementById('w-marke').value = '';
+  renderWizardArtikel();
+  document.getElementById('w-artnr').focus();
+}
+
+function renderWizardArtikel() {
+  const list = document.getElementById('wizard-artikel-list');
+  const gebEl = document.getElementById('wizard-gebuehr');
+  if (wizardArtikel.length === 0) {
+    list.innerHTML = '<div style="color:var(--muted); font-size:13px; text-align:center; padding:20px 0">Noch keine Artikel erfasst</div>';
+    gebEl.textContent = '0,00 €';
+    return;
+  }
+  list.innerHTML = wizardArtikel.map((a, i) => `
+    <div class="cart-item">
+      <div><strong>#${a.nr}</strong> ${a.bez}</div>
+      <div style="display:flex; align-items:center; gap:8px">
+        <span>${a.preis.toFixed(2)} €</span>
+        <button class="btn btn-sm btn-danger" onclick="removeWizardArtikel(${i})">✕</button>
+      </div>
+    </div>`).join('');
+  const geb = wizardArtikel.length * wizardGeb;
+  gebEl.textContent = geb.toFixed(2) + ' €';
+}
+
+function removeWizardArtikel(i) {
+  wizardArtikel.splice(i, 1);
+  renderWizardArtikel();
+}
+
+function openSpeichernPopup() {
+  if (wizardArtikel.length === 0) { alert('Bitte mindestens einen Artikel erfassen.'); return; }
+  document.getElementById('sp-anz').textContent = wizardArtikel.length;
+  document.getElementById('sp-geb').textContent = wizardGeb.toFixed(2) + ' €';
+  document.getElementById('sp-total').textContent = (wizardArtikel.length * wizardGeb).toFixed(2) + ' €';
+  openModal('modal-speichern');
+}
+
+function calcSpChange() {
+  const total = wizardArtikel.length * wizardGeb;
+  const erhalten = parseFloat(document.getElementById('sp-erhalten').value) || 0;
+  const change = erhalten - total;
+  const el = document.getElementById('sp-change');
+  el.textContent = (change >= 0 ? change.toFixed(2) : '—') + ' €';
+  el.style.color = change >= 0 ? '#1a5c38' : '#7b241c';
+}
+
+function doSpeichern() {
+  closeModal('modal-speichern');
+  wizardArtikel = [];
+  renderWizardArtikel();
+  cancelWizard();
+  showToast('✓ Artikel gespeichert & Druckdialog geöffnet');
+}
+
+// ─── Verkauf ──────────────────────────────────────────────────────────────────
+let cart = [];
+let currentArtikel = null;
+
+function vkInput() {
+  const val = document.getElementById('vk-artnr').value;
+  if (!val) {
+    document.getElementById('vk-info').className = 'info-area ia-info';
+    document.getElementById('vk-info').textContent = 'ℹ Ersten Artikel eingeben …';
+    document.getElementById('vk-preis-btn-wrap').style.display = 'none';
+    currentArtikel = null;
+  }
+}
+
+function vkEnter(e) {
+  if (e.key !== 'Enter') return;
+  const val = document.getElementById('vk-artnr').value.trim();
+  if (!val) return;
+  const nr = parseInt(val);
+  const art = shopArtikel[nr];
+  const info = document.getElementById('vk-info');
+  const preisWrap = document.getElementById('vk-preis-btn-wrap');
+  const preisBtn = document.getElementById('vk-preis-btn');
+  if (!art) {
+    info.className = 'info-area ia-error';
+    info.textContent = '✕ Artikel nicht gefunden (Nr. ' + nr + ')';
+    preisWrap.style.display = 'none';
+    currentArtikel = null;
+    playZonk();
+  } else if (art.status !== 'freigegeben') {
+    info.className = 'info-area ia-error';
+    info.textContent = '✕ Artikel ist nicht im Verkauf (Status: ' + art.status + ')';
+    preisWrap.style.display = 'none';
+    currentArtikel = null;
+    playZonk();
+  } else {
+    info.className = 'info-area ia-success';
+    info.textContent = '✓ ' + art.bez + ' — erkannt';
+    currentArtikel = { nr, ...art };
+    preisBtn.textContent = art.preis.toFixed(2) + ' €';
+    preisWrap.style.display = 'block';
+    playPing();
+  }
+}
+
+function clearVkInput() {
+  document.getElementById('vk-artnr').value = '';
+  document.getElementById('vk-info').className = 'info-area ia-info';
+  document.getElementById('vk-info').textContent = 'ℹ Nächsten Artikel eingeben …';
+  document.getElementById('vk-preis-btn-wrap').style.display = 'none';
+  currentArtikel = null;
+}
+
+function addToCart() {
+  if (!currentArtikel) return;
+  cart.push({ ...currentArtikel });
+  clearVkInput();
+  renderCart();
+  document.getElementById('vk-artnr').focus();
+}
+
+function renderCart() {
+  const list = document.getElementById('cart-list');
+  const totalWrap = document.getElementById('cart-total-wrap');
+  if (cart.length === 0) {
+    list.innerHTML = '<div style="color:var(--muted); font-size:13px; text-align:center; padding:20px 0">Warenkorb ist leer</div>';
+    totalWrap.style.display = 'none';
+    return;
+  }
+  const total = cart.reduce((s, a) => s + a.preis, 0);
+  list.innerHTML = cart.map((a, i) => `
+    <div class="cart-item">
+      <div><strong>#${a.nr}</strong> ${a.bez}</div>
+      <div style="display:flex; align-items:center; gap:8px">
+        <span>${a.preis.toFixed(2)} €</span>
+        <button class="btn btn-sm btn-danger" onclick="removeFromCart(${i})">✕</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('cart-total').textContent = 'Gesamt: ' + total.toFixed(2) + ' €';
+  totalWrap.style.display = 'block';
+}
+
+function removeFromCart(i) {
+  cart.splice(i, 1);
+  renderCart();
+  document.getElementById('vk-artnr').value = '';
+  document.getElementById('vk-preis-btn-wrap').style.display = 'none';
+  currentArtikel = null;
+  document.getElementById('vk-info').className = 'info-area ia-info';
+  document.getElementById('vk-info').textContent = cart.length === 0 ? 'ℹ Ersten Artikel eingeben …' : 'ℹ Nächsten Artikel eingeben …';
+  document.getElementById('vk-artnr').focus();
+}
+
+function clearCart() {
+  cart = [];
+  currentArtikel = null;
+  renderCart();
+  document.getElementById('vk-artnr').value = '';
+  document.getElementById('vk-preis-btn-wrap').style.display = 'none';
+  document.getElementById('vk-info').className = 'info-area ia-info';
+  document.getElementById('vk-info').textContent = 'ℹ Ersten Artikel eingeben …';
+  document.getElementById('vk-artnr').focus();
+}
+
+function openCheckout() {
+  const total = cart.reduce((s, a) => s + a.preis, 0);
+  document.getElementById('chk-total-val').textContent = total.toFixed(2) + ' €';
+  document.getElementById('chk-erhalten').value = '';
+  document.getElementById('chk-change').textContent = '— €';
+  openModal('modal-checkout');
+}
+
+function calcChange() {
+  const total = cart.reduce((s, a) => s + a.preis, 0);
+  const erhalten = parseFloat(document.getElementById('chk-erhalten').value) || 0;
+  const change = erhalten - total;
+  const el = document.getElementById('chk-change');
+  el.textContent = (change >= 0 ? change.toFixed(2) : '—') + ' €';
+  el.style.color = change >= 0 ? '#1a5c38' : '#7b241c';
+}
+
+function doBuchen() {
+  closeModal('modal-checkout');
+  cart = [];
+  renderCart();
+  document.getElementById('vk-info').className = 'info-area ia-info';
+  document.getElementById('vk-info').textContent = 'ℹ Ersten Artikel eingeben bitte …';
+  showToast('✓ Buchung erfolgreich');
+}
+
+function showCamHint() {
+  showToast('📷 Kamera-Scan würde hier öffnen (ngx-scanner)');
+}
+
+// ─── Abrechnung ───────────────────────────────────────────────────────────────
+function renderAbreachList(q = '') {
+  const div = document.getElementById('abrech-list');
+  const filtered = sellers.filter(s =>
+    !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.id.includes(q));
+  div.innerHTML = `<div class="cards-grid">` + filtered.map(s => `
+    <div class="seller-card" style="cursor:pointer" onclick="showAbreachDetail('${s.id}')">
+      <div class="sc-head">
+        <span class="sc-name">${s.name}</span>
+        <span class="badge ${s.typColor}">${s.typ}</span>
+      </div>
+      <div class="sc-sub">#${s.id} · ${s.adr}</div>
+      <dl class="sc-stats" style="margin-top:8px">
+        <dt>Im Verkauf</dt><dd>${s.angenom - s.verkauft - s.retour}</dd>
+        <dt>Verkauft</dt><dd>${s.verkauft}</dd>
+      </dl>
+    </div>`).join('') + `</div>`;
+}
+
+function filterAbreachList() {
+  renderAbreachList(document.getElementById('abrech-search').value);
+}
+
+function clearAbreachSearch() {
+  document.getElementById('abrech-search').value = '';
+  renderAbreachList();
+}
+
+function abreachEnter(e) {
+  if (e.key !== 'Enter') return;
+  const q = document.getElementById('abrech-search').value;
+  const f = sellers.filter(s => s.name.toLowerCase().includes(q.toLowerCase()) || s.id.includes(q));
+  if (f.length === 1) showAbreachDetail(f[0].id);
+}
+
+function showAbreachDetail(id) {
+  const s = sellers.find(x => x.id === id);
+  document.getElementById('abrech-search-view').style.display = 'none';
+  document.getElementById('abrech-detail').style.display = 'block';
+  document.getElementById('ad-name').textContent = s.name;
+  document.getElementById('ad-adr').textContent = s.adr;
+  const offen = s.angenom - s.verkauft - s.retour;
+  document.getElementById('ad-offen').textContent = offen;
+  document.getElementById('ad-verkauft').textContent = s.verkauft;
+  document.getElementById('ad-umsatz').textContent = s.umsatz.toFixed(2) + ' €';
+  document.getElementById('btn-zurueckgeben').disabled = offen <= 0;
+  document.getElementById('btn-abrechnen').disabled = offen > 0 || s.angenom === 0;
+  const body = document.getElementById('ad-artikel-body');
+  const sArts = artikelData.filter(a => a.vk === s.name);
+  body.innerHTML = sArts.map(a => `
+    <tr>
+      <td>${a.nr}</td>
+      <td>${a.bez}</td>
+      <td>${a.kat}</td>
+      <td>${a.marke}</td>
+      <td>${a.preis.toFixed(2)} €</td>
+      <td><span class="badge ${statusBadgeMap[a.status] || 'bg-sec'}">${a.status}</span></td>
+    </tr>`).join('');
+}
+
+function backToAbreachSearch() {
+  document.getElementById('abrech-detail').style.display = 'none';
+  document.getElementById('abrech-search-view').style.display = 'block';
+}
+
+function openZurueckgeben() { openModal('modal-zurueck'); }
+function openAbrechnen() { openModal('modal-abrechnen'); }
+
+function doFreigabe(nr) {
+  closeModal('modal-freigabe');
+  showToast('✓ Artikel #' + nr + ' freigegeben');
+}
+
+function doZurueck(nr) {
+  closeModal('modal-zurueck');
+  showToast('✓ Artikel #' + nr + ' zurückgegeben');
+}
+
+function doAbrechnen() {
+  closeModal('modal-abrechnen');
+  showToast('✓ Abrechnung gebucht');
+}
+
+// ─── Sort (stub) ──────────────────────────────────────────────────────────────
+const sortState = {};
+function sortTable(tbl, col, event) {
+  const key = tbl + '_' + col;
+  if (!sortState[key]) sortState[key] = { dir: 'asc', order: 0 };
+  else if (sortState[key].dir === 'asc') sortState[key].dir = 'desc';
+  else { delete sortState[key]; renderSortBadges(tbl); return; }
+  renderSortBadges(tbl);
+  const el = document.getElementById('si-' + tbl + '-' + col);
+  if (el) el.innerHTML = sortState[key]
+    ? `<span class="sort-num">${sortState[key].dir === 'asc' ? '▲' : '▼'}</span>`
+    : '';
+}
+function renderSortBadges(tbl) {
+  document.querySelectorAll('[id^="si-' + tbl + '-"]').forEach(el => {
+    const col = el.id.replace('si-' + tbl + '-', '');
+    const key = tbl + '_' + col;
+    if (sortState[key]) {
+      el.innerHTML = `<span class="sort-num">${sortState[key].dir === 'asc' ? '▲' : '▼'}</span>`;
+    } else {
+      el.innerHTML = '';
+    }
+  });
+}
+
+// ─── AutoComplete ─────────────────────────────────────────────────────────────
+function acToggle(id) {
+  const list = document.getElementById(id);
+  list.classList.toggle('open');
+}
+function acUpdate(inputId, listId) {
+  const list = document.getElementById(listId);
+  list.classList.add('open');
+}
+function acSelect(inputId, listId, val) {
+  document.getElementById(inputId).value = val;
+  document.getElementById(listId).classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ac-wrap')) {
+    document.querySelectorAll('.ac-list').forEach(l => l.classList.remove('open'));
+  }
+});
+
+// ─── Modal helpers ────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ─── Import preview (stub) ────────────────────────────────────────────────────
+function previewImport(input) {
+  if (!input.files.length) return;
+  document.getElementById('import-preview').style.display = 'block';
+  document.getElementById('ip-verkaeufer').textContent = '12 Verkäufer';
+  document.getElementById('ip-artikel').textContent = '138 Artikel';
+  document.getElementById('ip-neu').textContent = '8 neue';
+  document.getElementById('ip-update').textContent = '4 werden ersetzt';
+  document.getElementById('btn-import').disabled = false;
+}
+function confirmImport() {
+  document.getElementById('import-preview').style.display = 'none';
+  document.getElementById('btn-import').disabled = true;
+  showToast('✓ Import erfolgreich (12 Verkäufer, 138 Artikel)');
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1a2e4a;color:white;padding:12px 20px;border-radius:8px;z-index:9999;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.3)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// ─── Audio feedback ───────────────────────────────────────────────────────────
+function playPing() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(1320, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.2);
+    osc.start(); osc.stop(ctx.currentTime + 0.2);
+  } catch(e) {}
+}
+function playZonk() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(180, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(120, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+    osc.start(); osc.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
+function prefillKonditionen(sel) {
+  const vals = { 'Privat (15% / 2,00 €)': [15, 2], 'Händler (20% / 3,00 €)': [20, 3] };
+  const v = vals[sel.value];
+  if (v) {
+    const provEl = document.getElementById('w-provision');
+    const gebEl = document.getElementById('w-gebuehr');
+    if (provEl) provEl.value = v[0];
+    if (gebEl) gebEl.value = v[1];
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+renderLeaderboard();
+renderAnnahmeList();
+renderAbreachList();
+// Home → Artikelannahme
+nav('annahme');
+</script>
+</body>
+</html>
