@@ -32,24 +32,26 @@ C:\Develop\Bazaar-3.0\          ← Workspace-Root = Repo-Root
       deploy/
         docker/
         scripts/
-  requests/                     ← Anforderungsartefakte: Lastenheft, Entitäten, POC-HTMLs, Druck-Vorlagen
+  docs/                         ← Anforderungsdokumentation: Suite-Übersicht, Lastenhefte, Entitäten, Feature-Specs
   .claude/                      ← Harness-Konfiguration (Skills, Settings)
   .mcp.json
 ```
 
 ---
 
-## Anforderungsartefakte (`requests/`)
+## Anforderungsdokumentation (`docs/`)
 
-Alle Spezifikationen, Prototypen und Druck-Vorlagen liegen in `requests/`.
-Details → [`requests/README.md`](requests/README.md)
+Alle Spezifikationen und Feature-Beschreibungen liegen in `docs/`.
+Einstiegspunkt → [`docs/overview.md`](docs/overview.md)
 
 | Begriff / Datei | Bedeutung |
 |---|---|
-| **Lastenheft** | `requests/lastenheft.md` — Anforderungsspezifikation (Auftraggeber-Sicht); Kapitel-Refs wie `Lastenheft 3.6.5` verweisen dorthin |
-| **Entitäten** | `requests/entitaeten.md` — Datenmodell beider Apps (Felder, Typen, App-Zugehörigkeit 🏠☁️✅) |
-| **POC** / **Prototyp** | `requests/poc/` (v1) und `requests/POC-v2/` (v2, Responsive) — klickbare HTML-Einzeldateien, direkt im Browser öffnen |
-| **Druck-Vorlage** | `requests/Druck-Beispiele/` — PDF-Vorlagen für physische Ausdrucke (Abgabe-Info, Abrechnungs-Info) |
+| **Suite-Übersicht** | `docs/overview.md` — Einstiegsdokument: beide Apps, Kernidee, Querschnittsthemen, Links zu allen Specs |
+| **Haupt-App Lastenheft** | `docs/bazaar-app/requirements.md` — Anforderungsspezifikation Haupt-App |
+| **Haupt-App Features** | `docs/bazaar-app/features/` — Feature-Beschreibungen (Feature_*.md) |
+| **Voranmelde-App Lastenheft** | `docs/advance-registration/requirements.md` — Anforderungsspezifikation Voranmelde-App |
+| **Voranmelde-App Features** | `docs/advance-registration/features/` — Feature-Beschreibungen (Feature_*.md) |
+| **Entitäten** | `docs/entities.md` — Datenmodell beider Apps (Felder, Typen, App-Zugehörigkeit 🏠☁️✅) |
 
 ---
 
@@ -72,7 +74,7 @@ src/advance-registration/backend/
   SettingsService/    (schema: settings)Basar-Konfiguration, Info-Text, System-Parameter
 ```
 
-> Export (JSON-Datei) ist rein client-seitig — kein Backend-Endpunkt (Lastenheft 11.9).
+> Export (JSON-Datei) ist rein client-seitig — kein Backend-Endpunkt (docs/advance-registration/features/Feature_Export.md).
 
 ### Haupt-App — Services
 
@@ -89,7 +91,7 @@ src/bazaar/backend/
 ```
 
 > Kein AuthService (Haupt-App ist lokales Tool ohne Login-Flow).
-> Keine Statistik-Service (Statistik-Seite ist 100% client-seitig, Lastenheft 3.6.5).
+> Keine Statistik-Service (Statistik-Seite ist 100% client-seitig, docs/bazaar-app/features/Feature_Statistik.md).
 
 ### Gateway-Architektur
 
