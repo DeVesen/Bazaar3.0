@@ -16,17 +16,17 @@ Das Parent entscheidet, ob Sortierung und Filterung lokal in Memory oder als Bac
 ## 1. Grundstruktur
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│  [Toolbar]   optional: Titel + „+ Neu"-Button rechts        │
-├──────┬──────────┬─────────┬─────────┬───────────────────────┤
-│  Nr.▲│ Spalte 2 │  ... ▼  │  ...    │    Aktionen           │ ← Header + Sortierpfeil
-│[    ]│ [      ] │ [     ] │ [     ] │                       │ ← Filter-Eingabe pro Spalte
-├──────┼──────────┼─────────┼─────────┼───────────────────────┤
-│  ... │   ...    │   ...   │   ...   │  [✏️]  [🔍]           │
-│  ... │   ...    │   ...   │   ...   │  [✏️]  [🔍]           │
-├──────┴──────────┴─────────┴─────────┴───────────────────────┤
-│  [Paginierung]                                  optional     │
-└────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  [Toolbar]   optional: Titel + „+ Neu"-Button rechts             │
+├──────┬──────────┬─────────┬─────────┬────────────────────────────┤
+│  Nr.▲│ Spalte 2 │  ... ▼  │  ...    │  ← kein Header, optional  │ ← Datenspalten + opt. Aktionsspalte
+│[    ]│ [      ] │ [     ] │ [     ] │                            │ ← Filter pro Datenspalte (kein Filter in Aktionsspalte)
+├──────┼──────────┼─────────┼─────────┼────────────────────────────┤
+│  ... │   ...    │   ...   │   ...   │  [Btn1]  [Btn2]  ...       │
+│  ... │   ...    │   ...   │   ...   │  [Btn1]  [Btn2]  ...       │
+├──────┴──────────┴─────────┴─────────┴────────────────────────────┤
+│  [Paginierung]                                       optional     │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -39,12 +39,12 @@ Das Parent entscheidet, ob Sortierung und Filterung lokal in Memory oder als Bac
 | `data` | `T[]` | `@Input` | Anzuzeigende Datensätze |
 | `totalRecords` | `number` | `@Input` | Gesamtanzahl für Paginierung |
 | `loading` | `boolean` | `@Input` | Zeigt Lade-Skeleton an wenn `true` |
+| `actionColumn` | `ActionColumnConfig \| null` | `@Input` | Definiert die Aktionsspalte inkl. aller Buttons. `null` = keine Aktionsspalte. |
 | `sortChange` | `SortEvent` | `@Output` | Emittiert bei Sortierungsänderung (Spalte + Richtung) |
 | `filterChange` | `FilterEvent` | `@Output` | Emittiert bei Filteränderung (alle aktiven Spalten-Filter) |
 | `pageChange` | `PageEvent` | `@Output` | Emittiert bei Seitenwechsel oder Seitengrößenänderung |
-| `rowEdit` | `T` | `@Output` | Emittiert den betreffenden Datensatz bei Klick auf Edit-Button |
-| `rowView` | `T` | `@Output` | Emittiert den Datensatz bei Klick auf Ansicht-Button (readonly) |
-| `rowAdd` | `void` | `@Output` | Emittiert bei Klick auf „+ Neu"-Button |
+| `actionClick` | `ActionClickEvent` | `@Output` | Emittiert `{ actionId, row }` bei Klick auf einen Action-Button |
+| `rowAdd` | `void` | `@Output` | Emittiert bei Klick auf „+ Neu"-Button in der Toolbar |
 
 Das Parent ist verantwortlich für:
 - Datenladen und Aktualisierung von `data` und `totalRecords`
@@ -76,19 +76,33 @@ Fehlt die Berechtigung zum Anlegen, entfällt der „+ Neu"-Button vollständig 
 | Währung | Rechtsbündig, 2 Dezimalstellen | Preis |
 | Datum | Lokales Format (`dd.MM.yyyy`) | Erstellt Am |
 | Badge | `p-tag` mit Severity | Status |
-| Aktionen | Icon-Buttons, rechtsbündig | Edit, View |
 
 ### Aktionsspalte
 
-Die Aktionsspalte ist immer die **letzte Spalte** und hat **keine Spaltenüberschrift** und **kein Filterfeld**.
+Die Aktionsspalte ist **optional** — sie wird nur gerendert wenn das Parent `actionColumn` als `@Input` übergibt. Ist `actionColumn` `null`, entfällt die Spalte vollständig.
 
-| Button | Icon | Wann |
+Wenn vorhanden:
+- Immer die **letzte Spalte**
+- **Keine Spaltenüberschrift**
+- **Kein Filterfeld**
+- **Nicht sortierbar**
+
+**Layout:** `display: flex; gap: 6px; align-items: center` — beliebig viele Elemente nebeneinander (1 bis N).
+
+**Elemente:** Typischerweise `p-button [text]="true" [rounded]="true"` (kein Hintergrund, nur Icon), aber das Parent kann beliebige Elemente definieren.
+
+**Events:** Klick auf einen Action-Button emittiert `actionClick` mit `{ actionId: string, row: T }`.
+Das Parent wertet `actionId` aus und entscheidet die Reaktion — die Komponente kennt keine Semantik.
+
+**Typische actionIds:**
+
+| `actionId` | Icon | Bedeutung |
 |---|---|---|
-| Bearbeiten | `pi-pencil` | Datensatz editierbar |
-| Ansicht (readonly) | `pi-search` | Nur Lese-Zugriff |
-| Löschen | `pi-trash` | Löschen direkt in der Liste erlaubt (selten) |
+| `edit` | `pi-pencil` | Datensatz bearbeiten |
+| `view` | `pi-search` | Datensatz ansehen (readonly) |
+| `delete` | `pi-trash` | Datensatz löschen |
 
-Button-Stil: `p-button [text]="true" [rounded]="true"` — kein Hintergrund, nur Icon.
+Die konkreten Actions je Feature definiert das jeweilige Feature-Dokument.
 
 ---
 
