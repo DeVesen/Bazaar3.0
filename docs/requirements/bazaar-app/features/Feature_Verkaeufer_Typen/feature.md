@@ -13,6 +13,8 @@ Verwaltung der Verkäufer-Typen (z. B. „Privat", „Händler"). Typen dienen a
 
 ## 1. Tabelle
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 **Spalten:** Nr. · Name · Provision % · Gebühr € · **Anzahl VK** (Anzahl Verkäufer mit diesem Typ) · Aktionen
 
 **Sortierbare Spalten:** **Nr.** · Name · Provision % · Gebühr € · Anzahl VK (Multi-Sort per Shift+Klick)

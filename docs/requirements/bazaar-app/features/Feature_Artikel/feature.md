@@ -28,6 +28,8 @@ Zeile 2: **4-Spalten-Grid** (je 25 % Breite), bricht bei schmalen Viewports auf 
 
 ## 2. Tabelle
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 **Sortierbare Spalten:** Nr. · Bezeichnung · Kategorie · Marke · Preis · Status · **Verkäufer** (Multi-Sort per Shift+Klick).
 
 **Kein „+ Neu"-Button** — Artikel werden ausschließlich über die Artikelannahme angelegt.

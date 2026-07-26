@@ -1,18 +1,20 @@
-# Feature: Kategorien
+# Feature: Marken
 
 **App:** Voranmelde-App
-**Navigation:** Stammdaten → Kategorien
+**Navigation:** Stammdaten → Marken
 **Sichtbar für:** Admin
 
 ---
 
 ## Überblick
 
-Verwaltung der Kategorien-Stammdaten. Exportierbar und importierbar für Synchronisierung mit der Haupt-App.
+Verwaltung der Marken-Stammdaten. Exportierbar und importierbar für Synchronisierung mit der Haupt-App.
 
 ---
 
-## 1. Tabelle (`table-kategorien`)
+## 1. Tabelle (`table-marken`)
+
+→ Komponente: [Table](../../../../components/table/component.md)
 
 **Spalten:** **ID** · Name · **Original** (Badge) · Artikel (Anzahl) · Aktionen
 
@@ -38,10 +40,10 @@ Verwaltung der Kategorien-Stammdaten. Exportierbar und importierbar für Synchro
 | `false` | `Neu` (orange) |
 
 Neue Einträge via AutoComplete-Popup → automatisch `original = false`.
-Zweck: Erkennen, welche Kategorien während der Voranmeldephase von Verkäufern hinzugefügt wurden.
+Zweck: Erkennen, welche Marken während der Voranmeldephase von Verkäufern hinzugefügt wurden.
 
 ---
 
 ## 4. Export / Import
 
-Kategorien können in der Export-Seite in den JSON-Export eingeschlossen werden.
+Marken können in der Export-Seite in den JSON-Export eingeschlossen und in die Haupt-App importiert werden (und umgekehrt).

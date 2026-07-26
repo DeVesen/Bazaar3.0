@@ -1,17 +1,19 @@
-# Feature: Kategorien
+# Feature: Marken
 
 **App:** Bazaar Haupt-App
-**Navigation:** Stammdaten → Kategorien
+**Navigation:** Stammdaten → Marken
 
 ---
 
 ## Überblick
 
-Verwaltung der Kategorien-Stammdaten. Neue Kategorien können über diese Seite oder per AutoComplete-Popup beim Artikel anlegen hinzugefügt werden.
+Verwaltung der Marken-Stammdaten. Neue Marken können über diese Seite oder per AutoComplete-Popup beim Artikel anlegen hinzugefügt werden.
 
 ---
 
 ## 1. Tabelle
+
+→ Komponente: [Table](../../../../components/table/component.md)
 
 **Spalten:** Nr. · Name · Original · **Artikel** (Gesamtanzahl) · **Verkauft** (Anzahl mit `verkauftAm`) · Aktionen
 
@@ -21,7 +23,7 @@ Verwaltung der Kategorien-Stammdaten. Neue Kategorien können über diese Seite 
 
 ## 2. Aktionen
 
-**„+ Neu"-Button** (Seitentitel) → öffnet Popup mit:
+**„+ Neu"-Button** (Seitentitel, nicht Filter-Toolbar) → öffnet Popup mit:
 - Feld „Name"
 - „Original" (Toggle-Switch)
 
@@ -40,11 +42,11 @@ Verwaltung der Kategorien-Stammdaten. Neue Kategorien können über diese Seite 
 
 ## 4. Artikel-Anzahl-Spalte
 
-Zeigt die Anzahl der Artikel, die dieser Kategorie zugeordnet sind.
-Beispiel: Kategorie „Jacken" → Artikel-Anzahl = 3.
+Zeigt die Anzahl der Artikel, die dieser Marke zugeordnet sind.
+Beispiel: Marke „Nike" → Artikel-Anzahl = 5.
 
 ---
 
 ## 5. Synchronisierung
 
-Kategorien können in die Voranmelde-App exportiert und aus ihr importiert werden — für konsistente Stammdaten.
+Marken können in die Voranmelde-App exportiert und aus ihr importiert werden — für konsistente Stammdaten in beiden Systemen.

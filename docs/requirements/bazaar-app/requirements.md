@@ -68,17 +68,17 @@ Die Haupt-App unterstützt drei operative Kernprozesse:
 
 | Seite | Beschreibung | Feature-Datei |
 |---|---|---|
-| **Artikelannahme** | Verkäufer suchen/anlegen, Artikel aufnehmen, Wizard | [Feature_Artikelannahme.md](Features/Feature_Artikelannahme.md) |
-| **Verkauf** | Kassenvorgang, Barcode-Scan, Warenkorb | [Feature_Verkauf.md](Features/Feature_Verkauf.md) |
-| **Abrechnung** | Rückgabe, Abrechnen, Auszahlungsberechnung | [Feature_Abrechnung.md](Features/Feature_Abrechnung.md) |
-| **Statistik** | KPI-Kacheln, Leaderboard (read-only) | [Feature_Statistik.md](Features/Feature_Statistik.md) |
-| **Verkäufer** | Verkäuferliste, Karten-Layout, Artikel-Freigeben | [Feature_Verkaeufer.md](Features/Feature_Verkaeufer.md) |
-| **Artikel** | Artikel-Übersicht aller Verkäufer, Status-Popup | [Feature_Artikel.md](Features/Feature_Artikel.md) |
-| **Marken** | Marken-Tabelle, Anlegen/Bearbeiten | [Feature_Marken.md](Features/Feature_Marken.md) |
-| **Kategorien** | Kategorien-Tabelle, Anlegen/Bearbeiten | [Feature_Kategorien.md](Features/Feature_Kategorien.md) |
-| **Verkäufer-Typen** | Typen-Tabelle, Provision/Gebühr | [Feature_Verkaeufer_Typen.md](Features/Feature_Verkaeufer_Typen.md) |
-| **Einstellungen** | Systemparameter + JSON-Import | [Feature_Einstellungen.md](Features/Feature_Einstellungen.md) |
-| **Druckfunktionen** | Artikelannahme-Liste, Verkäufer-Übersicht | [Feature_Druckfunktionen.md](Features/Feature_Druckfunktionen.md) |
+| **Artikelannahme** | Verkäufer suchen/anlegen, Artikel aufnehmen, Wizard | [Feature_Artikelannahme](features/Feature_Artikelannahme/feature.md) |
+| **Verkauf** | Kassenvorgang, Barcode-Scan, Warenkorb | [Feature_Verkauf](features/Feature_Verkauf/feature.md) |
+| **Abrechnung** | Rückgabe, Abrechnen, Auszahlungsberechnung | [Feature_Abrechnung](features/Feature_Abrechnung/feature.md) |
+| **Statistik** | KPI-Kacheln, Leaderboard (read-only) | [Feature_Statistik](features/Feature_Statistik/feature.md) |
+| **Verkäufer** | Verkäuferliste, Karten-Layout, Artikel-Freigeben | [Feature_Verkaeufer](features/Feature_Verkaeufer/feature.md) |
+| **Artikel** | Artikel-Übersicht aller Verkäufer, Status-Popup | [Feature_Artikel](features/Feature_Artikel/feature.md) |
+| **Marken** | Marken-Tabelle, Anlegen/Bearbeiten | [Feature_Marken](features/Feature_Marken/feature.md) |
+| **Kategorien** | Kategorien-Tabelle, Anlegen/Bearbeiten | [Feature_Kategorien](features/Feature_Kategorien/feature.md) |
+| **Verkäufer-Typen** | Typen-Tabelle, Provision/Gebühr | [Feature_Verkaeufer_Typen](features/Feature_Verkaeufer_Typen/feature.md) |
+| **Einstellungen** | Systemparameter + JSON-Import | [Feature_Einstellungen](features/Feature_Einstellungen/feature.md) |
+| **Druckfunktionen** | Artikelannahme-Liste, Verkäufer-Übersicht | [Feature_Druckfunktionen](features/Feature_Druckfunktionen/feature.md) |
 
 ---
 

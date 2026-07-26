@@ -27,11 +27,11 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 ## 2. Aktivitäts-Heatmap
 
 Identisch mit der Verkäufer-Ansicht — nur für Admin sichtbar.
-Details → [Feature_Home_Verkaeufer.md](Feature_Home_Verkaeufer.md) Abschnitt 2.
+Details → [Feature_Home_Verkaeufer](../Feature_Home_Verkaeufer/feature.md) Abschnitt 2.
 
 ---
 
 ## 3. Info-Panel
 
 Identisch mit der Verkäufer-Ansicht.
-Details → [Feature_Home_Verkaeufer.md](Feature_Home_Verkaeufer.md) Abschnitt 3.
+Details → [Feature_Home_Verkaeufer](../Feature_Home_Verkaeufer/feature.md) Abschnitt 3.
