@@ -94,6 +94,14 @@ Beide Apps teilen sich ein Datenmodell für Kernentitäten (Artikel, Verkäufer,
 
 Welche Features und UI-Komponenten in beiden Apps existieren und ob/wie sie sich unterscheiden — wird im Rahmen der Epic/Feature-Generierung herausgearbeitet.
 
+App- und Feature-übergreifende **UI-Komponenten** (Aussehen, Verhalten, Funktionen) sind hier dokumentiert:
+
+→ [`docs/components/`](../components/) — eine Datei pro Komponente
+
+| Komponente | Datei |
+|---|---|
+| Tabelle | [table.md](../components/table.md) |
+
 ### Export / Import (Datenschnittstelle)
 
 Die JSON-Datenschnittstelle zwischen Voranmelde-App (Export) und Haupt-App (Import) ist das Verbindungsglied beider Apps. Details → Voranmelde-App [Feature Export](advance-registration/features/Feature_Export.md) und Haupt-App [Einstellungen (Import)](bazaar-app/features/Feature_Einstellungen.md).
