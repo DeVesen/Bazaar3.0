@@ -23,6 +23,8 @@ Filterbereich:
 
 ## 2. Tabelle (`table-admin-verkaeufer`)
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 **Sortierbare Spalten:** Nr. · Vorname · Nachname · PLZ · Ort · Typ · Provision · Gebühr · Artikel (Multi-Sort per Shift+Klick)
 
 **„+ Neu"-Button** (Seitentitel) → öffnet Dialog „Neuen Verkäufer anlegen".

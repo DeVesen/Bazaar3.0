@@ -1,34 +1,58 @@
 # Component: Table
 
-**Bibliothek:** PrimeNG `p-table`
+**Bibliothek:** PrimeNG `p-table` + Virtual Scroll
 **Verwendung:** Beide Apps — überall dort, wo Listen von Datensätzen angezeigt werden.
 
 ---
 
 ## Überblick
 
-Die Tabelle ist die zentrale Darstellungskomponente für Listen (Artikel, Verkäufer, Marken, Kategorien usw.). Sie folgt einem einheitlichen Aufbau aus optionaler Toolbar, Tabellenkopf, Datenzeilen und optionaler Paginierung.
+Die Tabelle ist die zentrale Darstellungskomponente für alle Listen (Artikel, Verkäufer, Marken, Kategorien usw.).
+Sie ist eine **Dumb Component**: Daten kommen per `@Input()` herein, alle Interaktionen verlassen sie per `@Output()`-Event.
+Das Parent entscheidet, ob Sortierung und Filterung lokal in Memory oder als Backend-Request umgesetzt werden.
 
 ---
 
 ## 1. Grundstruktur
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  [Toolbar]   optional: Titel + „+ Neu"-Button rechts │
-├──────┬──────────┬────────┬────────┬──────────────────┤
-│  Nr. │ Spalte 2 │  ...   │  ...   │    Aktionen      │  ← Header (sortierbar)
-├──────┼──────────┼────────┼────────┼──────────────────┤
-│  ... │   ...    │  ...   │  ...   │  [✏️]  [🔍]      │
-│  ... │   ...    │  ...   │  ...   │  [✏️]  [🔍]      │
-├──────┴──────────┴────────┴────────┴──────────────────┤
-│  [Paginierung]                          optional      │
-└─────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│  [Toolbar]   optional: Titel + „+ Neu"-Button rechts        │
+├──────┬──────────┬─────────┬─────────┬───────────────────────┤
+│  Nr.▲│ Spalte 2 │  ... ▼  │  ...    │    Aktionen           │ ← Header + Sortierpfeil
+│[    ]│ [      ] │ [     ] │ [     ] │                       │ ← Filter-Eingabe pro Spalte
+├──────┼──────────┼─────────┼─────────┼───────────────────────┤
+│  ... │   ...    │   ...   │   ...   │  [✏️]  [🔍]           │
+│  ... │   ...    │   ...   │   ...   │  [✏️]  [🔍]           │
+├──────┴──────────┴─────────┴─────────┴───────────────────────┤
+│  [Paginierung]                                  optional     │
+└────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Toolbar
+## 2. Input / Output Schnittstelle
+
+| Parameter | Typ | Richtung | Beschreibung |
+|---|---|---|---|
+| `columns` | `ColumnConfig[]` | `@Input` | Spaltendefinitionen (Schlüssel, Titel, Typ, sortierbar) |
+| `data` | `T[]` | `@Input` | Anzuzeigende Datensätze |
+| `totalRecords` | `number` | `@Input` | Gesamtanzahl für Paginierung |
+| `loading` | `boolean` | `@Input` | Zeigt Lade-Skeleton an wenn `true` |
+| `sortChange` | `SortEvent` | `@Output` | Emittiert bei Sortierungsänderung (Spalte + Richtung) |
+| `filterChange` | `FilterEvent` | `@Output` | Emittiert bei Filteränderung (alle aktiven Spalten-Filter) |
+| `pageChange` | `PageEvent` | `@Output` | Emittiert bei Seitenwechsel oder Seitengrößenänderung |
+| `rowEdit` | `T` | `@Output` | Emittiert den betreffenden Datensatz bei Klick auf Edit-Button |
+| `rowView` | `T` | `@Output` | Emittiert den Datensatz bei Klick auf Ansicht-Button (readonly) |
+| `rowAdd` | `void` | `@Output` | Emittiert bei Klick auf „+ Neu"-Button |
+
+Das Parent ist verantwortlich für:
+- Datenladen und Aktualisierung von `data` und `totalRecords`
+- Entscheidung: lokale In-Memory-Filterung/-Sortierung **oder** neuer Backend-Request
+
+---
+
+## 3. Toolbar
 
 Die Toolbar erscheint **oberhalb** der Tabelle und ist optional.
 
@@ -41,7 +65,7 @@ Fehlt die Berechtigung zum Anlegen, entfällt der „+ Neu"-Button vollständig 
 
 ---
 
-## 3. Spalten
+## 4. Spalten
 
 ### Spaltentypen
 
@@ -56,7 +80,7 @@ Fehlt die Berechtigung zum Anlegen, entfällt der „+ Neu"-Button vollständig 
 
 ### Aktionsspalte
 
-Die Aktionsspalte ist immer die **letzte Spalte** und hat **keine Spaltenüberschrift**.
+Die Aktionsspalte ist immer die **letzte Spalte** und hat **keine Spaltenüberschrift** und **kein Filterfeld**.
 
 | Button | Icon | Wann |
 |---|---|---|
@@ -68,51 +92,99 @@ Button-Stil: `p-button [text]="true" [rounded]="true"` — kein Hintergrund, nur
 
 ---
 
-## 4. Sortierung
+## 5. Sortierung
 
-- **Einfache Sortierung:** Klick auf Spaltenüberschrift — wechselt zwischen aufsteigend → absteigend → unsortiert.
-- **Multi-Sort:** `Shift + Klick` auf weitere Spaltenköpfe fügt eine Sortierebene hinzu.
-- **Sortierrichtung:** Pfeil-Icon im Spaltenkopf zeigt aktive Richtung an.
-- Nicht alle Spalten sind sortierbar — welche es sind, definiert das jeweilige Feature-Dokument.
+Jede Spalte ist standardmäßig sortierbar. Das Feature-Dokument kann einzelne Spalten explizit als nicht-sortierbar ausweisen.
+
+### Sortiermodi
+
+| Modus | Bedienung | Verhalten |
+|---|---|---|
+| **Single-Sort** | Klick auf Spaltenheader | ▲ aufsteigend → ▼ absteigend → unsortiert |
+| **Multi-Sort** | Shift + Klick auf weiteren Header | Nummeriertes Badge ①②③ pro aktiver Sortierspalte |
+
+### Sortierpfeil-Anzeige
+
+- Aktiv aufsteigend: `▲` (oder PrimeNG-Standardpfeil nach oben) im Spaltenheader
+- Aktiv absteigend: `▼` (oder Pfeil nach unten)
+- Inaktiv / unsortiert: kein Pfeil oder gedimmter Doppelpfeil
+
+### Output
+
+Jede Sortierungsänderung emittiert `sortChange` mit dem aktuellen Sort-State:
+
+```
+sortChange → [{ field: 'name', order: 'asc' }, { field: 'price', order: 'desc' }]
+```
+
+Das Parent entscheidet: Array lokal umsortieren — oder Backend-Request mit Sort-Parametern auslösen.
 
 ---
 
-## 5. Paginierung
+## 6. Spalten-Filter
+
+Jede Spalte (außer Aktionsspalte) hat direkt unterhalb des Spaltenheaders ein **Filterfeld**.
+
+### Verhalten
+
+- Eingabe-Typ: Freitext (`pInputText`, debounced)
+- Der Filter-State der Komponente ist zustandslos: **kein internes Speichern** — das Parent verwaltet den Zustand
+- Jede Änderung in einem Spaltenfilter emittiert `filterChange` mit allen aktuell aktiven Filtern:
+
+```
+filterChange → { name: 'Nike', category: '', price: '' }
+```
+
+### Parent-Entscheidung
+
+| Strategie | Wann sinnvoll |
+|---|---|
+| **In-Memory** | Kleine Datenmenge komplett geladen, kein Backend nötig |
+| **Backend-Request** | Große Datenmenge, serverseitige Filterung erforderlich (Virtual Scroll) |
+
+Die Komponente kennt diese Entscheidung nicht — sie emittiert nur.
+
+---
+
+## 7. Paginierung
 
 Wird aktiviert, wenn die Datenmenge eine definierte Schwelle überschreitet (Standard: **25 Zeilen**).
 
-- Position: unterhalb der Tabelle, rechtsbündig.
-- Seitengrößen-Auswahl: `[10, 25, 50]`.
-- Anzeige: `„Zeige X – Y von Z Einträgen"`.
-- Bei weniger Einträgen als die kleinste Seitengröße: Paginierung wird **ausgeblendet**.
+- Position: unterhalb der Tabelle, rechtsbündig
+- Seitengrößen-Auswahl: `[10, 25, 50]`
+- Anzeige: `„Zeige X – Y von Z Einträgen"`
+- Bei weniger Einträgen als die kleinste Seitengröße: Paginierung wird **ausgeblendet**
+- Jeder Seiten- oder Größenwechsel emittiert `pageChange`
 
 ---
 
-## 6. Leerer Zustand (Empty State)
+## 8. Leerer Zustand (Empty State)
 
-Sind keine Datensätze vorhanden (oder liefert der aktive Filter kein Ergebnis), zeigt die Tabelle einen zentrierten Hinweis:
+Sind keine Datensätze vorhanden (oder liefert der aktive Filter kein Ergebnis):
 
 ```
 Keine Einträge gefunden.
 ```
 
-Kein Icon, kein Button — nur der Text. Wirkt der Filter mit → Hinweis lautet:
+Mit aktivem Filter:
 
 ```
 Keine Einträge für den gewählten Filter gefunden.
 ```
 
----
-
-## 7. Verhalten bei Aktionen (Edit / Neu)
-
-- **Bearbeiten:** Klick auf Edit-Button öffnet einen **Dialog (Modal)** — kein Seitenwechsel.
-- **Neu anlegen:** Klick auf „+ Neu"-Button öffnet denselben Dialog im Anlegen-Modus.
-- Nach **Speichern** oder **Löschen** im Dialog: Tabelle aktualisiert sich ohne vollständigen Seiten-Reload.
+Kein Icon, kein Button — nur Text, zentriert.
 
 ---
 
-## 8. Responsive
+## 9. Verhalten bei Aktionen (Edit / Neu)
+
+- **Bearbeiten:** Edit-Button emittiert `rowEdit` mit dem Datensatz — Parent öffnet Dialog.
+- **Neu anlegen:** „+ Neu"-Button emittiert `rowAdd` — Parent öffnet Dialog im Anlegen-Modus.
+- Nach Speichern oder Löschen im Dialog: Parent aktualisiert `data` — Tabelle rendert automatisch neu.
+
+---
+
+## 10. Responsive
 
 | Viewport | Verhalten |
 |---|---|
@@ -122,16 +194,19 @@ Keine Einträge für den gewählten Filter gefunden.
 
 ---
 
-## 9. Verwendung in Features
+## 11. PrimeNG-Basis
 
-| Feature | App | Tabellen-ID |
-|---|---|---|
-| Alle Artikel (Admin) | Voranmelde-App | `table-admin-artikel` |
-| Meine Artikel | Voranmelde-App | — |
-| Verkäufer | Beide | — |
-| Verkäufer-Typen | Beide | — |
-| Marken | Beide | — |
-| Kategorien | Beide | — |
-| Artikel | Haupt-App | — |
+```
+p-table
+  [sortMode]="'multiple'"        ← Single + Multi-Sort
+  [virtualScroll]="true"         ← Nur sichtbare Zeilen rendern
+  [virtualScrollItemSize]="46"   ← Zeilenhöhe in px (Basis-Wert, je Feature anpassen)
+  [lazy]="true"                  ← Parent lädt Daten bei Sort/Filter/Page-Events
+  (onSort)="…"
+  (onFilter)="…"
+  (onPage)="…"
+```
 
-→ Details zu Spalten und Sortierung: jeweiliges Feature-Dokument.
+Virtual Scroll sorgt dafür, dass auch bei großen Datenlisten (tausende Zeilen) nur die sichtbaren Zeilen im DOM gerendert werden — Performance bleibt konstant.
+
+Filterfelder im Header: `pInputText` innerhalb des `<th>`-Elements, unterhalb des Spaltennamens.

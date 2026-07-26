@@ -26,6 +26,8 @@
 
 ## 2. Tabelle (`table-meine-artikel`)
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 **Sortierbare Spalten:** Nr. · Bezeichnung · Kategorie · Marke · Preis (Multi-Sort per Shift+Klick)
 
 **„+ Neu"-Button** (Seitentitel) → öffnet Artikelanlage-Dialog.

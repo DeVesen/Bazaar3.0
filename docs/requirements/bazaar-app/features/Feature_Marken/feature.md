@@ -13,6 +13,8 @@ Verwaltung der Marken-Stammdaten. Neue Marken können über diese Seite oder per
 
 ## 1. Tabelle
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 **Spalten:** Nr. · Name · Original · **Artikel** (Gesamtanzahl) · **Verkauft** (Anzahl mit `verkauftAm`) · Aktionen
 
 **Sortierbare Spalten:** **Nr.** · Name · **Original** · Artikel · Verkauft (Multi-Sort per Shift+Klick)

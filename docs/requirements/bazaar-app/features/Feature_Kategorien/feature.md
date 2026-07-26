@@ -13,6 +13,8 @@ Verwaltung der Kategorien-Stammdaten. Neue Kategorien können über diese Seite 
 
 ## 1. Tabelle
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 **Spalten:** Nr. · Name · Original · **Artikel** (Gesamtanzahl) · **Verkauft** (Anzahl mit `verkauftAm`) · Aktionen
 
 **Sortierbare Spalten:** **Nr.** · Name · **Original** · Artikel · Verkauft (Multi-Sort per Shift+Klick)

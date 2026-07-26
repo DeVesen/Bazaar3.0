@@ -14,6 +14,8 @@ Verwaltung der Kategorien-Stammdaten. Exportierbar und importierbar für Synchro
 
 ## 1. Tabelle (`table-kategorien`)
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 **Spalten:** **ID** · Name · **Original** (Badge) · Artikel (Anzahl) · Aktionen
 
 **Sortierbare Spalten:** **ID** · Name · **Original** · Artikel (Multi-Sort per Shift+Klick)

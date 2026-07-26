@@ -16,6 +16,17 @@ bleiben im jeweiligen Feature-Dokument.
 
 ---
 
+## Grundregel: Dumb Component
+
+Jede Komponente ist gedanklich eine **Dumb Component** — sie enthält keine eigene Logik zur Datenbeschaffung und trifft keine fachlichen Entscheidungen.
+
+- Alle Eingabedaten kommen über `@Input()`-Parameter herein
+- Alle Ausgaben verlassen die Komponente ausschließlich über `@Output()`-Events
+- Kein direkter API-Aufruf, kein HTTP-Request, keine Business-Logik innerhalb der Komponente
+- Das **Parent** (Seite / Feature-Komponente) entscheidet: lokal in Memory verarbeiten oder an das Backend weiterleiten
+
+---
+
 ## Grundregel: PrimeNG
 
 Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.

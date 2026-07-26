@@ -14,6 +14,8 @@ Verwaltung der Verkäufer-Typen. Der `defaultTypeId` wird in den Einstellungen f
 
 ## 1. Tabelle (`table-types`)
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 **Spalten:** Bezeichnung · Provision % · Gebühr € · Aktionen
 
 **Sortierbare Spalten:** Bezeichnung · Provision % · Gebühr € (Multi-Sort per Shift+Klick)

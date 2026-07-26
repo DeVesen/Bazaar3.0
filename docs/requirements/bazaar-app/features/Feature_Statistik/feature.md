@@ -58,6 +58,8 @@ Die Statistik-Seite bietet eine **Echtzeit-Übersicht** des aktuellen Basar-Stan
 
 ## 5. Verkäufer-Leaderboard
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 Standard-Card. Header-Zeile:
 - Titel links (700, 14 px) + Dropdown rechts — `display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px`
 

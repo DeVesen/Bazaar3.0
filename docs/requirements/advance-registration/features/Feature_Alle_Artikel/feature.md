@@ -26,6 +26,8 @@ Der Admin sieht die vollständige Artikelliste **aller Verkäufer**. Fremde Arti
 
 ## 2. Tabelle (`table-admin-artikel`)
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 **Spalten:** Nr. · Bezeichnung · Kategorie · Marke · Preis · Verkäufer · Aktionen
 
 **Sortierbare Spalten:** Nr. · Bezeichnung · Kategorie · Marke · Preis · **Verkäufer** (Multi-Sort per Shift+Klick)

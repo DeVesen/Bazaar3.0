@@ -14,6 +14,8 @@ Verwaltung der Marken-Stammdaten. Exportierbar und importierbar für Synchronisi
 
 ## 1. Tabelle (`table-marken`)
 
+→ Komponente: [Table](../../../../components/table/component.md)
+
 **Spalten:** **ID** · Name · **Original** (Badge) · Artikel (Anzahl) · Aktionen
 
 **Sortierbare Spalten:** **ID** · Name · **Original** · Artikel (Multi-Sort per Shift+Klick)
