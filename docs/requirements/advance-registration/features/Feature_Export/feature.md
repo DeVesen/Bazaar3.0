@@ -64,4 +64,4 @@ JSON-ASCII-Datei mit folgender Struktur (vereinfacht):
 ## 4. Import in die Haupt-App
 
 Die exportierte JSON-Datei wird manuell am Basar-Morgen in die Haupt-App importiert (über die Einstellungen-Seite der Haupt-App).
-Details → [Bazaar/Features/Feature_Einstellungen.md](../../Bazaar/Features/Feature_Einstellungen.md)
+Details → [Feature_Einstellungen](../../../bazaar-app/features/Feature_Einstellungen/feature.md)

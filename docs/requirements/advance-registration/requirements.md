@@ -127,19 +127,19 @@ User-Info (Avatar, Name, Logout) + Role-Toggle (Admin/Verkäufer — nur für Ad
 
 | Seite | Sichtbar für | Feature-Datei |
 |---|---|---|
-| **Home (Verkäufer-Ansicht)** | Alle | [Feature_Home_Verkaeufer.md](Features/Feature_Home_Verkaeufer.md) |
-| **Home (Admin-Ansicht)** | Admin | [Feature_Home_Admin.md](Features/Feature_Home_Admin.md) |
-| **Login** | Alle (nicht eingeloggt) | [Feature_Login.md](Features/Feature_Login.md) |
-| **Meine Artikel** | Alle | [Feature_Meine_Artikel.md](Features/Feature_Meine_Artikel.md) |
-| **Profil** | Alle | [Feature_Profil.md](Features/Feature_Profil.md) |
-| **Nummernblöcke** | Verkäufer | [Feature_Nummernbloecke.md](Features/Feature_Nummernbloecke.md) |
-| **Verkäufer (Admin)** | Admin | [Feature_Verkaeufer.md](Features/Feature_Verkaeufer.md) |
-| **Alle Artikel (Admin)** | Admin | [Feature_Alle_Artikel.md](Features/Feature_Alle_Artikel.md) |
-| **Marken** | Admin | [Feature_Marken.md](Features/Feature_Marken.md) |
-| **Kategorien** | Admin | [Feature_Kategorien.md](Features/Feature_Kategorien.md) |
-| **Verkäufer-Typen** | Admin | [Feature_Verkaeufer_Typen.md](Features/Feature_Verkaeufer_Typen.md) |
-| **Einstellungen** | Admin | [Feature_Einstellungen.md](Features/Feature_Einstellungen.md) |
-| **Export** | Admin | [Feature_Export.md](Features/Feature_Export.md) |
+| **Home (Verkäufer-Ansicht)** | Alle | [Feature_Home_Verkaeufer](features/Feature_Home_Verkaeufer/feature.md) |
+| **Home (Admin-Ansicht)** | Admin | [Feature_Home_Admin](features/Feature_Home_Admin/feature.md) |
+| **Login** | Alle (nicht eingeloggt) | [Feature_Login](features/Feature_Login/feature.md) |
+| **Meine Artikel** | Alle | [Feature_Meine_Artikel](features/Feature_Meine_Artikel/feature.md) |
+| **Profil** | Alle | [Feature_Profil](features/Feature_Profil/feature.md) |
+| **Nummernblöcke** | Verkäufer | [Feature_Nummernbloecke](features/Feature_Nummernbloecke/feature.md) |
+| **Verkäufer (Admin)** | Admin | [Feature_Verkaeufer](features/Feature_Verkaeufer/feature.md) |
+| **Alle Artikel (Admin)** | Admin | [Feature_Alle_Artikel](features/Feature_Alle_Artikel/feature.md) |
+| **Marken** | Admin | [Feature_Marken](features/Feature_Marken/feature.md) |
+| **Kategorien** | Admin | [Feature_Kategorien](features/Feature_Kategorien/feature.md) |
+| **Verkäufer-Typen** | Admin | [Feature_Verkaeufer_Typen](features/Feature_Verkaeufer_Typen/feature.md) |
+| **Einstellungen** | Admin | [Feature_Einstellungen](features/Feature_Einstellungen/feature.md) |
+| **Export** | Admin | [Feature_Export](features/Feature_Export/feature.md) |
 
 ---
 

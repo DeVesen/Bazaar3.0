@@ -38,4 +38,4 @@ Für jeden zugewiesenen Block:
 ## 3. Hinweis
 
 Weitere Blöcke können nur vom Admin im Verkäufer-Bearbeiten-Dialog zugewiesen werden.
-Details → [Feature_Verkaeufer.md](Feature_Verkaeufer.md) Abschnitt 4 (Panel-04 Nummernblöcke).
+Details → [Feature_Verkaeufer](../Feature_Verkaeufer/feature.md) Abschnitt 4 (Panel-04 Nummernblöcke).

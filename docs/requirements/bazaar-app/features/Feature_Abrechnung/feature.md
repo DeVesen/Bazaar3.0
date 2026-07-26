@@ -67,7 +67,7 @@ Alle Artikel dieses Verkäufers (wie Artikel-Übersicht, gefiltert auf diesen Ve
 
 ## 3. Zurückgeben-Popup
 
-Identisch zum Artikel-Freigeben-Popup (→ [Feature_Verkaeufer.md](Feature_Verkaeufer.md)) — gleicher Aufbau, gleiche Kamera/Eingabe-Modi, gleiche Scan-Feedback-Logik.
+Identisch zum Artikel-Freigeben-Popup (→ [Feature_Verkaeufer](../Feature_Verkaeufer/feature.md)) — gleicher Aufbau, gleiche Kamera/Eingabe-Modi, gleiche Scan-Feedback-Logik.
 
 **Einziger Unterschied:** Statt `freigegebenAm` wird `rückgegebenAm = jetzt` gesetzt.
 
@@ -97,4 +97,4 @@ Klick **„Buchen"** → `abgerechnetAm = jetzt` wird am Verkäufer gesetzt.
 ## 5. Druckfunktion (Abrechnung)
 
 Beim Klick auf **„Drucken"** wird die Verkäufer-Übersicht gedruckt.
-Details → [Feature_Druckfunktionen.md](Feature_Druckfunktionen.md)
+Details → [Feature_Druckfunktionen](../Feature_Druckfunktionen/feature.md)

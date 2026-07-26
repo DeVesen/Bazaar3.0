@@ -12,8 +12,30 @@ Dort liegt die Suite-Beschreibung sowie die Links zu den Anforderungen beider Ap
 
 ## Komponenten
 
-Unter [`docs/components/`](docs/components/) liegen Feature- und App-übergreifende Komponenten-Beschreibungen.
-Pro Komponente eine Markdown-Datei, **Dateiname auf Englisch**.
+Unter [`docs/components/`](docs/components/) liegen alle UI-Komponenten-Beschreibungen —
+unabhängig davon, ob sie App-übergreifend, Feature-übergreifend oder Feature-intern sind.
 
-Jede Datei beschreibt Aussehen, Verhalten und Funktionen der Komponente unabhängig vom konkreten Feature-Kontext.
-Feature-spezifische Ausprägungen (z. B. welche Spalten eine Tabelle zeigt) bleiben im jeweiligen Feature-Dokument.
+**Struktur:**
+```
+docs/components/<name>/        ← Verzeichnisname auf Englisch
+├── component.md               ← Aussehen, Verhalten, Funktionen
+└── reference/                 ← optional: Referenz-Anhänge
+```
+
+Einstieg und Index → [`docs/components/overview.md`](docs/components/overview.md)
+
+Dort liegt auch die **PrimeNG-Grundregel**: Ausschließlich PrimeNG, kein natives HTML,
+keine anderen Libraries. Fehlende Komponenten → eigener Wrapper auf PrimeNG-Basis.
+
+Feature-spezifische Ausprägungen (z. B. welche Spalten eine Tabelle zeigt) bleiben
+im jeweiligen Feature-Dokument.
+
+## Features
+
+Jedes Feature ist ein **Verzeichnis** (Name des Features), nicht eine einzelne Datei.
+
+**Struktur:**
+```
+docs/requirements/<app>/features/<Feature-Name>/
+└── feature.md                 ← Beschreibung des Features
+```

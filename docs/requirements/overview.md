@@ -48,35 +48,35 @@ erfassen    registrieren   (einmalig)
 
 - [Anforderungen (Lastenheft)](bazaar-app/requirements.md)
 - [Features](bazaar-app/features/)
-  - [Artikelannahme](bazaar-app/features/Feature_Artikelannahme.md)
-  - [Verkauf](bazaar-app/features/Feature_Verkauf.md)
-  - [Abrechnung](bazaar-app/features/Feature_Abrechnung.md)
-  - [Artikel](bazaar-app/features/Feature_Artikel.md)
-  - [Verkäufer](bazaar-app/features/Feature_Verkaeufer.md)
-  - [Verkäufer-Typen](bazaar-app/features/Feature_Verkaeufer_Typen.md)
-  - [Marken](bazaar-app/features/Feature_Marken.md)
-  - [Kategorien](bazaar-app/features/Feature_Kategorien.md)
-  - [Statistik](bazaar-app/features/Feature_Statistik.md)
-  - [Druckfunktionen](bazaar-app/features/Feature_Druckfunktionen.md)
-  - [Einstellungen](bazaar-app/features/Feature_Einstellungen.md)
+  - [Artikelannahme](bazaar-app/features/Feature_Artikelannahme/feature.md)
+  - [Verkauf](bazaar-app/features/Feature_Verkauf/feature.md)
+  - [Abrechnung](bazaar-app/features/Feature_Abrechnung/feature.md)
+  - [Artikel](bazaar-app/features/Feature_Artikel/feature.md)
+  - [Verkäufer](bazaar-app/features/Feature_Verkaeufer/feature.md)
+  - [Verkäufer-Typen](bazaar-app/features/Feature_Verkaeufer_Typen/feature.md)
+  - [Marken](bazaar-app/features/Feature_Marken/feature.md)
+  - [Kategorien](bazaar-app/features/Feature_Kategorien/feature.md)
+  - [Statistik](bazaar-app/features/Feature_Statistik/feature.md)
+  - [Druckfunktionen](bazaar-app/features/Feature_Druckfunktionen/feature.md)
+  - [Einstellungen](bazaar-app/features/Feature_Einstellungen/feature.md)
 
 ### Voranmelde-App
 
 - [Anforderungen (Lastenheft)](advance-registration/requirements.md)
 - [Features](advance-registration/features/)
-  - [Login](advance-registration/features/Feature_Login.md)
-  - [Home (Verkäufer)](advance-registration/features/Feature_Home_Verkaeufer.md)
-  - [Home (Admin)](advance-registration/features/Feature_Home_Admin.md)
-  - [Meine Artikel](advance-registration/features/Feature_Meine_Artikel.md)
-  - [Alle Artikel](advance-registration/features/Feature_Alle_Artikel.md)
-  - [Verkäufer](advance-registration/features/Feature_Verkaeufer.md)
-  - [Verkäufer-Typen](advance-registration/features/Feature_Verkaeufer_Typen.md)
-  - [Nummernblöcke](advance-registration/features/Feature_Nummernbloecke.md)
-  - [Marken](advance-registration/features/Feature_Marken.md)
-  - [Kategorien](advance-registration/features/Feature_Kategorien.md)
-  - [Profil](advance-registration/features/Feature_Profil.md)
-  - [Einstellungen](advance-registration/features/Feature_Einstellungen.md)
-  - [Export](advance-registration/features/Feature_Export.md)
+  - [Login](advance-registration/features/Feature_Login/feature.md)
+  - [Home (Verkäufer)](advance-registration/features/Feature_Home_Verkaeufer/feature.md)
+  - [Home (Admin)](advance-registration/features/Feature_Home_Admin/feature.md)
+  - [Meine Artikel](advance-registration/features/Feature_Meine_Artikel/feature.md)
+  - [Alle Artikel](advance-registration/features/Feature_Alle_Artikel/feature.md)
+  - [Verkäufer](advance-registration/features/Feature_Verkaeufer/feature.md)
+  - [Verkäufer-Typen](advance-registration/features/Feature_Verkaeufer_Typen/feature.md)
+  - [Nummernblöcke](advance-registration/features/Feature_Nummernbloecke/feature.md)
+  - [Marken](advance-registration/features/Feature_Marken/feature.md)
+  - [Kategorien](advance-registration/features/Feature_Kategorien/feature.md)
+  - [Profil](advance-registration/features/Feature_Profil/feature.md)
+  - [Einstellungen](advance-registration/features/Feature_Einstellungen/feature.md)
+  - [Export](advance-registration/features/Feature_Export/feature.md)
 
 ---
 
@@ -96,11 +96,11 @@ Welche Features und UI-Komponenten in beiden Apps existieren und ob/wie sie sich
 
 App- und Feature-übergreifende **UI-Komponenten** (Aussehen, Verhalten, Funktionen) sind hier dokumentiert:
 
-→ [`docs/components/`](../components/) — eine Datei pro Komponente
+→ [`docs/components/`](../components/) — ein Verzeichnis pro Komponente, Einstieg: [overview.md](../components/overview.md)
 
-| Komponente | Datei |
+| Komponente | Verzeichnis |
 |---|---|
-| Tabelle | [table.md](../components/table.md) |
+| Tabelle | [table/](../components/table/component.md) |
 
 ### Export / Import (Datenschnittstelle)
 
