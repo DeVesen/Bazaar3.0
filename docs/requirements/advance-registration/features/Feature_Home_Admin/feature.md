@@ -14,6 +14,9 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 
 ## 1. KPI-Kacheln (5 Stück, Grid `c5`)
 
+→ Komponente: [KPI-Tile](../../../../components/kpi-tile/component.md) im Grid `c5`
+→ Countdown-Kachel: [Countdown](../../../../components/countdown/component.md) — `variant="kpi"`
+
 | Kachel | Inhalt |
 |---|---|
 | **Countdown** | Countdown bis zum Basar (live, Tage + HH:MM:SS). Darunter: Datum des Basars. |
@@ -25,6 +28,8 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 ---
 
 ## 2. Aktivitäts-Heatmap
+
+→ Komponente: [Activity-Heatmap](../../../../components/activity-heatmap/component.md)
 
 Identisch mit der Verkäufer-Ansicht — nur für Admin sichtbar.
 Details → [Feature_Home_Verkaeufer](../Feature_Home_Verkaeufer/feature.md) Abschnitt 2.

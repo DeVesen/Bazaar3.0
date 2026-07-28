@@ -13,6 +13,8 @@ Entry-Page für den Annahme-Prozess. Verkäufer werden gesucht oder neu angelegt
 
 ## 1. Artikelannahme-Such-Ansicht
 
+→ Komponente: [Seller-Search](../../../../components/seller-search/component.md) — `showCreateButton="true"`
+
 InputGroup in Card, **max-width 500 px**.
 Hinweistext darunter: `ENTER bei 1 Treffer öffnet Wizard · Kein Treffer: Anlegen-Button erscheint` (12.5 px, muted, mt 10 px).
 
@@ -71,6 +73,8 @@ Vorname/Nachname-Vorbelegung aus der Sucheingabe.
 | 1 | Artikelnummer (InputGroup, kein Addon, Kamera-Popup-Button rechts) | *(leer)* | ✅ |
 | 2 | Bezeichnung (volle Breite) | — | ✅ |
 | 3 | Kategorie (AutoComplete ▾/+) | Marke (AutoComplete ▾/+) | ✅ |
+
+→ Komponente für Kategorie und Marke: [AutoComplete-Create](../../../../components/autocomplete-create/component.md)
 | 4 | Preis (InputGroup, €-Addon rechts) | *(leer)* | ✅ |
 | 5 | Größe | Farbe | ❌ |
 | 6 | Beschreibung (Textarea, volle Breite) | — | ❌ |
@@ -93,6 +97,7 @@ Nach Pflichtfelder-Ausfüllung: Klick **„Übernehmen"** → Artikel erscheint 
 2. **Gebühr** — `Anzahl Artikel × Verkäufer.gebuehr` (eigenes Feld des Verkäufers)
 
 3. **Speichern-Button** (volle Breite, `p-button severity="success"`) → Popup erscheint:
+   → Komponente: [Payment-Panel](../../../../components/payment-panel/component.md) — `totalLabel="Gesamtgebühr"` · `confirmLabel="Buchen"`
    - **Gesamtgebühr**
    - Eingabefeld: „Betrag erhalten (€)" — Dezimalzahl, InputGroup mit €-Addon
    - Anzeige: **Rückgeld** (live berechnet)

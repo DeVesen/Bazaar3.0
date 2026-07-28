@@ -98,9 +98,16 @@ App- und Feature-übergreifende **UI-Komponenten** (Aussehen, Verhalten, Funktio
 
 → [`docs/components/`](../components/) — ein Verzeichnis pro Komponente, Einstieg: [overview.md](../components/overview.md)
 
-| Komponente | Verzeichnis |
-|---|---|
-| Tabelle | [table/](../components/table/component.md) |
+| Komponente | Beschreibung | Verzeichnis |
+|---|---|---|
+| **Table** | Listenansicht mit Sortierung, Paginierung, Filter und Aktionsspalte | [table/](../components/table/component.md) |
+| **Scan-Dialog** | Barcode-/Kamera-Scanner-Popup zum Setzen von Artikel-Zeitstempeln | [scan-dialog/](../components/scan-dialog/component.md) |
+| **KPI-Tile** | Einzelne Kennzahl-Kachel im konfigurierbaren Grid (`c3`–`c6`) | [kpi-tile/](../components/kpi-tile/component.md) |
+| **AutoComplete-Create** | AutoComplete mit ▾-Auswahl und +-Anlegen-Modus | [autocomplete-create/](../components/autocomplete-create/component.md) |
+| **Seller-Search** | Verkäufer-Suchfeld-Panel (InputGroup in Card mit Trefferliste) | [seller-search/](../components/seller-search/component.md) |
+| **Payment-Panel** | Kassier-Panel: Gesamtbetrag + Betrag-erhalten + live Rückgeld | [payment-panel/](../components/payment-panel/component.md) |
+| **Countdown** | Live-Countdown (Tage + HH:MM:SS) bis Zieldatum; Varianten kpi / info-box | [countdown/](../components/countdown/component.md) |
+| **Activity-Heatmap** | 12-Wochen-Aktivitäts-Grid mit Farb-Levels und Hover-Tooltip | [activity-heatmap/](../components/activity-heatmap/component.md) |
 
 ### Export / Import (Datenschnittstelle)
 

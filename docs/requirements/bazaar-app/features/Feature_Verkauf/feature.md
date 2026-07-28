@@ -80,6 +80,8 @@ Der Warenkorb wird **nicht** persistent in der DB gespeichert — nur die finale
 
 ## 4. Buchung / Bezahlpopup
 
+→ Komponente: [Payment-Panel](../../../../components/payment-panel/component.md) — `totalLabel="Gesamtbetrag"` · `confirmLabel="Bezahlt"`
+
 Klick auf **„BUCHEN"** → Popup (Größe `sm`) öffnet sich — **ohne** nochmalige Artikelauflistung:
 
 ### Popup-Inhalt
