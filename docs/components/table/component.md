@@ -35,7 +35,7 @@ Das Parent entscheidet, ob Sortierung und Filterung lokal in Memory oder als Bac
 
 | Parameter | Typ | Richtung | Beschreibung |
 |---|---|---|---|
-| `columns` | `ColumnConfig[]` | `@Input` | Spaltendefinitionen (Schlüssel, Titel, Typ, sortierbar) |
+| `columns` | `ColumnConfig[]` | `@Input` | Spaltendefinitionen (Schlüssel, Titel, Typ, sortierbar, filterbar, Match-Modi, Enum-Werte) |
 | `data` | `T[]` | `@Input` | Anzuzeigende Datensätze |
 | `totalRecords` | `number` | `@Input` | Gesamtanzahl für Paginierung |
 | `loading` | `boolean` | `@Input` | Zeigt Lade-Skeleton an wenn `true` |
@@ -137,16 +137,79 @@ Das Parent entscheidet: Array lokal umsortieren — oder Backend-Request mit Sor
 
 ## 6. Spalten-Filter
 
-Jede Spalte (außer Aktionsspalte) hat direkt unterhalb des Spaltenheaders ein **Filterfeld**.
+Filterbare Spalten (Standard: alle außer Aktionsspalte) zeigen ein **Trichter-Icon** im Spaltenheader.
+Basis: PrimeNG `p-columnFilter` mit `display="menu"`.
 
 ### Verhalten
 
-- Eingabe-Typ: Freitext (`pInputText`, debounced)
-- Der Filter-State der Komponente ist zustandslos: **kein internes Speichern** — das Parent verwaltet den Zustand
-- Jede Änderung in einem Spaltenfilter emittiert `filterChange` mit allen aktuell aktiven Filtern:
+Klick auf das Trichter-Icon öffnet ein **Overlay-Menü** mit folgendem Aufbau:
 
 ```
-filterChange → { name: 'Nike', category: '', price: '' }
+┌──────────────────────────────┐
+│  [Eingabefeld / Freitext   ] │  ← pInputText (bei Freitext-Spalten)
+│                              │
+│  [gleich] [enthält] [endet…] │  ← Match-Mode-Auswahl (Button-Group)
+│                              │
+│ ─────────────────────────── │  ← Divider (nur wenn filterOptions gesetzt)
+│  ○ Wert A                    │  ← Preset-Werte (z. B. Enum), mit "gleich"
+│  ○ Wert B                    │
+│  ○ Wert C                    │
+│                              │
+│       [Leeren]   [Anwenden]  │
+└──────────────────────────────┘
+```
+
+- Der Filter-State der Komponente ist zustandslos: **kein internes Speichern** — das Parent verwaltet den Zustand
+- Jede Filteränderung emittiert `filterChange` mit allen aktuell aktiven Filtern
+
+```
+filterChange → { name: { value: 'Nike', matchMode: 'contains' }, status: { value: 'active', matchMode: 'equals' } }
+```
+
+### Match-Modi
+
+Das Parent legt **pro Spalte** fest, welche Match-Modi angeboten werden:
+
+| Match-Mode | Bedeutung | Typisch für |
+|---|---|---|
+| `equals` | gleich | Zahlen, Enum, Badge |
+| `startsWith` | beginnt mit | Text |
+| `contains` | enthält | Text |
+| `endsWith` | endet mit | Text |
+| `lt` / `lte` | kleiner / kleiner gleich | Zahl, Währung, Datum |
+| `gt` / `gte` | größer / größer gleich | Zahl, Währung, Datum |
+
+Gibt das Parent **keine** `matchModes` an, verwendet die Komponente einen sinnvollen Standardsatz abhängig vom Spalten-`type`:
+
+| Spaltentyp | Standard-Match-Modi |
+|---|---|
+| `text` | `contains`, `startsWith`, `endsWith`, `equals` |
+| `number`, `currency` | `equals`, `lt`, `lte`, `gt`, `gte` |
+| `date` | `equals`, `lt`, `lte`, `gt`, `gte` |
+| `badge` | `equals` |
+
+### Enum / Preset-Werte (`filterOptions`)
+
+Gibt das Parent `filterOptions` für eine Spalte an, erscheint nach dem Divider eine **auswählbare Liste** der vordefinierten Werte (PrimeNG `p-listbox` oder `p-multiSelect`).
+Diese Werte werden immer mit `equals` gefiltert — kein Match-Mode-Selector für diesen Bereich.
+
+Freitext-Eingabe und Preset-Liste sind unabhängig voneinander: beide können gleichzeitig aktiv sein.
+
+### `ColumnConfig`
+
+```ts
+interface ColumnConfig {
+  field: string;
+  header: string;
+  type: 'text' | 'number' | 'currency' | 'date' | 'badge';
+  sortable?: boolean;                              // default: true
+  filterable?: boolean;                            // default: true
+  matchModes?: MatchMode[];                        // erlaubte Filter-Modi; fehlt → Typ-Standard
+  filterOptions?: { label: string; value: any }[]; // Enum-Preset-Werte unterhalb des Dividers
+}
+
+type MatchMode = 'equals' | 'startsWith' | 'contains' | 'endsWith'
+               | 'lt' | 'lte' | 'gt' | 'gte';
 ```
 
 ### Parent-Entscheidung
@@ -223,4 +286,6 @@ p-table
 
 Virtual Scroll sorgt dafür, dass auch bei großen Datenlisten (tausende Zeilen) nur die sichtbaren Zeilen im DOM gerendert werden — Performance bleibt konstant.
 
-Filterfelder im Header: `pInputText` innerhalb des `<th>`-Elements, unterhalb des Spaltennamens.
+Spalten-Filter: `p-columnFilter` mit `display="menu"` — öffnet ein Overlay-Menü mit Eingabefeld, Match-Mode-Auswahl und optionaler Preset-Liste.
+Match-Modi pro Spalte: `[matchModeOptions]` auf `p-columnFilter`.
+Enum-Preset-Werte: `<ng-template pTemplate="filter">` mit `p-listbox` oder `p-multiSelect`.
