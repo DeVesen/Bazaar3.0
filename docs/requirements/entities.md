@@ -22,10 +22,12 @@ Legende: ✅ beide Apps | 🏠 nur Haupt-App | ☁️ nur Voranmelde-App
 | `groesse` | string | ❌ | ✅ | Optional |
 | `farbe` | string | ❌ | ✅ | Optional |
 | `alternativPreis` | double | ❌ | 🏠 | Optional; z. B. Mindestpreis |
+| `erstelltAm` | DateTime | ✅ | ✅ | Wird beim Anlegen automatisch gesetzt (für Aktivitäts-Heatmap u. a.) |
+| `updatedAm` | DateTime | ✅ | ✅ | Wird bei jeder Änderung automatisch gesetzt (für Aktivitäts-Heatmap u. a.) |
 | `angenommenAm` | DateTime? | — | 🏠 | Wird bei Artikelannahme gesetzt (= Buchen im Wizard Schritt 2) |
 | `freigegebenAm` | DateTime? | — | 🏠 | Wird beim Buchen der Artikelannahme automatisch gesetzt (= „Im Verkauf") |
 | `verkauftAm` | DateTime? | — | 🏠 | Wird beim Kassenvorgang gesetzt |
-| `rueckgegebenAm` | DateTime? | — | 🏠 | Wird bei Rückgabe gesetzt |
+| `rückgegebenAm` | DateTime? | — | 🏠 | Wird bei Rückgabe gesetzt |
 
 ---
 
