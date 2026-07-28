@@ -37,7 +37,7 @@ Hintergrund: `#1b3a4b`, padding 60 px 48 px.
 
 | Box | Inhalt | Stil |
 |---|---|---|
-| **Countdown** | Tage + HH:MM:SS bis zum Basar | Label 11 px uppercase, Wert 32 px 800, Datum 13 px |
+| **Countdown** | Tage + HH:MM:SS bis zum Basar · → [Countdown](../../../../components/countdown/component.md) `variant="info-box"` | Label 11 px uppercase, Wert 32 px 800, Datum 13 px |
 | **Default-Konditionen** | Provision (%) + Abgabegebühr (€) des `defaultTypeId`-Types | Werte in Akzentfarbe `#3ecf8e`, 700 |
 | **Markdown-Info** | Admin-konfigurierter Info-Text | 13 px, line-height 1.7 |
 

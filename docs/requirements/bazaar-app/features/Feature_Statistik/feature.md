@@ -15,6 +15,8 @@ Die Statistik-Seite bietet eine **Echtzeit-Übersicht** des aktuellen Basar-Stan
 
 ## 1. KPI-Zeile 1 — ARTIKEL-ÜBERSICHT (6 Kacheln, Grid `c6`)
 
+→ Komponente: [KPI-Tile](../../../../components/kpi-tile/component.md) im Grid `c6`
+
 | # | Kennzahl | Beschreibung |
 |---|---|---|
 | 1 | Gesamt | Anzahl aller erfassten Artikel |
@@ -28,6 +30,8 @@ Die Statistik-Seite bietet eine **Echtzeit-Übersicht** des aktuellen Basar-Stan
 
 ## 2. KPI-Zeile 2 — RÜCKBLICK (3 Kacheln, Grid `c3`)
 
+→ Komponente: [KPI-Tile](../../../../components/kpi-tile/component.md) im Grid `c3`
+
 | # | Kennzahl | Beschreibung |
 |---|---|---|
 | 1 | Warenwert Angenommen | Summe der Preise aller angenommenen Artikel (alle außer Status `registriert`) |
@@ -37,6 +41,8 @@ Die Statistik-Seite bietet eine **Echtzeit-Übersicht** des aktuellen Basar-Stan
 ---
 
 ## 3. KPI-Zeile 3 — FINANZ-KENNZAHLEN (5 Kacheln, Grid `c5`)
+
+→ Komponente: [KPI-Tile](../../../../components/kpi-tile/component.md) im Grid `c5`
 
 | # | Kennzahl | Beschreibung |
 |---|---|---|

@@ -58,6 +58,8 @@
 
 #### AutoComplete — Detail
 
+→ Komponente: [AutoComplete-Create](../../../../components/autocomplete-create/component.md)
+
 - **▾-Modus:** Dropdown öffnet bei Fokus oder Klick auf Button — zeigt alle oder gefilterte Einträge
 - **+-Modus:** Wenn eingetippter Wert keinem bestehenden Eintrag exakt entspricht → Button wechselt zu **+** (grün); Klick/Enter öffnet Modal „Neue Kategorie/Marke anlegen"
 - Tastatur: `↓/↑` navigieren · `Enter` bestätigt / öffnet Dialog · `Escape` schließt

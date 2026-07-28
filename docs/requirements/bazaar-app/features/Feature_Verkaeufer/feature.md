@@ -120,6 +120,8 @@ Zusätzlich **Panel 05 — Sonstiges**:
 
 ## 5. Artikel-Freigeben-Popup
 
+→ Komponente: [Scan-Dialog](../../../../components/scan-dialog/component.md) — `targetField="freigegebenAm"`
+
 Erreichbar über den **Scanner-Button** in der Verkäufer-Karte.
 
 ### Eingabe-Modus

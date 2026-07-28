@@ -14,6 +14,9 @@ Die Home-Seite ist die **Einstiegsseite** nach dem Login. Sie zeigt dem Verkäuf
 
 ## 1. KPI-Kacheln (4 Stück, Grid `c4`)
 
+→ Komponente: [KPI-Tile](../../../../components/kpi-tile/component.md) im Grid `c4`
+→ Countdown-Kachel: [Countdown](../../../../components/countdown/component.md) — `variant="kpi"`
+
 | Kachel | Inhalt |
 |---|---|
 | **Countdown** | Countdown bis zum Abgabe-Starttermin (Tage / HH:MM:SS, live). Darunter: Datum des Basars. |
@@ -24,6 +27,8 @@ Die Home-Seite ist die **Einstiegsseite** nach dem Login. Sie zeigt dem Verkäuf
 ---
 
 ## 2. Aktivitäts-Heatmap
+
+→ Komponente: [Activity-Heatmap](../../../../components/activity-heatmap/component.md)
 
 **Sichtbarkeit: nur für Admins** (wenn Role-Toggle auf „Admin" steht). Verkäufer sehen die Heatmap nicht.
 

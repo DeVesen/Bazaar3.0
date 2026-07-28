@@ -13,6 +13,8 @@ Die Abrechnung-Seite verwaltet Rückgabe nicht verkaufter Artikel und die finanz
 
 ## 1. Verkäufer-Selektion
 
+→ Komponente: [Seller-Search](../../../../components/seller-search/component.md) — `showCreateButton="false"`
+
 Identische Suchfeld-Ansicht wie Artikelannahme — InputGroup in Card, max-width 500 px.
 Hinweistext: „ENTER bei 1 Treffer oder direkt klicken" (12.5 px, muted, mt 8 px).
 
@@ -53,6 +55,8 @@ In der Abrechnungs-Ansicht gibt es ein **„← Zurück"**-Element zur Selektion
 
 ### KPI-Kacheln (3 Stück, `c3`)
 
+→ Komponente: [KPI-Tile](../../../../components/kpi-tile/component.md) im Grid `c3`
+
 | Kachel | Farbe |
 |---|---|
 | Offene Artikel (noch im Verkauf) | warning |
@@ -66,6 +70,8 @@ Alle Artikel dieses Verkäufers (wie Artikel-Übersicht, gefiltert auf diesen Ve
 ---
 
 ## 3. Zurückgeben-Popup
+
+→ Komponente: [Scan-Dialog](../../../../components/scan-dialog/component.md) — `targetField="rückgegebenAm"`
 
 Identisch zum Artikel-Freigeben-Popup (→ [Feature_Verkaeufer](../Feature_Verkaeufer/feature.md)) — gleicher Aufbau, gleiche Kamera/Eingabe-Modi, gleiche Scan-Feedback-Logik.
 
