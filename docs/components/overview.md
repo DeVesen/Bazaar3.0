@@ -49,5 +49,6 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **AutoComplete-Create** | Erweitertes AutoComplete mit ▾-Auswahl-Modus und +-Anlegen-Modus (inkl. Anlegen-Modal) | [autocomplete-create/](autocomplete-create/component.md) |
 | **Seller-Search** | Verkäufer-Suchfeld-Panel (InputGroup in Card mit Trefferliste und optionalem Anlegen-Button) | [seller-search/](seller-search/component.md) |
 | **Payment-Panel** | Kassier-Panel: Gesamtbetrag + „Betrag erhalten"-Eingabe + live Rückgeld-Berechnung | [payment-panel/](payment-panel/component.md) |
+| **Numpad** | Zustandsloser In-App-Ziffernblock für touch-freundliche Zahleneingabe ohne native Tastatur | [numpad/](numpad/component.md) |
 | **Countdown** | Live-Countdown (Tage + HH:MM:SS) bis zu einem Zieldatum; Varianten für KPI-Tile und Info-Box | [countdown/](countdown/component.md) |
 | **Activity-Heatmap** | 12-Wochen-Aktivitäts-Grid (GitHub-Style) mit Farb-Levels und Hover-Tooltip | [activity-heatmap/](activity-heatmap/component.md) |

@@ -1,6 +1,6 @@
 # Component: Payment-Panel
 
-**Bibliothek:** PrimeNG-Komposition — `p-inputgroup` + `p-inputnumber`
+**Bibliothek:** PrimeNG-Komposition — `p-inputgroup` + `p-inputnumber` + `app-numpad`  
 **Verwendung:** Bazaar Haupt-App — überall dort, wo ein Geldbetrag entgegengenommen und das Rückgeld live berechnet wird.
 
 ---
@@ -20,6 +20,8 @@ Beide Verwendungsstellen in der Bazaar-App sind strukturell identisch und unters
 
 ## 1. ASCII-Darstellung
 
+### Desktop / Tastatur-Modus
+
 ```
 ┌─────────────────────────────────────────────┐
 │                                             │
@@ -28,9 +30,9 @@ Beide Verwendungsstellen in der Bazaar-App sind strukturell identisch und unters
 ├─────────────────────────────────────────────┤
 │                                             │
 │  Betrag erhalten                            │
-│  ┌──────────────────────────────┬──────┐   │
-│  │  20,00                       │  €   │   │
-│  └──────────────────────────────┴──────┘   │
+│  ┌──────────────────────────┬───┬────┐     │
+│  │  20,00                   │ € │ ⊞  │     │  ← Toggle-Button (→ Numpad)
+│  └──────────────────────────┴───┴────┘     │
 │                                             │
 │  ╔═════════════════════════════════════╗   │
 │  ║                                     ║   │
@@ -39,10 +41,42 @@ Beide Verwendungsstellen in der Bazaar-App sind strukturell identisch und unters
 │  ║                                     ║   │
 │  ╚═════════════════════════════════════╝   │
 │                                             │
-│               [Abbrechen]  [Buchen]        │  ← confirmLabel
+│               [Abbrechen]  [Buchen]        │
+└─────────────────────────────────────────────┘
+```
+
+### Tablet / Mobile — Numpad-Modus
+
+```
+┌─────────────────────────────────────────────┐
+│                                             │
+│  Gesamtgebühr                   12,50 €    │
+│                                             │
+├─────────────────────────────────────────────┤
+│                                             │
+│  Betrag erhalten                            │
+│  ┌──────────────────────────┬───┬────┐     │
+│  │  20,00          [readonly]│ € │ ⌨  │     │  ← Toggle-Button (→ Tastatur)
+│  └──────────────────────────┴───┴────┘     │
+│                                             │
+│  ┌──────────┬──────────┬──────────┐        │
+│  │    7     │    8     │    9     │        │
+│  ├──────────┼──────────┼──────────┤        │
+│  │    4     │    5     │    6     │        │
+│  ├──────────┼──────────┼──────────┤        │
+│  │    1     │    2     │    3     │        │
+│  ├──────────┼──────────┼──────────┤        │
+│  │    C     │    0     │    ⌫    │        │
+│  └──────────┴──────────┴──────────┘        │
+│                                             │
+│  ╔═════════════════════════════════════╗   │
+│  ║           7,50 €  Rückgeld          ║   │
+│  ╚═════════════════════════════════════╝   │
+│                                             │
+│               [Abbrechen]  [Buchen]        │
 └─────────────────────────────────────────────┘
 
-Rückgeld-Zustände:
+Rückgeld-Zustände (gelten in beiden Modi):
 ┌──────────────────────────────────────────────────────┐
 │ Betrag < Gesamtbetrag  → keine Rückgeld-Box          │
 │                        → [Bestätigen]-Button disabled │
@@ -75,9 +109,48 @@ Rückgeld-Zustände:
 - Ist `receivedAmount < totalAmount`: Box ausgeblendet, `[Bestätigen]`-Button deaktiviert
 - Rückgeld wird auf 2 Dezimalstellen gerundet angezeigt
 
+### Eingabe-Modus: Tastatur vs. Numpad
+
+Das Panel startet automatisch im passenden Modus:
+
+```typescript
+numpadActive = window.matchMedia('(pointer: coarse)').matches;
+```
+
+- **Touch-Gerät** (Tablet, Mobile): Numpad-Modus — `p-inputnumber` ist `readonly`,
+  der In-App-Numpad (`app-numpad`) erscheint darunter. Keine native Tastatur öffnet sich.
+- **Desktop** (Maus): Tastatur-Modus — normales `p-inputnumber`, Numpad ausgeblendet.
+
+Der Nutzer kann jederzeit über den Toggle-Button im Eingabefeld-Addon wechseln.
+
+### Numpad-Integration
+
+Das Payment-Panel implementiert das Standard-Integrationsmuster aus
+[`docs/components/numpad/component.md`](../numpad/component.md) — Abschnitt 4.
+
+```typescript
+@ViewChild('amountInput') amountInput!: InputNumber;
+
+private get nativeInput(): HTMLInputElement {
+    return this.amountInput.input.nativeElement;
+}
+
+onNumpadKey(init: KeyboardEventInit): void {
+    this.nativeInput.focus();
+    this.nativeInput.dispatchEvent(
+        new KeyboardEvent('keydown', { ...init, bubbles: true })
+    );
+}
+
+onNumpadClear(): void {
+    this.receivedAmount = null;
+}
+```
+
 ### Fokus beim Öffnen
 
-Das `p-inputnumber`-Feld erhält beim Einblenden automatisch den Fokus (`pAutoFocus`).
+- **Tastatur-Modus:** `p-inputnumber` erhält automatisch den Fokus (`pAutoFocus`).
+- **Numpad-Modus:** `pAutoFocus` entfällt; der Nutzer tippt direkt über den Numpad.
 
 ### Bestätigen
 
@@ -86,7 +159,8 @@ Das Panel selbst führt **keine weiteren Aktionen** aus — das Parent entscheid
 
 ### Abbrechen
 
-Klick auf `[Abbrechen]` emittiert `cancelled`. Das Panel setzt die Eingabe zurück.
+Klick auf `[Abbrechen]` emittiert `cancelled`. Das Panel setzt `receivedAmount` auf `null`
+und `numpadActive` auf den gerätespezifischen Standardwert zurück.
 
 ---
 
@@ -96,8 +170,9 @@ Klick auf `[Abbrechen]` emittiert `cancelled`. Das Panel setzt die Eingabe zurü
 |---|---|
 | Gesamtbetrag-Zeile | `display: flex; justify-content: space-between; font-weight: 700; font-size: 17px` |
 | Trennlinie | `border-top: 2px solid var(--p-content-border-color); margin: 10px 0; padding-top: 10px` |
-| InputGroup | `p-inputgroup` mit `€`-Addon rechts, margin-top 16 px |
+| InputGroup | `p-inputgroup` mit `€`-Addon und Toggle-Button rechts, margin-top 16 px |
 | Rückgeld-Box | `font-size: 32px; font-weight: 800; text-align: center; padding: 14px; background: #e8f8f0; border-radius: 8px; color: #1a5c38; margin: 12px 0` |
+| Numpad | volle Breite, margin-top 8 px |
 | Footer-Buttons | `display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px` |
 
 ---
@@ -106,11 +181,21 @@ Klick auf `[Abbrechen]` emittiert `cancelled`. Das Panel setzt die Eingabe zurü
 
 ```
 p-inputgroup
-  p-inputnumber
+  p-inputnumber   #amountInput
+    [(ngModel)]="receivedAmount"
     [minFractionDigits]="2"
     [maxFractionDigits]="2"
-    pAutoFocus
+    [readonly]="numpadActive"
+    [pAutoFocus]="!numpadActive"
   p-inputgroupaddon  "€"
+  p-button  [icon]="numpadActive ? 'pi pi-keyboard' : 'pi pi-th-large'"
+            severity="secondary"  [rounded]="true"  [text]="true"
+            (onClick)="numpadActive = !numpadActive"
+
+app-numpad
+  *ngIf="numpadActive"
+  (keyPressed)="onNumpadKey($event)"
+  (cleared)="onNumpadClear()"
 
 p-button  label="Abbrechen"  severity="secondary"
 p-button  [label]="confirmLabel"  severity="primary"
