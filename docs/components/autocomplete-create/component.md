@@ -3,6 +3,16 @@
 **Bibliothek:** Erweiterung von `p-autocomplete` — eigener Wrapper mit Anlegen-Flow
 **Verwendung:** Beide Apps — überall dort, wo aus einer Liste gewählt werden kann und neue Einträge direkt beim Eingeben angelegt werden können.
 
+## Index
+
+- Überblick — Konzept & Modi
+- 1. ASCII-Darstellung — Layoutskizze
+- 2. Input / Output Schnittstelle — Parameter & Events
+- 3. Modus-Logik — Auswahl & Anlegen
+- 4. Anlegen-Modal — Anlegen-Flow
+- 5. Verwendung in Features — Einsatzorte
+- 6. PrimeNG-Basis — Technische Basis
+
 ---
 
 ## Überblick

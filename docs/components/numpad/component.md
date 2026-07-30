@@ -3,6 +3,16 @@
 **Bibliothek:** PrimeNG-Komposition — 3×4 Grid aus `p-button`  
 **Verwendung:** Überall dort, wo eine tipp-freundliche Zahleneingabe ohne native Tastatur benötigt wird.
 
+## Index
+
+- Überblick — Konzept
+- 1. ASCII-Darstellung — Layoutskizze
+- 2. Output-Schnittstelle — Events
+- 3. Key-Mapping — Tastenbelegung
+- 4. Empfehlung: Integration im Parent — Einbau-Guide
+- 5. PrimeNG-Basis — Technische Basis
+- 6. Layout-Details — Aufbau
+
 ---
 
 ## Überblick
