@@ -3,6 +3,19 @@
 **Bibliothek:** Eigener Wrapper — CSS-Grid + `p-tooltip`
 **Verwendung:** Voranmelde-App — Admin-Bereich, Home-Seite.
 
+## Index
+
+- Überblick — Konzept
+- 1. ASCII-Darstellung — Layoutskizze
+- 2. Input / Output Schnittstelle — Parameter
+- 3. Grid-Aufbau — Zellenstruktur
+- 4. Farb-Palette — Level & Farben
+- 5. Visuelle Spezifikationen — Stil
+- 6. Tooltip — Hover-Info
+- 7. Responsive — Mobilanpassung
+- 8. Verwendung in Features — Einsatzorte
+- 9. PrimeNG-Basis — Technische Basis
+
 ---
 
 ## Überblick

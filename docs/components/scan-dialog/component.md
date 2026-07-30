@@ -3,6 +3,16 @@
 **Bibliothek:** Eigener Wrapper — `p-dialog` + Web-Kamera-API (kein externes Package)
 **Verwendung:** Bazaar Haupt-App — überall dort, wo Artikel per Nummer oder Kamera-Scan einem Zeitstempel zugeordnet werden.
 
+## Index
+
+- Überblick — Konzept & Modi
+- 1. ASCII-Darstellung — Layoutskizze
+- 2. Input / Output Schnittstelle — Parameter & Events
+- 3. Eingabe-Modus — Tastatureingabe
+- 4. Kamera-Modus — Scan & Overlay
+- 5. Dialog-Verhalten — Öffnen & Schließen
+- 6. PrimeNG-Basis — Technische Basis
+
 ---
 
 ## Überblick

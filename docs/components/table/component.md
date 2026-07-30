@@ -3,6 +3,21 @@
 **Bibliothek:** PrimeNG `p-table` + Virtual Scroll
 **Verwendung:** Beide Apps — überall dort, wo Listen von Datensätzen angezeigt werden.
 
+## Index
+
+- Überblick — Konzept
+- 1. Grundstruktur — Aufbau
+- 2. Input / Output Schnittstelle — Parameter & Events
+- 3. Toolbar — Titel & Buttons
+- 4. Spalten — Typen & Aktionsspalte
+- 5. Sortierung — Modi & Events
+- 6. Spalten-Filter — Verhalten & Match-Modi
+- 7. Paginierung — Seiten & Größe
+- 8. Leerer Zustand — Empty State
+- 9. Verhalten bei Aktionen — Edit & Neu
+- 10. Responsive — Mobilanpassung
+- 11. PrimeNG-Basis — Technische Basis
+
 ---
 
 ## Überblick

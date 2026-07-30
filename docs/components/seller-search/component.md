@@ -3,6 +3,17 @@
 **Bibliothek:** PrimeNG-Komposition — `p-inputgroup` + `p-card` + `p-listbox`
 **Verwendung:** Bazaar Haupt-App — überall dort, wo ein Verkäufer per Suche ausgewählt werden muss, bevor ein weiterer Schritt möglich ist.
 
+## Index
+
+- Überblick — Konzept & Varianten
+- 1. ASCII-Darstellung — Layoutskizze
+- 2. Input / Output Schnittstelle — Parameter & Events
+- 3. Filterlogik — Suchverhalten
+- 4. Tastaturverhalten — Shortcuts
+- 5. „+ Neu anlegen"-Button — Anlegen-Option
+- 6. Layout — Aufbau
+- 7. PrimeNG-Basis — Technische Basis
+
 ---
 
 ## Überblick

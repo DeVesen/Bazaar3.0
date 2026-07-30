@@ -3,6 +3,15 @@
 **Bibliothek:** Eigener Wrapper — kein PrimeNG-Äquivalent
 **Verwendung:** Beide Apps — überall dort, wo Kennzahlen als Kachel-Grid dargestellt werden.
 
+## Index
+
+- Überblick — Konzept
+- 1. ASCII-Darstellung — Layoutskizze
+- 2. Input / Output Schnittstelle — Parameter
+- 3. Visuelles Design — Farben & Stil
+- 4. Verwendung in Features — Einsatzorte
+- 5. PrimeNG-Basis — Technische Basis
+
 ---
 
 ## Überblick

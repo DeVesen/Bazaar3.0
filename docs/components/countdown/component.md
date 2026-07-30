@@ -3,6 +3,17 @@
 **Bibliothek:** Eigener Wrapper — kein PrimeNG-Äquivalent (Timer-Logik)
 **Verwendung:** Voranmelde-App — überall dort, wo ein live laufender Countdown bis zu einem Zieldatum angezeigt wird.
 
+## Index
+
+- Überblick — Konzept & Varianten
+- 1. ASCII-Darstellung — Layoutskizze
+- 2. Input / Output Schnittstelle — Parameter
+- 3. Berechnungslogik — Zeitberechnung
+- 4. Darstellung der Zeiteinheiten — Format
+- 5. Stil-Details — Varianten-Design
+- 6. Verwendung in Features — Einsatzorte
+- 7. PrimeNG-Basis — Technische Basis
+
 ---
 
 ## Überblick

@@ -3,6 +3,15 @@
 **Bibliothek:** PrimeNG-Komposition — `p-inputgroup` + `p-inputnumber` + `app-numpad`  
 **Verwendung:** Bazaar Haupt-App — überall dort, wo ein Geldbetrag entgegengenommen und das Rückgeld live berechnet wird.
 
+## Index
+
+- Überblick — Konzept & Varianten
+- 1. ASCII-Darstellung — Layoutskizze
+- 2. Input / Output Schnittstelle — Parameter & Events
+- 3. Verhalten — Berechnung & Eingabe
+- 4. Layout-Details — Aufbau
+- 5. PrimeNG-Basis — Technische Basis
+
 ---
 
 ## Überblick
