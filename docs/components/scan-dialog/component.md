@@ -113,6 +113,8 @@ Klick → wechselt in **Kamera-Modus**.
 
 Das Kamerabild ersetzt Eingabefeld und AutoComplete-Liste vollständig.
 
+→ Komponente: [Barcode-Scanner](../barcode-scanner/component.md) — `[active]="true"` · `(codeDetected)="onScan($event)"`
+
 ### Scan-Feedback-Overlay
 
 Erscheint nach jedem Scan für `pauseMs` Millisekunden, dann wird das Kamerabild wieder aktiv.
@@ -158,5 +160,4 @@ p-button           ← BC-Button (Kamera-Wechsel), Zurück-Button
 p-listbox          ← AutoComplete-Liste der ausstehenden Artikel
 ```
 
-Kameraintegration: `navigator.mediaDevices.getUserMedia()` — keine externe Bibliothek.
-Barcode-Dekodierung: `BarcodeDetector`-API (Chromium) oder `@zxing/browser` als Fallback.
+Kameraintegration und Barcode-Dekodierung: [Barcode-Scanner](../barcode-scanner/component.md) — kapselt `@zxing/browser` + `@zxing/library`.

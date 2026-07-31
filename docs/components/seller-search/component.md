@@ -192,11 +192,9 @@ Klick erneut auf 📷 (oder `Escape`) → Kamera stoppt, Trefferliste erscheint 
 
 ### Scan-Technik
 
-Identisch zum Scan-Dialog:
-- `BarcodeDetector`-API (Chromium-native)
-- `@zxing/browser` als Fallback für nicht-Chromium-Browser
-- `navigator.mediaDevices.getUserMedia()` für Kamerazugriff
-- Beim Verlassen des Scan-Modus: MediaStream-Tracks werden released
+→ Komponente: [Barcode-Scanner](../barcode-scanner/component.md) — `[active]="scanModeActive"` · `(codeDetected)="onScan($event)"`
+
+Kapselt `@zxing/browser` + `@zxing/library`; MediaStream-Tracks werden beim Deaktivieren automatisch released.
 
 ---
 
@@ -206,7 +204,7 @@ Identisch zum Scan-Dialog:
 - Suchfeld: `p-inputgroup` (volle Breite)
 - Hinweistext: 12.5 px, muted, margin-top 10 px
 - Trefferliste: `p-listbox` ohne Border, direkt unterhalb — kein eigener Card-Rahmen
-- Kamera-View: `<video>`-Element, volle Breite, ersetzt `p-listbox` im Scan-Modus
+- Kamera-View: [Barcode-Scanner](../barcode-scanner/component.md), volle Breite, ersetzt `p-listbox` im Scan-Modus
 - Anlegen-Button: margin-top 12 px, volle Breite
 
 ---
@@ -225,7 +223,8 @@ p-listbox           ← Trefferliste (ausgeblendet im Scan-Modus)
   [options]="filteredSellers"
   (onChange)="onSelect($event)"
 
-<video>             ← Kamera-Videostream (sichtbar nur im Scan-Modus)
+barcode-scanner   ← Kamera-View (sichtbar nur im Scan-Modus)
+                  ← → siehe: docs/components/barcode-scanner/component.md
 
 p-button            ← „+ Neu anlegen" (conditional)
 ```
