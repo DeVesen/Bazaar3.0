@@ -1,5 +1,6 @@
 ---
 id: F-AR-011
+code: PROFIL
 status: draft
 updated: 2026-07-31
 ---
@@ -79,6 +80,10 @@ Feldlayout gemäß Panels 01–03 (Lastenheft Abschnitt 9.4):
 - Alle eigenen Artikel werden ebenfalls gelöscht
 
 ---
+
+## Stories
+
+- [PROFIL-S01 — Steckbrief-Formular](stories/PROFIL-S01-seller-profile-form.md)
 
 ## Akzeptanzkriterien
 
