@@ -14,7 +14,7 @@ updated: 2026-07-31
 - 5. Registrierung & Einladung — Onboarding
 - 6. Nummernblock-System — Nummerierung
 - 7. Navigation (Sidebar) — Seitenstruktur
-- 8. Feature-Übersicht & Implementierungsreihenfolge — Setup + fachliche Features
+- 8. Epic-Übersicht & Implementierungsreihenfolge — Setup + fachliche Epics
 - 9. UI-Konventionen & Komponenten — Design
 - 10. Technische Rahmenbedingungen — Tech-Stack
 - 11. Gemeinsame Anforderungen — Querschnitt
@@ -146,61 +146,61 @@ User-Info (Avatar, Name, Logout) + Role-Toggle (Admin/Verkäufer — nur für Ad
 
 ---
 
-## 8. Feature-Übersicht & Implementierungsreihenfolge
+## 8. Epic-Übersicht & Implementierungsreihenfolge
 
-Die Features sind in der empfohlenen Implementierungsreihenfolge aufgelistet.
-Setup-Features sind Voraussetzung für alle fachlichen Features und werden zuerst umgesetzt.
-Fachliche Features folgen in der Reihenfolge ihrer Abhängigkeiten.
+Die Epics sind in der empfohlenen Implementierungsreihenfolge aufgelistet.
+Setup-Epics sind Voraussetzung für alle fachlichen Epics und werden zuerst umgesetzt.
+Fachliche Epics folgen in der Reihenfolge ihrer Abhängigkeiten.
 
 ### Setup (Voraussetzung)
 
-| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+| # | Epic | Sichtbar für | Beschreibung | Epic-Datei |
 |---|---|---|---|---|
-| 1 | **Projektanlage** | — | Angular + .NET + Docker Compose + EF Core + JWT-Basis anlegen | [Epic_Projektanlage](features/Epic_Projektanlage/epic.md) |
-| 2 | **App Shell** | — | Sidebar, responsives Layout, Routing + Guards, JWT-Auth-Infrastruktur, PrimeNG-Theme | [Epic_App_Shell](features/Epic_App_Shell/epic.md) |
+| 1 | **Projektanlage** | — | Angular + .NET + Docker Compose + EF Core + JWT-Basis anlegen | [Epic_Projektanlage](epics/Epic_Projektanlage/epic.md) |
+| 2 | **App Shell** | — | Sidebar, responsives Layout, Routing + Guards, JWT-Auth-Infrastruktur, PrimeNG-Theme | [Epic_App_Shell](epics/Epic_App_Shell/epic.md) |
 
 ### Zugang
 
-| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+| # | Epic | Sichtbar für | Beschreibung | Epic-Datei |
 |---|---|---|---|---|
-| 3 | **Login** | Alle (nicht eingeloggt) | Login-Formular, Token empfangen, Weiterleitung | [Epic_Login](features/Epic_Login/epic.md) |
+| 3 | **Login** | Alle (nicht eingeloggt) | Login-Formular, Token empfangen, Weiterleitung | [Epic_Login](epics/Epic_Login/epic.md) |
 
 ### Stammdaten (zuerst, da alle anderen davon abhängen)
 
-| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+| # | Epic | Sichtbar für | Beschreibung | Epic-Datei |
 |---|---|---|---|---|
-| 4 | **Marken** | Admin | Marken-Tabelle, Anlegen/Bearbeiten | [Epic_Marken](features/Epic_Marken/epic.md) |
-| 5 | **Kategorien** | Admin | Kategorien-Tabelle, Anlegen/Bearbeiten | [Epic_Kategorien](features/Epic_Kategorien/epic.md) |
-| 6 | **Verkäufer-Typen** | Admin | Typen-Tabelle, Provision/Gebühr | [Epic_Verkaeufer_Typen](features/Epic_Verkaeufer_Typen/epic.md) |
+| 4 | **Marken** | Admin | Marken-Tabelle, Anlegen/Bearbeiten | [Epic_Marken](epics/Epic_Marken/epic.md) |
+| 5 | **Kategorien** | Admin | Kategorien-Tabelle, Anlegen/Bearbeiten | [Epic_Kategorien](epics/Epic_Kategorien/epic.md) |
+| 6 | **Verkäufer-Typen** | Admin | Typen-Tabelle, Provision/Gebühr | [Epic_Verkaeufer_Typen](epics/Epic_Verkaeufer_Typen/epic.md) |
 
 ### Verwaltung & Konto (abhängig von Stammdaten)
 
-| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+| # | Epic | Sichtbar für | Beschreibung | Epic-Datei |
 |---|---|---|---|---|
-| 7 | **Verkäufer** | Admin | Verkäuferliste, Einladen, Nummernblock-Zuweisung | [Epic_Verkaeufer](features/Epic_Verkaeufer/epic.md) |
-| 8 | **Profil** | Alle | Eigenes Profil anzeigen und bearbeiten | [Epic_Profil](features/Epic_Profil/epic.md) |
-| 9 | **Nummernblöcke** | Verkäufer | Zugewiesene Nummernblöcke einsehen (read-only) | [Epic_Nummernbloecke](features/Epic_Nummernbloecke/epic.md) |
+| 7 | **Verkäufer** | Admin | Verkäuferliste, Einladen, Nummernblock-Zuweisung | [Epic_Verkaeufer](epics/Epic_Verkaeufer/epic.md) |
+| 8 | **Profil** | Alle | Eigenes Profil anzeigen und bearbeiten | [Epic_Profil](epics/Epic_Profil/epic.md) |
+| 9 | **Nummernblöcke** | Verkäufer | Zugewiesene Nummernblöcke einsehen (read-only) | [Epic_Nummernbloecke](epics/Epic_Nummernbloecke/epic.md) |
 
 ### Artikel (abhängig von Marken + Kategorien)
 
-| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+| # | Epic | Sichtbar für | Beschreibung | Epic-Datei |
 |---|---|---|---|---|
-| 10 | **Meine Artikel** | Alle | Eigene Artikelliste verwalten | [Epic_Meine_Artikel](features/Epic_Meine_Artikel/epic.md) |
-| 11 | **Alle Artikel** | Admin | Artikel-Übersicht aller Verkäufer | [Epic_Alle_Artikel](features/Epic_Alle_Artikel/epic.md) |
+| 10 | **Meine Artikel** | Alle | Eigene Artikelliste verwalten | [Epic_Meine_Artikel](epics/Epic_Meine_Artikel/epic.md) |
+| 11 | **Alle Artikel** | Admin | Artikel-Übersicht aller Verkäufer | [Epic_Alle_Artikel](epics/Epic_Alle_Artikel/epic.md) |
 
 ### Dashboards (abhängig von Artikel + Profil + Nummernblöcke)
 
-| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+| # | Epic | Sichtbar für | Beschreibung | Epic-Datei |
 |---|---|---|---|---|
-| 12 | **Home (Verkäufer-Ansicht)** | Alle | KPI-Kacheln, Countdown, Aktivitäts-Heatmap | [Epic_Home_Verkaeufer](features/Epic_Home_Verkaeufer/epic.md) |
-| 13 | **Home (Admin-Ansicht)** | Admin | Admin-KPIs, Verkäufer-Statistik | [Epic_Home_Admin](features/Epic_Home_Admin/epic.md) |
+| 12 | **Home (Verkäufer-Ansicht)** | Alle | KPI-Kacheln, Countdown, Aktivitäts-Heatmap | [Epic_Home_Verkaeufer](epics/Epic_Home_Verkaeufer/epic.md) |
+| 13 | **Home (Admin-Ansicht)** | Admin | Admin-KPIs, Verkäufer-Statistik | [Epic_Home_Admin](epics/Epic_Home_Admin/epic.md) |
 
 ### System
 
-| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+| # | Epic | Sichtbar für | Beschreibung | Epic-Datei |
 |---|---|---|---|---|
-| 14 | **Einstellungen** | Admin | Systemparameter, Nummernblock-Konfiguration | [Epic_Einstellungen](features/Epic_Einstellungen/epic.md) |
-| 15 | **Export** | Admin | JSON-Export für Haupt-App | [Epic_Export](features/Epic_Export/epic.md) |
+| 14 | **Einstellungen** | Admin | Systemparameter, Nummernblock-Konfiguration | [Epic_Einstellungen](epics/Epic_Einstellungen/epic.md) |
+| 15 | **Export** | Admin | JSON-Export für Haupt-App | [Epic_Export](epics/Epic_Export/epic.md) |
 
 ---
 

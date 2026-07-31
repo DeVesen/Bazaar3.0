@@ -11,7 +11,7 @@ updated: 2026-07-31
 - 2. Stakeholder — Rollen
 - 3. Ziel — Kernprozesse
 - 4. Navigation (Sidebar) — Seitenstruktur
-- 5. Feature-Übersicht & Implementierungsreihenfolge — Setup + fachliche Features
+- 5. Epic-Übersicht & Implementierungsreihenfolge — Setup + fachliche Epics
 - 6. UI-Konventionen & Komponenten — Design
 - 7. Technische Rahmenbedingungen — Tech-Stack
 - 8. Einstellungen — Parameter
@@ -85,44 +85,44 @@ Die Haupt-App unterstützt drei operative Kernprozesse:
 
 ---
 
-## 5. Feature-Übersicht & Implementierungsreihenfolge
+## 5. Epic-Übersicht & Implementierungsreihenfolge
 
-Die Features sind in der empfohlenen Implementierungsreihenfolge aufgelistet.
-Setup-Features sind Voraussetzung für alle fachlichen Features und werden zuerst umgesetzt.
-Fachliche Features folgen in der Reihenfolge ihrer Abhängigkeiten.
+Die Epics sind in der empfohlenen Implementierungsreihenfolge aufgelistet.
+Setup-Epics sind Voraussetzung für alle fachlichen Epics und werden zuerst umgesetzt.
+Fachliche Epics folgen in der Reihenfolge ihrer Abhängigkeiten.
 
 ### Setup (Voraussetzung)
 
-| # | Feature | Beschreibung | Feature-Datei |
+| # | Epic | Beschreibung | Epic-Datei |
 |---|---|---|---|
-| 1 | **Projektanlage** | Angular + .NET + Docker Compose + EF Core anlegen | [Epic_Projektanlage](features/Epic_Projektanlage/epic.md) |
-| 2 | **App Shell** | Sidebar, responsives Layout, Routing-Skeleton, PrimeNG-Theme | [Epic_App_Shell](features/Epic_App_Shell/epic.md) |
+| 1 | **Projektanlage** | Angular + .NET + Docker Compose + EF Core anlegen | [Epic_Projektanlage](epics/Epic_Projektanlage/epic.md) |
+| 2 | **App Shell** | Sidebar, responsives Layout, Routing-Skeleton, PrimeNG-Theme | [Epic_App_Shell](epics/Epic_App_Shell/epic.md) |
 
 ### Stammdaten (zuerst, da Tagesgeschäft davon abhängt)
 
-| # | Feature | Beschreibung | Feature-Datei |
+| # | Epic | Beschreibung | Epic-Datei |
 |---|---|---|---|
-| 3 | **Marken** | Marken-Tabelle, Anlegen/Bearbeiten | [Epic_Marken](features/Epic_Marken/epic.md) |
-| 4 | **Kategorien** | Kategorien-Tabelle, Anlegen/Bearbeiten | [Epic_Kategorien](features/Epic_Kategorien/epic.md) |
-| 5 | **Verkäufer-Typen** | Typen-Tabelle, Provision/Gebühr | [Epic_Verkaeufer_Typen](features/Epic_Verkaeufer_Typen/epic.md) |
-| 6 | **Verkäufer** | Verkäuferliste, Karten-Layout, Artikel-Freigeben | [Epic_Verkaeufer](features/Epic_Verkaeufer/epic.md) |
-| 7 | **Artikel** | Artikel-Übersicht aller Verkäufer, Status-Popup | [Epic_Artikel](features/Epic_Artikel/epic.md) |
+| 3 | **Marken** | Marken-Tabelle, Anlegen/Bearbeiten | [Epic_Marken](epics/Epic_Marken/epic.md) |
+| 4 | **Kategorien** | Kategorien-Tabelle, Anlegen/Bearbeiten | [Epic_Kategorien](epics/Epic_Kategorien/epic.md) |
+| 5 | **Verkäufer-Typen** | Typen-Tabelle, Provision/Gebühr | [Epic_Verkaeufer_Typen](epics/Epic_Verkaeufer_Typen/epic.md) |
+| 6 | **Verkäufer** | Verkäuferliste, Karten-Layout, Artikel-Freigeben | [Epic_Verkaeufer](epics/Epic_Verkaeufer/epic.md) |
+| 7 | **Artikel** | Artikel-Übersicht aller Verkäufer, Status-Popup | [Epic_Artikel](epics/Epic_Artikel/epic.md) |
 
 ### Tagesgeschäft (abhängig von Stammdaten)
 
-| # | Feature | Beschreibung | Feature-Datei |
+| # | Epic | Beschreibung | Epic-Datei |
 |---|---|---|---|
-| 8 | **Artikelannahme** | Verkäufer suchen/anlegen, Artikel aufnehmen, Wizard | [Epic_Artikelannahme](features/Epic_Artikelannahme/epic.md) |
-| 9 | **Verkauf** | Kassenvorgang, Barcode-Scan, Warenkorb | [Epic_Verkauf](features/Epic_Verkauf/epic.md) |
-| 10 | **Abrechnung** | Rückgabe, Abrechnen, Auszahlungsberechnung | [Epic_Abrechnung](features/Epic_Abrechnung/epic.md) |
+| 8 | **Artikelannahme** | Verkäufer suchen/anlegen, Artikel aufnehmen, Wizard | [Epic_Artikelannahme](epics/Epic_Artikelannahme/epic.md) |
+| 9 | **Verkauf** | Kassenvorgang, Barcode-Scan, Warenkorb | [Epic_Verkauf](epics/Epic_Verkauf/epic.md) |
+| 10 | **Abrechnung** | Rückgabe, Abrechnen, Auszahlungsberechnung | [Epic_Abrechnung](epics/Epic_Abrechnung/epic.md) |
 
 ### System
 
-| # | Feature | Beschreibung | Feature-Datei |
+| # | Epic | Beschreibung | Epic-Datei |
 |---|---|---|---|
-| 11 | **Statistik** | KPI-Kacheln, Leaderboard (read-only) | [Epic_Statistik](features/Epic_Statistik/epic.md) |
-| 12 | **Druckfunktionen** | Artikelannahme-Liste, Verkäufer-Übersicht | [Epic_Druckfunktionen](features/Epic_Druckfunktionen/epic.md) |
-| 13 | **Einstellungen** | Systemparameter + JSON-Import | [Epic_Einstellungen](features/Epic_Einstellungen/epic.md) |
+| 11 | **Statistik** | KPI-Kacheln, Leaderboard (read-only) | [Epic_Statistik](epics/Epic_Statistik/epic.md) |
+| 12 | **Druckfunktionen** | Artikelannahme-Liste, Verkäufer-Übersicht | [Epic_Druckfunktionen](epics/Epic_Druckfunktionen/epic.md) |
+| 13 | **Einstellungen** | Systemparameter + JSON-Import | [Epic_Einstellungen](epics/Epic_Einstellungen/epic.md) |
 
 ---
 
