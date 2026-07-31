@@ -1,9 +1,3 @@
----
-id: DOC-006
-status: draft
-updated: 2026-07-31
----
-
 # Bazaar Suite
 
 Die **Bazaar Suite** ist eine zweiteilige Software-Suite zur Verwaltung eines Nummern-Basars.
