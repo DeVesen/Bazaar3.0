@@ -33,7 +33,7 @@ Kassenvorgang mit Artikelnummer-Eingabe (USB-Barcode-Scanner oder Kamera-Scan), 
 ### Eingabemöglichkeiten
 
 1. **USB-Barcode-Scanner** (Tastatur-Emulation) — Scanner tippt Nummer direkt ins Feld und bestätigt mit Enter
-2. **Kamera-Scan** — Button neben dem Eingabefeld öffnet Popup-Modus mit Kamerabild; nach Scan wird Wert ins Feld übernommen
+2. **Kamera-Scan** — Button neben dem Eingabefeld öffnet Popup-Modus mit Kamerabild ([Barcode-Scanner](../../../../components/barcode-scanner/component.md)); nach Scan wird Wert ins Feld übernommen
 
 ### Artikel-Erkennung
 

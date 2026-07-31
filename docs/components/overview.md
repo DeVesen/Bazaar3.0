@@ -44,6 +44,7 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | Komponente | Beschreibung | Verzeichnis |
 |---|---|---|
 | **Table** | Listenansicht für Datensätze mit Sortierung, Paginierung, Aktionsspalte und Toolbar | [table/](table/component.md) |
+| **Barcode-Scanner** | Schlanker Kamera-Wrapper: Live-Videostream + kontinuierliche Barcode-/QR-Dekodierung via `@zxing/browser`; kein eigenes UI, kein Feedback | [barcode-scanner/](barcode-scanner/component.md) |
 | **Scan-Dialog** | Barcode-/Kamera-Scanner-Popup zum Setzen von Artikel-Zeitstempeln (Freigeben / Zurückgeben) | [scan-dialog/](scan-dialog/component.md) |
 | **KPI-Tile** | Einzelne Kennzahl-Kachel mit Label, Wert und optionalem Severity-Akzent; wird im KPI-Grid (`c3`–`c6`) eingesetzt | [kpi-tile/](kpi-tile/component.md) |
 | **AutoComplete-Create** | Erweitertes AutoComplete mit ▾-Auswahl-Modus und +-Anlegen-Modus (inkl. Anlegen-Modal) | [autocomplete-create/](autocomplete-create/component.md) |

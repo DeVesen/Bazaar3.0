@@ -70,7 +70,7 @@ Vorname/Nachname-Vorbelegung aus der Sucheingabe.
 
 | Zeile | Links | Rechts | Pflicht |
 |---|---|---|---|
-| 1 | Artikelnummer (InputGroup, kein Addon, Kamera-Popup-Button rechts) | *(leer)* | ✅ |
+| 1 | Artikelnummer (InputGroup, kein Addon, Kamera-Popup-Button rechts → öffnet [Barcode-Scanner](../../../../components/barcode-scanner/component.md)) | *(leer)* | ✅ |
 | 2 | Bezeichnung (volle Breite) | — | ✅ |
 | 3 | Kategorie (AutoComplete ▾/+) | Marke (AutoComplete ▾/+) | ✅ |
 
