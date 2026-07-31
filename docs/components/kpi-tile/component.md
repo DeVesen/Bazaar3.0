@@ -15,7 +15,7 @@ updated: 2026-07-31
 - 1. ASCII-Darstellung — Layoutskizze
 - 2. Input / Output Schnittstelle — Parameter
 - 3. Visuelles Design — Farben & Stil
-- 4. Verwendung in Features — Einsatzorte
+- 4. Verwendung in Epics — Einsatzorte
 - 5. PrimeNG-Basis — Technische Basis
 - Akzeptanzkriterien — Prüfbare Kriterien
 - Tags & Piles — Thematische Einordnung
@@ -144,9 +144,9 @@ Der KPI-Grid-Wrapper ist ein reines Layout-Element (`display: grid; grid-templat
 
 ---
 
-## 4. Verwendung in Features
+## 4. Verwendung in Epics
 
-| Feature | App | Spalten | Kacheln |
+| Epic | App | Spalten | Kacheln |
 |---|---|---|---|
 | Statistik (Artikel-Übersicht) | Bazaar | `c6` | Gesamt, Angenommen, Im Verkauf, Verkauft, Retour, Verkaufsquote |
 | Statistik (Rückblick) | Bazaar | `c3` | Warenwert Angenom., Warenwert Retour, Offener Warenwert |

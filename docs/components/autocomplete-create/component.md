@@ -16,7 +16,7 @@ updated: 2026-07-31
 - 2. Input / Output Schnittstelle — Parameter & Events
 - 3. Modus-Logik — Auswahl & Anlegen
 - 4. Anlegen-Modal — Anlegen-Flow
-- 5. Verwendung in Features — Einsatzorte
+- 5. Verwendung in Epics — Einsatzorte
 - 6. PrimeNG-Basis — Technische Basis
 - Akzeptanzkriterien — Prüfbare Kriterien
 - Tags & Piles — Thematische Einordnung
@@ -140,9 +140,9 @@ Bei leerem Feld werden **alle** Einträge angezeigt; erst beim Tippen wird die L
 
 ---
 
-## 5. Verwendung in Features
+## 5. Verwendung in Epics
 
-| Feature | App | Felder |
+| Epic | App | Felder |
 |---|---|---|
 | Artikelannahme | Bazaar | Kategorie, Marke |
 | Meine Artikel | Voranmelde | Kategorie, Marke |

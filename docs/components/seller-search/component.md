@@ -33,7 +33,7 @@ Die Komponente unterstützt zwei Eingabe-Modi:
 - **Text-Modus** — manuelle Eingabe von Name oder Nummer
 - **Scan-Modus** — QR-/Barcode-Erkennung per Kamera (optional, via `showScanButton`)
 
-Feature_Abrechnung beschreibt es explizit als „identische Suchfeld-Ansicht wie Artikelannahme". Einzige Unterschiede zwischen den Verwendungsstellen sind über Parameter steuerbar:
+Epic_Abrechnung beschreibt es explizit als „identische Suchfeld-Ansicht wie Artikelannahme". Einzige Unterschiede zwischen den Verwendungsstellen sind über Parameter steuerbar:
 
 | Parameter | Artikelannahme | Abrechnung |
 |---|---|---|

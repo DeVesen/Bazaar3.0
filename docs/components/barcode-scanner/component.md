@@ -23,7 +23,7 @@ updated: 2026-07-31
 
 **Beschreibung:** Kamera-Barcode-Scanner-Komponente, die per Kamerabild Barcodes erkennt und den gescannten Wert zurückgibt.
 
-**Verwendungszweck:** Wird in Feature Verkauf eingesetzt, wenn ein Artikel per Kamera-Scan statt USB-Scanner erfasst wird.
+**Verwendungszweck:** Wird in Epic Verkauf eingesetzt, wenn ein Artikel per Kamera-Scan statt USB-Scanner erfasst wird.
 
 ---
 
@@ -103,8 +103,8 @@ Breite: 100 % des Eltern-Elements. Höhe: `auto` (Kamera-Seitenverhältnis).
 |---|---|---|
 | Kamera-Modus | [Scan-Dialog](../scan-dialog/component.md) | Artikelnummer scannen |
 | Scan-Modus | [Seller-Search](../seller-search/component.md) | Verkäufer-ID scannen |
-| Kamera-Popup-Button | [Feature: Artikelannahme](../../requirements/bazaar-app/features/Feature_Artikelannahme/feature.md) | Artikelnummer scannen |
-| Kamera-Scan | [Feature: Verkauf](../../requirements/bazaar-app/features/Feature_Verkauf/feature.md) | Artikelnummer scannen |
+| Kamera-Popup-Button | [Epic: Artikelannahme](../../requirements/bazaar-app/epics/Epic_Artikelannahme/epic.md) | Artikelnummer scannen |
+| Kamera-Scan | [Epic: Verkauf](../../requirements/bazaar-app/epics/Epic_Verkauf/epic.md) | Artikelnummer scannen |
 
 ---
 

@@ -16,7 +16,7 @@ updated: 2026-07-31
 - 5. Visuelle Spezifikationen — Stil
 - 6. Tooltip — Hover-Info
 - 7. Responsive — Mobilanpassung
-- 8. Verwendung in Features — Einsatzorte
+- 8. Verwendung in Epics — Einsatzorte
 - 9. PrimeNG-Basis — Technische Basis
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
@@ -30,7 +30,7 @@ updated: 2026-07-31
 
 Die Activity-Heatmap zeigt die Artikel-Aktivität der letzten **12 Wochen** als farbiges Zellen-Grid — analog zu GitHub's Contribution Graph. Jede Zelle steht für einen Tag; die Farbe codiert die Aktivitätsmenge.
 
-Feature_Home_Admin beschreibt sie explizit als „identisch mit der Verkäufer-Ansicht" — beide Home-Views rendern dieselbe Komponente, parametriert mit unterschiedlichem Datensatz.
+Epic_Home_Admin beschreibt sie explizit als „identisch mit der Verkäufer-Ansicht" — beide Home-Views rendern dieselbe Komponente, parametriert mit unterschiedlichem Datensatz.
 
 **Aktivität** = Anzahl der Ereignisse `erstelltAm` + `updatedAm` aller sichtbaren Artikel an einem Tag.
 
@@ -142,9 +142,9 @@ Mindestbreite des Grids: `12 Wochen × (12px + 3px) = 180 px` — praktisch imme
 
 ---
 
-## 8. Verwendung in Features
+## 8. Verwendung in Epics
 
-| Feature | App | Datensatz |
+| Epic | App | Datensatz |
 |---|---|---|
 | Home — Verkäufer (Admin-Modus) | Voranmelde | Alle Artikel (erstelltAm + updatedAm) |
 | Home — Admin | Voranmelde | Alle Artikel (erstelltAm + updatedAm) |
