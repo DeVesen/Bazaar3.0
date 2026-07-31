@@ -12,13 +12,13 @@ PrimeNG 20 ist mit dem Teal/Grün-Branding der Voranmelde-App konfiguriert. Glob
 
 ## Kontext
 
-Die Voranmelde-App verwendet Teal `#1b3a4b` und Grün `#0e8a5f` als Branding — unterschiedlich zur Haupt-App. CSS Custom Properties sorgen dafür, dass Feature-Komponenten keine Farben hardcoden. ngx-translate wird hier initialisiert, damit alle Features ab dem ersten Tag mit Übersetzungs-Keys arbeiten können.
+Die Voranmelde-App verwendet Teal `#1b3a4b` und Grün `#0e8a5f` als Branding — unterschiedlich zur Haupt-App. CSS Custom Properties sorgen dafür, dass Feature-Komponenten keine Farben hardcoden. ngx-translate wird hier initialisiert, damit alle Epics ab dem ersten Tag mit Übersetzungs-Keys arbeiten können.
 
 ## Scope
 
 **In Scope:** PrimeNG-Theme-Konfiguration (Preset, Primärfarbe `#0e8a5f`), `styles.scss` mit CSS Custom Properties, ngx-translate mit DE/EN, globale Reset-/Basis-Styles. Kein CDN-Verweis erforderlich (Cloud, kein Offline-Zwang — aber npm bevorzugt).
 
-**Out of Scope:** Feature-spezifische Styles, Übersetzungs-Keys für Features.
+**Out of Scope:** Epic-spezifische Styles, Übersetzungs-Keys für Epics.
 
 ## UI-Spezifikation
 

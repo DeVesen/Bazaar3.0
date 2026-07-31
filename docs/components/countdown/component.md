@@ -14,7 +14,7 @@ updated: 2026-07-31
 - 3. Berechnungslogik — Zeitberechnung
 - 4. Darstellung der Zeiteinheiten — Format
 - 5. Stil-Details — Varianten-Design
-- 6. Verwendung in Features — Einsatzorte
+- 6. Verwendung in Epics — Einsatzorte
 - 7. PrimeNG-Basis — Technische Basis
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
@@ -138,9 +138,9 @@ Singular/Plural: `1 Tag` vs. `X Tage`.
 
 ---
 
-## 6. Verwendung in Features
+## 6. Verwendung in Epics
 
-| Feature | App | Variante | Zieldatum |
+| Epic | App | Variante | Zieldatum |
 |---|---|---|---|
 | Home — Verkäufer (KPI-Kachel) | Voranmelde | `'kpi'` | `abgabeVon` (Abgabe-Starttermin) |
 | Home — Admin (KPI-Kachel) | Voranmelde | `'kpi'` | `basarDatum` |

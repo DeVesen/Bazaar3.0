@@ -23,7 +23,7 @@ updated: 2026-07-31
 
 **Beschreibung:** Kamera-Barcode-Scanner-Komponente, die per Kamerabild Barcodes erkennt und den gescannten Wert zurückgibt.
 
-**Verwendungszweck:** Wird in Feature Verkauf eingesetzt, wenn ein Artikel per Kamera-Scan statt USB-Scanner erfasst wird.
+**Verwendungszweck:** Wird in Epic Verkauf eingesetzt, wenn ein Artikel per Kamera-Scan statt USB-Scanner erfasst wird.
 
 ---
 

@@ -13,7 +13,7 @@ updated: 2026-07-31
 - Tags & Piles — Ablage
 
 Hier sind alle UI-Komponenten der Bazaar Suite beschrieben: Aussehen, Verhalten und Funktionen,
-unabhängig vom Feature-Kontext. Jede Komponente hat ein eigenes Verzeichnis.
+unabhängig vom Epic-Kontext. Jede Komponente hat ein eigenes Verzeichnis.
 
 **Struktur pro Komponente:**
 
@@ -23,8 +23,8 @@ docs/components/<name>/
 └── reference/        ← optional: Referenz-Anhänge (Tabellen, Grafiken, Beispiele)
 ```
 
-Feature-spezifische Ausprägungen (z. B. welche Spalten eine Tabelle zeigt)
-bleiben im jeweiligen Feature-Dokument.
+Epic-spezifische Ausprägungen (z. B. welche Spalten eine Tabelle zeigt)
+bleiben im jeweiligen Epic-Dokument.
 
 ---
 

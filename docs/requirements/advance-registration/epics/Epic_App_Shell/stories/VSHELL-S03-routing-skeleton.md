@@ -12,7 +12,7 @@ Die App definiert alle Feature-Routen als Lazy-Loaded-Routes, schützt sie durch
 
 ## Kontext
 
-Die Voranmelde-App hat eine Login-Seite (nicht eingeloggte Nutzer). Alle anderen Routen sind geschützt: einige nur für Admins, andere für alle eingeloggten Nutzer. Das Routing-Skeleton definiert diese Schutzebenen, damit fachliche Features sich nicht um Auth-Logik kümmern müssen.
+Die Voranmelde-App hat eine Login-Seite (nicht eingeloggte Nutzer). Alle anderen Routen sind geschützt: einige nur für Admins, andere für alle eingeloggten Nutzer. Das Routing-Skeleton definiert diese Schutzebenen, damit fachliche Epics sich nicht um Auth-Logik kümmern müssen.
 
 ## Scope
 
@@ -51,7 +51,7 @@ AdminGuard: Token vorhanden, aber nicht Admin → redirect /home
 - [ ] **AC-3** — WHEN ein eingeloggter Verkäufer eine Admin-Only-Route aufruft, THEN SHALL `AdminGuard` zur Route `/home` weiterleiten.
 - [ ] **AC-4** — WHEN der Nutzer `/` aufruft, THEN SHALL Angular zu `/home` weiterleiten.
 - [ ] **AC-5** — WHEN der Nutzer eine unbekannte Route aufruft, THEN SHALL die `NotFoundComponent` mit dem Text „Seite nicht gefunden" angezeigt werden.
-- [ ] **AC-6** — THE SYSTEM SHALL für jede Route eine Platzhalter-Komponente bereitstellen, die den Seitennamen anzeigt, bis das fachliche Feature implementiert ist.
+- [ ] **AC-6** — THE SYSTEM SHALL für jede Route eine Platzhalter-Komponente bereitstellen, die den Seitennamen anzeigt, bis das fachliche Epic implementiert ist.
 - [ ] **AC-7** — WHEN ein eingeloggter Nutzer `/login` aufruft, THEN SHALL Angular zu `/home` weiterleiten (kein erneutes Anzeigen der Login-Seite).
 
 ## Abhängigkeiten

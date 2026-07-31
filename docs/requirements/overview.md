@@ -10,7 +10,7 @@ updated: 2026-07-31
 - Die Suite — App-Übersicht
 - Kernidee — Workflow-Beschreibung
 - Stakeholder — Rollen
-- Dokumentation — Feature-Links
+- Dokumentation — Epic-Links
 - Querschnittsthemen — Übergreifendes
 - Tags & Piles — Ablage
 
@@ -117,11 +117,11 @@ Beide Apps teilen sich ein Datenmodell für Kernentitäten (Artikel, Verkäufer,
 
 → [entities.md](entities.md)
 
-### Überschneidende Features & Komponenten
+### Überschneidende Epics & Komponenten
 
-Welche Features und UI-Komponenten in beiden Apps existieren und ob/wie sie sich unterscheiden — wird im Rahmen der Epic/Feature-Generierung herausgearbeitet.
+Welche Epics und UI-Komponenten in beiden Apps existieren und ob/wie sie sich unterscheiden — wird im Rahmen der Epic-Generierung herausgearbeitet.
 
-App- und Feature-übergreifende **UI-Komponenten** (Aussehen, Verhalten, Funktionen) sind hier dokumentiert:
+App- und Epic-übergreifende **UI-Komponenten** (Aussehen, Verhalten, Funktionen) sind hier dokumentiert:
 
 → [`docs/components/`](../components/) — ein Verzeichnis pro Komponente, Einstieg: [overview.md](../components/overview.md)
 
@@ -138,7 +138,7 @@ App- und Feature-übergreifende **UI-Komponenten** (Aussehen, Verhalten, Funktio
 
 ### Export / Import (Datenschnittstelle)
 
-Die JSON-Datenschnittstelle zwischen Voranmelde-App (Export) und Haupt-App (Import) ist das Verbindungsglied beider Apps. Details → Voranmelde-App [Feature Export](advance-registration/epics/Epic_Export/epic.md) und Haupt-App [Einstellungen (Import)](bazaar-app/epics/Epic_Einstellungen/epic.md).
+Die JSON-Datenschnittstelle zwischen Voranmelde-App (Export) und Haupt-App (Import) ist das Verbindungsglied beider Apps. Details → Voranmelde-App [Epic Export](advance-registration/epics/Epic_Export/epic.md) und Haupt-App [Einstellungen (Import)](bazaar-app/epics/Epic_Einstellungen/epic.md).
 
 ---
 

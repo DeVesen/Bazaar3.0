@@ -44,7 +44,7 @@ Route-Tabelle:
 - [ ] **AC-1** — THE SYSTEM SHALL alle Feature-Routen als Lazy-Loaded-Routes in `app.routes.ts` definieren (je eine Datei pro Feature unter `src/app/epics/<name>/`).
 - [ ] **AC-2** — WHEN der Nutzer `/` aufruft, THEN SHALL Angular automatisch zu `/artikelannahme` weiterleiten (HTTP 302 / Router-Redirect).
 - [ ] **AC-3** — WHEN der Nutzer eine unbekannte Route aufruft, THEN SHALL die `NotFoundComponent` mit dem Text „Seite nicht gefunden" angezeigt werden.
-- [ ] **AC-4** — THE SYSTEM SHALL für jede Route eine Platzhalter-Komponente bereitstellen, die den Seitennamen anzeigt, bis das fachliche Feature implementiert ist.
+- [ ] **AC-4** — THE SYSTEM SHALL für jede Route eine Platzhalter-Komponente bereitstellen, die den Seitennamen anzeigt, bis das fachliche Epic implementiert ist.
 - [ ] **AC-5** — WHEN der Nutzer zwischen zwei Routen navigiert, THEN SHALL nur das jeweilige Lazy-Chunk geladen werden (kein erneutes Laden bereits geladener Chunks).
 - [ ] **AC-6** — THE SYSTEM SHALL `withRouterConfig({ onSameUrlNavigation: 'reload' })` nicht setzen (Standard-Verhalten); Navigation auf dieselbe Route löst keinen Reload aus.
 

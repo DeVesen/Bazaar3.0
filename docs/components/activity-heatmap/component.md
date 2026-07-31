@@ -16,7 +16,7 @@ updated: 2026-07-31
 - 5. Visuelle Spezifikationen — Stil
 - 6. Tooltip — Hover-Info
 - 7. Responsive — Mobilanpassung
-- 8. Verwendung in Features — Einsatzorte
+- 8. Verwendung in Epics — Einsatzorte
 - 9. PrimeNG-Basis — Technische Basis
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
@@ -142,9 +142,9 @@ Mindestbreite des Grids: `12 Wochen × (12px + 3px) = 180 px` — praktisch imme
 
 ---
 
-## 8. Verwendung in Features
+## 8. Verwendung in Epics
 
-| Feature | App | Datensatz |
+| Epic | App | Datensatz |
 |---|---|---|
 | Home — Verkäufer (Admin-Modus) | Voranmelde | Alle Artikel (erstelltAm + updatedAm) |
 | Home — Admin | Voranmelde | Alle Artikel (erstelltAm + updatedAm) |

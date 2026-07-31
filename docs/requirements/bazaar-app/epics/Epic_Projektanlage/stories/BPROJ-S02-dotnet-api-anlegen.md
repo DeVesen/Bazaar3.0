@@ -12,7 +12,7 @@ Ein Entwickler legt das .NET 9 Minimal API Backend-Projekt der Haupt-App an, ric
 
 ## Kontext
 
-Das Backend der Haupt-App ist eine .NET 9 Minimal API. Da die App offline im LAN läuft, ist kein externer Auth-Service erforderlich. Die Struktur folgt dem Feature-Slice-Muster, damit spätere fachliche Features eigenständig in eigenen Ordnern leben.
+Das Backend der Haupt-App ist eine .NET 9 Minimal API. Da die App offline im LAN läuft, ist kein externer Auth-Service erforderlich. Die Struktur folgt dem Feature-Slice-Muster, damit spätere fachliche Epics eigenständig in eigenen Ordnern leben.
 
 ## Scope
 

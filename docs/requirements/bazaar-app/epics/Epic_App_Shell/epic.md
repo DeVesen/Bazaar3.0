@@ -8,7 +8,7 @@ updated: 2026-07-31
 
 ## Zweck
 
-Grundgerüst der Angular-App: Sidebar-Navigation, responsives Zwei-Spalten-Layout (Desktop/Mobile), Angular-Routing-Skeleton und PrimeNG-Theme-Setup. Nach Abschluss dieses Features navigiert die App zwischen Platzhalter-Seiten und passt ihr Layout korrekt an den Breakpoint an.
+Grundgerüst der Angular-App: Sidebar-Navigation, responsives Zwei-Spalten-Layout (Desktop/Mobile), Angular-Routing-Skeleton und PrimeNG-Theme-Setup. Nach Abschluss dieses Epics navigiert die App zwischen Platzhalter-Seiten und passt ihr Layout korrekt an den Breakpoint an.
 
 ## Rollen
 

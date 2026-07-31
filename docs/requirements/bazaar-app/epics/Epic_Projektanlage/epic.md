@@ -8,7 +8,7 @@ updated: 2026-07-31
 
 ## Zweck
 
-Technisches Grundsetup der Haupt-App: Angular-Frontend und .NET-Backend werden als eigenständige Projekte angelegt, containerisiert und mit einer lauffähigen Datenbankverbindung verbunden. Nach Abschluss dieses Features ist die Entwicklungsumgebung bereit für die Implementierung fachlicher Features.
+Technisches Grundsetup der Haupt-App: Angular-Frontend und .NET-Backend werden als eigenständige Projekte angelegt, containerisiert und mit einer lauffähigen Datenbankverbindung verbunden. Nach Abschluss dieses Epics ist die Entwicklungsumgebung bereit für die Implementierung fachlicher Epics.
 
 ## Rollen
 
@@ -23,7 +23,7 @@ Technisches Grundsetup der Haupt-App: Angular-Frontend und .NET-Backend werden a
 
 ## Hinweis
 
-Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich (Frontend + Backend zusammen). Es ist Voraussetzung für alle nachfolgenden Features. Siehe Entwicklungsrichtlinie in `CLAUDE.md`.
+Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich (Frontend + Backend zusammen). Es ist Voraussetzung für alle nachfolgenden Epics. Siehe Entwicklungsrichtlinie in `CLAUDE.md`.
 
 ## Stories
 

@@ -28,7 +28,7 @@ updated: 2026-07-31
 
 **Beschreibung:** Wiederverwendbare Listenansicht-Komponente mit Sortierung, Paginierung und Aktionsspalte auf Basis von PrimeNG p-table.
 
-**Verwendungszweck:** Wird in allen Feature-Seiten eingesetzt, die tabellarische Daten anzeigen (Artikel, Verkäufer, Marken, Kategorien, Statistik-Leaderboard).
+**Verwendungszweck:** Wird in allen Epic-Seiten eingesetzt, die tabellarische Daten anzeigen (Artikel, Verkäufer, Marken, Kategorien, Statistik-Leaderboard).
 
 ---
 
@@ -85,7 +85,7 @@ Die Toolbar erscheint **oberhalb** der Tabelle und ist optional.
 
 | Element | Position | Wann |
 |---|---|---|
-| Seitenüberschrift / Feature-Titel | links | immer |
+| Seitenüberschrift / Epic-Titel | links | immer |
 | „+ Neu"-Button | rechts | nur wenn Anlegen erlaubt |
 
 Fehlt die Berechtigung zum Anlegen, entfällt der „+ Neu"-Button vollständig — kein deaktivierter Button.
@@ -129,13 +129,13 @@ Das Parent wertet `actionId` aus und entscheidet die Reaktion — die Komponente
 | `view` | `pi-search` | Datensatz ansehen (readonly) |
 | `delete` | `pi-trash` | Datensatz löschen |
 
-Die konkreten Actions je Feature definiert das jeweilige Feature-Dokument.
+Die konkreten Actions je Epic definiert das jeweilige Epic-Dokument.
 
 ---
 
 ## 5. Sortierung
 
-Jede Spalte ist standardmäßig sortierbar. Das Feature-Dokument kann einzelne Spalten explizit als nicht-sortierbar ausweisen.
+Jede Spalte ist standardmäßig sortierbar. Das Epic-Dokument kann einzelne Spalten explizit als nicht-sortierbar ausweisen.
 
 ### Sortiermodi
 
@@ -293,7 +293,7 @@ Kein Icon, kein Button — nur Text, zentriert.
 | Viewport | Verhalten |
 |---|---|
 | Desktop (≥ 1024 px) | Alle Spalten sichtbar |
-| Tablet (768–1023 px) | Unwichtige Spalten ausgeblendet (je Feature definiert) |
+| Tablet (768–1023 px) | Unwichtige Spalten ausgeblendet (je Epic definiert) |
 | Mobil (< 768 px) | Gestapelte Darstellung (`responsiveLayout="stack"`) |
 
 ---
@@ -304,7 +304,7 @@ Kein Icon, kein Button — nur Text, zentriert.
 p-table
   [sortMode]="'multiple'"        ← Single + Multi-Sort
   [virtualScroll]="true"         ← Nur sichtbare Zeilen rendern
-  [virtualScrollItemSize]="46"   ← Zeilenhöhe in px (Basis-Wert, je Feature anpassen)
+  [virtualScrollItemSize]="46"   ← Zeilenhöhe in px (Basis-Wert, je Epic anpassen)
   [lazy]="true"                  ← Parent lädt Daten bei Sort/Filter/Page-Events
   (onSort)="…"
   (onFilter)="…"

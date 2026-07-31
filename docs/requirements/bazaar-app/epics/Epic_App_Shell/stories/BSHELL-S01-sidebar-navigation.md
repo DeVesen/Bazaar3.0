@@ -18,7 +18,7 @@ Die Haupt-App hat keine Login-Seite — die Sidebar ist immer sichtbar. Sie glie
 
 **In Scope:** Sidebar-Komponente, Navigationsstruktur (drei Gruppen + Trennlinien), Logo-Block, Active-Route-Highlight, Badge für offene Artikel (Zahl), alle visuellen Maße und Farben.
 
-**Out of Scope:** Mobile-Burger-Menü (folgt in BSHELL-S02), Seiteninhalte, Badge-Daten-API-Anbindung (folgt im Feature Artikelannahme).
+**Out of Scope:** Mobile-Burger-Menü (folgt in BSHELL-S02), Seiteninhalte, Badge-Daten-API-Anbindung (folgt im Epic Artikelannahme).
 
 ## UI-Spezifikation
 

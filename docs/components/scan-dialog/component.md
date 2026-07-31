@@ -23,7 +23,7 @@ updated: 2026-07-31
 
 **Beschreibung:** Popup-Dialog-Komponente zum Setzen von Artikel-Zeitstempeln per Barcode oder Kamera-Scan.
 
-**Verwendungszweck:** Wird in der Artikelannahme und anderen Features eingesetzt, wo Zeitstempel per Scan gesetzt werden.
+**Verwendungszweck:** Wird in der Artikelannahme und anderen Epics eingesetzt, wo Zeitstempel per Scan gesetzt werden.
 
 ---
 

@@ -8,7 +8,7 @@ updated: 2026-07-31
 
 ## Zweck
 
-Technisches Grundsetup der Voranmelde-App: Angular-Frontend und .NET-Backend werden als eigenständige Projekte angelegt, containerisiert und mit einer lauffähigen Datenbankverbindung verbunden. Die App läuft cloud-ready (Azure Container Apps). Nach Abschluss ist die Entwicklungsumgebung bereit für fachliche Features.
+Technisches Grundsetup der Voranmelde-App: Angular-Frontend und .NET-Backend werden als eigenständige Projekte angelegt, containerisiert und mit einer lauffähigen Datenbankverbindung verbunden. Die App läuft cloud-ready (Azure Container Apps). Nach Abschluss ist die Entwicklungsumgebung bereit für fachliche Epics.
 
 ## Rollen
 
@@ -23,7 +23,7 @@ Technisches Grundsetup der Voranmelde-App: Angular-Frontend und .NET-Backend wer
 
 ## Hinweis
 
-Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich. Es ist Voraussetzung für alle nachfolgenden Features. Siehe Entwicklungsrichtlinie in `CLAUDE.md`.
+Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich. Es ist Voraussetzung für alle nachfolgenden Epics. Siehe Entwicklungsrichtlinie in `CLAUDE.md`.
 
 Der Unterschied zur Haupt-App: Mehrsprachigkeit (ngx-translate) wird hier bereits im Projekt-Setup verankert, und das Backend enthält die Grundkonfiguration für JWT-Authentifizierung.
 

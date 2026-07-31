@@ -18,7 +18,7 @@ Alle Entitäten der Voranmelde-App (Artikel, Verkäufer, Marken, Kategorien, Ver
 
 **In Scope:** `Npgsql.EntityFrameworkCore.PostgreSQL` installieren, `AppDbContext` anlegen, Connection String aus Environment lesen, erste leere Migration `InitialCreate`, `MigrateAsync()` beim App-Start.
 
-**Out of Scope:** Fachliche Entitäten (folgen in den jeweiligen Features), Seed-Daten, Datenbankschema für User/Auth (folgt in Epic_Login).
+**Out of Scope:** Fachliche Entitäten (folgen in den jeweiligen Epics), Seed-Daten, Datenbankschema für User/Auth (folgt in Epic_Login).
 
 ## Akzeptanzkriterien
 

@@ -18,7 +18,7 @@ Das Backend der Voranmelde-App läuft in der Cloud (Azure Container Apps). Es be
 
 **In Scope:** `dotnet new webapi`, Feature-Slice-Verzeichnisstruktur, CORS für Angular Dev-Server, `/health`-Endpoint, JWT-Bearer-Middleware (`Microsoft.AspNetCore.Authentication.JwtBearer`) installieren und registrieren (ohne konkreten Endpoint), Konfiguration über `appsettings.json` und Environment-Variablen.
 
-**Out of Scope:** Login-Endpoint, Passwort-Hashing, konkrete Protected-Endpoints (folgen in Epic_Login und fachlichen Features).
+**Out of Scope:** Login-Endpoint, Passwort-Hashing, konkrete Protected-Endpoints (folgen in Epic_Login und fachlichen Epics).
 
 ## UI-Spezifikation
 

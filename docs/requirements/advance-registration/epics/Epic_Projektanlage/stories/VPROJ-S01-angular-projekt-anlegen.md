@@ -12,13 +12,13 @@ Ein Entwickler legt das Angular 20 Frontend-Projekt der Voranmelde-App an, konfi
 
 ## Kontext
 
-Die Voranmelde-App läuft in der Cloud und unterstützt Deutsch (Default) und Englisch. ngx-translate wird von Beginn an eingebunden, damit alle späteren Feature-Texte über Übersetzungs-Keys angebunden werden. Die App benötigt keine Offline-Fähigkeit (kein CDN-Ausschluss wie in der Haupt-App).
+Die Voranmelde-App läuft in der Cloud und unterstützt Deutsch (Default) und Englisch. ngx-translate wird von Beginn an eingebunden, damit alle späteren Epic-Texte über Übersetzungs-Keys angebunden werden. Die App benötigt keine Offline-Fähigkeit (kein CDN-Ausschluss wie in der Haupt-App).
 
 ## Scope
 
 **In Scope:** `ng new`, Standalone Components, OnPush, Signals, PrimeNG 20, Angular Material Icons (npm), `ngx-translate` installieren und initialisieren (DE/EN JSON-Dateien anlegen), App-Verzeichnisstruktur anlegen.
 
-**Out of Scope:** Routing, Sidebar, Theme-CSS, Übersetzungs-Keys für Features (folgen in den jeweiligen Features).
+**Out of Scope:** Routing, Sidebar, Theme-CSS, Übersetzungs-Keys für Epics (folgen in den jeweiligen Epics).
 
 ## Akzeptanzkriterien
 
