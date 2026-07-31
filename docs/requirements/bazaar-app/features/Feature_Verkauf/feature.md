@@ -1,5 +1,6 @@
 ---
 id: F-BA-002
+code: VERKAUF
 status: draft
 updated: 2026-07-31
 ---
@@ -148,6 +149,10 @@ Klick auf **„Bezahlt"**:
 5. **AC-5** — WHEN „Leeren" geklickt wird, THEN SHALL das System den Warenkorb leeren, das Eingabefeld leeren und eine blaue InfoArea anzeigen.
 6. **AC-6** — WHILE der empfangene Betrag kleiner als der Gesamtbetrag ist, SHALL das System den „Bezahlt"-Button deaktiviert halten.
 7. **AC-7** — WHEN „Bezahlt" geklickt wird, THEN SHALL das System alle Warenkorb-Artikel mit Status `verkauft` und `verkauftAm = jetzt` in der Datenbank speichern und den Warenkorb leeren.
+
+## Stories
+
+- [VERKAUF-S01 — Popup-Kamera-Scanner im Kassenvorgang](stories/VERKAUF-S01-popup-camera-mode.md)
 
 ## Tags & Piles
 
