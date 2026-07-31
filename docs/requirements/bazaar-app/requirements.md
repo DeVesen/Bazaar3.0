@@ -11,7 +11,7 @@ updated: 2026-07-31
 - 2. Stakeholder — Rollen
 - 3. Ziel — Kernprozesse
 - 4. Navigation (Sidebar) — Seitenstruktur
-- 5. Seiten-Übersicht — Feature-Links
+- 5. Feature-Übersicht & Implementierungsreihenfolge — Setup + fachliche Features
 - 6. UI-Konventionen & Komponenten — Design
 - 7. Technische Rahmenbedingungen — Tech-Stack
 - 8. Einstellungen — Parameter
@@ -85,21 +85,44 @@ Die Haupt-App unterstützt drei operative Kernprozesse:
 
 ---
 
-## 5. Seiten-Übersicht
+## 5. Feature-Übersicht & Implementierungsreihenfolge
 
-| Seite | Beschreibung | Feature-Datei |
-|---|---|---|
-| **Artikelannahme** | Verkäufer suchen/anlegen, Artikel aufnehmen, Wizard | [Feature_Artikelannahme](features/Feature_Artikelannahme/feature.md) |
-| **Verkauf** | Kassenvorgang, Barcode-Scan, Warenkorb | [Feature_Verkauf](features/Feature_Verkauf/feature.md) |
-| **Abrechnung** | Rückgabe, Abrechnen, Auszahlungsberechnung | [Feature_Abrechnung](features/Feature_Abrechnung/feature.md) |
-| **Statistik** | KPI-Kacheln, Leaderboard (read-only) | [Feature_Statistik](features/Feature_Statistik/feature.md) |
-| **Verkäufer** | Verkäuferliste, Karten-Layout, Artikel-Freigeben | [Feature_Verkaeufer](features/Feature_Verkaeufer/feature.md) |
-| **Artikel** | Artikel-Übersicht aller Verkäufer, Status-Popup | [Feature_Artikel](features/Feature_Artikel/feature.md) |
-| **Marken** | Marken-Tabelle, Anlegen/Bearbeiten | [Feature_Marken](features/Feature_Marken/feature.md) |
-| **Kategorien** | Kategorien-Tabelle, Anlegen/Bearbeiten | [Feature_Kategorien](features/Feature_Kategorien/feature.md) |
-| **Verkäufer-Typen** | Typen-Tabelle, Provision/Gebühr | [Feature_Verkaeufer_Typen](features/Feature_Verkaeufer_Typen/feature.md) |
-| **Einstellungen** | Systemparameter + JSON-Import | [Feature_Einstellungen](features/Feature_Einstellungen/feature.md) |
-| **Druckfunktionen** | Artikelannahme-Liste, Verkäufer-Übersicht | [Feature_Druckfunktionen](features/Feature_Druckfunktionen/feature.md) |
+Die Features sind in der empfohlenen Implementierungsreihenfolge aufgelistet.
+Setup-Features sind Voraussetzung für alle fachlichen Features und werden zuerst umgesetzt.
+Fachliche Features folgen in der Reihenfolge ihrer Abhängigkeiten.
+
+### Setup (Voraussetzung)
+
+| # | Feature | Beschreibung | Feature-Datei |
+|---|---|---|---|
+| 1 | **Projektanlage** | Angular + .NET + Docker Compose + EF Core anlegen | [Feature_Projektanlage](features/Feature_Projektanlage/feature.md) |
+| 2 | **App Shell** | Sidebar, responsives Layout, Routing-Skeleton, PrimeNG-Theme | [Feature_App_Shell](features/Feature_App_Shell/feature.md) |
+
+### Stammdaten (zuerst, da Tagesgeschäft davon abhängt)
+
+| # | Feature | Beschreibung | Feature-Datei |
+|---|---|---|---|
+| 3 | **Marken** | Marken-Tabelle, Anlegen/Bearbeiten | [Feature_Marken](features/Feature_Marken/feature.md) |
+| 4 | **Kategorien** | Kategorien-Tabelle, Anlegen/Bearbeiten | [Feature_Kategorien](features/Feature_Kategorien/feature.md) |
+| 5 | **Verkäufer-Typen** | Typen-Tabelle, Provision/Gebühr | [Feature_Verkaeufer_Typen](features/Feature_Verkaeufer_Typen/feature.md) |
+| 6 | **Verkäufer** | Verkäuferliste, Karten-Layout, Artikel-Freigeben | [Feature_Verkaeufer](features/Feature_Verkaeufer/feature.md) |
+| 7 | **Artikel** | Artikel-Übersicht aller Verkäufer, Status-Popup | [Feature_Artikel](features/Feature_Artikel/feature.md) |
+
+### Tagesgeschäft (abhängig von Stammdaten)
+
+| # | Feature | Beschreibung | Feature-Datei |
+|---|---|---|---|
+| 8 | **Artikelannahme** | Verkäufer suchen/anlegen, Artikel aufnehmen, Wizard | [Feature_Artikelannahme](features/Feature_Artikelannahme/feature.md) |
+| 9 | **Verkauf** | Kassenvorgang, Barcode-Scan, Warenkorb | [Feature_Verkauf](features/Feature_Verkauf/feature.md) |
+| 10 | **Abrechnung** | Rückgabe, Abrechnen, Auszahlungsberechnung | [Feature_Abrechnung](features/Feature_Abrechnung/feature.md) |
+
+### System
+
+| # | Feature | Beschreibung | Feature-Datei |
+|---|---|---|---|
+| 11 | **Statistik** | KPI-Kacheln, Leaderboard (read-only) | [Feature_Statistik](features/Feature_Statistik/feature.md) |
+| 12 | **Druckfunktionen** | Artikelannahme-Liste, Verkäufer-Übersicht | [Feature_Druckfunktionen](features/Feature_Druckfunktionen/feature.md) |
+| 13 | **Einstellungen** | Systemparameter + JSON-Import | [Feature_Einstellungen](features/Feature_Einstellungen/feature.md) |
 
 ---
 

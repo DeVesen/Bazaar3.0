@@ -14,7 +14,7 @@ updated: 2026-07-31
 - 5. Registrierung & Einladung — Onboarding
 - 6. Nummernblock-System — Nummerierung
 - 7. Navigation (Sidebar) — Seitenstruktur
-- 8. Seiten-Übersicht — Feature-Links
+- 8. Feature-Übersicht & Implementierungsreihenfolge — Setup + fachliche Features
 - 9. UI-Konventionen & Komponenten — Design
 - 10. Technische Rahmenbedingungen — Tech-Stack
 - 11. Gemeinsame Anforderungen — Querschnitt
@@ -146,23 +146,61 @@ User-Info (Avatar, Name, Logout) + Role-Toggle (Admin/Verkäufer — nur für Ad
 
 ---
 
-## 8. Seiten-Übersicht
+## 8. Feature-Übersicht & Implementierungsreihenfolge
 
-| Seite | Sichtbar für | Feature-Datei |
-|---|---|---|
-| **Home (Verkäufer-Ansicht)** | Alle | [Feature_Home_Verkaeufer](features/Feature_Home_Verkaeufer/feature.md) |
-| **Home (Admin-Ansicht)** | Admin | [Feature_Home_Admin](features/Feature_Home_Admin/feature.md) |
-| **Login** | Alle (nicht eingeloggt) | [Feature_Login](features/Feature_Login/feature.md) |
-| **Meine Artikel** | Alle | [Feature_Meine_Artikel](features/Feature_Meine_Artikel/feature.md) |
-| **Profil** | Alle | [Feature_Profil](features/Feature_Profil/feature.md) |
-| **Nummernblöcke** | Verkäufer | [Feature_Nummernbloecke](features/Feature_Nummernbloecke/feature.md) |
-| **Verkäufer (Admin)** | Admin | [Feature_Verkaeufer](features/Feature_Verkaeufer/feature.md) |
-| **Alle Artikel (Admin)** | Admin | [Feature_Alle_Artikel](features/Feature_Alle_Artikel/feature.md) |
-| **Marken** | Admin | [Feature_Marken](features/Feature_Marken/feature.md) |
-| **Kategorien** | Admin | [Feature_Kategorien](features/Feature_Kategorien/feature.md) |
-| **Verkäufer-Typen** | Admin | [Feature_Verkaeufer_Typen](features/Feature_Verkaeufer_Typen/feature.md) |
-| **Einstellungen** | Admin | [Feature_Einstellungen](features/Feature_Einstellungen/feature.md) |
-| **Export** | Admin | [Feature_Export](features/Feature_Export/feature.md) |
+Die Features sind in der empfohlenen Implementierungsreihenfolge aufgelistet.
+Setup-Features sind Voraussetzung für alle fachlichen Features und werden zuerst umgesetzt.
+Fachliche Features folgen in der Reihenfolge ihrer Abhängigkeiten.
+
+### Setup (Voraussetzung)
+
+| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+|---|---|---|---|---|
+| 1 | **Projektanlage** | — | Angular + .NET + Docker Compose + EF Core + JWT-Basis anlegen | [Feature_Projektanlage](features/Feature_Projektanlage/feature.md) |
+| 2 | **App Shell** | — | Sidebar, responsives Layout, Routing + Guards, JWT-Auth-Infrastruktur, PrimeNG-Theme | [Feature_App_Shell](features/Feature_App_Shell/feature.md) |
+
+### Zugang
+
+| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+|---|---|---|---|---|
+| 3 | **Login** | Alle (nicht eingeloggt) | Login-Formular, Token empfangen, Weiterleitung | [Feature_Login](features/Feature_Login/feature.md) |
+
+### Stammdaten (zuerst, da alle anderen davon abhängen)
+
+| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+|---|---|---|---|---|
+| 4 | **Marken** | Admin | Marken-Tabelle, Anlegen/Bearbeiten | [Feature_Marken](features/Feature_Marken/feature.md) |
+| 5 | **Kategorien** | Admin | Kategorien-Tabelle, Anlegen/Bearbeiten | [Feature_Kategorien](features/Feature_Kategorien/feature.md) |
+| 6 | **Verkäufer-Typen** | Admin | Typen-Tabelle, Provision/Gebühr | [Feature_Verkaeufer_Typen](features/Feature_Verkaeufer_Typen/feature.md) |
+
+### Verwaltung & Konto (abhängig von Stammdaten)
+
+| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+|---|---|---|---|---|
+| 7 | **Verkäufer** | Admin | Verkäuferliste, Einladen, Nummernblock-Zuweisung | [Feature_Verkaeufer](features/Feature_Verkaeufer/feature.md) |
+| 8 | **Profil** | Alle | Eigenes Profil anzeigen und bearbeiten | [Feature_Profil](features/Feature_Profil/feature.md) |
+| 9 | **Nummernblöcke** | Verkäufer | Zugewiesene Nummernblöcke einsehen (read-only) | [Feature_Nummernbloecke](features/Feature_Nummernbloecke/feature.md) |
+
+### Artikel (abhängig von Marken + Kategorien)
+
+| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+|---|---|---|---|---|
+| 10 | **Meine Artikel** | Alle | Eigene Artikelliste verwalten | [Feature_Meine_Artikel](features/Feature_Meine_Artikel/feature.md) |
+| 11 | **Alle Artikel** | Admin | Artikel-Übersicht aller Verkäufer | [Feature_Alle_Artikel](features/Feature_Alle_Artikel/feature.md) |
+
+### Dashboards (abhängig von Artikel + Profil + Nummernblöcke)
+
+| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+|---|---|---|---|---|
+| 12 | **Home (Verkäufer-Ansicht)** | Alle | KPI-Kacheln, Countdown, Aktivitäts-Heatmap | [Feature_Home_Verkaeufer](features/Feature_Home_Verkaeufer/feature.md) |
+| 13 | **Home (Admin-Ansicht)** | Admin | Admin-KPIs, Verkäufer-Statistik | [Feature_Home_Admin](features/Feature_Home_Admin/feature.md) |
+
+### System
+
+| # | Feature | Sichtbar für | Beschreibung | Feature-Datei |
+|---|---|---|---|---|
+| 14 | **Einstellungen** | Admin | Systemparameter, Nummernblock-Konfiguration | [Feature_Einstellungen](features/Feature_Einstellungen/feature.md) |
+| 15 | **Export** | Admin | JSON-Export für Haupt-App | [Feature_Export](features/Feature_Export/feature.md) |
 
 ---
 
