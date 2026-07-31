@@ -39,7 +39,7 @@ Services:
 - [ ] **AC-4** — THE SYSTEM SHALL alle Secrets (DB-Passwort, JWT-Secret, Connection String) ausschließlich über Environment-Variablen oder eine `.env`-Datei (gitignored) einlesen.
 - [ ] **AC-5** — THE SYSTEM SHALL ein Docker-Volume für PostgreSQL-Daten definieren, sodass Daten zwischen `docker compose down` und `up` erhalten bleiben.
 - [ ] **AC-6** — IF `docker compose down` ausgeführt wird, THEN SHALL die Daten im Volume erhalten bleiben; `docker compose down -v` entfernt sie explizit.
-- [ ] **AC-7** — THE SYSTEM SHALL eine `.env.example`-Datei mit Platzhaltern für alle erforderlichen Environment-Variablen bereitstellen (inkl. `JWT_SECRET`, `JWT_ISSUER`, `JWT_AUDIENCE`).
+- [ ] **AC-7** — THE SYSTEM SHALL eine `.env.example`-Datei mit Platzhaltern für alle erforderlichen Environment-Variablen bereitstellen (inkl. `JWT_SECRET`, `JWT_ISSUER`, `JWT_AUDIENCE`, `CORS_ALLOWED_ORIGIN`).
 
 ## Abhängigkeiten
 
