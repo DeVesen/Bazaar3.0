@@ -7,7 +7,7 @@
 
 ## Überblick
 
-Die Statistik-Seite bietet eine **Echtzeit-Übersicht** des aktuellen Basar-Stands. Sie ist schreibgeschützt und rein informativ.
+Die Statistik-Seite bietet eine aktuelle Übersicht des Basar-Stands (Berechnung bei jedem Seitenaufruf, kein Caching). Sie ist schreibgeschützt und rein informativ.
 
 **Technisch:** Alle Berechnungen erfolgen **clientseitig** auf Basis des aktuellen Anwendungszustands. Kein separater Backend-Endpunkt. Die Seite wird bei jedem Aufruf neu berechnet (kein Caching).
 
