@@ -22,8 +22,8 @@ Die Voranmelde-App läuft in der Cloud und unterstützt Deutsch (Default) und En
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL ein Angular 20 Projekt mit Standalone Components, `ChangeDetectionStrategy.OnPush` als Default und Signals-Support erzeugen.
-- [ ] **AC-2** — THE SYSTEM SHALL PrimeNG 20 installieren und `providePrimeNG` in `app.config.ts` registrieren.
+- [ ] **AC-1** — THE SYSTEM SHALL ein Angular 20 Projekt mit Standalone Components und Signals-Support erzeugen und in `angular.json` unter `schematics` `ChangeDetectionStrategy.OnPush` als Default für neu generierte Komponenten konfigurieren.
+- [ ] **AC-2** — THE SYSTEM SHALL PrimeNG 20 installieren und `providePrimeNG({ theme: { preset: Aura } })` in `app.config.ts` registrieren (Aura als Placeholder; wird in Epic_App_Shell durch das finale Preset ersetzt).
 - [ ] **AC-3** — THE SYSTEM SHALL `@ngx-translate/core` und `@ngx-translate/http-loader` installieren und `provideTranslateService` in `app.config.ts` mit DE als Standardsprache und EN als Fallback registrieren.
 - [ ] **AC-4** — THE SYSTEM SHALL leere Übersetzungs-Dateien `src/assets/i18n/de.json` und `src/assets/i18n/en.json` anlegen.
 - [ ] **AC-5** — THE SYSTEM SHALL `@material-symbols/font-200` als npm-Paket installieren und in `angular.json` als Asset einbinden.

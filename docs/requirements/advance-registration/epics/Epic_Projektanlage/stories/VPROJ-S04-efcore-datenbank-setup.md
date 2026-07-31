@@ -25,10 +25,9 @@ Alle Entitäten der Voranmelde-App (Artikel, Verkäufer, Marken, Kategorien, Ver
 - [ ] **AC-1** — THE SYSTEM SHALL `Npgsql.EntityFrameworkCore.PostgreSQL` als NuGet-Paket installieren und in `Program.cs` registrieren.
 - [ ] **AC-2** — THE SYSTEM SHALL einen `AppDbContext` anlegen, der den Connection String aus der Environment-Variable `DATABASE_URL` (alternativ `ConnectionStrings__DefaultConnection`) liest.
 - [ ] **AC-3** — THE SYSTEM SHALL eine erste Migration mit dem Namen `InitialCreate` anlegen; die Migration enthält keine Tabellenänderungen (leerer Stand).
-- [ ] **AC-4** — WHEN die App in der `Development`-Umgebung startet, THEN SHALL `dbContext.Database.MigrateAsync()` automatisch ausgeführt werden.
-- [ ] **AC-5** — WHEN die App in der `Production`-Umgebung (Cloud) startet, THEN SHALL `MigrateAsync()` ebenfalls ausgeführt werden, sodass Azure-Deployments automatisch die DB migrieren.
-- [ ] **AC-6** — IF die Datenbankverbindung beim Start nicht hergestellt werden kann, THEN SHALL die App mit einer lesbaren Fehlermeldung im Log abbrechen (kein unbehandelter Exception-Crash).
-- [ ] **AC-7** — WHEN `dotnet ef migrations list` ausgeführt wird, THEN SHALL `InitialCreate` als einzige Migration in der Liste erscheinen.
+- [ ] **AC-4** — WHEN die App startet (unabhängig von der Umgebung), THEN SHALL `dbContext.Database.MigrateAsync()` automatisch ausgeführt werden, sodass Migrations sowohl lokal als auch in Azure Container Apps automatisch angewendet werden.
+- [ ] **AC-5** — IF die Datenbankverbindung beim Start nicht hergestellt werden kann, THEN SHALL die App mit einer lesbaren Fehlermeldung im Log abbrechen (kein unbehandelter Exception-Crash).
+- [ ] **AC-6** — WHEN `dotnet ef migrations list` ausgeführt wird, THEN SHALL `InitialCreate` als einzige Migration in der Liste erscheinen.
 
 ## Abhängigkeiten
 

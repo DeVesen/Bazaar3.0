@@ -25,12 +25,14 @@ Technisches Grundsetup der Voranmelde-App: Angular-Frontend und .NET-Backend wer
 
 Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich. Es ist Voraussetzung für alle nachfolgenden Epics. Siehe Entwicklungsrichtlinie in `CLAUDE.md`.
 
+Die Voranmelde-App lebt in einem **eigenen Repository** — `frontend/` und `backend/` liegen direkt am Repository-Root.
+
 Der Unterschied zur Haupt-App: Mehrsprachigkeit (ngx-translate) wird hier bereits im Projekt-Setup verankert, und das Backend enthält die Grundkonfiguration für JWT-Authentifizierung.
 
 ## Stories
 
-- [VPROJ-S01 — Angular-Projekt anlegen](stories/VPROJ-S01-angular-projekt-anlegen.md)
 - [VPROJ-S02 — .NET Minimal API anlegen](stories/VPROJ-S02-dotnet-api-anlegen.md)
+- [VPROJ-S01 — Angular-Projekt anlegen](stories/VPROJ-S01-angular-projekt-anlegen.md)
 - [VPROJ-S03 — Docker Compose Setup](stories/VPROJ-S03-docker-compose-setup.md)
 - [VPROJ-S04 — EF Core & Datenbank-Setup](stories/VPROJ-S04-efcore-datenbank-setup.md)
 
