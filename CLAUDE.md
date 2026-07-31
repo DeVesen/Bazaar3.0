@@ -37,8 +37,32 @@ Jedes Feature ist ein **Verzeichnis** (Name des Features), nicht eine einzelne D
 **Struktur:**
 ```
 docs/requirements/<app>/features/<Feature-Name>/
-└── feature.md                 ← Beschreibung des Features
+├── feature.md                 ← Überblick, Zweck, Story-Index
+└── stories/                   ← eine Datei pro User Story
 ```
+
+## Entwicklungsrichtlinie: Feature als vollständiger Durchstich
+
+Jedes fachliche Feature wird als **kompletter vertikaler Durchstich** implementiert — Frontend und Backend gemeinsam, nicht nacheinander.
+
+**Was das konkret bedeutet:**
+
+| Schicht | Inhalt |
+|---|---|
+| **Angular (Frontend)** | Seite / Komponente, Routing, Service, State (Signals) |
+| **.NET Minimal API (Backend)** | API-Endpoint(s), Request/Response-DTOs, Fehlerbehandlung |
+| **EF Core / DB** | Entity, Migration (nur wenn neue Tabelle oder Spalte entsteht) |
+
+**Reihenfolge je Feature:**
+1. API-Vertrag definieren (Endpoint, Request, Response)
+2. Backend implementieren und lokal testen
+3. Angular-Service und Komponente gegen echten Endpoint implementieren
+
+**Ausnahmen — keine fachlichen Durchstiche:**
+- `Feature_Projektanlage` — technisches Setup (Projekte anlegen, Docker, EF Core)
+- `Feature_App_Shell` — Grundgerüst (Sidebar, Layout, Routing-Skeleton, Theme)
+
+Diese beiden Setup-Features sind Voraussetzung für alle fachlichen Features und enthalten keine eigene Business-Logik.
 
 ## Tags & Piles
 

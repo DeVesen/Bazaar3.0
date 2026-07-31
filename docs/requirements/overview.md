@@ -62,14 +62,20 @@ erfassen    registrieren   (einmalig)
 
 - [Anforderungen (Lastenheft)](bazaar-app/requirements.md)
 - [Features](bazaar-app/features/)
+  - **Setup**
+  - [Projektanlage](bazaar-app/features/Feature_Projektanlage/feature.md)
+  - [App Shell](bazaar-app/features/Feature_App_Shell/feature.md)
+  - **Tagesgeschäft**
   - [Artikelannahme](bazaar-app/features/Feature_Artikelannahme/feature.md)
   - [Verkauf](bazaar-app/features/Feature_Verkauf/feature.md)
   - [Abrechnung](bazaar-app/features/Feature_Abrechnung/feature.md)
+  - **Stammdaten**
   - [Artikel](bazaar-app/features/Feature_Artikel/feature.md)
   - [Verkäufer](bazaar-app/features/Feature_Verkaeufer/feature.md)
   - [Verkäufer-Typen](bazaar-app/features/Feature_Verkaeufer_Typen/feature.md)
   - [Marken](bazaar-app/features/Feature_Marken/feature.md)
   - [Kategorien](bazaar-app/features/Feature_Kategorien/feature.md)
+  - **System**
   - [Statistik](bazaar-app/features/Feature_Statistik/feature.md)
   - [Druckfunktionen](bazaar-app/features/Feature_Druckfunktionen/feature.md)
   - [Einstellungen](bazaar-app/features/Feature_Einstellungen/feature.md)
@@ -78,16 +84,23 @@ erfassen    registrieren   (einmalig)
 
 - [Anforderungen (Lastenheft)](advance-registration/requirements.md)
 - [Features](advance-registration/features/)
+  - **Setup**
+  - [Projektanlage](advance-registration/features/Feature_Projektanlage/feature.md)
+  - [App Shell](advance-registration/features/Feature_App_Shell/feature.md)
+  - **Zugang**
   - [Login](advance-registration/features/Feature_Login/feature.md)
+  - **Mein Bereich**
   - [Home (Verkäufer)](advance-registration/features/Feature_Home_Verkaeufer/feature.md)
   - [Home (Admin)](advance-registration/features/Feature_Home_Admin/feature.md)
   - [Meine Artikel](advance-registration/features/Feature_Meine_Artikel/feature.md)
+  - **Verwaltung (Admin)**
   - [Alle Artikel](advance-registration/features/Feature_Alle_Artikel/feature.md)
   - [Verkäufer](advance-registration/features/Feature_Verkaeufer/feature.md)
   - [Verkäufer-Typen](advance-registration/features/Feature_Verkaeufer_Typen/feature.md)
   - [Nummernblöcke](advance-registration/features/Feature_Nummernbloecke/feature.md)
   - [Marken](advance-registration/features/Feature_Marken/feature.md)
   - [Kategorien](advance-registration/features/Feature_Kategorien/feature.md)
+  - **Konto & System**
   - [Profil](advance-registration/features/Feature_Profil/feature.md)
   - [Einstellungen](advance-registration/features/Feature_Einstellungen/feature.md)
   - [Export](advance-registration/features/Feature_Export/feature.md)
