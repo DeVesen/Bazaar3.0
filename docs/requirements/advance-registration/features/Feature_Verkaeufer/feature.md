@@ -1,8 +1,28 @@
+---
+id: F-AR-006
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Verkäufer (Admin)
+
+## Index
+- Überblick — Konzept
+- 1. Filter-Panel — Filteroptionen
+- 2. Tabelle — Verkäuferliste
+- 3. Dialog: Neuen Verkäufer anlegen — Anlage
+- 4. Dialog: Verkäufer bearbeiten — Bearbeitung
+- 5. Dialog-Größe — Layout
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Voranmelde-App
 **Navigation:** Verwaltung → Verkäufer
 **Sichtbar für:** Admin
+
+**Ziel:** Admin verwaltet Verkäufer-Registrierungen in der Voranmelde-App.
+
+**User Story:** Als Admin möchte ich Verkäufer-Registrierungen verwalten und Nummernblöcke zuweisen, damit jeder Verkäufer eindeutige Artikelnummern hat.
 
 ---
 
@@ -89,3 +109,17 @@ Klick → Link in Zwischenablage + Toast „✓ Einladungs-Link kopiert!".
 ## 5. Dialog-Größe
 
 Admin-Seller-Dialog: Größe `lg` (max 940 px).
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN die Verkäufer-Seite geöffnet wird, THEN SHALL das System alle registrierten Verkäufer in einer Tabelle anzeigen.
+2. **AC-2** — WHEN einem Verkäufer ein Nummernblock zugewiesen wird, THEN SHALL das System sicherstellen, dass dieser Block keinem anderen Verkäufer gleichzeitig zugewiesen ist.
+3. **AC-3** — WHEN ein Verkäufer-Datensatz bearbeitet wird, THEN SHALL das System die Änderungen in der Datenbank speichern und die Tabelle aktualisieren.
+4. **AC-4** — IF ein Pflichtfeld beim Speichern leer ist, THEN SHALL das System eine Fehlermeldung unter dem Feld anzeigen und nicht speichern.
+
+## Tags & Piles
+
+**Piles:** #pile/advance-registration
+**Tags:** #verkäufer #admin #registrierung #nummernblock #voranmeldung

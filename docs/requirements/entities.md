@@ -1,4 +1,21 @@
+---
+id: DOC-002
+status: draft
+updated: 2026-07-31
+---
+
 # Datenmodell — Bazaar Suite
+
+## Index
+- Artikel — Felder
+- Verkäufer — Felder
+- Marke — Felder
+- Kategorie — Felder
+- Verkäufer-Type — Felder
+- Nummernblock — Felder
+- Export-Format — JSON-Schema
+- Artikel-Status — Statusmodell
+- Tags & Piles — Ablage
 
 **Version:** 0.2  
 **Datum:** 2026-06-14  
@@ -139,3 +156,10 @@ Der Status eines Artikels ergibt sich aus den DateTime-Feldern:
 | **Zurückgegeben** | `rueckgegebenAm` gesetzt |
 
 **Hinweis:** `angenommenAm` und `freigegebenAm` werden beim Buchen der Artikelannahme gleichzeitig auf `now` gesetzt. Im Lastenheft (7.4) wird `freigegebenAm` als der statusgebende Zeitstempel verwendet.
+
+---
+
+## Tags & Piles
+
+**Piles:** #pile/docs
+**Tags:** #entities #datenmodell #artikel #verkäufer #export-format

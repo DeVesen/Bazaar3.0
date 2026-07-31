@@ -1,7 +1,27 @@
+---
+id: F-BA-003
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Abrechnung
+
+## Index
+- Überblick — Prozess-Ablauf
+- 1. Verkäufer-Selektion — Auswahl
+- 2. Abrechnungs-Ansicht — Hauptansicht
+- 3. Zurückgeben-Popup — Rückgabe
+- 4. Abrechnen-Popup — Abrechnung
+- 5. Druckfunktion — Ausdruck
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** Tagesgeschäft → Abrechnung
+
+**Ziel:** Kassenpersonal rechnet einen Verkäufer ab und bereitet die Auszahlung vor.
+
+**User Story:** Als Kassenpersonal möchte ich einen Verkäufer auswählen, seine Artikel abrechnen und einen Ausdruck erstellen, damit die Auszahlung korrekt und dokumentiert erfolgt.
 
 ---
 
@@ -104,3 +124,17 @@ Klick **„Buchen"** → `abgerechnetAm = jetzt` wird am Verkäufer gesetzt.
 
 Beim Klick auf **„Drucken"** wird die Verkäufer-Übersicht gedruckt.
 Details → [Feature_Druckfunktionen](../Feature_Druckfunktionen/feature.md)
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN die Abrechnung-Seite geöffnet wird, THEN SHALL das System die Verkäufer-Auswahl anzeigen und keinen Verkäufer vorselektieren.
+2. **AC-2** — WHEN ein Verkäufer ausgewählt wird, THEN SHALL das System seine Kennzahlen (Warenwert, Provision, Gebühr, Auszahlung) und seine Artikelliste laden und anzeigen.
+3. **AC-3** — WHILE ein Verkäufer noch Artikel mit Status `freigegeben` hat, SHALL das System den „Abrechnen"-Button deaktiviert halten.
+4. **AC-4** — WHEN „Abrechnen" geklickt wird, THEN SHALL das System alle Artikel des Verkäufers mit Status `verkauft` auf Status `abgerechnet` und `abgerechnetAm = jetzt` setzen.
+5. **AC-5** — WHEN „Zurückgeben" geklickt wird, THEN SHALL das System alle Artikel des Verkäufers mit Status `freigegeben` auf Status `retour` setzen.
+6. **AC-6** — WHEN „🖨️ Drucken" geklickt wird, THEN SHALL das System den Druckdialog mit gruppierten Artikeln (Im Verkauf, Verkauft, Sonstige) öffnen.
+
+## Tags & Piles
+
+**Piles:** #pile/bazaar-app
+**Tags:** #abrechnung #verkäufer #auszahlung #provision #drucken

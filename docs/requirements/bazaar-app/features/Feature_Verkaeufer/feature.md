@@ -1,7 +1,27 @@
+---
+id: F-BA-005
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Verkäufer
+
+## Index
+- Überblick — Karten-Ansicht
+- 1. Filter-Panel — Filteroptionen
+- 2. Status-Definition — Statuslogik
+- 3. Verkäufer-Karte — Kartenaufbau
+- 4. Verkäufer bearbeiten — Bearbeiten
+- 5. Artikel-Freigeben-Popup — Freigabe
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** Stammdaten → Verkäufer
+
+**Ziel:** Admin verwaltet Verkäufer-Stammdaten der Haupt-App.
+
+**User Story:** Als Admin möchte ich Verkäufer anlegen, suchen und bearbeiten, damit das Kassenpersonal bei der Artikelannahme korrekte Daten vorfindet.
 
 ---
 
@@ -155,3 +175,17 @@ Nach Ablauf der Anzeigezeit → Kamerabild wieder aktiv.
 **Abbrechen-Button** → zurück in Eingabe-Modus.
 
 **Feedback:** Ton (Web Audio API) + Vibration (`Navigator.vibrate()`).
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN der Nutzer Text in das Suchfeld eingibt und die Debounce-Zeit abgelaufen ist, THEN SHALL das System die Verkäuferliste auf Einträge filtern, die den Suchbegriff in Name oder Nummer enthalten.
+2. **AC-2** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit leeren Pflichtfeldern (Vorname, Nachname, Verkäufer-Typ) öffnen.
+3. **AC-3** — WHEN ein neuer Verkäufer gespeichert wird, THEN SHALL das System ihn in der Datenbank anlegen und in der Liste anzeigen.
+4. **AC-4** — WHEN „Edit" bei einem Verkäufer geklickt wird, THEN SHALL das System das Popup mit den vorausgefüllten Verkäuferdaten öffnen.
+5. **AC-5** — WHEN auf einen Verkäufer-Eintrag geklickt wird, THEN SHALL das System das Verkäufer-Detail-Panel mit QR-Code und Artikelliste anzeigen.
+6. **AC-6** — IF beim Speichern ein Pflichtfeld leer ist, THEN SHALL das System eine Fehlermeldung unter dem jeweiligen Feld anzeigen und nicht speichern.
+
+## Tags & Piles
+
+**Piles:** #pile/bazaar-app
+**Tags:** #verkäufer #stammdaten #qr-code #crud #haupt-app

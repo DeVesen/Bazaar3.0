@@ -1,8 +1,26 @@
+---
+id: F-AR-008
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Nummernblöcke
+
+## Index
+- Überblick — Konzept
+- 1. Block-Anzeige — Darstellung
+- 2. Nummernblock-Logik — Vergabe-Regeln
+- 3. Hinweis — Admin-Verweis
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Voranmelde-App
 **Navigation:** Konto → Nummernblöcke
 **Sichtbar für:** Verkäufer (read-only)
+
+**Ziel:** Admin verwaltet Nummernblöcke und weist sie Verkäufern zu.
+
+**User Story:** Als Admin möchte ich Nummernblöcke definieren und Verkäufern zuweisen, damit jeder Verkäufer eindeutige Artikelnummern erhält.
 
 ---
 
@@ -39,3 +57,17 @@ Für jeden zugewiesenen Block:
 
 Weitere Blöcke können nur vom Admin im Verkäufer-Bearbeiten-Dialog zugewiesen werden.
 Details → [Feature_Verkaeufer](../Feature_Verkaeufer/feature.md) Abschnitt 4 (Panel-04 Nummernblöcke).
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit Feldern für Start- und Endnummer öffnen.
+2. **AC-2** — IF sich ein neuer Nummernblock mit einem bestehenden überschneidet, THEN SHALL das System eine Fehlermeldung „Nummernbereich überschneidet sich mit bestehendem Block" anzeigen und nicht anlegen.
+3. **AC-3** — WHEN einem Verkäufer ein Block zugewiesen wird, THEN SHALL das System den Block in der Tabelle als „Vergeben" markieren und ihn für andere Zuweisungen sperren.
+4. **AC-4** — WHEN die Zuweisung aufgehoben wird, THEN SHALL das System den Block wieder als „Frei" markieren.
+
+## Tags & Piles
+
+**Piles:** #pile/advance-registration
+**Tags:** #nummernblöcke #admin #artikelnummern #zuweisung #stammdaten

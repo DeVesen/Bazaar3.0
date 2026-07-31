@@ -1,7 +1,28 @@
+---
+id: F-BA-002
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Verkauf
+
+## Index
+- Überblick — Kassenmodus
+- 1. Seiten-Layout — Grid-Aufteilung
+- 2. Artikelnummer-Eingabe — Scan & Suche
+- 3. Warenkorb — Artikel & Summe
+- 4. Buchung / Bezahlpopup — Abschluss
+- 5. InfoArea-Zustände — Rückmeldungen
+- 6. Fokus-Verhalten — Eingabefokus
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** Tagesgeschäft → Verkauf
+
+**Ziel:** Kassenpersonal scannt Artikel per Barcode und schließt den Bezahlvorgang ab.
+
+**User Story:** Als Kassenpersonal möchte ich Artikel per Barcode-Scan zum Warenkorb hinzufügen und den Verkauf abrechnen, damit Kunden zügig bedient werden.
 
 ---
 
@@ -20,9 +41,10 @@ Kassenvorgang mit Artikelnummer-Eingabe (USB-Barcode-Scanner oder Kamera-Scan), 
 │                         │                          │
 │  [InputGroup]           │  [Artikel-Liste]         │
 │  [InfoArea]             │  [Gesamt: XX,XX €]       │
-│  [Preis-Button ggf.]    │  [🗑 Leeren] [💳 BUCHEN] │
+│  [Preis-Button*]        │  [🗑 Leeren] [💳 BUCHEN] │
 └─────────────────────────┴─────────────────────────┘
 ```
+*erscheint nur nach erfolgreicher Artikel-Erkennung
 
 - Outer-Grid: `grid-template-columns: 1fr 1fr`, gap 14 px
 
@@ -116,3 +138,18 @@ Klick auf **„Bezahlt"**:
 
 - Beim Navigieren zur Verkauf-Seite: Fokus auf Artikelnummer-Eingabefeld (`pAutoFocus`)
 - Nach jedem Warenkorb-Vorgang: Fokus zurück auf Eingabefeld
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN die Verkauf-Seite geöffnet wird, THEN SHALL das System den Fokus auf das Artikelnummer-Eingabefeld setzen und eine blaue InfoArea mit Text „Ersten Artikel eingeben …" anzeigen.
+2. **AC-2** — WHEN eine Artikelnummer eingegeben wird und der Artikel den Status `freigegeben` hat, THEN SHALL das System eine grüne InfoArea mit dem Artikelpreis und einen aktiven Preis-Button anzeigen.
+3. **AC-3** — IF eine Artikelnummer nicht gefunden wird oder der Artikel nicht den Status `freigegeben` hat, THEN SHALL das System eine rote InfoArea mit einem Fehlerhinweis anzeigen.
+4. **AC-4** — WHEN der Preis-Button geklickt wird, THEN SHALL das System den Artikel zum Warenkorb hinzufügen, das Eingabefeld leeren und den Fokus zurücksetzen.
+5. **AC-5** — WHEN „Leeren" geklickt wird, THEN SHALL das System den Warenkorb leeren, das Eingabefeld leeren und eine blaue InfoArea anzeigen.
+6. **AC-6** — WHILE der empfangene Betrag kleiner als der Gesamtbetrag ist, SHALL das System den „Bezahlt"-Button deaktiviert halten.
+7. **AC-7** — WHEN „Bezahlt" geklickt wird, THEN SHALL das System alle Warenkorb-Artikel mit Status `verkauft` und `verkauftAm = jetzt` in der Datenbank speichern und den Warenkorb leeren.
+
+## Tags & Piles
+
+**Piles:** #pile/bazaar-app
+**Tags:** #verkauf #warenkorb #barcode-scanner #kasse #bezahlung

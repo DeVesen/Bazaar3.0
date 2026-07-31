@@ -1,8 +1,27 @@
+---
+id: F-AR-007
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Verkäufer-Typen
+
+## Index
+- Überblick — Konzept
+- 1. Tabelle — Typen-Liste
+- 2. Aktionen — CRUD
+- 3. Default-Type — Standardtyp
+- 4. Verhalten beim Zuweisen — Konditionsübernahme
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Voranmelde-App
 **Navigation:** Stammdaten → Verkäufer-Types
 **Sichtbar für:** Admin
+
+**Ziel:** Admin verwaltet Verkäufer-Typen in der Voranmelde-App.
+
+**User Story:** Als Admin möchte ich Verkäufer-Typen definieren, damit Verkäufer beim Registrieren den passenden Typ wählen können.
 
 ---
 
@@ -44,3 +63,16 @@ Dieser Type wird auf der Login-Seite in der Info-Area als „Default-Konditionen
 
 Wenn einem Verkäufer ein Type zugewiesen wird → `provision` und `gebuehr` des Verkäufers werden vorausgefüllt (überschreibbar).
 Admin kann individuelle Konditionen pro Verkäufer nachjustieren.
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit Feldern für Name, Provision (%) und Gebühr (€) öffnen.
+2. **AC-2** — WHEN ein neuer Typ gespeichert wird, THEN SHALL das System ihn in der Datenbank anlegen und in der Tabelle anzeigen.
+3. **AC-3** — IF ein Verkäufer-Typ gelöscht werden soll, der noch Verkäufern zugewiesen ist, THEN SHALL das System eine Fehlermeldung anzeigen und nicht löschen.
+
+## Tags & Piles
+
+**Piles:** #pile/advance-registration
+**Tags:** #verkäufer-typen #admin #stammdaten #voranmeldung #crud
