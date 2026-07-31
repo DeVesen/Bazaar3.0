@@ -115,6 +115,11 @@ Das Parent ist verantwortlich dafür, den neuen Eintrag in der Datenbank anzuleg
 | Bestätigung im Modal | `entryCreated` emittiert; Modal schließt; Feld zeigt neuen Wert |
 | Abbrechen im Modal | Modal schließt; Feld unverändert |
 
+### Dropdown-Öffnungsverhalten
+
+Das Dropdown öffnet **sofort beim Fokus** (Tab- oder Mausklick ins Feld) — ohne Mindest-Zeichen-Eingabe.
+Bei leerem Feld werden **alle** Einträge angezeigt; erst beim Tippen wird die Liste auf Einträge eingeschränkt, die den eingegebenen Text enthalten.
+
 ---
 
 ## 4. Anlegen-Modal
@@ -124,6 +129,14 @@ Das Parent ist verantwortlich dafür, den neuen Eintrag in der Datenbank anzuleg
 - Einziges Feld: `pInputText` vorausgefüllt mit eingetipptem Wert
 - Buttons: `[Abbrechen]` (secondary) + `[Anlegen]` (primary)
 - `[Anlegen]` deaktiviert wenn Feld leer
+
+### Tastaturnavigation im Modal
+
+| Taste | Verhalten |
+|---|---|
+| `Tab` / `Shift+Tab` | Fokus wechselt zwischen Namens-Feld, `[Abbrechen]` und `[Anlegen]` |
+| `Enter` (Fokus im Namens-Feld) | Löst `[Anlegen]` aus — sofern Feld nicht leer |
+| `Escape` | Schließt Modal ohne Anlegen (entspricht `[Abbrechen]`) |
 
 ---
 

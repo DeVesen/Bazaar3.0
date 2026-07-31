@@ -1,5 +1,6 @@
 ---
 id: F-AR-006
+code: VERK-VA
 status: draft
 updated: 2026-07-31
 ---
@@ -111,6 +112,10 @@ Klick → Link in Zwischenablage + Toast „✓ Einladungs-Link kopiert!".
 Admin-Seller-Dialog: Größe `lg` (max 940 px).
 
 ---
+
+## Stories
+
+- [VERK-VA-S01 — Admin-Dialog-Formular (Verkäufer anlegen / bearbeiten)](stories/VERK-VA-S01-admin-seller-dialog-form.md)
 
 ## Akzeptanzkriterien
 

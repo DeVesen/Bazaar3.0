@@ -98,6 +98,15 @@ Der KPI-Grid-Wrapper ist ein reines Layout-Element (`display: grid; grid-templat
 | SubLabel | 12 px, muted, margin-top 2 px |
 | Severity-Streifen | 3 px oben, `border-top: 3px solid <severity-color>` |
 
+### Container-Farben & Border
+
+| Eigenschaft | Wert |
+|---|---|
+| Hintergrund | `#ffffff` |
+| Border | `1px solid var(--border)` |
+| Border-radius | `8 px` |
+| Text-align | `center` |
+
 ### Severity-Farben
 
 | Severity | Farbe |
@@ -108,6 +117,14 @@ Der KPI-Grid-Wrapper ist ein reines Layout-Element (`display: grid; grid-templat
 | `info` | `var(--p-blue-500)` |
 | `null` | kein Streifen |
 
+### Typografie-Stufen
+
+| Element | Font-Size | Font-Weight | Farbe |
+|---|---|---|---|
+| Label | 11 px | 600 | `--muted` |
+| Hauptwert | 28 px | 800 | `#0f1f30` (Standard) · Severity-Farbe bei Akzent |
+| Sub-Label | 12 px | 400 | `--muted` |
+
 ### Responsive
 
 | Viewport | Verhalten |
@@ -115,6 +132,15 @@ Der KPI-Grid-Wrapper ist ein reines Layout-Element (`display: grid; grid-templat
 | Desktop (≥ 1024 px) | Konfigurierte Spaltenanzahl |
 | Tablet (768–1023 px) | Max. 3 Spalten |
 | Mobil (< 768 px) | 2 Spalten |
+
+### Grid-Klassen
+
+| Klasse | Spalten | Einsatz |
+|---|---|---|
+| `c6` | 6 gleichbreit | Statistik Zeile 1 |
+| `c5` | 5 gleichbreit | Statistik Zeile 3 · Admin-Home (Voranmelde) |
+| `c4` | 4 gleichbreit | Home (Voranmelde) |
+| `c3` | 3 gleichbreit | Statistik Zeile 2 · Abrechnung |
 
 ---
 

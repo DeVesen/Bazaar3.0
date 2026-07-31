@@ -10,6 +10,9 @@ updated: 2026-07-31
 - Grundregel: Dumb Component — Architekturprinzip
 - Grundregel: PrimeNG — UI-Bibliothek
 - Komponenten-Index — Komponentenliste
+- PrimeNG-Komponenten-Mapping — Forms, Buttons, Tabellen
+- Globale Layout-Abstände — Content-Padding, Page-Header, Sidebar
+- PrimeNG MISC-Komponenten — Direktiven und Widgets
 - Tags & Piles — Ablage
 
 Hier sind alle UI-Komponenten der Bazaar Suite beschrieben: Aussehen, Verhalten und Funktionen,
@@ -65,6 +68,115 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Numpad** | Zustandsloser In-App-Ziffernblock für touch-freundliche Zahleneingabe ohne native Tastatur | [numpad/](numpad/component.md) |
 | **Countdown** | Live-Countdown (Tage + HH:MM:SS) bis zu einem Zieldatum; Varianten für KPI-Tile und Info-Box | [countdown/](countdown/component.md) |
 | **Activity-Heatmap** | 12-Wochen-Aktivitäts-Grid (GitHub-Style) mit Farb-Levels und Hover-Tooltip | [activity-heatmap/](activity-heatmap/component.md) |
+| **InputGroup** | Kombiniertes Eingabefeld mit Prefix-/Suffix-Add-on (`p-inputgroup` + `p-inputgroupaddon`) | [input-group/](input-group/component.md) |
+| **Info-Area** | Kontextbezogene Hinweis- und Statusfläche (Info-Box) für Seiten und Panels | [info-area/](info-area/component.md) |
+| **Badge** | Status-Badge für Artikel- und Verkäufer-Zustände (success/danger/warn/info/sec/original/neu) | [badge/](badge/component.md) |
+| **Modal** | Modaler Dialog auf Basis von `p-dialog [modal]="true"` (via `DialogService`) | [modal/](modal/component.md) |
+| **Card** | Standard-Card und Panel-Block-Container für Formular- und Listeninhalte | [card/](card/component.md) |
+| **Sidebar-Footer** | Footer-Bereich der Sidebar mit Avatar, Rollenangabe, Role-Toggle und Abmelden-Button | [sidebar-footer/](sidebar-footer/component.md) |
+
+---
+
+## PrimeNG-Komponenten-Mapping
+
+Konsolidiertes Mapping aus beiden Apps (Haupt-App § 11.1, Voranmelde-App § 13.1). App-spezifische Abweichungen sind in der Spalte „Hinweis" vermerkt.
+
+### Form & Eingaben
+
+| UI-Element | PrimeNG-Komponente | Hinweis |
+|---|---|---|
+| Text-Eingabe | `pInputText` (Direktive auf `<input>`) | — |
+| Passwort | `p-password` | Nur Voranmelde-App |
+| Zahl (Preis, Provision, Gebühr …) | `p-inputnumber` | Locale DE; `minFractionDigits="2"` für Preise |
+| Textarea | `pTextarea` (Direktive auf `<textarea>`) | — |
+| Dropdown / Select | `p-select` | PrimeNG 18+ |
+| AutoComplete (Marke/Kategorie) | `p-autocomplete [dropdown]="true" [forceSelection]="false"` | Neuer Wert → `p-dialog` via `DialogService` |
+| InputGroup | `p-inputgroup` + `p-inputgroupaddon` + `pInputText` | — |
+| Datum / Uhrzeit | `p-datepicker` | Nur Voranmelde-App (Einstellungen) |
+| Checkbox | `p-checkbox` | Nur Voranmelde-App (Export-Optionen) |
+| Datei-Upload | `p-fileupload mode="basic"` | Nur Haupt-App (Import JSON) |
+| Toggle-Schalter | `p-toggleswitch` | „Original"-Flag, Admin-Rechte |
+
+### Buttons
+
+| Typ | PrimeNG | Einsatz |
+|---|---|---|
+| Primär | `p-button severity="primary"` | Hauptaktion |
+| Erfolg | `p-button severity="success"` | Buchen, Abrechnen, Speichern |
+| Gefahr | `p-button severity="danger"` | Löschen |
+| Sekundär / Outline | `p-button severity="secondary" [outlined]="true"` | Abbrechen, Zurück, Drucken |
+| Klein | `p-button size="small"` | Karten-Aktionen |
+| Icon-Button (Text-Stil) | `p-button [text]="true" [rounded]="true"` | Status Löschen/Setzen |
+
+### Tabellen & Feedback
+
+| UI-Element | PrimeNG-Komponente |
+|---|---|
+| Tabelle | `p-table [sortMode]="'multiple'"` |
+| Dialog / Modal | `p-dialog [modal]="true"` (via `DialogService`) |
+| Toast | `p-toast` + `MessageService` |
+
+---
+
+## Globale Layout-Abstände
+
+Gilt app-übergreifend; App-spezifische Abweichungen sind in Klammern vermerkt (Haupt-App § 11.2, Voranmelde-App § 13.2).
+
+### Content-Bereich
+
+| Eigenschaft | Desktop | Mobile (≤ 768 px) |
+|---|---|---|
+| Content-Padding oben/unten | 26 px | 14 px |
+| Content-Padding links/rechts | 22 px | 12 px |
+| Content-Hintergrund | `#f0f2f5` (Haupt-App) / `#f0f4f7` (Voranmelde-App) | — |
+
+### Page-Header-Format
+
+```css
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 20px;
+```
+
+| Element | Stil |
+|---|---|
+| Titel | 20 px, 800, `#0f1f30` (Haupt-App) / `#0d1f2a` (Voranmelde-App) |
+| Actions (rechts) | `display: flex; gap: 8px` |
+
+### Sidebar
+
+| Element | Haupt-App | Voranmelde-App |
+|---|---|---|
+| Breite | 228 px | 240 px |
+| Logo-Block Padding | 20 px 18 px 16 px | — |
+| Logo Font | 17 px, 800, weiß | — |
+| Logo Border-Bottom | 1 px solid rgba(255,255,255,0.1) | — |
+| Section-Label | 10 px, 700, uppercase, 1.2 px letter-spacing | — |
+| Trennlinie | 1 px solid rgba(255,255,255,0.07), mx 14 px | — |
+| Nav-Item Padding | 9 px 18 px | — |
+| Nav-Item Font | 13.5 px | — |
+| Nav-Icon | 16 px, Breite 18 px | — |
+
+---
+
+## PrimeNG MISC-Komponenten
+
+Konsolidierte Liste aller MISC-Direktiven und -Widgets aus beiden Apps (Haupt-App § 11.7, Voranmelde-App § 13.8).
+
+| Komponente | Einsatz | App |
+|---|---|---|
+| `pAutoFocus` | Suchfeld (Annahme, Abrechnung), Artikelnummer (Verkauf, Wizard Schritt 2), erstes Feld in Dialogen | Beide |
+| `pFocusTrap` | Fokus bleibt in offenem `p-dialog` | Beide |
+| `pAnimateOnScroll` | KPI-Kacheln und Karten-Grids beim Scrollen in Viewport | Beide |
+| `p-avatar` | Sidebar-Footer: Initial-Buchstabe, Farbe `#3ecf8e` | Voranmelde-App |
+| `p-badge` | Offene Artikel-Anzahl im Sidebar-Menüpunkt | Beide |
+| `p-chip` | Aktive Filter-Tags im Filter-Panel (mit × zum Entfernen) | Beide |
+| `p-progressbar` | Import-Fortschritt (Einstellungen) | Haupt-App |
+| `p-metergroup` | Statistik: Anteil Verkauft / Im Verkauf / Retour als Balken | Haupt-App |
+| `p-progressspinner` | Ladeindikator bei Such-Debounce (ersetzt Clear-Button) | Beide |
+| `p-skeleton` | Tabellen-Lade-Skelett (5 Zeilen, nur beim ersten Laden) | Beide |
+| `p-scrolltop` | Scroll-nach-oben ab 400 px Scrolltiefe, `smooth` | Beide |
 
 ---
 

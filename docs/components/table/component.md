@@ -23,6 +23,7 @@ updated: 2026-07-31
 - 9. Verhalten bei Aktionen — Edit & Neu
 - 10. Responsive — Mobilanpassung
 - 11. PrimeNG-Basis — Technische Basis
+- 12. Visual Stil — Streifen, Hover & Skeleton
 - Akzeptanzkriterien — Prüfbare Kriterien
 - Tags & Piles — Thematische Einordnung
 
@@ -319,6 +320,38 @@ Enum-Preset-Werte: `<ng-template pTemplate="filter">` mit `p-listbox` oder `p-mu
 
 ---
 
+## 12. Visual Stil
+
+### 12.1 Striped Rows
+
+Jede zweite Tabellenzeile erhält einen abweichenden Hintergrund:
+
+| Zeile | Hintergrund |
+|---|---|
+| Ungerade (1., 3., …) | Weiß (Standard) |
+| Gerade (2., 4., …) | `#FAFAFA` |
+
+PrimeNG-Attribut: `[stripedRows]="true"` am `p-table`-Element.
+
+### 12.2 Hover-Highlight
+
+Beim Überfahren einer Zeile mit der Maus wird diese optisch hervorgehoben.
+
+PrimeNG-Attribut: `[rowHover]="true"` am `p-table`-Element.
+Die Hover-Farbe folgt dem aktiven PrimeNG-Theme (`var(--p-datatable-row-hover-background)`).
+
+### 12.3 Loading-Skeleton
+
+Solange `loading = true` (beim **ersten** Laden), werden anstelle der echten Zeilen **5 Skelett-Zeilen** als Shimmer-Platzhalter dargestellt:
+
+- Jede Skelett-Zeile enthält pro Datenspalte ein `p-skeleton`-Element
+- Während des Ladens sind Filter und Sortierung inaktiv
+- Sobald `loading = false` und `data` befüllt ist, verschwinden die Skelett-Zeilen
+
+PrimeNG-Umsetzung: `[loading]="loading"` am `p-table`-Element mit `<ng-template pTemplate="loadingbody">`.
+
+---
+
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN eine sortierbare Spalte geklickt wird, THEN SHALL das System die Tabelle nach dieser Spalte aufsteigend sortieren und das Sortier-Icon auf `▲` setzen.
@@ -328,6 +361,9 @@ Enum-Preset-Werte: `<ng-template pTemplate="filter">` mit `p-listbox` oder `p-mu
 5. **AC-5** — WHEN ein Action-Button in der Aktionsspalte geklickt wird, THEN SHALL das System das Event `actionClick` mit `{ actionId, row }` emittieren.
 6. **AC-6** — WHEN keine Datensätze vorhanden sind und kein Filter aktiv ist, THEN SHALL das System den Text „Keine Einträge gefunden." zentriert anzeigen.
 7. **AC-7** — WHEN ein aktiver Filter kein Ergebnis liefert, THEN SHALL das System den Text „Keine Einträge für den gewählten Filter gefunden." zentriert anzeigen.
+8. **AC-8** — WHEN die Tabelle gerendert wird, THEN SHALL jede zweite Datenzeile den Hintergrund `#FAFAFA` erhalten (Striped Rows).
+9. **AC-9** — WHEN der Mauszeiger über eine Tabellenzeile bewegt wird, THEN SHALL die Zeile optisch hervorgehoben werden (Hover-Highlight).
+10. **AC-10** — WHEN `loading = true` ist, THEN SHALL die Tabelle anstelle der Datenzeilen 5 Skelett-Zeilen mit `p-skeleton`-Shimmer-Platzhaltern pro Datenspalte anzeigen.
 
 ## Tags & Piles
 
