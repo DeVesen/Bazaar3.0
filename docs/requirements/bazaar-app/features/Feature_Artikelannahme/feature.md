@@ -160,6 +160,7 @@ Die Artikelnummer wird systemweit auf Eindeutigkeit geprüft. Keine zwei Artikel
 ## Stories
 
 - [ANNAHME-S01 — Inline-Kamera-Scanner mit Countdown-Feedback](stories/ANNAHME-S01-inline-camera-mode.md)
+- [ANNAHME-S02 — Verkäufer-Formular im Wizard Schritt 1 (Panel 01–03)](stories/ANNAHME-S02-seller-form-layout.md)
 
 ## Tags & Piles
 

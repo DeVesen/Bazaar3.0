@@ -1,5 +1,6 @@
 ---
 id: F-BA-005
+code: VERK
 status: draft
 updated: 2026-07-31
 ---
@@ -184,6 +185,10 @@ Nach Ablauf der Anzeigezeit → Kamerabild wieder aktiv.
 4. **AC-4** — WHEN „Edit" bei einem Verkäufer geklickt wird, THEN SHALL das System das Popup mit den vorausgefüllten Verkäuferdaten öffnen.
 5. **AC-5** — WHEN auf einen Verkäufer-Eintrag geklickt wird, THEN SHALL das System das Verkäufer-Detail-Panel mit QR-Code und Artikelliste anzeigen.
 6. **AC-6** — IF beim Speichern ein Pflichtfeld leer ist, THEN SHALL das System eine Fehlermeldung unter dem jeweiligen Feld anzeigen und nicht speichern.
+
+## Stories
+
+- [VERK-S01 — Verkäufer-Formular im Bearbeiten-Dialog (Panel 01–03)](stories/VERK-S01-seller-edit-form-layout.md)
 
 ## Tags & Piles
 
