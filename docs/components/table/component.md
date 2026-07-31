@@ -1,3 +1,9 @@
+---
+id: C-001
+status: draft
+updated: 2026-07-31
+---
+
 # Component: Table
 
 **Bibliothek:** PrimeNG `p-table` + Virtual Scroll
@@ -17,6 +23,12 @@
 - 9. Verhalten bei Aktionen — Edit & Neu
 - 10. Responsive — Mobilanpassung
 - 11. PrimeNG-Basis — Technische Basis
+- Akzeptanzkriterien — Prüfbare Kriterien
+- Tags & Piles — Thematische Einordnung
+
+**Beschreibung:** Wiederverwendbare Listenansicht-Komponente mit Sortierung, Paginierung und Aktionsspalte auf Basis von PrimeNG p-table.
+
+**Verwendungszweck:** Wird in allen Feature-Seiten eingesetzt, die tabellarische Daten anzeigen (Artikel, Verkäufer, Marken, Kategorien, Statistik-Leaderboard).
 
 ---
 
@@ -304,3 +316,20 @@ Virtual Scroll sorgt dafür, dass auch bei großen Datenlisten (tausende Zeilen)
 Spalten-Filter: `p-columnFilter` mit `display="menu"` — öffnet ein Overlay-Menü mit Eingabefeld, Match-Mode-Auswahl und optionaler Preset-Liste.
 Match-Modi pro Spalte: `[matchModeOptions]` auf `p-columnFilter`.
 Enum-Preset-Werte: `<ng-template pTemplate="filter">` mit `p-listbox` oder `p-multiSelect`.
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN eine sortierbare Spalte geklickt wird, THEN SHALL das System die Tabelle nach dieser Spalte aufsteigend sortieren und das Sortier-Icon auf `▲` setzen.
+2. **AC-2** — WHEN dieselbe sortierbare Spalte erneut geklickt wird, THEN SHALL das System die Sortierreihenfolge auf absteigend umkehren und das Sortier-Icon auf `▼` setzen.
+3. **AC-3** — WHEN Shift+Klick auf eine weitere sortierbare Spalte erfolgt, THEN SHALL das System Multi-Sort aktivieren und nummerierte Badges ①②③ an den aktiven Sortier-Spalten einblenden.
+4. **AC-4** — WHEN die Anzahl der Einträge die konfigurierte Seitengröße überschreitet, THEN SHALL das System eine Paginierungs-Leiste mit Seitengrößen-Auswahl `[10, 25, 50]` und der Anzeige „Zeige X – Y von Z Einträgen" unterhalb der Tabelle einblenden.
+5. **AC-5** — WHEN ein Action-Button in der Aktionsspalte geklickt wird, THEN SHALL das System das Event `actionClick` mit `{ actionId, row }` emittieren.
+6. **AC-6** — WHEN keine Datensätze vorhanden sind und kein Filter aktiv ist, THEN SHALL das System den Text „Keine Einträge gefunden." zentriert anzeigen.
+7. **AC-7** — WHEN ein aktiver Filter kein Ergebnis liefert, THEN SHALL das System den Text „Keine Einträge für den gewählten Filter gefunden." zentriert anzeigen.
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #table #primeng #sortierung #paginierung #listen-ansicht

@@ -1,7 +1,26 @@
+---
+id: F-BA-001
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Artikelannahme
+
+## Index
+- Überblick — Einstieg
+- 1. Artikelannahme-Such-Ansicht — Verkäufer suchen
+- 2. Verkäufer-Anlage-Wizard — Wizard-Ablauf
+- 3. Artikelnummer-Eindeutigkeit — Eindeutigkeit
+- 4. Visual Specs — Layoutdetails
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** Tagesgeschäft → Artikelannahme (= Startseite / Home-Redirect)
+
+**Ziel:** Kassenpersonal erfasst Artikel eines Verkäufers und gibt sie für den Verkauf frei.
+
+**User Story:** Als Kassenpersonal möchte ich Artikel eines Verkäufers in einem Wizard erfassen und buchen, damit alle abgegebenen Artikel korrekt im Verkauf registriert sind.
 
 ---
 
@@ -126,3 +145,18 @@ Die Artikelnummer wird systemweit auf Eindeutigkeit geprüft. Keine zwei Artikel
 ```
 [ Preis                        ][ € ]
 ```
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN das Suchfeld leer ist, THEN SHALL das System alle Verkäufer in der Trefferliste anzeigen.
+2. **AC-2** — WHEN exakt ein Treffer übrig bleibt und der Nutzer Enter drückt, THEN SHALL das System den Wizard-Schritt 2 (Artikelannahme) direkt öffnen.
+3. **AC-3** — IF die Verkäufer-Suche keinen Treffer liefert, THEN SHALL das System einen Button „+ Neuen Verkäufer anlegen" einblenden.
+4. **AC-4** — WHEN „Weiter" geklickt wird und alle Pflichtfelder (Vorname, Nachname) ausgefüllt sind, THEN SHALL das System den neuen Verkäufer anlegen und Wizard-Schritt 2 öffnen.
+5. **AC-5** — WHILE mindestens ein Pflichtfeld (Artikelnummer, Bezeichnung, Kategorie, Marke, Preis) leer ist, SHALL das System den „Übernehmen"-Button deaktiviert halten.
+6. **AC-6** — IF eine Artikelnummer eingegeben wird, die bereits einem vorhandenen Artikel zugewiesen ist, THEN SHALL das System die Fehlermeldung „Artikelnummer bereits vergeben" anzeigen und „Übernehmen" deaktivieren.
+7. **AC-7** — WHEN „Buchen" geklickt wird, THEN SHALL das System alle Sitzungs-Artikel mit Status `freigegeben` und `freigegebenAm = jetzt` speichern und den Druckdialog starten.
+
+## Tags & Piles
+
+**Piles:** #pile/bazaar-app
+**Tags:** #artikelannahme #wizard #verkäufer #barcode-scanner #freigabe

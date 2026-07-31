@@ -1,3 +1,9 @@
+---
+id: DOC-006
+status: draft
+updated: 2026-07-31
+---
+
 # Bazaar Suite
 
 Die **Bazaar Suite** ist eine zweiteilige Software-Suite zur Verwaltung eines Nummern-Basars.
@@ -39,3 +45,8 @@ Jedes Feature ist ein **Verzeichnis** (Name des Features), nicht eine einzelne D
 docs/requirements/<app>/features/<Feature-Name>/
 └── feature.md                 ← Beschreibung des Features
 ```
+
+## Tags & Piles
+
+**Piles:** #pile/docs
+**Tags:** #project-setup #claude-instructions #struktur #primeng #features

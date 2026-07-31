@@ -1,7 +1,10 @@
-# Component: Activity-Heatmap
+---
+id: C-010
+status: draft
+updated: 2026-07-31
+---
 
-**Bibliothek:** Eigener Wrapper — CSS-Grid + `p-tooltip`
-**Verwendung:** Voranmelde-App — Admin-Bereich, Home-Seite.
+# Component: Activity-Heatmap
 
 ## Index
 
@@ -15,6 +18,11 @@
 - 7. Responsive — Mobilanpassung
 - 8. Verwendung in Features — Einsatzorte
 - 9. PrimeNG-Basis — Technische Basis
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
+
+**Bibliothek:** Eigener Wrapper — CSS-Grid + `p-tooltip`
+**Verwendung:** Voranmelde-App — Admin-Bereich, Home-Seite.
 
 ---
 
@@ -155,3 +163,19 @@ p-tooltip       ← Hover-Tooltip auf jeder Zelle
 
 Grid-Aufbau, Farblogik und Label-Positionierung: reines CSS-Grid + TypeScript.
 Keine weitere PrimeNG-Komponente involviert.
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — THE SYSTEM SHALL ein 12-Wochen-Grid mit 84 Zellen rendern, das am Montag der ältesten Woche beginnt und die neueste Woche rechts darstellt.
+2. **AC-2** — WHEN für einen Tag Aktivitätsdaten vorhanden sind, THEN SHALL das System die Zelle in der dem `count`-Wert entsprechenden Farbe (L0–L4) einfärben.
+3. **AC-3** — WHEN für einen Tag keine Daten übergeben werden, THEN SHALL das System die Zelle in Farbe L0 (`#ebedf0`) anzeigen.
+4. **AC-4** — WHEN der Nutzer mit der Maus über eine Zelle fährt, THEN SHALL das System einen `p-tooltip` mit Datum im Format `Wochentag, DD.MM.YYYY` und Anzahl Aktivitäten anzeigen.
+5. **AC-5** — WHEN `count === 0` ist, THEN SHALL das System im Tooltip „Keine Aktivität" statt „0 Aktivitäten" anzeigen.
+6. **AC-6** — THE SYSTEM SHALL den Container mit `overflow-x: auto` versehen, sodass das Grid bei schmalen Viewports horizontal scrollbar ist.
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #activity-heatmap #admin #grid #aktivität #tooltip #voranmeldung

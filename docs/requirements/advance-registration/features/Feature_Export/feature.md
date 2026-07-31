@@ -1,8 +1,27 @@
+---
+id: F-AR-013
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Export
+
+## Index
+- Überblick — Konzept
+- 1. Export-Inhalt — Exportumfang
+- 2. Technische Umsetzung — Download-Mechanismus
+- 3. Export-Format — JSON-Struktur
+- 4. Import in die Haupt-App — Verwendung
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Voranmelde-App
 **Navigation:** System → Export
 **Sichtbar für:** Admin
+
+**Ziel:** Admin exportiert alle Basar-Daten als JSON-Datei für den Import in die Haupt-App.
+
+**User Story:** Als Admin möchte ich alle Verkäufer- und Artikeldaten als JSON-Datei exportieren, damit die Haupt-App am Basar-Tag mit aktuellen Daten befüllt werden kann.
 
 ---
 
@@ -65,3 +84,17 @@ JSON-ASCII-Datei mit folgender Struktur (vereinfacht):
 
 Die exportierte JSON-Datei wird manuell am Basar-Morgen in die Haupt-App importiert (über die Einstellungen-Seite der Haupt-App).
 Details → [Feature_Einstellungen](../../../bazaar-app/features/Feature_Einstellungen/feature.md)
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN „Exportieren" geklickt wird, THEN SHALL das System eine JSON-Datei generieren, die alle Verkäufer mit mindestens einem Artikel enthält.
+2. **AC-2** — THE SYSTEM SHALL Verkäufer ohne Artikel nicht in die Export-Datei aufnehmen.
+3. **AC-3** — THE SYSTEM SHALL die Export-Datei im ASCII-JSON-Format erzeugen, das mit der Haupt-App kompatibel ist.
+4. **AC-4** — WHEN die Export-Datei heruntergeladen wird, THEN SHALL das System eine Bestätigungsmeldung mit Anzahl exportierter Verkäufer und Artikel anzeigen.
+
+## Tags & Piles
+
+**Piles:** #pile/advance-registration
+**Tags:** #export #json #datenschnittstelle #admin #import-vorbereitung

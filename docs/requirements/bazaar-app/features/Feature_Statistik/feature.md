@@ -1,13 +1,34 @@
+---
+id: F-BA-004
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Statistik
+
+## Index
+- Überblick — Live-Kennzahlen
+- 1. KPI-Zeile 1 — Artikel-Übersicht
+- 2. KPI-Zeile 2 — Rückblick
+- 3. KPI-Zeile 3 — Finanz-KPIs
+- 4. Metergroup — Segmentbalken
+- 5. Verkäufer-Leaderboard — Rangliste
+- 6. Abschnitts-Labels — Beschriftungen
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** System → Statistik
+
+**Ziel:** Admin sieht eine aktuelle Übersicht der Basar-Kennzahlen ohne Caching.
+
+**User Story:** Als Admin möchte ich bei jedem Seitenaufruf aktuelle Kennzahlen sehen, damit ich den Veranstaltungsfortschritt jederzeit beurteilen kann.
 
 ---
 
 ## Überblick
 
-Die Statistik-Seite bietet eine **Echtzeit-Übersicht** des aktuellen Basar-Stands. Sie ist schreibgeschützt und rein informativ.
+Die Statistik-Seite bietet eine aktuelle Übersicht des Basar-Stands (Berechnung bei jedem Seitenaufruf, kein Caching). Sie ist schreibgeschützt und rein informativ.
 
 **Technisch:** Alle Berechnungen erfolgen **clientseitig** auf Basis des aktuellen Anwendungszustands. Kein separater Backend-Endpunkt. Die Seite wird bei jedem Aufruf neu berechnet (kein Caching).
 
@@ -99,3 +120,16 @@ Tabellen-Wrapper: `max-height: 300px; overflow-y: auto`.
 | Zeile 3 | `FINANZ-KENNZAHLEN` |
 
 Stil: 12 px, 700, uppercase, 0.8 px letter-spacing, `#4a6080`, mb 8 px, mt 6 px (bei Folgezeilen).
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN die Statistik-Seite aufgerufen wird, THEN SHALL das System alle KPI-Werte clientseitig aus dem aktuellen Anwendungszustand berechnen, ohne einen separaten Backend-Endpunkt aufzurufen.
+2. **AC-2** — THE SYSTEM SHALL die Verkaufsquote als `(Anzahl verkauft + abgerechnet) / Anzahl angenommen × 100` berechnen und als Prozentwert anzeigen.
+3. **AC-3** — WHEN kein Filter gesetzt ist, THEN SHALL das System das Leaderboard nach Verkaufsanzahl absteigend sortiert anzeigen und die Spalte „Typ" einblenden.
+4. **AC-4** — WHEN ein Verkäufer-Typ im Dropdown-Filter ausgewählt wird, THEN SHALL das System das Leaderboard auf diesen Typ filtern und die Spalte „Typ" ausblenden.
+5. **AC-5** — THE SYSTEM SHALL die Metergroup direkt unterhalb der Finanz-KPI-Zeile rendern mit den Segmenten Im Verkauf (primary), Verkauft (success) und Retour (warn), bezogen auf alle angenommenen Artikel.
+
+## Tags & Piles
+
+**Piles:** #pile/bazaar-app
+**Tags:** #statistik #kpi #leaderboard #finanz #metergroup #verkaufsquote

@@ -1,8 +1,27 @@
+---
+id: F-AR-004
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Meine Artikel
+
+## Index
+- Überblick — Konzept
+- 1. Filter-Panel — Filteroptionen
+- 2. Tabelle — Artikelliste
+- 3. Artikelanlage / Artikel bearbeiten — Formular
+- 4. Nummernblock-Logik — Nummernvergabe
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Voranmelde-App
 **Navigation:** Mein Bereich → Meine Artikel
 **Sichtbar für:** Alle (Verkäufer sehen nur eigene Artikel; Admins sehen eigene Artikel — fremde über „Artikel")
+
+**Ziel:** Verkäufer erfasst vorab seine Artikel für den Basar.
+
+**User Story:** Als Verkäufer möchte ich meine Artikel vorab in der Voranmelde-App erfassen, damit ich am Basar-Tag nur noch die physische Übergabe durchführen muss.
 
 ---
 
@@ -71,3 +90,18 @@
 - Artikelnummer wird automatisch aus dem nächsten freien Nummernblock des Verkäufers vergeben
 - Ist der aktuelle Block aufgebraucht → automatisch nächster freier Block zugewiesen
 - Verkäufer kann die Nummer nicht selbst wählen
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Formular zum Anlegen eines neuen Artikels öffnen mit den Feldern Bezeichnung, Preis, Kategorie und Marke.
+2. **AC-2** — WHILE das Pflichtfeld Bezeichnung oder Preis leer ist, SHALL das System den Speichern-Button deaktiviert halten.
+3. **AC-3** — WHEN ein Artikel gespeichert wird, THEN SHALL das System ihn mit Status `registriert` anlegen und in der Artikelliste anzeigen.
+4. **AC-4** — WHEN ein Artikel bearbeitet und gespeichert wird, THEN SHALL das System die geänderten Daten in der Datenbank aktualisieren und in der Liste anzeigen.
+5. **AC-5** — WHEN ein Artikel gelöscht wird, THEN SHALL das System eine Bestätigungsabfrage anzeigen bevor er aus der Datenbank entfernt wird.
+
+## Tags & Piles
+
+**Piles:** #pile/advance-registration
+**Tags:** #meine-artikel #verkäufer #artikel-erfassung #voranmeldung

@@ -1,7 +1,10 @@
-# Component: Seller-Search
+---
+id: C-006
+status: draft
+updated: 2026-07-31
+---
 
-**Bibliothek:** PrimeNG-Komposition — `p-inputgroup` + `p-card` + `p-listbox`
-**Verwendung:** Bazaar Haupt-App — überall dort, wo ein Verkäufer per Suche ausgewählt werden muss, bevor ein weiterer Schritt möglich ist.
+# Component: Seller-Search
 
 ## Index
 
@@ -14,6 +17,11 @@
 - 6. Scan-Modus — QR/Barcode-Erkennung
 - 7. Layout — Aufbau
 - 8. PrimeNG-Basis — Technische Basis
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
+
+**Bibliothek:** PrimeNG-Komposition — `p-inputgroup` + `p-card` + `p-listbox`
+**Verwendung:** Bazaar Haupt-App — überall dort, wo ein Verkäufer per Suche ausgewählt werden muss, bevor ein weiterer Schritt möglich ist.
 
 ---
 
@@ -231,3 +239,20 @@ p-button            ← „+ Neu anlegen" (conditional)
 
 Kameraintegration: `navigator.mediaDevices.getUserMedia()` — keine externe Bibliothek.
 Barcode-Dekodierung: `BarcodeDetector`-API (Chromium) oder `@zxing/browser` als Fallback.
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN das Suchfeld leer ist, THEN SHALL das System alle übergebenen Verkäufer in der Trefferliste anzeigen.
+2. **AC-2** — WHEN der Nutzer Text eingibt, THEN SHALL das System die Trefferliste auf Einträge filtern, deren `id`, `firstName` oder `lastName` den Suchbegriff als Substring enthält (case-insensitive).
+3. **AC-3** — WHEN genau ein Treffer vorhanden ist und Enter gedrückt wird, THEN SHALL das System das `sellerSelected`-Event mit dem gefundenen Verkäufer emittieren.
+4. **AC-4** — WHEN die Trefferliste leer ist und `showCreateButton === true`, THEN SHALL das System den Button „+ Neuen Verkäufer anlegen" einblenden und bei Klick das `createRequested`-Event mit dem aktuellen Suchtext emittieren.
+5. **AC-5** — WHERE `showScanButton === true`, SHALL das System einen 📷-Toggle-Button neben dem Suchfeld anzeigen; Klick darauf stoppt die Trefferliste und zeigt den live Videostream.
+6. **AC-6** — WHEN im Scan-Modus ein QR-Code oder Barcode erkannt wird und genau ein Treffer gefunden wird, THEN SHALL das System `sellerSelected` emittieren und die Kamera stoppen.
+7. **AC-7** — WHEN Escape im Scan-Modus gedrückt wird, THEN SHALL das System die Kamera stoppen und zur Trefferliste zurückkehren.
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #seller-search #verkäufer-suche #scan-modus #trefferliste #artikelannahme #primeng

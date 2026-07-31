@@ -1,4 +1,18 @@
+---
+id: DOC-001
+status: draft
+updated: 2026-07-31
+---
+
 # Bazaar Suite — Overview
+
+## Index
+- Die Suite — App-Übersicht
+- Kernidee — Workflow-Beschreibung
+- Stakeholder — Rollen
+- Dokumentation — Feature-Links
+- Querschnittsthemen — Übergreifendes
+- Tags & Piles — Ablage
 
 **Version:** 1.0
 **Datum:** 2026-07-26
@@ -111,4 +125,11 @@ App- und Feature-übergreifende **UI-Komponenten** (Aussehen, Verhalten, Funktio
 
 ### Export / Import (Datenschnittstelle)
 
-Die JSON-Datenschnittstelle zwischen Voranmelde-App (Export) und Haupt-App (Import) ist das Verbindungsglied beider Apps. Details → Voranmelde-App [Feature Export](advance-registration/features/Feature_Export.md) und Haupt-App [Einstellungen (Import)](bazaar-app/features/Feature_Einstellungen.md).
+Die JSON-Datenschnittstelle zwischen Voranmelde-App (Export) und Haupt-App (Import) ist das Verbindungsglied beider Apps. Details → Voranmelde-App [Feature Export](advance-registration/features/Feature_Export/feature.md) und Haupt-App [Einstellungen (Import)](bazaar-app/features/Feature_Einstellungen/feature.md).
+
+---
+
+## Tags & Piles
+
+**Piles:** #pile/docs
+**Tags:** #overview #suite #haupt-app #voranmelde-app #navigation

@@ -1,7 +1,26 @@
+---
+id: F-BA-006
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Artikel
+
+## Index
+- Überblick — Artikel-Tabelle
+- 1. Filter-Panel — Filteroptionen
+- 2. Tabelle — Spalten & Aktionen
+- 3. Filterbereich — Filter vollständig
+- 4. Artikelstatus-Popup — Status-Popup
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** Stammdaten → Artikel
+
+**Ziel:** Admin sieht und verwaltet alle Artikel des laufenden Basars.
+
+**User Story:** Als Admin möchte ich alle Artikel mit ihrem Status einsehen und verwalten, damit ich einen Überblick über den gesamten Artikelbestand habe.
 
 ---
 
@@ -73,3 +92,16 @@ Beispiel: Löschen von „Freigegeben Am" → auch „Verkauft Am" und „Rückg
 **Gegenseitige Sperre:**
 Ein Artikel kann nicht gleichzeitig „Verkauft" und „Rückgegeben" sein.
 → Ist `verkauftAm` gesetzt → Setzen-Button bei `rückgegebenAm` deaktiviert — und umgekehrt.
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN die Artikel-Seite geöffnet wird, THEN SHALL das System alle Artikel paginiert in einer Tabelle anzeigen.
+2. **AC-2** — WHEN ein Status-Filter gesetzt wird, THEN SHALL das System die Tabelle auf Artikel mit diesem Status einschränken.
+3. **AC-3** — WHEN „Edit" bei einem Artikel geklickt wird, THEN SHALL das System ein Popup mit den vorausgefüllten Artikelfeldern öffnen.
+4. **AC-4** — IF ein Pflichtfeld (Bezeichnung, Preis, Kategorie, Marke) beim Speichern leer ist, THEN SHALL das System eine Fehlermeldung anzeigen und nicht speichern.
+5. **AC-5** — WHEN ein Artikel gespeichert wird, THEN SHALL das System die Tabelle mit den aktualisierten Daten neu laden.
+
+## Tags & Piles
+
+**Piles:** #pile/bazaar-app
+**Tags:** #artikel #stammdaten #status #übersicht #crud

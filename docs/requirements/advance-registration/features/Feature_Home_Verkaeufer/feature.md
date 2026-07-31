@@ -1,8 +1,26 @@
+---
+id: F-AR-002
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Home — Verkäufer-Ansicht
+
+## Index
+- Überblick — Konzept
+- 1. KPI-Kacheln — Kennzahlen
+- 2. Aktivitäts-Heatmap — Aktivitätsverlauf
+- 3. Info-Panel — Freitext
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Voranmelde-App
 **Navigation:** Mein Bereich → Home
 **Sichtbar für:** Alle (Verkäufer + Admins im Verkäufer-Modus)
+
+**Ziel:** Verkäufer sieht auf der Home-Seite eine Übersicht seines Registrierungsstatus.
+
+**User Story:** Als Verkäufer möchte ich auf meiner Home-Seite den Status meiner Registrierung und meiner Artikel sehen, damit ich weiß, ob ich für den Basar vorbereitet bin.
 
 ---
 
@@ -66,3 +84,16 @@ Unterhalb der Heatmap: freies **Informations-Panel** mit mehrzeiligem Text.
 - **Markdown-Formatierung** unterstützt (Überschriften, Fettdruck, Listen, Trennlinien, Code)
 - Zweck: Hinweise zu Abgaberegeln, Öffnungszeiten, organisatorischen Details
 - Gleicher Text wie auf der Login-Seite (Info-Area)
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN ein Verkäufer sich anmeldet, THEN SHALL das System seine Home-Seite mit aktuellen Kennzahlen (Anzahl Artikel, Registrierungsstatus) laden und anzeigen.
+2. **AC-2** — THE SYSTEM SHALL einen Countdown bis zum Basar-Datum anzeigen, sofern dieses in den Einstellungen hinterlegt ist.
+3. **AC-3** — WHEN der Verkäufer noch keine Artikel erfasst hat, THEN SHALL das System einen Hinweis „Noch keine Artikel erfasst" und einen Link zu „Meine Artikel" anzeigen.
+
+## Tags & Piles
+
+**Piles:** #pile/advance-registration
+**Tags:** #home #verkäufer #dashboard #registrierung #countdown

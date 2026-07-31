@@ -1,4 +1,16 @@
+---
+id: DOC-003
+status: draft
+updated: 2026-07-31
+---
+
 # Komponenten — Übersicht
+
+## Index
+- Grundregel: Dumb Component — Architekturprinzip
+- Grundregel: PrimeNG — UI-Bibliothek
+- Komponenten-Index — Komponentenliste
+- Tags & Piles — Ablage
 
 Hier sind alle UI-Komponenten der Bazaar Suite beschrieben: Aussehen, Verhalten und Funktionen,
 unabhängig vom Feature-Kontext. Jede Komponente hat ein eigenes Verzeichnis.
@@ -53,3 +65,10 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Numpad** | Zustandsloser In-App-Ziffernblock für touch-freundliche Zahleneingabe ohne native Tastatur | [numpad/](numpad/component.md) |
 | **Countdown** | Live-Countdown (Tage + HH:MM:SS) bis zu einem Zieldatum; Varianten für KPI-Tile und Info-Box | [countdown/](countdown/component.md) |
 | **Activity-Heatmap** | 12-Wochen-Aktivitäts-Grid (GitHub-Style) mit Farb-Levels und Hover-Tooltip | [activity-heatmap/](activity-heatmap/component.md) |
+
+---
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #components #primeng #overview #dumb-components #ui-konventionen

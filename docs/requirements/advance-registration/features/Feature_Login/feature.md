@@ -1,7 +1,28 @@
+---
+id: F-AR-001
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Login
+
+## Index
+- Überblick — Konzept
+- 1. Layout (Desktop) — Desktop-Layout
+- 2. Info-Area (links) — Info-Boxen
+- 3. Login-Form (rechts) — Formular
+- 4. Redirect nach Login — Weiterleitung
+- 5. Demo-Hinweis (nur Entwicklung) — Demo-Modus
+- 6. Registrierung — Selbstregistrierung
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Voranmelde-App
 **Route:** `/login` (öffentlich)
+
+**Ziel:** Verkäufer und Admins authentifizieren sich in der Voranmelde-App.
+
+**User Story:** Als Nutzer der Voranmelde-App möchte ich mich mit E-Mail und Passwort anmelden, damit ich auf meine Daten zugreifen kann.
 
 ---
 
@@ -76,3 +97,18 @@ In der Produktionsversion entfällt dieser Hinweis vollständig.
 
 Link auf der Login-Seite → Registrierungsseite.
 Selbstregistrierung: E-Mail + Passwort → Profil + automatischer Nummernblock.
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN Nutzername und Passwort eingegeben und „Anmelden" geklickt wird, THEN SHALL das System die Anmeldedaten prüfen und bei Erfolg die Startseite laden.
+2. **AC-2** — IF Nutzername oder Passwort falsch ist, THEN SHALL das System die Meldung „Ungültige Anmeldedaten" anzeigen ohne Details preiszugeben.
+3. **AC-3** — WHILE das Passwortfeld fokussiert ist und Enter gedrückt wird, SHALL das System die Anmeldung auslösen.
+4. **AC-4** — WHERE eine aktive Sitzung vorhanden ist, SHALL das System die Login-Seite überspringen und direkt die Startseite anzeigen.
+5. **AC-5** — WHEN „Passwort vergessen" geklickt wird, THEN SHALL das System den Passwortzurücksetzen-Dialog öffnen.
+
+## Tags & Piles
+
+**Piles:** #pile/advance-registration
+**Tags:** #login #authentifizierung #voranmelde-app #e-mail #passwort
