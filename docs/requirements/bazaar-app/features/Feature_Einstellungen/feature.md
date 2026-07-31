@@ -1,7 +1,24 @@
+---
+id: F-BA-010
+status: draft
+updated: 2026-07-31
+---
+
 # Feature: Einstellungen
+
+## Index
+- Überblick — Admin-Einstellungen
+- 1. Systemparameter — Parameter & Defaults
+- 2. JSON-Import — Voranmelde-Import
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** System → Einstellungen
+
+**Ziel:** Admin konfiguriert Systemparameter und importiert Daten aus der Voranmelde-App.
+
+**User Story:** Als Admin möchte ich Systemparameter festlegen und eine JSON-Exportdatei der Voranmelde-App importieren, damit die Haupt-App zum Basar-Tag mit aktuellen Daten einsatzbereit ist.
 
 ---
 
@@ -54,3 +71,16 @@ Artikel, die **manuell** in der Haupt-App angelegt wurden (ohne Import-Bezug), b
 - Kategorien
 
 Diese werden bei Bedarf aus der selben JSON-Datei importiert (Stammdaten-Synchronisierung).
+
+## Akzeptanzkriterien
+
+1. **AC-1** — THE SYSTEM SHALL geänderte Systemparameter (suchDebounceMs, scannerPauseMs) im localStorage speichern und bei jedem App-Start daraus laden.
+2. **AC-2** — WHEN eine JSON-Datei ausgewählt wird, THEN SHALL das System sofort eine Import-Vorschau mit Anzahl Verkäufer und Artikel sowie deren Anlage-/Ersetz-Status anzeigen, ohne zusätzlichen Bestätigungs-Klick.
+3. **AC-3** — WHEN „Import bestätigen" geklickt wird, THEN SHALL das System eine Fortschrittsanzeige (p-progressbar) einblenden und nach Abschluss eine Toast-Benachrichtigung „✓ Import erfolgreich" zeigen.
+4. **AC-4** — WHEN ein importierter Verkäufer bereits in der Datenbank existiert (anhand Verkäufer-ID), THEN SHALL das System diesen Verkäufer samt allen seinen Artikeln vollständig löschen und anschließend den Verkäufer und seine Artikel aus der Import-Datei neu anlegen.
+5. **AC-5** — THE SYSTEM SHALL Artikel, die manuell in der Haupt-App angelegt wurden (ohne Import-Bezug), beim Upsert-Import unberührt lassen.
+
+## Tags & Piles
+
+**Piles:** #pile/bazaar-app
+**Tags:** #einstellungen #json-import #konfiguration #upsert #localstorage

@@ -1,3 +1,9 @@
+---
+id: C-003
+status: draft
+updated: 2026-07-31
+---
+
 # Component: Scan-Dialog
 
 **Bibliothek:** Eigener Wrapper — `p-dialog` + Web-Kamera-API (kein externes Package)
@@ -12,6 +18,12 @@
 - 4. Kamera-Modus — Scan & Overlay
 - 5. Dialog-Verhalten — Öffnen & Schließen
 - 6. PrimeNG-Basis — Technische Basis
+- Akzeptanzkriterien — Prüfbare Kriterien
+- Tags & Piles — Thematische Einordnung
+
+**Beschreibung:** Popup-Dialog-Komponente zum Setzen von Artikel-Zeitstempeln per Barcode oder Kamera-Scan.
+
+**Verwendungszweck:** Wird in der Artikelannahme und anderen Features eingesetzt, wo Zeitstempel per Scan gesetzt werden.
 
 ---
 
@@ -161,3 +173,18 @@ p-listbox          ← AutoComplete-Liste der ausstehenden Artikel
 ```
 
 Kameraintegration und Barcode-Dekodierung: [Barcode-Scanner](../barcode-scanner/component.md) — kapselt `@zxing/browser` + `@zxing/library`.
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN der Dialog geöffnet wird, THEN SHALL das System den Fokus automatisch auf das Artikelnummer-Eingabefeld setzen.
+2. **AC-2** — WHEN eine Artikelnummer eingegeben und bestätigt wird und der Artikel dem Verkäufer gehört und der Zeitstempel noch nicht gesetzt ist, THEN SHALL das System den konfigurierten Zeitstempel (`freigegebenAm` oder `rückgegebenAm`) auf den aktuellen Zeitpunkt setzen und `scanComplete` mit `result: 'success'` emittieren.
+3. **AC-3** — WHEN im Kamera-Modus ein Barcode erkannt wird, dessen Zeitstempel bereits gesetzt ist, THEN SHALL das System das Feedback-Overlay in Gelb für `pauseMs` Millisekunden einblenden und `scanComplete` mit `result: 'already-set'` emittieren.
+4. **AC-4** — IF eine eingegebene oder gescannte Nummer keinem ausstehenden Artikel des Verkäufers entspricht, THEN SHALL das System im Eingabe-Modus den Text „Artikel nicht bekannt" unterhalb des Felds anzeigen und im Kamera-Modus das Feedback-Overlay in Rot für `pauseMs` Millisekunden einblenden.
+5. **AC-5** — WHEN der Dialog über ✕-Button oder Escape geschlossen wird, THEN SHALL das System die Kamera stoppen, alle MediaStream-Tracks freigeben und `visibleChange: false` emittieren.
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #scan-dialog #popup #zeitstempel #barcode #kamera

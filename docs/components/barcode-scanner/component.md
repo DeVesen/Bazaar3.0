@@ -1,3 +1,9 @@
+---
+id: C-002
+status: draft
+updated: 2026-07-31
+---
+
 # Component: Barcode-Scanner
 
 **Bibliothek:** Eigener Wrapper — `@zxing/browser` + `@zxing/library`
@@ -12,6 +18,12 @@
 - 4. Scan-Verhalten — Dekodierung & Emission
 - 5. Verwendungsstellen
 - 6. Technische Basis
+- Akzeptanzkriterien — Prüfbare Kriterien
+- Tags & Piles — Thematische Einordnung
+
+**Beschreibung:** Kamera-Barcode-Scanner-Komponente, die per Kamerabild Barcodes erkennt und den gescannten Wert zurückgibt.
+
+**Verwendungszweck:** Wird in Feature Verkauf eingesetzt, wenn ein Artikel per Kamera-Scan statt USB-Scanner erfasst wird.
 
 ---
 
@@ -111,3 +123,18 @@ Breite: 100 % des Eltern-Elements. Höhe: `auto` (Kamera-Seitenverhältnis).
 
 Kein PrimeNG-Anteil — die Komponente ist ein reiner Kamera-Wrapper ohne UI-Framework-Abhängigkeit.
 Einbettende Komponenten (Scan-Dialog, Seller-Search u. a.) rahmen den Scanner mit eigenen PrimeNG-Elementen ein.
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN `active` auf `true` gesetzt wird, THEN SHALL das System `getUserMedia({ video: { facingMode: 'environment' } })` aufrufen und das Live-Kamerabild im `<video>`-Element anzeigen.
+2. **AC-2** — WHEN ein gültiger Barcode oder QR-Code im Kamerabild erkannt wird, THEN SHALL das System den dekodierten Rohwert über das Event `codeDetected` emittieren.
+3. **AC-3** — WHEN `active` auf `false` gesetzt wird, THEN SHALL das System alle MediaStream-Tracks über `track.stop()` freigeben und den Videostream beenden.
+4. **AC-4** — WHEN die Komponente zerstört wird, THEN SHALL das System alle noch laufenden MediaStream-Tracks freigeben und den Scan-Loop beenden.
+5. **AC-5** — IF die Kamerafreigabe durch den Browser verweigert wird, THEN SHALL das System keinen Videostream starten und keine `codeDetected`-Events emittieren.
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #barcode-scanner #kamera #scan #primeng #popup
