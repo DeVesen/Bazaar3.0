@@ -1,5 +1,6 @@
 ---
 id: F-BA-001
+code: ANNAHME
 status: draft
 updated: 2026-07-31
 ---
@@ -155,6 +156,11 @@ Die Artikelnummer wird systemweit auf Eindeutigkeit geprüft. Keine zwei Artikel
 5. **AC-5** — WHILE mindestens ein Pflichtfeld (Artikelnummer, Bezeichnung, Kategorie, Marke, Preis) leer ist, SHALL das System den „Übernehmen"-Button deaktiviert halten.
 6. **AC-6** — IF eine Artikelnummer eingegeben wird, die bereits einem vorhandenen Artikel zugewiesen ist, THEN SHALL das System die Fehlermeldung „Artikelnummer bereits vergeben" anzeigen und „Übernehmen" deaktivieren.
 7. **AC-7** — WHEN „Buchen" geklickt wird, THEN SHALL das System alle Sitzungs-Artikel mit Status `freigegeben` und `freigegebenAm = jetzt` speichern und den Druckdialog starten.
+
+## Stories
+
+- [ANNAHME-S01 — Inline-Kamera-Scanner mit Countdown-Feedback](stories/ANNAHME-S01-inline-camera-mode.md)
+- [ANNAHME-S02 — Verkäufer-Formular im Wizard Schritt 1 (Panel 01–03)](stories/ANNAHME-S02-seller-form-layout.md)
 
 ## Tags & Piles
 
