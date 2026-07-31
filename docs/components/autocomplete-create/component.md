@@ -1,3 +1,9 @@
+---
+id: C-005
+status: draft
+updated: 2026-07-31
+---
+
 # Component: AutoComplete-Create
 
 **Bibliothek:** Erweiterung von `p-autocomplete` — eigener Wrapper mit Anlegen-Flow
@@ -12,6 +18,12 @@
 - 4. Anlegen-Modal — Anlegen-Flow
 - 5. Verwendung in Features — Einsatzorte
 - 6. PrimeNG-Basis — Technische Basis
+- Akzeptanzkriterien — Prüfbare Kriterien
+- Tags & Piles — Thematische Einordnung
+
+**Beschreibung:** AutoComplete-Feld mit Dropdown-Auswahl und integriertem Anlegen-Modus für neue Einträge.
+
+**Verwendungszweck:** Wird überall eingesetzt, wo ein Nutzer aus einer Liste auswählen oder einen neuen Eintrag anlegen kann (z. B. Marke, Kategorie bei Artikelerfassung).
 
 ---
 
@@ -142,3 +154,19 @@ p-dialog                      ← Anlegen-Modal
 
 pInputText                    ← Eingabefeld im Modal
 ```
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN der Nutzer Text in das Feld eingibt, THEN SHALL das System die Dropdown-Liste auf Einträge einschränken, die den eingegebenen Text enthalten.
+2. **AC-2** — WHEN der eingegebene Text keinem bestehenden Eintrag exakt entspricht, THEN SHALL das System den Button von `▾` zu `+` (grün, `pi-plus`) wechseln.
+3. **AC-3** — WHEN im +-Modus auf `+` geklickt oder Enter gedrückt wird, THEN SHALL das System das Anlegen-Modal mit dem Titel „Neue [entityLabel] anlegen" und dem eingetippten Wert im Namens-Feld vorausgefüllt öffnen.
+4. **AC-4** — WHEN im Anlegen-Modal der `[Anlegen]`-Button geklickt wird, THEN SHALL das System das Event `entryCreated` mit dem eingegebenen Namen emittieren, das Modal schließen und das Feld mit dem neuen Wert befüllen.
+5. **AC-5** — WHEN im Anlegen-Modal das Namens-Feld leer ist, THEN SHALL das System den `[Anlegen]`-Button deaktiviert anzeigen.
+6. **AC-6** — WHEN ein bestehender Eintrag aus der Dropdown-Liste ausgewählt wird, THEN SHALL das System das Event `valueChange` emittieren, das Feld mit dem gewählten Wert befüllen und die Dropdown-Liste schließen.
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #autocomplete #dropdown #anlegen #primeng #inline-create

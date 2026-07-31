@@ -1,3 +1,9 @@
+---
+id: C-004
+status: draft
+updated: 2026-07-31
+---
+
 # Component: KPI-Tile
 
 **Bibliothek:** Eigener Wrapper — kein PrimeNG-Äquivalent
@@ -11,6 +17,12 @@
 - 3. Visuelles Design — Farben & Stil
 - 4. Verwendung in Features — Einsatzorte
 - 5. PrimeNG-Basis — Technische Basis
+- Akzeptanzkriterien — Prüfbare Kriterien
+- Tags & Piles — Thematische Einordnung
+
+**Beschreibung:** Einzelne Kennzahl-Kachel für KPI-Übersichten, konfigurierbar im Grid c3 bis c6.
+
+**Verwendungszweck:** Wird auf der Statistik-Seite und in Home-Dashboards eingesetzt.
 
 ---
 
@@ -126,3 +138,18 @@ p-card        ← Kachel-Container (Shadow + Border-Radius)
 ```
 
 Kein weiteres PrimeNG-Element — Layout und Typografie per CSS.
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — THE SYSTEM SHALL die KPI-Tile in einem Grid mit der konfigurierten Spaltenanzahl (3 bis 6) rendern, wobei das Grid `grid-template-columns: repeat(N, 1fr)` mit Gap 12 px verwendet.
+2. **AC-2** — WHEN `value` übergeben wird, THEN SHALL das System den Wert in 28 px und `font-weight: 800` anzeigen; ist `subLabel` gesetzt, erscheint dieser in 12 px muted darunter.
+3. **AC-3** — WHERE `severity` auf `'success'`, `'warning'`, `'danger'` oder `'info'` gesetzt ist, SHALL das System einen 3 px breiten Streifen in der entsprechenden Severity-Farbe am oberen Rand der Kachel rendern.
+4. **AC-4** — WHEN `value` nicht übergeben wird oder `null` ist, THEN SHALL das System „—" an Stelle der Zahl anzeigen.
+5. **AC-5** — WHEN der Viewport weniger als 768 px breit ist, THEN SHALL das System das Grid auf 2 Spalten reduzieren, unabhängig von der konfigurierten Spaltenanzahl.
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #kpi-tile #kennzahl #grid #dashboard #statistik
