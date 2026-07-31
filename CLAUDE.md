@@ -36,7 +36,7 @@ Jedes Epic ist ein **Verzeichnis** (Name des Epics), nicht eine einzelne Datei.
 
 **Struktur:**
 ```
-docs/requirements/<app>/features/<Epic-Name>/
+docs/requirements/<app>/epics/<Epic-Name>/
 ├── epic.md                    ← Überblick, Zweck, Story-Index
 └── stories/                   ← eine Datei pro User Story
 ```

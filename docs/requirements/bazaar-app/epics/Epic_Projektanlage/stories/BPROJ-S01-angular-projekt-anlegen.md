@@ -26,7 +26,7 @@ Die Haupt-App läuft lokal im LAN ohne Internetzugang. Alle Abhängigkeiten müs
 - [ ] **AC-2** — THE SYSTEM SHALL PrimeNG 20 (`primeng`, `@primeuix/styled`) per npm installieren und `providePrimeNG` in `app.config.ts` registrieren.
 - [ ] **AC-3** — THE SYSTEM SHALL `@material-symbols/font-200` (oder äquivalentes Material-Icons-npm-Paket) installieren und in `angular.json` als Asset einbinden, sodass Icons ohne CDN-Aufruf verfügbar sind.
 - [ ] **AC-4** — WHEN `ng build --configuration production` ausgeführt wird, THEN SHALL der Build-Output keinen externen CDN-Verweis (fonts.googleapis.com, cdn.jsdelivr.net o. Ä.) enthalten.
-- [ ] **AC-5** — THE SYSTEM SHALL die Verzeichnisstruktur `src/app/features/`, `src/app/core/`, `src/app/shared/` anlegen.
+- [ ] **AC-5** — THE SYSTEM SHALL die Verzeichnisstruktur `src/app/epics/`, `src/app/core/`, `src/app/shared/` anlegen.
 - [ ] **AC-6** — WHEN `ng serve` ausgeführt wird, THEN SHALL die App unter `http://localhost:4200` erreichbar sein und keine Browser-Konsolenfehler zeigen.
 
 ## Tags & Piles

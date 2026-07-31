@@ -27,7 +27,7 @@ Die Voranmelde-App läuft in der Cloud und unterstützt Deutsch (Default) und En
 - [ ] **AC-3** — THE SYSTEM SHALL `@ngx-translate/core` und `@ngx-translate/http-loader` installieren und `provideTranslateService` in `app.config.ts` mit DE als Standardsprache und EN als Fallback registrieren.
 - [ ] **AC-4** — THE SYSTEM SHALL leere Übersetzungs-Dateien `src/assets/i18n/de.json` und `src/assets/i18n/en.json` anlegen.
 - [ ] **AC-5** — THE SYSTEM SHALL `@material-symbols/font-200` als npm-Paket installieren und in `angular.json` als Asset einbinden.
-- [ ] **AC-6** — THE SYSTEM SHALL die Verzeichnisstruktur `src/app/features/`, `src/app/core/`, `src/app/shared/` anlegen.
+- [ ] **AC-6** — THE SYSTEM SHALL die Verzeichnisstruktur `src/app/epics/`, `src/app/core/`, `src/app/shared/` anlegen.
 - [ ] **AC-7** — WHEN `ng serve` ausgeführt wird, THEN SHALL die App unter `http://localhost:4200` erreichbar sein und keine Browser-Konsolenfehler zeigen.
 
 ## Tags & Piles

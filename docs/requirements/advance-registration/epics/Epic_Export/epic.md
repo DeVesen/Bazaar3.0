@@ -83,7 +83,7 @@ JSON-ASCII-Datei mit folgender Struktur (vereinfacht):
 ## 4. Import in die Haupt-App
 
 Die exportierte JSON-Datei wird manuell am Basar-Morgen in die Haupt-App importiert (über die Einstellungen-Seite der Haupt-App).
-Details → [Epic_Einstellungen](../../../bazaar-app/features/Epic_Einstellungen/epic.md)
+Details → [Epic_Einstellungen](../../../bazaar-app/epics/Epic_Einstellungen/epic.md)
 
 ---
 
