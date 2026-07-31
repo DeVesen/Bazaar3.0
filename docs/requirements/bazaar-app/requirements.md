@@ -21,8 +21,8 @@ updated: 2026-07-31
 - 12. Offene Fragen — Backlog
 - Tags & Piles — Ablage
 
-**Version:** 0.7
-**Datum:** 2026-06-25
+**Version:** 0.8
+**Datum:** 2026-07-31
 **Autor:** Sven Reichert
 **Status:** Entwurf
 
@@ -234,11 +234,11 @@ Panel-Titel: 11 px · 700 · uppercase · 0.8 px letter-spacing · `#4a6080` · 
 
 | Komponente | Technologie |
 |---|---|
-| **Frontend** | Angular 19 (Standalone Components, Signals, OnPush) |
+| **Frontend** | Angular 20 (Standalone Components, Signals, OnPush) |
 | **Backend** | .NET 9 Minimal API (Microservices) |
 | **ORM** | Entity Framework Core |
 | **Datenbank** | PostgreSQL |
-| **UI-Bibliothek** | PrimeNG 18 (kein Angular Material) |
+| **UI-Bibliothek** | PrimeNG 20 (kein Angular Material) |
 | **Containerisierung** | Docker / Docker Compose |
 | **Barcode/QR-Scan** | ZXing / ngx-scanner (Browser-Kamera, offline) |
 | **Icons** | Angular Material Icons (npm-Paket, kein CDN) |

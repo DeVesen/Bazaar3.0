@@ -23,8 +23,8 @@ updated: 2026-07-31
 - 14. Offene Fragen — Backlog
 - Tags & Piles — Ablage
 
-**Version:** 0.7
-**Datum:** 2026-06-25
+**Version:** 0.8
+**Datum:** 2026-07-31
 **Autor:** Sven Reichert
 **Status:** Entwurf
 
@@ -274,11 +274,11 @@ Identisch mit Haupt-App — PrimeNG Table, Striped, Hover, Multi-Sort, Loading-S
 
 | Komponente | Technologie |
 |---|---|
-| **Frontend** | Angular 19 (Standalone Components, Signals, OnPush) |
+| **Frontend** | Angular 20 (Standalone Components, Signals, OnPush) |
 | **Backend** | .NET 9 Minimal API (Microservices) |
 | **ORM** | Entity Framework Core |
 | **Datenbank** | PostgreSQL |
-| **UI-Bibliothek** | PrimeNG 18 |
+| **UI-Bibliothek** | PrimeNG 20 |
 | **Containerisierung** | Docker / Docker Compose |
 | **Mehrsprachigkeit** | ngx-translate (DE + EN) |
 | **Icons** | Angular Material Icons (npm-Paket) |
