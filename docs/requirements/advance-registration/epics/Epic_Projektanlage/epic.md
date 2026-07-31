@@ -31,8 +31,8 @@ Der Unterschied zur Haupt-App: Mehrsprachigkeit (ngx-translate) wird hier bereit
 
 ## Stories
 
-- [VPROJ-S01 — Angular-Projekt anlegen](stories/VPROJ-S01-angular-projekt-anlegen.md)
 - [VPROJ-S02 — .NET Minimal API anlegen](stories/VPROJ-S02-dotnet-api-anlegen.md)
+- [VPROJ-S01 — Angular-Projekt anlegen](stories/VPROJ-S01-angular-projekt-anlegen.md)
 - [VPROJ-S03 — Docker Compose Setup](stories/VPROJ-S03-docker-compose-setup.md)
 - [VPROJ-S04 — EF Core & Datenbank-Setup](stories/VPROJ-S04-efcore-datenbank-setup.md)
 
