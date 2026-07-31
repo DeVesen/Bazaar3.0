@@ -60,50 +60,50 @@ erfassen    registrieren   (einmalig)
 
 ### Haupt-App
 
-- [Anforderungen (Lastenheft)](bazaar-app/requirements.md)
+- [Anforderungen (Lastenheft)](bazaar-app/spec.md)
 - [Features](bazaar-app/features/)
   - **Setup**
-  - [Projektanlage](bazaar-app/features/Feature_Projektanlage/feature.md)
-  - [App Shell](bazaar-app/features/Feature_App_Shell/feature.md)
+  - [Projektanlage](bazaar-app/features/Epic_Projektanlage/epic.md)
+  - [App Shell](bazaar-app/features/Epic_App_Shell/epic.md)
   - **Tagesgeschäft**
-  - [Artikelannahme](bazaar-app/features/Feature_Artikelannahme/feature.md)
-  - [Verkauf](bazaar-app/features/Feature_Verkauf/feature.md)
-  - [Abrechnung](bazaar-app/features/Feature_Abrechnung/feature.md)
+  - [Artikelannahme](bazaar-app/features/Epic_Artikelannahme/epic.md)
+  - [Verkauf](bazaar-app/features/Epic_Verkauf/epic.md)
+  - [Abrechnung](bazaar-app/features/Epic_Abrechnung/epic.md)
   - **Stammdaten**
-  - [Artikel](bazaar-app/features/Feature_Artikel/feature.md)
-  - [Verkäufer](bazaar-app/features/Feature_Verkaeufer/feature.md)
-  - [Verkäufer-Typen](bazaar-app/features/Feature_Verkaeufer_Typen/feature.md)
-  - [Marken](bazaar-app/features/Feature_Marken/feature.md)
-  - [Kategorien](bazaar-app/features/Feature_Kategorien/feature.md)
+  - [Artikel](bazaar-app/features/Epic_Artikel/epic.md)
+  - [Verkäufer](bazaar-app/features/Epic_Verkaeufer/epic.md)
+  - [Verkäufer-Typen](bazaar-app/features/Epic_Verkaeufer_Typen/epic.md)
+  - [Marken](bazaar-app/features/Epic_Marken/epic.md)
+  - [Kategorien](bazaar-app/features/Epic_Kategorien/epic.md)
   - **System**
-  - [Statistik](bazaar-app/features/Feature_Statistik/feature.md)
-  - [Druckfunktionen](bazaar-app/features/Feature_Druckfunktionen/feature.md)
-  - [Einstellungen](bazaar-app/features/Feature_Einstellungen/feature.md)
+  - [Statistik](bazaar-app/features/Epic_Statistik/epic.md)
+  - [Druckfunktionen](bazaar-app/features/Epic_Druckfunktionen/epic.md)
+  - [Einstellungen](bazaar-app/features/Epic_Einstellungen/epic.md)
 
 ### Voranmelde-App
 
-- [Anforderungen (Lastenheft)](advance-registration/requirements.md)
+- [Anforderungen (Lastenheft)](advance-registration/spec.md)
 - [Features](advance-registration/features/)
   - **Setup**
-  - [Projektanlage](advance-registration/features/Feature_Projektanlage/feature.md)
-  - [App Shell](advance-registration/features/Feature_App_Shell/feature.md)
+  - [Projektanlage](advance-registration/features/Epic_Projektanlage/epic.md)
+  - [App Shell](advance-registration/features/Epic_App_Shell/epic.md)
   - **Zugang**
-  - [Login](advance-registration/features/Feature_Login/feature.md)
+  - [Login](advance-registration/features/Epic_Login/epic.md)
   - **Mein Bereich**
-  - [Home (Verkäufer)](advance-registration/features/Feature_Home_Verkaeufer/feature.md)
-  - [Home (Admin)](advance-registration/features/Feature_Home_Admin/feature.md)
-  - [Meine Artikel](advance-registration/features/Feature_Meine_Artikel/feature.md)
+  - [Home (Verkäufer)](advance-registration/features/Epic_Home_Verkaeufer/epic.md)
+  - [Home (Admin)](advance-registration/features/Epic_Home_Admin/epic.md)
+  - [Meine Artikel](advance-registration/features/Epic_Meine_Artikel/epic.md)
   - **Verwaltung (Admin)**
-  - [Alle Artikel](advance-registration/features/Feature_Alle_Artikel/feature.md)
-  - [Verkäufer](advance-registration/features/Feature_Verkaeufer/feature.md)
-  - [Verkäufer-Typen](advance-registration/features/Feature_Verkaeufer_Typen/feature.md)
-  - [Nummernblöcke](advance-registration/features/Feature_Nummernbloecke/feature.md)
-  - [Marken](advance-registration/features/Feature_Marken/feature.md)
-  - [Kategorien](advance-registration/features/Feature_Kategorien/feature.md)
+  - [Alle Artikel](advance-registration/features/Epic_Alle_Artikel/epic.md)
+  - [Verkäufer](advance-registration/features/Epic_Verkaeufer/epic.md)
+  - [Verkäufer-Typen](advance-registration/features/Epic_Verkaeufer_Typen/epic.md)
+  - [Nummernblöcke](advance-registration/features/Epic_Nummernbloecke/epic.md)
+  - [Marken](advance-registration/features/Epic_Marken/epic.md)
+  - [Kategorien](advance-registration/features/Epic_Kategorien/epic.md)
   - **Konto & System**
-  - [Profil](advance-registration/features/Feature_Profil/feature.md)
-  - [Einstellungen](advance-registration/features/Feature_Einstellungen/feature.md)
-  - [Export](advance-registration/features/Feature_Export/feature.md)
+  - [Profil](advance-registration/features/Epic_Profil/epic.md)
+  - [Einstellungen](advance-registration/features/Epic_Einstellungen/epic.md)
+  - [Export](advance-registration/features/Epic_Export/epic.md)
 
 ---
 
@@ -138,7 +138,7 @@ App- und Feature-übergreifende **UI-Komponenten** (Aussehen, Verhalten, Funktio
 
 ### Export / Import (Datenschnittstelle)
 
-Die JSON-Datenschnittstelle zwischen Voranmelde-App (Export) und Haupt-App (Import) ist das Verbindungsglied beider Apps. Details → Voranmelde-App [Feature Export](advance-registration/features/Feature_Export/feature.md) und Haupt-App [Einstellungen (Import)](bazaar-app/features/Feature_Einstellungen/feature.md).
+Die JSON-Datenschnittstelle zwischen Voranmelde-App (Export) und Haupt-App (Import) ist das Verbindungsglied beider Apps. Details → Voranmelde-App [Feature Export](advance-registration/features/Epic_Export/epic.md) und Haupt-App [Einstellungen (Import)](bazaar-app/features/Epic_Einstellungen/epic.md).
 
 ---
 

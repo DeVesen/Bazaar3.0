@@ -30,7 +30,7 @@ updated: 2026-07-31
 
 Die Activity-Heatmap zeigt die Artikel-Aktivität der letzten **12 Wochen** als farbiges Zellen-Grid — analog zu GitHub's Contribution Graph. Jede Zelle steht für einen Tag; die Farbe codiert die Aktivitätsmenge.
 
-Feature_Home_Admin beschreibt sie explizit als „identisch mit der Verkäufer-Ansicht" — beide Home-Views rendern dieselbe Komponente, parametriert mit unterschiedlichem Datensatz.
+Epic_Home_Admin beschreibt sie explizit als „identisch mit der Verkäufer-Ansicht" — beide Home-Views rendern dieselbe Komponente, parametriert mit unterschiedlichem Datensatz.
 
 **Aktivität** = Anzahl der Ereignisse `erstelltAm` + `updatedAm` aller sichtbaren Artikel an einem Tag.
 
