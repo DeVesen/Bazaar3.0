@@ -1,4 +1,25 @@
+---
+id: DOC-005
+status: draft
+updated: 2026-07-31
+---
+
 # Lastenheft — Bazaar Haupt-App
+
+## Index
+- 1. Überblick — App-Beschreibung
+- 2. Stakeholder — Rollen
+- 3. Ziel — Kernprozesse
+- 4. Navigation (Sidebar) — Seitenstruktur
+- 5. Seiten-Übersicht — Feature-Links
+- 6. UI-Konventionen & Komponenten — Design
+- 7. Technische Rahmenbedingungen — Tech-Stack
+- 8. Einstellungen — Parameter
+- 9. Gemeinsame Anforderungen — Querschnitt
+- 10. Design-Entscheidungen — Visuelles
+- 11. Visual Specs (Global) — PrimeNG-Mapping
+- 12. Offene Fragen — Backlog
+- Tags & Piles — Ablage
 
 **Version:** 0.7
 **Datum:** 2026-06-25
@@ -530,3 +551,10 @@ Alle Status-Badges: border-radius 4 px, padding 2 px 8 px, 11 px, 600.
 | 8 | Scan-Ergebnis Anzeigedauer? | ✅ Konfigurierbar, Default 5 Sekunden |
 | 9 | Artikel löschen im Wizard (noch nicht gespeichert)? | ✅ Ja — Löschen-Button pro Eintrag in Session-Liste |
 | 10 | Scan-Feedback: Ton und/oder Vibration? | ✅ Beides — Web Audio API + `Navigator.vibrate()` |
+
+---
+
+## Tags & Piles
+
+**Piles:** #pile/bazaar-app
+**Tags:** #requirements #haupt-app #lastenheft #kassenpersonal #admin

@@ -1,7 +1,10 @@
-# Component: Numpad
+---
+id: C-008
+status: draft
+updated: 2026-07-31
+---
 
-**Bibliothek:** PrimeNG-Komposition — 3×4 Grid aus `p-button`  
-**Verwendung:** Überall dort, wo eine tipp-freundliche Zahleneingabe ohne native Tastatur benötigt wird.
+# Component: Numpad
 
 ## Index
 
@@ -12,6 +15,11 @@
 - 4. Empfehlung: Integration im Parent — Einbau-Guide
 - 5. PrimeNG-Basis — Technische Basis
 - 6. Layout-Details — Aufbau
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
+
+**Bibliothek:** PrimeNG-Komposition — 3×4 Grid aus `p-button`  
+**Verwendung:** Überall dort, wo eine tipp-freundliche Zahleneingabe ohne native Tastatur benötigt wird.
 
 ---
 
@@ -181,3 +189,18 @@ automatisch den Fokus, damit die native Tastatur sofort erscheint.
 | Grid | `display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px` |
 | Buttons (Ziffern) | `width: 100%; min-height: 48px; font-size: 20px; font-weight: 600` |
 | Buttons (C, ⌫) | wie Ziffern, zusätzlich `severity="secondary"` |
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN eine Zifferntaste (0–9) geklickt wird, THEN SHALL das System ein `keyPressed`-Event mit dem entsprechenden `key`-Wert emittieren.
+2. **AC-2** — WHEN die ⌫-Taste geklickt wird, THEN SHALL das System ein `keyPressed`-Event mit `key: 'Backspace'` emittieren.
+3. **AC-3** — WHEN die C-Taste geklickt wird, THEN SHALL das System das `cleared`-Event emittieren und kein `keyPressed`-Event.
+4. **AC-4** — WHEN die Komma-Taste geklickt wird, THEN SHALL das System ein `keyPressed`-Event mit `key: ','` emittieren, das PrimeNG's InputNumber zum korrekten Dezimaltrenner der konfigurierten Locale umwandelt.
+5. **AC-5** — THE SYSTEM SHALL keinen internen Wert-Buffer verwalten; jeder Klick resultiert ausschließlich in einem emittierten Event.
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #numpad #touch #eingabe #zifferntasten #event-relay #primeng

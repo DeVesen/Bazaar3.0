@@ -1,7 +1,10 @@
-# Component: Countdown
+---
+id: C-009
+status: draft
+updated: 2026-07-31
+---
 
-**Bibliothek:** Eigener Wrapper — kein PrimeNG-Äquivalent (Timer-Logik)
-**Verwendung:** Voranmelde-App — überall dort, wo ein live laufender Countdown bis zu einem Zieldatum angezeigt wird.
+# Component: Countdown
 
 ## Index
 
@@ -13,6 +16,11 @@
 - 5. Stil-Details — Varianten-Design
 - 6. Verwendung in Features — Einsatzorte
 - 7. PrimeNG-Basis — Technische Basis
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
+
+**Bibliothek:** Eigener Wrapper — kein PrimeNG-Äquivalent (Timer-Logik)
+**Verwendung:** Voranmelde-App — überall dort, wo ein live laufender Countdown bis zu einem Zieldatum angezeigt wird.
 
 ---
 
@@ -144,3 +152,19 @@ Singular/Plural: `1 Tag` vs. `X Tage`.
 
 Keine PrimeNG-Komponente involviert — reines Template + Timer-Logik.
 Typografie und Layout per CSS.
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — THE SYSTEM SHALL den Countdown jede Sekunde aktualisieren und Tage, Stunden, Minuten und Sekunden im Format `D Tage HH:MM:SS` anzeigen, wobei HH, MM, SS stets zweistellig mit führender Null dargestellt werden.
+2. **AC-2** — WHEN `targetDate` in der Vergangenheit liegt, THEN SHALL das System `0 Tage 00:00:00` anzeigen und nicht in negative Werte wechseln.
+3. **AC-3** — WHEN die Komponente aus dem DOM entfernt wird, THEN SHALL das System den `setInterval`-Timer via `clearInterval` in `ngOnDestroy` aufräumen.
+4. **AC-4** — WHERE die Variante `'kpi'` konfiguriert ist, SHALL das System den Countdown als KPI-Kachel mit Tagen und Zeit untereinander rendern.
+5. **AC-5** — WHERE die Variante `'info-box'` konfiguriert ist, SHALL das System den Countdown als Info-Box mit rgba-Hintergrund und Tagen + Zeit nebeneinander rendern.
+6. **AC-6** — THE SYSTEM SHALL Singular und Plural korrekt unterscheiden: `1 Tag` vs. `X Tage`.
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #countdown #live #timer #zieldatum #varianten #voranmeldung

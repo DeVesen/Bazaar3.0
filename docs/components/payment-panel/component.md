@@ -1,7 +1,10 @@
-# Component: Payment-Panel
+---
+id: C-007
+status: draft
+updated: 2026-07-31
+---
 
-**Bibliothek:** PrimeNG-Komposition — `p-inputgroup` + `p-inputnumber` + `app-numpad`  
-**Verwendung:** Bazaar Haupt-App — überall dort, wo ein Geldbetrag entgegengenommen und das Rückgeld live berechnet wird.
+# Component: Payment-Panel
 
 ## Index
 
@@ -11,6 +14,11 @@
 - 3. Verhalten — Berechnung & Eingabe
 - 4. Layout-Details — Aufbau
 - 5. PrimeNG-Basis — Technische Basis
+- Akzeptanzkriterien — EARS-Kriterien
+- Tags & Piles — Ablage
+
+**Bibliothek:** PrimeNG-Komposition — `p-inputgroup` + `p-inputnumber` + `app-numpad`  
+**Verwendung:** Bazaar Haupt-App — überall dort, wo ein Geldbetrag entgegengenommen und das Rückgeld live berechnet wird.
 
 ---
 
@@ -210,3 +218,19 @@ p-button  label="Abbrechen"  severity="secondary"
 p-button  [label]="confirmLabel"  severity="primary"
           [disabled]="receivedAmount < totalAmount"
 ```
+
+---
+
+## Akzeptanzkriterien
+
+1. **AC-1** — WHEN ein Betrag im Feld „Betrag erhalten" eingegeben wird, THEN SHALL das System das Rückgeld als `receivedAmount − totalAmount` live berechnen und in der grünen Box anzeigen.
+2. **AC-2** — WHILE der eingegebene Betrag kleiner als `totalAmount` ist, SHALL das System die Rückgeld-Box ausblenden und den Bestätigen-Button deaktiviert halten.
+3. **AC-3** — WHEN der Bestätigen-Button geklickt wird, THEN SHALL das System das `confirmed`-Event mit `{ totalAmount, receivedAmount, change }` emittieren.
+4. **AC-4** — WHEN auf einem Touch-Gerät (`pointer: coarse`) das Panel geöffnet wird, THEN SHALL das System automatisch in den Numpad-Modus wechseln und das `p-inputnumber`-Feld auf `readonly` setzen.
+5. **AC-5** — WHEN der Toggle-Button geklickt wird, THEN SHALL das System zwischen Tastatur-Modus und Numpad-Modus wechseln und das Icon entsprechend aktualisieren.
+6. **AC-6** — WHEN „Abbrechen" geklickt wird, THEN SHALL das System das `cancelled`-Event emittieren und `receivedAmount` auf `null` zurücksetzen.
+
+## Tags & Piles
+
+**Piles:** #pile/shared-components
+**Tags:** #payment-panel #kassier #rückgeld #numpad #bezahlung #primeng
