@@ -1,4 +1,27 @@
+---
+id: DOC-004
+status: draft
+updated: 2026-07-31
+---
+
 # Lastenheft — Voranmelde-App
+
+## Index
+- 1. Überblick — App-Beschreibung
+- 2. Stakeholder — Rollen
+- 3. Ziel — Kernprozesse
+- 4. Rollen & Rechte — Zugriffsmatrix
+- 5. Registrierung & Einladung — Onboarding
+- 6. Nummernblock-System — Nummerierung
+- 7. Navigation (Sidebar) — Seitenstruktur
+- 8. Seiten-Übersicht — Feature-Links
+- 9. UI-Konventionen & Komponenten — Design
+- 10. Technische Rahmenbedingungen — Tech-Stack
+- 11. Gemeinsame Anforderungen — Querschnitt
+- 12. Design-Entscheidungen — Visuelles
+- 13. Visual Specs (Global) — PrimeNG-Mapping
+- 14. Offene Fragen — Backlog
+- Tags & Piles — Ablage
 
 **Version:** 0.7
 **Datum:** 2026-06-25
@@ -84,7 +107,7 @@ Die Voranmelde-App unterstützt die Voranmeldephase vor dem Basar:
 
 ## 7. Navigation (Sidebar)
 
-#### Admin — Sidebar-Reihenfolge
+### Admin — Sidebar-Reihenfolge
 
 ```
 ── Mein Bereich ──────────────
@@ -106,7 +129,7 @@ Die Voranmelde-App unterstützt die Voranmeldephase vor dem Basar:
   Export
 ```
 
-#### Verkäufer — Sidebar-Reihenfolge
+### Verkäufer — Sidebar-Reihenfolge
 
 ```
 ── Mein Bereich ──────────────
@@ -495,3 +518,10 @@ Identisch mit Haupt-App (success/danger/warn/info/sec/original/neu).
 |---|---|---|
 | 5 | Mehrsprachigkeit? | ✅ Ja — DE + EN via ngx-translate |
 | 6 | Provisionssystem / unterschiedliche Konditionen? | ✅ Ja, via Verkäufer-Type |
+
+---
+
+## Tags & Piles
+
+**Piles:** #pile/advance-registration
+**Tags:** #requirements #voranmelde-app #lastenheft #verkäufer #admin
