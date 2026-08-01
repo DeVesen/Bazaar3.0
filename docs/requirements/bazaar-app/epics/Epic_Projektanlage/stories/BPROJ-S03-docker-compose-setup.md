@@ -18,7 +18,7 @@ Die Haupt-App läuft im LAN auf einem lokalen Server. Docker Compose ermöglicht
 
 **In Scope:** `docker-compose.yml` mit drei Services (frontend, backend, db), Environment-Variablen für Ports und Connection String, Volume für PostgreSQL-Daten, Health-Check-Abhängigkeit (backend wartet auf db).
 
-**Out of Scope:** CI/CD, Production-Build-Image, SSL/TLS-Terminierung.
+**Out of Scope:** CI/CD, Production-Build-Image, SSL/TLS-Terminierung (folgt in [BPROJ-S05](BPROJ-S05-ssl-insel-deployment.md)).
 
 ## UI-Spezifikation
 

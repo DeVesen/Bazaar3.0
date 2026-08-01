@@ -31,6 +31,7 @@ Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich (F
 - [BPROJ-S02 — .NET Minimal API anlegen](stories/BPROJ-S02-dotnet-api-anlegen.md)
 - [BPROJ-S03 — Docker Compose Setup](stories/BPROJ-S03-docker-compose-setup.md)
 - [BPROJ-S04 — EF Core & Datenbank-Setup](stories/BPROJ-S04-efcore-datenbank-setup.md)
+- [BPROJ-S05 — SSL/HTTPS für den Inselbetrieb](stories/BPROJ-S05-ssl-insel-deployment.md)
 
 ## Tags & Piles
 
