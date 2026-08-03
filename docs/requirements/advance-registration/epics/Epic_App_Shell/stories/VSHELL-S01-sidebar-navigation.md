@@ -74,33 +74,33 @@ Verkäufer-Sidebar (expandiert):
 
 ### Eingeklappte Sidebar (60 px)
 
-Zustand: nur Icons, keine Labels, keine Gruppen-Label, kein Footer-Text.
+Zustand: nur Icons, keine Labels, keine Gruppen-Label, kein Footer-Text. Logout und Role-Toggle sind im eingeklappten Zustand nicht zugänglich — die Sidebar muss dafür aufgeklappt werden (bewusste UX-Einschränkung).
 
 ```
 ┌────┐
-│ 🛒 │  ← Logo-Icon, kein Text
-│  » │  ← Expand-Toggle (rechts unten, oder als Icon in Logo-Zeile)
+│ 🛒»│  ← Logo-Icon links, »-Button rechts (Expand-Toggle)
 ├────┤
 │ 🏠 │  ← Home (Tooltip on hover: "Home")
-│ 📋 │  ← Meine Artikel (Badge-Dot wenn > 0)
-│ ── │
+│ 📋•│  ← Meine Artikel (Dot-Badge wenn > 0)
+│    │
 │ 👥 │  ← Verkäufer
 │ 📦 │  ← Artikel
-│ ── │
+│    │
 │ 🏷 │  ← Marken
 │ 🗂 │  ← Kategorien
 │ 👤 │  ← Verkäufer-Types
-│ ── │
+│    │
 │ 🔧 │  ← Profil
 │ ⚙  │  ← Einstellungen
 │ 📤 │  ← Export
 ├────┤
-│[A] │  ← Avatar only, kein Name/Rolle
+│[A] │  ← Avatar only, kein Name/Rolle/Logout
 └────┘
 ```
 
 **Hover-Verhalten eingeklappt:** Tooltip mit Label erscheint rechts neben dem Icon (PrimeNG `pTooltip`, Position `right`).
 **Badge eingeklappt:** kleiner Dot-Badge am Icon (kein Zahlenwert).
+**Logout/Role-Toggle eingeklappt:** nicht sichtbar und nicht erreichbar — Sidebar muss aufgeklappt werden.
 
 **Gruppen-Label-Stil:**
 
@@ -144,7 +144,7 @@ Zustand: nur Icons, keine Labels, keine Gruppen-Label, kein Footer-Text.
 - [ ] **AC-8** — WHILE die aktive Rolle „Admin" ist, SHALL das System den Role-Toggle (Admin/Verkäufer) im Footer anzeigen.
 - [ ] **AC-9** — WHILE die aktive Rolle „Verkäufer" (echter Verkäufer, kein Admin im Verkäufer-Modus) ist, SHALL das System keinen Role-Toggle anzeigen.
 - [ ] **AC-10** — WHEN der Nutzer den Collapse-Toggle-Button anklickt, THEN SHALL die Sidebar auf 60 px einklappen, dabei SHALL die Breite per CSS-Transition (200 ms) animiert werden.
-- [ ] **AC-11** — WHILE die Sidebar eingeklappt ist, SHALL das System ausschließlich Icons anzeigen; Gruppen-Label, Gruppen-Trenner, Eintrags-Labels, Footer-Text und Role-Toggle werden ausgeblendet.
+- [ ] **AC-11** — WHILE die Sidebar eingeklappt ist, SHALL das System ausschließlich Icons anzeigen; Gruppen-Label, Gruppen-Trenner, Eintrags-Labels, Footer-Text, Logout und Role-Toggle werden ausgeblendet und sind nicht zugänglich (bewusste Einschränkung — Aufklappen erforderlich).
 - [ ] **AC-12** — WHILE die Sidebar eingeklappt ist und der Nutzer über einen Navigationseintrag hovert, SHALL ein `pTooltip` mit dem Eintrags-Label rechts neben dem Icon erscheinen.
 - [ ] **AC-13** — WHILE die Sidebar eingeklappt ist und die Artikel-Anzahl > 0 ist, SHALL ein Dot-Badge (ohne Zahlenwert) am Icon „Meine Artikel" erscheinen.
 - [ ] **AC-14** — THE SYSTEM SHALL den Collapse-Zustand in `localStorage` unter dem Key `sidebar-collapsed` persistieren und beim nächsten Laden der App wiederherstellen.
