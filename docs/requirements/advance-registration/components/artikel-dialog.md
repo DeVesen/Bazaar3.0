@@ -51,8 +51,8 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 ## Validierung
 
-- Preis > 0, sonst Fehlermeldung unterm Feld (Epic_Meine_Artikel AC-6)
-- Alle Pflichtfelder aus Abschnitt 3 (Epic-Doku) müssen gefüllt sein, sonst Speichern-Button deaktiviert (AC-2)
+Feldregeln nach [form.md](form.md) R-1/R-2. Dialog-spezifisch: Preis > 0
+(Epic_Meine_Artikel AC-6), Pflichtfelder aus Abschnitt 3 der Epic-Doku (AC-2).
 
 ## Akzeptanzkriterien
 
