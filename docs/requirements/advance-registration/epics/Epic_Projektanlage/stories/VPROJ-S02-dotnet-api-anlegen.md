@@ -35,7 +35,7 @@ backend/
 ├── Bazaar.Application/     ← → Domain
 │   └── <Feature>/          ← ein Handler pro Use Case
 ├── Bazaar.Infrastructure/  ← → Domain, Application
-│   └── Persistence/        ← AppDbContext, Configurations/, Repositories/, Queries/
+│   └── Persistence/        ← BazaarDbContext, Configurations/, Repositories/, Queries/
 └── Bazaar.Api/             ← → alle
     ├── Features/<Feature>/ ← Endpoint-Registrierung (Map…-Extension) + Request/Response-DTOs
     ├── Filters/            ← ValidationFilter<TRequest>
@@ -68,7 +68,7 @@ Alle anderen Endpoints (außer /health, /api/auth/* und /api/public/*):
 - [ ] **AC-2c** — THE SYSTEM SHALL einen globalen `IExceptionHandler` registrieren, der Domain-Exceptions als einziger Ort auf `ProblemDetails` abbildet (`NotFoundException` → 404, `ConflictException` → 409, `UnauthorizedException` → 401) und dabei zusätzlich zu `detail` das Extension-Member `errorCode` setzt (siehe [`cross-cutting.md`](../../../api/cross-cutting.md) Abschnitt 3).
 - [ ] **AC-2d** — THE SYSTEM SHALL `FluentValidation` installieren und einen generischen Endpoint-Filter `ValidationFilter<TRequest>` bereitstellen, der bei Verstoß `Results.ValidationProblem()` mit dem `errors`-Dictionary (Schlüssel = englischer DTO-Feldname) liefert.
 - [ ] **AC-3** — THE SYSTEM SHALL CORS konfigurieren: Angular Dev (`http://localhost:4200`) erlaubt; Production-Origin über die Environment-Variable `CORS_ALLOWED_ORIGIN` konfigurierbar.
-- [ ] **AC-4** — THE SYSTEM SHALL einen `GET /health` Endpoint bereitstellen, der ohne Auth `{ "status": "healthy" }` mit HTTP 200 zurückgibt.
+- [ ] **AC-4** — THE SYSTEM SHALL einen `GET /health` Endpoint bereitstellen, der ohne Auth `{ "status": "healthy" }` mit HTTP 200 zurückgibt und **keine** Datenbankprüfung enthält — er dient als Liveness-Probe. Der Readiness-Endpoint `GET /health/ready` mit Datenbankprüfung entsteht in [VPROJ-S04](VPROJ-S04-efcore-datenbank-setup.md).
 - [ ] **AC-4b** — THE SYSTEM SHALL Endpoints unter `/api/public/*` von der Auth-Pflicht ausnehmen (analog `/health` und `/api/auth/*`).
 - [ ] **AC-5** — THE SYSTEM SHALL `Microsoft.AspNetCore.Authentication.JwtBearer` installieren und in `Program.cs` mit `AddAuthentication().AddJwtBearer()` registrieren; Token-Parameter (Issuer, Audience, Secret) aus Environment-Variablen lesen.
 - [ ] **AC-6** — WHEN die App mit `dotnet run` gestartet wird, THEN SHALL `GET /health` unter `http://localhost:5001/health` mit HTTP 200 antworten.

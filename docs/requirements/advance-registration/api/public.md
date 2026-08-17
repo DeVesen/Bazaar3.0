@@ -21,7 +21,8 @@ Epics → [Epic_Countdown_Widget](../epics/Epic_Countdown_Widget/epic.md) ·
 | Endpoint | Auth | Zweck |
 |---|---|---|
 | `GET /api/public/info` | `public` | Basar-Termine, Default-Konditionen und Info-Text für alle nicht-authentifizierten Ansichten |
-| `GET /health` | `public` | Liveness-Probe (Container-Orchestrierung) |
+| `GET /health` | `public` | Liveness-Probe — nur der Prozess, **keine** Datenbankprüfung |
+| `GET /health/ready` | `public` | Readiness-Probe — Prozess **und** Datenbankverbindung |
 
 ---
 
@@ -97,8 +98,33 @@ erlauben. Alle anderen Routen bleiben auf `DENY`/`same-origin`
 { "status": "healthy" }
 ```
 
-Ohne Auth, ohne `/api`-Präfix. Wird von Azure Container Apps als Liveness-Probe
+Ohne Auth, ohne `/api`-Präfix. Wird von Azure Container Apps als **Liveness**-Probe
 verwendet (VPROJ-S02 AC-4/AC-6).
+
+**Prüft die Datenbank bewusst nicht.** Eine fehlgeschlagene Liveness-Probe führt zum
+Neustart des Containers — bei einem Datenbank-Ausfall würde die Plattform endlos neu
+starten, was den Ausfall nicht behebt, sondern verlängert.
+
+---
+
+## 3. `GET /health/ready`
+
+**Response `200`**
+```json
+{ "status": "healthy" }
+```
+
+**Response `503`**
+```json
+{ "status": "unhealthy" }
+```
+
+Ohne Auth, ohne `/api`-Präfix. Prüft Prozess **und** Datenbankverbindung; wird von Azure
+Container Apps als **Readiness**-Probe verwendet ([VPROJ-S04](../epics/Epic_Projektanlage/stories/VPROJ-S04-efcore-datenbank-setup.md) AC-9).
+
+Die Readiness-Probe nimmt eine Instanz aus dem Verkehr, ohne sie zu töten, und holt sie
+zurück, sobald die Datenbank wieder antwortet — genau das Verhalten, das ein
+Datenbank-Ausfall braucht.
 
 ---
 

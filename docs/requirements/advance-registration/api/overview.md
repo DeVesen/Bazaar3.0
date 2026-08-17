@@ -30,7 +30,8 @@ Pagination, Sortierung, Löschsemantik) einmalig in
 
 | Endpoint | Auth | Datei |
 |---|---|---|
-| `GET /health` | `public` | [public.md](public.md) |
+| `GET /health` | `public` | [public.md](public.md) — Liveness, ohne Datenbankprüfung |
+| `GET /health/ready` | `public` | [public.md](public.md) — Readiness, mit Datenbankprüfung |
 | `GET /api/public/info` | `public` | [public.md](public.md) |
 | `POST /api/auth/login` | `public` | [auth.md](auth.md) |
 | `POST /api/auth/register` | `public` | [auth.md](auth.md) |

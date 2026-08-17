@@ -24,7 +24,7 @@ Die Prosa dieser Doku bleibt deutsch. Damit braucht kein DTO `[JsonPropertyName]
 
 | Regel | Wert |
 |---|---|
-| Basis-Präfix | `/api` (Ausnahme: `/health`) |
+| Basis-Präfix | `/api` (Ausnahmen: `/health`, `/health/ready`) |
 | Pfad-Parameter | `{id}` — Minimal-API-Routensyntax, **nicht** `:id` |
 | Ressourcen-Namen | englisch, Plural, kebab-case (`seller-types`, nicht `sellerTypes`) |
 | Eigene Daten des eingeloggten Nutzers | Suffix `/mine` (`/api/articles/mine`, `/api/blocks/mine`) — Ausnahme `/api/profile`, das per Definition immer die eigene Ressource ist |
@@ -39,7 +39,7 @@ einem dieser drei Werte:
 
 | Stufe | Bedeutung |
 |---|---|
-| `public` | Kein Token nötig. Nur `/health`, `/api/auth/*`, `/api/public/*`. |
+| `public` | Kein Token nötig. Nur `/health`, `/health/ready`, `/api/auth/*`, `/api/public/*`. |
 | `authenticated` | Gültiges Access-Token nötig, Rolle egal (`admin` oder `seller`). |
 | `admin` | Gültiges Access-Token **und** `role`-Claim = `admin`. Sonst `403`. |
 
