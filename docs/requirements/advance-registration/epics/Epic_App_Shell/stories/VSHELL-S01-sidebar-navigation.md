@@ -141,7 +141,7 @@ Zustand: nur Icons, keine Labels, keine Gruppen-Label, kein Footer-Text. Logout 
 | Übergang | `transition: width 200ms ease` (PrimeNG-Standard, ggf. via CSS-Var anpassbar) |
 | Zustand persistent | `[(open)]`-State app-seitig an `localStorage` (Key `sidebar-collapsed`) koppeln, damit Zustand Reload übersteht |
 
-**Sidebar-Footer-Maße (aus spec.md §13.7):**
+**Sidebar-Footer-Maße** (Verhalten des Role-Toggles → spec.md §12.4):
 
 | Element | Stil |
 |---|---|

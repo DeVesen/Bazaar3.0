@@ -12,7 +12,7 @@ Ein Entwickler richtet Entity Framework Core mit PostgreSQL ein, erstellt einen 
 
 ## Kontext
 
-Alle Entitäten der Voranmelde-App (Artikel, Verkäufer, Marken, Kategorien, Verkäufer-Types, Nummernblöcke) verwenden EF Core mit PostgreSQL. Der Cloud-Betrieb erfordert, dass Migrations sowohl lokal als auch in Azure Container Apps zuverlässig angewendet werden.
+Alle Entitäten der Voranmelde-App (Artikel, Verkäufer, Marken, Kategorien, Verkäufer-Typen, Nummernblöcke) verwenden EF Core mit PostgreSQL. Der Cloud-Betrieb erfordert, dass Migrations sowohl lokal als auch in Azure Container Apps zuverlässig angewendet werden.
 
 ## Scope
 

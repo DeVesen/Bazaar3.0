@@ -46,7 +46,7 @@ Basar-Konfiguration, Info-Text und Nummernblock-Parameter.
 | `dropOffUntil` | Datum + Uhrzeit | Ende des Abgabe-Zeitraums |
 | `bazaarFrom` | Datum + Uhrzeit | Start des Basars (Verkauf/Rückgabe) |
 | `bazaarUntil` | Datum + Uhrzeit | Ende des Basars (Verkauf/Rückgabe) |
-| `defaultTypeId` | Referenz | Standard-Verkäufer-Type für Selbstregistrierung und Login-Seite |
+| `defaultTypeId` | Referenz | Standard-Verkäufer-Typ für Selbstregistrierung und Login-Seite |
 | `infoText` | Markdown-Text | Freitext für Info-Panel (Verkäufer-Home + Login-Seite) |
 
 **Datumsfelder:** `p-datepicker` (Datum + Uhrzeit) für alle 5 Termine.

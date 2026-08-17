@@ -18,7 +18,7 @@ updated: 2026-08-17
 - Tags & Piles — Ablage
 
 **App:** Voranmelde-App
-**Navigation:** Stammdaten → Verkäufer-Types
+**Navigation:** Stammdaten → Verkäufer-Typen
 **Sichtbar für:** Admin
 
 Component-Details → [`components/forms/typ-popup.md`](../../components/forms/typ-popup.md)

@@ -1,7 +1,8 @@
 ---
 id: DOC-004
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Lastenheft — Voranmelde-App
@@ -19,14 +20,13 @@ updated: 2026-07-31
 - 10. Technische Rahmenbedingungen — Tech-Stack, Architektur, Responsive
 - 11. Gemeinsame Anforderungen — Querschnitt
 - 12. Design-Entscheidungen — Visuelles
-- 13. Visual Specs (Global) — PrimeNG-Mapping
-- 14. Offene Fragen — Backlog
+- 13. Offene Fragen — Backlog
 - Tags & Piles — Ablage
 
-**Version:** 0.8
-**Datum:** 2026-07-31
+**Version:** 0.9
+**Datum:** 2026-08-17
 **Autor:** Sven Reichert
-**Status:** Entwurf
+**Status:** Reviewed
 
 ---
 
@@ -67,7 +67,9 @@ Die Voranmelde-App unterstützt die Voranmeldephase vor dem Basar:
 | Rolle | Rechte |
 |---|---|
 | **Admin** | Alles: Verkäufer anlegen/einladen, Stammdaten verwalten, Export erstellen, eigene Artikel pflegen |
-| **Verkäufer** | Eigenes Profil + eigene Artikelliste verwalten |
+| **Verkäufer** | Eigenes Profil + eigene Artikelliste verwalten; darf beim Artikel-Erfassen neue Marken/Kategorien anlegen (siehe §11.3) |
+
+**Stammdaten-Ausnahme:** Marken und Kategorien **lesen** und **anlegen** darf jeder eingeloggte Nutzer — Anlegen passiert implizit über das AutoComplete-Popup der Artikelerfassung (neue Einträge erhalten `original = false`, siehe §11.2). **Ändern und Löschen** bleibt dem Admin vorbehalten. Verbindliche Auth-Stufen pro Endpoint → [`api/master-data.md`](api/master-data.md).
 
 **Role-Toggle:** Admins können in der Sidebar zwischen Admin-Ansicht und Verkäufer-Ansicht wechseln (ohne erneuten Login). Verkäufer ohne Admin-Rechte sehen diesen Toggle nicht.
 
@@ -121,7 +123,7 @@ Die Voranmelde-App unterstützt die Voranmeldephase vor dem Basar:
 ── Stammdaten ────────────────
   Marken
   Kategorien
-  Verkäufer-Types
+  Verkäufer-Typen
   ─────────────── (Trennlinie)
 ── System ────────────────────
   Profil
@@ -143,6 +145,8 @@ Die Voranmelde-App unterstützt die Voranmeldephase vor dem Basar:
 
 **Sidebar-Footer** (immer am unteren Rand, auch im mobilen Zustand):
 User-Info (Avatar, Name, Logout) + Role-Toggle (Admin/Verkäufer — nur für Admins sichtbar).
+
+**Route ohne Sidebar:** `/embed/countdown` läuft außerhalb der AppShell — öffentlich, kein Login, keine Sidebar, kein Sidebar-Footer. Gedacht zum Einbetten per `<iframe>` auf externen Seiten (siehe §8, Epic Countdown-Embed-Widget).
 
 ---
 
@@ -200,7 +204,8 @@ Fachliche Epics folgen in der Reihenfolge ihrer Abhängigkeiten.
 | # | Epic | Sichtbar für | Beschreibung | Epic-Datei |
 |---|---|---|---|---|
 | 14 | **Einstellungen** | Admin | Systemparameter, Nummernblock-Konfiguration | [Epic_Einstellungen](epics/Epic_Einstellungen/epic.md) |
-| 15 | **Export** | Admin | JSON-Export für Haupt-App | [Epic_Export](epics/Epic_Export/epic.md) |
+| 15 | **Countdown-Embed-Widget** | Jeder (öffentlich) | Einbettbare Basar-Timeline unter `/embed/countdown`, ohne AppShell | [Epic_Countdown_Widget](epics/Epic_Countdown_Widget/epic.md) |
+| 16 | **Export** | Admin | JSON-Export für Haupt-App | [Epic_Export](epics/Epic_Export/epic.md) |
 
 ---
 
@@ -418,22 +423,12 @@ In der Entwicklungsversion: kleiner Hinweis auf Demo-Accounts. In Produktion ent
 
 ---
 
-## 13. UI-Komponenten (Visual Specs)
-
-Geteilte UI-Komponenten (app- und feature-übergreifend):
-→ [`docs/components/`](../../components/overview.md)
-
-Feature-spezifische UI-Specs:
-→ jeweils als Story im Verzeichnis des betreffenden Features
-
----
-
-## 14. Offene Fragen
+## 13. Offene Fragen
 
 | # | Frage | Status |
 |---|---|---|
-| 5 | Mehrsprachigkeit? | ✅ Ja — DE + EN via ngx-translate |
-| 6 | Provisionssystem / unterschiedliche Konditionen? | ✅ Ja, via Verkäufer-Type |
+| 1 | Mehrsprachigkeit? | ✅ Ja — DE + EN via ngx-translate |
+| 2 | Provisionssystem / unterschiedliche Konditionen? | ✅ Ja, via Verkäufer-Typ |
 
 ---
 

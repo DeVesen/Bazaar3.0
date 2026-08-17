@@ -64,7 +64,7 @@ PrimeNG: `pInputText` (Telefon), `pInputText [readonly]="true"` (E-Mail).
 
 **Panel 03 — Konditionen**
 ```
-[Verkäufer-Type (read-only)          100%]
+[Verkäufer-Typ (read-only)           100%]
 [Gebühr je Stück (read-only) 50%] [Provision (read-only) 50%]
 ```
 PrimeNG: `p-select [disabled]="true"` (Typ), `p-inputnumber` locale DE `minFractionDigits="2"` `[readonly]="true"` (Gebühr/Provision).

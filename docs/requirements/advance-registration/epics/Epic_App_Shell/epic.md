@@ -22,7 +22,7 @@ Grundgerüst der Angular-App: Sidebar-Navigation (rollenabhängig), responsives 
 - Responsives Layout: Desktop (>1024 px) / Tablet (≤1024 px) / Mobile (≤768 px)
 - Angular Routing Skeleton (Lazy Loading je Feature über `<feature>.routes.ts`, englische Routen-Pfade, funktionale `authGuard`/`adminGuard`)
 - JWT-Auth-Infrastruktur in `core/auth/` (`TokenStore`, `JwtDecoder`, `AuthService` mit Signals, funktionaler `jwtInterceptor` inkl. Token-Refresh, `RoleService`)
-- PrimeNG 20 Theme & globale CSS Custom Properties
+- PrimeNG 22 Theme & globale CSS Custom Properties
 - ngx-translate initialisieren (DE Default, EN Fallback)
 
 ## Abhängigkeit
