@@ -16,6 +16,8 @@ mit vollständiger Feldtabelle; dieses Verzeichnis ist damit ohne Dokumente auß
 | Verkäufer-Typ | [verkaeufer-typ.md](verkaeufer-typ.md) | Vorlage für Provision und Gebühr |
 | Marke | [marke.md](marke.md) | Stammdatum, denormalisiert im Artikel |
 | Kategorie | [kategorie.md](kategorie.md) | Stammdatum, denormalisiert im Artikel |
+| Benutzer | [benutzer.md](benutzer.md) | Konto zum Anmelden, Rolle Admin oder Kassenpersonal |
+| Einstellungen | [einstellungen.md](einstellungen.md) | Systemparameter, eine Zeile |
 | Import-Format | [import-format.md](import-format.md) | JSON-Schema der Datei aus der Voranmelde-App |
 
 **Sprachregel:** Feldnamen englisch, Doku-Prosa deutsch — siehe
@@ -25,8 +27,9 @@ mit vollständiger Feldtabelle; dieses Verzeichnis ist damit ohne Dokumente auß
 backend-generiert (`spec.md` Abschnitt 9.5). Beim Import aus der Voranmelde-App werden
 deren IDs 1:1 übernommen, damit ein erneuter Import denselben Datensatz trifft.
 
-**Einstellungen** sind in dieser App kein Entity, sondern lokale Parameter — siehe
-[`spec.md`](../spec.md) Abschnitt 8.
+**Einstellungen** sind serverseitig persistiert, nicht gerätelokal — Begründung in
+[einstellungen.md](einstellungen.md). Ein Parameter, der nur im `localStorage` eines
+Rechners liegt, gilt nicht systemweit.
 
 ## Verhältnis zur Voranmelde-App
 

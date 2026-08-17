@@ -23,7 +23,7 @@ updated: 2026-08-17
 **Version:** 0.9
 **Datum:** 2026-08-17
 **Autor:** Sven Reichert
-**Status:** Entwurf (6 von 14 Epics reviewed)
+**Status:** Entwurf (14 von 14 Epics reviewed)
 
 ---
 
@@ -315,10 +315,15 @@ Die Haupt-App **muss vollständig offline-fähig** sein. Sie läuft auf einem Se
 
 | Parameter | Beschreibung | Default |
 |---|---|---|
-| `suchDebounceMs` | Verzögerung in ms bevor Suchanfrage ausgelöst wird | 800 ms |
 | `scannerPauseMs` | Anzeigedauer Scan-Ergebnis im Inline-Kamera-Modus | 3 000 ms |
 
-Einstellungen werden im `localStorage` gespeichert.
+Einstellungen werden **serverseitig** gespeichert (`GET`/`PUT /api/settings`), nicht im
+`localStorage` — sie gelten für alle Geräte, nicht nur für den Rechner des Admins.
+Details → [`entities/einstellungen.md`](entities/einstellungen.md)
+
+Eine Debounce-Zeit für Suchfelder ist **kein** Admin-Parameter, sondern eine Konstante im
+Code — reine Frontend-Abstimmung ohne fachlichen Anlass, ebenso entschieden in der
+Voranmelde-App.
 
 ---
 
@@ -418,7 +423,7 @@ Erste Zeile: Tage (ganzzahlig, kein Padding). Zweite Zeile: HH:MM:SS (zero-padde
 | 1 | Kassenvorgang: Scanner-Typ? | ✅ Beides: USB-Scanner (Tastaturemulation) + Kamera-Scan |
 | 2 | Maximale Artikel-Anzahl pro Verkäufer? | ✅ Keine harte Grenze |
 | 3 | Marken/Kategorien Freitext oder Liste? | ✅ AutoComplete + Freitext via Popup |
-| 4 | Welche Einstellungen soll der Admin konfigurieren? | ✅ `suchDebounceMs` (800 ms) + `scannerPauseMs` (3 000 ms) |
+| 4 | Welche Einstellungen soll der Admin konfigurieren? | ✅ Nur `scannerPauseMs` (3 000 ms), serverseitig. Eine Debounce-Zeit ist eine Code-Konstante |
 | 5 | Offline-Fähigkeit? | ✅ Ja — lokales LAN, kein Internetzugang, alles im Bundle |
 | 6 | Scan-Ergebnis Anzeigedauer? | ✅ Konfigurierbar über `scannerPauseMs`, Default 3 000 ms (Abschnitt 8) |
 | 7 | Artikel löschen im Wizard (noch nicht gespeichert)? | ✅ Ja — Löschen-Button pro Eintrag in Session-Liste |
