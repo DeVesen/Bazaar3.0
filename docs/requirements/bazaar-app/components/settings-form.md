@@ -21,7 +21,7 @@ reviewed-date: 2026-08-17
 
 ## Überblick
 
-Das Formular hat **ein** Feld. Das ist kein Versehen, sondern das Ergebnis des Reviews: `suchDebounceMs` wurde entfernt (Frontend-Tuning-Konstante ohne fachlichen Anlass, jetzt im Code), und die Termine, `defaultTypeId` und die Nummernblock-Parameter gehören zur Voranmelde-App.
+Das Formular hat **ein** Feld. Das ist kein Versehen, sondern das Ergebnis des Reviews: `suchDebounceMs` wurde entfernt (Frontend-Tuning-Konstante ohne fachlichen Anlass, jetzt als 300-ms-Konstante im Code, siehe [`api/cross-cutting.md`](../api/cross-cutting.md)), und die Termine, `defaultTypeId` und die Nummernblock-Parameter gehören zur Voranmelde-App.
 
 Übrig bleibt `scannerPauseMs` — und der ist es wert, weil er am Basar-Tag je nach Personal und Scanner-Qualität wirklich verstellt wird.
 

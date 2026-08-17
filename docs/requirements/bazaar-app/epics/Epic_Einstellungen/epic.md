@@ -45,7 +45,7 @@ Entity-Details → [`entities/einstellungen.md`](../../entities/einstellungen.md
 
 **Serverseitig gespeichert**, nicht im `localStorage`: Der Wert beschreibt eine Einstellung des Basars, nicht eine Vorliebe eines Geräts. Gerätelokal abgelegt würde der Admin ihn an seinem Rechner setzen, während die drei Kassen-Tablets ihren Default behalten — „systemweit" wäre dann eine Behauptung. Das Frontend liest die Parameter beim Start und hält sie im Speicher; der `localStorage` bleibt dem JWT vorbehalten, dort gehört Gerätezustand hin.
 
-**`suchDebounceMs` gibt es hier nicht.** Eine Debounce-Zeit für Suchfelder ist eine Frontend-Tuning-Konstante ohne fachlichen Anlass und steht fest im Code. Die Voranmelde-App hat denselben Parameter aus demselben Grund aus ihren Einstellungen entfernt — zwei Antworten auf dieselbe Frage wären eine Doppelung auf Suite-Ebene. Nebenbei verstieß der Name gegen die Sprachregel ([`spec.md`](../../spec.md) Abschnitt 7.0.1: englische Feldnamen).
+**`suchDebounceMs` gibt es hier nicht.** Eine Debounce-Zeit für Suchfelder ist eine Frontend-Tuning-Konstante ohne fachlichen Anlass und steht mit **300 ms** fest im Code ([`api/cross-cutting.md`](../../api/cross-cutting.md) Abschnitt „Pagination, Suche und Sortierung"). Die Voranmelde-App hat denselben Parameter aus demselben Grund aus ihren Einstellungen entfernt — zwei Antworten auf dieselbe Frage wären eine Doppelung auf Suite-Ebene. Nebenbei verstieß der Name gegen die Sprachregel ([`spec.md`](../../spec.md) Abschnitt 7.0.1: englische Feldnamen).
 
 `scannerPauseMs` bleibt konfigurierbar, weil er am Basar-Tag je nach Personal und Scanner-Qualität wirklich verstellt wird.
 

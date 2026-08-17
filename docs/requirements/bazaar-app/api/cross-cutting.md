@@ -17,7 +17,7 @@ Index aller Endpoints → [`overview.md`](overview.md)
 - 3. Auth-Stufen — public, authenticated, admin
 - 4. Fehler-Responses — ProblemDetails, errorCode
 - 5. Datentypen im Contract — Zeitstempel, Geld, IDs
-- 6. Pagination und Sortierung — Listen
+- 6. Pagination, Suche und Sortierung — Listen
 - 7. Transaktions-Vorgänge — atomare Endpoints
 - 8. Sperrregeln — soldAt und settledAt
 - 9. Persistenz-Zugriff — Repositories und Query-Ports
@@ -176,7 +176,7 @@ Speicherung, Präzision und Feldlängen stehen verbindlich in
 
 ---
 
-## 6. Pagination und Sortierung
+## 6. Pagination, Suche und Sortierung
 
 **Paginiert** sind ausschließlich die potenziell großen Listen: `GET /api/articles` (50 je Seite) und `GET /api/sellers` (60 je Seite — Karten-Grid, siehe [Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md)).
 
@@ -197,6 +197,34 @@ Response-Hülle:
 ```
 
 **Bewusst nicht paginiert** — vollständige Liste, dient auch als Dropdown-Quelle, Datenmenge zweistellig: `GET /api/brands`, `GET /api/categories`, `GET /api/seller-types`, `GET /api/users`, `GET /api/sellers/search`, `GET /api/sellers/{id}/articles`.
+
+### Suchverhalten
+
+Gilt für **jede** Freitextsuche der App — `GET /api/sellers`, `GET /api/sellers/search`, `GET /api/articles`.
+
+| Regel | Festlegung |
+|---|---|
+| Groß-/Kleinschreibung | **ignoriert** (`ILIKE`) |
+| Umlaut-Toleranz | **keine** — „mueller" findet „Müller" nicht |
+| Treffer | **Teilwort an beliebiger Stelle** (`%begriff%`), nicht nur Präfix |
+| Mehrere Wörter | Eingabe an Leerzeichen zerlegt; **jedes** Token muss in **irgendeinem** der Suchfelder vorkommen |
+| Mindestlänge | **keine** — leer zeigt alles, ein Zeichen filtert |
+| Trimmen | ja; nur Leerzeichen gilt als leer |
+| Debounce im Frontend | **300 ms** |
+
+**Case-insensitiv ist zwingend:** PostgreSQL vergleicht mit `LIKE` case-sensitiv, und am Tablet tippt niemand Großbuchstaben.
+
+**Keine Umlaut-Toleranz** ist eine bewusste Grenze, kein Versäumnis: Sie bräuchte die `unaccent`-Extension plus Ausdrucks-Index und würde den häufigsten Fall trotzdem nicht abdecken — `unaccent` macht aus `ü` ein `u`, nicht aus `ue` ein `ü`. Wer „Müller" nicht tippen kann, sucht „ller" oder den Vornamen; dafür genügt die Teilwortsuche.
+
+**Teilwort statt Präfix**, weil der Index hier nichts kostet: Ein Basar hat Hunderte Verkäufer und einige Tausend Artikel — ein sequenzieller Scan ist auf dieser Menge nicht messbar. Präfixsuche wäre die Optimierung für ein Problem, das nicht existiert, und würde „ler" für „Müller" ausschließen.
+
+**Token-Zerlegung** ist nötig, weil Vor- und Nachname getrennte Spalten sind: „anna meier" als ein Suchstring findet nichts. Mit Zerlegung finden „anna meier" und „meier anna" beide dieselbe Person.
+
+**Keine Mindestlänge**, weil die Ergebnismenge ohnehin paginiert ist: Ein Zeichen liefert eine lange Liste, und das ist die ehrliche Antwort auf eine einbuchstabige Suche. Eine Mindestlänge von 2 würde die Liste beim ersten Tastendruck **verschwinden** und beim zweiten wiederkommen lassen — das wirkt wie ein Fehler. Zudem zeigt [`seller-search`](../../../components/seller-search/component.md) bei leerer Eingabe absichtlich alle Verkäufer; eine Mindestlänge erzeugte einen dritten Zustand zwischen „alles" und „nichts".
+
+**300 ms Debounce**, nicht die früher in den Einstellungen stehenden 800 ms: Der alte Wert war für ein Cloud-Formular gedacht, in dem jemand in Ruhe tippt. Am Annahmetisch tippt Kassenpersonal drei Buchstaben und erwartet die Liste sofort; im LAN liegt der Roundtrip unter 20 ms. Der Wert ist eine **Code-Konstante**, kein Einstellungsparameter ([`settings.md`](settings.md)) — dokumentiert ist er hier, damit nicht jedes Suchfeld einen anderen bekommt.
+
+**AutoComplete für Marke und Kategorie filtert clientseitig** — ohne Request und ohne Debounce. Beide Listen sind bewusst nicht paginiert, das Frontend hält sie vollständig und lädt sie einmal beim Betreten der Artikelannahme. Am Annahmetisch ist der Unterschied spürbar: Vorschläge erscheinen ohne Verzögerung, auch wenn das WLAN kurz hängt. Es gelten dieselben Regeln (case-insensitiv, Teilwort, getrimmt), nur lokal. Die **Duplikatprüfung beim Anlegen bleibt serverseitig** (`409`), weil der lokale Stand veraltet sein kann.
 
 ### Sortierung
 

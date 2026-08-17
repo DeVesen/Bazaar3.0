@@ -269,7 +269,7 @@ Kein `IQueryable` über die Portgrenze, ein Repository pro Aggregate — die Agg
 
 ## Akzeptanzkriterien
 
-1. **AC-1** — WHEN der Nutzer Text in das Suchfeld eingibt und die Debounce-Zeit abgelaufen ist, THEN SHALL das System die Verkäuferliste auf Einträge filtern, die den Suchbegriff in Name oder Nummer enthalten.
+1. **AC-1** — WHEN der Nutzer Text in das Suchfeld eingibt, THEN SHALL das System nach 300 ms Debounce die Verkäuferliste serverseitig filtern — case-insensitiv, Teilwort an beliebiger Stelle, Eingabe an Leerzeichen zerlegt (Regeln → [`api/cross-cutting.md`](../../api/cross-cutting.md) Abschnitt „Pagination, Suche und Sortierung").
 2. **AC-2** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit leeren Pflichtfeldern (Vorname, Nachname) öffnen; der Verkäufer-Typ SHALL mit dem am häufigsten zugewiesenen Typ vorbelegt sein.
 3. **AC-3** — WHEN ein neuer Verkäufer gespeichert wird, THEN SHALL das System ihn in der Datenbank anlegen und in der Liste anzeigen.
 4. **AC-4** — WHEN „Edit" bei einem Verkäufer geklickt wird, THEN SHALL das System das Popup mit den vorausgefüllten Verkäuferdaten öffnen.
