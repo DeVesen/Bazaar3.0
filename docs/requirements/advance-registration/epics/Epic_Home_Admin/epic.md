@@ -83,8 +83,9 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 
 Identisch mit der Verkäufer-Ansicht — dieselbe Custom-Component
 [markdown-text](../../components/custom/markdown-text.md), derselbe `infoText`.
-Details → [Epic_Home_Verkaeufer](../Epic_Home_Verkaeufer/epic.md) Abschnitt 4, Rendering-AC
-dort AC-6/AC-7.
+Details → [Epic_Home_Verkaeufer](../Epic_Home_Verkaeufer/epic.md) Abschnitt „Info-Panel";
+die Akzeptanzkriterien zum Rendering und zum leeren `infoText` stehen dort und gelten
+unverändert auch für diese Ansicht.
 
 ---
 

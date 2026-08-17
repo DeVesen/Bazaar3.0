@@ -62,7 +62,7 @@ nicht `markdown-text` — die Leaf-Komponente rendert bei leerem `content` ledig
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) AC-1 bis AC-7 bzw. [Epic_Home_Admin](../../epics/Epic_Home_Admin/epic.md) AC-1 bis AC-3 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) bzw. [Epic_Home_Admin](../../epics/Epic_Home_Admin/epic.md) — jeweils **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC. Bewusst ohne AC-Nummern: beide Epics werden weiter ergänzt, eine Nummernspanne hier wäre sofort veraltet.
 
 ## Tags & Piles
 

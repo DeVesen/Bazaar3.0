@@ -93,7 +93,7 @@ Komponenten-Doku zu übernehmen und bleibt dort die einzige Quelle.
 
 ## Akzeptanzkriterien
 
-Struktur-Referenz zu Epic_Einstellungen AC-1 bis AC-6. Zusätzlich für die Info-Text-Bearbeitung:
+Struktur-Referenz zu [Epic_Einstellungen](../../epics/Epic_Einstellungen/epic.md) — dort gelten **alle** Akzeptanzkriterien, hier bewusst ohne Nummernspanne. Zusätzlich für die Info-Text-Bearbeitung:
 
 1. **AC-F1** — WHILE der Admin im `infoText`-Feld tippt, SHALL das System die Vorschau bei jeder Eingabe aktualisiert anzeigen, ohne dass gespeichert werden muss.
 2. **AC-F2** — THE SYSTEM SHALL die Vorschau mit derselben `markdown-text`-Komponente rendern, die den Text auf Login-Seite und Home anzeigt.
