@@ -81,8 +81,14 @@ Die Haupt-App unterstützt drei operative Kernprozesse:
   ─────────────── (Trennlinie)
 ── System ────────────────────
   Statistik
-  Einstellungen
+  Einstellungen              (nur Admin)
+──────────────────────────────
+  Sidebar-Footer: Avatar · Benutzername · Rolle · Abmelden
 ```
+
+**Druckfunktionen haben keinen Menüpunkt und keine Route** — der Ausdruck startet automatisch nach dem Buchen in der Artikelannahme bzw. per Button in der Abrechnung (siehe [Epic_Druckfunktionen](epics/Epic_Druckfunktionen/epic.md)).
+
+**Routen-Pfade sind englisch** (`/intake`, `/checkout`, `/settlement`, `/sellers`, `/articles`, `/brands`, `/categories`, `/seller-types`, `/statistics`, `/settings`) — Sprachregel siehe Abschnitt 7.0.1. Die deutschen Menü-Labels oben sind Anzeigetexte, keine Pfade. Vollständige Tabelle → BSHELL-S03.
 
 **Home** leitet automatisch auf **Artikelannahme** weiter — kein eigener Seiteninhalt.
 
@@ -99,7 +105,7 @@ Verbindlich für alle Epics. Ein Epic, das davon abweichen will, ändert diese T
 | Artikelannahme | ✅ | ✅ |
 | Verkauf | ✅ | ✅ |
 | Abrechnung | ✅ | ✅ |
-| Druckfunktionen | ✅ | ✅ |
+| Drucken (Aktion in Artikelannahme und Abrechnung, keine eigene Seite) | ✅ | ✅ |
 | Artikel (Übersicht) | ✅ | ✅ lesen, kein Status-Popup |
 | Verkäufer | ✅ | ✅ lesen |
 | Marken / Kategorien / Verkäufer-Typen | ✅ | ✅ lesen; Anlegen nur implizit über AutoComplete (Abschnitt 9.3) |

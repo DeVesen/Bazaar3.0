@@ -1,6 +1,7 @@
 ---
 code: BSHELL
-status: draft
+status: reviewed
+reviewed-date: 2026-08-17
 updated: 2026-08-17
 ---
 
@@ -30,9 +31,18 @@ Setzt `Epic_Projektanlage` (BPROJ) voraus — das Angular-Projekt muss existiere
 
 [Epic_Login](../Epic_Login/epic.md) (Seite) hängt von dieser Shell ab — Guards und `AuthService` müssen zuerst existieren.
 
-> **Offen für das Review dieses Epics:** Für die Auth-Infrastruktur fehlt noch eine eigene
-> Story (die Voranmelde-App hat dafür VSHELL-S04). Rollenabhängige Sidebar und Guards sind
-> in den bestehenden Stories BSHELL-S01 und BSHELL-S03 noch nicht beschrieben.
+## Entscheidungen aus dem Review
+
+| Thema | Entscheidung |
+|---|---|
+| Routen-Pfade | **englisch** (`/intake`, `/checkout`, `/settlement`, `/sellers`, …) gemäß Sprachregel; Menü-Labels deutsch im Sidebar-Template |
+| Sidebar-Footer | bestehende Komponente **C-009 auf beide Apps erweitern**, Role-Toggle wird optional und bleibt der Voranmelde-App vorbehalten |
+| Sidebar-Komponente | gehört **suite-weit** nach `docs/components/sidebar/`; app-spezifisch bleiben nur Farben und Einträge (Verschieben → `element-extraction`) |
+| i18n | Sidebar bleibt **dumm** und erhält Labels als Input — die Haupt-App hat keine Übersetzungsschicht |
+| Farben | ACs referenzieren **CSS-Tokens**; Hex-Werte stehen nur in BSHELL-S04 und [`spec.md`](../../spec.md) Abschnitt 10.1 |
+| Drucken | Shell liefert nur die `@media print`-**Basisregel**; fachliche Druckansichten gehören zu [Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md). **Keine Route, kein Sidebar-Eintrag** |
+| Badge | „offen" = angenommen, aber nicht freigegeben; Laden bei Routenwechsel und nach Änderung, **kein Polling** |
+| Token-Ablauf | `AuthService` prüft `exp` beim App-Start; Interceptor ist die zweite Verteidigungslinie |
 
 ## Stories
 
@@ -40,8 +50,9 @@ Setzt `Epic_Projektanlage` (BPROJ) voraus — das Angular-Projekt muss existiere
 - [BSHELL-S02 — Responsives Layout](stories/BSHELL-S02-responsives-layout.md)
 - [BSHELL-S03 — Angular Routing Skeleton](stories/BSHELL-S03-routing-skeleton.md)
 - [BSHELL-S04 — PrimeNG Theme & Global Styles](stories/BSHELL-S04-primeng-theme-setup.md)
+- [BSHELL-S05 — Auth-Infrastruktur (`core/auth/`)](stories/BSHELL-S05-auth-infrastruktur.md)
 
 ## Tags & Piles
 
 **Piles:** #pile/bazaar-app
-**Tags:** #setup #app-shell #sidebar #layout #routing #primeng #responsive
+**Tags:** #setup #app-shell #sidebar #layout #routing #primeng #responsive #auth #guards

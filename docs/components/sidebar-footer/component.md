@@ -7,7 +7,7 @@ reviewed-date: 2026-08-14
 # Component: Sidebar-Footer
 
 **Bibliothek:** `p-avatar` (Avatar) + `p-selectbutton` (Role-Toggle) + `<button pButton link>` (Logout) — kein eigener Wrapper mehr
-**Verwendung:** Nur Voranmelde-App — Inhalt lebt im `p-sidebar-footer`-Slot des Sidebar-Compounds
+**Verwendung:** Beide Apps — Inhalt lebt im `p-sidebar-footer`-Slot des Sidebar-Compounds. Der Role-Toggle ist optional und wird nur von der Voranmelde-App eingeschaltet.
 
 ## Index
 
@@ -23,13 +23,20 @@ reviewed-date: 2026-08-14
 
 **Verwendungszweck:** Wird im `p-sidebar-footer`-Slot der App-weiten Sidebar angezeigt, immer sichtbar (kein Popup-Pattern — bewusste Abweichung von den offiziellen PrimeNG-Demos, da der Admin-Role-Toggle ohne Extra-Klick erreichbar bleiben soll).
 
+Avatar, Benutzername, Rollenname und Logout sind in **beiden Apps identisch**; der Unterschied ist ein einziges Element, der Role-Toggle. Darum eine Komponente mit optionalem Toggle statt zweier Footer, die Avatar-, Namens- und Logout-Layout doppeln.
+
 ---
 
 ## Überblick
 
-Der Sidebar-Footer zeigt die Identität des angemeldeten Nutzers (Avatar, Username, Rolle), ermöglicht Admins den Wechsel zwischen den Rollen Admin und Verkäufer, und enthält die Logout-Aktion.
+Der Sidebar-Footer zeigt die Identität des angemeldeten Nutzers (Avatar, Username, Rolle) und enthält die Logout-Aktion. In der Voranmelde-App ermöglicht er Admins zusätzlich den Wechsel zwischen den Rollen Admin und Verkäufer.
 
-**Nur Voranmelde-App.** Dieser Footer ist nicht Bestandteil der Haupt-App.
+**Beide Apps** — mit einem Unterschied:
+
+| App | Role-Toggle |
+|---|---|
+| Voranmelde-App | **ja** — der Admin erfasst selbst Artikel und braucht die Verkäufer-Ansicht |
+| Haupt-App | **nein** — der Admin hat alle Rechte des Kassenpersonals; ein Toggle würde ihm nur künstlich Rechte wegnehmen |
 
 ---
 
@@ -63,7 +70,7 @@ Der Sidebar-Footer zeigt die Identität des angemeldeten Nutzers (Avatar, Userna
 | Element | Bedingung |
 |---|---|
 | Avatar, Username, Role-Label | Immer sichtbar (auch eingeklappt: nur Avatar) |
-| Role-Toggle | Nur Rolle Admin — Verkäufer sieht ihn nicht |
+| Role-Toggle | Nur Voranmelde-App und dort nur Rolle Admin — Verkäufer sieht ihn nicht, die Haupt-App zeigt ihn nie |
 | Logout | Immer sichtbar |
 | Eingeklappt (60 px) | nur Avatar sichtbar, Rest ausgeblendet und nicht erreichbar (Sidebar muss aufgeklappt werden) |
 
