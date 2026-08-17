@@ -15,7 +15,7 @@ updated: 2026-07-31
 - Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
-**Navigation:** Stammdaten → Verkäufer-Types
+**Navigation:** Stammdaten → Verkäufer-Typen
 
 **Ziel:** Admin pflegt Verkäufer-Typen mit Provisions- und Gebührensätzen für die automatische Abrechnungsberechnung.
 

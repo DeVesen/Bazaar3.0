@@ -37,7 +37,7 @@ Die Haupt-App hat keine Login-Seite — die Sidebar ist immer sichtbar. Sie glie
 │  ○ Artikel             │
 │  ○ Marken              │
 │  ○ Kategorien          │
-│  ○ Verkäufer-Types     │
+│  ○ Verkäufer-Typen     │
 │  ─────────────         │
 │  SYSTEM                │
 │  ○ Statistik           │
@@ -47,7 +47,7 @@ Die Haupt-App hat keine Login-Seite — die Sidebar ist immer sichtbar. Sie glie
 
 Aktiver Eintrag: Akzentfarbe `#2e86c1` als Hintergrund-Highlight.
 
-**Maße (aus spec.md §11.2):**
+**Maße** (Farben → spec.md §10.1):
 
 | Element | Wert |
 |---|---|

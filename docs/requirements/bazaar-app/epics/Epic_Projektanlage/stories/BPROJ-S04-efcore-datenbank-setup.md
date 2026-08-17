@@ -12,7 +12,7 @@ Ein Entwickler richtet Entity Framework Core mit PostgreSQL ein, erstellt einen 
 
 ## Kontext
 
-Alle Entitäten der Haupt-App (Artikel, Verkäufer, Marken, Kategorien, Verkäufer-Types) verwenden EF Core mit PostgreSQL. Die erste Migration ist leer und dient als sauberer Startpunkt — Entitäten kommen in den jeweiligen fachlichen Epics.
+Alle Entitäten der Haupt-App (Artikel, Verkäufer, Marken, Kategorien, Verkäufer-Typen) verwenden EF Core mit PostgreSQL. Die erste Migration ist leer und dient als sauberer Startpunkt — Entitäten kommen in den jeweiligen fachlichen Epics.
 
 ## Scope
 

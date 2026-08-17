@@ -17,8 +17,7 @@ updated: 2026-07-31
 - 8. Einstellungen — Parameter
 - 9. Gemeinsame Anforderungen — Querschnitt
 - 10. Design-Entscheidungen — Visuelles
-- 11. Visual Specs (Global) — PrimeNG-Mapping
-- 12. Offene Fragen — Backlog
+- 11. Offene Fragen — Backlog
 - Tags & Piles — Ablage
 
 **Version:** 0.8
@@ -74,7 +73,7 @@ Die Haupt-App unterstützt drei operative Kernprozesse:
   Artikel
   Marken
   Kategorien
-  Verkäufer-Types
+  Verkäufer-Typen
   ─────────────── (Trennlinie)
 ── System ────────────────────
   Statistik
@@ -364,17 +363,7 @@ Erste Zeile: Tage (ganzzahlig, kein Padding). Zweite Zeile: HH:MM:SS (zero-padde
 
 ---
 
-## 11. UI-Komponenten (Visual Specs)
-
-Geteilte UI-Komponenten (app- und feature-übergreifend):
-→ [`docs/components/`](../../components/overview.md)
-
-Feature-spezifische UI-Specs:
-→ jeweils als Story im Verzeichnis des betreffenden Features
-
----
-
-## 12. Offene Fragen
+## 11. Offene Fragen
 
 | # | Frage | Status |
 |---|---|---|
@@ -382,10 +371,11 @@ Feature-spezifische UI-Specs:
 | 2 | Maximale Artikel-Anzahl pro Verkäufer? | ✅ Keine harte Grenze |
 | 3 | Marken/Kategorien Freitext oder Liste? | ✅ AutoComplete + Freitext via Popup |
 | 4 | Welche Einstellungen soll der Admin konfigurieren? | ✅ `suchDebounceMs` (800 ms) + `scannerPauseMs` (3 000 ms) |
-| 7 | Offline-Fähigkeit? | ✅ Ja — lokales LAN, kein Internetzugang, alles im Bundle |
-| 8 | Scan-Ergebnis Anzeigedauer? | ✅ Konfigurierbar, Default 5 Sekunden |
-| 9 | Artikel löschen im Wizard (noch nicht gespeichert)? | ✅ Ja — Löschen-Button pro Eintrag in Session-Liste |
-| 10 | Scan-Feedback: Ton und/oder Vibration? | ✅ Beides — Web Audio API + `Navigator.vibrate()` |
+| 5 | Offline-Fähigkeit? | ✅ Ja — lokales LAN, kein Internetzugang, alles im Bundle |
+| 6 | Scan-Ergebnis Anzeigedauer? | ✅ Konfigurierbar, Default 5 Sekunden |
+| 7 | Artikel löschen im Wizard (noch nicht gespeichert)? | ✅ Ja — Löschen-Button pro Eintrag in Session-Liste |
+| 8 | Scan-Feedback: Ton und/oder Vibration? | ✅ Beides — Web Audio API + `Navigator.vibrate()` |
+| 9 | PrimeNG-Major-Version dieser App? | ⏳ Offen — Stories nennen 20, §7.0 hält es offen (Voranmelde-App: 22.0.0) |
 
 ---
 
