@@ -38,34 +38,38 @@ aber fachlich Nummernblock-Verwaltung → [`blocks.md`](blocks.md).
 ```json
 {
   "id": "a3f9c2d1",
-  "startNummer": 101,
-  "vorname": "Anna",
-  "nachname": "Beispiel",
-  "anschrift": "Hauptstr. 1",
-  "plz": "76133",
-  "ort": "Karlsruhe",
-  "telefon": "0721 12345",
+  "startNumber": 101,
+  "firstName": "Anna",
+  "lastName": "Beispiel",
+  "address": "Hauptstr. 1",
+  "postalCode": "76133",
+  "city": "Karlsruhe",
+  "phone": "0721 12345",
   "email": "anna@example.com",
-  "verkaueferTypeId": "t1b2c3d4",
+  "sellerTypeId": "t1b2c3d4",
   "sellerType": {
     "id": "t1b2c3d4",
-    "bezeichnung": "Standard",
-    "verkaufsprovisionAnteil": 15.0,
-    "abgabegebuehr": 0.50
+    "name": "Standard",
+    "commissionRate": 15.0,
+    "itemFee": 0.50
   },
-  "istAdmin": false,
+  "isAdmin": false,
   "articleCount": 12,
-  "hatOffeneEinladung": false
+  "hasPendingInvite": false
 }
 ```
 
 | Feld | Bemerkung |
 |---|---|
-| `startNummer` | `vonNummer` des **ersten** Nummernblocks — das ist die Spalte „Nr." der Admin-Tabelle. **Kein eigenes Feld in der Entity**, sondern abgeleitet: eine zweite fortlaufende Nummernwelt neben den Artikelnummern wäre nur verwechslungsanfällig, und am Basar-Tag wird ohnehin nach „Verkäufer 101" gesucht. `null`, solange kein Block zugewiesen ist. |
-| `sellerType` | Serverseitig aufgelöst — die Tabelle zeigt Provision und Gebühr als read-only Spalten, abgeleitet vom Typ. **Kein Override pro Verkäufer** in der Voranmelde-App (siehe [`entities.md`](../../entities.md)); `umsatzVerkaufsprovision`/`gebuehrProStueck` sind Haupt-App-exklusiv. |
-| `istAdmin` | Quelle des `role`-Claims im JWT. Gepflegt über die Checkbox in Panel 05. |
+| `startNumber` | `fromNumber` des **ersten** Nummernblocks — das ist die Spalte „Nr." der Admin-Tabelle. **Kein eigenes Feld in der Entity**, sondern abgeleitet: eine zweite fortlaufende Nummernwelt neben den Artikelnummern wäre nur verwechslungsanfällig, und am Basar-Tag wird ohnehin nach „Verkäufer 101" gesucht. `null`, solange kein Block zugewiesen ist. |
+| `sellerType` | Serverseitig aufgelöst — die Tabelle zeigt Provision und Gebühr als read-only Spalten, abgeleitet vom Typ. **Kein Override pro Verkäufer** in dieser App (siehe [`entities/verkaeufer-typ.md`](../entities/verkaeufer-typ.md)); eigene Konditionsfelder gibt es erst in der Haupt-App. |
+| `isAdmin` | Quelle des `role`-Claims im JWT. Gepflegt über die Checkbox in Panel 05. |
 | `articleCount` | Anzahl eigener Artikel — Spalte „Artikel" |
-| `hatOffeneEinladung` | `true`, solange ein unverbrauchtes, nicht abgelaufenes `inviteToken` existiert. Das Token selbst wird **nie** ausgeliefert. |
+| `hasPendingInvite` | `true`, solange ein unverbrauchtes, nicht abgelaufenes `inviteToken` existiert. Das Token selbst wird **nie** ausgeliefert. |
+
+**Nie ausgeliefert:** `passwordHash` und `inviteToken` — sie existieren nur in der
+Entität (siehe [`entities/verkaeufer.md`](../entities/verkaeufer.md)). Refresh-Tokens
+liegen in einer eigenen Tabelle und erscheinen in keinem Verkäufer-DTO.
 
 ---
 
@@ -78,9 +82,9 @@ aber fachlich Nummernblock-Verwaltung → [`blocks.md`](blocks.md).
 | `search` | Freitext über Vorname, Nachname, Ort, E-Mail |
 | `page`, `pageSize`, `sort` | [`cross-cutting.md`](cross-cutting.md) Abschnitt 4 |
 
-Sortierbar: `startNummer`, `vorname`, `nachname`, `plz`, `ort`,
-`sellerType.bezeichnung`, `verkaufsprovisionAnteil`, `abgabegebuehr`,
-`articleCount` (Multi-Sort per Shift+Klick).
+Sortierbar: `startNumber`, `firstName`, `lastName`, `postalCode`, `city`,
+`sellerType.name`, `commissionRate`, `itemFee`, `articleCount`
+(Multi-Sort per Shift+Klick).
 
 **Response `200`** — paginierte Hülle mit Verkäufer-Objekten
 
@@ -94,11 +98,11 @@ Einladungs-Link (Abschnitt 5) und `POST /api/auth/set-password`.
 **Request**
 ```json
 {
-  "vorname": "Anna", "nachname": "Beispiel",
-  "anschrift": "Hauptstr. 1", "plz": "76133", "ort": "Karlsruhe",
-  "telefon": "0721 12345", "email": "anna@example.com",
-  "verkaueferTypeId": "t1b2c3d4",
-  "istAdmin": false,
+  "firstName": "Anna", "lastName": "Beispiel",
+  "address": "Hauptstr. 1", "postalCode": "76133", "city": "Karlsruhe",
+  "phone": "0721 12345", "email": "anna@example.com",
+  "sellerTypeId": "t1b2c3d4",
+  "isAdmin": false,
   "startNumber": 101,
   "blockCount": 2
 }
@@ -106,16 +110,17 @@ Einladungs-Link (Abschnitt 5) und `POST /api/auth/set-password`.
 
 | Feld | Pflicht | Bemerkung |
 |---|---|---|
-| `vorname`, `nachname`, `plz`, `ort`, `telefon`, `email` | ✅ | Panel 01–02 |
-| `anschrift` | ❌ | Panel 02 |
-| `verkaueferTypeId` | ✅ | Panel 03, nur bestehende Typen — **kein Inline-Anlegen** wie bei Marke/Kategorie, weil ein Typ zwingend Provision und Gebühr braucht, das AutoComplete-Modal aber nur ein Namensfeld hat |
-| `istAdmin` | ❌ | Default `false` |
+| `firstName`, `lastName`, `postalCode`, `city`, `phone`, `email` | ✅ | Panel 01–02 |
+| `address` | ❌ | Panel 02 |
+| `sellerTypeId` | ✅ | Panel 03, nur bestehende Typen — **kein Inline-Anlegen** wie bei Marke/Kategorie, weil ein Typ zwingend Provision und Gebühr braucht, das AutoComplete-Modal aber nur ein Namensfeld hat |
+| `isAdmin` | ❌ | Default `false` |
 | `startNumber` | ❌ | Default: nächste freie Nummer |
 | `blockCount` | ❌ | Default: `defaultBlockCount` aus den [Einstellungen](settings.md) |
 
 **Serverseitig:** Verkäufer anlegen und `blockCount` zusammenhängende Blöcke ab
-`startNumber` reservieren — dieselbe Vergabe- und Überschneidungsprüfung wie
-`POST /api/sellers/{id}/blocks` ([`blocks.md`](blocks.md)).
+`startNumber` reservieren — **derselbe** `NumberBlockAllocator` wie bei
+`POST /api/sellers/{id}/blocks` und `POST /api/auth/register`
+([`blocks.md`](blocks.md)). Die Vergaberegel existiert genau einmal im Code.
 
 **Response `201`** — angelegter Verkäufer
 
@@ -124,8 +129,8 @@ Einladungs-Link (Abschnitt 5) und `POST /api/auth/set-password`.
 | Code | `detail` |
 |---|---|
 | `400` | Pflichtfeld fehlt oder E-Mail-Format ungültig |
-| `409` | „Diese E-Mail ist bereits registriert" |
-| `409` | „Nummernbereich überschneidet sich mit bestehendem Block" |
+| `409` | `errorCode: email.already_registered` — „Diese E-Mail ist bereits registriert" |
+| `409` | `errorCode: block.overlap` — „Nummernbereich überschneidet sich mit bestehendem Block" |
 
 ---
 
@@ -153,6 +158,8 @@ korrigiert Tippfehler, ohne das Passwort des Verkäufers zu kennen.
 **Kaskade** — identisch mit der Selbstlöschung in [`profile.md`](profile.md):
 1. alle Artikel des Verkäufers löschen
 2. anschließend alle seine Nummernblöcke freigeben
+3. alle seine Refresh-Token-Zeilen löschen — der Zugang ist damit sofort tot, statt
+   noch bis zu 30 Tage refreshbar zu bleiben
 
 Hard-Delete ([`cross-cutting.md`](cross-cutting.md) Abschnitt 5).
 
@@ -163,8 +170,8 @@ Hard-Delete ([`cross-cutting.md`](cross-cutting.md) Abschnitt 5).
 | Code | `detail` |
 |---|---|
 | `404` | Unbekannte ID |
-| `409` | „Der letzte Admin kann nicht gelöscht werden" — verhindert, dass sich das System ohne Admin wiederfindet |
-| `409` | „Zum Löschen des eigenen Accounts das Profil verwenden" — Selbstlöschung läuft über `DELETE /api/profile`, das für Admins seinerseits `403` liefert |
+| `409` | `errorCode: seller.last_admin` — „Der letzte Admin kann nicht gelöscht werden", verhindert, dass sich das System ohne Admin wiederfindet |
+| `409` | `errorCode: seller.self_delete_via_profile` — „Zum Löschen des eigenen Accounts das Profil verwenden"; Selbstlöschung läuft über `DELETE /api/profile`, das für Admins seinerseits `403` liefert |
 
 ---
 
@@ -176,7 +183,7 @@ Erzeugt ein einmaliges `inviteToken` (7 Tage gültig,
 **Response `200`**
 ```json
 {
-  "inviteUrl": "https://voranmeldung.example.org/passwort-setzen?token=6f3a…",
+  "inviteUrl": "https://voranmeldung.example.org/set-password?token=6f3a…",
   "expiresAt": "2026-08-24T12:00:00+02:00"
 }
 ```

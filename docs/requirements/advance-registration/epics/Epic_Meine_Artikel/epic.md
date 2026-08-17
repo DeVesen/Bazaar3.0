@@ -1,8 +1,8 @@
 ---
 id: F-AR-004
 status: reviewed
-reviewed-date: 2026-08-14
-updated: 2026-08-14
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Meine Artikel
@@ -82,7 +82,7 @@ Details → [`components/forms/artikel-dialog.md`](../../components/forms/artike
 | 5 | Preis (InputGroup mit €-Addon, > 0, 2 Nachkommastellen) | 50 % | ✅ |
 | 6 | Beschreibung (Textarea) | 100 % | ❌ |
 
-**Pflichtfeld-Korrektur:** Größe, Farbe und Beschreibung standen hier ursprünglich als Pflicht, sind in [`entities.md`](../../../entities.md) und [`entities/artikel.md`](../../entities/artikel.md) aber als optional geführt. Die kanonische Quelle gewinnt — bei Kinderbasar-Artikeln wäre eine Pflicht-Beschreibung reine Erfassungsschikane, und die Haupt-App braucht die Felder ebenfalls nicht. Pflicht bleiben: Bezeichnung, Kategorie, Marke, Preis.
+**Pflichtfeld-Korrektur:** Größe, Farbe und Beschreibung standen hier ursprünglich als Pflicht, sind in [`entities/artikel.md`](../../entities/artikel.md) aber als optional geführt. Die kanonische Quelle gewinnt — bei Kinderbasar-Artikeln wäre eine Pflicht-Beschreibung reine Erfassungsschikane, und die Haupt-App braucht die Felder ebenfalls nicht. Pflicht bleiben: Bezeichnung, Kategorie, Marke, Preis.
 
 - **Artikelnummer:** immer schreibgeschützt — wird automatisch aus dem nächsten freien Nummernblock vergeben
 - **AutoComplete Kategorie/Marke:** identisch mit Haupt-App (▾-Modus / +-Modus)
@@ -116,9 +116,9 @@ API-Details → [`api/articles.md`](../../api/articles.md)
 | `PUT /api/articles/{id}` | `authenticated` | Aktualisiert Artikel — serverseitig geprüft, dass `{id}` dem eingeloggten Verkäufer gehört. |
 | `DELETE /api/articles/{id}` | `authenticated` | Löscht Artikel — serverseitig geprüft, dass `{id}` dem eingeloggten Verkäufer gehört. |
 
-Alle Endpoints beschränken sich serverseitig hart auf die Artikel des eingeloggten Verkäufers (nicht nur clientseitig gefiltert), geprüft über `verkaeuferId` gegen den `sub`-Claim. Fremde Artikel liefern `404`, nicht `403`.
+Alle Endpoints beschränken sich serverseitig hart auf die Artikel des eingeloggten Verkäufers (nicht nur clientseitig gefiltert), geprüft über `sellerId` gegen den `sub`-Claim. Fremde Artikel liefern `404`, nicht `403`.
 
-**Offene Abhängigkeit — geklärt:** In der Voranmelde-App gibt es **kein** Artikel-Status-Feld. Das Statusmodell in [`entities.md`](../../../entities.md) leitet sich aus den vier Haupt-App-Zeitstempeln ab, die hier nicht existieren; jeder Artikel ist implizit „registriert".
+**Offene Abhängigkeit — geklärt:** In der Voranmelde-App gibt es **kein** Artikel-Status-Feld. Das Statusmodell der Haupt-App leitet sich aus vier Zeitstempeln ab, die hier nicht existieren (siehe [`entities/artikel.md`](../../entities/artikel.md)); jeder Artikel ist implizit „registriert".
 
 ---
 

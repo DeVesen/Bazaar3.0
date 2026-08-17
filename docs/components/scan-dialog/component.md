@@ -33,8 +33,8 @@ Der Scan-Dialog deckt zwei Anwendungsfälle ab, die **strukturell identisch** si
 
 | Anwendungsfall | Setzt |
 |---|---|
-| Artikel freigeben | `freigegebenAm = jetzt` |
-| Artikel zurückgeben | `rückgegebenAm = jetzt` |
+| Artikel freigeben | `releasedAt = jetzt` |
+| Artikel zurückgeben | `returnedAt = jetzt` |
 
 Der Dialog hat zwei Modi, zwischen denen der Nutzer jederzeit wechseln kann:
 
@@ -95,7 +95,7 @@ Kamera-Modus (nach Klick auf [📷]):
 | `visible` | `boolean` | `@Input` | Steuert ob der Dialog offen ist |
 | `title` | `string` | `@Input` | Dialog-Überschrift (z. B. „Artikel freigeben") |
 | `sellerId` | `string` | `@Input` | ID des Verkäufers — begrenzt die AutoComplete-Liste auf dessen ausstehende Artikel |
-| `targetField` | `'freigegebenAm' \| 'rückgegebenAm'` | `@Input` | Welcher Zeitstempel gesetzt wird |
+| `targetField` | `'releasedAt' \| 'returnedAt'` | `@Input` | Welcher Zeitstempel gesetzt wird |
 | `pauseMs` | `number` | `@Input` | Anzeigedauer des Scan-Feedbacks in ms (Default: aus App-Einstellungen `scannerPauseMs`) |
 | `scanComplete` | `ScanResultEvent` | `@Output` | Emittiert nach erfolgreichem Scan: `{ articleId, result: 'success' \| 'already-set' \| 'unknown' }` |
 | `visibleChange` | `boolean` | `@Output` | Two-way-Binding — emittiert `false` wenn Dialog geschlossen wird |
@@ -179,7 +179,7 @@ Kameraintegration und Barcode-Dekodierung: [Barcode-Scanner](../barcode-scanner/
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN der Dialog geöffnet wird, THEN SHALL das System den Fokus automatisch auf das Artikelnummer-Eingabefeld setzen.
-2. **AC-2** — WHEN eine Artikelnummer eingegeben und bestätigt wird und der Artikel dem Verkäufer gehört und der Zeitstempel noch nicht gesetzt ist, THEN SHALL das System den konfigurierten Zeitstempel (`freigegebenAm` oder `rückgegebenAm`) auf den aktuellen Zeitpunkt setzen und `scanComplete` mit `result: 'success'` emittieren.
+2. **AC-2** — WHEN eine Artikelnummer eingegeben und bestätigt wird und der Artikel dem Verkäufer gehört und der Zeitstempel noch nicht gesetzt ist, THEN SHALL das System den konfigurierten Zeitstempel (`releasedAt` oder `returnedAt`) auf den aktuellen Zeitpunkt setzen und `scanComplete` mit `result: 'success'` emittieren.
 3. **AC-3** — WHEN im Kamera-Modus ein Barcode erkannt wird, dessen Zeitstempel bereits gesetzt ist, THEN SHALL das System das Feedback-Overlay in Gelb für `pauseMs` Millisekunden einblenden und `scanComplete` mit `result: 'already-set'` emittieren.
 4. **AC-4** — IF eine eingegebene oder gescannte Nummer keinem ausstehenden Artikel des Verkäufers entspricht, THEN SHALL das System im Eingabe-Modus den Text „Artikel nicht bekannt" unterhalb des Felds anzeigen und im Kamera-Modus das Feedback-Overlay in Rot für `pauseMs` Millisekunden einblenden.
 5. **AC-5** — WHEN der Dialog über ✕-Button oder Escape geschlossen wird, THEN SHALL das System die Kamera stoppen, alle MediaStream-Tracks freigeben und `visibleChange: false` emittieren.

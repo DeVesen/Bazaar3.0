@@ -114,7 +114,7 @@ Nach Pflichtfelder-Ausfüllung: Klick **„Übernehmen"** → Artikel erscheint 
    - Löschen-Button pro Eintrag (keine DB-Auswirkung — Artikel noch nicht gespeichert)
    - Artikel sind noch **nicht in der DB** gespeichert
 
-2. **Gebühr** — `Anzahl Artikel × Verkäufer.gebuehr` (eigenes Feld des Verkäufers)
+2. **Gebühr** — `Anzahl Artikel × Verkäufer.feePerItem` (eigenes Feld des Verkäufers)
 
 3. **Speichern-Button** (volle Breite, `p-button severity="success"`) → Popup erscheint:
    → Komponente: [Payment-Panel](../../../../components/payment-panel/component.md) — `totalLabel="Gesamtgebühr"` · `confirmLabel="Buchen"`
@@ -123,7 +123,7 @@ Nach Pflichtfelder-Ausfüllung: Klick **„Übernehmen"** → Artikel erscheint 
    - Anzeige: **Rückgeld** (live berechnet)
    - Klick **„Buchen"**:
      - Alle Artikel aus der Liste werden in der DB gespeichert / aktualisiert
-     - Jeder Artikel bekommt `freigegebenAm = jetzt` → sofort im Verkauf
+     - Jeder Artikel bekommt `releasedAt = jetzt` → sofort im Verkauf
      - **Druckdialog** startet automatisch (Artikelannahme-Liste mit QR-Code)
 
 ---
@@ -155,7 +155,7 @@ Die Artikelnummer wird systemweit auf Eindeutigkeit geprüft. Keine zwei Artikel
 4. **AC-4** — WHEN „Weiter" geklickt wird und alle Pflichtfelder (Vorname, Nachname) ausgefüllt sind, THEN SHALL das System den neuen Verkäufer anlegen und Wizard-Schritt 2 öffnen.
 5. **AC-5** — WHILE mindestens ein Pflichtfeld (Artikelnummer, Bezeichnung, Kategorie, Marke, Preis) leer ist, SHALL das System den „Übernehmen"-Button deaktiviert halten.
 6. **AC-6** — IF eine Artikelnummer eingegeben wird, die bereits einem vorhandenen Artikel zugewiesen ist, THEN SHALL das System die Fehlermeldung „Artikelnummer bereits vergeben" anzeigen und „Übernehmen" deaktivieren.
-7. **AC-7** — WHEN „Buchen" geklickt wird, THEN SHALL das System alle Sitzungs-Artikel mit Status `freigegeben` und `freigegebenAm = jetzt` speichern und den Druckdialog starten.
+7. **AC-7** — WHEN „Buchen" geklickt wird, THEN SHALL das System alle Sitzungs-Artikel mit `releasedAt = jetzt` speichern (damit gelten sie als „Im Verkauf") und den Druckdialog starten.
 
 ## Stories
 

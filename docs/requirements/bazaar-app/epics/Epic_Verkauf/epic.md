@@ -116,7 +116,7 @@ Klick auf **„BUCHEN"** → Popup (Größe `sm`) öffnet sich — **ohne** noch
 ### Buchungsablauf
 
 Klick auf **„Bezahlt"**:
-1. Alle Warenkorb-Artikel erhalten `verkauftAm = jetzt`
+1. Alle Warenkorb-Artikel erhalten `soldAt = jetzt`
 2. Warenkorb leert sich
 3. Artikelnummer-Eingabe leert sich
 4. InfoArea zeigt: *„Ersten Artikel eingeben bitte …"* (blau)
@@ -143,12 +143,12 @@ Klick auf **„Bezahlt"**:
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN die Verkauf-Seite geöffnet wird, THEN SHALL das System den Fokus auf das Artikelnummer-Eingabefeld setzen und eine blaue InfoArea mit Text „Ersten Artikel eingeben …" anzeigen.
-2. **AC-2** — WHEN eine Artikelnummer eingegeben wird und der Artikel den Status `freigegeben` hat, THEN SHALL das System eine grüne InfoArea mit dem Artikelpreis und einen aktiven Preis-Button anzeigen.
-3. **AC-3** — IF eine Artikelnummer nicht gefunden wird oder der Artikel nicht den Status `freigegeben` hat, THEN SHALL das System eine rote InfoArea mit einem Fehlerhinweis anzeigen.
+2. **AC-2** — WHEN eine Artikelnummer eingegeben wird und der Artikel im Verkauf ist (`releasedAt` gesetzt, `soldAt` und `returnedAt` leer), THEN SHALL das System eine grüne InfoArea mit dem Artikelpreis und einen aktiven Preis-Button anzeigen.
+3. **AC-3** — IF eine Artikelnummer nicht gefunden wird oder der Artikel nicht im Verkauf ist, THEN SHALL das System eine rote InfoArea mit einem Fehlerhinweis anzeigen.
 4. **AC-4** — WHEN der Preis-Button geklickt wird, THEN SHALL das System den Artikel zum Warenkorb hinzufügen, das Eingabefeld leeren und den Fokus zurücksetzen.
 5. **AC-5** — WHEN „Leeren" geklickt wird, THEN SHALL das System den Warenkorb leeren, das Eingabefeld leeren und eine blaue InfoArea anzeigen.
 6. **AC-6** — WHILE der empfangene Betrag kleiner als der Gesamtbetrag ist, SHALL das System den „Bezahlt"-Button deaktiviert halten.
-7. **AC-7** — WHEN „Bezahlt" geklickt wird, THEN SHALL das System alle Warenkorb-Artikel mit Status `verkauft` und `verkauftAm = jetzt` in der Datenbank speichern und den Warenkorb leeren.
+7. **AC-7** — WHEN „Bezahlt" geklickt wird, THEN SHALL das System alle Warenkorb-Artikel mit `soldAt = jetzt` in der Datenbank speichern und den Warenkorb leeren.
 
 ## Stories
 

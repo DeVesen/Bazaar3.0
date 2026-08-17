@@ -1,8 +1,8 @@
 ---
 code: VPROJ
 status: reviewed
-reviewed-date: 2026-08-14
-updated: 2026-08-14
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Projektanlage — Voranmelde-App
@@ -17,14 +17,22 @@ Technisches Grundsetup der Voranmelde-App: Angular-Frontend und .NET-Backend wer
 
 ## Bereiche
 
-- Angular 20 Frontend-Projekt (`frontend/`) mit ngx-translate (DE/EN)
-- .NET 9 Minimal API Backend-Projekt (`backend/`) mit JWT-Auth-Middleware-Grundlage
+- Angular 20 Frontend-Projekt (`frontend/`) mit ngx-translate (DE/EN), Feature-First-Struktur und ESLint-Importgrenzen
+- .NET 9 Minimal API Backend (`backend/`) als hexagonaler Vier-Projekt-Schnitt mit JWT-Auth-Middleware-Grundlage
 - Docker Compose für lokales Dev-Setup (cloud-kompatibel)
-- Entity Framework Core mit PostgreSQL
+- Entity Framework Core mit PostgreSQL (ausschließlich in `Bazaar.Infrastructure`)
+- Test- und Architektur-Test-Infrastruktur (Jest, xUnit, NetArchTest)
+
+## Architektur
+
+Verbindliche Quelle: [`spec.md`](../../spec.md) Abschnitt 10.0.1 — Layering
+**hexagonal** (ein Hexagon pro App), Deployment **Monolith**, Data-Flow **CRUD** mit
+eigenen Query-Ports für Read-Models, Frontend **Feature-First**. Code, Routen und
+JSON-Contract sind englisch, Doku bleibt deutsch.
 
 ## Hinweis
 
-Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich. Es ist Voraussetzung für alle nachfolgenden Epics. Siehe Entwicklungsrichtlinie in `CLAUDE.md`.
+Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich. Es ist Voraussetzung für alle nachfolgenden Epics. Siehe Entwicklungsrichtlinie in [`spec.md`](../../spec.md) Abschnitt 10.0.2.
 
 Die Voranmelde-App lebt in einem **eigenen Repository** — `frontend/` und `backend/` liegen direkt am Repository-Root.
 
@@ -36,6 +44,7 @@ Der Unterschied zur Haupt-App: Mehrsprachigkeit (ngx-translate) wird hier bereit
 - [VPROJ-S01 — Angular-Projekt anlegen](stories/VPROJ-S01-angular-projekt-anlegen.md)
 - [VPROJ-S03 — Docker Compose Setup](stories/VPROJ-S03-docker-compose-setup.md)
 - [VPROJ-S04 — EF Core & Datenbank-Setup](stories/VPROJ-S04-efcore-datenbank-setup.md)
+- [VPROJ-S05 — Test- und Architektur-Test-Setup](stories/VPROJ-S05-test-und-architektur-setup.md)
 
 ## Tags & Piles
 

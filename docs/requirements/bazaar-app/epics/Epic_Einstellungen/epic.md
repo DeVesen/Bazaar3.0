@@ -56,6 +56,18 @@ Einstellungen werden im `localStorage` gespeichert.
 - Nur Verkäufer **mit mindestens einem Artikel** (inkl. Admins der Voranmelde-App)
 - Verkäufer ohne Artikel werden **nicht** exportiert/importiert
 
+### Contract-Sprache
+
+Das Schema der Datei steht verbindlich in
+[`entities/import-format.md`](../../entities/import-format.md). Die Feldnamen sind
+**englisch** (`firstName`, `lastName`, `postalCode`, `sellerType`, `number`, `name`,
+`brand`, `category`, `price`, …); der Import mappt **keine** Feldnamen um — ein
+abweichendes Import-Vokabular wäre eine zweite Quelle für dasselbe Schema.
+
+Die Epic-Dokumente dieser App führen an einigen Stellen noch die alten deutschen
+Feldnamen. Sie werden beim Review der Haupt-App nachgezogen; verbindlich ist
+[`entities/`](../../entities/overview.md).
+
 ### Upsert-Logik
 
 1. Existiert ein Verkäufer (anhand der **Verkäufer-ID** aus Voranmelde-App) bereits → Verkäufer **inkl. aller seiner Artikel vollständig löschen**

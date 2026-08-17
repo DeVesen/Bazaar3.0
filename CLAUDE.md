@@ -30,6 +30,26 @@ keine anderen Libraries. Fehlende Komponenten → eigener Wrapper auf PrimeNG-Ba
 Epic-spezifische Ausprägungen (z. B. welche Spalten eine Tabelle zeigt) bleiben
 im jeweiligen Epic-Dokument.
 
+## Architektur
+
+> **Diese Datei ist nicht die Quelle der Wahrheit.** Alle App-Entscheidungen — Architektur,
+> Tech-Stack, Sprachregel, Entwicklungsrichtlinie — stehen in der jeweiligen App-Spec unter
+> `docs/requirements/<app>/`, damit ein App-Verzeichnis vollständig für sich stehend in ein
+> anderes Projekt kopiert werden kann. Bei Widerspruch gewinnt die App-Spec.
+
+| App | Verbindlicher Abschnitt |
+|-----|------------------------|
+| Voranmelde-App | [`advance-registration/spec.md`](docs/requirements/advance-registration/spec.md) §10.0.1 Architektur · §10.0.2 Durchstich · §10.0.3 UI-Bibliothek |
+| Haupt-App | [`bazaar-app/spec.md`](docs/requirements/bazaar-app/spec.md) §7.0.1 Architektur · §7.0.2 Durchstich · §7.0.3 UI-Bibliothek |
+
+Kurzorientierung (Details ausschließlich dort): Backend **hexagonal** in vier Projekten
+(`Bazaar.Domain` / `.Application` / `.Infrastructure` / `.Api`), Frontend **Feature-First**
+(`src/app/features/<feature>/` + `core/` + `shared/`), Deployment **Monolith**, Data-Flow
+**CRUD** mit eigenen Query-Ports für Read-Models. Code, Routen und JSON-Contract englisch,
+Doku deutsch.
+
+Stil-Nachschlagewerk (nicht projektverbindlich): Skill `architecture-styles`
+
 ## Epics
 
 Jedes Epic ist ein **Verzeichnis** (Name des Epics), nicht eine einzelne Datei.
@@ -43,26 +63,13 @@ docs/requirements/<app>/epics/<Epic-Name>/
 
 ## Entwicklungsrichtlinie: Epic als vollständiger Durchstich
 
-Jedes fachliche Epic wird als **kompletter vertikaler Durchstich** implementiert — Frontend und Backend gemeinsam, nicht nacheinander.
+Jedes fachliche Epic wird als **kompletter vertikaler Durchstich** implementiert — Frontend
+und Backend gemeinsam, nicht nacheinander. Ausnahmen sind die beiden Setup-Epics
+(`Epic_Projektanlage`, `Epic_App_Shell`).
 
-**Was das konkret bedeutet:**
-
-| Schicht | Inhalt |
-|---|---|
-| **Angular (Frontend)** | Seite / Komponente, Routing, Service, State (Signals) |
-| **.NET Minimal API (Backend)** | API-Endpoint(s), Request/Response-DTOs, Fehlerbehandlung |
-| **EF Core / DB** | Entity, Migration (nur wenn neue Tabelle oder Spalte entsteht) |
-
-**Reihenfolge je Epic:**
-1. API-Vertrag definieren (Endpoint, Request, Response)
-2. Backend implementieren und lokal testen
-3. Angular-Service und Komponente gegen echten Endpoint implementieren
-
-**Ausnahmen — keine fachlichen Durchstiche:**
-- `Epic_Projektanlage` — technisches Setup (Projekte anlegen, Docker, EF Core)
-- `Epic_App_Shell` — Grundgerüst (Sidebar, Layout, Routing-Skeleton, Theme)
-
-Diese beiden Setup-Epics sind Voraussetzung für alle fachlichen Epics und enthalten keine eigene Business-Logik.
+Verbindlich mit Schichten-Tabelle und Reihenfolge in der App-Spec:
+[Voranmelde-App §10.0.2](docs/requirements/advance-registration/spec.md) ·
+[Haupt-App §7.0.2](docs/requirements/bazaar-app/spec.md)
 
 ## Tags & Piles
 

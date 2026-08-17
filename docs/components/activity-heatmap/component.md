@@ -32,7 +32,7 @@ Die Activity-Heatmap zeigt die Artikel-Aktivität der letzten **12 Wochen** als 
 
 Epic_Home_Admin beschreibt sie explizit als „identisch mit der Verkäufer-Ansicht" — beide Home-Views rendern dieselbe Komponente, parametriert mit unterschiedlichem Datensatz.
 
-**Aktivität** = Anzahl der Ereignisse `erstelltAm` + `updatedAm` aller sichtbaren Artikel an einem Tag.
+**Aktivität** = Anzahl der Ereignisse `createdAt` + `updatedAt` aller sichtbaren Artikel an einem Tag.
 
 ---
 
@@ -146,8 +146,8 @@ Mindestbreite des Grids: `12 Wochen × (12px + 3px) = 180 px` — praktisch imme
 
 | Epic | App | Datensatz |
 |---|---|---|
-| Home — Verkäufer (Admin-Modus) | Voranmelde | Alle Artikel (erstelltAm + updatedAm) |
-| Home — Admin | Voranmelde | Alle Artikel (erstelltAm + updatedAm) |
+| Home — Verkäufer (Admin-Modus) | Voranmelde | Alle Artikel (createdAt + updatedAt) |
+| Home — Admin | Voranmelde | Alle Artikel (createdAt + updatedAt) |
 
 Nicht-Admin-Verkäufer sehen die Heatmap **nicht** — die Sichtbarkeit steuert das Parent.
 

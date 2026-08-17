@@ -27,8 +27,25 @@ Die Voranmelde-App läuft in der Cloud und unterstützt Deutsch (Default) und En
 - [ ] **AC-3** — THE SYSTEM SHALL `@ngx-translate/core` und `@ngx-translate/http-loader` installieren und `provideTranslateService` in `app.config.ts` mit DE als Standardsprache und EN als Fallback registrieren.
 - [ ] **AC-4** — THE SYSTEM SHALL leere Übersetzungs-Dateien `src/assets/i18n/de.json` und `src/assets/i18n/en.json` anlegen.
 - [ ] **AC-5** — THE SYSTEM SHALL `@material-symbols/font-200` als npm-Paket installieren und in `angular.json` als Asset einbinden.
-- [ ] **AC-6** — THE SYSTEM SHALL die Verzeichnisstruktur `src/app/epics/`, `src/app/core/`, `src/app/shared/` anlegen.
+- [ ] **AC-6** — THE SYSTEM SHALL die Feature-First-Verzeichnisstruktur `src/app/features/`, `src/app/core/`, `src/app/shared/` anlegen. Pro Feature gilt die Konvention `features/<feature>/` mit `<feature>.routes.ts`, `pages/`, `components/`, `data/` (Api + Store), `model/`.
 - [ ] **AC-7** — WHEN `ng serve` ausgeführt wird, THEN SHALL die App unter `http://localhost:4200` erreichbar sein und keine Browser-Konsolenfehler zeigen.
+- [ ] **AC-8** — THE SYSTEM SHALL in `tsconfig.json` die Path-Aliases `@core/*`, `@shared/*` und `@features/*` auf die entsprechenden Verzeichnisse konfigurieren.
+- [ ] **AC-9** — THE SYSTEM SHALL per ESLint-Regel `no-restricted-imports` folgende Import-Grenzen erzwingen: kein Import zwischen zwei Features (`features/a` → `features/b`), kein Import aus `shared/` nach `features/` oder `core/`, kein Import aus `core/` nach `features/`. Ein Verstoß SHALL den Lint-Lauf mit Fehler beenden.
+
+## Sprach- und Struktur-Konvention
+
+Alle Klassen-, Datei-, Verzeichnis- und Signal-Namen sind **englisch** — ebenso die
+Routen-Pfade (`/my-articles`, `/seller-types`). Sichtbare Texte kommen
+ausschließlich aus den ngx-translate-Dateien. Begründung: Die App ist zweisprachig,
+sprachneutrale URLs vermeiden eine dritte Übersetzungsebene.
+
+**Komponenten-Rollen** (verbindlich für alle Features, Details →
+[`components/overview.md`](../../../components/overview.md)):
+
+| Rolle | Ort | Darf |
+|---|---|---|
+| Integration | `pages/<x>.page.ts` | Store injizieren, Kinder verdrahten, Layout — keine eigene Render-Logik |
+| Leaf | `components/**` | nur `input()`/`output()`, kein Service-Inject, kein HTTP |
 
 ## Tags & Piles
 

@@ -40,12 +40,12 @@ Aktivität — letzte 12 Wochen
 | Element | Component | Verkäufer | Admin |
 |---|---|---|---|
 | Äußerer Grid-Wrapper | Shared `kpi-tile`-Grid | `columns="4"` (Klasse `c4`) | `columns="5"` (Klasse `c5`) |
-| Kachel — Countdown | Shared `kpi-tile` + Shared `countdown` (`variant="kpi"`) | Phasen `abgabeVon` → `abgabeBis` | volle 5-Phasen-Sequence |
+| Kachel — Countdown | Shared `kpi-tile` + Shared `countdown` (`variant="kpi"`) | Phasen `dropOffFrom` → `dropOffUntil` | volle 5-Phasen-Sequence |
 | Kachel — Meine Artikel | Shared `kpi-tile`, `value` = Artikel-Anzahl aus `GET /api/home/seller` | ✅ | — |
-| Kachel — Meine Konditionen | Shared `kpi-tile`, `value`/`subLabel` = Provision/Gebühr (typ-abgeleitet, siehe `entities.md`) | ✅ | — |
+| Kachel — Meine Konditionen | Shared `kpi-tile`, `value`/`subLabel` = Provision/Gebühr (typ-abgeleitet, siehe `entities/verkaeufer-typ.md`) | ✅ | — |
 | Kachel — Abgabegebühr gesamt | Shared `kpi-tile`, `value` = `Artikel-Anzahl × Gebühr` (Frontend-Berechnung) | ✅ | — |
 | Kachel — Verkäufer | Shared `kpi-tile`, klickbar → `/verkaeufer` | — | ✅ |
-| Kachel — Artikel gesamt | Shared `kpi-tile`, klickbar → `/alle-artikel` | — | ✅ |
+| Kachel — Artikel gesamt | Shared `kpi-tile`, klickbar → `/all-articles` | — | ✅ |
 | Kachel — Kategorien | Shared `kpi-tile`, klickbar → `/kategorien` | — | ✅ |
 | Kachel — Marken | Shared `kpi-tile`, klickbar → `/marken` | — | ✅ |
 | Activity-Heatmap | Shared `activity-heatmap`-Component, Datensatz = alle Artikel (nicht nur eigene) | — | ✅ |

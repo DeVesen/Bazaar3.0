@@ -152,9 +152,9 @@ Alle 5 Termine kommen aus `GET /api/public/info` (siehe Epic_Countdown_Widget) �
 
 | Epic | App | Variante | Phasen (Sequence-Mode) |
 |---|---|---|---|
-| Home — Verkäufer (KPI-Kachel) | Voranmelde | `'kpi'` | `abgabeVon` → `abgabeBis` |
-| Home — Admin (KPI-Kachel) | Voranmelde | `'kpi'` | `voranmeldeschluss` → `abgabeVon` → `abgabeBis` → `basarVon` → `basarBis` |
-| Login (Info-Box) | Voranmelde | `'info-box'` | `voranmeldeschluss` → `abgabeVon` → `abgabeBis` → `basarVon` → `basarBis` |
+| Home — Verkäufer (KPI-Kachel) | Voranmelde | `'kpi'` | `dropOffFrom` → `dropOffUntil` |
+| Home — Admin (KPI-Kachel) | Voranmelde | `'kpi'` | `registrationDeadline` → `dropOffFrom` → `dropOffUntil` → `bazaarFrom` → `bazaarUntil` |
+| Login (Info-Box) | Voranmelde | `'info-box'` | `registrationDeadline` → `dropOffFrom` → `dropOffUntil` → `bazaarFrom` → `bazaarUntil` |
 | Countdown-Embed-Widget | Voranmelde | `'timeline'` | alle 5, gleichzeitig |
 
 ---

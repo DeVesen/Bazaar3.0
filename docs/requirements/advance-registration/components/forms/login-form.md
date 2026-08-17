@@ -18,7 +18,7 @@ reviewed-date: 2026-08-14
 │  [🔒___________________👁]│ ← p-iconfield, rechts Toggle
 │  [ Anmelden ]            │  ← p-button primary
 │  Passwort vergessen?    │  ← Link → p-popover
-│  Noch kein Konto? …     │  ← p-button text → /registrieren
+│  Noch kein Konto? …     │  ← p-button text → /register
 └─────────────────────────┘
 ```
 
@@ -35,7 +35,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 | Passwort-Feld | [Input](../standard/input.md), Variante Password (mit Toggle) |
 | Anmelden-Button | [Button](../standard/button.md) primary, volle Breite |
 | Passwort-vergessen | `<a>`-Link, öffnet `p-popover` mit Text „Bitte wende dich an den Admin, um dein Passwort zurückzusetzen." |
-| Registrierung-Link | [Button](../standard/button.md) text → `routerLink="/registrieren"` |
+| Registrierung-Link | [Button](../standard/button.md) text → `routerLink="/register"` |
 
 ## Verhalten
 

@@ -12,6 +12,7 @@ Querschnitts-Regeln (Fehlerform, Status-Codes, Header) →
 [`cross-cutting.md`](cross-cutting.md).
 
 Epic → [Epic_Login](../epics/Epic_Login/epic.md) ·
+Entities → [`verkaeufer.md`](../entities/verkaeufer.md), [`refresh-token.md`](../entities/refresh-token.md) ·
 Frontend-Infrastruktur → [VSHELL-S04](../epics/Epic_App_Shell/stories/VSHELL-S04-auth-infrastruktur.md)
 
 ---
@@ -73,10 +74,11 @@ Kein Verkäufer-Typ im Request — die Zuordnung passiert serverseitig über
 `defaultTypeId` aus den [Einstellungen](settings.md).
 
 **Serverseitige Nebenwirkungen** (Epic_Login AC-10):
-1. Verkäufer-Datensatz anlegen, `verkaueferTypeId = defaultTypeId`
+1. Verkäufer-Datensatz anlegen, `sellerTypeId = defaultTypeId`
 2. `defaultBlockCount` zusammenhängende Nummernblöcke ab der nächsten freien
-   Nummer reservieren — dieselbe Vergaberegel wie `POST /api/sellers`
-   (siehe [`sellers.md`](sellers.md), [`blocks.md`](blocks.md))
+   Nummer reservieren — **derselbe** `NumberBlockAllocator` wie bei
+   `POST /api/sellers` (siehe [`sellers.md`](sellers.md), [`blocks.md`](blocks.md));
+   die Vergaberegel ist nicht zweimal implementiert
 3. Token ausstellen — der Nutzer ist ohne zweiten Login-Schritt angemeldet
 
 **Response `201`** — Token-Hülle
@@ -86,8 +88,8 @@ Kein Verkäufer-Typ im Request — die Zuordnung passiert serverseitig über
 | Code | `detail` |
 |---|---|
 | `400` | Validierung — Passwortstärke mindestens „Mittel" (Epic_Login §6) |
-| `409` | „Diese E-Mail ist bereits registriert" (AC-8) |
-| `409` | „Registrierung ist noch nicht freigeschaltet" — wenn `defaultTypeId` in den Einstellungen nicht gesetzt ist. Ohne Typ kann das Pflichtfeld `verkaueferTypeId` nicht gefüllt werden (siehe [`entities/verkaeufer.md`](../entities/verkaeufer.md)). |
+| `409` | `errorCode: email.already_registered` — „Diese E-Mail ist bereits registriert" (AC-8) |
+| `409` | `errorCode: registration.not_enabled` — „Registrierung ist noch nicht freigeschaltet", wenn `defaultTypeId` in den Einstellungen nicht gesetzt ist. Ohne Typ kann das Pflichtfeld `sellerTypeId` nicht gefüllt werden (siehe [`entities/verkaeufer.md`](../entities/verkaeufer.md)). |
 
 ---
 
@@ -101,11 +103,38 @@ Kein Verkäufer-Typ im Request — die Zuordnung passiert serverseitig über
 **Response `200`** — Token-Hülle mit **neuem** Access- **und** Refresh-Token
 (Rotation).
 
+### Serverseitige Ablage des Refresh-Tokens
+
+Die Rotation ist nur echt, wenn das alte Token danach **nicht mehr** funktioniert.
+Die Ablage ist eine **eigene Tabelle** — eine Zeile pro aktiver Sitzung, siehe
+[`entities/refresh-token.md`](../entities/refresh-token.md). Gespeichert wird
+ausschließlich der SHA-256-Hash, nie das Token selbst.
+
+1. `/login`, `/register` und `/set-password` legen eine neue Zeile an und löschen
+   dabei die abgelaufenen Zeilen desselben Verkäufers.
+2. `/refresh` sucht die Zeile zum Hash des eingereichten Tokens, löscht sie und legt
+   in derselben Transaktion eine neue an. Ein zweiter Aufruf mit demselben Token
+   findet keine Zeile mehr → `401`.
+3. `PUT /api/profile/password` löscht **alle** Zeilen des Verkäufers — der
+   Passwortwechsel meldet damit jedes Gerät ab.
+4. `DELETE /api/profile` und `DELETE /api/sellers/{id}` löschen die Zeilen als Teil
+   ihrer Kaskade.
+
+**Mehrgeräte-Betrieb.** Handy, Laptop und Tablet haben je eine eigene Zeile und
+rotieren unabhängig voneinander; ein Login entwertet die anderen Sitzungen nicht.
+Pro Verkäufer bleiben maximal **5** aktive Zeilen — beim Anlegen der sechsten fällt
+die älteste (`createdAt`) heraus. Das begrenzt die Tabelle, ohne im Alltag
+aufzufallen, und deckelt gleichzeitig den Schaden gestohlener Tokens.
+
+**Nicht enthalten:** eine Geräte-Übersicht in der UI („hier bist du angemeldet") und
+das gezielte Abmelden einer einzelnen Sitzung. Beides ist mit dieser Tabelle
+nachrüstbar (`lastUsedAt` liegt dafür bereits vor), aber kein MVP-Bedarf.
+
 **Fehler**
 
 | Code | Bedeutung |
 |---|---|
-| `401` | Refresh-Token ungültig oder abgelaufen → Frontend führt `logout()` aus und navigiert nach `/login` (VSHELL-S04 AC-11) |
+| `401` | Refresh-Token unbekannt, abgelaufen oder bereits rotiert → Frontend führt `logout()` aus und navigiert nach `/login` (VSHELL-S04 AC-11) |
 
 ---
 
@@ -143,7 +172,8 @@ gesetzt — das Token ist einmalig verwendbar
 | Claims | `sub` (User-ID), `role` (`admin` \| `seller`), `exp` |
 | Access-Token-Lebensdauer | 5 Tage |
 | Refresh-Token-Lebensdauer | 30 Tage |
-| Passwort-Hashing | bcrypt oder Argon2 — kein Klartext (Backend-Implementierungsdetail) |
+| Passwort-Hashing | bcrypt oder Argon2 — kein Klartext; Ablage im Feld `passwordHash` des Verkäufers (`null`, solange nur eingeladen) |
+| Refresh-Token-Ablage | Eigene Tabelle `refresh_token`, eine Zeile pro Sitzung, max. 5 je Verkäufer (siehe Abschnitt 3) |
 | Storage (Frontend) | `localStorage`: `bazaar_token` (Access), `bazaar_refresh_token` (Refresh) |
 
 ---
@@ -153,8 +183,13 @@ gesetzt — das Token ist einmalig verwendbar
 Aus Epic_Login §8 sowie den Entscheidungen dieser Extraktion:
 
 - **`POST /api/auth/logout`** — Logout ist rein clientseitig (Tokens aus dem
-  `localStorage` löschen, VSHELL-S04 AC-9). Serverseitige Invalidierung bräuchte
-  eine Token-Blacklist; kein MVP-Bedarf.
+  `localStorage` löschen, VSHELL-S04 AC-9). Serverseitige Invalidierung des
+  **Access**-Tokens bräuchte eine Blacklist; kein MVP-Bedarf. Die zurückgelassene
+  Refresh-Zeile ist ohne den Token-Klartext nicht nutzbar und wird beim nächsten
+  Login desselben Verkäufers mit aufgeräumt. Nachrüstbar ist der serverseitige
+  Logout jederzeit — eine Zeile löschen.
+- **Geräte-Übersicht und gezieltes Abmelden einzelner Sitzungen** — die Tabelle gibt
+  die Daten her (`createdAt`, `lastUsedAt`), die UI dafür ist kein MVP-Thema.
 - Brute-Force-Schutz (Rate-Limiting/Lockout)
 - E-Mail-Verifizierung / Double-Opt-in
 - Captcha/Spam-Schutz

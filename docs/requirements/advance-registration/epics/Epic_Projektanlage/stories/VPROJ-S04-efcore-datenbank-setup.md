@@ -18,13 +18,19 @@ Alle Entitäten der Voranmelde-App (Artikel, Verkäufer, Marken, Kategorien, Ver
 
 **In Scope:** `Npgsql.EntityFrameworkCore.PostgreSQL` installieren, `AppDbContext` anlegen, Connection String aus Environment lesen, erste leere Migration `InitialCreate`, `MigrateAsync()` beim App-Start.
 
+**Verortung (Hexagonal, siehe VPROJ-S02):** `AppDbContext`, Migrations, Entity-Konfigurationen
+und Repository-Implementierungen liegen ausschließlich in `Bazaar.Infrastructure`. Die
+Entity-Klassen selbst liegen in `Bazaar.Domain` und tragen **keine** EF-Attribute — das
+Mapping passiert per Fluent API in `Infrastructure/Persistence/Configurations/`
+(`IEntityTypeConfiguration<T>` je Aggregate).
+
 **Out of Scope:** Fachliche Entitäten (folgen in den jeweiligen Epics), Seed-Daten, Datenbankschema für User/Auth (folgt in Epic_Login).
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL `Npgsql.EntityFrameworkCore.PostgreSQL` als NuGet-Paket installieren und in `Program.cs` registrieren.
-- [ ] **AC-2** — THE SYSTEM SHALL einen `AppDbContext` anlegen, der den Connection String aus der Environment-Variable `DATABASE_URL` (alternativ `ConnectionStrings__DefaultConnection`) liest.
-- [ ] **AC-3** — THE SYSTEM SHALL eine erste Migration mit dem Namen `InitialCreate` anlegen; die Migration enthält keine Tabellenänderungen (leerer Stand).
+- [ ] **AC-1** — THE SYSTEM SHALL `Npgsql.EntityFrameworkCore.PostgreSQL` als NuGet-Paket **in `Bazaar.Infrastructure`** installieren und den DbContext über eine `AddInfrastructure()`-Extension in `Program.cs` registrieren (`Bazaar.Api` referenziert Npgsql nicht direkt).
+- [ ] **AC-2** — THE SYSTEM SHALL einen `AppDbContext` in `Bazaar.Infrastructure/Persistence/` anlegen, der den Connection String aus der Environment-Variable `DATABASE_URL` (alternativ `ConnectionStrings__DefaultConnection`) liest.
+- [ ] **AC-3** — THE SYSTEM SHALL eine erste Migration mit dem Namen `InitialCreate` im Projekt `Bazaar.Infrastructure` anlegen (`dotnet ef migrations add InitialCreate -p Bazaar.Infrastructure -s Bazaar.Api`); die Migration enthält keine Tabellenänderungen (leerer Stand).
 - [ ] **AC-4** — WHEN die App startet (unabhängig von der Umgebung), THEN SHALL `dbContext.Database.MigrateAsync()` automatisch ausgeführt werden, sodass Migrations sowohl lokal als auch in Azure Container Apps automatisch angewendet werden.
 - [ ] **AC-5** — IF die Datenbankverbindung beim Start nicht hergestellt werden kann, THEN SHALL die App mit einer lesbaren Fehlermeldung im Log abbrechen (kein unbehandelter Exception-Crash).
 - [ ] **AC-6** — WHEN `dotnet ef migrations list` ausgeführt wird, THEN SHALL `InitialCreate` als einzige Migration in der Liste erscheinen.

@@ -13,7 +13,7 @@ updated: 2026-07-31
 - 4. Navigation (Sidebar) — Seitenstruktur
 - 5. Epic-Übersicht & Implementierungsreihenfolge — Setup + fachliche Epics
 - 6. UI-Konventionen & Komponenten — Design
-- 7. Technische Rahmenbedingungen — Tech-Stack
+- 7. Technische Rahmenbedingungen — Tech-Stack, Architektur, Offline
 - 8. Einstellungen — Parameter
 - 9. Gemeinsame Anforderungen — Querschnitt
 - 10. Design-Entscheidungen — Visuelles
@@ -143,13 +143,105 @@ Feature-spezifische UI-Specs:
 | Komponente | Technologie |
 |---|---|
 | **Frontend** | Angular 20 (Standalone Components, Signals, OnPush) |
-| **Backend** | .NET 9 Minimal API (Microservices) |
+| **Backend** | .NET 9 Minimal API |
 | **ORM** | Entity Framework Core |
 | **Datenbank** | PostgreSQL |
-| **UI-Bibliothek** | PrimeNG 20 (kein Angular Material) |
+| **UI-Bibliothek** | PrimeNG (kein Angular Material) |
 | **Containerisierung** | Docker / Docker Compose |
 | **Barcode/QR-Scan** | ZXing / ngx-scanner (Browser-Kamera, offline) |
-| **Icons** | Angular Material Icons (npm-Paket, kein CDN) |
+| **Icons** | Material Symbols (npm-Paket, kein CDN) |
+| **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) |
+
+> **Offen:** Die konkrete PrimeNG-Major-Version dieser App ist noch nicht festgelegt
+> (die Voranmelde-App nutzt 22.0.0). Zu klären beim Review von
+> [Epic_Projektanlage](epics/Epic_Projektanlage/epic.md).
+
+### 7.0.1 Architektur
+
+**Dieser Abschnitt ist die verbindliche Quelle der Architekturentscheidungen dieser
+App.** Umsetzungsdetails gehören in die Stories von
+[Epic_Projektanlage](epics/Epic_Projektanlage/epic.md) — alles innerhalb dieses
+Verzeichnisses.
+
+| Achse | Entscheidung |
+|---|---|
+| Backend-Layering | **Hexagonal** (Ports and Adapters), ein Hexagon pro App |
+| Frontend-Struktur | **Feature-First** (`src/app/features/<feature>/`) |
+| Deployment | **Monolith** — ein Backend- und ein Frontend-Container, Betrieb lokal im LAN (siehe 7.2 Offline-Fähigkeit). **Keine Microservices** |
+| Data-Flow | **CRUD**; aggregierte Sichten (Statistik, Abrechnung) über eigene Query-Ports |
+
+**Backend — vier Projekte**, Abhängigkeitsrichtung compiler-erzwungen:
+
+```
+Bazaar.Domain          ← referenziert nichts (Entities, Value Objects, Domain-Services, Ports)
+Bazaar.Application     ← Domain (ein Handler pro Use Case)
+Bazaar.Infrastructure  ← Domain, Application (EF Core, Repositories, Query-Ports)
+Bazaar.Api             ← alle (Minimal-API-Endpoints, Filter, ExceptionHandler)
+```
+
+Feature-Ordner existieren **innerhalb** von `Application` und `Api` — kein Hexagon je
+Feature. Die Domäne kennt weder EF Core noch ASP.NET; das Entity-Mapping läuft per
+Fluent API in `Infrastructure` (`IEntityTypeConfiguration<T>` je Aggregate), die
+Entities selbst tragen keine EF-Attribute. Repository-Interfaces liegen in
+`Domain/Ports/`, ein Repository pro Aggregate — kein generisches `IRepository<T>`, kein
+`IQueryable` über die Port-Grenze. Ein Architektur-Testprojekt (NetArchTest) prüft die
+Richtung dort, wo der Compiler es nicht kann.
+
+**Fehler und Validierung:** Fachliche Verstöße werfen Domain-Exceptions, ein globaler
+`IExceptionHandler` im Web-Adapter bildet sie als einziger Ort auf `ProblemDetails`
+(RFC 9457) ab. Formatvalidierung läuft über FluentValidation in einem generischen
+Endpoint-Filter (`400` mit `errors`-Dictionary), Invarianten dagegen in Domäne bzw.
+Handler (`409`).
+
+**Frontend — Feature-First:**
+
+```
+src/app/features/<feature>/   ← <feature>.routes.ts, pages/, components/, data/, model/
+src/app/core/                 ← app-weite Singletons
+src/app/shared/               ← wiederverwendbare, dumme UI
+```
+
+Cross-Feature-Imports sind per ESLint (`no-restricted-imports`) verboten; `shared/` und
+`core/` importieren nie aus `features/`. Path-Aliases `@core/*`, `@shared/*`,
+`@features/*`. Pro Seite gilt Integration vs. Leaf: `pages/*.page.ts` orchestriert
+(Store injizieren, Kinder verdrahten), `components/**` rendert nur (`input()`/`output()`,
+kein Service-Inject, kein HTTP). Datenzugriff je Feature getrennt in
+`data/<feature>-api.ts` (Adapter, kennt DTOs und URLs) und `<feature>-store.ts`
+(Signals, feature-lokal bereitgestellt).
+
+**Sprachregel:** Code, Routen-Pfade, JSON-Contract und Feldnamen **englisch**;
+Doku-Prosa, Doku-Dateinamen und Epic-Ordner **deutsch**.
+
+**Datenmodell:** verbindlich in [`entities/`](entities/overview.md) — eine Datei je
+Entität mit vollständiger Feldtabelle, plus das
+[Import-Format](entities/import-format.md) der Datei aus der Voranmelde-App.
+
+> **Nachzuziehen:** Einige Epic-Dokumente dieser App führen noch deutsche Feldnamen.
+> Verbindlich sind die Feldtabellen unter [`entities/`](entities/overview.md).
+
+### 7.0.2 Entwicklungsrichtlinie: Epic als vollständiger Durchstich
+
+Jedes fachliche Epic wird als **kompletter vertikaler Durchstich** umgesetzt — Frontend
+und Backend gemeinsam, nicht nacheinander.
+
+| Schicht | Inhalt |
+|---|---|
+| Angular (Frontend) | Seite/Komponente, Route, Api + Store, State (Signals) |
+| .NET Minimal API (Backend) | Endpoint(s), Request/Response-DTOs, Handler, Fehlerbehandlung |
+| EF Core / DB | Entity, Migration (nur wenn neue Tabelle oder Spalte entsteht) |
+
+**Reihenfolge je Epic:** 1. API-Vertrag festlegen → 2. Backend implementieren und lokal
+testen → 3. Angular-Api/Store und Seite gegen den echten Endpoint bauen.
+
+**Ausnahmen — keine fachlichen Durchstiche:**
+[Epic_Projektanlage](epics/Epic_Projektanlage/epic.md) (technisches Setup) und
+[Epic_App_Shell](epics/Epic_App_Shell/epic.md) (Grundgerüst). Beide sind Voraussetzung
+für alle fachlichen Epics und enthalten keine Business-Logik.
+
+### 7.0.3 UI-Bibliothek — Grundregel
+
+Ausschließlich **PrimeNG**, kein natives HTML für interaktive Elemente, keine weiteren
+UI-Libraries. Fehlt eine Komponente, entsteht ein eigener Wrapper auf PrimeNG-Basis.
 
 ### 7.1 Responsive Design
 
@@ -215,25 +307,30 @@ Zweck: Erkennen, welche Marken/Kategorien während der Annahmephase am Basar-Tag
 
 | Feld | Typ | Beschreibung |
 |---|---|---|
-| `erstelltAm` | DateTime | Beim Anlegen gesetzt (server-seitig) |
-| `updatedAm` | DateTime | Bei jeder Änderung aktualisiert (server-seitig) |
+| `createdAt` | DateTime | Beim Anlegen gesetzt (server-seitig) |
+| `updatedAt` | DateTime | Bei jeder Änderung aktualisiert (server-seitig) |
 
-Beide Felder nicht editierbar. Bei Neuanlage gilt `updatedAm = erstelltAm`.
+Beide Felder nicht editierbar. Bei Neuanlage gilt `updatedAt = createdAt`.
+Die Status-Zeitstempel (`acceptedAt`, `releasedAt`, `soldAt`, `returnedAt`) und das
+abgeleitete Statusmodell stehen in [`entities/artikel.md`](entities/artikel.md).
 
 ### 9.5 IDs
 
 Alle Entitäten verwenden eine **8-stellige alphanumerische ID** (Groß-/Kleinbuchstaben + Zahlen, case-sensitive).
 
-### 9.6 Verkäufer-Types
+### 9.6 Verkäufer-Typen
 
-- Enthalten: Provision (%) + Gebühr pro Stück (€)
+- Enthalten `commissionRate` (Provision in %) und `itemFee` (Gebühr pro Stück in €)
 - Template / Vorlage — kein verbindlicher Join
-- Beim Anlegen/Ändern eines Verkäufers werden `provision` und `gebuehr` vorausgefüllt, können individuell überschrieben werden
+- Beim Anlegen/Ändern eines Verkäufers werden `salesCommission` und `feePerItem` daraus vorausgefüllt und können individuell überschrieben werden
+
+Details → [`entities/verkaeufer-typ.md`](entities/verkaeufer-typ.md)
 
 ### 9.7 Verkäufer-Konditionen (eigene Felder)
 
-Jeder Verkäufer trägt **eigene** Felder `provision` (%) und `gebuehr` (€/Stück).
-Diese sind **maßgeblich** für alle Berechnungen — nicht die aktuellen Werte des zugewiesenen Types.
+Jeder Verkäufer trägt **eigene** Felder `salesCommission` (%) und `feePerItem` (€/Stück).
+Diese sind **maßgeblich** für alle Berechnungen — nicht die aktuellen Werte des
+zugewiesenen Typs. Details → [`entities/verkaeufer.md`](entities/verkaeufer.md)
 
 ---
 

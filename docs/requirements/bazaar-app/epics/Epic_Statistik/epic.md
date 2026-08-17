@@ -41,10 +41,10 @@ Die Statistik-Seite bietet eine aktuelle Übersicht des Basar-Stands (Berechnung
 | # | Kennzahl | Beschreibung |
 |---|---|---|
 | 1 | Gesamt | Anzahl aller erfassten Artikel |
-| 2 | Angenommen | Alle freigegebenen Artikel (freigegeben + verkauft + retour + abgerechnet) |
-| 3 | Im Verkauf | Artikel mit Status `freigegeben` |
-| 4 | Verkauft | Artikel mit Status `verkauft` oder `abgerechnet` |
-| 5 | Retour | Zurückgegebene Artikel |
+| 2 | Angenommen | Alle je angenommenen Artikel — `releasedAt` gesetzt, unabhängig davon ob inzwischen verkauft oder zurückgegeben |
+| 3 | Im Verkauf | Artikel im Verkauf: `releasedAt` gesetzt, `soldAt` und `returnedAt` leer |
+| 4 | Verkauft | Artikel mit `soldAt` gesetzt |
+| 5 | Retour | Zurückgegebene Artikel — `returnedAt` gesetzt |
 | 6 | Verkaufsquote | Verkauft / Angenommen × 100 % |
 
 ---
@@ -55,9 +55,9 @@ Die Statistik-Seite bietet eine aktuelle Übersicht des Basar-Stands (Berechnung
 
 | # | Kennzahl | Beschreibung |
 |---|---|---|
-| 1 | Warenwert Angenommen | Summe der Preise aller angenommenen Artikel (alle außer Status `registriert`) |
-| 2 | Warenwert Retour | Summe der Preise zurückgegebener Artikel (Status `retour`) |
-| 3 | Offener Warenwert | Summe der Preise noch im Verkauf (Status `freigegeben`) |
+| 1 | Warenwert Angenommen | Summe der Preise aller angenommenen Artikel (alle mit `releasedAt` gesetzt) |
+| 2 | Warenwert Retour | Summe der Preise zurückgegebener Artikel (`returnedAt` gesetzt) |
+| 3 | Offener Warenwert | Summe der Preise noch im Verkauf (`releasedAt` gesetzt, `soldAt` und `returnedAt` leer) |
 
 ---
 

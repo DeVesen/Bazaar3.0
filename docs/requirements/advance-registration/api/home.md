@@ -9,6 +9,12 @@ Kennzahlen der Startseite `/home`. Zwei Endpoints, weil die Seite je nach
 aktivem Role-Toggle völlig andere Kacheln zeigt — dieselbe Route, dieselbe
 Component.
 
+**Backend-Verortung:** Beide Endpoints sind **Read-Models** und laufen nicht über
+Repositories, sondern über einen eigenen Query-Port `IHomeQueries`
+(Implementierung mit direktem EF-/SQL-Zugriff in `Bazaar.Infrastructure`). Für
+Kennzahlen und Heatmap-Aggregate Aggregate zu laden wäre pure Verschwendung —
+siehe [`cross-cutting.md`](cross-cutting.md), Abschnitt „Persistenz-Zugriff".
+
 Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 
 Epics → [Epic_Home_Verkaeufer](../epics/Epic_Home_Verkaeufer/epic.md) ·
@@ -38,7 +44,7 @@ Component → [`home-dashboard.md`](../components/custom/home-dashboard.md)
 // GET /api/home/seller
 {
   "articleCount": 12,
-  "typeConditions": { "verkaufsprovisionAnteil": 15.0, "abgabegebuehr": 0.50 }
+  "typeConditions": { "commissionRate": 15.0, "itemFee": 0.50 }
 }
 ```
 
@@ -72,7 +78,7 @@ Home-Ansicht feuert also zwei parallele Requests — bewusst so
 (DRY-Entscheidung, Epic_Countdown_Widget Abschnitt 3).
 
 **Ebenfalls nicht enthalten:** die Kachel „Abgabegebühr gesamt". Sie ist
-`articleCount × typeConditions.abgabegebuehr` und wird im Frontend gerechnet
+`articleCount × typeConditions.itemFee` und wird im Frontend gerechnet
 (siehe [`home-dashboard.md`](../components/custom/home-dashboard.md)).
 
 ---
@@ -82,8 +88,8 @@ Home-Ansicht feuert also zwei parallele Requests — bewusst so
 ### `typeConditions`
 
 Provision und Gebühr pro Stück des dem Nutzer **zugewiesenen** Verkäufer-Typs,
-serverseitig aufgelöst. Kein Override pro Verkäufer in der Voranmelde-App
-(siehe [`entities.md`](../../entities.md)) — eine Änderung am Typ wirkt sofort
+serverseitig aufgelöst. Kein Override pro Verkäufer in dieser App
+(siehe [`entities/verkaeufer-typ.md`](../entities/verkaeufer-typ.md)) — eine Änderung am Typ wirkt sofort
 live auf diesen Wert (Epic_Verkaeufer_Typen Abschnitt 4).
 
 Gleiche Form wie `defaultConditions` in [`public.md`](public.md), aber fachlich
@@ -92,7 +98,7 @@ etwas anderes: hier *mein* Typ, dort der Standardtyp für Neuregistrierungen.
 ### `heatmapData`
 
 Aktivität **aller** Artikel (nicht nur eigener) der letzten **12 Wochen**.
-Ein Eintrag pro Tag; `count` = Anzahl `erstelltAm`- plus `updatedAm`-Ereignisse
+Ein Eintrag pro Tag; `count` = Anzahl `createdAt`- plus `updatedAt`-Ereignisse
 an diesem Tag.
 
 Zeitfenster ist serverseitig fest — kein Query-Parameter, weil die UI kein

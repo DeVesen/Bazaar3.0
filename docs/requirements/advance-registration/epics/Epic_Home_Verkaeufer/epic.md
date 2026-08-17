@@ -1,8 +1,8 @@
 ---
 id: F-AR-002
 status: reviewed
-reviewed-date: 2026-08-14
-updated: 2026-08-14
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Home — Verkäufer-Ansicht
@@ -41,9 +41,9 @@ Die Home-Seite ist die **Einstiegsseite** nach dem Login. Sie zeigt dem Verkäuf
 
 | Kachel | Inhalt |
 |---|---|
-| **Countdown** | Sequence-Mode-Phasen `abgabeVon` → `abgabeBis` (Tage / HH:MM:SS, live) — zeigt automatisch Start oder Restzeit der Abgabe. Darunter: Datum der jeweiligen Phase. |
+| **Countdown** | Sequence-Mode-Phasen `dropOffFrom` → `dropOffUntil` (Tage / HH:MM:SS, live) — zeigt automatisch Start oder Restzeit der Abgabe. Darunter: Datum der jeweiligen Phase. |
 | **Meine Artikel** | Anzahl der bisher erfassten Artikel des eingeloggten Verkäufers. |
-| **Meine Konditionen** | Provision (%) und Abgabegebühr pro Stück — read-only, abgeleitet vom zugewiesenen Verkäufer-Typ (kein eigenes Override-Feld in der Voranmelde-App, siehe `entities.md`). |
+| **Meine Konditionen** | Provision (%) und Abgabegebühr pro Stück — read-only, abgeleitet vom zugewiesenen Verkäufer-Typ (kein eigenes Override-Feld in dieser App, siehe `entities/verkaeufer-typ.md`). |
 | **Abgabegebühr gesamt** | `Artikel-Anzahl × Abgabegebühr/Stück` — zu erwartende Gesamtgebühr. |
 
 ---
@@ -72,7 +72,7 @@ API-Details → [`api/home.md`](../../api/home.md)
 
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
-| `GET /api/home/seller` | `authenticated` | Gibt `{ articleCount, typeConditions: { verkaufsprovisionAnteil, abgabegebuehr } }` zurück (Konditionen vom zugewiesenen Verkäufer-Typ, kein Override). **Weder Termine noch `infoText`** — beides kommt aus `GET /api/public/info`, das die Seite für den Countdown ohnehin ruft (DRY, siehe Epic_Countdown_Widget). |
+| `GET /api/home/seller` | `authenticated` | Gibt `{ articleCount, typeConditions: { commissionRate, itemFee } }` zurück (Konditionen vom zugewiesenen Verkäufer-Typ, kein Override). **Weder Termine noch `infoText`** — beides kommt aus `GET /api/public/info`, das die Seite für den Countdown ohnehin ruft (DRY, siehe Epic_Countdown_Widget). |
 
 ---
 

@@ -41,30 +41,30 @@ Entity → [`entities/verkaeufer.md`](../entities/verkaeufer.md)
 ```json
 {
   "id": "a3f9c2d1",
-  "vorname": "Anna",
-  "nachname": "Beispiel",
-  "anschrift": "Hauptstr. 1",
-  "plz": "76133",
-  "ort": "Karlsruhe",
-  "telefon": "0721 12345",
+  "firstName": "Anna",
+  "lastName": "Beispiel",
+  "address": "Hauptstr. 1",
+  "postalCode": "76133",
+  "city": "Karlsruhe",
+  "phone": "0721 12345",
   "email": "anna@example.com",
   "sellerType": {
     "id": "t1b2c3d4",
-    "bezeichnung": "Standard",
-    "verkaufsprovisionAnteil": 15.0,
-    "abgabegebuehr": 0.50
+    "name": "Standard",
+    "commissionRate": 15.0,
+    "itemFee": 0.50
   }
 }
 ```
 
 `sellerType` wird **serverseitig aufgelöst** mitgeliefert, nicht nur als
-`verkaueferTypeId`. Grund: Panel 03 der Profil-Seite zeigt Typ, Provision und
+`sellerTypeId`. Grund: Panel 03 der Profil-Seite zeigt Typ, Provision und
 Gebühr read-only an, ein Verkäufer hat aber keinen Zugriff auf
 [`GET /api/seller-types`](seller-types.md) (`admin`). Ohne Auflösung bliebe das
 Panel leer.
 
 Alle Werte in `sellerType` sind vom Typ abgeleitet — kein Override pro Verkäufer
-in der Voranmelde-App (siehe [`entities.md`](../../entities.md)).
+in dieser App (siehe [`entities/verkaeufer-typ.md`](../entities/verkaeufer-typ.md)).
 
 ---
 
@@ -75,24 +75,24 @@ in der Voranmelde-App (siehe [`entities.md`](../../entities.md)).
 **Request**
 ```json
 {
-  "vorname": "Anna",
-  "nachname": "Beispiel",
-  "anschrift": "Hauptstr. 1",
-  "plz": "76133",
-  "ort": "Karlsruhe",
-  "telefon": "0721 12345"
+  "firstName": "Anna",
+  "lastName": "Beispiel",
+  "address": "Hauptstr. 1",
+  "postalCode": "76133",
+  "city": "Karlsruhe",
+  "phone": "0721 12345"
 }
 ```
 
-`email`, `verkaueferTypeId` und Konditionen sind hier **nicht** änderbar.
+`email`, `sellerTypeId` und Konditionen sind hier **nicht** änderbar.
 Werden sie trotzdem mitgeschickt, ignoriert das Backend sie stillschweigend
 statt mit `400` abzulehnen — so darf das Frontend das gelesene Objekt einfach
 zurücksenden.
 
 **Response `200`** — aktualisiertes Profil in der Form von Abschnitt 1
 
-**Fehler:** `400` mit `errors` je Pflichtfeld (`vorname`, `nachname`, `plz`,
-`ort`, `telefon`) — das Frontend rendert sie unter dem jeweiligen Feld
+**Fehler:** `400` mit `errors` je Pflichtfeld (`firstName`, `lastName`,
+`postalCode`, `city`, `phone`) — das Frontend rendert sie unter dem jeweiligen Feld
 (Epic_Profil AC-3).
 
 **UI-Feedback:** Standardmuster aus
@@ -120,7 +120,7 @@ E-Mail (siehe [`auth.md`](auth.md)). Das bestehende Access-Token bleibt gültig.
 |---|---|
 | `400` | E-Mail-Format ungültig |
 | `401` | `currentPassword` falsch |
-| `409` | „Diese E-Mail ist bereits registriert" |
+| `409` | `errorCode: email.already_registered` — „Diese E-Mail ist bereits registriert" |
 
 ---
 
@@ -135,7 +135,8 @@ E-Mail (siehe [`auth.md`](auth.md)). Das bestehende Access-Token bleibt gültig.
 }
 ```
 
-**Response `200`** — ohne Body.
+**Response `200`** — Token-Hülle wie in [`auth.md`](auth.md)
+(`{ accessToken, refreshToken }`).
 
 **Fehler**
 
@@ -144,9 +145,20 @@ E-Mail (siehe [`auth.md`](auth.md)). Das bestehende Access-Token bleibt gültig.
 | `400` | Neues Passwort erfüllt die Stärke-Anforderung nicht, oder Bestätigung stimmt nicht überein (Epic_Profil AC-4) |
 | `401` | `currentPassword` falsch |
 
-**Bestehende Sessions bleiben gültig.** Refresh-Tokens auf anderen Geräten
-werden **nicht** invalidiert — das bräuchte eine Token-Blacklist, die bewusst
-außerhalb des MVP liegt (siehe [`auth.md`](auth.md), Epic_Login Abschnitt 8).
+### Wirkung auf Sitzungen
+
+1. **Alle** Refresh-Token-Zeilen des Verkäufers werden gelöscht — jedes andere Gerät
+   ist damit abgemeldet, sobald sein Access-Token abläuft
+   (siehe [`entities/refresh-token.md`](../entities/refresh-token.md)).
+2. Für das **aufrufende** Gerät wird direkt eine neue Zeile angelegt und das neue
+   Token-Paar zurückgegeben. Das Frontend ersetzt seine gespeicherten Tokens damit
+   (VSHELL-S04 AC-14) und bleibt angemeldet.
+
+Ohne Schritt 2 würde sich der Nutzer beim Ändern seines eigenen Passworts nach
+höchstens 5 Tagen selbst aussperren — technisch korrekt, aber unnötig unfreundlich.
+
+**Bestehende Access-Tokens anderer Geräte bleiben gültig** (max. 5 Tage Restlaufzeit) —
+sie werden nicht geprüft, das bräuchte eine Blacklist außerhalb des MVP.
 
 ---
 
@@ -159,6 +171,7 @@ Löscht den eigenen Account **hart** (siehe
 1. alle eigenen Artikel löschen
 2. anschließend alle eigenen Nummernblöcke freigeben — nach Schritt 1 sind sie
    leer
+3. alle eigenen Refresh-Token-Zeilen löschen
 
 Identische Kaskadenregel wie `DELETE /api/sellers/{id}` → siehe
 [`sellers.md`](sellers.md).
@@ -169,7 +182,7 @@ Identische Kaskadenregel wie `DELETE /api/sellers/{id}` → siehe
 
 | Code | `detail` |
 |---|---|
-| `403` | „Admin-Accounts können nur von einem anderen Admin gelöscht werden" — verhindert, dass sich der letzte Admin selbst aussperrt. Das Frontend blendet den Tab „Löschen" für Admins ohnehin aus (Epic_Profil AC-6), der Endpoint prüft es zusätzlich serverseitig. |
+| `403` | `errorCode: profile.admin_self_delete` — „Admin-Accounts können nur von einem anderen Admin gelöscht werden". verhindert, dass sich der letzte Admin selbst aussperrt. Das Frontend blendet den Tab „Löschen" für Admins ohnehin aus (Epic_Profil AC-6), der Endpoint prüft es zusätzlich serverseitig. |
 
 ---
 

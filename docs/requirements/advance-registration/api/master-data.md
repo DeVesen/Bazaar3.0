@@ -23,8 +23,8 @@ Components → [`stammdaten-popup.md`](../components/forms/stammdaten-popup.md)
 
 | Ressource | Basis-Pfad | Epic | Feld im Artikel |
 |---|---|---|---|
-| Marken | `/api/brands` | Epic_Marken | `marke` |
-| Kategorien | `/api/categories` | Epic_Kategorien | `kategorie` |
+| Marken | `/api/brands` | Epic_Marken | `brand` |
+| Kategorien | `/api/categories` | Epic_Kategorien | `category` |
 
 Im Folgenden steht `<resource>` für `brands` oder `categories`. Alles gilt
 unverändert für beide.
@@ -53,13 +53,13 @@ unverändert für beide.
 ## Objekt
 
 ```json
-{ "id": "m4k2p8q1", "bezeichnung": "Jako-O", "original": true, "articleCount": 37 }
+{ "id": "m4k2p8q1", "name": "Jako-O", "original": true, "articleCount": 37 }
 ```
 
 | Feld | Bemerkung |
 |---|---|
 | `id` | string, 8 Zeichen, backend-generiert |
-| `bezeichnung` | Anzeigename, unique (siehe Duplikat-Prüfung) |
+| `name` | Anzeigename, unique (siehe Duplikat-Prüfung) |
 | `original` | `true` = kuratiert (Badge „✓ Original", grün), `false` = während der Voranmeldephase von einem Verkäufer angelegt (Badge „Neu", orange) |
 | `articleCount` | **Nur für die Admin-Rolle enthalten** — für Verkäufer wird das Feld weggelassen, nicht auf `null` gesetzt |
 
@@ -73,17 +73,17 @@ Dropdown-Quelle und ist zweistellig
 
 **Response `200`**
 ```json
-[ { "id": "m4k2p8q1", "bezeichnung": "Jako-O", "original": true, "articleCount": 37 } ]
+[ { "id": "m4k2p8q1", "name": "Jako-O", "original": true, "articleCount": 37 } ]
 ```
 
 ### `articleCount` und die Denormalisierung
 
-`marke`/`kategorie` sind im Artikel **denormalisierte Strings, keine FKs**
+`brand`/`category` sind im Artikel **denormalisierte Strings, keine FKs**
 (siehe [`entities/artikel.md`](../entities/artikel.md)). Der Zähler ist daher
 ein Namens-Match:
 
 ```
-articleCount = COUNT(*) FROM artikel WHERE marke = <bezeichnung>
+articleCount = COUNT(*) FROM article WHERE brand = <name>
 ```
 
 Dieselbe Bedingung entscheidet über die Löschsperre (Abschnitt 4) — Zähler und
@@ -95,7 +95,7 @@ Dieselbe Bedingung entscheidet über die Löschsperre (Abschnitt 4) — Zähler 
 
 **Request**
 ```json
-{ "bezeichnung": "Jako-O" }
+{ "name": "Jako-O" }
 ```
 
 **`original` wird nie vom Client gesetzt**, sondern serverseitig aus der Rolle
@@ -115,8 +115,8 @@ und die Regel liegt an genau einer Stelle.
 
 | Code | `detail` |
 |---|---|
-| `400` | `bezeichnung` leer |
-| `409` | „&lt;Name&gt; existiert bereits" |
+| `400` | `name` leer |
+| `409` | `errorCode: master_data.name_taken` — „&lt;Name&gt; existiert bereits" |
 
 ### Duplikat-Prüfung
 
@@ -132,7 +132,7 @@ sichtbar machen soll.
 
 **Request**
 ```json
-{ "bezeichnung": "Jako-O", "original": true }
+{ "name": "Jako-O", "original": true }
 ```
 
 Beide Felder änderbar. Der `original`-Toggle im Edit-Popup erlaubt dem Admin,
@@ -143,7 +143,7 @@ zu befördern — oder umgekehrt (Epic_Marken AC-4).
 
 ### Namens-Kaskade in die Artikel
 
-Wird `bezeichnung` geändert, schreibt das Backend den neuen Wert **in derselben
+Wird `name` geändert, schreibt das Backend den neuen Wert **in derselben
 Transaktion** in alle Artikel, die den alten String tragen. Ohne diese Kaskade
 zerfiele der `brand`/`category`-Filter und `articleCount` fiele auf 0 —
 unmittelbare Folge der Denormalisierung.
@@ -155,7 +155,7 @@ Die Response enthält bewusst keine Zahl aktualisierter Artikel; der aktuelle
 
 | Code | `detail` |
 |---|---|
-| `409` | „&lt;Name&gt; existiert bereits" — Umbenennen auf einen belegten Namen. **Kein automatisches Verschmelzen** zweier Stammdatensätze; ein Merge-Feature ist nicht spezifiziert. |
+| `409` | `errorCode: master_data.name_taken` — „&lt;Name&gt; existiert bereits", Umbenennen auf einen belegten Namen. **Kein automatisches Verschmelzen** zweier Stammdatensätze; ein Merge-Feature ist nicht spezifiziert. |
 | `404` | Unbekannte ID |
 
 ---
@@ -168,7 +168,7 @@ Die Response enthält bewusst keine Zahl aktualisierter Artikel; der aktuelle
 
 | Code | `detail` |
 |---|---|
-| `409` | „Marke wird noch verwendet" bzw. „Kategorie wird noch verwendet" — sobald mindestens ein Artikel den Namen trägt (Epic_Marken AC-3, Epic_Kategorien AC-3) |
+| `409` | `errorCode: brand.in_use` bzw. `category.in_use` — „Marke wird noch verwendet" / „Kategorie wird noch verwendet", sobald mindestens ein Artikel den Namen trägt (Epic_Marken AC-3, Epic_Kategorien AC-3) |
 | `404` | Unbekannte ID |
 
 Kein Kaskadenlöschen — Referenzschutz nach

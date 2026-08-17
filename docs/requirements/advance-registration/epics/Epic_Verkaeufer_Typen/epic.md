@@ -1,8 +1,8 @@
 ---
 id: F-AR-007
 status: reviewed
-reviewed-date: 2026-08-14
-updated: 2026-08-14
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Verkäufer-Typen
@@ -70,7 +70,7 @@ Dieser Type wird auf der Login-Seite in der Info-Area als „Default-Konditionen
 
 ## 4. Verhalten beim Zuweisen
 
-Voranmelde-App zeigt für einen Verkäufer ausschließlich den zugewiesenen Typ — **kein** Override von Provision/Gebühr pro Verkäufer (siehe `entities.md`: individuelle Anpassung ist Haupt-App-exklusiv, erst bei der Abrechnung).
+Voranmelde-App zeigt für einen Verkäufer ausschließlich den zugewiesenen Typ — **kein** Override von Provision/Gebühr pro Verkäufer (siehe `entities/verkaeufer-typ.md`; individuelle Anpassung gibt es erst in der Haupt-App, bei der Abrechnung).
 
 **Wichtig:** Da kein Snapshot-Feld beim Verkäufer existiert, wirkt sich eine Änderung an Provision/Gebühr eines Typs **sofort live auf alle zugewiesenen Verkäufer** aus (Tabellen-Anzeige in Epic_Verkaeufer, „Meine Konditionen" in Epic_Home_Verkaeufer, „Default-Konditionen" auf der Login-Seite falls Default-Typ betroffen).
 

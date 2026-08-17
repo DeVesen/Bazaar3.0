@@ -1,8 +1,8 @@
 ---
 id: F-AR-014
 status: reviewed
-reviewed-date: 2026-08-14
-updated: 2026-08-14
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Countdown-Embed-Widget
@@ -66,13 +66,13 @@ API-Details → [`api/public.md`](../../api/public.md)
 
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
-| `GET /api/public/info` | `public` | Gibt die 5 Termine `{ voranmeldeschluss, abgabeVon, abgabeBis, basarVon, basarBis }` (ISO-8601, aus Epic_Einstellungen gepflegt) sowie `defaultConditions` und `infoText` zurück. Nicht gepflegte Werte sind `null`. |
+| `GET /api/public/info` | `public` | Gibt die 5 Termine `{ registrationDeadline, dropOffFrom, dropOffUntil, bazaarFrom, bazaarUntil }` (ISO-8601, aus Epic_Einstellungen gepflegt) sowie `defaultConditions` und `infoText` zurück. Nicht gepflegte Werte sind `null`. |
 
 **DRY-Entscheidung:** Dieser Endpoint wird nicht nur vom Embed-Widget genutzt, sondern auch von Login-Seite, Home_Verkaeufer und Home_Admin — vermeidet Duplizierung der 5 Datumsfelder in mehreren authentifizierten Antworten. Die Home-Endpoints (`/api/home/seller`, `/api/home/admin`) liefern nur noch die jeweils eigenen Kennzahlen, nicht die Termine selbst.
 
 **Name:** ursprünglich `GET /api/public/countdown`. Erweitert und umbenannt, weil die öffentliche Login-Seite zusätzlich Default-Konditionen und `infoText` ohne Auth braucht (Epic_Login Abschnitt 2) — ein Public-Endpoint statt zwei. Das Embed-Widget nutzt davon nur die 5 Termine.
 
-Feldnamen bestätigt gegen Epic_Einstellungen Abschnitt 1 (`voranmeldeschluss`, `abgabeVon`, `abgabeBis`, `basarVon`, `basarBis`) — Pflege-UI dort per `p-datepicker`.
+Feldnamen bestätigt gegen Epic_Einstellungen Abschnitt 1 (`registrationDeadline`, `dropOffFrom`, `dropOffUntil`, `bazaarFrom`, `bazaarUntil`) — Pflege-UI dort per `p-datepicker`.
 
 ---
 

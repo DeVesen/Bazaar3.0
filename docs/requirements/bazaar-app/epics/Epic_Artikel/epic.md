@@ -91,7 +91,7 @@ Beispiel: Löschen von „Freigegeben Am" → auch „Verkauft Am" und „Rückg
 
 **Gegenseitige Sperre:**
 Ein Artikel kann nicht gleichzeitig „Verkauft" und „Rückgegeben" sein.
-→ Ist `verkauftAm` gesetzt → Setzen-Button bei `rückgegebenAm` deaktiviert — und umgekehrt.
+→ Ist `soldAt` gesetzt → Setzen-Button bei `returnedAt` deaktiviert — und umgekehrt.
 
 ## Akzeptanzkriterien
 

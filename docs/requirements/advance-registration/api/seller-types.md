@@ -6,10 +6,9 @@ reviewed-date: 2026-08-17
 # API: Verkäufer-Typen
 
 Stammdaten für Provision und Abgabegebühr. Ein Typ ist die **einzige** Quelle
-der Konditionen eines Verkäufers — die Voranmelde-App kennt keinen Override pro
-Verkäufer (siehe [`entities.md`](../../entities.md);
-`umsatzVerkaufsprovision`/`gebuehrProStueck` sind Haupt-App-exklusiv und dort
-erst bei der Abrechnung anpassbar).
+der Konditionen eines Verkäufers — diese App kennt keinen Override pro Verkäufer
+(siehe [`entities/verkaeufer-typ.md`](../entities/verkaeufer-typ.md); eigene
+Konditionsfelder pro Verkäufer gibt es erst in der Haupt-App).
 
 Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 
@@ -42,18 +41,18 @@ Typwahl — sie vergibt `defaultTypeId` (siehe [`auth.md`](auth.md)).
 ```json
 {
   "id": "t1b2c3d4",
-  "bezeichnung": "Standard",
-  "verkaufsprovisionAnteil": 12.5,
-  "abgabegebuehr": 0.50,
+  "name": "Standard",
+  "commissionRate": 12.5,
+  "itemFee": 0.50,
   "sellerCount": 47
 }
 ```
 
 | Feld | Bemerkung |
 |---|---|
-| `bezeichnung` | Unique — die Typen müssen im Dropdown unterscheidbar bleiben |
-| `verkaufsprovisionAnteil` | Prozentsatz `0`–`100`, **Dezimalstellen erlaubt** (12,5 % ist ein realistischer Satz). Die UI zeigt ihn mit `minFractionDigits="2"` und „%"-Suffix. |
-| `abgabegebuehr` | Gebühr pro abgegebenem Artikel, 2 Dezimalstellen |
+| `name` | Unique — die Typen müssen im Dropdown unterscheidbar bleiben |
+| `commissionRate` | Prozentsatz `0`–`100`, **Dezimalstellen erlaubt** (12,5 % ist ein realistischer Satz). Die UI zeigt ihn mit `minFractionDigits="2"` und „%"-Suffix. |
+| `itemFee` | Gebühr pro abgegebenem Artikel, 2 Dezimalstellen |
 | `sellerCount` | Anzahl zugewiesener Verkäufer — Spalte „Verkäufer" in der Typen-Tabelle. Macht vor einer Änderung sichtbar, wie viele Verkäufer sie trifft (siehe Live-Wirkung unten), und ist dieselbe Zahl, die über die Löschsperre entscheidet. |
 
 ---
@@ -72,7 +71,7 @@ Quelle für das `p-select` im Verkäufer-Dialog.
 
 **Request**
 ```json
-{ "bezeichnung": "Gewerblich", "verkaufsprovisionAnteil": 20.0, "abgabegebuehr": 1.00 }
+{ "name": "Gewerblich", "commissionRate": 20.0, "itemFee": 1.00 }
 ```
 
 Alle drei Felder Pflicht. **Kein Inline-Anlegen** über ein
@@ -86,8 +85,8 @@ ausschließlich hier.
 
 | Code | `detail` |
 |---|---|
-| `400` | Pflichtfeld fehlt, oder `verkaufsprovisionAnteil` außerhalb `0`–`100`, oder `abgabegebuehr` < 0 |
-| `409` | „Ein Verkäufer-Typ mit dieser Bezeichnung existiert bereits" |
+| `400` | Pflichtfeld fehlt, oder `commissionRate` außerhalb `0`–`100`, oder `itemFee` < 0 |
+| `409` | `errorCode: seller_type.name_taken` — „Ein Verkäufer-Typ mit dieser Bezeichnung existiert bereits" |
 
 ---
 
@@ -120,8 +119,8 @@ macht die Tragweite vorab sichtbar.
 
 | Code | `detail` | Bedingung |
 |---|---|---|
-| `409` | „Verkäufer-Typ wird noch verwendet" | `sellerCount > 0` (Epic_Verkaeufer_Typen AC-3) |
-| `409` | „Kann nicht gelöscht werden — ist aktuell Standard-Typ in den Einstellungen" | `id == defaultTypeId` (AC-4) |
+| `409` | `errorCode: seller_type.in_use` — „Verkäufer-Typ wird noch verwendet" | `sellerCount > 0` (Epic_Verkaeufer_Typen AC-3) |
+| `409` | `errorCode: seller_type.is_default` — „Kann nicht gelöscht werden — ist aktuell Standard-Typ in den Einstellungen" | `id == defaultTypeId` (AC-4) |
 | `404` | — | Unbekannte ID |
 
 Zuweisung wird zuerst geprüft, weil das der häufigere Fall ist.

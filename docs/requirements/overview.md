@@ -115,9 +115,16 @@ erfassen    registrieren   (einmalig)
 
 ### Gemeinsame Entitäten & Datenmodell
 
-Beide Apps teilen sich ein Datenmodell für Kernentitäten (Artikel, Verkäufer, Marken, Kategorien, Verkäufer-Typen). Die Felder und App-Zugehörigkeit sind in der Entitätenbeschreibung dokumentiert:
+Beide Apps kennen dieselben Kernentitäten (Artikel, Verkäufer, Marken, Kategorien,
+Verkäufer-Typen), aber jede mit eigenem Feldumfang. Die **verbindlichen Feldtabellen
+liegen je App im App-Verzeichnis**, damit `docs/requirements/<app>/` vollständig für sich
+kopierbar bleibt:
 
-→ [entities.md](entities.md)
+- Voranmelde-App → [`advance-registration/entities/`](advance-registration/entities/overview.md)
+- Haupt-App → [`bazaar-app/entities/`](bazaar-app/entities/overview.md)
+
+Welche Entität in welcher App existiert und wo die Fassungen auseinandergehen, steht als
+reine Übersicht (ohne eigene Feldtabellen) in → [entities.md](entities.md)
 
 ### Überschneidende Epics & Komponenten
 

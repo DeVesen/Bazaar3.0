@@ -16,7 +16,7 @@ updated: 2026-07-31
 - 7. Navigation (Sidebar) — Seitenstruktur
 - 8. Epic-Übersicht & Implementierungsreihenfolge — Setup + fachliche Epics
 - 9. UI-Konventionen & Komponenten — Design
-- 10. Technische Rahmenbedingungen — Tech-Stack
+- 10. Technische Rahmenbedingungen — Tech-Stack, Architektur, Responsive
 - 11. Gemeinsame Anforderungen — Querschnitt
 - 12. Design-Entscheidungen — Visuelles
 - 13. Visual Specs (Global) — PrimeNG-Mapping
@@ -221,13 +221,96 @@ Feature-spezifische UI-Specs:
 | Komponente | Technologie |
 |---|---|
 | **Frontend** | Angular 20 (Standalone Components, Signals, OnPush) |
-| **Backend** | .NET 9 Minimal API (Microservices) |
+| **Backend** | .NET 9 Minimal API |
 | **ORM** | Entity Framework Core |
 | **Datenbank** | PostgreSQL |
-| **UI-Bibliothek** | PrimeNG 20 |
+| **UI-Bibliothek** | PrimeNG 22.0.0 |
 | **Containerisierung** | Docker / Docker Compose |
 | **Mehrsprachigkeit** | ngx-translate (DE + EN) |
-| **Icons** | Angular Material Icons (npm-Paket) |
+| **Icons** | Material Symbols (npm-Paket) |
+| **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) |
+
+### 10.0.1 Architektur
+
+**Dieser Abschnitt ist die verbindliche Quelle der Architekturentscheidungen dieser
+App.** Umsetzungsdetails stehen in
+[VPROJ-S01](epics/Epic_Projektanlage/stories/VPROJ-S01-angular-projekt-anlegen.md),
+[VPROJ-S02](epics/Epic_Projektanlage/stories/VPROJ-S02-dotnet-api-anlegen.md) und
+[VPROJ-S05](epics/Epic_Projektanlage/stories/VPROJ-S05-test-und-architektur-setup.md) —
+alle innerhalb dieses Verzeichnisses.
+
+| Achse | Entscheidung |
+|---|---|
+| Backend-Layering | **Hexagonal** (Ports and Adapters), ein Hexagon pro App |
+| Frontend-Struktur | **Feature-First** (`src/app/features/<feature>/`) |
+| Deployment | **Monolith** — ein Backend- und ein Frontend-Container, Azure Container Apps. **Keine Microservices** |
+| Data-Flow | **CRUD**; Read-Models (`/api/home/*`, `/api/export`) über eigene Query-Ports |
+
+**Backend — vier Projekte**, Abhängigkeitsrichtung compiler-erzwungen:
+
+```
+Bazaar.Domain          ← referenziert nichts (Entities, Value Objects, Domain-Services, Ports)
+Bazaar.Application     ← Domain (ein Handler pro Use Case)
+Bazaar.Infrastructure  ← Domain, Application (EF Core, Repositories, Query-Ports)
+Bazaar.Api             ← alle (Minimal-API-Endpoints, Filter, ExceptionHandler)
+```
+
+Feature-Ordner existieren **innerhalb** von `Application` und `Api` — kein Hexagon je
+Feature. Die Domäne kennt weder EF Core noch ASP.NET; das Entity-Mapping läuft per
+Fluent API in `Infrastructure`. Ein Architektur-Testprojekt (NetArchTest) prüft die
+Richtung dort, wo der Compiler es nicht kann
+([VPROJ-S05](epics/Epic_Projektanlage/stories/VPROJ-S05-test-und-architektur-setup.md)).
+
+**Frontend — Feature-First:**
+
+```
+src/app/features/<feature>/   ← <feature>.routes.ts, pages/, components/, data/, model/
+src/app/core/                 ← app-weite Singletons (auth, interceptor, config)
+src/app/shared/               ← wiederverwendbare, dumme UI
+```
+
+Cross-Feature-Imports sind per ESLint verboten; `shared/` und `core/` importieren nie
+aus `features/`. Pro Seite gilt Integration vs. Leaf: `pages/*.page.ts` orchestriert,
+`components/**` rendert nur
+([components/overview.md](components/overview.md)).
+
+**Sprachregel:** Code, Routen-Pfade, JSON-Contract und Feldnamen **englisch**;
+Doku-Prosa, Doku-Dateinamen und Epic-Ordner **deutsch**; sichtbare UI-Texte über
+ngx-translate (DE/EN). Auf diese Regel verweisen die Entitäts- und API-Dokumente
+dieses Verzeichnisses.
+
+### 10.0.2 Entwicklungsrichtlinie: Epic als vollständiger Durchstich
+
+Jedes fachliche Epic wird als **kompletter vertikaler Durchstich** umgesetzt — Frontend
+und Backend gemeinsam, nicht nacheinander.
+
+| Schicht | Inhalt |
+|---|---|
+| Angular (Frontend) | Seite/Komponente, Route, Api + Store, State (Signals) |
+| .NET Minimal API (Backend) | Endpoint(s), Request/Response-DTOs, Handler, Fehlerbehandlung |
+| EF Core / DB | Entity, Migration (nur wenn neue Tabelle oder Spalte entsteht) |
+
+**Reihenfolge je Epic:** 1. API-Vertrag festlegen (Endpoint, Request, Response) →
+2. Backend implementieren und lokal testen → 3. Angular-Api/Store und Seite gegen den
+echten Endpoint bauen.
+
+**Ausnahmen — keine fachlichen Durchstiche:**
+[Epic_Projektanlage](epics/Epic_Projektanlage/epic.md) (technisches Setup) und
+[Epic_App_Shell](epics/Epic_App_Shell/epic.md) (Grundgerüst: Sidebar, Layout,
+Routing-Skeleton, Auth-Infrastruktur, Theme). Beide sind Voraussetzung für alle
+fachlichen Epics und enthalten keine Business-Logik.
+
+### 10.0.3 Datenmodell
+
+Verbindlich in [`entities/`](entities/overview.md) — eine Datei je Entität mit
+vollständiger Feldtabelle. Der API-Contract dazu steht in [`api/`](api/overview.md),
+das Schema der Export-Datei in [`api/export.md`](api/export.md).
+
+### 10.0.4 UI-Bibliothek — Grundregel
+
+Ausschließlich **PrimeNG**, kein natives HTML für interaktive Elemente, keine weiteren
+UI-Libraries. Fehlt eine Komponente, entsteht ein eigener Wrapper auf PrimeNG-Basis
+(Gruppe „Custom" in [components/overview.md](components/overview.md)).
 
 ### 10.1 Responsive Design
 
@@ -268,22 +351,29 @@ Zweck: Erkennen, welche Marken/Kategorien während der Voranmeldephase neu angel
 
 | Feld | Beschreibung |
 |---|---|
-| `erstelltAm` | Beim Anlegen gesetzt (server-seitig) |
-| `updatedAm` | Bei jeder Änderung aktualisiert; wird für Aktivitäts-Heatmap ausgewertet |
+| `createdAt` | Beim Anlegen gesetzt (server-seitig) |
+| `updatedAt` | Bei jeder Änderung aktualisiert; wird für Aktivitäts-Heatmap ausgewertet |
 
 ### 11.5 IDs
 
 Alle Entitäten: **8-stellige alphanumerische ID** (case-sensitive).
 
-### 11.6 Verkäufer-Types
+### 11.6 Verkäufer-Typen
 
-- Template / Vorlage: Provision (%) + Gebühr pro Stück (€)
-- Beim Anlegen/Ändern werden `provision` und `gebuehr` vorausgefüllt, sind überschreibbar
-- Admin kann Provision und Gebühr pro Verkäufer individuell nachjustieren
+- Ein Typ trägt `commissionRate` (Provision in %) und `itemFee` (Gebühr pro Stück in €)
+- Der Typ ist die **einzige** Quelle der Konditionen eines Verkäufers; eine Änderung am Typ wirkt sofort auf alle zugewiesenen Verkäufer (siehe [`api/seller-types.md`](api/seller-types.md))
 
-### 11.7 Verkäufer-Konditionen (eigene Felder)
+### 11.7 Verkäufer-Konditionen — kein Override
 
-Jeder Verkäufer trägt eigene Felder `provision` und `gebuehr` — maßgeblich beim Import in die Haupt-App.
+Ein Verkäufer trägt in der Voranmelde-App **keine** eigenen Konditionsfelder. Die
+Konditionen werden immer über `sellerTypeId` aufgelöst und in Responses fertig
+mitgeliefert (`sellerType` in [`sellers.md`](api/sellers.md) und
+[`profile.md`](api/profile.md)).
+
+Der Export überträgt darum auch keine Zahlen, sondern nur den **Namen** des Typs
+(`sellerType`) — die Haupt-App pflegt eigene Typen und löst Provision und Gebühr über
+den Namen auf. Erst dort sind die Werte pro Verkäufer überschreibbar. Schema →
+[`api/export.md`](api/export.md).
 
 ---
 

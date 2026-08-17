@@ -68,6 +68,29 @@ Readonly, Autofokus). Die visuelle Hülle steht in den Suite-Docs
 
 ---
 
+## Komponenten-Rollen: Integration vs. Leaf
+
+Querschnittsregel für **alle** Komponenten der App — steht hier einmal, statt in
+jedem der 14 Epics wiederholt zu werden.
+
+| Rolle | Ort | Darf | Darf nicht |
+|---|---|---|---|
+| **Integration** | `features/<feature>/pages/<x>.page.ts` | Store/Service injizieren, Kind-Komponenten verdrahten, Layout setzen, Ergebnisse von `output()` verarbeiten | eigene Render-/Fachlogik enthalten |
+| **Leaf** | `features/<feature>/components/**`, `shared/**` | `input()` lesen, `output()` feuern, rendern | Service oder Store injizieren, HTTP aufrufen, navigieren |
+
+Keine Komponente ist beides. Konkrete Folgen für die Einträge oben:
+
+- **Dialoge und Modals** (`artikel-dialog`, `verkaeufer-dialog`, `stammdaten-popup`,
+  `typ-popup`, `artikel-readonly-modal`) sind **Leaf**: sie bekommen ihre Daten per
+  `input()` und geben das Ergebnis per `output()` an die Page zurück. Sie injizieren
+  **keinen** Store und rufen selbst keine API.
+- **Panels und Listen** (`filter-panel`, `block-liste`, `home-dashboard`,
+  `login-info-panel`, `export-panel`) sind ebenfalls Leaf — auch `export-panel`, dessen
+  Klick nur ein `output()` auslöst; den Download startet die Page.
+- **Ausnahme Shell:** `sidebar` und `sidebar-footer` dürfen `AuthService`/`RoleService`
+  injizieren. Sie sind Teil der App-Shell, nicht eines Features, und haben keine
+  übergeordnete Page, die den Zustand durchreichen könnte.
+
 ## Einordnungsregeln
 
 - Ein Element, das exakt einer PrimeNG-Komponente entspricht, gehört nach **Standard** —

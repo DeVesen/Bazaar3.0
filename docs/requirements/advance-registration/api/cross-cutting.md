@@ -9,8 +9,14 @@ Verbindliche Konventionen für **alle** Endpoints der Voranmelde-App. Die
 ressourcenspezifischen Dateien in diesem Verzeichnis verweisen hierher statt
 diese Regeln zu wiederholen.
 
-**Backend:** .NET 9 Minimal API, Feature-Slice-Struktur `Features/<FeatureName>/`
+**Backend:** .NET 9 Minimal API, **hexagonal** in vier Projekten
+(`Bazaar.Domain` / `.Application` / `.Infrastructure` / `.Api`) — Feature-Ordner nur
+innerhalb von `Application` und `Api`, ein Handler pro Use Case
 (siehe [VPROJ-S02](../epics/Epic_Projektanlage/stories/VPROJ-S02-dotnet-api-anlegen.md)).
+
+**Sprache des Contracts:** Alle Feldnamen in Request und Response sind **englisch**
+(`fromNumber`, `sellerTypeId`, `price`) — ebenso die Schlüssel im `errors`-Dictionary.
+Die Prosa dieser Doku bleibt deutsch. Damit braucht kein DTO `[JsonPropertyName]`.
 
 ---
 
@@ -61,24 +67,50 @@ Alle Fehler folgen **RFC 9457 `ProblemDetails`** — der .NET-Standardform über
   "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
   "title": "Conflict",
   "status": 409,
-  "detail": "Kategorie wird noch verwendet"
+  "detail": "Kategorie wird noch verwendet",
+  "errorCode": "category.in_use"
 }
 ```
 
-**Validierungsfehler** zusätzlich mit `errors` (Feldname → Meldungen). Das
-Frontend rendert diese direkt als Fehlermeldung unter dem jeweiligen Feld
-(Muster: Epic_Verkaeufer AC-4, Epic_Profil AC-3):
+### `errorCode` — Übersetzbarkeit
+
+Jeder fachliche Fehler trägt zusätzlich zu `detail` das Extension-Member
+**`errorCode`** (kleingeschrieben, punktgetrennt: `category.in_use`,
+`email.already_registered`, `block.overlap`, `registration.not_enabled`).
+
+Grund: Die App ist zweisprachig (DE/EN), `detail` ist deutscher Klartext. Das
+Frontend zeigt bevorzugt die über `errorCode` aufgelöste ngx-translate-Meldung und
+fällt auf `detail` zurück, wenn kein Key existiert. Der in den Akzeptanzkriterien
+festgeschriebene deutsche Text ist damit der Wert des `de.json`-Eintrags.
+
+Lokalisierung im Backend (`Accept-Language`) wäre die Alternative — abgelehnt, weil
+sie ein zweites Übersetzungssystem für dieselbe App bedeutet.
+
+**Erzeugt** wird die gesamte Abbildung an genau einem Ort: dem globalen
+`IExceptionHandler` in `Bazaar.Api` (VPROJ-S02 AC-2c), der Domain-Exception-Typen auf
+Status-Code + `errorCode` abbildet. Handler und Domäne werfen Exceptions, sie bauen
+keine HTTP-Antworten.
+
+**Validierungsfehler** zusätzlich mit `errors` (Feldname → Meldungen), Schlüssel =
+**englischer DTO-Feldname**. Das Frontend rendert diese direkt als Fehlermeldung
+unter dem jeweiligen Feld (Muster: Epic_Verkaeufer AC-4, Epic_Profil AC-3):
 
 ```json
 {
   "title": "One or more validation errors occurred.",
   "status": 400,
   "errors": {
-    "preis": ["Preis muss größer als 0 sein"],
+    "price": ["Preis muss größer als 0 sein"],
     "email": ["E-Mail-Format ungültig"]
   }
 }
 ```
+
+**Zuständigkeit:** Formatprüfungen (Pflichtfeld, E-Mail-Form, `price > 0`,
+Passwortstärke) laufen über FluentValidation im `ValidationFilter<TRequest>` → `400`.
+**Invarianten** (Nummernblock-Überschneidung, E-Mail vergeben, Referenz noch in
+Benutzung) gehören in Domäne bzw. Handler und werden als Domain-Exception geworfen →
+`409`. Kein Handler prüft Feldformate, kein Validator kennt die Datenbank.
 
 **Fachliche Konfliktmeldungen** transportieren ihren Klartext in `detail` — der
 Text ist der, den das jeweilige Akzeptanzkriterium vorschreibt.
@@ -133,7 +165,7 @@ einzelnen Seite wäre falsch. Die Tabellen erlauben Multi-Sort per Shift+Klick,
 daher ein Parameter mit Prioritätsreihenfolge:
 
 ```
-?sort=nummer:asc,preis:desc
+?sort=number:asc,price:desc
 ```
 
 Erstes Feld = höchste Priorität. Richtung `asc` \| `desc`. Mappt direkt auf
@@ -144,8 +176,8 @@ festgelegte Default-Sortierung.
 
 ## 5. Löschen
 
-**Hard-Delete durchgehend.** Kein Soft-Delete, kein `geloeschtAm`-Flag —
-[`entities.md`](../../entities.md) sieht kein solches Feld vor. Die
+**Hard-Delete durchgehend.** Kein Soft-Delete, kein Gelöscht-Flag — die
+Entitäten in [`entities/`](../entities/overview.md) sehen kein solches Feld vor. Die
 Voranmelde-App ist Vorstufe; die dauerhafte Datenhaltung passiert nach dem
 Export in der Haupt-App.
 
@@ -158,6 +190,19 @@ bewusster Kaskade sind einzeln dokumentiert
 (`DELETE /api/profile`, `DELETE /api/sellers/{id}` → siehe [`sellers.md`](sellers.md)).
 
 ---
+
+### Persistenz-Zugriff
+
+Alle Listen- und Detail-Zugriffe laufen über **Repositories pro Aggregate**
+(`ISellerRepository`, `IArticleRepository`, `INumberBlockRepository`,
+`IMasterDataRepository`, `ISettingsRepository`) — Interfaces in `Bazaar.Domain/Ports/`,
+Implementierung in `Bazaar.Infrastructure`. Kein generisches `IRepository<T>`, kein
+`IQueryable` über die Port-Grenze.
+
+**Ausnahme Read-Models:** `GET /api/home/seller`, `GET /api/home/admin` und
+`GET /api/export` lesen über eigene Query-Ports (`IHomeQueries`, `IExportQuery`) mit
+direktem EF-/SQL-Zugriff im Adapter. Kennzahlen und Export-Sichten laden keine
+Aggregate.
 
 ## 6. Ownership-Prüfung
 
@@ -191,7 +236,7 @@ Epic_Export AC-4 (Info-InfoArea mit Bilanz, kein Auto-Dismiss).
 | Thema | Regel |
 |---|---|
 | Datums-/Zeitformat | ISO 8601 mit Offset, durchgehend in Request und Response |
-| IDs | string, 8 Zeichen, backend-generiert (siehe `entities.md`) |
+| IDs | string, 8 Zeichen, backend-generiert (siehe `entities/overview.md`) |
 | Geldbeträge | Dezimalzahl mit 2 Nachkommastellen, Punkt als Trennzeichen im JSON (Locale-Formatierung ist reine Frontend-Sache) |
 | CORS | Angular Dev `http://localhost:4200`; Production-Origin über `CORS_ALLOWED_ORIGIN` (VPROJ-S02 AC-3) |
 | Clickjacking | `frame-ancestors`-Freigabe **ausschließlich** für die Route `/embed/countdown`; alle übrigen Routen `DENY`/`same-origin` (Epic_Countdown_Widget Abschnitt 4) |

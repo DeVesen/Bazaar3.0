@@ -1,27 +1,34 @@
 ---
 status: reviewed
-reviewed-date: 2026-08-14
+reviewed-date: 2026-08-17
 ---
 
 # Entity: Einstellungen
 
-Nur Voranmelde-App (☁️) — Singleton, kein Bedarf für Historie/Mehrfachsätze. Kanonische Quelle: [entities.md](../../entities.md).
+Nur in dieser App — Singleton, kein Bedarf für Historie/Mehrfachsätze. Verbindliche Quelle; Index → [overview.md](overview.md).
 
 ## Felder
+
+Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) Abschnitt 10.0.1).
 
 | Feld | Typ | Pflicht | Bemerkung |
 |---|---|---|---|
 | `id` | string (fix) | ✅ | Fester Wert (z. B. `"settings"`) — Singleton-Row |
-| `voranmeldeschluss` | DateTime | ✅ | Ende der Selbstregistrierungsphase |
-| `abgabeVon` | DateTime | ✅ | Start Abgabe-Zeitraum |
-| `abgabeBis` | DateTime | ✅ | Ende Abgabe-Zeitraum |
-| `basarVon` | DateTime | ✅ | Start Basar |
-| `basarBis` | DateTime | ✅ | Ende Basar |
-| `defaultTypeId` | string (8 Zeichen) | ✅ | FK auf Verkäufer-Typ — Standard für Selbstregistrierung/Login |
+| `registrationDeadline` | DateTime | ✅ | Voranmeldeschluss — Ende der Selbstregistrierungsphase |
+| `dropOffFrom` | DateTime | ✅ | Start Abgabe-Zeitraum |
+| `dropOffUntil` | DateTime | ✅ | Ende Abgabe-Zeitraum |
+| `bazaarFrom` | DateTime | ✅ | Start Basar |
+| `bazaarUntil` | DateTime | ✅ | Ende Basar |
+| `defaultTypeId` | string (8 Zeichen) | ✅ | Referenz auf Verkäufer-Typ — Standard für Selbstregistrierung/Login |
 | `infoText` | string | ❌ | Markdown-Freitext, Anzeige auf Verkäufer-Home + Login-Seite |
 | `startNumber` | int | ✅ | Erste Artikelnummer überhaupt |
 | `blockSize` | int | ✅ | Anzahl Nummern pro Nummernblock |
 | `defaultBlockCount` | int | ✅ | Standard-Anzahl Blöcke für neue Verkäufer |
+
+**Kein Domain-Port.** Die drei Nummern-Parameter werden nicht über eine Abstraktion in
+die Domäne injiziert: Der Handler lädt die Einstellungen über `ISettingsRepository` und
+übergibt die Werte als Parameter an den `NumberBlockAllocator`. Damit bleibt der
+Allocator ohne Mock testbar.
 
 ## Verwendung
 

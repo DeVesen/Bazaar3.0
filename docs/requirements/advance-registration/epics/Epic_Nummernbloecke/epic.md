@@ -1,8 +1,8 @@
 ---
 id: F-AR-008
 status: reviewed
-reviewed-date: 2026-08-14
-updated: 2026-08-14
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Nummernblöcke
@@ -71,7 +71,7 @@ API-Details → [`api/blocks.md`](../../api/blocks.md) (kanonische Stelle für *
 
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
-| `GET /api/blocks/mine` | `authenticated` | Gibt alle Nummernblöcke des eingeloggten Verkäufers zurück, je mit `anzahlNummern` und `vergeben` für die Anzeige „10 Nummern · 3 vergeben". |
+| `GET /api/blocks/mine` | `authenticated` | Gibt alle Nummernblöcke des eingeloggten Verkäufers zurück, je mit `numberCount` und `usedCount` für die Anzeige „10 Nummern · 3 vergeben". |
 
 Rein lesend — es existiert bewusst kein Endpoint, über den ein Verkäufer Blöcke ändern oder beantragen könnte.
 

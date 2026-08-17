@@ -91,11 +91,11 @@ Alle Artikel dieses Verkäufers (wie Artikel-Übersicht, gefiltert auf diesen Ve
 
 ## 3. Zurückgeben-Popup
 
-→ Komponente: [Scan-Dialog](../../../../components/scan-dialog/component.md) — `targetField="rückgegebenAm"`
+→ Komponente: [Scan-Dialog](../../../../components/scan-dialog/component.md) — `targetField="returnedAt"`
 
 Identisch zum Artikel-Freigeben-Popup (→ [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md)) — gleicher Aufbau, gleiche Kamera/Eingabe-Modi, gleiche Scan-Feedback-Logik.
 
-**Einziger Unterschied:** Statt `freigegebenAm` wird `rückgegebenAm = jetzt` gesetzt.
+**Einziger Unterschied:** Statt `releasedAt` wird `returnedAt = jetzt` gesetzt.
 
 ---
 
@@ -105,18 +105,18 @@ Größe `sm`. Auflistung der Abrechnungsposten:
 
 ```
 Umsatz (Summe verkaufter Artikel)                        XX,XX €
-Provision (Umsatz × Verkäufer.provision %)             − XX,XX €
+Provision (Umsatz × Verkäufer.salesCommission %)        − XX,XX €
 ────────────────────────────────────────────────────────────────
 Auszahlung an Verkäufer                                  XX,XX €
 ```
 
-> Maßgeblich ist `Verkäufer.provision` — das eigene Feld der Verkäufer-Entität, nicht der aktuell zugewiesene Type-Wert.
+> Maßgeblich ist `Verkäufer.salesCommission` — das eigene Feld der Verkäufer-Entität, nicht der aktuell zugewiesene Wert des Typs (`commissionRate`).
 
 **Zeilen-Stil:** flex space-between, padding 7 px 0, 15 px, border-bottom 1 px `#f2f4f6`.
 **Total-Zeile:** border-top 2 px, kein border-bottom, mt 8 px, pt 10 px; Betrag in success-Farbe, 18 px, 700.
 Provisions-Zeile: Betrag in danger-Farbe.
 
-Klick **„Buchen"** → `abgerechnetAm = jetzt` wird am Verkäufer gesetzt.
+Klick **„Buchen"** → `settledAt = jetzt` wird am Verkäufer gesetzt.
 
 ---
 
@@ -129,9 +129,9 @@ Details → [Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md)
 
 1. **AC-1** — WHEN die Abrechnung-Seite geöffnet wird, THEN SHALL das System die Verkäufer-Auswahl anzeigen und keinen Verkäufer vorselektieren.
 2. **AC-2** — WHEN ein Verkäufer ausgewählt wird, THEN SHALL das System seine Kennzahlen (Warenwert, Provision, Gebühr, Auszahlung) und seine Artikelliste laden und anzeigen.
-3. **AC-3** — WHILE ein Verkäufer noch Artikel mit Status `freigegeben` hat, SHALL das System den „Abrechnen"-Button deaktiviert halten.
-4. **AC-4** — WHEN „Abrechnen" geklickt wird, THEN SHALL das System alle Artikel des Verkäufers mit Status `verkauft` auf Status `abgerechnet` und `abgerechnetAm = jetzt` setzen.
-5. **AC-5** — WHEN „Zurückgeben" geklickt wird, THEN SHALL das System alle Artikel des Verkäufers mit Status `freigegeben` auf Status `retour` setzen.
+3. **AC-3** — WHILE ein Verkäufer noch Artikel im Verkauf hat (`releasedAt` gesetzt, `soldAt` und `returnedAt` leer), SHALL das System den „Abrechnen"-Button deaktiviert halten.
+4. **AC-4** — WHEN „Abrechnen" geklickt wird, THEN SHALL das System `settledAt = jetzt` am Verkäufer setzen; die verkauften Artikel (`soldAt` gesetzt) bleiben unverändert — „abgerechnet" ist ein Verkäufer-Zustand, kein Artikel-Zustand.
+5. **AC-5** — WHEN „Zurückgeben" geklickt wird, THEN SHALL das System bei allen noch im Verkauf befindlichen Artikeln des Verkäufers (`releasedAt` gesetzt, `soldAt` leer) `returnedAt = jetzt` setzen.
 6. **AC-6** — WHEN „🖨️ Drucken" geklickt wird, THEN SHALL das System den Druckdialog mit gruppierten Artikeln (Im Verkauf, Verkauft, Sonstige) öffnen.
 
 ## Tags & Piles

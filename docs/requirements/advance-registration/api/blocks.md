@@ -35,34 +35,43 @@ Component → [`block-liste.md`](../components/custom/block-liste.md)
 ```json
 {
   "id": "n8x4k2m0",
-  "verkaeuferId": "a3f9c2d1",
-  "vonNummer": 101,
-  "bisNummer": 110,
-  "anzahlNummern": 10,
-  "vergeben": 3,
-  "zugewiesenAm": "2026-08-14T10:00:00+02:00"
+  "sellerId": "a3f9c2d1",
+  "fromNumber": 101,
+  "toNumber": 110,
+  "numberCount": 10,
+  "usedCount": 3,
+  "assignedAt": "2026-08-14T10:00:00+02:00"
 }
 ```
 
 | Feld | Bemerkung |
 |---|---|
-| `vonNummer` / `bisNummer` | Grenzen des Blocks, **beide persistiert**. `bisNummer` wird beim Anlegen aus `blockSize` errechnet und danach nicht mehr neu berechnet — sonst verschöbe eine spätere Änderung von `blockSize` rückwirkend alle Blockgrenzen und damit die Zuordnung bereits vergebener Artikelnummern. |
-| `anzahlNummern` | `bisNummer - vonNummer + 1` |
-| `vergeben` | Anzahl Artikel mit `nummer` in `[vonNummer, bisNummer]`. Speist die Anzeige „10 Nummern · 3 vergeben" **und** die Löschsperre — beide können damit nicht auseinanderlaufen. |
+| `fromNumber` / `toNumber` | Grenzen des Blocks, **beide persistiert**. `toNumber` wird beim Anlegen aus `blockSize` errechnet und danach nicht mehr neu berechnet — sonst verschöbe eine spätere Änderung von `blockSize` rückwirkend alle Blockgrenzen und damit die Zuordnung bereits vergebener Artikelnummern. |
+| `numberCount` | `toNumber - fromNumber + 1` |
+| `usedCount` | Anzahl Artikel mit `number` in `[fromNumber, toNumber]`. Speist die Anzeige „10 Nummern · 3 vergeben" **und** die Löschsperre — beide können damit nicht auseinanderlaufen. |
 
-**Überschneidungsfreiheit** gilt global: `[vonNummer, bisNummer]` darf sich mit
+**Überschneidungsfreiheit** gilt global: `[fromNumber, toNumber]` darf sich mit
 keinem Block irgendeines Verkäufers überschneiden.
+
+**Verortung im Backend:** `NumberBlock` ist ein **eigenes Aggregate** — `sellerId` ist
+eine reine ID-Referenz, kein Navigations-Property zurück auf den Verkäufer. Die globale
+Invariante kann kein Seller-Aggregate schützen (es sieht nur seine eigenen Blöcke),
+darum liegt sie in einem Domain-Service `NumberBlockAllocator` (`Bazaar.Domain`), den
+alle Vergabewege gemeinsam nutzen: Selbstregistrierung, Admin-Anlage, Reservierung und
+automatische Erweiterung. Als letzte Verteidigungslinie gegen zwei parallele Vorgänge
+kommt ein PostgreSQL-Exclusion-Constraint auf `int4range(fromNumber, toNumber + 1)`
+hinzu — die serverseitige Vorprüfung allein schützt nicht gegen Races.
 
 ---
 
 ## 1. `GET /api/blocks/mine`
 
-Alle Blöcke des eingeloggten Nutzers, aufsteigend nach `vonNummer`.
+Alle Blöcke des eingeloggten Nutzers, aufsteigend nach `fromNumber`.
 Nicht paginiert ([`cross-cutting.md`](cross-cutting.md) Abschnitt 4).
 
 **Response `200`**
 ```json
-[ { "id": "n8x4k2m0", "vonNummer": 101, "bisNummer": 110, "anzahlNummern": 10, "vergeben": 3, "zugewiesenAm": "…" } ]
+[ { "id": "n8x4k2m0", "fromNumber": 101, "toNumber": 110, "numberCount": 10, "usedCount": 3, "assignedAt": "…" } ]
 ```
 
 Leeres Array, wenn noch kein Block zugewiesen ist — das Frontend zeigt dann
@@ -100,7 +109,8 @@ Das Frontend ruft diesen Endpoint beim Öffnen von Panel 04 und bei jeder
 Änderung von „Anzahl Blöcke" — der Vorschlag hängt von `blockCount` ab und
 kann daher nicht einmalig mit dem Verkäufer-Objekt geliefert werden.
 
-**Fehler:** `409` „Kein zusammenhängender freier Nummernbereich verfügbar"
+**Fehler:** `409` `errorCode: block.no_free_range` — „Kein zusammenhängender freier
+Nummernbereich verfügbar"
 
 ---
 
@@ -128,7 +138,7 @@ sein.
 | Code | `detail` |
 |---|---|
 | `404` | Unbekannte Verkäufer-ID |
-| `409` | „Nummernbereich überschneidet sich mit bestehendem Block" (Epic_Verkaeufer AC-6) |
+| `409` | `errorCode: block.overlap` — „Nummernbereich überschneidet sich mit bestehendem Block" (Epic_Verkaeufer AC-6) |
 
 ---
 
@@ -141,9 +151,9 @@ sein.
 | Code | `detail` |
 |---|---|
 | `404` | Block unbekannt **oder** gehört nicht zu `{id}` — der Verkäufer-Teil des Pfades wird geprüft, nicht nur mitgeführt |
-| `409` | „Block enthält bereits vergebene Nummern" — sobald `vergeben > 0` (Epic_Verkaeufer AC-8) |
+| `409` | `errorCode: block.in_use` — „Block enthält bereits vergebene Nummern", sobald `usedCount > 0` (Epic_Verkaeufer AC-8) |
 
-Das Frontend blendet den Löschen-Button bei `vergeben > 0` ohnehin aus und zeigt
+Das Frontend blendet den Löschen-Button bei `usedCount > 0` ohnehin aus und zeigt
 stattdessen das Badge „Voll — nicht löschbar"; der Endpoint prüft es zusätzlich
 serverseitig. Vor dem Löschen fragt ein
 [Confirmdialog](../components/standard/confirmdialog.md) nach (AC-7).
@@ -168,10 +178,14 @@ global kein freier Bereich mehr, schlägt das Anlegen mit `409` fehl
 | Parameter | Wirkung |
 |---|---|
 | `startNumber` | Erste Artikelnummer überhaupt — untere Grenze der Vergabe |
-| `blockSize` | Nummern pro Block; bestimmt `bisNummer` **beim Anlegen** |
+| `blockSize` | Nummern pro Block; bestimmt `toNumber` **beim Anlegen** |
 | `defaultBlockCount` | Default für `blockCount` bei Anlage und Selbstregistrierung |
 
 Pflege → [`settings.md`](settings.md)
+
+Die drei Werte werden **nicht** über einen Port in die Domäne injiziert: Der aufrufende
+Handler lädt sie einmal über `ISettingsRepository` und übergibt sie dem
+`NumberBlockAllocator` als Parameter. Damit bleibt der Allocator ohne Mock testbar.
 
 ---
 

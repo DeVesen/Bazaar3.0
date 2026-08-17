@@ -33,11 +33,11 @@ Quelle, keine Duplizierung der Werte.
 
 ```json
 {
-  "voranmeldeschluss": "2026-09-30T23:59:00+02:00",
-  "abgabeVon":         "2026-10-05T08:00:00+02:00",
-  "abgabeBis":         "2026-10-05T18:00:00+02:00",
-  "basarVon":          "2026-10-06T09:00:00+02:00",
-  "basarBis":          "2026-10-06T16:00:00+02:00",
+  "registrationDeadline": "2026-09-30T23:59:00+02:00",
+  "dropOffFrom":          "2026-10-05T08:00:00+02:00",
+  "dropOffUntil":         "2026-10-05T18:00:00+02:00",
+  "bazaarFrom":           "2026-10-06T09:00:00+02:00",
+  "bazaarUntil":          "2026-10-06T16:00:00+02:00",
   "defaultTypeId": "t1b2c3d4",
   "infoText": "## Hinweise\n\nBitte bringen Sie …",
   "startNumber": 101,
@@ -48,7 +48,7 @@ Quelle, keine Duplizierung der Werte.
 
 | Feld | Typ | Bemerkung |
 |---|---|---|
-| `voranmeldeschluss` … `basarBis` | ISO 8601 \| `null` | Die 5 Phasen der Countdown-Sequence, in dieser Reihenfolge. Pflege per `p-datepicker` (Datum + Uhrzeit). |
+| `registrationDeadline` … `bazaarUntil` | ISO 8601 \| `null` | Die 5 Phasen der Countdown-Sequence, in dieser Reihenfolge (Voranmeldeschluss, Abgabe von/bis, Basar von/bis). Pflege per `p-datepicker` (Datum + Uhrzeit). |
 | `defaultTypeId` | string \| `null` | Standard-Verkäufer-Typ für die Selbstregistrierung und die Konditions-Anzeige der Login-Seite |
 | `infoText` | Markdown \| `null` | Freitext für Verkäufer-Home und Login-Seite |
 | `startNumber` | int | Erste Artikelnummer überhaupt |
@@ -80,15 +80,15 @@ Unterscheidung „Feld fehlt" vs. „Feld ist `null`" ohne UI-Bedarf.
 
 | Code | Fall |
 |---|---|
-| `400` | **Termin-Reihenfolge:** Die gesetzten Termine müssen aufsteigend sein (`voranmeldeschluss` ≤ `abgabeVon` ≤ `abgabeBis` ≤ `basarVon` ≤ `basarBis`). `null`-Werte werden übersprungen, Teilkonfiguration bleibt erlaubt. Sonst wäre der Countdown-Sequence-Mode unsinnig. |
+| `400` | **Termin-Reihenfolge:** Die gesetzten Termine müssen aufsteigend sein (`registrationDeadline` ≤ `dropOffFrom` ≤ `dropOffUntil` ≤ `bazaarFrom` ≤ `bazaarUntil`). `null`-Werte werden übersprungen, Teilkonfiguration bleibt erlaubt. Sonst wäre der Countdown-Sequence-Mode unsinnig. |
 | `400` | `defaultTypeId` verweist auf keinen existierenden Typ → `errors.defaultTypeId: ["Unbekannter Verkäufer-Typ"]` |
 | `400` | `startNumber`, `blockSize`, `defaultBlockCount` ≤ 0 |
-| `409` | „Startnummer liegt über bereits vergebenen Artikelnummern" — siehe unten |
+| `409` | `errorCode: settings.start_number_conflict` — „Startnummer liegt über bereits vergebenen Artikelnummern", siehe unten |
 
 ### Änderungen an den Nummernblock-Parametern
 
 Beide Parameter wirken **nur auf künftige Vergaben**; bestehende Blöcke bleiben
-unberührt, weil `bisNummer` persistiert ist und nicht neu gerechnet wird
+unberührt, weil `toNumber` persistiert ist und nicht neu gerechnet wird
 (siehe [`blocks.md`](blocks.md),
 [`entities/nummernblock.md`](../entities/nummernblock.md)).
 

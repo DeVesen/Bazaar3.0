@@ -2,8 +2,8 @@
 id: F-AR-006
 code: VERK-VA
 status: reviewed
-reviewed-date: 2026-08-14
-updated: 2026-08-14
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Verkäufer (Admin)
@@ -54,9 +54,9 @@ Filterbereich:
 
 **Sortierbare Spalten:** Nr. · Vorname · Nachname · PLZ · Ort · Typ · Provision · Gebühr · Artikel (Multi-Sort per Shift+Klick)
 
-**Provision/Gebühr** sind read-only, vom gewählten Verkäufer-**Typ** abgeleitete Anzeigewerte — kein individueller Override in der Voranmelde-App (siehe `entities.md`: `umsatzVerkaufsprovision`/`gebuehrProStueck` sind Haupt-App-exklusiv, dort erst bei der Abrechnung individuell anpassbar).
+**Provision/Gebühr** sind read-only, vom gewählten Verkäufer-**Typ** abgeleitete Anzeigewerte — kein individueller Override in der Voranmelde-App (siehe `entities/verkaeufer-typ.md`; eigene Konditionsfelder pro Verkäufer gibt es erst in der Haupt-App, dort bei der Abrechnung anpassbar).
 
-**Spalte „Nr."** zeigt die `vonNummer` des **ersten** Nummernblocks des Verkäufers — kein eigenes Entity-Feld. Eine zweite fortlaufende Nummernwelt neben den Artikelnummern wäre nur verwechslungsanfällig, und am Basar-Tag wird ohnehin nach „Verkäufer 101" gesucht. Leer, solange kein Block zugewiesen ist.
+**Spalte „Nr."** zeigt die `fromNumber` des **ersten** Nummernblocks des Verkäufers — kein eigenes Entity-Feld. Eine zweite fortlaufende Nummernwelt neben den Artikelnummern wäre nur verwechslungsanfällig, und am Basar-Tag wird ohnehin nach „Verkäufer 101" gesucht. Leer, solange kein Block zugewiesen ist.
 
 **„+ Neu"-Button** (Seitentitel) → öffnet Dialog „Neuen Verkäufer anlegen".
 **Edit-Button** pro Zeile → öffnet Dialog „Verkäufer bearbeiten".
@@ -172,7 +172,7 @@ API-Details → [`api/sellers.md`](../../api/sellers.md) · Nummernblock-Routen 
 |---|---|---|
 | `GET /api/sellers` | `admin` | Liste aller Verkäufer, paginiert, Freitext-Filter (Vorname, Nachname, Ort, E-Mail). |
 | `POST /api/sellers` | `admin` | Legt Verkäufer an (ohne Passwort) + `blockCount` initiale Nummernblöcke. |
-| `PUT /api/sellers/{id}` | `admin` | Aktualisiert Verkäufer-Daten inkl. `istAdmin`. |
+| `PUT /api/sellers/{id}` | `admin` | Aktualisiert Verkäufer-Daten inkl. `isAdmin`. |
 | `DELETE /api/sellers/{id}` | `admin` | Löscht Verkäufer + Artikel + Nummernblöcke. `409` beim letzten Admin und bei Selbstlöschung. |
 | `POST /api/sellers/{id}/invite` | `admin` | Generiert `inviteToken` (7 Tage gültig) und gibt den fertigen Einladungs-Link zurück. Erneuter Aufruf entwertet das alte Token. |
 | `POST /api/sellers/{id}/blocks` | `admin` | Reserviert neuen Nummernblock (Panel 04). |
@@ -197,7 +197,7 @@ API-Details → [`api/sellers.md`](../../api/sellers.md) · Nummernblock-Routen 
 9. **AC-9** — WHEN Admin „Einladungs-Link generieren" klickt, THEN SHALL das System einen Link mit einmaligem, 7 Tage gültigem Token erzeugen und in die Zwischenablage kopieren.
 10. **AC-10** — WHEN ein Verkäufer erfolgreich gespeichert wird, THEN SHALL das System einen Toast „✓ Verkäufer gespeichert" anzeigen.
 11. **AC-11** — IF das Speichern fehlschlägt, THEN SHALL das System die eingegebenen Werte erhalten und „Verkäufer konnte nicht gespeichert werden" in einer Error-InfoArea anzeigen.
-12. **AC-12** — WHEN Admin den Löschen-Button einer Verkäufer-Zeile bestätigt, THEN SHALL das System den Verkäufer samt seinen Artikeln löschen und anschließend seine Nummernblöcke freigeben.
+12. **AC-12** — WHEN Admin den Löschen-Button einer Verkäufer-Zeile bestätigt, THEN SHALL das System den Verkäufer samt seinen Artikeln löschen, anschließend seine Nummernblöcke freigeben und seine Refresh-Token-Zeilen löschen (der Zugang ist damit sofort tot).
 13. **AC-13** — IF der zu löschende Verkäufer der letzte Account mit Admin-Rechten ist, THEN SHALL das System die Meldung „Der letzte Admin kann nicht gelöscht werden" anzeigen und nicht löschen.
 14. **AC-14** — IF Admin den eigenen Account über die Verkäufer-Tabelle löschen möchte, THEN SHALL das System die Aktion ablehnen und auf die Profil-Seite verweisen.
 

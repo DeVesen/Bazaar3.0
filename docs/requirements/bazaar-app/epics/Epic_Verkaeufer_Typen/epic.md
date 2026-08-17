@@ -52,15 +52,15 @@ Verwaltung der Verkäufer-Typen (z. B. „Privat", „Händler"). Typen dienen a
 
 ## 3. Verhalten beim Zuweisen zu Verkäufer
 
-Wenn einem Verkäufer ein Type zugewiesen wird, werden die Felder `provision` und `gebuehr` des Verkäufers **vorausgefüllt** — können aber individuell überschrieben werden.
+Wenn einem Verkäufer ein Type zugewiesen wird, werden die Felder `salesCommission` und `feePerItem` des Verkäufers **vorausgefüllt** — können aber individuell überschrieben werden.
 
 Maßgeblich für alle Berechnungen (Annahmegebühr, Auszahlung) sind die **eigenen Felder des Verkäufers**, nicht die aktuellen Werte des Types.
 
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit Feldern für Name, Provision (%), und Gebühr (€) öffnen.
-2. **AC-2** — WHEN einem Verkäufer ein Typ zugewiesen wird, THEN SHALL das System die Felder `provision` und `gebuehr` des Verkäufers mit den Werten des Typs vorausfüllen.
-3. **AC-3** — THE SYSTEM SHALL bei der Abrechnung ausschließlich die eigenen Felder `provision` und `gebuehr` des Verkäufers verwenden, nicht die aktuellen Werte des Typs.
+2. **AC-2** — WHEN einem Verkäufer ein Typ zugewiesen wird, THEN SHALL das System die Felder `salesCommission` und `feePerItem` des Verkäufers mit den Werten des Typs vorausfüllen.
+3. **AC-3** — THE SYSTEM SHALL bei der Abrechnung ausschließlich die eigenen Felder `salesCommission` und `feePerItem` des Verkäufers verwenden, nicht die aktuellen Werte des Typs.
 4. **AC-4** — WHEN ein Verkäufer-Typ gelöscht werden soll, der noch Verkäufern zugewiesen ist, THEN SHALL das System eine Fehlermeldung anzeigen und nicht löschen.
 
 ## Tags & Piles

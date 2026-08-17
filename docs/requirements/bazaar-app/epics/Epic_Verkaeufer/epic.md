@@ -64,7 +64,7 @@ Die Verkäufer-Seite zeigt alle Verkäufer als Karten-Grid. Von hier aus wird de
 |---|---|
 | **Offen** | Kein Artikel ist aktuell freigegeben |
 | **Im Verkauf** | Mindestens ein Artikel freigegeben; noch nicht abgerechnet |
-| **Abgerechnet** | `abgerechnetAm` ist gesetzt |
+| **Abgerechnet** | `settledAt` ist gesetzt |
 
 ---
 
@@ -105,9 +105,9 @@ Die Verkäufer-Seite zeigt alle Verkäufer als Karten-Grid. Von hier aus wird de
 
 | Wert | Berechnung |
 |---|---|
-| Angenom. Warenwert | Summe aller Artikel mit `freigegebenAm` gesetzt |
-| Offener Warenwert | Summe aller Artikel mit `freigegebenAm` gesetzt, `verkauftAm` und `zurueckgegebenAm` leer |
-| Umsatz | Summe aller Artikel mit `verkauftAm` gesetzt |
+| Angenom. Warenwert | Summe aller Artikel mit `releasedAt` gesetzt |
+| Offener Warenwert | Summe aller Artikel mit `releasedAt` gesetzt, `soldAt` und `returnedAt` leer |
+| Umsatz | Summe aller Artikel mit `soldAt` gesetzt |
 
 **Aktions-Buttons (top-right):**
 - **Edit** (`p-button severity="secondary" [outlined]="true" size="small"`) → öffnet Verkäufer-Bearbeiten-Dialog
@@ -117,7 +117,7 @@ Die Verkäufer-Seite zeigt alle Verkäufer als Karten-Grid. Von hier aus wird de
 
 | Bedingung | Badge |
 |---|---|
-| `abgerechnetAm` gesetzt | `Abgerechnet` (success, grün) |
+| `settledAt` gesetzt | `Abgerechnet` (success, grün) |
 | Mind. 1 Artikel freigegeben, nicht abgerechnet | `Im Verkauf` (info, blau) |
 | Kein freigegebener Artikel | `Offen` (sec, grau) |
 
@@ -141,7 +141,7 @@ Zusätzlich **Panel 05 — Sonstiges**:
 
 ## 5. Artikel-Freigeben-Popup
 
-→ Komponente: [Scan-Dialog](../../../../components/scan-dialog/component.md) — `targetField="freigegebenAm"`
+→ Komponente: [Scan-Dialog](../../../../components/scan-dialog/component.md) — `targetField="releasedAt"`
 
 Erreichbar über den **Scanner-Button** in der Verkäufer-Karte.
 
@@ -153,7 +153,7 @@ Eingabefeld (Artikelnummer) + AutoComplete-Liste darunter.
 |---|---|
 | (leer) | Liste zeigt alle noch **nicht freigegebenen** Artikel dieses Verkäufers |
 | Eingabe | Filtert die Liste nach Artikelnummer |
-| Genau 1 Treffer + ENTER | Artikel bekommt `freigegebenAm = jetzt`; Eingabefeld leert sich; Liste zeigt wieder alle ausstehenden |
+| Genau 1 Treffer + ENTER | Artikel bekommt `releasedAt = jetzt`; Eingabefeld leert sich; Liste zeigt wieder alle ausstehenden |
 | Kein Treffer | Liste verschwindet; Text: *„Artikel nicht bekannt"* |
 | Alle freigegeben | Nur Text: *„Alle Artikel freigegeben"* |
 

@@ -1,8 +1,8 @@
 ---
 id: F-AR-010
 status: reviewed
-reviewed-date: 2026-08-14
-updated: 2026-08-14
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Kategorien

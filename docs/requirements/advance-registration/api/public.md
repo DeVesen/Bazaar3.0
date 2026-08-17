@@ -37,20 +37,20 @@ Epics → [Epic_Countdown_Widget](../epics/Epic_Countdown_Widget/epic.md) ·
 
 ```json
 {
-  "voranmeldeschluss": "2026-09-30T23:59:00+02:00",
-  "abgabeVon":         "2026-10-05T08:00:00+02:00",
-  "abgabeBis":         "2026-10-05T18:00:00+02:00",
-  "basarVon":          "2026-10-06T09:00:00+02:00",
-  "basarBis":          "2026-10-06T16:00:00+02:00",
-  "defaultConditions": { "verkaufsprovisionAnteil": 15.0, "abgabegebuehr": 0.50 },
+  "registrationDeadline": "2026-09-30T23:59:00+02:00",
+  "dropOffFrom":          "2026-10-05T08:00:00+02:00",
+  "dropOffUntil":         "2026-10-05T18:00:00+02:00",
+  "bazaarFrom":           "2026-10-06T09:00:00+02:00",
+  "bazaarUntil":          "2026-10-06T16:00:00+02:00",
+  "defaultConditions": { "commissionRate": 15.0, "itemFee": 0.50 },
   "infoText": "## Hinweise\n\nBitte bringen Sie …"
 }
 ```
 
 | Feld | Typ | Quelle |
 |---|---|---|
-| `voranmeldeschluss` … `basarBis` | ISO 8601 \| `null` | Einstellungen Abschnitt 1 → [`settings.md`](settings.md) |
-| `defaultConditions` | `{ verkaufsprovisionAnteil, abgabegebuehr }` \| `null` | Backend löst `defaultTypeId` gegen den Verkäufer-Typ auf und liefert die Werte **fertig aufgelöst**. `defaultTypeId` selbst wird nicht ausgeliefert — sonst bräuchte es einen öffentlichen Seller-Types-Endpoint. |
+| `registrationDeadline` … `bazaarUntil` | ISO 8601 \| `null` | Einstellungen Abschnitt 1 → [`settings.md`](settings.md) |
+| `defaultConditions` | `{ commissionRate, itemFee }` \| `null` | Backend löst `defaultTypeId` gegen den Verkäufer-Typ auf und liefert die Werte **fertig aufgelöst**. `defaultTypeId` selbst wird nicht ausgeliefert — sonst bräuchte es einen öffentlichen Seller-Types-Endpoint. |
 | `infoText` | Markdown-String \| `null` | Einstellungen Abschnitt 3 |
 
 ### Nicht konfigurierte Werte
@@ -66,7 +66,7 @@ Countdown-Phase aus. Kein `500`, damit die Login-Seite bedienbar bleibt.
 |---|---|
 | Login-Seite, [`login-info-panel`](../components/custom/login-info-panel.md) | alle |
 | `/embed/countdown`, [`countdown-timeline-page`](../components/custom/countdown-timeline-page.md) | nur die 5 Termine |
-| Home Verkäufer, [`home-dashboard`](../components/custom/home-dashboard.md) | `abgabeVon`, `abgabeBis` |
+| Home Verkäufer, [`home-dashboard`](../components/custom/home-dashboard.md) | `dropOffFrom`, `dropOffUntil` |
 | Home Admin | alle 5 Termine |
 
 **Ein Response-Shape für alle vier** — das Embed-Widget erhält `infoText` und

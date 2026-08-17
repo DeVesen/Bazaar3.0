@@ -1,8 +1,8 @@
 ---
 id: F-AR-003
 status: reviewed
-reviewed-date: 2026-08-14
-updated: 2026-08-14
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Home — Admin-Ansicht
@@ -41,7 +41,7 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 
 | Kachel | Inhalt |
 |---|---|
-| **Countdown** | Sequence-Mode-Phasen `voranmeldeschluss` → `abgabeVon` → `abgabeBis` → `basarVon` → `basarBis` (live, Tage + HH:MM:SS) — zeigt automatisch die aktuell relevante Phase. Darunter: Datum der jeweiligen Phase. |
+| **Countdown** | Sequence-Mode-Phasen `registrationDeadline` → `dropOffFrom` → `dropOffUntil` → `bazaarFrom` → `bazaarUntil` (live, Tage + HH:MM:SS) — zeigt automatisch die aktuell relevante Phase. Darunter: Datum der jeweiligen Phase. |
 | **Verkäufer** | Anzahl registrierter Verkäufer |
 | **Artikel gesamt** | Anzahl aller erfassten Artikel |
 | **Kategorien** | Anzahl aktiver Kategorien |
@@ -58,7 +58,7 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 ### Inhalt
 
 - Zeigt die letzten **12 Wochen** als Grid (Spalte = Woche, Zeile = Wochentag, 7 × 12 Zellen)
-- **Aktivität** = Anzahl der Ereignisse `erstelltAm` + `updatedAm` aller Artikel an diesem Tag
+- **Aktivität** = Anzahl der Ereignisse `createdAt` + `updatedAt` aller Artikel an diesem Tag
 - Hover-Tooltip: Datum + Anzahl Aktivitäten
 - Monats-Labels oberhalb des Grids
 - Wochentag-Labels (Mo/Mi/Fr) links

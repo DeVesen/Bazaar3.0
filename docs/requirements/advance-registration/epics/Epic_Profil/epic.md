@@ -2,8 +2,8 @@
 id: F-AR-011
 code: PROFIL
 status: reviewed
-reviewed-date: 2026-08-14
-updated: 2026-08-14
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Profil
@@ -70,7 +70,7 @@ PrimeNG: `pInputText` (Telefon), `pInputText [readonly]="true"` (E-Mail).
 PrimeNG: `p-select [disabled]="true"` (Typ), `p-inputnumber` locale DE `minFractionDigits="2"` `[readonly]="true"` (Gebühr/Provision).
 
 - **E-Mail** ist im Steckbrief **schreibgeschützt** — Änderung nur über Tab „Zugangsdaten"
-- **Verkäufer-Typ** wird nur vom Admin geändert (siehe Epic_Verkaeufer) — hier read-only. **Gebühr/Provision** sind rein vom Typ abgeleitete Anzeigewerte, für niemanden direkt editierbar (kein Override-Feld in der Voranmelde-App, siehe `entities.md`).
+- **Verkäufer-Typ** wird nur vom Admin geändert (siehe Epic_Verkaeufer) — hier read-only. **Gebühr/Provision** sind rein vom Typ abgeleitete Anzeigewerte, für niemanden direkt editierbar (kein Override-Feld in dieser App, siehe `entities/verkaeufer-typ.md`).
 - Alle read-only-Felder visuell gedimmt, kein Eingabefokus möglich.
 
 **Erfolg/Fehler:** Speichern erfolgreich → Toast „✓ Profil gespeichert". Speichern fehlgeschlagen → eingegebene Werte bleiben erhalten, Fehlermeldung „Profil konnte nicht gespeichert werden" in einer Error-InfoArea.
@@ -102,8 +102,8 @@ API-Details → [`api/profile.md`](../../api/profile.md)
 | `GET /api/profile` | `authenticated` | Eigene Profildaten inkl. **aufgelöstem** `sellerType` (Bezeichnung, Provision, Gebühr) — Panel 03 braucht diese Werte, ein Verkäufer hat aber keinen Zugriff auf `GET /api/seller-types`. |
 | `PUT /api/profile` | `authenticated` | Aktualisiert Steckbrief (Panel 01–02). Mitgesendete `email`/`sellerType` werden serverseitig ignoriert. |
 | `PUT /api/profile/email` | `authenticated` | Ändert E-Mail, erfordert aktuelles Passwort. Kein neues Token nötig (`sub` = User-ID, nicht E-Mail). |
-| `PUT /api/profile/password` | `authenticated` | Ändert Passwort, erfordert aktuelles Passwort + Bestätigung. Bestehende Sessions bleiben gültig (keine Token-Blacklist im MVP). |
-| `DELETE /api/profile` | `authenticated` | Löscht eigenen Account + Artikel + Nummernblöcke. `403` für Admin-Rolle. |
+| `PUT /api/profile/password` | `authenticated` | Ändert Passwort, erfordert aktuelles Passwort + Bestätigung. Löscht alle Refresh-Token-Zeilen des Verkäufers (alle anderen Geräte werden abgemeldet) und gibt dem aufrufenden Gerät ein neues Token-Paar zurück. |
+| `DELETE /api/profile` | `authenticated` | Löscht eigenen Account + Artikel + Nummernblöcke + Refresh-Tokens. `403` für Admin-Rolle. |
 
 **Pfad-Änderung:** Das Löschen hieß hier ursprünglich `DELETE /api/profile/me`. Das `/me`-Suffix entfällt — die vier anderen Routen tragen es auch nicht, `/api/profile` ist per Definition die eigene Ressource.
 
