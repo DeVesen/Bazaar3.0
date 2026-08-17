@@ -20,7 +20,7 @@ updated: 2026-08-14
 **Navigation:** System → Einstellungen
 **Sichtbar für:** Admin
 
-Component-Details → [`components/einstellungen-form.md`](../../components/einstellungen-form.md)
+Component-Details → [`components/forms/einstellungen-form.md`](../../components/forms/einstellungen-form.md)
 Entity-Details → [`entities/einstellungen.md`](../../entities/einstellungen.md)
 
 **Ziel:** Admin konfiguriert systemweite Parameter der Voranmelde-App.

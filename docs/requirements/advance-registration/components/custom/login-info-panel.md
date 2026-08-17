@@ -28,7 +28,7 @@ Sitzt in der linken Spalte von `login-layout`.
 |---|---|
 | Countdown | Shared-Component `countdown`, `variant="info-box"`, Sequence-Mode über alle 5 Phasen (siehe Epic_Login Abschnitt 2) |
 | Default-Konditionen | reines `<div>`, kein PrimeNG-Bezug — zeigt Provision/Gebühr des `defaultTypeId`-Typs |
-| Markdown-Info | Shared-Component `markdown-text` (siehe [`docs/components/markdown-text/component.md`](../../../components/markdown-text/component.md)), gefüttert mit `infoText` aus Epic_Einstellungen |
+| Markdown-Info | Shared-Component `markdown-text` (siehe [`docs/components/markdown-text/component.md`](../../../../components/markdown-text/component.md)), gefüttert mit `infoText` aus Epic_Einstellungen |
 
 ## Styling
 

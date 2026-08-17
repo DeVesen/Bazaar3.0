@@ -20,7 +20,7 @@ updated: 2026-08-14
 **Navigation:** Konto → Nummernblöcke
 **Sichtbar für:** Verkäufer (read-only)
 
-Component-Details → [`components/block-liste.md`](../../components/block-liste.md)
+Component-Details → [`components/custom/block-liste.md`](../../components/custom/block-liste.md)
 Entity-Details → [`entities/nummernblock.md`](../../entities/nummernblock.md)
 
 **Ziel:** Verkäufer sieht seine zugewiesenen Nummernblöcke ein.

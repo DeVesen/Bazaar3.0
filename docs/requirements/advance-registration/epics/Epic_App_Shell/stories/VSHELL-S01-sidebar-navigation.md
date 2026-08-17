@@ -10,7 +10,7 @@ depends-on: [VPROJ-S01]
 
 Admin und Verkäufer navigieren über eine rollenabhängige Sidebar, gebaut auf PrimeNG 22s `p-sidebar`-Compound-Familie. Admins sehen alle Bereiche; Verkäufer sehen nur „Mein Bereich" und „Konto". Der Sidebar-Footer zeigt Avatar, Rollenname, Role-Toggle (nur Admin) und Logout.
 
-Komponenten-Details → [`components/sidebar.md`](../../../components/sidebar.md), [`components/sidebar-title.md`](../../../components/sidebar-title.md)
+Komponenten-Details → [`components/sidebar.md`](../../../components/standard/sidebar.md), [`components/sidebar-title.md`](../../../components/custom/sidebar-title.md)
 
 ## Kontext
 
@@ -31,7 +31,7 @@ Die Voranmelde-App unterscheidet zwei Rollen. Die Sidebar zeigt nur Einträge, a
 | Äußerer Rahmen | `p-sidebar-layout` |
 | Sidebar selbst | `p-sidebar [collapsible]="isMobile() ? 'offcanvas' : 'icon'" [overlay]="isMobile()" [(open)]="open"` |
 | Innerer Aufbau | `p-sidebar-aside` → `p-sidebar-panel` → `p-sidebar-header` / `p-sidebar-content` / `p-sidebar-footer` |
-| Logo (Header) | neue Komponente `sidebar-title` (siehe [`components/sidebar-title.md`](../../../components/sidebar-title.md)) — **kein** Collapse-Toggle mehr daneben (vereinheitlichter Trigger lebt im Content-Header, siehe VSHELL-S02) |
+| Logo (Header) | neue Komponente `sidebar-title` (siehe [`components/sidebar-title.md`](../../../components/custom/sidebar-title.md)) — **kein** Collapse-Toggle mehr daneben (vereinheitlichter Trigger lebt im Content-Header, siehe VSHELL-S02) |
 | Navigationsgruppe | `p-sidebar-group` (eine Instanz pro Gruppe „MEIN BEREICH" etc.) |
 | Gruppen-Label | `p-sidebar-group-label` (nativ) |
 | Gruppen-Inhalt | `p-sidebar-group-content` → `p-sidebar-menu` |
@@ -156,7 +156,7 @@ Zustand: nur Icons, keine Labels, keine Gruppen-Label, kein Footer-Text. Logout 
 ## Akzeptanzkriterien
 
 - [ ] **AC-1** — THE SYSTEM SHALL eine Sidebar-Komponente im expandierten Zustand mit der Breite 240 px und dem Hintergrund `#1b3a4b` rendern.
-- [ ] **AC-2** — THE SYSTEM SHALL die `sidebar-title`-Komponente im Sidebar-Header rendern, die „Basar **Voranmelde**" anzeigt, wobei „Voranmelde" in `#0e8a5f` gefärbt ist (Details → [`components/sidebar-title.md`](../../../components/sidebar-title.md)).
+- [ ] **AC-2** — THE SYSTEM SHALL die `sidebar-title`-Komponente im Sidebar-Header rendern, die „Basar **Voranmelde**" anzeigt, wobei „Voranmelde" in `#0e8a5f` gefärbt ist (Details → [`components/sidebar-title.md`](../../../components/custom/sidebar-title.md)).
 - [ ] **AC-3** — WHILE die aktive Rolle „Admin" ist, SHALL das System die Admin-Navigationsgruppen (Mein Bereich, Verwaltung, Stammdaten, System) als `p-sidebar-group`-Blöcke mit `p-sidebar-group-label` und `<hr>`-Trennern dazwischen rendern.
 - [ ] **AC-4** — WHILE die aktive Rolle „Verkäufer" ist (einschließlich Admin im Verkäufer-Modus), SHALL das System nur die Verkäufer-Navigationsgruppen (Mein Bereich, Konto) rendern.
 - [ ] **AC-5** — WHEN der Nutzer einen Navigationseintrag anklickt, THEN SHALL Angular Router zur zugehörigen Route navigieren und `pSidebarMenuButton[isActive]` auf `true` stehen (nativ, keine eigene Highlight-Logik).

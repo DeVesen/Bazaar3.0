@@ -11,7 +11,7 @@ Basar-Morgen.
 Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 
 Epic → [Epic_Export](../epics/Epic_Export/epic.md) ·
-Component → [`export-panel.md`](../components/export-panel.md) ·
+Component → [`export-panel.md`](../components/forms/export-panel.md) ·
 Schema → [`entities.md`](../../entities.md) Abschnitt „Export-Format"
 
 ---

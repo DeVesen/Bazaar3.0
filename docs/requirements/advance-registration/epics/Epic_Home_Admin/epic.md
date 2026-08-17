@@ -19,7 +19,7 @@ updated: 2026-08-14
 **App:** Voranmelde-App
 **Navigation:** Mein Bereich → Home
 
-Component-Details → [`components/home-dashboard.md`](../../components/home-dashboard.md)
+Component-Details → [`components/custom/home-dashboard.md`](../../components/custom/home-dashboard.md)
 **Sichtbar für:** Admins (wenn Role-Toggle auf „Admin" steht)
 
 **Ziel:** Admin sieht auf der Home-Seite eine Übersicht aller Registrierungen und Systemkennzahlen.

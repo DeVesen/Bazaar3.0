@@ -19,7 +19,7 @@ updated: 2026-08-14
 **App:** Voranmelde-App
 **Navigation:** Mein Bereich → Home
 
-Component-Details → [`components/home-dashboard.md`](../../components/home-dashboard.md)
+Component-Details → [`components/custom/home-dashboard.md`](../../components/custom/home-dashboard.md)
 **Sichtbar für:** Alle (Verkäufer + Admins im Verkäufer-Modus)
 
 **Ziel:** Verkäufer sieht auf der Home-Seite eine Übersicht seines Registrierungsstatus.

@@ -58,19 +58,19 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 | Element | PrimeNG |
 |---|---|
-| Filter-Panel (Freitext) | [Input](input.md), Variante Icon |
+| Filter-Panel (Freitext) | [Input](../standard/input.md), Variante Icon |
 | Table | Shared `table` |
 | Panel-Container (alle 5 Panels) | `card` Panel-Block-Variante (`background: #f5f9f6`, siehe `docs/components/card/`) |
-| Personendaten-/Kontakt-Felder | [Input](input.md), Variante Text (Vorname mit Autofokus) |
-| Verkäufer-Typ | [Select](select.md), Variante Dropdown — **nur bestehende Typen**, kein `autocomplete-create` (Feld-Mismatch: Typ braucht Provision+Gebühr, Anlegen-Modal von `autocomplete-create` hat nur ein Namensfeld) |
-| Provision/Gebühr-Anzeige | [Input](input.md), Variante Number, readonly |
-| Nummernblock-Initialfeld | [Input](input.md), Variante Number |
-| Block-Liste (Panel 04) | Bereich-Text + Zähler-Text, Löschen-[Button](button.md) (secondary outlined small), [Confirmdialog](confirmdialog.md) vor Löschung, Badge „Voll — nicht löschbar" (Shared `badge`, `type="warn"`) |
-| Reservieren-Form | 2× [Input](input.md) Variante Number, „✓ Reservieren"-[Button](button.md) (primary small) |
-| Admin-Rechte | [Boolean-Input](boolean-input.md), Variante Checkbox |
-| Einladungs-Link | [Button](button.md) (secondary outlined small) + [Toast](toast.md) |
-| Dialog-Footer | [Button](button.md) secondary outlined (Abbrechen) / primary (Speichern) |
-| Erfolg/Fehler | [Toast](toast.md) „✓ Verkäufer gespeichert" / Error-InfoArea „Verkäufer konnte nicht gespeichert werden" |
+| Personendaten-/Kontakt-Felder | [Input](../standard/input.md), Variante Text (Vorname mit Autofokus) |
+| Verkäufer-Typ | [Select](../standard/select.md), Variante Dropdown — **nur bestehende Typen**, kein `autocomplete-create` (Feld-Mismatch: Typ braucht Provision+Gebühr, Anlegen-Modal von `autocomplete-create` hat nur ein Namensfeld) |
+| Provision/Gebühr-Anzeige | [Input](../standard/input.md), Variante Number, readonly |
+| Nummernblock-Initialfeld | [Input](../standard/input.md), Variante Number |
+| Block-Liste (Panel 04) | Bereich-Text + Zähler-Text, Löschen-[Button](../standard/button.md) (secondary outlined small), [Confirmdialog](../standard/confirmdialog.md) vor Löschung, Badge „Voll — nicht löschbar" (Shared `badge`, `type="warn"`) |
+| Reservieren-Form | 2× [Input](../standard/input.md) Variante Number, „✓ Reservieren"-[Button](../standard/button.md) (primary small) |
+| Admin-Rechte | [Boolean-Input](../standard/boolean-input.md), Variante Checkbox |
+| Einladungs-Link | [Button](../standard/button.md) (secondary outlined small) + [Toast](../standard/toast.md) |
+| Dialog-Footer | [Button](../standard/button.md) secondary outlined (Abbrechen) / primary (Speichern) |
+| Erfolg/Fehler | [Toast](../standard/toast.md) „✓ Verkäufer gespeichert" / Error-InfoArea „Verkäufer konnte nicht gespeichert werden" |
 
 ## Akzeptanzkriterien
 

@@ -26,7 +26,7 @@ Kein eigener Wrapper mehr — Inhalt lebt direkt im `p-sidebar-footer`-Slot des 
 | Username | `<span>`, 13 px, `font-weight: 600`, weiß |
 | Role-Label | `<span>`, 11 px, section-label-Farbe |
 | Role-Toggle | `p-selectbutton` (`options: ['Admin', 'Verkäufer']`) — **nur wenn Rolle Admin ist** |
-| Logout | eigenständiger [Button](button.md) `link`-Variante mit Icon (`pi pi-sign-out`) + Text „Abmelden" |
+| Logout | eigenständiger [Button](../standard/button.md) `link`-Variante mit Icon (`pi pi-sign-out`) + Text „Abmelden" |
 
 ## Sichtbarkeit
 
@@ -37,7 +37,7 @@ Kein eigener Wrapper mehr — Inhalt lebt direkt im `p-sidebar-footer`-Slot des 
 | Logout | immer sichtbar |
 | Eingeklappt (60 px) | nur Avatar sichtbar, Rest ausgeblendet und nicht erreichbar (Sidebar muss aufgeklappt werden) |
 
-Shared-Component-Doc → [`docs/components/sidebar-footer/component.md`](../../../components/sidebar-footer/component.md) — dort mit `p-avatar` konsistent aktualisiert (vormaliger Widerspruch „kein PrimeNG-Avatar-Äquivalent" behoben).
+Shared-Component-Doc → [`docs/components/sidebar-footer/component.md`](../../../../components/sidebar-footer/component.md) — dort mit `p-avatar` konsistent aktualisiert (vormaliger Widerspruch „kein PrimeNG-Avatar-Äquivalent" behoben).
 
 ## Akzeptanzkriterien
 

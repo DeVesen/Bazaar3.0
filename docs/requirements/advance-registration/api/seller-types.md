@@ -15,7 +15,7 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 
 Epic → [Epic_Verkaeufer_Typen](../epics/Epic_Verkaeufer_Typen/epic.md) ·
 Entity → [`entities/verkaeufer-typ.md`](../entities/verkaeufer-typ.md) ·
-Component → [`typ-popup.md`](../components/typ-popup.md)
+Component → [`typ-popup.md`](../components/forms/typ-popup.md)
 
 ---
 

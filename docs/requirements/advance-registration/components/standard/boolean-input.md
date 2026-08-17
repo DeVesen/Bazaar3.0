@@ -29,9 +29,9 @@ Original   [─────○]   (aus)
 
 | Epic/Component | Feld | Variante |
 |---|---|---|
-| [export-panel.md](export-panel.md) | Marken/Kategorien einschließen | Checkbox |
-| [verkaeufer-dialog.md](verkaeufer-dialog.md) | Admin-Rechte | Checkbox |
-| [stammdaten-popup.md](stammdaten-popup.md) | `original`-Flag (Marke, Kategorie — nur Edit-Modus) | Switch |
+| [export-panel.md](../forms/export-panel.md) | Marken/Kategorien einschließen | Checkbox |
+| [verkaeufer-dialog.md](../forms/verkaeufer-dialog.md) | Admin-Rechte | Checkbox |
+| [stammdaten-popup.md](../forms/stammdaten-popup.md) | `original`-Flag (Marke, Kategorie — nur Edit-Modus) | Switch |
 
 ## Tags & Piles
 

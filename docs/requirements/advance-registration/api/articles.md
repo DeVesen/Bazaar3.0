@@ -13,9 +13,9 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 Epics → [Epic_Meine_Artikel](../epics/Epic_Meine_Artikel/epic.md) ·
 [Epic_Alle_Artikel](../epics/Epic_Alle_Artikel/epic.md) ·
 Entity → [`entities/artikel.md`](../entities/artikel.md) ·
-Components → [`artikel-dialog.md`](../components/artikel-dialog.md),
-[`artikel-readonly-modal.md`](../components/artikel-readonly-modal.md),
-[`filter-panel.md`](../components/filter-panel.md)
+Components → [`artikel-dialog.md`](../components/forms/artikel-dialog.md),
+[`artikel-readonly-modal.md`](../components/forms/artikel-readonly-modal.md),
+[`filter-panel.md`](../components/custom/filter-panel.md)
 
 ---
 
@@ -90,7 +90,7 @@ Liste.
 
 **Suche wird explizit ausgelöst** — kein Live-Filter beim Tippen. Enter im
 Freitext- oder Select-Feld oder Klick auf „Suchen" feuern denselben Request
-(siehe [`filter-panel.md`](../components/filter-panel.md)).
+(siehe [`filter-panel.md`](../components/custom/filter-panel.md)).
 
 ---
 
@@ -169,7 +169,7 @@ Nummernblock zählt weiter hoch.
 **Response `204`** · **`404`** bei fremdem oder unbekanntem Artikel
 
 Das Frontend fragt vorher über einen
-[Confirmdialog](../components/confirmdialog.md) nach
+[Confirmdialog](../components/standard/confirmdialog.md) nach
 (Epic_Meine_Artikel AC-5).
 
 ---

@@ -25,9 +25,9 @@ Bestätigungsabfrage vor irreversiblen Aktionen (v. a. Löschen).
 
 | Epic/Component | Ausgelöst durch |
 |---|---|
-| [artikel-dialog.md](artikel-dialog.md) | Löschen-Button |
-| [profil-page.md](profil-page.md) | Account löschen |
-| [verkaeufer-dialog.md](verkaeufer-dialog.md) | Nummernblock löschen (Panel 04) |
+| [artikel-dialog.md](../forms/artikel-dialog.md) | Löschen-Button |
+| [profil-page.md](../forms/profil-page.md) | Account löschen |
+| [verkaeufer-dialog.md](../forms/verkaeufer-dialog.md) | Nummernblock löschen (Panel 04) |
 
 ## Tags & Piles
 

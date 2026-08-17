@@ -20,7 +20,7 @@ updated: 2026-08-14
 **Navigation:** System → Export
 **Sichtbar für:** Admin
 
-Component-Details → [`components/export-panel.md`](../../components/export-panel.md)
+Component-Details → [`components/forms/export-panel.md`](../../components/forms/export-panel.md)
 
 **Ziel:** Admin exportiert alle Basar-Daten als JSON-Datei für den Import in die Haupt-App.
 

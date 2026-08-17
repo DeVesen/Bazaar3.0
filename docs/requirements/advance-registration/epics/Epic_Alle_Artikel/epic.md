@@ -34,7 +34,7 @@ Der Admin sieht die vollständige Artikelliste **aller Verkäufer**. Fremde Arti
 
 ## 1. Filter-Panel
 
-Details → [`components/filter-panel.md`](../../components/filter-panel.md).
+Details → [`components/custom/filter-panel.md`](../../components/custom/filter-panel.md).
 
 | Filter | Vorhanden |
 |---|---|
@@ -65,7 +65,7 @@ Suche auslösen: gleiches Muster wie Epic_Meine_Artikel (Enter oder „Suchen"-B
 
 ## 3. Readonly Modal (`modal-artikel-view`)
 
-Details → [`components/artikel-readonly-modal.md`](../../components/artikel-readonly-modal.md).
+Details → [`components/forms/artikel-readonly-modal.md`](../../components/forms/artikel-readonly-modal.md).
 
 Identische Feldanordnung wie Artikel-Bearbeiten-Modal (Zeilen 1–6 gemäß Feldlayout in [Epic_Meine_Artikel](../Epic_Meine_Artikel/epic.md)).
 

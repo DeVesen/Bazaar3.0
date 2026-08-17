@@ -11,8 +11,8 @@ Zwei Verwendungsstellen mit identischem Grundmuster, eine davon um einen zusätz
 
 | Variante | Verwendung | Unterschied |
 |---|---|---|
-| Basis | [Epic_Meine_Artikel](../epics/Epic_Meine_Artikel/epic.md) | Marke + Kategorie + Freitext |
-| + Verkäufer-Filter | [Epic_Alle_Artikel](../epics/Epic_Alle_Artikel/epic.md) | zusätzlich Verkäufer-Filter (`p-autoComplete`) |
+| Basis | [Epic_Meine_Artikel](../../epics/Epic_Meine_Artikel/epic.md) | Marke + Kategorie + Freitext |
+| + Verkäufer-Filter | [Epic_Alle_Artikel](../../epics/Epic_Alle_Artikel/epic.md) | zusätzlich Verkäufer-Filter (`p-autoComplete`) |
 
 ## Kontext
 
@@ -38,11 +38,11 @@ Basis (Meine Artikel):
 
 | Element | PrimeNG | Nur in |
 |---|---|---|
-| Verkäufer-Filter | [Select](select.md), Variante Type-Ahead — über alle Verkäufer (Vorname/Nachname/Nummer) | Alle Artikel |
-| Marke-Filter | [Select](select.md), Variante Dropdown — Liste aller Marken | beide |
-| Kategorie-Filter | [Select](select.md), Variante Dropdown — Liste aller Kategorien | beide |
-| Freitext-Feld | [Input](input.md), Variante Icon (Such-Icon) | beide |
-| Suchen-Button | [Button](button.md) `icon="pi pi-search"` + Text „Suchen", ganz rechts im Panel | beide |
+| Verkäufer-Filter | [Select](../standard/select.md), Variante Type-Ahead — über alle Verkäufer (Vorname/Nachname/Nummer) | Alle Artikel |
+| Marke-Filter | [Select](../standard/select.md), Variante Dropdown — Liste aller Marken | beide |
+| Kategorie-Filter | [Select](../standard/select.md), Variante Dropdown — Liste aller Kategorien | beide |
+| Freitext-Feld | [Input](../standard/input.md), Variante Icon (Such-Icon) | beide |
+| Suchen-Button | [Button](../standard/button.md) `icon="pi pi-search"` + Text „Suchen", ganz rechts im Panel | beide |
 
 ## Verhalten
 
@@ -50,14 +50,14 @@ Basis (Meine Artikel):
   - `Enter` im Freitext-Feld
   - `Enter`/Auswahl in einem der `p-select`-/`p-autoComplete`-Filter
   - Klick auf den „Suchen"-Button
-- Alle Wege lösen denselben Request aus: `GET /api/articles/mine` (Basis) bzw. `GET /api/articles` inkl. `sellerId` (+ Verkäufer-Filter), jeweils mit den aktuellen Filter-Werten. Query-Parameter → [`api/articles.md`](../api/articles.md).
+- Alle Wege lösen denselben Request aus: `GET /api/articles/mine` (Basis) bzw. `GET /api/articles` inkl. `sellerId` (+ Verkäufer-Filter), jeweils mit den aktuellen Filter-Werten. Query-Parameter → [`api/articles.md`](../../api/articles.md).
 
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN der Nutzer Enter in einem Filterfeld drückt oder auf „Suchen" klickt, THEN SHALL das System die Tabelle mit den aktuellen Filter-Werten neu laden.
 2. **AC-2** — WHILE kein Filter gesetzt ist, SHALL das System alle (eigenen bzw. alle) Artikel anzeigen.
 
-Weitere AC → siehe [Epic_Meine_Artikel](../epics/Epic_Meine_Artikel/epic.md) und [Epic_Alle_Artikel](../epics/Epic_Alle_Artikel/epic.md) AC-2/AC-3 (Verkäufer-Filter-spezifisch).
+Weitere AC → siehe [Epic_Meine_Artikel](../../epics/Epic_Meine_Artikel/epic.md) und [Epic_Alle_Artikel](../../epics/Epic_Alle_Artikel/epic.md) AC-2/AC-3 (Verkäufer-Filter-spezifisch).
 
 ## Tags & Piles
 

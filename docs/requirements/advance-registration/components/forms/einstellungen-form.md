@@ -35,12 +35,12 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 | Feld | PrimeNG |
 |---|---|
-| Die 5 Basar-Termine | [Datepicker](datepicker.md) |
-| `defaultTypeId` | [Select](select.md), Variante Dropdown — Liste aller Verkäufer-Typen |
-| `startNumber` / `blockSize` / `defaultBlockCount` | [Input](input.md), Variante Number |
+| Die 5 Basar-Termine | [Datepicker](../standard/datepicker.md) |
+| `defaultTypeId` | [Select](../standard/select.md), Variante Dropdown — Liste aller Verkäufer-Typen |
+| `startNumber` / `blockSize` / `defaultBlockCount` | [Input](../standard/input.md), Variante Number |
 | `infoText` | `pTextarea` |
-| Speichern-Button | [Button](button.md) primary |
-| Save-Feedback | [Toast](toast.md) „✓ Einstellungen gespeichert" |
+| Speichern-Button | [Button](../standard/button.md) primary |
+| Save-Feedback | [Toast](../standard/toast.md) „✓ Einstellungen gespeichert" |
 
 ## Akzeptanzkriterien
 

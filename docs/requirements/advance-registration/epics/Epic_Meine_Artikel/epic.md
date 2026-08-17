@@ -37,7 +37,7 @@ Entity-Details → [`entities/artikel.md`](../../entities/artikel.md)
 
 ## 1. Filter-Panel
 
-Details → [`components/filter-panel.md`](../../components/filter-panel.md).
+Details → [`components/custom/filter-panel.md`](../../components/custom/filter-panel.md).
 
 | Filter | Vorhanden |
 |---|---|
@@ -67,7 +67,7 @@ Details → [`components/filter-panel.md`](../../components/filter-panel.md).
 
 ## 3. Artikelanlage / Artikel bearbeiten
 
-Details → [`components/artikel-dialog.md`](../../components/artikel-dialog.md). Löschen (AC-5) fragt vorher über `p-confirmdialog` (`ConfirmationService`) nach.
+Details → [`components/forms/artikel-dialog.md`](../../components/forms/artikel-dialog.md). Löschen (AC-5) fragt vorher über `p-confirmdialog` (`ConfirmationService`) nach.
 
 #### Feldlayout
 

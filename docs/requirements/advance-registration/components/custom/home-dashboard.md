@@ -9,8 +9,8 @@ Reine Instanziierung bereits entschiedener Shared-Components — keine neuen Pri
 
 | Variante | Verwendung | Kacheln |
 |---|---|---|
-| Verkäufer | [Epic_Home_Verkaeufer](../epics/Epic_Home_Verkaeufer/epic.md) | 4 (`columns="4"`) |
-| Admin | [Epic_Home_Admin](../epics/Epic_Home_Admin/epic.md) | 5 (`columns="5"`) + Activity-Heatmap |
+| Verkäufer | [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) | 4 (`columns="4"`) |
+| Admin | [Epic_Home_Admin](../../epics/Epic_Home_Admin/epic.md) | 5 (`columns="5"`) + Activity-Heatmap |
 
 ## Kontext (volle Seite)
 
@@ -49,11 +49,11 @@ Aktivität — letzte 12 Wochen
 | Kachel — Kategorien | Shared `kpi-tile`, klickbar → `/kategorien` | — | ✅ |
 | Kachel — Marken | Shared `kpi-tile`, klickbar → `/marken` | — | ✅ |
 | Activity-Heatmap | Shared `activity-heatmap`-Component, Datensatz = alle Artikel (nicht nur eigene) | — | ✅ |
-| Markdown-Info-Panel | Shared-Component `markdown-text` (siehe [`docs/components/markdown-text/component.md`](../../../components/markdown-text/component.md)) | ✅ | ✅ |
+| Markdown-Info-Panel | Shared-Component `markdown-text` (siehe [`docs/components/markdown-text/component.md`](../../../../components/markdown-text/component.md)) | ✅ | ✅ |
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_Home_Verkaeufer](../epics/Epic_Home_Verkaeufer/epic.md) AC-1 bis AC-3 bzw. [Epic_Home_Admin](../epics/Epic_Home_Admin/epic.md) AC-1 bis AC-3 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) AC-1 bis AC-3 bzw. [Epic_Home_Admin](../../epics/Epic_Home_Admin/epic.md) AC-1 bis AC-3 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

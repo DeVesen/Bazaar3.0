@@ -30,17 +30,17 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 | Feld | PrimeNG |
 |---|---|
-| Name | [Input](input.md), Variante Text |
-| Original (nur Edit) | [Boolean-Input](boolean-input.md), Variante Switch |
-| Footer | [Button](button.md) secondary outlined (Abbrechen) / primary (Anlegen bzw. Speichern) |
-| Save-Feedback | [Toast](toast.md) |
+| Name | [Input](../standard/input.md), Variante Text |
+| Original (nur Edit) | [Boolean-Input](../standard/boolean-input.md), Variante Switch |
+| Footer | [Button](../standard/button.md) secondary outlined (Abbrechen) / primary (Anlegen bzw. Speichern) |
+| Save-Feedback | [Toast](../standard/toast.md) |
 
 ## Ausprägungen
 
 | Entität | Titel (Anlegen / Bearbeiten) | Toast-Text | Epic |
 |---|---|---|---|
-| Marke | „Neue Marke" / „Marke bearbeiten" | „✓ Marke gespeichert" | [Epic_Marken](../epics/Epic_Marken/epic.md) |
-| Kategorie | „Neue Kategorie" / „Kategorie bearbeiten" | „✓ Kategorie gespeichert" | [Epic_Kategorien](../epics/Epic_Kategorien/epic.md) |
+| Marke | „Neue Marke" / „Marke bearbeiten" | „✓ Marke gespeichert" | [Epic_Marken](../../epics/Epic_Marken/epic.md) |
+| Kategorie | „Neue Kategorie" / „Kategorie bearbeiten" | „✓ Kategorie gespeichert" | [Epic_Kategorien](../../epics/Epic_Kategorien/epic.md) |
 
 ## Abgrenzung
 

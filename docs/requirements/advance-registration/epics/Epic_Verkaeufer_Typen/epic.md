@@ -21,7 +21,7 @@ updated: 2026-08-14
 **Navigation:** Stammdaten → Verkäufer-Types
 **Sichtbar für:** Admin
 
-Component-Details → [`components/typ-popup.md`](../../components/typ-popup.md)
+Component-Details → [`components/forms/typ-popup.md`](../../components/forms/typ-popup.md)
 Entity-Details → [`entities/verkaeufer-typ.md`](../../entities/verkaeufer-typ.md)
 
 **Ziel:** Admin verwaltet Verkäufer-Typen in der Voranmelde-App.

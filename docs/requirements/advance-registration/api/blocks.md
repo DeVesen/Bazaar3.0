@@ -15,7 +15,7 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 Epics → [Epic_Nummernbloecke](../epics/Epic_Nummernbloecke/epic.md) (Verkäufer-Sicht) ·
 [Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md) Panel 04 (Admin-Verwaltung) ·
 Entity → [`entities/nummernblock.md`](../entities/nummernblock.md) ·
-Component → [`block-liste.md`](../components/block-liste.md)
+Component → [`block-liste.md`](../components/custom/block-liste.md)
 
 ---
 
@@ -146,7 +146,7 @@ sein.
 Das Frontend blendet den Löschen-Button bei `vergeben > 0` ohnehin aus und zeigt
 stattdessen das Badge „Voll — nicht löschbar"; der Endpoint prüft es zusätzlich
 serverseitig. Vor dem Löschen fragt ein
-[Confirmdialog](../components/confirmdialog.md) nach (AC-7).
+[Confirmdialog](../components/standard/confirmdialog.md) nach (AC-7).
 
 ---
 

@@ -21,7 +21,7 @@ updated: 2026-08-14
 **Navigation:** Stammdaten → Kategorien
 **Sichtbar für:** Admin
 
-Component-Details → [`components/stammdaten-popup.md`](../../components/stammdaten-popup.md) (Ausprägung Kategorie)
+Component-Details → [`components/forms/stammdaten-popup.md`](../../components/forms/stammdaten-popup.md) (Ausprägung Kategorie)
 Entity-Details → [`entities/kategorie.md`](../../entities/kategorie.md)
 
 **Ziel:** Admin verwaltet Kategorien in der Voranmelde-App.

@@ -30,11 +30,11 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 | Feld | PrimeNG |
 |---|---|
-| Name | [Input](input.md), Variante Text |
-| Provision (%) | [Input](input.md), Variante Number, 2 Nachkommastellen |
-| Gebühr (€) | [Input](input.md), Variante Number, 2 Nachkommastellen |
-| Footer | [Button](button.md) secondary outlined (Abbrechen) / primary (Speichern) |
-| Save-Feedback | [Toast](toast.md) „✓ Verkäufer-Typ gespeichert" |
+| Name | [Input](../standard/input.md), Variante Text |
+| Provision (%) | [Input](../standard/input.md), Variante Number, 2 Nachkommastellen |
+| Gebühr (€) | [Input](../standard/input.md), Variante Number, 2 Nachkommastellen |
+| Footer | [Button](../standard/button.md) secondary outlined (Abbrechen) / primary (Speichern) |
+| Save-Feedback | [Toast](../standard/toast.md) „✓ Verkäufer-Typ gespeichert" |
 
 ## Akzeptanzkriterien
 

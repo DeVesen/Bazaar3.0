@@ -55,7 +55,7 @@ Die Login-Seite ist in **zwei Hälften** aufgeteilt. Nach erfolgreichem Login �
 
 ## 2. `login-info-panel` (links)
 
-Eigene, neue Komponente (Details → [`components/login-info-panel.md`](../../components/login-info-panel.md)) — **nicht** zu verwechseln mit dem Shared-`info-area`-Component (das ist der Feedback-Banner success/error/warn/info, etwas völlig anderes).
+Eigene, neue Komponente (Details → [`components/custom/login-info-panel.md`](../../components/custom/login-info-panel.md)) — **nicht** zu verwechseln mit dem Shared-`info-area`-Component (das ist der Feedback-Banner success/error/warn/info, etwas völlig anderes).
 
 Hintergrund: `#1b3a4b`, padding 60 px 48 px.
 
@@ -73,7 +73,7 @@ Box-Stil: `background: rgba(255,255,255,0.06–0.08); border-radius: 10px; paddi
 
 ## 3. Login-Form (rechts)
 
-Details → [`components/login-form.md`](../../components/login-form.md). Container: `p-card`.
+Details → [`components/forms/login-form.md`](../../components/forms/login-form.md). Container: `p-card`.
 
 Hintergrund: weiß, padding 60 px 48 px.
 Form: **max-width 360 px**, zentriert (margin auto).
@@ -104,7 +104,7 @@ In der Produktionsversion entfällt dieser Hinweis vollständig.
 
 ## 6. Registrierung
 
-Link auf der Login-Seite → eigene Registrierungsseite (`/registrieren`, öffentlich). Details → [`components/registrierung-form.md`](../../components/registrierung-form.md), [`components/password-strength-meter.md`](../../components/password-strength-meter.md).
+Link auf der Login-Seite → eigene Registrierungsseite (`/registrieren`, öffentlich). Details → [`components/forms/registrierung-form.md`](../../components/forms/registrierung-form.md), [`components/custom/password-strength-meter.md`](../../components/custom/password-strength-meter.md).
 
 E-Mail/Passwort/Passwort-Bestätigung nutzen dieselben `p-iconfield`-Bausteine wie die Login-Form (Abschnitt 3), Passwort zusätzlich `pInputPassword`. Registrieren-Button und „Schon ein Konto?"-Link analog: `p-button severity="primary"` bzw. `p-button [text]="true"`.
 

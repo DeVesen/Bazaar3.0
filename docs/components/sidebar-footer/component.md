@@ -83,7 +83,7 @@ button pButton link ← Logout-Aktion
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_App_Shell](../../requirements/advance-registration/epics/Epic_App_Shell/epic.md) VSHELL-S01 AC-7/8/9 — dort die Struktur-Referenz ([`components/sidebar-footer.md`](../../requirements/advance-registration/components/sidebar-footer.md)), keine eigenen zusätzlichen AC hier.
+Siehe [Epic_App_Shell](../../requirements/advance-registration/epics/Epic_App_Shell/epic.md) VSHELL-S01 AC-7/8/9 — dort die Struktur-Referenz ([`components/sidebar-footer.md`](../../requirements/advance-registration/components/custom/sidebar-footer.md)), keine eigenen zusätzlichen AC hier.
 
 ## Tags & Piles
 

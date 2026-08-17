@@ -64,9 +64,9 @@ Countdown-Phase aus. Kein `500`, damit die Login-Seite bedienbar bleibt.
 
 | Verwendung | Genutzte Felder |
 |---|---|
-| Login-Seite, [`login-info-panel`](../components/login-info-panel.md) | alle |
-| `/embed/countdown`, [`countdown-timeline-page`](../components/countdown-timeline-page.md) | nur die 5 Termine |
-| Home Verkäufer, [`home-dashboard`](../components/home-dashboard.md) | `abgabeVon`, `abgabeBis` |
+| Login-Seite, [`login-info-panel`](../components/custom/login-info-panel.md) | alle |
+| `/embed/countdown`, [`countdown-timeline-page`](../components/custom/countdown-timeline-page.md) | nur die 5 Termine |
+| Home Verkäufer, [`home-dashboard`](../components/custom/home-dashboard.md) | `abgabeVon`, `abgabeBis` |
 | Home Admin | alle 5 Termine |
 
 **Ein Response-Shape für alle vier** — das Embed-Widget erhält `infoText` und

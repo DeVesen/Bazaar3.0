@@ -12,7 +12,7 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 
 Epic → [Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) ·
 Entity → [`entities/einstellungen.md`](../entities/einstellungen.md) ·
-Component → [`einstellungen-form.md`](../components/einstellungen-form.md)
+Component → [`einstellungen-form.md`](../components/forms/einstellungen-form.md)
 
 ---
 

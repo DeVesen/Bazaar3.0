@@ -22,7 +22,7 @@ updated: 2026-08-14
 **Navigation:** System → Profil (Admin) / Konto → Profil (Verkäufer)
 **Sichtbar für:** Alle
 
-Component-Details → [`components/profil-page.md`](../../components/profil-page.md)
+Component-Details → [`components/forms/profil-page.md`](../../components/forms/profil-page.md)
 
 **Ziel:** Verkäufer pflegt sein Profil in der Voranmelde-App.
 

@@ -22,7 +22,7 @@ updated: 2026-08-14
 
 **Ziel:** Externe Webseiten (z. B. die Basar-Wordpress-Seite) können per iframe eine Live-Timeline aller Basar-Termine einbinden.
 
-Component-Details → [`components/countdown-timeline-page.md`](../../components/countdown-timeline-page.md)
+Component-Details → [`components/custom/countdown-timeline-page.md`](../../components/custom/countdown-timeline-page.md)
 
 **User Story:** Als Admin möchte ich einen einbettbaren Countdown auf unserer Wordpress-Seite zeigen, damit Besucher ohne Login den aktuellen Stand aller Basar-Termine sehen.
 

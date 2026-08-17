@@ -39,7 +39,7 @@ Admin-Übersicht aller Verkäufer mit Anlage-, Bearbeitungs- und Einladungs-Funk
 
 ## 1. Filter-Panel
 
-Details → [`components/verkaeufer-dialog.md`](../../components/verkaeufer-dialog.md) (deckt Filter-Panel + Dialoge in einer Datei ab).
+Details → [`components/forms/verkaeufer-dialog.md`](../../components/forms/verkaeufer-dialog.md) (deckt Filter-Panel + Dialoge in einer Datei ab).
 
 **„+ Neu"-Button** befindet sich ausschließlich im Seitentitel (Page-Header) — nicht in der Filter-Toolbar.
 
