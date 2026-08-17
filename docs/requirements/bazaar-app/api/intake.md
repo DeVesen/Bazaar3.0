@@ -8,7 +8,7 @@ updated: 2026-08-17
 
 Ein atomarer Vorgang: Artikel eines Verkäufers aufnehmen, freigeben und die Annahmegebühr kassieren. Fachliche Quelle → [Epic_Artikelannahme](../epics/Epic_Artikelannahme/epic.md).
 
-Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md), insbesondere Abschnitt 6 (Transaktions-Vorgänge).
+Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md), insbesondere Abschnitt „Transaktions-Vorgänge" (Transaktions-Vorgänge).
 
 | Endpoint | Auth |
 |---|---|

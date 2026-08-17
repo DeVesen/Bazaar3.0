@@ -16,10 +16,11 @@ Index aller Endpoints → [`overview.md`](overview.md)
 - 2. Verb-Muster — PUT gegen POST
 - 3. Auth-Stufen — public, authenticated, admin
 - 4. Fehler-Responses — ProblemDetails, errorCode
-- 5. Pagination und Sortierung — Listen
-- 6. Transaktions-Vorgänge — atomare Endpoints
-- 7. Sperrregeln — soldAt und settledAt
-- 8. Persistenz-Zugriff — Repositories und Query-Ports
+- 5. Datentypen im Contract — Zeitstempel, Geld, IDs
+- 6. Pagination und Sortierung — Listen
+- 7. Transaktions-Vorgänge — atomare Endpoints
+- 8. Sperrregeln — soldAt und settledAt
+- 9. Persistenz-Zugriff — Repositories und Query-Ports
 - Tags & Piles — Ablage
 
 ---
@@ -42,7 +43,7 @@ Die Dateiaufteilung dieses Verzeichnisses folgt dem **Thema**, nicht dem Pfad: D
 | Fachlicher **Vorgang über mehrere Ressourcen** | `POST /api/<vorgang>` | `POST /api/intake`, `POST /api/release`, `POST /api/sales`, `POST /api/import` |
 | Klassisches CRUD | `GET` / `POST` / `PUT` / `DELETE /api/<resource>[/{id}]` | `/api/brands`, `/api/sellers` |
 
-Die Regel erklärt sich aus der Wirkung, nicht aus dem Geschmack: **Was man zweimal senden kann, ohne Schaden anzurichten, ist `PUT`.** Ein Vorgang, der Geld bewegt oder mehrere Datensätze zugleich ändert, ist `POST` und läuft in einer Transaktion (Abschnitt 6).
+Die Regel erklärt sich aus der Wirkung, nicht aus dem Geschmack: **Was man zweimal senden kann, ohne Schaden anzurichten, ist `PUT`.** Ein Vorgang, der Geld bewegt oder mehrere Datensätze zugleich ändert, ist `POST` und läuft in einer Transaktion (Abschnitt „Transaktions-Vorgänge").
 
 ---
 
@@ -108,6 +109,42 @@ Auf `detail`-Text zu prüfen wäre die Alternative — abgelehnt, weil dann jede
 
 **Zuständigkeit:** Formatprüfungen (Pflichtfeld, Wertebereich) laufen über FluentValidation im Endpoint-Filter und ergeben `400`. Fachliche Invarianten (Duplikat, Löschsperre, Statuskonflikt) wirft die Domäne und ergeben `409`.
 
+### Katalog aller `errorCode`-Werte
+
+Vollständig und abschließend. Die Epics behalten ihre Akzeptanzkriterien, verweisen für den **Wortlaut** aber hierher — zwei Quellen für dieselbe Meldung driften garantiert.
+
+Beim Hinzufügen eines Fehlers zuerst hier nachsehen: Ein Code, den es schon gibt, wird wiederverwendet, nicht variiert.
+
+| `errorCode` | Status | `detail` (deutsch) | Ausgelöst von |
+|---|---|---|---|
+| `auth.invalid_credentials` | 401 | Ungültige Anmeldedaten | [`auth.md`](auth.md) — Login, Passwortwechsel |
+| `article.number_unknown` | 404 | Artikelnummer nicht bekannt | [`articles.md`](articles.md) — `by-number` |
+| `article.number_taken` | 409 | Artikelnummer *n* ist inzwischen vergeben | [`intake.md`](intake.md) |
+| `article.sold` | 409 | Artikel ist verkauft — Verkauf zuerst stornieren | [`articles.md`](articles.md) (Preis, Löschen), [`settlement.md`](settlement.md) (Rückgabe) |
+| `article.sold_and_returned` | 409 | Artikel kann nicht gleichzeitig verkauft und zurückgegeben sein | [`articles.md`](articles.md) — Zeitstempel |
+| `article.not_sellable` | 409 | Artikel *n* ist nicht mehr im Verkauf | [`sales.md`](sales.md) |
+| `article.not_releasable` | 409 | Artikel *n* ist bereits freigegeben | [`release.md`](release.md) |
+| `brand.already_exists` | 409 | Marke existiert bereits | [`master-data.md`](master-data.md) |
+| `brand.in_use` | 409 | Marke wird noch verwendet | [`master-data.md`](master-data.md) |
+| `category.already_exists` | 409 | Kategorie existiert bereits | [`master-data.md`](master-data.md) |
+| `category.in_use` | 409 | Kategorie wird noch verwendet | [`master-data.md`](master-data.md) |
+| `seller.has_articles` | 409 | Verkäufer hat noch *n* Artikel | [`sellers.md`](sellers.md) — Löschen |
+| `seller.conditions_admin_only` | 403 | Konditionen dürfen nur von einem Admin geändert werden | [`sellers.md`](sellers.md) |
+| `seller_type.already_exists` | 409 | Verkäufer-Typ existiert bereits | [`seller-types.md`](seller-types.md) |
+| `seller_type.in_use` | 409 | Typ ist noch *n* Verkäufern zugewiesen | [`seller-types.md`](seller-types.md) |
+| `settlement.locked` | 409 | Verkäufer ist abgerechnet — Abrechnung zuerst stornieren | [`articles.md`](articles.md), [`sales.md`](sales.md), [`sellers.md`](sellers.md), [`settlement.md`](settlement.md) |
+| `settlement.articles_open` | 409 | *n* Artikel sind noch im Verkauf | [`settlement.md`](settlement.md) |
+| `settlement.already_settled` | 409 | Verkäufer ist bereits abgerechnet | [`settlement.md`](settlement.md) |
+| `settlement.not_settled` | 404 | Verkäufer ist nicht abgerechnet | [`settlement.md`](settlement.md) — Storno |
+| `user.username_taken` | 409 | Benutzername ist bereits vergeben | [`users.md`](users.md) |
+| `user.last_admin` | 409 | Das letzte Admin-Konto kann nicht entfernt werden | [`users.md`](users.md) — Löschen, Rollenwechsel |
+| `import.invalid_format` | 400 | Datei entspricht nicht dem erwarteten Schema | [`import.md`](import.md) |
+| `import.unmapped_seller_type` | 409 | Verkäufer-Typ „*x*" ist nicht zugeordnet | [`import.md`](import.md) |
+
+**`*n*` und `*x*`** stehen für Werte, die der Server einsetzt — Anzahl bzw. Name. Sie gehören in `detail`, damit die Meldung ohne zweiten Request handlungsleitend ist; das Frontend übernimmt sie in seine Dialoge.
+
+**Wiederverwendung ist gewollt:** `article.sold` und `settlement.locked` treten an mehreren Endpoints auf, weil es dieselbe Situation ist. Ein eigener Code je Aufrufstelle würde das Frontend zwingen, dieselbe Reaktion mehrfach zu verdrahten.
+
 ### Status-Code-Katalog
 
 | Code | Wann |
@@ -123,7 +160,23 @@ Auf `detail`-Text zu prüfen wäre die Alternative — abgelehnt, weil dann jede
 
 ---
 
-## 5. Pagination und Sortierung
+## 5. Datentypen im Contract
+
+| Typ | Format im JSON | Regel |
+|---|---|---|
+| Zeitstempel | ISO 8601 mit `Z` — `"2026-08-17T14:22:07Z"` | Der Server liefert und erwartet **UTC**. Umrechnung in lokale Zeit passiert ausschließlich im Frontend |
+| Geldbeträge | Zahl mit zwei Dezimalstellen — `12.00` | Punkt als Dezimaltrennzeichen (JSON), Komma erst in der Anzeige |
+| Prozentsätze | Zahl mit bis zu zwei Dezimalstellen — `12.5` | Wertebereich 0–100 |
+| IDs | String, 8 Zeichen, alphanumerisch, **case-sensitive** | siehe [`entities/overview.md`](../entities/overview.md) |
+
+Speicherung, Präzision und Feldlängen stehen verbindlich in
+[`entities/overview.md`](../entities/overview.md) — hier steht nur, wie sie über die Leitung gehen.
+
+**Feldlängen werden serverseitig geprüft** und ergeben `400` mit `errors`-Dictionary, nicht `409`: Eine zu lange Eingabe ist ein Formatfehler, kein fachlicher Konflikt.
+
+---
+
+## 6. Pagination und Sortierung
 
 **Paginiert** sind ausschließlich die potenziell großen Listen: `GET /api/articles` (50 je Seite) und `GET /api/sellers` (60 je Seite — Karten-Grid, siehe [Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md)).
 
@@ -159,7 +212,7 @@ Auch **Suche und Filter** laufen serverseitig, aus demselben Grund: Ein Filter �
 
 ---
 
-## 6. Transaktions-Vorgänge
+## 7. Transaktions-Vorgänge
 
 Vier Endpoints ändern mehrere Datensätze zugleich und laufen jeweils in **einer** Transaktion — entweder alles oder nichts:
 
@@ -177,7 +230,7 @@ Alle diese Endpoints **prüfen ihre Vorbedingungen erneut**, bevor sie schreiben
 
 ---
 
-## 7. Sperrregeln
+## 8. Sperrregeln
 
 Eine Regel, fünf Endpoints. Verbindliche Beschreibung → [Epic_Artikel](../epics/Epic_Artikel/epic.md) Abschnitt 4.
 
@@ -192,7 +245,7 @@ Gelöst wird eine Sperre ausschließlich durch Stornieren — des Verkaufs über
 
 ---
 
-## 8. Persistenz-Zugriff
+## 9. Persistenz-Zugriff
 
 Aus [`spec.md`](../spec.md) Abschnitt 7.0.1, hier nur als Erinnerung für den Vertrag:
 

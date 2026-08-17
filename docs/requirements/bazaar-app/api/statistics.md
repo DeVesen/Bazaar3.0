@@ -45,7 +45,7 @@ GET /api/statistics?sellerTypeId=b7c1e4f2
 
 **Ein Endpoint für die ganze Seite**, keine Kennzahl-Endpoints. Die Alternative — Berechnung im Browser — hätte bedeutet, alle Artikel und alle Verkäufer zu laden, um 14 Zahlen zu bilden; bei 2 000 Artikeln auf einem Tablet die langsamste Seite der App. Und dieselben Summen existieren serverseitig schon für Verkäufer-Karten und Abrechnung.
 
-Kommt aus einem **Query-Port** ([`cross-cutting.md`](cross-cutting.md) Abschnitt 8). **Kein Caching** — jeder Seitenaufruf fragt neu; das ist eine Aussage über Frische, nicht über den Ort.
+Kommt aus einem **Query-Port** ([`cross-cutting.md`](cross-cutting.md) Abschnitt „Persistenz-Zugriff"). **Kein Caching** — jeder Seitenaufruf fragt neu; das ist eine Aussage über Frische, nicht über den Ort.
 
 ### Parameter
 

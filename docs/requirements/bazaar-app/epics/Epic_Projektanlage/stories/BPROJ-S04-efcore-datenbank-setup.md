@@ -54,7 +54,7 @@ Der `depends_on`-Eintrag gehört ins Insel-Overlay → [BPROJ-S05](BPROJ-S05-ssl
 
 `EnableRetryOnFailure(3)` ist aktiviert: Ein Kassenvorgang, der wegen eines einzelnen Netzwerk-Schluckaufs im LAN scheitert, während der Kunde wartet, ist teurer als die Disziplin, die das kostet.
 
-**Die Disziplin, die es kostet:** Sobald eine Execution Strategy aktiv ist, wirft EF Core bei jeder **selbst geöffneten** Transaktion eine Ausnahme, wenn sie nicht in `strategy.ExecuteAsync(...)` eingeschlossen ist. Das betrifft alle fünf Transaktions-Endpoints dieser App — `intake`, `release`, `sales`, `settlement`, `import` ([`api/cross-cutting.md`](../../../api/cross-cutting.md) Abschnitt 6). Sie **müssen** die Execution Strategy verwenden.
+**Die Disziplin, die es kostet:** Sobald eine Execution Strategy aktiv ist, wirft EF Core bei jeder **selbst geöffneten** Transaktion eine Ausnahme, wenn sie nicht in `strategy.ExecuteAsync(...)` eingeschlossen ist. Das betrifft alle fünf Transaktions-Endpoints dieser App — `intake`, `release`, `sales`, `settlement`, `import` ([`api/cross-cutting.md`](../../../api/cross-cutting.md) Abschnitt „Transaktions-Vorgänge"). Sie **müssen** die Execution Strategy verwenden.
 
 Der Hinweis steht hier, weil der Konflikt sonst erst beim ersten `POST /api/sales` auffällt — zur Laufzeit, mit einer Ausnahme, die nichts über ihre Ursache sagt.
 

@@ -8,7 +8,7 @@ updated: 2026-08-17
 
 Ein atomarer Vorgang: Die Artikel, die ein vorangemeldeter Verkäufer am Basar-Morgen bringt, werden freigegeben und die Annahmegebühr kassiert. Fachliche Quelle → [Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md) Abschnitt 6.
 
-Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md), insbesondere Abschnitt 6.
+Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md), insbesondere Abschnitt „Transaktions-Vorgänge".
 
 | Endpoint | Auth |
 |---|---|

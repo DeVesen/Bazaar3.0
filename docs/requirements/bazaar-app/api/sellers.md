@@ -124,7 +124,7 @@ PUT /api/sellers/{id}
 
 **Typwechsel überschreibt die Konditionen** mit den Werten des neuen Typs, auch manuell gesetzte. Die Bestätigung dafür holt das Frontend vorher ein ([Epic_Verkaeufer_Typen](../epics/Epic_Verkaeufer_Typen/epic.md) Abschnitt 3).
 
-Ist der Verkäufer abgerechnet, sind alle Felder gesperrt (`409`, siehe [`cross-cutting.md`](cross-cutting.md) Abschnitt 7).
+Ist der Verkäufer abgerechnet, sind alle Felder gesperrt (`409`, siehe [`cross-cutting.md`](cross-cutting.md) Abschnitt „Sperrregeln").
 
 ---
 

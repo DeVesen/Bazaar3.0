@@ -8,7 +8,7 @@ updated: 2026-08-17
 
 Rückgabe, Auszahlung und Storno. Fachliche Quelle → [Epic_Abrechnung](../epics/Epic_Abrechnung/epic.md); das Stornieren wird über die Verkäufer-Karte ausgelöst ([Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md) Abschnitt 3).
 
-Die Pfade liegen unter `/api/sellers/{id}/...`, stehen aber in dieser Datei, weil sie eigene Regeln zu Rundung, Sperre und Storno tragen — die Dateiaufteilung folgt dem Thema, nicht dem Pfad ([`cross-cutting.md`](cross-cutting.md) Abschnitt 1).
+Die Pfade liegen unter `/api/sellers/{id}/...`, stehen aber in dieser Datei, weil sie eigene Regeln zu Rundung, Sperre und Storno tragen — die Dateiaufteilung folgt dem Thema, nicht dem Pfad ([`cross-cutting.md`](cross-cutting.md) Abschnitt „Pfad-Konventionen").
 
 | Endpoint | Auth |
 |---|---|
@@ -40,7 +40,7 @@ GET /api/sellers/a3f9c2d1/settlement
 }
 ```
 
-Kommt aus einem **Query-Port** als fertiges Read-Model, nicht aus dem Repository ([`cross-cutting.md`](cross-cutting.md) Abschnitt 8).
+Kommt aus einem **Query-Port** als fertiges Read-Model, nicht aus dem Repository ([`cross-cutting.md`](cross-cutting.md) Abschnitt „Persistenz-Zugriff").
 
 `canSettle` bündelt die Button-Regel: mindestens ein Artikel freigegeben **und** kein Artikel mehr offen im Verkauf. Die Bedingung im Frontend zu bilden würde bedeuten, sie zweimal zu pflegen.
 
@@ -60,7 +60,7 @@ PUT /api/articles/{id}/return
 → 409 Conflict   errorCode: settlement.locked
 ```
 
-Setzt `returnedAt` auf jetzt. **`PUT` und ohne Body**, weil der Vorgang idempotent ist: Zweimal denselben Artikel zurückgeben ändert nichts (Verb-Muster → [`cross-cutting.md`](cross-cutting.md) Abschnitt 2).
+Setzt `returnedAt` auf jetzt. **`PUT` und ohne Body**, weil der Vorgang idempotent ist: Zweimal denselben Artikel zurückgeben ändert nichts (Verb-Muster → [`cross-cutting.md`](cross-cutting.md) Abschnitt „Verb-Muster").
 
 Anders als Freigabe und Verkauf schreibt der Rückgabe-Scan **pro Artikel sofort** — hier hängt kein Geld am Abschluss der Sitzung, und der Vorgang ist beliebig oft fortsetzbar. Die Auszahlung wird erst mit Abschnitt 3 fällig.
 

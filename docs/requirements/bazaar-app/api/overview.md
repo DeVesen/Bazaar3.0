@@ -75,7 +75,7 @@ Es gibt **kein** `POST /api/auth/logout` und keinen Refresh-Endpoint — ein Acc
 | `PUT /api/articles/{id}/timestamps` | `admin` | [articles.md](articles.md) |
 | `DELETE /api/articles/{id}` | `admin` | [articles.md](articles.md) |
 
-### Vorgänge (atomar, siehe [cross-cutting.md](cross-cutting.md) Abschnitt 6)
+### Vorgänge (atomar, siehe [cross-cutting.md](cross-cutting.md) Abschnitt „Transaktions-Vorgänge")
 
 | Endpoint | Auth | Datei |
 |---|---|---|

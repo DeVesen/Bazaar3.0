@@ -10,7 +10,7 @@ Artikelliste, Korrektur und Zeitstempel. Fachliche Quelle → [Epic_Artikel](../
 
 Artikel **entstehen** nicht hier, sondern über [`intake.md`](intake.md) oder [`import.md`](import.md). Zustandswechsel im Tagesgeschäft: [`release.md`](release.md), [`sales.md`](sales.md), [`settlement.md`](settlement.md).
 
-Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md), insbesondere Abschnitt 7 (Sperrregeln).
+Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md), insbesondere Abschnitt „Sperrregeln" (Sperrregeln).
 
 | Endpoint | Auth |
 |---|---|
@@ -105,7 +105,7 @@ PUT /api/articles/{id}
 
 **Beide Rollen dürfen bearbeiten** — ein Tippfehler beim Preis muss korrigierbar sein, solange der Verkäufer noch am Tisch steht; der Weg über den Admin würde die Schlange aufhalten.
 
-**Gestaffelte Sperre** (Details → [`cross-cutting.md`](cross-cutting.md) Abschnitt 7):
+**Gestaffelte Sperre** (Details → [`cross-cutting.md`](cross-cutting.md) Abschnitt „Sperrregeln"):
 
 | Zustand | Änderbar |
 |---|---|

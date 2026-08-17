@@ -8,7 +8,7 @@ updated: 2026-08-17
 
 Kassenvorgang und Storno des letzten Vorgangs. Fachliche Quelle → [Epic_Verkauf](../epics/Epic_Verkauf/epic.md).
 
-Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md), insbesondere Abschnitt 6.
+Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md), insbesondere Abschnitt „Transaktions-Vorgänge".
 
 | Endpoint | Auth |
 |---|---|
