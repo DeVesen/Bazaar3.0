@@ -16,9 +16,6 @@ Modus "Anlegen" (Modal, Standard-Größe):
 ┌─────────────────────────────────────────┐
 │  Artikel anlegen                     [✕] │
 ├─────────────────────────────────────────┤
-│  Verkäufernummer  a3f9c2d1     ┌────┐    │  ← readonly, verkaeufer-nummer
-│                                │▀▄▀ │    │     Variante "inline", QR 72 px
-│                                └────┘    │
 │  Artikelnummer  [104]  (readonly)        │
 │  wird beim Speichern endgültig vergeben  │  ← Hinweistext (12 px, muted)
 │  Bezeichnung                            │
@@ -72,7 +69,6 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 | Feld                | Anlegen | Bearbeiten | PrimeNG                                                                                                                                                                                                                                                                                |
 | ------------------- | --- | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Verkäufernummer + QR | ✅ | ❌ | [verkaeufer-nummer](../custom/verkaeufer-nummer.md), Variante `inline`, `sellerId` per `input()` von der Page (aus dem `sub`-Claim) — readonly, nicht Teil des Submits. Nur im Modus „Anlegen": beim Bearbeiten ist der Artikel längst zugeordnet, dort trägt die Zeile nichts bei |
 | Artikelnummer       | ✅ Vorschlag | ✅ Ist-Wert | [Input](../standard/input.md), Variante Text, readonly                                                                                                                                                                                                                                             |
 | Hinweis unter Nummer | ✅ | ❌ | Hinweistext (12 px, muted): „wird beim Speichern endgültig vergeben" — gleiche Ausprägung wie der Berechnungs-Hinweis in Epic_Verkaeufer Panel 04                                                                                                                                            |
 | Bezeichnung         | ✅ | ✅ | [Input](../standard/input.md), Variante Text                                                                                                                                                                                                                                                       |
@@ -111,8 +107,8 @@ teil.
 
 ## Akzeptanzkriterien
 
-Siehe Epic_Meine_Artikel AC-1, AC-2, AC-5, AC-6, AC-7, AC-8, AC-9 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe Epic_Meine_Artikel AC-1, AC-2, AC-5, AC-6, AC-7, AC-8 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 
-**Tags:** #meine-artikel #dialog #autocomplete-create #inputgroup #confirmdialog #primeng #verkäufernummer #qr-code
+**Tags:** #meine-artikel #dialog #autocomplete-create #inputgroup #confirmdialog #primeng

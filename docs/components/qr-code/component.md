@@ -38,7 +38,6 @@ PrimeNG liefert keine QR-Komponente — daher eigener Wrapper (Grundregel →
 | Einsatzort | App | Inhalt |
 |---|---|---|
 | [verkaeufer-nummer.md](../../requirements/advance-registration/components/custom/verkaeufer-nummer.md) | Voranmelde-App | Verkäufer-`id` |
-| [artikel-dialog.md](../../requirements/advance-registration/components/forms/artikel-dialog.md) | Voranmelde-App | Verkäufer-`id` |
 | [Epic_Druckfunktionen](../../requirements/bazaar-app/epics/Epic_Druckfunktionen/epic.md) | Haupt-App | Verkäufer-`id` auf der Annahme-Liste |
 | [Epic_Verkaeufer](../../requirements/bazaar-app/epics/Epic_Verkaeufer/epic.md) | Haupt-App | Verkäufer-`id` im Detail-Panel |
 

@@ -22,14 +22,20 @@ Wert, den der Scanner der Haupt-App erwartet
 
 Einsatzorte:
 
-| Ort | Variante |
+| Ort | Darstellung |
 |---|---|
-| [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) | `card` — volle Karte mit QR 128 px |
-| [Epic_Profil](../../epics/Epic_Profil/epic.md), Panel 01 | `card` — dieselbe Karte, rechts neben den Personendaten |
-| [artikel-dialog.md](../forms/artikel-dialog.md), Modus „Anlegen" | `inline` — Nummer als Zeile + QR 72 px |
+| [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) | volle Karte mit QR 128 px |
+| [Epic_Profil](../../epics/Epic_Profil/epic.md), Panel 01 | dieselbe Karte, rechts neben den Personendaten |
+
+**Verworfen: Inline-Variante im Anlege-Dialog.** Eine zweite, kompakte Variante
+(Nummer als Zeile + QR 72 px) stand im Artikel-Anlege-Dialog, damit der Verkäufer
+beim Etikettieren beide Nummern zusammen sieht. Wieder entfernt: sie kostet die
+oberste Dialog-Zeile und bringt Rauschen in ein Formular, in dem es ums Erfassen
+geht. Die Nummer ändert sich nie — Home und Profil zeigen sie dauerhaft, einmal
+merken oder kopieren genügt. Es gibt daher **nur eine** Darstellung, kein
+`variant`-Input.
 
 ```
-Variante "card":
 ┌─────────────────────────────────────┐
 │ MEINE VERKÄUFERNUMMER               │  ← Panel-Titel, 11 px, 700, uppercase
 │                                     │
@@ -40,23 +46,18 @@ Variante "card":
 │ Am Basar-Tag vorzeigen — das         │  ← Hinweistext, 12 px, muted
 │ Kassenpersonal scannt den Code.      │
 └─────────────────────────────────────┘
-
-Variante "inline" (im Anlege-Dialog):
-Verkäufernummer  a3f9c2d1   ┌────┐
-                            │▀▄▀ │  ← size 72
-                            └────┘
 ```
 
 ## Aufbau
 
-| Element | Component | card | inline |
-|---|---|---|---|
-| Container | [card](../../../../components/card/component.md), Panel-Block-Variante (`background: #f5f9f6; border: 1px solid #d4e8dc; border-radius: 8px; padding: 15px 16px`) | ✅ | ❌ (nackte Zeile im Dialog-Grid) |
-| Panel-Titel „Meine Verkäufernummer" | Text, 11 px, 700, uppercase, `#3a7057` | ✅ | Label 13 px, muted, statt Panel-Titel |
-| Nummer | Text, monospace, `--primary`; 24 px/800 (card) bzw. 14 px/700 (inline) | ✅ | ✅ |
-| QR-Code | Shared [qr-code](../../../../components/qr-code/component.md), `value` = `id` | `size="128"` | `size="72"` |
-| Kopieren-Button | [Button](../standard/button.md) `secondary outlined small`, Icon ⧉ → Clipboard + [Toast](../standard/toast.md) „✓ Nummer kopiert" | ✅ | ❌ |
-| Hinweistext | 12 px, muted | ✅ | ❌ |
+| Element | Component |
+|---|---|
+| Container | [card](../../../../components/card/component.md), Panel-Block-Variante (`background: #f5f9f6; border: 1px solid #d4e8dc; border-radius: 8px; padding: 15px 16px`) |
+| Panel-Titel „Meine Verkäufernummer" | Text, 11 px, 700, uppercase, `#3a7057` |
+| Nummer | Text, monospace, `--primary`, 24 px/800 |
+| QR-Code | Shared [qr-code](../../../../components/qr-code/component.md), `value` = `id`, `size="128"` |
+| Kopieren-Button | [Button](../standard/button.md) `secondary outlined small`, Icon ⧉ → Clipboard + [Toast](../standard/toast.md) „✓ Nummer kopiert" |
+| Hinweistext | 12 px, muted |
 
 Die Caption des QR-Codes bleibt leer — die Nummer steht daneben schon im
 Klartext, zweimal derselbe String wäre Rauschen.
@@ -66,7 +67,6 @@ Klartext, zweimal derselbe String wäre Rauschen.
 | Property | Typ | Art | Beschreibung |
 |---|---|---|---|
 | `sellerId` | `string` | `@Input` (required) | Verkäufer-`id`, vom Parent hereingegeben |
-| `variant` | `'card' \| 'inline'` | `@Input`, Default `'card'` | Darstellungsform |
 
 Leaf-Komponente: kein Store, kein HTTP
 ([overview.md](../overview.md), Abschnitt „Integration vs. Leaf").
@@ -81,12 +81,11 @@ kann den Wert von dort nehmen, statt zwei Quellen zu mischen.
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) AC-4/AC-5,
-[Epic_Profil](../../epics/Epic_Profil/epic.md) AC-9 und
-[Epic_Meine_Artikel](../../epics/Epic_Meine_Artikel/epic.md) AC-9 — diese Datei
-ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) AC-4/AC-5
+und [Epic_Profil](../../epics/Epic_Profil/epic.md) AC-9 — diese Datei ist die
+Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 
 **Piles:** #pile/advance-registration
-**Tags:** #verkäufernummer #qr-code #home #profil #artikel-dialog #primeng
+**Tags:** #verkäufernummer #qr-code #home #profil #primeng
