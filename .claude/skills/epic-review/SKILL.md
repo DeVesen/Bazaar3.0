@@ -10,6 +10,7 @@ Kritische Requirements-Review-Session über die Epics einer Bazaar-App (Voranmel
 **Scope — nur Requirements-Ebene:**
 - UI-Beschreibung (Aussehen, Aufbau, Verhalten) UND Backend-Konzept (API-Endpunkte, Fehlerfälle, Datenfluss) je Epic
 - Kritischer Blick: DRY (Redundanz zwischen Epics), YAGNI (unnötige Komplexität), Lücken, Widersprüche
+- Normative Sprache und Auflösungstiefe (siehe unten) — beides ist Pflicht-Prüfdimension je Epic, nicht optional
 - **Kein** Development-Planning, **keine** File-Struktur-Diskussion (das ist App/Suite-Ebene, nicht Epic-Ebene)
 
 **REQUIRED SUB-SKILL:** Use mattpocock-skills:grilling für den Frage-Mechanismus (Design-Tree/Frontier, nummerierte ❓-Fragen mit ➡️-Empfehlung, Runde für Runde, warten auf Antwort). Hier zusätzlich: Fragen-Quelle ist ausschließlich das Epic (+ Stories) selbst und dessen Querbezüge zu bereits reviewten Epics — nicht freie Themen.
@@ -33,6 +34,43 @@ Kritische Requirements-Review-Session über die Epics einer Bazaar-App (Voranmel
    - Bei Zufriedenheit: **persistieren** (Edit der echten epic.md/story-Dateien) + **Status markieren** (siehe unten).
 4. Weiter zum nächsten Epic der Reihenfolge (User bestätigen lassen, nicht automatisch durchrauschen).
 
+## Pflicht-Prüfdimensionen je Epic
+
+Zusätzlich zu DRY/YAGNI wird jedes Epic gegen diese zwei Punkte geprüft. Treffer → Frage in die aktuelle Frontier aufnehmen, nicht stillschweigend nachbessern.
+
+### 1. Normative Sprache
+
+Jede Anforderung und jedes Akzeptanzkriterium ist verbindlich und binär prüfbar.
+
+- Akzeptanzkriterien in EARS-Form mit `SHALL` (`WHEN … THEN SHALL das System …`, `IF … THEN SHALL …`, `WHILE … SHALL …`)
+- Beschreibungstext im Indikativ oder mit „muss"
+
+Verbotene Formulierungen — jede ist ein Zeichen für eine **nicht getroffene Entscheidung**:
+
+| Verboten | Warum |
+|---|---|
+| sollte, könnte, kann optional | Lässt dem Implementierer die Wahl |
+| wäre schön, idealerweise, möglichst, nach Möglichkeit | Wunsch statt Anforderung — entweder verbindlich oder in „Abgrenzung" |
+| ggf., bei Bedarf, in der Regel, normalerweise | Versteckt eine unspezifizierte Fallunterscheidung — beide Zweige benennen |
+| performant, benutzerfreundlich, sinnvoll, angemessen | Nicht binär prüfbar — messbares Kriterium nennen oder streichen |
+
+Fließtext ist ausdrücklich erlaubt und erwünscht. Geprüft wird die **Verbindlichkeit**, nicht die Form.
+
+### 2. Auflösungstiefe bei Fallback-Logik
+
+Jede Regel mit Fallback — Vergabe, Suche, Retry, Konfliktauflösung, Defaulting, Eskalation — steht als **nummerierte Kaskade**, nie als Ein-Satz-Regel. Der Ein-Satz-Fassung fehlt die Information, wo der Implementierer aufhören darf.
+
+Die Kaskade nennt:
+1. Jede Stufe in Auswertungsreihenfolge mit ihrer Vorbedingung
+2. Was die Stufe bei Erfolg tut und dass sie die Kaskade beendet
+3. Die **letzte** Stufe — Fehler-/Verweigerungsfall — plus die exakte Bedingung, unter der sie erreichbar ist
+
+Wenn eine naheliegende Fehl-Lesart im Fehlerfall landen würde, wird explizit dazugeschrieben, welcher Zustand ihn **nicht** auslöst. Danach ein Akzeptanzkriterium auf genau den Zweig, den eine Abkürzungs-Implementierung falsch machen würde — nicht nur Happy Path und Fehlerfall.
+
+**Review-Frage, die in jedem Epic gestellt wird:** „Enthält dieses Epic eine Regel mit Fallback-Verhalten, die nicht als Kaskade ausformuliert ist?"
+
+**Zusatzprüfung:** Ist ein Fehlerfall spezifiziert, dessen Auslösebedingung mit den vorhandenen Parametern nie eintreten kann, ist entweder ein Parameter oder das Kriterium falsch — beides ansprechen.
+
 ## Resume-Logik (Status-Marker)
 
 Jedes Epic hat im YAML-Frontmatter ein `status`-Feld (bereits vorhandene Konvention, aktuell durchgehend `draft`).
@@ -51,3 +89,6 @@ Jedes Epic hat im YAML-Frontmatter ein `status`-Feld (bereits vorhandene Konvent
 | User: "nochmals die Voranmelde-App" | Bei Epic 1 der Liste neu beginnen, Status ignorieren |
 | Antwort betrifft anderes (auch reviewtes) Epic | Sofort benennen, Änderung nachtragen wenn User zustimmt |
 | Epic-Fragen beantwortet, User zufrieden | Zusammenfassung → Rückfrage → persistieren → Status setzen |
+| Regel mit Fallback als Ein-Satz-Regel gefunden | Kaskade einfordern (Prüfdimension 2), inkl. Bedingung für den Fehlerfall |
+| „sollte" / „idealerweise" / „ggf." im Epic gefunden | Als offene Entscheidung behandeln, Frage in die Frontier, danach verbindlich umformulieren |
+| Fehlerfall ohne erreichbare Auslösebedingung | Ansprechen: fehlender Parameter oder überflüssiges Kriterium |
