@@ -71,7 +71,7 @@ Zweck: Erkennen, welche Marken während der Voranmeldephase von Verkäufern hinz
 
 ## 4. Export / Import
 
-Marken können in der Export-Seite in den JSON-Export eingeschlossen und in die Haupt-App importiert werden (und umgekehrt).
+Marken können in der Export-Seite in den JSON-Export eingeschlossen und in die Haupt-App importiert werden. Der Weg ist **einseitig** — die Haupt-App exportiert nicht zurück.
 
 ---
 

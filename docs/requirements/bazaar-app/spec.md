@@ -191,6 +191,7 @@ Feature-spezifische UI-Specs:
 | **UI-Bibliothek** | PrimeNG 22.0.0 (kein Angular Material) |
 | **Containerisierung** | Docker / Docker Compose |
 | **Barcode/QR-Scan** | ZXing / ngx-scanner (Browser-Kamera, offline) |
+| **QR-Code-Erzeugung** | `@zxing/library` (`BrowserQRCodeSvgWriter`, clientseitig, offline) — Shared-Component [`qr-code`](../../components/qr-code/component.md) |
 | **Icons** | Material Symbols (npm-Paket, kein CDN) |
 | **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) · NetArchTest (Architektur) |
 | **Auth** | JWT-Bearer, ein Access-Token (16 h), kein Refresh-Token |
@@ -322,9 +323,11 @@ Einstellungen werden im `localStorage` gespeichert.
 
 ## 9. Gemeinsame Anforderungen
 
-### 9.1 Marken & Kategorien — Synchronisierung
+### 9.1 Marken & Kategorien — Übernahme aus der Voranmelde-App
 
-Marken und Kategorien können in der Voranmelde-App exportiert und hier importiert werden (und umgekehrt) — für konsistente Stammdaten.
+Marken und Kategorien können in der Voranmelde-App exportiert und hier importiert werden — für konsistente Stammdaten.
+
+**Der Datenfluss ist einseitig:** Die Voranmelde-App exportiert, die Haupt-App importiert. Einen Rückkanal gibt es nicht — die Voranmeldung endet, wenn der Basar beginnt.
 
 ### 9.2 `original`-Flag (Marken & Kategorien)
 
