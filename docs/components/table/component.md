@@ -279,6 +279,35 @@ Keine Einträge für den gewählten Filter gefunden.
 
 Kein Icon, kein Button — nur Text, zentriert.
 
+### Überschreibbarer Erstfall-Text
+
+Der Text für „keine Datensätze, kein Filter" ist über einen **Input überschreibbar**
+(`emptyText`); der Filter-Text bleibt fest.
+
+Grund für die Unterscheidung: Der Filterfall ist überall derselbe — der Nutzer hat gerade
+gefiltert und weiß es. Der Erstfall ist dagegen je Liste unterschiedlich aussagekräftig. Wo
+eine leere Liste der **erwartbare Anfangszustand** ist, gehört dort der nächste Schritt hin
+statt einer Feststellung.
+
+Überschrieben wird nur, wo es einen Unterschied macht — nicht durchgängig:
+
+| Liste | Erstfall-Text |
+|---|---|
+| Marken, Kategorien (Haupt-App) | „Noch keine Marken. Beim Import aus der Voranmelde-App werden sie mit übernommen." |
+| Verkäufer-Typen (Haupt-App) | „Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit **+ Neu** beginnen." |
+| Leaderboard (Statistik) | „Noch keine Verkäufe." |
+| Artikel, Benutzer | generisch, keine Überschreibung |
+
+Der Hinweis bei den Verkäufer-Typen ist der wichtigste: Es ist die einzige leere Liste, die
+die App **blockiert** — `sellerTypeId` ist am Verkäufer ein Pflichtfeld.
+
+**Nicht-Tabellen-Listen erben diesen Zustand nicht.** Karten-Grids, Sitzungslisten und
+Modal-Inhalte definieren ihn selbst; für die Haupt-App stehen sie in
+[`seller-card`](../../requirements/bazaar-app/components/seller-card.md),
+[`intake-wizard`](../../requirements/bazaar-app/components/intake-wizard.md),
+[`seller-detail-modal`](../../requirements/bazaar-app/components/seller-detail-modal.md) und
+[`import-panel`](../../requirements/bazaar-app/components/import-panel.md).
+
 ---
 
 ## 9. Verhalten bei Aktionen (Edit / Neu)
@@ -359,7 +388,7 @@ PrimeNG-Umsetzung: `[loading]="loading"` am `p-table`-Element mit `<ng-template 
 3. **AC-3** — WHEN Shift+Klick auf eine weitere sortierbare Spalte erfolgt, THEN SHALL das System Multi-Sort aktivieren und nummerierte Badges ①②③ an den aktiven Sortier-Spalten einblenden.
 4. **AC-4** — WHEN die Anzahl der Einträge die konfigurierte Seitengröße überschreitet, THEN SHALL das System eine Paginierungs-Leiste mit Seitengrößen-Auswahl `[10, 25, 50]` und der Anzeige „Zeige X – Y von Z Einträgen" unterhalb der Tabelle einblenden.
 5. **AC-5** — WHEN ein Action-Button in der Aktionsspalte geklickt wird, THEN SHALL das System das Event `actionClick` mit `{ actionId, row }` emittieren.
-6. **AC-6** — WHEN keine Datensätze vorhanden sind und kein Filter aktiv ist, THEN SHALL das System den Text „Keine Einträge gefunden." zentriert anzeigen.
+6. **AC-6** — WHEN keine Datensätze vorhanden sind und kein Filter aktiv ist, THEN SHALL das System den Text „Keine Einträge gefunden." zentriert anzeigen — oder den über `emptyText` übergebenen Text, falls gesetzt.
 7. **AC-7** — WHEN ein aktiver Filter kein Ergebnis liefert, THEN SHALL das System den Text „Keine Einträge für den gewählten Filter gefunden." zentriert anzeigen.
 8. **AC-8** — WHEN die Tabelle gerendert wird, THEN SHALL jede zweite Datenzeile den Hintergrund `#FAFAFA` erhalten (Striped Rows).
 9. **AC-9** — WHEN der Mauszeiger über eine Tabellenzeile bewegt wird, THEN SHALL die Zeile optisch hervorgehoben werden (Hover-Highlight).

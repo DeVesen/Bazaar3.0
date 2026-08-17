@@ -62,6 +62,10 @@ Der QR-Code enthält die **Verkäufernummer**, nicht die Artikelnummern — er d
 
 Die Liste ist **nicht paginiert**: Ein Verkäufer hat Dutzende Artikel, keine Tausende, und Blättern in einem Modal ist unnötige Bedienung.
 
+**Leerzustand:** Bei einem gerade angelegten Verkäufer ist die Liste leer — sie zeigt dann „Noch keine Artikel erfasst.". Nummer und QR-Code bleiben sichtbar, denn sie sind der Hauptzweck des Modals.
+
+Kein Handlungsangebot: Artikel entstehen in der Artikelannahme, nicht hier, und ein Link dorthin würde den gerade geöffneten Vorgang verlassen.
+
 ---
 
 ## 3. Rein lesend
@@ -76,6 +80,7 @@ Zwei Oberflächen mit denselben Aktionen und unterschiedlichen Sperren wären ge
 2. **AC-2** — THE SYSTEM SHALL die Verkäufernummer im Klartext und als QR-Code anzeigen.
 3. **AC-3** — THE SYSTEM SHALL alle Artikel des Verkäufers mit Nummer, Bezeichnung, Preis und Status ohne Paginierung anzeigen.
 4. **AC-4** — THE SYSTEM SHALL keine schreibende Aktion anbieten.
+5. **AC-5** — WHILE der Verkäufer keine Artikel hat, SHALL das System „Noch keine Artikel erfasst." anzeigen und Nummer sowie QR-Code weiterhin darstellen.
 
 ## Tags & Piles
 

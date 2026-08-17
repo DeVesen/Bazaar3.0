@@ -90,6 +90,12 @@ Formular mit den Verkäufer-Panels 01–03. Vorname und Nachname sind aus der Su
 
 **Sitzungsliste rechts:** Nummer und Bezeichnung je Eintrag, Klick öffnet ein Popup zum Ändern von Bezeichnung, Kategorie, Marke und Preis, Löschen-Button pro Eintrag. **Nichts davon ist gespeichert** — die Liste lebt im Frontend, bis gebucht wird.
 
+**Leerzustand:** Am Anfang jedes Annahmevorgangs ist die Liste leer — also mehrere Dutzend Mal am Tag. Sie zeigt dann „Noch kein Artikel übernommen.", die Gebührenzeile steht auf `0,00 €`, und **„Speichern" ist deaktiviert**.
+
+Der deaktivierte Button ist der wichtige Teil: Ein aktives „Speichern" bei leerer Liste würde eine Buchung ohne Artikel erzeugen, 0,00 € Gebühr kassieren und einen leeren Beleg drucken.
+
+Kein Handlungsangebot im Leerzustand — das Eingabeformular ist die Handlung und steht direkt daneben.
+
 **Gebühr** = Anzahl Artikel × `feePerItem` des Verkäufers, live aktualisiert.
 
 ---
@@ -121,6 +127,7 @@ Ohne diesen Weg bliebe nach jedem Abbruch ein leerer Verkäufer in der Liste und
 7. **AC-7** — WHEN gebucht wird, THEN SHALL das System einen einzigen Request senden und den Druck erst nach erfolgreicher Antwort starten.
 8. **AC-8** — IF das Buchen an einer Nummernkollision scheitert, THEN SHALL das System die betroffenen Einträge markieren, den neuen Nummernvorschlag übernehmen und alle übrigen Eingaben erhalten.
 9. **AC-9** — WHEN der Wizard nach Schritt 1 abgebrochen wird und der angelegte Verkäufer keine Artikel hat, THEN SHALL das System diesen Verkäufer entfernen — auch mit der Rolle Kassenpersonal.
+10. **AC-10** — WHILE die Sitzungsliste leer ist, SHALL das System „Noch kein Artikel übernommen." anzeigen, die Gebühr mit `0,00 €` ausweisen und „Speichern" deaktiviert halten.
 
 ## Tags & Piles
 

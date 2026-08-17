@@ -47,6 +47,8 @@ Standard-Card. Kopfzeile: Titel links (700 / 14 px), Dropdown rechts — `displa
 
 **Maximale Höhe 300 px**, darüber vertikales Scrollen (`max-height: 300px; overflow-y: auto`). Die Rangliste ist eine Übersicht, keine Arbeitsliste — wer einen bestimmten Verkäufer sucht, geht auf die Verkäufer-Seite.
 
+**Leerzustand:** „Noch keine Verkäufe." — überschreibt den generischen Text der [`table`](../../../components/table/component.md) über `emptyText`. Am Basar-Morgen ist die Rangliste leer, und „Keine Einträge gefunden" klingt dort nach einem Fehler statt nach dem Normalzustand.
+
 ---
 
 ## 2. Spalten

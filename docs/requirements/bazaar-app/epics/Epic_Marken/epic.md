@@ -53,6 +53,8 @@ Ein Sammel-Epic „Stammdaten" wäre der nächste naheliegende Schritt — er sc
 
 **Default-Sortierung:** Name aufsteigend.
 
+**Leerzustand:** „Noch keine Marken. Beim Import aus der Voranmelde-App werden sie mit übernommen." — überschreibt den generischen Text der [`table`](../../../../components/table/component.md) über `emptyText`. Vor dem ersten Import ist die Liste leer, und das ist der Normalzustand, kein Fehler.
+
 Die Spalte heißt **ID**, nicht „Nr." — die Entity trägt eine 8-stellige alphanumerische `id`, keine laufende Nummer.
 
 Eine Spalte „Verkauft" gibt es hier **nicht**. Verkaufszahlen beantworten auf einer Stammdaten-Pflegeseite keine Frage, die man dort hat; sie gehören zu [Epic_Statistik](../Epic_Statistik/epic.md).
@@ -126,6 +128,7 @@ Endpoint-seitig identisch zu [Epic_Kategorien](../Epic_Kategorien/epic.md) — d
 6. **AC-6** — WHEN eine Marke umbenannt wird, THEN SHALL das System den neuen Namen in allen zugeordneten Artikeln übernehmen.
 7. **AC-7** — WHEN Admin im Edit-Popup das „Original"-Flag umschaltet und speichert, THEN SHALL das System den neuen Wert übernehmen und das Badge in der Tabelle entsprechend aktualisieren.
 8. **AC-8** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL das System „+ Neu", „Edit" und „Löschen" nicht rendern; ein dennoch gesendeter `PUT`- oder `DELETE`-Request SHALL mit `403` abgelehnt werden.
+9. **AC-9** — WHILE keine Marke vorhanden ist und kein Filter aktiv ist, SHALL die Tabelle „Noch keine Marken. Beim Import aus der Voranmelde-App werden sie mit übernommen." anzeigen.
 
 ## Tags & Piles
 

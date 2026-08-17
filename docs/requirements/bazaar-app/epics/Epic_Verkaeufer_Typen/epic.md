@@ -50,6 +50,10 @@ Das ist der bewusste Unterschied zur Voranmelde-App: Dort gibt es keinen Overrid
 
 **Default-Sortierung:** Name aufsteigend.
 
+**Leerzustand:** „Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit **+ Neu** beginnen." — überschreibt den generischen Text der [`table`](../../../../components/table/component.md) über `emptyText`.
+
+Dies ist die **einzige leere Liste der App, die den Betrieb blockiert**: `sellerTypeId` ist am Verkäufer ein Pflichtfeld ([`entities/verkaeufer.md`](../../entities/verkaeufer.md)), also kann ohne mindestens einen Typ niemand angelegt werden — auch nicht am Annahmetisch. Der Text nennt deshalb die Folge und den nächsten Schritt, nicht nur den Zustand.
+
 Keine ID-Spalte: Eine Typ-ID interessiert niemanden — anders als bei Marken, wo sie beim Import-Abgleich hilft. Der Typ wird über seinen Namen identifiziert, auch app-übergreifend (Abschnitt 4).
 
 Die Spalte **Verkäufer** (`sellerCount`) macht vor einer Änderung sichtbar, wie viele Verkäufer betroffen sind, und ist dieselbe Zahl, die über die Löschsperre entscheidet.
@@ -124,6 +128,7 @@ Es gibt **keine** Löschsperre wegen eines Default-Typs (Gegenstück zu VA AC-4)
 8. **AC-8** — IF ein Verkäufer-Typ gelöscht werden soll, der noch Verkäufern zugewiesen ist, THEN SHALL das System eine Fehlermeldung anzeigen und nicht löschen.
 9. **AC-9** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL das System „+ Neu", „Edit" und „Löschen" nicht rendern; ein dennoch gesendeter Schreib-Request SHALL mit `403` abgelehnt werden.
 10. **AC-10** — WHEN das Formular zum Anlegen eines Verkäufers geöffnet wird, THEN SHALL das System den am häufigsten zugewiesenen Typ vorbelegen, ohne die Auswahl zu erzwingen.
+11. **AC-11** — WHILE kein Verkäufer-Typ vorhanden ist, SHALL die Tabelle „Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit + Neu beginnen." anzeigen.
 
 ## Tags & Piles
 

@@ -70,6 +70,10 @@ Die Vorschau ohne Extra-Klick zu zeigen ist bewusst: Der Admin hat die Datei ger
 
 Bei ungültigem Schema erscheint statt der Vorschau eine Fehlermeldung; der Bestätigen-Button bleibt gesperrt.
 
+**Datei gültig, aber leer:** Enthält die Datei keine Verkäufer, zeigt die Vorschau „Die Datei enthält keine Verkäufer." und **„Import bestätigen" bleibt deaktiviert**.
+
+Das ist **kein Fehler** und wird nicht rot dargestellt — das Schema stimmt, die Datei ist nur leer. Ein `400` wäre falsch. Der Fall entsteht real: Der Export der Voranmelde-App nimmt nur Verkäufer **mit** Artikeln mit, und wenn dort niemand etwas erfasst hat, ist die Datei formal korrekt und inhaltlich leer.
+
 ---
 
 ## 3. Vorschau
@@ -119,6 +123,7 @@ Importierte Marken und Kategorien erhalten `original = true` — sie sind kurati
 6. **AC-6** — WHEN „Import bestätigen" geklickt wird, THEN SHALL das System eine Fortschrittsanzeige einblenden und nach Abschluss einen Toast „✓ Import erfolgreich" zeigen.
 7. **AC-7** — IF der Import fehlschlägt, THEN SHALL kein Verkäufer, kein Artikel und kein Stammdatum übernommen sein.
 8. **AC-8** — IF die Datei nicht dem erwarteten Schema entspricht, THEN SHALL das System eine Fehlermeldung anzeigen und den Bestätigen-Button gesperrt halten.
+9. **AC-9** — IF die Datei gültig ist, aber keine Verkäufer enthält, THEN SHALL das System „Die Datei enthält keine Verkäufer." **ohne** Fehlerdarstellung anzeigen und den Bestätigen-Button gesperrt halten.
 
 ## Tags & Piles
 

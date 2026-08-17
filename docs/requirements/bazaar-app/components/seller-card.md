@@ -49,6 +49,19 @@ Die Karte ersetzt eine Tabellenzeile, weil pro Verkäufer sieben Zahlen plus Sta
 
 Grid der Seite: `repeat(auto-fill, minmax(340px, 1fr))`, gap 12 px.
 
+### Leerzustand des Grids
+
+Das Grid ist **keine Tabelle** und erbt den Leerzustand von [`table`](../../../components/table/component.md) nicht — er wird hier definiert:
+
+| Fall | Anzeige |
+|---|---|
+| kein Verkäufer vorhanden | „Noch keine Verkäufer. Über **Einstellungen → Import** die Voranmeldedaten einlesen oder mit **+ Neu** einen Verkäufer anlegen." |
+| Filter ohne Treffer | „Keine Verkäufer für die gewählten Filter." plus Schaltfläche **Filter zurücksetzen** |
+
+Der Erstfall ist hier **erwartbar und häufig** — jeder Basar beginnt so, vor dem Import ist es der erste Zustand, den jemand sieht. „Keine Einträge gefunden" wäre da eine Feststellung ohne Nutzen; der Weg zum Import ist die eigentliche Information.
+
+Die Schaltfläche im Filterfall spart das Zurücksetzen von Hand, wenn drei Filter-Chips aktiv sind.
+
 ---
 
 ## 2. Aufbau
@@ -114,6 +127,8 @@ Die Kartenfläche selbst muss dabei erkennbar klickbar sein (Cursor, Hover-Hervo
 4. **AC-4** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL der Zurücksetzen-Button im Abrechnungs-Popup nicht gerendert werden.
 5. **AC-5** — THE SYSTEM SHALL Geldbeträge mit zwei Dezimalstellen und deutscher Formatierung anzeigen.
 6. **AC-6** — THE SYSTEM SHALL keinen Löschen-Button auf der Karte anbieten.
+7. **AC-7** — WHILE kein Verkäufer vorhanden ist und kein Filter aktiv ist, SHALL das Grid den Hinweis mit den Wegen Import und „+ Neu" anzeigen.
+8. **AC-8** — WHILE ein aktiver Filter kein Ergebnis liefert, SHALL das Grid „Keine Verkäufer für die gewählten Filter." und eine Schaltfläche „Filter zurücksetzen" anzeigen.
 
 ## Tags & Piles
 
