@@ -31,9 +31,33 @@ Services:
 └──────────────┘     └──────────────┘     └──────────────┘
 ```
 
+## Festlegungen zum `db`-Service
+
+| Festlegung | Wert | Warum |
+|---|---|---|
+| Image | `postgres:18-alpine` | Major gepinnt, nicht `latest` — sonst wandert die Datenbank unter der Anwendung weg, und ein Major-Sprung bedeutet Dump und Restore |
+| Datenbank | `bazaar` | |
+| Benutzer | `bazaar` | |
+| Volume | `bazaar-db-data` | benannt, nicht anonym — sonst nach `docker compose down` nicht wiederzufinden |
+| Port | `5432:5432` | wird vom Host aus für `dotnet ef` gebraucht |
+
+**Health-Check:**
+
+| Feld | Wert |
+|---|---|
+| `test` | `pg_isready -U bazaar -d bazaar` |
+| `interval` | `5s` |
+| `timeout` | `3s` |
+| `retries` | `10` |
+| `start_period` | `10s` |
+
+**Beide Apps der Suite fahren dieselbe PostgreSQL-Major.** Derselbe Wert steht verbindlich in [BPROJ-S03](../../../../bazaar-app/epics/Epic_Projektanlage/stories/BPROJ-S03-docker-compose-setup.md) — wird er hier geändert, gehört er dort mit geändert. Unterschiedliche Majors bedeuten unterschiedliche Dump-Formate; der Datenweg zwischen den Apps läuft zwar über einen JSON-Export und nicht über einen Datenbank-Dump, aber im Zweifel kopiert doch jemand einen.
+
+Stand der Prüfung: PostgreSQL 18 ist die aktuelle stabile Major (Docker Hub, 2026-08-18; 19 existiert nur als `19beta3`).
+
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL eine `docker-compose.yml` im Projekt-Root bereitstellen, die die Services `frontend`, `backend` und `db` definiert.
+- [ ] **AC-1** — THE SYSTEM SHALL eine `docker-compose.yml` im Projekt-Root bereitstellen, die die Services `frontend`, `backend` und `db` definiert; `db` SHALL das Image `postgres:18-alpine` verwenden.
 - [ ] **AC-2** — WHEN `docker compose up` ausgeführt wird, THEN SHALL alle drei Services starten und `GET http://localhost:5001/health` mit HTTP 200 antworten.
 - [ ] **AC-3** — THE SYSTEM SHALL den Service `backend` so konfigurieren, dass er erst startet, wenn `db` als `healthy` gilt (PostgreSQL `pg_isready`-Health-Check).
 - [ ] **AC-4** — THE SYSTEM SHALL alle Secrets (DB-Passwort, JWT-Secret, Connection String) ausschließlich über Environment-Variablen oder eine `.env`-Datei (gitignored) einlesen.

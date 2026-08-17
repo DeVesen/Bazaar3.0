@@ -61,6 +61,10 @@ Host                                  Docker
 
 Zusammen rund 60 Sekunden Geduld — genug für einen kalten Start auf einem langsamen Rechner, kurz genug, dass ein echter Fehler nicht minutenlang als „startet noch" erscheint.
 
+**Beide Apps der Suite fahren dieselbe PostgreSQL-Major.** Derselbe Wert steht in [VPROJ-S03](../../../../advance-registration/epics/Epic_Projektanlage/stories/VPROJ-S03-docker-compose-setup.md) — wird er hier geändert, gehört er dort mit geändert. Unterschiedliche Majors bedeuten unterschiedliche Dump-Formate; der Datenweg zwischen den Apps läuft zwar über einen JSON-Export und nicht über einen Datenbank-Dump, aber im Zweifel kopiert doch jemand einen.
+
+Stand der Prüfung: PostgreSQL 18 ist die aktuelle stabile Major (Docker Hub, 2026-08-18; 19 existiert nur als `19beta3`).
+
 ## Environment-Variablen
 
 `.env` ist gitignored, `.env.example` liegt im Repository und enthält alle Schlüssel mit Platzhaltern.
