@@ -49,6 +49,8 @@ Details → [`filter-panel`](../../../../components/filter-panel/component.md).
 
 **Suche auslösen:** explizites Absenden, kein Live-Filter beim Tippen — Enter im Freitext- oder Select-Feld, oder Klick auf den „Suchen"-Button (`p-button` mit `pi-search` links + Text „Suchen") ganz rechts im Filter-Panel.
 
+**Vergleichsregeln** (case-insensitiv, Teilwort, Token-Zerlegung, keine Mindestlänge) gelten für alle Suchfelder der App und stehen verbindlich in [`cross-cutting.md`](../../api/cross-cutting.md) Abschnitt 4.
+
 ---
 
 ## 2. Tabelle (`table-meine-artikel`)
@@ -56,6 +58,8 @@ Details → [`filter-panel`](../../../../components/filter-panel/component.md).
 → Komponente: [Table](../../../../components/table/component.md)
 
 **Sortierbare Spalten:** Nr. · Bezeichnung · Kategorie · Marke · Preis (Multi-Sort per Shift+Klick)
+
+**Leerzustand:** „Noch keine Artikel angemeldet. Mit **+ Neu** den ersten anlegen." (`emptyText`) — die leere Liste ist hier der erwartbare Anfangszustand jedes neuen Verkäufers, also gehört der nächste Schritt hin statt einer Feststellung. Der Filterfall bleibt beim generischen Text der [`table`](../../../../components/table/component.md).
 
 **„+ Neu"-Button** (Seitentitel) → öffnet Artikelanlage-Dialog.
 

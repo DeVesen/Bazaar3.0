@@ -79,7 +79,7 @@ liegen in einer eigenen Tabelle und erscheinen in keinem Verkäufer-DTO.
 
 | Parameter | Bedeutung |
 |---|---|
-| `search` | Freitext über Vorname, Nachname, Ort, E-Mail |
+| `search` | Freitext über Vorname, Nachname, Ort, E-Mail; Vergleichsregeln → [`cross-cutting.md`](cross-cutting.md) Abschnitt 4 |
 | `page`, `pageSize`, `sort` | [`cross-cutting.md`](cross-cutting.md) Abschnitt 4 |
 
 Sortierbar: `startNumber`, `firstName`, `lastName`, `postalCode`, `city`,

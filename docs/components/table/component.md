@@ -297,9 +297,22 @@ statt einer Feststellung.
 | Verkäufer-Typen (Haupt-App) | „Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit **+ Neu** beginnen." |
 | Leaderboard (Statistik) | „Noch keine Verkäufe." |
 | Artikel, Benutzer | generisch, keine Überschreibung |
+| Meine Artikel (Voranmelde-App) | „Noch keine Artikel angemeldet. Mit **+ Neu** den ersten anlegen." |
+| Alle Artikel (Voranmelde-App, Admin) | „Noch hat kein Verkäufer Artikel angemeldet." |
+| Verkäufer (Voranmelde-App, Admin) | „Noch keine Verkäufer registriert." |
+| Verkäufer-Typen (Voranmelde-App) | „Noch keine Verkäufer-Typen. Ohne Typ ist keine Registrierung möglich — mit **+ Neu** beginnen." |
+| Marken, Kategorien (Voranmelde-App) | generisch — Verkäufer legen sie beim Erfassen selbst an |
 
-Der Hinweis bei den Verkäufer-Typen ist der wichtigste: Es ist die einzige leere Liste, die
-die App **blockiert** — `sellerTypeId` ist am Verkäufer ein Pflichtfeld.
+Der Hinweis bei den Verkäufer-Typen ist in beiden Apps der wichtigste: Es ist die einzige
+leere Liste, die die App **blockiert** — `sellerTypeId` ist am Verkäufer ein Pflichtfeld. In
+der Voranmelde-App wiegt das schwerer, weil dort die **Selbstregistrierung** daran scheitert
+und mit `registration.not_enabled` abgelehnt wird, ohne dass ein Admin es merkt
+([`advance-registration/api/cross-cutting.md`](../../requirements/advance-registration/api/cross-cutting.md)).
+
+**Marken und Kategorien brauchen in der Voranmelde-App keinen Sondertext**, obwohl sie in
+der Haupt-App einen haben: Dort sind sie reine Import-Empfänger, hier entstehen sie
+beiläufig über die `+`-Anlage im Artikel-Dialog. Eine leere Liste ist der normale
+Anfangszustand und kein Handlungsbedarf für den Admin.
 
 **Nicht-Tabellen-Listen erben diesen Zustand nicht.** Karten-Grids, Sitzungslisten und
 Modal-Inhalte definieren ihn selbst; für die Haupt-App stehen sie in

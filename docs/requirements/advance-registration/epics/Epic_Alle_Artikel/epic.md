@@ -47,6 +47,8 @@ Details → [`filter-panel`](../../../../components/filter-panel/component.md).
 
 Suche auslösen: gleiches Muster wie Epic_Meine_Artikel (Enter oder „Suchen"-Button, kein Live-Filter).
 
+**Ausnahme Verkäufer-AutoComplete:** Sie tippt live — 400 ms Debounce, ab 2 Zeichen, max. 10 Vorschläge über `GET /api/sellers?search=…&pageSize=10`. Regeln und Begründung → [`cross-cutting.md`](../../api/cross-cutting.md) Abschnitt 4.
+
 ---
 
 ## 2. Tabelle (`table-admin-artikel`)
@@ -56,6 +58,8 @@ Suche auslösen: gleiches Muster wie Epic_Meine_Artikel (Enter oder „Suchen"-B
 **Spalten:** Nr. · Bezeichnung · Kategorie · Marke · Preis · Verkäufer · Aktionen
 
 **Sortierbare Spalten:** Nr. · Bezeichnung · Kategorie · Marke · Preis · **Verkäufer** (Multi-Sort per Shift+Klick)
+
+**Leerzustand:** „Noch hat kein Verkäufer Artikel angemeldet." (`emptyText`) — bewusst ohne Handlungsaufforderung: Der Admin legt hier keine Artikel an (kein „+ Neu"), er kann nur warten.
 
 **Kein „+ Neu"-Button** — Admin legt eigene Artikel über „Meine Artikel" an.
 

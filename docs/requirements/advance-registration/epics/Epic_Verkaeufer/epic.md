@@ -46,6 +46,8 @@ Details → [`verkaeufer-dialog`](../../components/verkaeufer-dialog.md) (deckt 
 Filterbereich:
 - Freitext-Suche (Name, Ort, E-Mail) — `p-iconfield` mit Such-Icon
 
+Auslösung wie in [Epic_Meine_Artikel](../Epic_Meine_Artikel/epic.md): Enter oder „Suchen"-Button, kein Live-Filter. Vergleichsregeln → [`cross-cutting.md`](../../api/cross-cutting.md) Abschnitt 4.
+
 ---
 
 ## 2. Tabelle (`table-admin-verkaeufer`)
@@ -53,6 +55,8 @@ Filterbereich:
 → Komponente: [Table](../../../../components/table/component.md)
 
 **Sortierbare Spalten:** Nr. · Vorname · Nachname · PLZ · Ort · Typ · Provision · Gebühr · Artikel (Multi-Sort per Shift+Klick)
+
+**Leerzustand:** „Noch keine Verkäufer registriert." (`emptyText`). Kein Hinweis auf „+ Neu", obwohl der Button existiert: Der Regelweg ist die Selbstregistrierung, die Admin-Anlage ist die Ausnahme.
 
 **Provision/Gebühr** sind read-only, vom gewählten Verkäufer-**Typ** abgeleitete Anzeigewerte — kein individueller Override in der Voranmelde-App (siehe `entities/verkaeufer-typ.md`; eigene Konditionsfelder pro Verkäufer gibt es erst in der Haupt-App, dort bei der Abrechnung anpassbar).
 

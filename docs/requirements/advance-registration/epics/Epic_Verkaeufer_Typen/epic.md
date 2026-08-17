@@ -46,6 +46,10 @@ Verwaltung der Verkäufer-Typen. Der `defaultTypeId` wird in den Einstellungen f
 
 **Sortierbare Spalten:** Bezeichnung · Provision % · Gebühr € · Verkäufer (Multi-Sort per Shift+Klick)
 
+**Leerzustand:** „Noch keine Verkäufer-Typen. Ohne Typ ist keine Registrierung möglich — mit **+ Neu** beginnen." — überschreibt den generischen Text der [`table`](../../../../components/table/component.md) über `emptyText`.
+
+Dies ist die **einzige leere Liste, die die App blockiert**: Ohne gesetzten `defaultTypeId` lehnt die Selbstregistrierung mit `registration.not_enabled` ab, und ein Typ muss dafür erst existieren. Der Text nennt deshalb die Folge und den nächsten Schritt.
+
 Die Spalte **Verkäufer** (`sellerCount`) macht vor einer Änderung sichtbar, wie viele Verkäufer sie trifft — Änderungen wirken sofort live (Abschnitt 4) — und ist dieselbe Zahl, die über die Löschsperre entscheidet (AC-3).
 
 ---

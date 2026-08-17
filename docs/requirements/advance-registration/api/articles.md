@@ -81,7 +81,7 @@ filtert man nach Namen, nicht nach IDs (siehe unten und
 |---|---|---|---|
 | `brand` | string | beide | exakter Match auf `brand` |
 | `category` | string | beide | exakter Match auf `category` |
-| `search` | string | beide | Freitext, Felder je Endpoint (siehe unten) |
+| `search` | string | beide | Freitext, Felder je Endpoint (siehe unten); Vergleichsregeln → [`cross-cutting.md`](cross-cutting.md) Abschnitt 4 |
 | `sellerId` | string | nur `GET /api/articles` | Match auf `sellerId` |
 | `page`, `pageSize` | int | beide | [`cross-cutting.md`](cross-cutting.md) Abschnitt 4 |
 | `sort` | string | beide | z. B. `sort=number:asc,price:desc` — Reihenfolge = Sortier-Priorität, deckt Multi-Sort per Shift+Klick ab |

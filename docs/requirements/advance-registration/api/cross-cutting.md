@@ -115,6 +115,64 @@ Benutzung) gehören in Domäne bzw. Handler und werden als Domain-Exception gewo
 **Fachliche Konfliktmeldungen** transportieren ihren Klartext in `detail` — der
 Text ist der, den das jeweilige Akzeptanzkriterium vorschreibt.
 
+### Katalog aller `errorCode`-Werte
+
+Vollständig und abschließend. Die Epics behalten ihre Akzeptanzkriterien, verweisen
+für den **Wortlaut** aber hierher — zwei Quellen für dieselbe Meldung driften
+garantiert. Der deutsche Text ist gleichzeitig der Wert des `de.json`-Eintrags.
+
+Beim Hinzufügen eines Fehlers zuerst hier nachsehen: Ein Code, den es schon gibt,
+wird wiederverwendet, nicht variiert.
+
+| `errorCode` | Status | `detail` (deutsch) | Ausgelöst von |
+|---|---|---|---|
+| `article.number_taken` | 409 | Artikelnummer *n* ist inzwischen vergeben — neue Nummer: *m* | [`articles.md`](articles.md) — zusätzliches Member `nextNumber` |
+| `article.no_free_number` | 409 | Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren | [`articles.md`](articles.md), [`blocks.md`](blocks.md) |
+| `block.overlap` | 409 | Nummernbereich überschneidet sich mit bestehendem Block | [`blocks.md`](blocks.md), [`sellers.md`](sellers.md) |
+| `block.in_use` | 409 | Block enthält bereits vergebene Nummern | [`blocks.md`](blocks.md) — Löschen |
+| `block.no_free_range` | 409 | Kein zusammenhängender freier Nummernbereich verfügbar | [`blocks.md`](blocks.md) |
+| `email.already_registered` | 409 | Diese E-Mail ist bereits registriert | [`auth.md`](auth.md), [`profile.md`](profile.md), [`sellers.md`](sellers.md) |
+| `registration.not_enabled` | 409 | Registrierung ist noch nicht freigeschaltet | [`auth.md`](auth.md) |
+| `master_data.name_taken` | 409 | *x* existiert bereits | [`master-data.md`](master-data.md) — Anlegen, Umbenennen |
+| `brand.in_use` | 409 | Marke wird noch verwendet | [`master-data.md`](master-data.md) |
+| `category.in_use` | 409 | Kategorie wird noch verwendet | [`master-data.md`](master-data.md) |
+| `seller_type.name_taken` | 409 | Ein Verkäufer-Typ mit dieser Bezeichnung existiert bereits | [`seller-types.md`](seller-types.md) |
+| `seller_type.in_use` | 409 | Verkäufer-Typ wird noch verwendet | [`seller-types.md`](seller-types.md) |
+| `seller_type.is_default` | 409 | Kann nicht gelöscht werden — ist aktuell Standard-Typ in den Einstellungen | [`seller-types.md`](seller-types.md) |
+| `seller.last_admin` | 409 | Der letzte Admin kann nicht gelöscht werden | [`sellers.md`](sellers.md) |
+| `seller.self_delete_via_profile` | 409 | Zum Löschen des eigenen Accounts das Profil verwenden | [`sellers.md`](sellers.md) |
+| `profile.admin_self_delete` | **403** | Admin-Accounts können nur von einem anderen Admin gelöscht werden | [`profile.md`](profile.md) |
+| `settings.start_number_conflict` | 409 | Startnummer liegt über bereits vergebenen Artikelnummern | [`settings.md`](settings.md) |
+
+**`*n*`, `*m*` und `*x*`** stehen für Werte, die der Server einsetzt — Nummer,
+Folgenummer bzw. Name. Sie gehören in `detail`, damit die Meldung ohne zweiten
+Request handlungsleitend ist. In den `de.json`/`en.json`-Einträgen entsprechen sie
+ngx-translate-Platzhaltern; das Frontend nutzt `detail` nur als Fallback (siehe oben).
+
+**`profile.admin_self_delete` ist der einzige Fall mit `403`** statt `409`: Er
+scheitert nicht an einer fachlichen Invariante, sondern daran, dass ein Admin diesen
+Endpoint für sich selbst nicht aufrufen darf. Die Rolle ist der Grund, nicht der
+Datenzustand.
+
+**Wiederverwendung ist gewollt:** `email.already_registered` tritt an drei Endpoints
+auf, weil es dieselbe Situation ist. Ein eigener Code je Aufrufstelle würde drei
+Übersetzungseinträge für einen Satz bedeuten.
+
+**Ein Code für beide Stammdaten-Arten:** `master_data.name_taken` deckt Marke und
+Kategorie ab, weil beide über dieselbe Endpoint-Familie laufen und die Meldung
+identisch ist. Beim *Löschen* dagegen sind es zwei Codes (`brand.in_use`,
+`category.in_use`) — dort nennt die Meldung die Art, weil der Nutzer wissen muss,
+welche Referenz er auflösen soll.
+
+**Abweichung zur Haupt-App ist bekannt und bleibt:** Dort heißen die
+Duplikat-Codes `brand.already_exists` und `category.already_exists`, der Typ-Fall
+`seller_type.already_exists` ([`bazaar-app/api/cross-cutting.md`](../../bazaar-app/api/cross-cutting.md)
+Abschnitt „Fehler-Responses"). Das ist kein Versehen: Die Haupt-App ist einsprachig
+und braucht die Codes für Frontend-Reaktionen, hier tragen sie Übersetzungen. Beide
+Kataloge sind je App abschließend, und keine Komponente liest beide — die Codes
+gehen nirgends über die App-Grenze, der Export-JSON-Contract enthält keine
+Fehlercodes.
+
 ### Status-Code-Katalog
 
 | Code | Verwendung |
@@ -130,7 +188,7 @@ Text ist der, den das jeweilige Akzeptanzkriterium vorschreibt.
 
 ---
 
-## 4. Pagination
+## 4. Pagination, Suche und Sortierung
 
 **Paginiert** sind ausschließlich die potenziell großen Listen:
 `GET /api/articles`, `GET /api/articles/mine`, `GET /api/sellers`.
@@ -157,6 +215,65 @@ Passt direkt auf den `lazy`-Modus der PrimeNG-`p-table`
 **Bewusst nicht paginiert** (vollständige Liste, dient auch als Dropdown-Quelle,
 Datenmenge zweistellig): `GET /api/brands`, `GET /api/categories`,
 `GET /api/seller-types`, `GET /api/blocks/mine`.
+
+### Suchverhalten
+
+Gilt für **jeden** `search`-Parameter der App — `GET /api/sellers`,
+`GET /api/articles`, `GET /api/articles/mine`. Welche Felder je Endpoint durchsucht
+werden, steht in der jeweiligen Datei; **wie** verglichen wird, steht nur hier.
+
+| Regel | Festlegung |
+|---|---|
+| Groß-/Kleinschreibung | **ignoriert** (`ILIKE`) |
+| Umlaut-Toleranz | **keine** — „mueller" findet „Müller" nicht |
+| Treffer | **Teilwort an beliebiger Stelle** (`%begriff%`), nicht nur Präfix |
+| Mehrere Wörter | Eingabe an Leerzeichen zerlegt; **jedes** Token muss in **irgendeinem** der Suchfelder vorkommen |
+| Mindestlänge | **keine** — leer zeigt alles, ein Zeichen filtert |
+| Trimmen | ja; nur Leerzeichen gilt als leer |
+| Auslösung | **explizites Absenden** — Enter oder „Suchen"-Button, kein Debounce |
+
+**Case-insensitiv ist zwingend:** PostgreSQL vergleicht mit `LIKE` case-sensitiv,
+und auf dem Handy tippt niemand Großbuchstaben.
+
+**Keine Umlaut-Toleranz** ist eine bewusste Grenze, kein Versäumnis: Sie bräuchte
+die `unaccent`-Extension plus Ausdrucks-Index und würde den häufigsten Fall trotzdem
+nicht abdecken — `unaccent` macht aus `ü` ein `u`, nicht aus `ue` ein `ü`. Wer
+„Müller" nicht tippen kann, sucht „ller" oder den Vornamen.
+
+**Token-Zerlegung** ist nötig, weil Vor- und Nachname getrennte Spalten sind:
+„anna meier" als ein Suchstring findet nichts. Mit Zerlegung finden „anna meier"
+und „meier anna" dieselbe Person.
+
+**Kein Debounce**, weil hier — anders als in der Haupt-App — nicht live gefiltert
+wird: Die Suche feuert erst beim Absenden (siehe
+[Epic_Meine_Artikel](../epics/Epic_Meine_Artikel/epic.md) Abschnitt 1). Das ist die
+richtige Wahl für eine Cloud-App mit mehreren Filterfeldern — sonst löst jeder
+Tastendruck einen Request über eine Internetverbindung aus, und drei Filter zusammen
+zu setzen erzeugte drei Zwischenabfragen.
+
+**Nicht paginierte Tabellen filtern clientseitig** — Marken, Kategorien,
+Verkäufer-Typen und `GET /api/blocks/mine` liegen vollständig im Frontend, gefiltert
+wird über das Filter-Menü der [Table](../../../components/table/component.md)-Komponente
+ohne Request. Es gelten dieselben Vergleichsregeln, nur lokal. Dasselbe gilt für die
+[AutoComplete-Create](../../../components/autocomplete-create/component.md)-Felder für
+Marke und Kategorie im Artikel-Dialog; ihre **Duplikatprüfung beim Anlegen bleibt
+serverseitig** (`master_data.name_taken`), weil der lokale Stand veraltet sein kann.
+
+**Ausnahme Verkäufer-AutoComplete** (Filter-Panel in
+[Epic_Alle_Artikel](../epics/Epic_Alle_Artikel/epic.md)): Sie tippt als einziges Feld
+live, weil ein Type-Ahead ohne Vorschläge während des Tippens sinnlos ist. Regeln:
+
+| Regel | Festlegung |
+|---|---|
+| Quelle | `GET /api/sellers?search=…&pageSize=10` — dieselbe Vergleichssemantik wie oben |
+| Debounce | **400 ms** |
+| Mindestlänge | **2 Zeichen** — darunter kein Request und keine Vorschlagsliste |
+| Keine Treffer | `p-autoComplete`-Standardmeldung „Keine Ergebnisse" |
+
+Die Mindestlänge von 2 ist hier richtig, obwohl sie oben abgelehnt wird: Ein
+Vorschlagsfeld, das bei „a" die erste Seite aller Verkäufer zeigt, hilft niemandem —
+im Unterschied zur Tabelle, die genau dafür da ist, eine lange Liste anzuzeigen.
+`pageSize=10` begrenzt das Overlay; wer nicht dabei ist, tippt weiter.
 
 ### Sortierung
 
