@@ -33,7 +33,7 @@ Fachliche Zuordnung → Rechte-Matrix in [`spec.md`](../spec.md) Abschnitt 4.1.
 
 | Endpoint | Auth | Datei |
 |---|---|---|
-| `GET /health` | `public` | — (BPROJ-S02; **ohne** `/api`-Präfix, ohne Auth, liefert `{ "status": "healthy" }`) |
+| `GET /health` | `public` | — (BPROJ-S02/S04; **ohne** `/api`-Präfix, ohne Auth. `200` mit `{ "status": "healthy" }`, wenn die Datenbank erreichbar ist, sonst `503` mit `{ "status": "unhealthy" }`) |
 | `POST /api/auth/login` | `public` | [auth.md](auth.md) |
 
 ### Konto

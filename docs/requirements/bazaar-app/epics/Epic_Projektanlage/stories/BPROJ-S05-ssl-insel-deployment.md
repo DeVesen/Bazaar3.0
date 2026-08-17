@@ -93,6 +93,7 @@ Beides, weil beide Aufrufwege vorkommen: Wer den Namen nicht kennt oder wessen G
 ## Akzeptanzkriterien
 
 - [ ] **AC-1** — THE SYSTEM SHALL eine `docker-compose.local.yml` bereitstellen, die den Service `frontend` auf das Production-Image umstellt, `443:443` und `80:80` veröffentlicht, den `ports`-Eintrag von `db` entfernt und allen Services `restart: unless-stopped` gibt.
+- [ ] **AC-1b** — THE SYSTEM SHALL den Service `backend` mit `depends_on: db: condition: service_healthy` konfigurieren, sodass er erst nach der Datenbank startet. Die Wartelogik in der App bleibt als zweite Ebene bestehen ([BPROJ-S04](BPROJ-S04-efcore-datenbank-setup.md) AC-5).
 - [ ] **AC-2** — THE SYSTEM SHALL ein `frontend/Dockerfile` als Multi-Stage-Build bereitstellen, dessen letzte Stage auf `nginx:alpine` basiert und den Output von `ng build --configuration production` enthält. Ein separater nginx-Service und ein geteiltes Build-Volume SHALL **nicht** existieren.
 - [ ] **AC-3** — WHEN `docker compose -f docker-compose.yml -f docker-compose.local.yml up -d` ausgeführt wird, THEN SHALL der Frontend-Container auf 443 lauschen und HTTPS-Requests entgegennehmen.
 - [ ] **AC-4** — THE SYSTEM SHALL Requests an `/api/*` an `http://backend:5000` weiterleiten und alle übrigen Requests aus dem statischen Build-Output bedienen; unbekannte Pfade SHALL auf `index.html` fallen.
