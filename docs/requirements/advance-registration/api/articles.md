@@ -1,6 +1,7 @@
 ---
 status: reviewed
 reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # API: Artikel
@@ -24,6 +25,7 @@ Components → [`artikel-dialog.md`](../components/forms/artikel-dialog.md),
 | Endpoint | Auth | Zweck |
 |---|---|---|
 | `GET /api/articles/mine` | `authenticated` | Eigene Artikel, paginiert + gefiltert |
+| `GET /api/articles/next-number` | `authenticated` | Nummern-Vorschlag für den Anlege-Dialog |
 | `POST /api/articles` | `authenticated` | Artikel anlegen |
 | `PUT /api/articles/{id}` | `authenticated` | Eigenen Artikel ändern |
 | `DELETE /api/articles/{id}` | `authenticated` | Eigenen Artikel löschen |
@@ -107,7 +109,42 @@ Eigene Artikel des eingeloggten Nutzers.
 
 ---
 
-## 2. `POST /api/articles`
+## 2. `GET /api/articles/next-number`
+
+Liefert die Artikelnummer, die der eingeloggte Verkäufer beim nächsten Anlegen
+bekäme. Das Frontend ruft den Endpoint beim Öffnen des Anlege-Dialogs und zeigt
+den Wert im schreibgeschützten Feld „Artikelnummer" — der Verkäufer kennt seine
+Nummer damit vor dem Speichern und kann sie direkt aufs Etikett schreiben
+(Epic_Meine_Artikel AC-1).
+
+**Response `200`**
+```json
+{ "number": 104 }
+```
+
+**Berechnung:** nächster freier Platz im aktuellen Nummernblock des Verkäufers;
+ist der Block aufgebraucht, die `fromNumber` des Blocks, den die automatische
+Erweiterung zuweisen würde (→ [`blocks.md`](blocks.md) Abschnitt 5).
+
+**Der Vorschlag ist unverbindlich und reserviert nichts.** Der Endpoint schreibt
+nicht — er legt keinen Block an und vergibt keine Nummer. Zwei parallele
+Anlegevorgänge desselben Verkäufers (zwei Tabs, zwei Geräte) sehen daher beide
+dieselbe Nummer; der zweite läuft beim Speichern in den Konflikt aus
+Abschnitt 3. Eine echte Reservierung mit Ablauf-Logik wurde bewusst verworfen:
+sie brächte TTL-Verwaltung, einen Cleanup-Job und Nummernlücken bei jedem
+Dialog-Abbruch.
+
+**Implementierung:** derselbe `NumberBlockAllocator` wie die echte Vergabe, nur
+im Dry-Run-Pfad — die Vergaberegel darf nicht in zwei Code-Pfaden getrennt
+existieren, sonst laufen Vorschlag und tatsächliche Nummer auseinander.
+
+**Fehler:** `409` `errorCode: article.no_free_number` — gleiche Meldung wie in
+Abschnitt 3. Das Anlegen scheitert damit bereits beim Öffnen des Dialogs statt
+erst nach vollständiger Eingabe.
+
+---
+
+## 3. `POST /api/articles`
 
 **Request**
 ```json
@@ -118,7 +155,8 @@ Eigene Artikel des eingeloggten Nutzers.
   "price": 12.50,
   "size": "116",
   "color": "rot",
-  "description": "kaum getragen"
+  "description": "kaum getragen",
+  "expectedNumber": 104
 }
 ```
 
@@ -130,6 +168,19 @@ derselben Transaktion automatisch den nächsten freien Block zu (kanonische Rege
 
 `sellerId` wird aus dem `sub`-Claim gesetzt, nicht aus dem Request
 übernommen.
+
+### `expectedNumber` — Vorbedingung, keine Wahl
+
+Optionales Feld. Es enthält den Vorschlag aus Abschnitt 2, den der Verkäufer im
+Dialog gesehen hat, und wirkt als **Vorbedingung**: Weicht die Nummer, die der
+Allocator jetzt vergeben würde, von `expectedNumber` ab, bricht das Backend mit
+`409` ab statt still eine andere Nummer zu speichern. Der Verkäufer wählt seine
+Nummer damit weiterhin nicht — er bestätigt nur, welche Nummer ihm angezeigt
+wurde.
+
+Fehlt das Feld, vergibt das Backend ohne Prüfung. Damit bleiben Aufrufer ohne
+vorherigen `next-number`-Abruf (Selbstregistrierung, Skripte, Tests) unverändert
+lauffähig.
 
 **Legt `brand`/`category` nicht automatisch als Stammdatum an.** Das passiert
 separat über das AutoComplete-Anlegen-Modal gegen
@@ -143,14 +194,23 @@ Artikel gespeichert wird.
 | Code | Bedeutung |
 |---|---|
 | `400` | Pflichtfeld fehlt, oder `price` ≤ 0 → `errors.price: ["Preis muss größer als 0 sein"]` (Epic_Meine_Artikel AC-6) |
+| `409` | `errorCode: article.number_taken` — `expectedNumber` ist inzwischen vergeben. Nichts wurde gespeichert. Zusätzliches Extension-Member `nextNumber` trägt den neuen Vorschlag: `{ "errorCode": "article.number_taken", "detail": "Artikelnummer 104 ist inzwischen vergeben — neue Nummer: 105", "nextNumber": 105 }` (Epic_Meine_Artikel AC-7) |
 | `409` | `errorCode: article.no_free_number` — „Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren", wenn global keine Nummer mehr vergeben werden kann |
+
+`nextNumber` erspart dem Frontend einen zweiten `next-number`-Roundtrip und
+schließt das Zeitfenster, in dem auch dieser Wert schon wieder veraltet wäre.
+Ganz ausschließen lässt sich die Wiederholung nicht: theoretisch kann derselbe
+Konflikt beim nächsten Speichern erneut auftreten. Ein Retry-Limit gibt es
+bewusst nicht — jeder Durchlauf ist eine explizite Nutzer-Entscheidung
+(Speichern-Klick), keine automatische Schleife.
 
 ---
 
-## 3. `PUT /api/articles/{id}`
+## 4. `PUT /api/articles/{id}`
 
-Gleicher Request-Body wie `POST`. `number` und `sellerId` sind **nicht**
-änderbar — die Artikelnummer ist im Dialog schreibgeschützt.
+Gleicher Request-Body wie `POST`, ohne `expectedNumber` — beim Bearbeiten steht
+die Nummer bereits fest, es gibt nichts zu prüfen. `number` und `sellerId` sind
+**nicht** änderbar; die Artikelnummer ist im Dialog schreibgeschützt.
 
 **Response `200`** — aktualisierter Artikel · **`404`** bei fremdem oder
 unbekanntem Artikel
@@ -160,7 +220,7 @@ unbekanntem Artikel
 
 ---
 
-## 4. `DELETE /api/articles/{id}`
+## 5. `DELETE /api/articles/{id}`
 
 Hard-Delete. Die freigewordene `number` wird **nicht** wiederverwendet — der
 Nummernblock zählt weiter hoch.
@@ -173,7 +233,7 @@ Das Frontend fragt vorher über einen
 
 ---
 
-## 5. `GET /api/articles` (Admin)
+## 6. `GET /api/articles` (Admin)
 
 Alle Artikel aller Verkäufer.
 
@@ -204,9 +264,9 @@ Jedes Item trägt zusätzlich den aufgelösten Verkäufer für die Spalte
 
 ---
 
-## 6. `GET /api/articles/{id}` (Admin)
+## 7. `GET /api/articles/{id}` (Admin)
 
-Readonly-Detail für das Modal — dasselbe Objekt wie ein Item aus Abschnitt 5,
+Readonly-Detail für das Modal — dasselbe Objekt wie ein Item aus Abschnitt 6,
 inklusive `seller`. Das Modal hat nur einen Schließen-Button, es gibt daher
 bewusst **kein** `PUT`/`DELETE` auf fremde Artikel.
 

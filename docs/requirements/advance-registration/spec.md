@@ -231,6 +231,7 @@ Feature-spezifische UI-Specs:
 | **Datenbank** | PostgreSQL |
 | **UI-Bibliothek** | PrimeNG 22.0.0 |
 | **Containerisierung** | Docker / Docker Compose |
+| **QR-Code-Erzeugung** | `@zxing/library` (`BrowserQRCodeSvgWriter`, clientseitig, kein externer Service) |
 | **Mehrsprachigkeit** | ngx-translate (DE + EN) |
 | **Icons** | Material Symbols (npm-Paket) |
 | **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) |
@@ -333,7 +334,7 @@ Titelleiste: Hintergrundfarbe = Sidebar-Farbe. Sidebar bei `top: 56px` unter der
 
 ### 11.1 Marken & Kategorien — Synchronisierung
 
-Marken und Kategorien können exportiert und in die Haupt-App importiert werden (und umgekehrt).
+Marken und Kategorien können exportiert und in die Haupt-App importiert werden. Der Datenfluss ist **einseitig** — es gibt keinen Rückkanal aus der Haupt-App.
 
 ### 11.2 `original`-Flag (Marken & Kategorien)
 

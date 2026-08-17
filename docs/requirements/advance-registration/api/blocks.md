@@ -1,6 +1,7 @@
 ---
 status: reviewed
 reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # API: Nummernblöcke
@@ -170,6 +171,11 @@ derselben Transaktion automatisch den nächsten freien Block zu
 Der neue Block erscheint anschließend in `GET /api/blocks/mine`. Existiert
 global kein freier Bereich mehr, schlägt das Anlegen mit `409` fehl
 (siehe [`articles.md`](articles.md)).
+
+`GET /api/articles/next-number` liefert dieselbe Nummer als **Vorschau**, ohne
+etwas zu vergeben — beide Wege nutzen denselben `NumberBlockAllocator`, einmal
+schreibend und einmal im Dry-Run (siehe [`articles.md`](articles.md)
+Abschnitt 2).
 
 ---
 
