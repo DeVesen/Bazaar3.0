@@ -41,7 +41,7 @@ Mit **⧉** markierte Einträge liegen **suite-weit** unter [`docs/components/`]
 | [filter-panel ⧉](../../../components/filter-panel/component.md) | Such-/Filterzeile über der Tabelle (`card`-Filter-Variante), nicht das Spalten-Filter-Menü |
 | [block-liste.md](custom/block-liste.md) | Read-only-Liste der Nummernblöcke im Verkäufer-Dialog |
 | [sidebar-title.md](custom/sidebar-title.md) | Logo-Icon + Markenname im `p-sidebar-header`-Slot |
-| [sidebar-footer.md](custom/sidebar-footer.md) | Avatar, Rolle, Role-Toggle, Logout im `p-sidebar-footer`-Slot |
+| [sidebar-footer ⧉](../../../components/sidebar-footer/component.md) | Avatar, Rolle, Role-Toggle, Logout im `p-sidebar-footer`-Slot |
 | [login-layout.md](custom/login-layout.md) | 2-Spalten-Grid für Login- und Registrierungsseite |
 | [login-info-panel.md](custom/login-info-panel.md) | Linke Login-Spalte: Countdown, Default-Konditionen, Markdown-Infotext |
 | [markdown-text.md](custom/markdown-text.md) | Rendert den admin-gepflegten `infoText` als HTML — **verbindliche Quelle für den unterstützten Markdown-Umfang**; genutzt in `login-info-panel`, `home-dashboard` und der Vorschau in `einstellungen-form` |

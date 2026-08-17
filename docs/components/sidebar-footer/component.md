@@ -90,7 +90,9 @@ button pButton link ← Logout-Aktion
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_App_Shell](../../requirements/advance-registration/epics/Epic_App_Shell/epic.md) VSHELL-S01 AC-7/8/9 — dort die Struktur-Referenz ([`components/sidebar-footer.md`](../../requirements/advance-registration/components/custom/sidebar-footer.md)), keine eigenen zusätzlichen AC hier.
+Verbindliche Kriterien stehen in den Shell-Stories der Apps, nicht hier: [VSHELL-S01](../../requirements/advance-registration/epics/Epic_App_Shell/stories/VSHELL-S01-sidebar-navigation.md) AC-7/8/9 für die Voranmelde-App, [BSHELL-S01](../../requirements/bazaar-app/epics/Epic_App_Shell/stories/BSHELL-S01-sidebar-navigation.md) AC-3d für die Haupt-App.
+
+Diese Datei ist die **Struktur-Referenz** für den Footer-Inhalt — es gibt keine zweite Beschreibung davon.
 
 ## Tags & Piles
 
