@@ -30,8 +30,27 @@ Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) 
 | `releasedAt` | DateTime? | — | Freigabe zum Verkauf; wird beim Buchen der Annahme gleichzeitig mit `acceptedAt` gesetzt |
 | `soldAt` | DateTime? | — | Kassenvorgang |
 | `returnedAt` | DateTime? | — | Rückgabe an den Verkäufer |
+| `soldManually` | boolean | ✅ | Default `false`. `true`, wenn `soldAt` über das Artikelstatus-Popup von Hand gesetzt wurde — also ohne Kassenvorgang. Der Kassenvorgang setzt es nicht, der Import nie |
 
 `createdAt` und `updatedAt` sind nicht editierbar (`spec.md` Abschnitt 9.4).
+
+## Änderbarkeit
+
+Je näher ein Feld am Geld liegt, desto strenger die Sperre — verbindlich beschrieben in
+[Epic_Artikel](../epics/Epic_Artikel/epic.md) Abschnitt 4:
+
+| Zustand | Gesperrt |
+|---|---|
+| `soldAt` gesetzt | `price` |
+| Verkäufer abgerechnet (`settledAt` gesetzt) | alle Felder und alle Zeitstempel |
+
+Der Preis ist ab dem Verkauf gesperrt, weil er **der Umsatz** ist. Gelöst wird die Sperre
+nur über das Stornieren (Verkauf bzw. Abrechnung), damit eine ausgezahlte Summe
+nachvollziehbar bleibt.
+
+`soldManually` erlaubt es, Verkäufe ohne Kassenvorgang bei der Kassenabstimmung zu
+benennen; ohne dieses Feld wäre eine Differenz in der Geldschublade keiner Ursache
+zuzuordnen.
 
 ## Status
 

@@ -106,7 +106,7 @@ Verbindlich für alle Epics. Ein Epic, das davon abweichen will, ändert diese T
 | Verkauf | ✅ | ✅ |
 | Abrechnung | ✅ | ✅ |
 | Drucken (Aktion in Artikelannahme und Abrechnung, keine eigene Seite) | ✅ | ✅ |
-| Artikel (Übersicht) | ✅ | ✅ lesen, kein Status-Popup |
+| Artikel (Übersicht) | ✅ | ✅ lesen und bearbeiten, kein Löschen, kein Status-Popup |
 | Verkäufer | ✅ | ✅ anlegen und bearbeiten, kein Löschen |
 | Verkäufer-Konditionen überschreiben (`salesCommission`, `feePerItem`) | ✅ | ❌ — sieht die aus dem Typ abgeleiteten Werte schreibgeschützt |
 | Marken / Kategorien / Verkäufer-Typen | ✅ | ✅ lesen; Marken und Kategorien zusätzlich implizit über AutoComplete anlegen (Abschnitt 9.3) |

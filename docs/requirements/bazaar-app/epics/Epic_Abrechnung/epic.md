@@ -118,6 +118,8 @@ Provisions-Zeile: Betrag in danger-Farbe.
 
 Klick **„Buchen"** → `settledAt = jetzt` wird am Verkäufer gesetzt.
 
+**Danach ist der Verkäufer gesperrt:** Alle Felder und Zeitstempel seiner Artikel lehnen Änderungen mit `409` ab ([Epic_Artikel](../Epic_Artikel/epic.md) Abschnitt 4). Der einzige Weg zurück ist das **Stornieren der Abrechnung** über das Status-Popup der Verkäufer-Karte — Admin-only und bestätigungspflichtig ([Epic_Verkaeufer](../Epic_Verkaeufer/epic.md) Abschnitt 3). So bleibt eine ausgezahlte Summe nachvollziehbar, statt nachträglich still zu wandern.
+
 ---
 
 ## 5. Druckfunktion (Abrechnung)

@@ -68,10 +68,14 @@ Die Statistik-Seite bietet eine aktuelle Übersicht des Basar-Stands (Berechnung
 | # | Kennzahl | Beschreibung |
 |---|---|---|
 | 1 | Einnahmen Brutto | Summe der Verkaufspreise aller verkauften Artikel |
-| 2 | Verdienst Provision | Anteil des Veranstalters aus dem Provisions-Satz des Verkäufer-Typs |
-| 3 | Verdienst Gebühren | Pauschalgebühr pro verkauftem Artikel × Anzahl Verkäufe |
+| 2 | Verdienst Provision | Anteil des Veranstalters aus `salesCommission` **des Verkäufers** |
+| 3 | Verdienst Gebühren | `feePerItem` des Verkäufers × Anzahl seiner verkauften Artikel |
 | 4 | Verdienst Gesamt | Provision + Gebühren |
 | 5 | Auszahlung VK | Einnahmen Brutto − Verdienst Gesamt |
+
+**Nicht der Verkäufer-Typ ist maßgeblich, sondern die eigenen Felder des Verkäufers** (`salesCommission`, `feePerItem`). Der Typ hat sie nur belegt und kann sich seither geändert haben — [`spec.md`](../../spec.md) Abschnitt 9.7 und [Epic_Verkaeufer_Typen](../Epic_Verkaeufer_Typen/epic.md) AC-7.
+
+**Manuelle Verkäufe getrennt ausweisen:** Artikel mit `soldManually = true` sind über das Artikelstatus-Popup verkauft worden, ohne Kassenvorgang ([Epic_Artikel](../Epic_Artikel/epic.md) Abschnitt 3). Sie zählen in allen Kennzahlen mit, werden aber zusätzlich als eigene Summe „davon manuell" unter „Einnahmen Brutto" gezeigt — das ist die Zahl, die bei der Kassenabstimmung am Abend fehlt und sonst nicht auffindbar wäre.
 
 ---
 

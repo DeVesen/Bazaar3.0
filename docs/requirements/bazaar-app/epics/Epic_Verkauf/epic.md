@@ -116,7 +116,7 @@ Klick auf **„BUCHEN"** → Popup (Größe `sm`) öffnet sich — **ohne** noch
 ### Buchungsablauf
 
 Klick auf **„Bezahlt"**:
-1. Alle Warenkorb-Artikel erhalten `soldAt = jetzt`
+1. Alle Warenkorb-Artikel erhalten `soldAt = jetzt`; `soldManually` bleibt dabei `false` — es kennzeichnet ausschließlich Verkäufe ohne Kassenvorgang ([Epic_Artikel](../Epic_Artikel/epic.md) Abschnitt 3)
 2. Warenkorb leert sich
 3. Artikelnummer-Eingabe leert sich
 4. InfoArea zeigt: *„Ersten Artikel eingeben bitte …"* (blau)
