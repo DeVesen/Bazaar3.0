@@ -24,8 +24,8 @@ sich die Fassungen unterscheiden. Bei Widerspruch gewinnt immer die App-Datei.
 
 | Entität | Voranmelde-App | Haupt-App | Wesentlicher Unterschied |
 |---|---|---|---|
-| **Artikel** | ✅ | ✅ | Haupt-App zusätzlich `alternativePrice` und die vier Status-Zeitstempel (`acceptedAt`, `releasedAt`, `soldAt`, `returnedAt`); in der Voranmelde-App ist jeder Artikel implizit „registriert" |
-| **Verkäufer** | ✅ | ✅ | Voranmelde-App: Login-Identität (`passwordHash`, Invite-Felder, `isAdmin`). Haupt-App: eigene Konditionsfelder (`salesCommission`, `feePerItem`) und `settledAt` |
+| **Artikel** | ✅ | ✅ | Haupt-App zusätzlich die vier Status-Zeitstempel (`acceptedAt`, `releasedAt`, `soldAt`, `returnedAt`) und `soldManually`; in der Voranmelde-App ist jeder Artikel implizit „registriert" |
+| **Verkäufer** | ✅ | ✅ | Voranmelde-App: Login-Identität (`passwordHash`, Invite-Felder, `isAdmin`). Haupt-App: eigene Konditionsfelder (`salesCommission`, `feePerItem`), die kassierte Annahmegebühr `intakeFeePaid` und `settledAt` |
 | **Verkäufer-Typ** | ✅ | ✅ | Voranmelde-App: einzige Quelle der Konditionen. Haupt-App: nur Vorlage, überschreibbar am Verkäufer |
 | **Marke / Kategorie** | ✅ | ✅ | Gleiche Felder (`name`, `original`); `original` bedeutet in der Voranmelde-App „während der Voranmeldephase angelegt", in der Haupt-App „am Basar-Tag angelegt" |
 | **Nummernblock** | ✅ | — | Nummernvergabe passiert ausschließlich vorab |

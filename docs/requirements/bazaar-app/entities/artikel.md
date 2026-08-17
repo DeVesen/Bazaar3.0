@@ -20,7 +20,6 @@ Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) 
 | `brand` | string | ✅ | Marke — denormalisierter String, kein FK (AutoComplete-Create, Freitext möglich) |
 | `category` | string | ✅ | Kategorie — denormalisierter String, kein FK |
 | `price` | decimal | ✅ | Verkaufspreis, 2 Dezimalstellen |
-| `alternativePrice` | decimal? | ❌ | Optional, z. B. Mindestpreis |
 | `description` | string | ❌ | Beschreibung, optional |
 | `size` | string | ❌ | Größe, optional |
 | `color` | string | ❌ | Farbe, optional |
