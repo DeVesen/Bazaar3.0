@@ -18,6 +18,21 @@ Die Major-Version **22.0.0** ist identisch zur Voranmelde-App (VPROJ-S01). Beide
 
 Die Struktur ist **Feature-First** (verbindliche Quelle: [`spec.md`](../../../spec.md) Abschnitt 7.0.1). „Epic" ist ein Begriff der Dokumentation, nicht der Laufzeit — im Code heißt der Ordner `features/`.
 
+## Voraussetzungen an die Entwicklungsumgebung
+
+Vor `ng new` zu prüfen — die Angular CLI bricht sonst mit einer Versionsmeldung ab, bevor
+irgendetwas angelegt wird:
+
+| Werkzeug | Anforderung | Warum |
+|---|---|---|
+| **Node.js** | `^22.22.3` oder `^24.15.0` oder `>= 26.0.0` | Engine-Anforderung der Angular CLI 22 (`engines.node`). Ältere 24er-Versionen wie 24.12 werden abgelehnt, obwohl sie „Node 24" sind |
+| **npm** | Version aus dem Node-Paket | keine eigene Anforderung |
+| **.NET SDK** | 10.x | siehe BPROJ-S02 |
+
+Die Node-Anforderung ist **nicht** dieselbe wie bei Angular 21 (`^20.19 || ^22.12 || >= 24.0.0`) —
+der Sprung auf Angular 22 verschärft sie. Wer mit einer 24.x-Version unter 24.15 arbeitet,
+braucht ein Node-Update, bevor diese Story beginnen kann.
+
 ## Scope
 
 **In Scope:** `ng new`, Standalone Components, OnPush, Signals, PrimeNG 22.0.0 installieren und konfigurieren, Angular Material Icons (npm), `provideAnimations`, Verzeichnisstruktur `features/` + `core/` + `shared/`, Path-Aliases, ESLint-Importgrenzen.

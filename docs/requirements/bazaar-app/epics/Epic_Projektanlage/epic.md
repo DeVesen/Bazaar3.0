@@ -45,6 +45,10 @@ Ergänzend aus dem Review dieses Epics:
 
 Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich (Frontend + Backend zusammen). Es ist Voraussetzung für alle nachfolgenden Epics. Siehe Entwicklungsrichtlinie in [`spec.md`](../../spec.md) Abschnitt 7.0.2.
 
+## Werkzeug-Voraussetzungen
+
+Node.js in einer von der Angular CLI 22 akzeptierten Version (`^22.22.3`, `^24.15.0` oder `>= 26.0.0`) und das .NET-SDK 10.x. Vollständige Tabelle mit Begründung → [BPROJ-S01](stories/BPROJ-S01-angular-projekt-anlegen.md) Abschnitt „Voraussetzungen an die Entwicklungsumgebung".
+
 ## Stories
 
 - [BPROJ-S01 — Angular-Projekt anlegen](stories/BPROJ-S01-angular-projekt-anlegen.md)

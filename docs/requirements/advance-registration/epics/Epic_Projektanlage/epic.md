@@ -38,6 +38,10 @@ Die Voranmelde-App lebt in einem **eigenen Repository** — `frontend/` und `bac
 
 Der Unterschied zur Haupt-App: Mehrsprachigkeit (ngx-translate) wird hier bereits im Projekt-Setup verankert, und das Backend enthält die Grundkonfiguration für JWT-Authentifizierung.
 
+## Werkzeug-Voraussetzungen
+
+Node.js in einer von der Angular CLI 22 akzeptierten Version (`^22.22.3`, `^24.15.0` oder `>= 26.0.0`) und das .NET-SDK 10.x. Vollständige Tabelle mit Begründung → [VPROJ-S01](stories/VPROJ-S01-angular-projekt-anlegen.md) Abschnitt „Voraussetzungen an die Entwicklungsumgebung".
+
 ## Stories
 
 - [VPROJ-S02 — .NET Minimal API anlegen](stories/VPROJ-S02-dotnet-api-anlegen.md)

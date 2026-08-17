@@ -14,6 +14,21 @@ Ein Entwickler legt das Angular 22 Frontend-Projekt der Voranmelde-App an, konfi
 
 Die Voranmelde-App läuft in der Cloud und unterstützt Deutsch (Default) und Englisch. ngx-translate wird von Beginn an eingebunden, damit alle späteren Epic-Texte über Übersetzungs-Keys angebunden werden. Die App benötigt keine Offline-Fähigkeit (kein CDN-Ausschluss wie in der Haupt-App).
 
+## Voraussetzungen an die Entwicklungsumgebung
+
+Vor `ng new` zu prüfen — die Angular CLI bricht sonst mit einer Versionsmeldung ab, bevor
+irgendetwas angelegt wird:
+
+| Werkzeug | Anforderung | Warum |
+|---|---|---|
+| **Node.js** | `^22.22.3` oder `^24.15.0` oder `>= 26.0.0` | Engine-Anforderung der Angular CLI 22 (`engines.node`). Ältere 24er-Versionen wie 24.12 werden abgelehnt, obwohl sie „Node 24" sind |
+| **npm** | Version aus dem Node-Paket | keine eigene Anforderung |
+| **.NET SDK** | 10.x | siehe VPROJ-S02 |
+
+Die Node-Anforderung ist **nicht** dieselbe wie bei Angular 21 (`^20.19 || ^22.12 || >= 24.0.0`) —
+der Sprung auf Angular 22 verschärft sie. Wer mit einer 24.x-Version unter 24.15 arbeitet,
+braucht ein Node-Update, bevor diese Story beginnen kann.
+
 ## Scope
 
 **In Scope:** `ng new`, Standalone Components, OnPush, Signals, PrimeNG 22.0.0 (stabile Version, nicht die parallel laufende 22.1.0-rc — verwendet für die neue `Sidebar`-Compound-Komponentenfamilie, siehe Epic_App_Shell VSHELL-S01), Angular Material Icons (npm), `ngx-translate` installieren und initialisieren (DE/EN JSON-Dateien anlegen), App-Verzeichnisstruktur anlegen.
