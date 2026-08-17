@@ -12,13 +12,15 @@ Ein Entwickler startet die gesamte lokale Entwicklungsumgebung (Angular Dev-Serv
 
 ## Kontext
 
-Die Haupt-App läuft im LAN auf einem lokalen Server. Docker Compose ermöglicht ein reproduzierbares lokales Dev-Setup und bildet gleichzeitig die spätere Produktivumgebung ab. Angular wird im Dev-Modus mit Hot-Reload betrieben.
+Docker Compose ermöglicht ein reproduzierbares lokales Dev-Setup. Angular wird im Dev-Modus mit Hot-Reload betrieben, das Backend mit `dotnet run`.
+
+Dieses Compose-File ist **ausschließlich die Entwicklungsumgebung** — es bildet den Insel-Betrieb nicht ab. Ein Dev-Server (`ng serve`) ist für den Produktivbetrieb ungeeignet: kein Production-Build, kein Tree-Shaking, unnötiger Watcher-Overhead. Der Insel-Betrieb kommt als eigenes Overlay mit einem Production-Image hinzu, siehe [BPROJ-S05](BPROJ-S05-ssl-insel-deployment.md).
 
 ## Scope
 
 **In Scope:** `docker-compose.yml` mit drei Services (frontend, backend, db), Environment-Variablen für Ports und Connection String, Volume für PostgreSQL-Daten, Health-Check-Abhängigkeit (backend wartet auf db).
 
-**Out of Scope:** CI/CD, Production-Build-Image, SSL/TLS-Terminierung (folgt in [BPROJ-S05](BPROJ-S05-ssl-insel-deployment.md)).
+**Out of Scope:** CI/CD, Production-Build-Image und SSL/TLS-Terminierung (beides in [BPROJ-S05](BPROJ-S05-ssl-insel-deployment.md)).
 
 ## UI-Spezifikation
 
@@ -33,7 +35,7 @@ Services:
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL eine `docker-compose.yml` im Projekt-Root bereitstellen, die die Services `frontend`, `backend` und `db` definiert.
+- [ ] **AC-1** — THE SYSTEM SHALL eine `docker-compose.yml` im Projekt-Root bereitstellen, die die Services `frontend` (`ng serve`), `backend` (`dotnet run`) und `db` (PostgreSQL) für die Entwicklungsumgebung definiert.
 - [ ] **AC-2** — WHEN `docker compose up` ausgeführt wird, THEN SHALL alle drei Services starten und `GET http://localhost:5000/health` mit HTTP 200 antworten.
 - [ ] **AC-3** — THE SYSTEM SHALL den Service `backend` so konfigurieren, dass er erst startet, wenn `db` als `healthy` gilt (PostgreSQL `pg_isready`-Health-Check).
 - [ ] **AC-4** — THE SYSTEM SHALL alle Secrets (DB-Passwort, Connection String) ausschließlich über Environment-Variablen oder eine `.env`-Datei (gitignored) einlesen.

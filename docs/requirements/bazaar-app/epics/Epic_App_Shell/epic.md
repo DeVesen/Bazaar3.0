@@ -1,7 +1,7 @@
 ---
 code: BSHELL
 status: draft
-updated: 2026-07-31
+updated: 2026-08-17
 ---
 
 # Epic: App Shell — Haupt-App
@@ -12,20 +12,27 @@ Grundgerüst der Angular-App: Sidebar-Navigation, responsives Zwei-Spalten-Layou
 
 ## Rollen
 
-- **Admin** — navigiert zwischen Bereichen über die Sidebar.
-- **Kassenpersonal** — navigiert zwischen Tagesgeschäft-Seiten über die Sidebar.
+- **Admin** — sieht die vollständige Sidebar inklusive Einstellungen.
+- **Kassenpersonal** — sieht die Sidebar ohne Einstellungen.
 
 ## Bereiche
 
-- Sidebar mit Navigationsgruppen (Tagesgeschäft, Stammdaten, System)
+- Sidebar mit Navigationsgruppen (Tagesgeschäft, Stammdaten, System), **rollenabhängig** — ohne Role-Toggle
 - Responsives Layout: Desktop-Sidebar (fest, 228 px) / Mobile-Topbar + Burger-Menü
-- Angular Routing Skeleton (Lazy Loading je Feature)
-- PrimeNG 20 Theme & globale CSS Custom Properties
+- Angular Routing Skeleton (Lazy Loading je Feature, funktionale `authGuard`/`adminGuard`)
+- JWT-Auth-Infrastruktur in `core/auth/` (`TokenStore`, `JwtDecoder`, `AuthService` mit Signals, funktionaler `jwtInterceptor` **ohne** Refresh-Logik, `RoleService`)
+- PrimeNG 22 Theme & globale CSS Custom Properties
 - Druck-Layout (Sidebar/Chrome ausgeblendet)
 
 ## Abhängigkeit
 
 Setzt `Epic_Projektanlage` (BPROJ) voraus — das Angular-Projekt muss existieren.
+
+[Epic_Login](../Epic_Login/epic.md) (Seite) hängt von dieser Shell ab — Guards und `AuthService` müssen zuerst existieren.
+
+> **Offen für das Review dieses Epics:** Für die Auth-Infrastruktur fehlt noch eine eigene
+> Story (die Voranmelde-App hat dafür VSHELL-S04). Rollenabhängige Sidebar und Guards sind
+> in den bestehenden Stories BSHELL-S01 und BSHELL-S03 noch nicht beschrieben.
 
 ## Stories
 

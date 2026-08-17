@@ -1,7 +1,7 @@
 ---
 id: F-BA-010
 status: draft
-updated: 2026-07-31
+updated: 2026-08-17
 ---
 
 # Epic: Einstellungen
@@ -10,6 +10,7 @@ updated: 2026-07-31
 - Überblick — Admin-Einstellungen
 - 1. Systemparameter — Parameter & Defaults
 - 2. JSON-Import — Voranmelde-Import
+- 3. Benutzerverwaltung — Konten & Rollen
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
@@ -84,6 +85,23 @@ Artikel, die **manuell** in der Haupt-App angelegt wurden (ohne Import-Bezug), b
 
 Diese werden bei Bedarf aus der selben JSON-Datei importiert (Stammdaten-Synchronisierung).
 
+---
+
+## 3. Benutzerverwaltung
+
+Nur für Admins erreichbar (Rechte-Matrix → [`spec.md`](../../spec.md) Abschnitt 4.1). Konzept, Token-Handling und Seed-Admin stehen in [Epic_Login](../Epic_Login/epic.md) — hier lebt nur die Oberfläche: eine Tabelle und ein Formular. Ein eigenes Epic wäre dafür überdimensioniert.
+
+**Tabelle:** Benutzername, Rolle, Status „Passwortwechsel offen".
+
+| Aktion | Verhalten |
+|---|---|
+| Benutzer anlegen | Benutzername, Rolle (Admin / Kassenpersonal), Initialpasswort — Zwangswechsel beim ersten Login |
+| Rolle ändern | wirkt beim nächsten Login des Benutzers (das laufende Token behält seinen `role`-Claim) |
+| Passwort zurücksetzen | Admin setzt neues Passwort direkt, Zwangswechsel beim nächsten Login — es gibt keinen Self-Service-Reset, da kein Mailserver im LAN existiert |
+| Benutzer löschen | der letzte verbleibende Admin ist nicht löschbar |
+
+**Verkäufer sind keine Benutzer.** Der JSON-Import legt Verkäuferdatensätze an, keine Konten — die Benutzerverwaltung und der Import haben keinen Berührungspunkt.
+
 ## Akzeptanzkriterien
 
 1. **AC-1** — THE SYSTEM SHALL geänderte Systemparameter (suchDebounceMs, scannerPauseMs) im localStorage speichern und bei jedem App-Start daraus laden.
@@ -91,8 +109,11 @@ Diese werden bei Bedarf aus der selben JSON-Datei importiert (Stammdaten-Synchro
 3. **AC-3** — WHEN „Import bestätigen" geklickt wird, THEN SHALL das System eine Fortschrittsanzeige (p-progressbar) einblenden und nach Abschluss eine Toast-Benachrichtigung „✓ Import erfolgreich" zeigen.
 4. **AC-4** — WHEN ein importierter Verkäufer bereits in der Datenbank existiert (anhand Verkäufer-ID), THEN SHALL das System diesen Verkäufer samt allen seinen Artikeln vollständig löschen und anschließend den Verkäufer und seine Artikel aus der Import-Datei neu anlegen.
 5. **AC-5** — THE SYSTEM SHALL Artikel, die manuell in der Haupt-App angelegt wurden (ohne Import-Bezug), beim Upsert-Import unberührt lassen.
+6. **AC-6** — THE SYSTEM SHALL die Benutzerverwaltung ausschließlich für die Rolle Admin erreichbar machen; ein Request mit der Rolle Kassenpersonal SHALL mit `403` abgelehnt werden.
+7. **AC-7** — WHEN ein Admin einen Benutzer anlegt oder dessen Passwort zurücksetzt, THEN SHALL das System für diesen Benutzer den Zwangswechsel beim nächsten Login setzen.
+8. **AC-8** — IF versucht wird, das letzte verbleibende Admin-Konto zu löschen, THEN SHALL das System die Löschung mit `409` ablehnen.
 
 ## Tags & Piles
 
 **Piles:** #pile/bazaar-app
-**Tags:** #einstellungen #json-import #konfiguration #upsert #localstorage
+**Tags:** #einstellungen #json-import #konfiguration #upsert #localstorage #benutzerverwaltung #rollen

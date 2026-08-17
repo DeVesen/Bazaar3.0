@@ -12,13 +12,15 @@ Admin und Kassenpersonal navigieren über eine fest sichtbare Sidebar zwischen d
 
 ## Kontext
 
-Die Haupt-App hat keine Login-Seite — die Sidebar ist immer sichtbar. Sie gliedert sich in drei Gruppen: Tagesgeschäft, Stammdaten, System. Das Logo zeigt „Bazaar **Suite**", wobei „Suite" in der Akzentfarbe erscheint.
+Die Sidebar ist auf allen Seiten hinter dem Login sichtbar; die Login-Seite selbst läuft ohne AppShell (siehe [Epic_Login](../../Epic_Login/epic.md)). Sie gliedert sich in drei Gruppen: Tagesgeschäft, Stammdaten, System. Das Logo zeigt „Bazaar **Suite**", wobei „Suite" in der Akzentfarbe erscheint.
+
+**Rollenabhängig:** Kassenpersonal sieht den Eintrag **Einstellungen** nicht (Rechte-Matrix → [`spec.md`](../../../spec.md) Abschnitt 4.1). Einen Role-Toggle wie in der Voranmelde-App gibt es hier **nicht** — der Admin hat alle Rechte des Kassenpersonals, ein Toggle würde ihm nur künstlich Rechte wegnehmen.
 
 ## Scope
 
 **In Scope:** Sidebar-Komponente, Navigationsstruktur (drei Gruppen + Trennlinien), Logo-Block, Active-Route-Highlight, Badge für offene Artikel (Zahl), alle visuellen Maße und Farben.
 
-**Out of Scope:** Mobile-Burger-Menü (folgt in BSHELL-S02), Seiteninhalte, Badge-Daten-API-Anbindung (folgt im Epic Artikelannahme).
+**Out of Scope:** Mobile-Burger-Menü (folgt in BSHELL-S02), Seiteninhalte, Badge-Daten-API-Anbindung (folgt im Epic Artikelannahme), Auth-Infrastruktur und Guards (eigene Story, siehe Hinweis in [epic.md](../epic.md)).
 
 ## UI-Spezifikation
 

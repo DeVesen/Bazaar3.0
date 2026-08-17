@@ -8,11 +8,11 @@ depends-on: [BPROJ-S01]
 
 ## Ziel
 
-PrimeNG 20 ist mit einem konsistenten Theme konfiguriert. Globale CSS Custom Properties stellen Farben, Borders und Abstände einheitlich bereit. Kein Verweis auf externe CDNs — alle Styles sind lokal im Bundle.
+PrimeNG 22.0.0 ist mit einem konsistenten Theme konfiguriert. Globale CSS Custom Properties stellen Farben, Borders und Abstände einheitlich bereit. Kein Verweis auf externe CDNs — alle Styles sind lokal im Bundle.
 
 ## Kontext
 
-PrimeNG 20 nutzt das `@primeuix/styled`-System mit konfigurierbaren Tokens. Die Haupt-App verwendet Navy/Blau als Branding. CSS Custom Properties (`--border`, `--muted`, etc.) werden global gesetzt, damit alle Feature-Komponenten dieselben Basiswerte nutzen ohne Hardcodes.
+PrimeNG 22 nutzt das `@primeuix/styled`-System mit konfigurierbaren Tokens. Die Haupt-App verwendet Navy/Blau als Branding. CSS Custom Properties (`--border`, `--muted`, etc.) werden global gesetzt, damit alle Feature-Komponenten dieselben Basiswerte nutzen ohne Hardcodes.
 
 ## Scope
 
@@ -37,10 +37,10 @@ PrimeNG 20 nutzt das `@primeuix/styled`-System mit konfigurierbaren Tokens. Die 
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL PrimeNG 20 mit einem konfigurierten Preset in `providePrimeNG()` initialisieren, das die Primärfarbe auf `#2e86c1` setzt.
+- [ ] **AC-1** — THE SYSTEM SHALL PrimeNG 22.0.0 mit einem konfigurierten Preset in `providePrimeNG()` initialisieren, das die Primärfarbe auf `#2e86c1` setzt.
 - [ ] **AC-2** — THE SYSTEM SHALL alle sechs CSS Custom Properties (`--sidebar-bg`, `--accent`, `--content-bg`, `--title-color`, `--border`, `--muted`) in `styles.scss` auf `:root` definieren.
 - [ ] **AC-3** — WHEN `ng build --configuration production` ausgeführt wird, THEN SHALL der Build-Output keine Verweise auf `fonts.googleapis.com`, `cdn.jsdelivr.net` oder andere externe CDNs enthalten.
-- [ ] **AC-4** — THE SYSTEM SHALL PrimeNG-Basis-Styles (`primeng/resources/primeng.min.css` oder äquivalent für v20) über `angular.json` einbinden, nicht per CDN-Link in `index.html`.
+- [ ] **AC-4** — THE SYSTEM SHALL PrimeNG-Basis-Styles (`primeng/resources/primeng.min.css` oder äquivalent für v22) über `angular.json` einbinden, nicht per CDN-Link in `index.html`.
 - [ ] **AC-5** — WHEN eine PrimeNG-Komponente (`p-button`, `p-table`) gerendert wird, THEN SHALL sie die konfigurierten Farb-Tokens korrekt anwenden (Primary-Button in `#2e86c1`).
 
 ## Abhängigkeiten

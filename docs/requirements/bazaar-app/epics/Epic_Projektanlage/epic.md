@@ -1,7 +1,8 @@
 ---
 code: BPROJ
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Projektanlage — Haupt-App
@@ -16,10 +17,11 @@ Technisches Grundsetup der Haupt-App: Angular-Frontend und .NET-Backend werden a
 
 ## Bereiche
 
-- Angular 20 Frontend-Projekt (`frontend/`) mit Feature-First-Struktur und ESLint-Importgrenzen
-- .NET 9 Minimal API Backend (`backend/`) als hexagonaler Vier-Projekt-Schnitt
-- Docker Compose für lokales Dev-Setup
+- Angular 20 Frontend-Projekt (`frontend/`) mit PrimeNG 22.0.0, Feature-First-Struktur und ESLint-Importgrenzen
+- .NET 9 Minimal API Backend (`backend/`) als hexagonaler Vier-Projekt-Schnitt, inkl. JWT-Grundkonfiguration
+- Docker Compose für lokales Dev-Setup, separates Overlay für den Insel-Betrieb (nginx + Production-Build)
 - Entity Framework Core mit PostgreSQL (ausschließlich in `Bazaar.Infrastructure`)
+- Test- und Architektur-Test-Infrastruktur (Jest, xUnit v3, NetArchTest)
 
 ## Architektur
 
@@ -29,10 +31,15 @@ compiler-erzwungen), Deployment **Monolith** im lokalen LAN, Data-Flow **CRUD** 
 eigenen Query-Ports für aggregierte Sichten, Frontend **Feature-First**
 (`src/app/features/<feature>/` + `core/` + `shared/`).
 
-> **Nachzuziehen beim Review dieser App:** Die Stories BPROJ-S01/S02/S04 beschreiben
-> noch das alte Setup (ein Backend-Projekt, `src/app/epics/`) und kennen weder das
-> Test- noch das Architektur-Test-Projekt. Die Voranmelde-App hat dafür die Stories
-> VPROJ-S01/S02/S04/S05 als Vorlage.
+Ergänzend aus dem Review dieses Epics:
+
+| Thema | Entscheidung |
+|---|---|
+| PrimeNG | **22.0.0**, identisch zur Voranmelde-App — eine Major-Version für die ganze Suite |
+| Migrations | `MigrateAsync()` bei **jedem** Start; im Insel-Betrieb ist kein Entwickler zur Hand, und es gibt nur einen Backend-Prozess |
+| Docker Compose | Basis-File ist **reines Dev**; der Insel-Betrieb kommt als Overlay mit Production-Image und nginx |
+| CORS | nur in `Development` — produktiv liefert nginx Frontend und `/api/*` unter demselben Origin |
+| DbContext | `BazaarDbContext` in `Bazaar.Infrastructure/Persistence/`, Connection String nur aus `ConnectionStrings__DefaultConnection` |
 
 ## Hinweis
 
@@ -45,6 +52,7 @@ Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich (F
 - [BPROJ-S03 — Docker Compose Setup](stories/BPROJ-S03-docker-compose-setup.md)
 - [BPROJ-S04 — EF Core & Datenbank-Setup](stories/BPROJ-S04-efcore-datenbank-setup.md)
 - [BPROJ-S05 — SSL/HTTPS für den Inselbetrieb](stories/BPROJ-S05-ssl-insel-deployment.md)
+- [BPROJ-S06 — Test- und Architektur-Test-Setup](stories/BPROJ-S06-test-und-architektur-setup.md)
 
 ## Tags & Piles
 

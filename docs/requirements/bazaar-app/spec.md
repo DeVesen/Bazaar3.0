@@ -1,7 +1,7 @@
 ---
 id: DOC-005
 status: draft
-updated: 2026-07-31
+updated: 2026-08-17
 ---
 
 # Lastenheft — Bazaar Haupt-App
@@ -10,7 +10,7 @@ updated: 2026-07-31
 - 1. Überblick — App-Beschreibung
 - 2. Stakeholder — Rollen
 - 3. Ziel — Kernprozesse
-- 4. Navigation (Sidebar) — Seitenstruktur
+- 4. Navigation & Rechte — Seitenstruktur, Rechte-Matrix
 - 5. Epic-Übersicht & Implementierungsreihenfolge — Setup + fachliche Epics
 - 6. UI-Konventionen & Komponenten — Design
 - 7. Technische Rahmenbedingungen — Tech-Stack, Architektur, Offline
@@ -45,8 +45,12 @@ Am Basar-Morgen exportiert der Admin alle Daten aus der Voranmelde-App als JSON 
 
 | Rolle | Beschreibung |
 |---|---|
-| **Admin** | Betreiber des Basars. Verwaltet Stammdaten, Verkäufer, Einstellungen und führt den Import durch. |
-| **Kassenpersonal** | Führt Verkauf und Abrechnung am Basar-Tag durch. |
+| **Admin** | Betreiber des Basars. Verwaltet Stammdaten, Verkäufer, Benutzer und Einstellungen und führt den Import durch. |
+| **Kassenpersonal** | Führt Artikelannahme, Verkauf und Abrechnung am Basar-Tag durch. |
+
+Beide Rollen sind **echte Berechtigungen**, keine bloße Tätigkeitsbeschreibung: Jeder Nutzer meldet sich mit eigenem Konto an, die Rolle steht als Claim im Token und wird am Endpoint geprüft. Zuschnitt und Begründung → [Epic_Login](epics/Epic_Login/epic.md), Matrix → Abschnitt 4.
+
+Verkäufer sind **keine** Nutzer dieser App — sie kommen als Datensätze über den JSON-Import und melden sich nie an.
 
 ---
 
@@ -60,7 +64,7 @@ Die Haupt-App unterstützt drei operative Kernprozesse:
 
 ---
 
-## 4. Navigation (Sidebar)
+## 4. Navigation & Rechte
 
 ```
 ── Tagesgeschäft ─────────────
@@ -82,6 +86,31 @@ Die Haupt-App unterstützt drei operative Kernprozesse:
 
 **Home** leitet automatisch auf **Artikelannahme** weiter — kein eigener Seiteninhalt.
 
+Die Sidebar ist **rollenabhängig**: Kassenpersonal sieht den Eintrag **Einstellungen** nicht. Einen Role-Toggle wie in der Voranmelde-App gibt es **nicht** — der Admin hat ohnehin alle Rechte des Kassenpersonals, ein Toggle würde ihm nur künstlich Rechte wegnehmen.
+
+Die Login-Seite (`/login`) läuft außerhalb der AppShell — ohne Sidebar und ohne Titelleiste.
+
+### 4.1 Rechte-Matrix
+
+Verbindlich für alle Epics. Ein Epic, das davon abweichen will, ändert diese Tabelle, statt es lokal anders zu regeln.
+
+| Bereich | Admin | Kassenpersonal |
+|---|---|---|
+| Artikelannahme | ✅ | ✅ |
+| Verkauf | ✅ | ✅ |
+| Abrechnung | ✅ | ✅ |
+| Druckfunktionen | ✅ | ✅ |
+| Artikel (Übersicht) | ✅ | ✅ lesen, kein Status-Popup |
+| Verkäufer | ✅ | ✅ lesen |
+| Marken / Kategorien / Verkäufer-Typen | ✅ | ✅ lesen; Anlegen nur implizit über AutoComplete (Abschnitt 9.3) |
+| Statistik | ✅ | ✅ lesen |
+| Einstellungen (inkl. Import und Benutzerverwaltung) | ✅ | ❌ |
+| Abrechnung stornieren, Artikel löschen | ✅ | ❌ |
+
+Leitgedanke: Kassenpersonal darf am Basar-Tag alles Operative ohne Nachfragen, aber nichts Zerstörendes und nichts Konfigurierendes. Das implizite Anlegen von Marken und Kategorien ist bewusst erlaubt — sonst blockiert die Artikelannahme an der erstbesten unbekannten Marke.
+
+Durchsetzung an zwei Stellen: `adminGuard` im Frontend (Route nicht erreichbar) und Rollenprüfung am Endpoint im Backend (`403`). Das Frontend ist die Bequemlichkeit, das Backend die Regel.
+
 ---
 
 ## 5. Epic-Übersicht & Implementierungsreihenfolge
@@ -95,33 +124,41 @@ Fachliche Epics folgen in der Reihenfolge ihrer Abhängigkeiten.
 | # | Epic | Beschreibung | Epic-Datei |
 |---|---|---|---|
 | 1 | **Projektanlage** | Angular + .NET + Docker Compose + EF Core anlegen | [Epic_Projektanlage](epics/Epic_Projektanlage/epic.md) |
-| 2 | **App Shell** | Sidebar, responsives Layout, Routing-Skeleton, PrimeNG-Theme | [Epic_App_Shell](epics/Epic_App_Shell/epic.md) |
+| 2 | **App Shell** | Sidebar, responsives Layout, Routing + Guards, JWT-Auth-Infrastruktur, PrimeNG-Theme | [Epic_App_Shell](epics/Epic_App_Shell/epic.md) |
+
+### Zugang
+
+| # | Epic | Beschreibung | Epic-Datei |
+|---|---|---|---|
+| 3 | **Login** | Anmeldung mit Benutzername/Passwort, Rollen Admin und Kassenpersonal | [Epic_Login](epics/Epic_Login/epic.md) |
 
 ### Stammdaten (zuerst, da Tagesgeschäft davon abhängt)
 
 | # | Epic | Beschreibung | Epic-Datei |
 |---|---|---|---|
-| 3 | **Marken** | Marken-Tabelle, Anlegen/Bearbeiten | [Epic_Marken](epics/Epic_Marken/epic.md) |
-| 4 | **Kategorien** | Kategorien-Tabelle, Anlegen/Bearbeiten | [Epic_Kategorien](epics/Epic_Kategorien/epic.md) |
-| 5 | **Verkäufer-Typen** | Typen-Tabelle, Provision/Gebühr | [Epic_Verkaeufer_Typen](epics/Epic_Verkaeufer_Typen/epic.md) |
-| 6 | **Verkäufer** | Verkäuferliste, Karten-Layout, Artikel-Freigeben | [Epic_Verkaeufer](epics/Epic_Verkaeufer/epic.md) |
-| 7 | **Artikel** | Artikel-Übersicht aller Verkäufer, Status-Popup | [Epic_Artikel](epics/Epic_Artikel/epic.md) |
+| 4 | **Marken** | Marken-Tabelle, Anlegen/Bearbeiten | [Epic_Marken](epics/Epic_Marken/epic.md) |
+| 5 | **Kategorien** | Kategorien-Tabelle, Anlegen/Bearbeiten | [Epic_Kategorien](epics/Epic_Kategorien/epic.md) |
+| 6 | **Verkäufer-Typen** | Typen-Tabelle, Provision/Gebühr | [Epic_Verkaeufer_Typen](epics/Epic_Verkaeufer_Typen/epic.md) |
+| 7 | **Verkäufer** | Verkäuferliste, Karten-Layout, Artikel-Freigeben | [Epic_Verkaeufer](epics/Epic_Verkaeufer/epic.md) |
+| 8 | **Artikel** | Artikel-Übersicht aller Verkäufer, Status-Popup | [Epic_Artikel](epics/Epic_Artikel/epic.md) |
 
 ### Tagesgeschäft (abhängig von Stammdaten)
 
 | # | Epic | Beschreibung | Epic-Datei |
 |---|---|---|---|
-| 8 | **Artikelannahme** | Verkäufer suchen/anlegen, Artikel aufnehmen, Wizard | [Epic_Artikelannahme](epics/Epic_Artikelannahme/epic.md) |
-| 9 | **Verkauf** | Kassenvorgang, Barcode-Scan, Warenkorb | [Epic_Verkauf](epics/Epic_Verkauf/epic.md) |
-| 10 | **Abrechnung** | Rückgabe, Abrechnen, Auszahlungsberechnung | [Epic_Abrechnung](epics/Epic_Abrechnung/epic.md) |
+| 9 | **Artikelannahme** | Verkäufer suchen/anlegen, Artikel aufnehmen, Wizard | [Epic_Artikelannahme](epics/Epic_Artikelannahme/epic.md) |
+| 10 | **Verkauf** | Kassenvorgang, Barcode-Scan, Warenkorb | [Epic_Verkauf](epics/Epic_Verkauf/epic.md) |
+| 11 | **Abrechnung** | Rückgabe, Abrechnen, Auszahlungsberechnung | [Epic_Abrechnung](epics/Epic_Abrechnung/epic.md) |
 
 ### System
 
 | # | Epic | Beschreibung | Epic-Datei |
 |---|---|---|---|
-| 11 | **Statistik** | KPI-Kacheln, Leaderboard (read-only) | [Epic_Statistik](epics/Epic_Statistik/epic.md) |
-| 12 | **Druckfunktionen** | Artikelannahme-Liste, Verkäufer-Übersicht | [Epic_Druckfunktionen](epics/Epic_Druckfunktionen/epic.md) |
-| 13 | **Einstellungen** | Systemparameter + JSON-Import | [Epic_Einstellungen](epics/Epic_Einstellungen/epic.md) |
+| 12 | **Statistik** | KPI-Kacheln, Leaderboard (read-only) | [Epic_Statistik](epics/Epic_Statistik/epic.md) |
+| 13 | **Druckfunktionen** | Artikelannahme-Liste, Verkäufer-Übersicht | [Epic_Druckfunktionen](epics/Epic_Druckfunktionen/epic.md) |
+| 14 | **Einstellungen** | Systemparameter, Benutzerverwaltung, JSON-Import | [Epic_Einstellungen](epics/Epic_Einstellungen/epic.md) |
+
+**Epic-IDs sind Identität, nicht Sortierung.** `Epic_Login` trägt F-BA-012, weil F-BA-001…011 vergeben sind; die Reihenfolge steht ausschließlich in dieser Tabelle.
 
 ---
 
@@ -145,15 +182,15 @@ Feature-spezifische UI-Specs:
 | **Backend** | .NET 9 Minimal API |
 | **ORM** | Entity Framework Core |
 | **Datenbank** | PostgreSQL |
-| **UI-Bibliothek** | PrimeNG (kein Angular Material) |
+| **UI-Bibliothek** | PrimeNG 22.0.0 (kein Angular Material) |
 | **Containerisierung** | Docker / Docker Compose |
 | **Barcode/QR-Scan** | ZXing / ngx-scanner (Browser-Kamera, offline) |
 | **Icons** | Material Symbols (npm-Paket, kein CDN) |
-| **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) |
+| **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) · NetArchTest (Architektur) |
+| **Auth** | JWT-Bearer, ein Access-Token (16 h), kein Refresh-Token |
 
-> **Offen:** Die konkrete PrimeNG-Major-Version dieser App ist noch nicht festgelegt
-> (die Voranmelde-App nutzt 22.0.0). Zu klären beim Review von
-> [Epic_Projektanlage](epics/Epic_Projektanlage/epic.md).
+Die PrimeNG-Major-Version ist **identisch zur Voranmelde-App** — beide Apps teilen dieselben
+Komponenten-Muster und eigenen Wrapper; zwei Majors würden dieses Wissen doppeln.
 
 ### 7.0.1 Architektur
 
@@ -375,7 +412,8 @@ Erste Zeile: Tage (ganzzahlig, kein Padding). Zweite Zeile: HH:MM:SS (zero-padde
 | 6 | Scan-Ergebnis Anzeigedauer? | ✅ Konfigurierbar, Default 5 Sekunden |
 | 7 | Artikel löschen im Wizard (noch nicht gespeichert)? | ✅ Ja — Löschen-Button pro Eintrag in Session-Liste |
 | 8 | Scan-Feedback: Ton und/oder Vibration? | ✅ Beides — Web Audio API + `Navigator.vibrate()` |
-| 9 | PrimeNG-Major-Version dieser App? | ⏳ Offen — Stories nennen 20, §7.0 hält es offen (Voranmelde-App: 22.0.0) |
+| 9 | PrimeNG-Major-Version dieser App? | ✅ 22.0.0, identisch zur Voranmelde-App |
+| 10 | Login und Rollen in der Haupt-App? | ✅ Ja — Admin + Kassenpersonal, siehe Abschnitt 4.1 und [Epic_Login](epics/Epic_Login/epic.md) |
 
 ---
 
