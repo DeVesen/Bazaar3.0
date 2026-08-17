@@ -23,6 +23,7 @@ updated: 2026-08-17
 **Sichtbar für:** Admin (Pflege) · Kassenpersonal (nur lesen)
 
 Entity-Details → [`entities/verkaeufer-typ.md`](../../entities/verkaeufer-typ.md)
+
 Component-Details → Tabelle: [Table](../../../../components/table/component.md)
 
 **Ziel:** Admin pflegt Verkäufer-Typen mit Provisions- und Gebührensätzen für die automatische Abrechnungsberechnung.

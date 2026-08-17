@@ -25,6 +25,7 @@ updated: 2026-08-17
 **Sichtbar für:** Admin (Pflege) · Kassenpersonal (nur lesen)
 
 Entity-Details → [`entities/kategorie.md`](../../entities/kategorie.md)
+
 Component-Details → Tabelle: [Table](../../../../components/table/component.md) · Popup: `stammdaten-popup` (Ausprägung Kategorie)
 
 **Ziel:** Admin pflegt die Kategorie-Stammdaten der Haupt-App; Kassenpersonal liest sie und legt am Annahmetisch implizit neue an.

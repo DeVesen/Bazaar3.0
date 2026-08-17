@@ -25,6 +25,8 @@ updated: 2026-08-17
 **Route:** `/intake`
 **Sichtbar für:** Admin und Kassenpersonal
 
+Component-Details → [`intake-wizard`](../../components/intake-wizard.md) · [`seller-search`](../../../../components/seller-search/component.md)
+
 **Ziel:** Kassenpersonal erfasst Artikel eines Verkäufers und gibt sie für den Verkauf frei.
 
 **User Story:** Als Kassenpersonal möchte ich Artikel eines Verkäufers in einem Wizard erfassen und buchen, damit alle abgegebenen Artikel korrekt im Verkauf registriert sind.

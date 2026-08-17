@@ -24,6 +24,8 @@ updated: 2026-08-17
 **Route:** `/settlement`
 **Sichtbar für:** Admin und Kassenpersonal (Stornieren nur Admin)
 
+Component-Details → [`settlement-panel`](../../components/settlement-panel.md) · [`scan-dialog`](../../../../components/scan-dialog/component.md)
+
 **Ziel:** Kassenpersonal rechnet einen Verkäufer ab und bereitet die Auszahlung vor.
 
 **User Story:** Als Kassenpersonal möchte ich einen Verkäufer auswählen, seine Artikel abrechnen und einen Ausdruck erstellen, damit die Auszahlung korrekt und dokumentiert erfolgt.

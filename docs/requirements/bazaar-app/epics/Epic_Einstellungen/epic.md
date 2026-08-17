@@ -21,6 +21,8 @@ updated: 2026-08-17
 **Route:** `/settings`
 **Sichtbar für:** Admin (`adminGuard`)
 
+Component-Details → [`import-panel`](../../components/import-panel.md)
+
 **Ziel:** Admin konfiguriert Systemparameter und importiert Daten aus der Voranmelde-App.
 
 **User Story:** Als Admin möchte ich Systemparameter festlegen und eine JSON-Exportdatei der Voranmelde-App importieren, damit die Haupt-App zum Basar-Tag mit aktuellen Daten einsatzbereit ist.

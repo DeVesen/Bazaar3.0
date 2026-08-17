@@ -24,6 +24,8 @@ updated: 2026-08-17
 
 Entity-Details → [`entities/artikel.md`](../../entities/artikel.md)
 
+Component-Details → [`article-status-popup`](../../components/article-status-popup.md) · [`filter-panel`](../../../../components/filter-panel/component.md) · [`table`](../../../../components/table/component.md)
+
 **Ziel:** Admin sieht und verwaltet alle Artikel des laufenden Basars.
 
 **User Story:** Als Admin möchte ich alle Artikel mit ihrem Status einsehen und verwalten, damit ich einen Überblick über den gesamten Artikelbestand habe.

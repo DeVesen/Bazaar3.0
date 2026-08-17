@@ -23,6 +23,8 @@ updated: 2026-08-17
 
 **User Story:** Als Kassenpersonal möchte ich bei Abgabe und Abrechnung einen Ausdruck erstellen, damit der Verkäufer eine physische Bestätigung über Artikel und Geldbewegung erhält.
 
+Component-Details → [`print-abgabe-beleg`](../../components/print-abgabe-beleg.md) · [`print-verkaeufer-uebersicht`](../../components/print-verkaeufer-uebersicht.md)
+
 ---
 
 ## Überblick

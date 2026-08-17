@@ -26,6 +26,8 @@ updated: 2026-08-17
 **Route:** `/checkout`
 **Sichtbar für:** Admin und Kassenpersonal
 
+Component-Details → [`cart`](../../components/cart.md) · [`payment-panel`](../../../../components/payment-panel/component.md)
+
 **Ziel:** Kassenpersonal scannt Artikel per Barcode und schließt den Bezahlvorgang ab.
 
 **User Story:** Als Kassenpersonal möchte ich Artikel per Barcode-Scan zum Warenkorb hinzufügen und den Verkauf abrechnen, damit Kunden zügig bedient werden.

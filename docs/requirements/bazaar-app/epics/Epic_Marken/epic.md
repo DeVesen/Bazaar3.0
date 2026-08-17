@@ -24,6 +24,7 @@ updated: 2026-08-17
 **Sichtbar für:** Admin (Pflege) · Kassenpersonal (nur lesen)
 
 Entity-Details → [`entities/marke.md`](../../entities/marke.md)
+
 Component-Details → Tabelle: [Table](../../../../components/table/component.md) · Popup: `stammdaten-popup` (Ausprägung Marke)
 
 **Ziel:** Admin pflegt die Marken-Stammdaten der Haupt-App; Kassenpersonal liest sie und legt am Annahmetisch implizit neue an.
