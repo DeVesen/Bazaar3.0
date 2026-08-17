@@ -28,12 +28,12 @@ und werden von hier nur verlinkt, nie dupliziert.
 | [datepicker.md](standard/datepicker.md) | `p-datepicker` | Datum + Uhrzeit kombiniert |
 | [confirmdialog.md](standard/confirmdialog.md) | `p-confirmdialog` | Bestätigung vor irreversiblen Aktionen |
 | [toast.md](standard/toast.md) | `p-toast` | Kurze Erfolgs-/Fehlermeldung mit Auto-Dismiss |
-| [sidebar.md](standard/sidebar.md) | `primeng/sidebar` (Compound) | Shell-Sidebar, reine Instanziierung der Compound-Familie |
 
 ## Custom
 
 | Komponente | Kurz |
 |---|---|
+| [sidebar.md](custom/sidebar.md) | Shell-Sidebar auf Basis der `primeng/sidebar`-Compound-Familie, mit eigenen Slot-Inhalten (Title, Footer) |
 | [password-strength-meter.md](custom/password-strength-meter.md) | Stärke-Anzeige aus `p-progressbar` + `p-tag` — PrimeNG liefert keine fertige |
 | [filter-panel.md](custom/filter-panel.md) | Such-/Filterzeile über der Tabelle (`card`-Filter-Variante), nicht das Spalten-Filter-Menü |
 | [block-liste.md](custom/block-liste.md) | Read-only-Liste der Nummernblöcke im Verkäufer-Dialog |

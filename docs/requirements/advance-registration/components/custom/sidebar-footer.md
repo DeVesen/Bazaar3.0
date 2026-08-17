@@ -5,7 +5,7 @@ reviewed-date: 2026-08-14
 
 # Component: sidebar-footer (Inhalt im `p-sidebar-footer`-Slot)
 
-Kein eigener Wrapper mehr — Inhalt lebt direkt im `p-sidebar-footer`-Slot des Sidebar-Compounds (siehe `components/sidebar.md`). Immer sichtbar, kein Popup-Pattern (bewusste Abweichung von den offiziellen PrimeNG-Demos, die Logout/Settings hinter einem Klick-Popup verstecken — hier soll gerade der Admin-Role-Toggle ohne Extra-Klick erreichbar bleiben).
+Kein eigener Wrapper mehr — Inhalt lebt direkt im `p-sidebar-footer`-Slot des Sidebar-Compounds (siehe [sidebar.md](sidebar.md)). Immer sichtbar, kein Popup-Pattern (bewusste Abweichung von den offiziellen PrimeNG-Demos, die Logout/Settings hinter einem Klick-Popup verstecken — hier soll gerade der Admin-Role-Toggle ohne Extra-Klick erreichbar bleiben).
 
 ## Kontext (voller Footer-Ausschnitt)
 

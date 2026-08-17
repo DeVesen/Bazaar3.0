@@ -10,7 +10,7 @@ depends-on: [VPROJ-S01]
 
 Admin und Verkäufer navigieren über eine rollenabhängige Sidebar, gebaut auf PrimeNG 22s `p-sidebar`-Compound-Familie. Admins sehen alle Bereiche; Verkäufer sehen nur „Mein Bereich" und „Konto". Der Sidebar-Footer zeigt Avatar, Rollenname, Role-Toggle (nur Admin) und Logout.
 
-Komponenten-Details → [`components/sidebar.md`](../../../components/standard/sidebar.md), [`components/sidebar-title.md`](../../../components/custom/sidebar-title.md)
+Komponenten-Details → [`components/custom/sidebar.md`](../../../components/custom/sidebar.md), [`components/sidebar-title.md`](../../../components/custom/sidebar-title.md)
 
 ## Kontext
 
