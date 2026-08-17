@@ -1,7 +1,7 @@
 ---
 id: C-012
 status: draft
-updated: 2026-07-31
+updated: 2026-08-17
 ---
 
 # Component: Modal (`p-dialog`)
@@ -72,8 +72,19 @@ Das Modal ist die einheitliche Lösung für alle modalen Interaktionen in beiden
 | Standard | Rechts: `[Abbrechen (secondary outlined)]` `[Speichern (primary)]` |
 | Mit Löschen | Links: `[Löschen (danger)]` · Rechts: `[Abbrechen]` `[Speichern]` |
 | Nur Schließen | Rechts: `[Schließen (secondary outlined)]` |
+| Standard + Zweitaktion | Rechts: `[Abbrechen (text)]` `[Zweitaktion (secondary outlined)]` `[Speichern (primary)]` |
 
-Alle drei Muster gelten identisch für beide Apps.
+Alle vier Muster gelten identisch für beide Apps.
+
+**Muster „Standard + Zweitaktion":** für Dialoge, die neben dem regulären
+Speichern eine zweite, gleichwertige Speicher-Variante anbieten — heute nur
+„Speichern + kopieren" im
+[artikel-dialog](../../requirements/advance-registration/components/forms/artikel-dialog.md).
+Abbrechen fällt hier auf `text` zurück: drei Buttons in einer Reihe, von denen
+zwei gleich aussehen, lesen sich nicht mehr als Rangfolge. Die Rangfolge von
+links nach rechts ist Abbruch → Nebenweg → Hauptweg. Genau **eine** Zweitaktion,
+kein Sammelplatz für weitere Buttons; ab der zweiten gehört die Aktion in ein
+Split-Button-Menü.
 
 ---
 
@@ -94,6 +105,7 @@ Alle drei Muster gelten identisch für beide Apps.
 4. **AC-4** — THE SYSTEM SHALL den Body mit Padding 20 px und `overflow-y: auto` rendern.
 5. **AC-5** — THE SYSTEM SHALL den Footer im Muster „Standard" als `flex-end` mit gap 8 px rendern, im Muster „Mit Löschen" als `space-between` mit dem Löschen-Button (danger) links und Abbrechen/Speichern rechts.
 6. **AC-6** — WHEN der Viewport ≤ 768 px ist, THEN SHALL das System den Border-radius auf 0 setzen.
+7. **AC-7** — THE SYSTEM SHALL den Footer im Muster „Standard + Zweitaktion" als `flex-end` mit gap 8 px rendern, in der Reihenfolge Abbrechen (text) · Zweitaktion (secondary outlined) · Speichern (primary), und höchstens eine Zweitaktion zulassen.
 
 ---
 

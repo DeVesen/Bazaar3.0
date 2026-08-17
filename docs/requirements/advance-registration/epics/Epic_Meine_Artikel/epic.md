@@ -93,6 +93,13 @@ Details → [`components/forms/artikel-dialog.md`](../../components/forms/artike
   Im Erfassungsformular kostete sie nur die oberste Zeile
   ([verkaeufer-nummer.md](../../components/custom/verkaeufer-nummer.md))
 - **AutoComplete Kategorie/Marke:** identisch mit Haupt-App (▾-Modus / +-Modus)
+- **„Speichern + kopieren" (nur Anlegen):** zweiter Speichern-Button im Footer,
+  zwischen Abbrechen und Speichern. Speichert genau wie „Speichern", lässt aber
+  bei Erfolg den Dialog offen, behält **alle** Feldwerte, setzt die Artikelnummer
+  auf die nächste und fokussiert die Bezeichnung mit selektiertem Inhalt — wie ein
+  Duplizieren. Fachlicher Fall: fünf Bodys Größe 74, gleiche Marke, gleicher Preis.
+  Ablauf, Fehlerfälle und Footer-Muster →
+  [`artikel-dialog.md`](../../components/forms/artikel-dialog.md)
 
 #### AutoComplete — Detail
 
@@ -141,7 +148,7 @@ API-Details → [`api/articles.md`](../../api/articles.md)
 |---|---|---|
 | `GET /api/articles/mine` | `authenticated` | Liste der eigenen Artikel, paginiert; Filter `brand`, `category`, `search`. |
 | `GET /api/articles/next-number` | `authenticated` | Unverbindlicher Nummern-Vorschlag für den Anlege-Dialog; reserviert nichts. |
-| `POST /api/articles` | `authenticated` | Legt Artikel an, Artikelnummer serverseitig aus Nummernblock vergeben. Optionales `expectedNumber` als Vorbedingung → `409` bei Abweichung. |
+| `POST /api/articles` | `authenticated` | Legt Artikel an, Artikelnummer serverseitig aus Nummernblock vergeben. Optionales `expectedNumber` als Vorbedingung → `409` bei Abweichung. Antwort trägt `nextNumber` für „Speichern + kopieren". |
 | `PUT /api/articles/{id}` | `authenticated` | Aktualisiert Artikel — serverseitig geprüft, dass `{id}` dem eingeloggten Verkäufer gehört. |
 | `DELETE /api/articles/{id}` | `authenticated` | Löscht Artikel — serverseitig geprüft, dass `{id}` dem eingeloggten Verkäufer gehört. |
 
@@ -161,8 +168,10 @@ Alle Endpoints beschränken sich serverseitig hart auf die Artikel des eingelogg
 6. **AC-6** — IF der eingegebene Preis ≤ 0 ist, THEN SHALL das System eine Fehlermeldung unter dem Feld anzeigen und nicht speichern.
 7. **AC-7** — IF beim Speichern eines neuen Artikels die im Dialog angezeigte Artikelnummer inzwischen vergeben ist, THEN SHALL das System den Artikel **nicht** anlegen, einen Dialog mit der Meldung „Artikelnummer *n* ist inzwischen vergeben — neue Nummer: *m*" und einem „OK"-Button anzeigen und nach „OK" zum Anlege-Formular zurückkehren, dort alle Eingaben unverändert erhalten und die Artikelnummer auf *m* aktualisieren, sodass der Verkäufer erneut zwischen Abbrechen und Speichern wählen kann.
 8. **AC-8** — IF beim Öffnen des Anlege-Dialogs global keine freie Artikelnummer verfügbar ist, THEN SHALL das System den Dialog nicht öffnen und die Meldung „Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren" als Toast anzeigen.
+9. **AC-9** — WHEN im Anlege-Dialog „Speichern + kopieren" geklickt wird und das Anlegen erfolgreich ist, THEN SHALL das System den Dialog offen halten, alle Feldwerte unverändert erhalten, die Artikelnummer auf `nextNumber` aus der Antwort setzen, den Fokus in das Feld „Bezeichnung" setzen und dessen gesamten Inhalt selektieren, das Formular wieder als `pristine` führen, die Artikelliste sofort aktualisieren und den Toast „✓ Artikel *n* gespeichert — nächste Nummer: *m*" anzeigen.
+10. **AC-10** — IF beim „Speichern + kopieren" der Artikel angelegt wurde, aber keine nächste Artikelnummer mehr vergeben werden kann, THEN SHALL das System den Dialog schließen und die Meldung „Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren" als Toast anzeigen.
 
 ## Tags & Piles
 
 **Piles:** #pile/advance-registration
-**Tags:** #meine-artikel #verkäufer #artikel-erfassung #voranmeldung
+**Tags:** #meine-artikel #verkäufer #artikel-erfassung #voranmeldung #serien-erfassung

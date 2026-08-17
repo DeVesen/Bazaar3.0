@@ -26,7 +26,7 @@ Components → [`artikel-dialog.md`](../components/forms/artikel-dialog.md),
 |---|---|---|
 | `GET /api/articles/mine` | `authenticated` | Eigene Artikel, paginiert + gefiltert |
 | `GET /api/articles/next-number` | `authenticated` | Nummern-Vorschlag für den Anlege-Dialog |
-| `POST /api/articles` | `authenticated` | Artikel anlegen |
+| `POST /api/articles` | `authenticated` | Artikel anlegen, Antwort inkl. `nextNumber` |
 | `PUT /api/articles/{id}` | `authenticated` | Eigenen Artikel ändern |
 | `DELETE /api/articles/{id}` | `authenticated` | Eigenen Artikel löschen |
 | `GET /api/articles` | `admin` | Alle Artikel aller Verkäufer, paginiert + gefiltert |
@@ -187,7 +187,32 @@ separat über das AutoComplete-Anlegen-Modal gegen
 [`POST /api/brands`](master-data.md) bzw. `POST /api/categories`, bevor der
 Artikel gespeichert wird.
 
-**Response `201`** — angelegter Artikel
+**Response `201`** — angelegter Artikel, plus `nextNumber`:
+
+```json
+{
+  "id": "b7c2e991", "number": 104, "sellerId": "a3f9c2d1",
+  "name": "Winterjacke", "brand": "Jako-O", "category": "Jacken",
+  "price": 12.50, "size": "116", "color": "rot", "description": "kaum getragen",
+  "createdAt": "…", "updatedAt": "…",
+  "nextNumber": 105
+}
+```
+
+### `nextNumber` im `201`
+
+Die Nummer, die derselbe Verkäufer beim **nächsten** Anlegen bekäme — dieselbe
+Berechnung wie Abschnitt 2, im selben Dry-Run-Pfad, nach der Vergabe von
+`number`. Sie bedient „Speichern + kopieren"
+([`artikel-dialog.md`](../components/forms/artikel-dialog.md)): der Dialog bleibt
+offen und braucht die Folgenummer sofort. Gleiches Argument wie beim `409`:
+spart den zweiten `next-number`-Roundtrip und schließt das Fenster, in dem der
+Wert bereits wieder veraltet wäre.
+
+**Unverbindlich und reserviert nichts** — identisch zu Abschnitt 2. Kann eine
+Nummer nicht mehr vergeben werden, **fehlt das Feld**; der `201` bleibt gültig,
+der Artikel ist angelegt. Kein `409` dafür — das Anlegen ist gelungen, nur die
+Fortsetzung nicht (Epic_Meine_Artikel AC-10).
 
 **Fehler**
 
