@@ -72,7 +72,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 ## Akzeptanzkriterien
 
-Siehe Epic_Profil AC-1 bis AC-9 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Profil](../../epics/Epic_Profil/epic.md) — **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

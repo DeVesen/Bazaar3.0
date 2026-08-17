@@ -49,8 +49,9 @@ Verkäufer-Typ hat einen abweichenden Feldsatz (Name + Provision + Gebühr, kein
 
 ## Akzeptanzkriterien
 
-Siehe Epic_Marken AC-1 bis AC-4 bzw. Epic_Kategorien AC-1 bis AC-4 — diese Datei ist die
-Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Marken](../../epics/Epic_Marken/epic.md) bzw. [Epic_Kategorien](../../epics/Epic_Kategorien/epic.md)
+— jeweils **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz,
+keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

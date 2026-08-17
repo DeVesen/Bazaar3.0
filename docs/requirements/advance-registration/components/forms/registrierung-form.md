@@ -48,7 +48,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 ## Akzeptanzkriterien
 
-Siehe Epic_Login AC-5 bis AC-10 — diese Datei ist die Struktur-Referenz für die Formular-Bausteine, keine eigenen zusätzlichen AC.
+Siehe [Epic_Login](../../epics/Epic_Login/epic.md) — dort die Akzeptanzkriterien zur **Registrierung**: Pflichtfelder, Passwort-Stärke, Passwort-Bestätigung, bereits registrierte E-Mail, automatischer Login nach Erfolg, Typ- und Blockvergabe, abgelehnte Registrierung bei fehlendem `defaultTypeId`. Bewusst ohne AC-Nummern — die alte Spanne „AC-5 bis AC-10" hatte das Kriterium zum fehlenden `defaultTypeId` bereits nicht mehr erfasst. Diese Datei ist die Struktur-Referenz für die Formular-Bausteine, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

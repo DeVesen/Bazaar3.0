@@ -44,7 +44,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 ## Akzeptanzkriterien
 
-Siehe Epic_Login AC-1 bis AC-4 — diese Datei ist die Struktur-Referenz für die Formular-Bausteine, keine eigenen zusätzlichen AC.
+Siehe [Epic_Login](../../epics/Epic_Login/epic.md) — dort die Akzeptanzkriterien zum **Anmelden**: Prüfung der Anmeldedaten, Meldung bei falschen Daten, Enter-Submit im Passwortfeld, Passwort-vergessen-Popover. Bewusst ohne AC-Nummern, weil das Epic auch Registrierung und Info-Panel abdeckt und weiter ergänzt wird. Diese Datei ist die Struktur-Referenz für die Formular-Bausteine, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

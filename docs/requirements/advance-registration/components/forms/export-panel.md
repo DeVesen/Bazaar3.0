@@ -32,7 +32,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 ## Akzeptanzkriterien
 
-Siehe Epic_Export AC-1 bis AC-4 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Export](../../epics/Epic_Export/epic.md) — **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

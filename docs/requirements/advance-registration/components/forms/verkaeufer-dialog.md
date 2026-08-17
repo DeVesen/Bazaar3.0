@@ -74,7 +74,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 ## Akzeptanzkriterien
 
-Siehe Epic_Verkaeufer AC-1 bis AC-11 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Verkaeufer](../../epics/Epic_Verkaeufer/epic.md) — **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 
