@@ -183,7 +183,7 @@ Nach Ablauf der Anzeigezeit → Kamerabild wieder aktiv.
 2. **AC-2** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit leeren Pflichtfeldern (Vorname, Nachname, Verkäufer-Typ) öffnen.
 3. **AC-3** — WHEN ein neuer Verkäufer gespeichert wird, THEN SHALL das System ihn in der Datenbank anlegen und in der Liste anzeigen.
 4. **AC-4** — WHEN „Edit" bei einem Verkäufer geklickt wird, THEN SHALL das System das Popup mit den vorausgefüllten Verkäuferdaten öffnen.
-5. **AC-5** — WHEN auf einen Verkäufer-Eintrag geklickt wird, THEN SHALL das System das Verkäufer-Detail-Panel mit QR-Code und Artikelliste anzeigen.
+5. **AC-5** — WHEN auf einen Verkäufer-Eintrag geklickt wird, THEN SHALL das System das Verkäufer-Detail-Panel mit QR-Code (Shared-Component [`qr-code`](../../../../components/qr-code/component.md), Inhalt = Verkäufer-`id`) und Artikelliste anzeigen.
 6. **AC-6** — IF beim Speichern ein Pflichtfeld leer ist, THEN SHALL das System eine Fehlermeldung unter dem jeweiligen Feld anzeigen und nicht speichern.
 
 ## Stories

@@ -1,6 +1,6 @@
 ---
 id: DOC-004
-status: reviewed
+status: draft
 reviewed-date: 2026-08-17
 updated: 2026-08-17
 ---

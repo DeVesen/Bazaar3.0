@@ -64,7 +64,7 @@ Zwei Druckdokumente werden unterstützt. Beim Drucken wird nur der relevante Con
 
 **Abgrenzung zur App Shell:** Die Basisregel „Sidebar und Layout-Chrome beim Drucken ausblenden" liefert [Epic_App_Shell](../Epic_App_Shell/epic.md) (BSHELL-S02 AC-6) für **jede** Seite. Dieses Epic ergänzt nur die beiden fachlichen Druckansichten mit ihrem eigenen Inhalt und Aufbau — kein gemeinsames Print-Stylesheet, das beides bedienen will.
 
-- QR-Code wird client-seitig generiert (kein externer Service — Offline-Anforderung!)
+- QR-Code wird client-seitig generiert (kein externer Service — Offline-Anforderung!) über die Shared-Component [`qr-code`](../../../../components/qr-code/component.md) (`@zxing/library`, SVG); dieselbe Komponente nutzt die Voranmelde-App für die Verkäufernummer-Anzeige
 
 ## Akzeptanzkriterien
 

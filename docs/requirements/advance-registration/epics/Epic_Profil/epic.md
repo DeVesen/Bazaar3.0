@@ -1,7 +1,7 @@
 ---
 id: F-AR-011
 code: PROFIL
-status: reviewed
+status: draft
 reviewed-date: 2026-08-17
 updated: 2026-08-17
 ---
@@ -47,6 +47,18 @@ Die Profil-Seite ermöglicht das Einsehen und Bearbeiten der eigenen Stammdaten.
 ## 2. Steckbrief (Tab 1)
 
 Feldlayout gemäß Panels 01–03 (Lastenheft Abschnitt 9.4). **Panel-Styling** (alle drei Panels): `background: #f5f9f6; border: 1px solid #d4e8dc; border-radius: 8px; padding: 15px 16px`. Panel-Titel: 11 px, 700, uppercase, `#3a7057`.
+
+**Panel 00 — Meine Verkäufernummer** (read-only, über Panel 01)
+```
+[a3f9c2d1  ⧉ Kopieren]              [QR-Code]
+```
+Komponente: [verkaeufer-nummer](../../components/custom/verkaeufer-nummer.md),
+Variante `card`. Zeigt die Verkäufer-`id` im Klartext und als QR-Code — derselbe
+Baustein wie auf der Home-Seite (Epic_Home_Verkaeufer Abschnitt 2), inklusive der
+Begründung, warum die `id` und nicht die abgeleitete „Nr." des ersten
+Nummernblocks angezeigt wird. Wert kommt aus `id` in `GET /api/profile` — kein
+neuer Endpoint, kein neues Entity-Feld. Nicht editierbar, nicht Teil des
+Speichern-Submits.
 
 **Panel 01 — Personendaten**
 ```
@@ -119,8 +131,9 @@ API-Details → [`api/profile.md`](../../api/profile.md)
 6. **AC-6** — IF der eingeloggte Nutzer die Admin-Rolle hat, THEN SHALL das System den Tab „Löschen" nicht anzeigen.
 7. **AC-7** — WHEN der Steckbrief erfolgreich gespeichert wird, THEN SHALL das System einen Toast „✓ Profil gespeichert" anzeigen.
 8. **AC-8** — IF das Speichern fehlschlägt, THEN SHALL das System die eingegebenen Werte erhalten und „Profil konnte nicht gespeichert werden" in einer Error-InfoArea anzeigen.
+9. **AC-9** — WHEN der Tab „Steckbrief" geöffnet wird, THEN SHALL das System die eigene Verkäufernummer (`id` aus `GET /api/profile`) im Klartext und als QR-Code read-only anzeigen, ohne sie beim Speichern mitzusenden.
 
 ## Tags & Piles
 
 **Piles:** #pile/advance-registration
-**Tags:** #profil #verkäufer #persönliche-daten #voranmeldung
+**Tags:** #profil #verkäufer #persönliche-daten #voranmeldung #verkäufernummer #qr-code

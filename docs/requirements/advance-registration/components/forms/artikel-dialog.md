@@ -1,5 +1,5 @@
 ---
-status: reviewed
+status: draft
 reviewed-date: 2026-08-14
 updated: 2026-08-17
 ---
@@ -111,8 +111,8 @@ teil.
 
 ## Akzeptanzkriterien
 
-Siehe Epic_Meine_Artikel AC-1, AC-2, AC-5, AC-6, AC-7, AC-8 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe Epic_Meine_Artikel AC-1, AC-2, AC-5, AC-6, AC-7, AC-8, AC-9 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 
-**Tags:** #meine-artikel #dialog #autocomplete-create #inputgroup #confirmdialog #primeng
+**Tags:** #meine-artikel #dialog #autocomplete-create #inputgroup #confirmdialog #primeng #verkäufernummer #qr-code

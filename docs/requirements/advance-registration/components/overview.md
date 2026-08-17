@@ -1,5 +1,5 @@
 ---
-status: reviewed
+status: draft
 reviewed-date: 2026-08-17
 ---
 
@@ -42,6 +42,7 @@ und werden von hier nur verlinkt, nie dupliziert.
 | [login-layout.md](custom/login-layout.md) | 2-Spalten-Grid für Login- und Registrierungsseite |
 | [login-info-panel.md](custom/login-info-panel.md) | Linke Login-Spalte: Countdown, Default-Konditionen, Markdown-Infotext |
 | [home-dashboard.md](custom/home-dashboard.md) | Kachel-Grid der Home-Seite, rollenabhängig 4 oder 5 Kacheln |
+| [verkaeufer-nummer.md](custom/verkaeufer-nummer.md) | Eigene Verkäufernummer im Klartext + QR-Code (Varianten `card` und `inline`) |
 | [countdown-timeline-page.md](custom/countdown-timeline-page.md) | Öffentliche Timeline-Seite ohne Shell |
 
 ## Forms
@@ -85,7 +86,7 @@ Keine Komponente ist beides. Konkrete Folgen für die Einträge oben:
   `input()` und geben das Ergebnis per `output()` an die Page zurück. Sie injizieren
   **keinen** Store und rufen selbst keine API.
 - **Panels und Listen** (`filter-panel`, `block-liste`, `home-dashboard`,
-  `login-info-panel`, `export-panel`) sind ebenfalls Leaf — auch `export-panel`, dessen
+  `verkaeufer-nummer`, `login-info-panel`, `export-panel`) sind ebenfalls Leaf — auch `export-panel`, dessen
   Klick nur ein `output()` auslöst; den Download startet die Page.
 - **Ausnahme Shell:** `sidebar` und `sidebar-footer` dürfen `AuthService`/`RoleService`
   injizieren. Sie sind Teil der App-Shell, nicht eines Features, und haben keine

@@ -1,5 +1,5 @@
 ---
-status: reviewed
+status: draft
 reviewed-date: 2026-08-14
 ---
 
@@ -20,6 +20,8 @@ Verkäufer:
 │ Countdown  │ Meine      │ Meine      │ Abgabe-    │
 │            │ Artikel    │ Konditionen│ gebühr ges.│
 └────────────┴────────────┴────────────┴────────────┘
+
+🔢 Verkäufernummer-Karte (Nummer + QR-Code)
 
 📄 Markdown-Info-Panel
 
@@ -49,11 +51,12 @@ Aktivität — letzte 12 Wochen
 | Kachel — Kategorien | Shared `kpi-tile`, klickbar → `/kategorien` | — | ✅ |
 | Kachel — Marken | Shared `kpi-tile`, klickbar → `/marken` | — | ✅ |
 | Activity-Heatmap | Shared `activity-heatmap`-Component, Datensatz = alle Artikel (nicht nur eigene) | — | ✅ |
+| Verkäufernummer-Karte | [verkaeufer-nummer](verkaeufer-nummer.md), Variante `card`, unterhalb des Kachel-Grids; `sellerId` aus dem `sub`-Claim | ✅ | — (nur Verkäufer-Modus, siehe Epic_Home_Verkaeufer Abschnitt 2) |
 | Markdown-Info-Panel | Shared-Component `markdown-text` (siehe [`docs/components/markdown-text/component.md`](../../../../components/markdown-text/component.md)) | ✅ | ✅ |
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) AC-1 bis AC-3 bzw. [Epic_Home_Admin](../../epics/Epic_Home_Admin/epic.md) AC-1 bis AC-3 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) AC-1 bis AC-5 bzw. [Epic_Home_Admin](../../epics/Epic_Home_Admin/epic.md) AC-1 bis AC-3 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

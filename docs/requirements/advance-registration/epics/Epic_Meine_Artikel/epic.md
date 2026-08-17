@@ -1,6 +1,6 @@
 ---
 id: F-AR-004
-status: reviewed
+status: draft
 reviewed-date: 2026-08-17
 updated: 2026-08-17
 ---
@@ -73,6 +73,7 @@ Details → [`components/forms/artikel-dialog.md`](../../components/forms/artike
 
 | Zeile | Felder | Breite | Pflicht |
 |---|---|---|---|
+| 0 | Verkäufernummer + QR-Code (schreibgeschützt, **nur im Modus „Anlegen"**) — Komponente [verkaeufer-nummer](../../components/custom/verkaeufer-nummer.md) Variante `inline` | 100 % | — |
 | 1 | Artikelnummer (schreibgeschützt — beim Anlegen Vorschlag aus `GET /api/articles/next-number`, beim Bearbeiten der Ist-Wert) | 50 % | auto |
 | 2 | Bezeichnung | 100 % | ✅ |
 | 3 | Kategorie (AutoComplete ▾/+) | 50 % | ✅ |
@@ -85,6 +86,13 @@ Details → [`components/forms/artikel-dialog.md`](../../components/forms/artike
 **Pflichtfeld-Korrektur:** Größe, Farbe und Beschreibung standen hier ursprünglich als Pflicht, sind in [`entities/artikel.md`](../../entities/artikel.md) aber als optional geführt. Die kanonische Quelle gewinnt — bei Kinderbasar-Artikeln wäre eine Pflicht-Beschreibung reine Erfassungsschikane, und die Haupt-App braucht die Felder ebenfalls nicht. Pflicht bleiben: Bezeichnung, Kategorie, Marke, Preis.
 
 - **Artikelnummer:** immer schreibgeschützt — wird automatisch aus dem nächsten freien Nummernblock vergeben. Auch beim Anlegen wird sie **angezeigt**, damit der Verkäufer seine Nummer schon beim Erfassen kennt und aufs Etikett schreiben kann. Der Wert ist dort ein unverbindlicher Vorschlag; unter dem Feld steht der Hinweistext „wird beim Speichern endgültig vergeben" (siehe Abschnitt 4)
+- **Verkäufernummer:** im Anlege-Dialog steht über der Artikelnummer die **eigene
+  Verkäufernummer** (Verkäufer-`id`) im Klartext und als QR-Code, schreibgeschützt.
+  Grund: der Verkäufer beschriftet sein Etikett in genau diesem Moment und braucht
+  beide Nummern zusammen — seine eigene und die des Artikels. Wert kommt aus dem
+  `sub`-Claim, **kein** zusätzlicher Endpoint. Warum die `id` und nicht die
+  abgeleitete „Nr." des ersten Nummernblocks → [Epic_Home_Verkaeufer](../Epic_Home_Verkaeufer/epic.md)
+  Abschnitt 2 (kanonische Begründung)
 - **AutoComplete Kategorie/Marke:** identisch mit Haupt-App (▾-Modus / +-Modus)
 
 #### AutoComplete — Detail
@@ -154,8 +162,9 @@ Alle Endpoints beschränken sich serverseitig hart auf die Artikel des eingelogg
 6. **AC-6** — IF der eingegebene Preis ≤ 0 ist, THEN SHALL das System eine Fehlermeldung unter dem Feld anzeigen und nicht speichern.
 7. **AC-7** — IF beim Speichern eines neuen Artikels die im Dialog angezeigte Artikelnummer inzwischen vergeben ist, THEN SHALL das System den Artikel **nicht** anlegen, einen Dialog mit der Meldung „Artikelnummer *n* ist inzwischen vergeben — neue Nummer: *m*" und einem „OK"-Button anzeigen und nach „OK" zum Anlege-Formular zurückkehren, dort alle Eingaben unverändert erhalten und die Artikelnummer auf *m* aktualisieren, sodass der Verkäufer erneut zwischen Abbrechen und Speichern wählen kann.
 8. **AC-8** — IF beim Öffnen des Anlege-Dialogs global keine freie Artikelnummer verfügbar ist, THEN SHALL das System den Dialog nicht öffnen und die Meldung „Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren" als Toast anzeigen.
+9. **AC-9** — WHEN der Anlege-Dialog geöffnet ist, THEN SHALL das System über der Artikelnummer die eigene Verkäufernummer (Verkäufer-`id`) im Klartext und als QR-Code schreibgeschützt anzeigen; im Bearbeiten-Modus SHALL das System sie nicht anzeigen.
 
 ## Tags & Piles
 
 **Piles:** #pile/advance-registration
-**Tags:** #meine-artikel #verkäufer #artikel-erfassung #voranmeldung
+**Tags:** #meine-artikel #verkäufer #artikel-erfassung #voranmeldung #verkäufernummer #qr-code

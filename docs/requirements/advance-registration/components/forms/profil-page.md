@@ -1,5 +1,5 @@
 ---
-status: reviewed
+status: draft
 reviewed-date: 2026-08-14
 ---
 
@@ -14,6 +14,9 @@ Größtenteils Wiederverwendung bereits etablierter Bausteine (Panel-Muster aus 
 
 Tab „Steckbrief":
 ┌─────────────────────────────────────────┐
+│ MEINE VERKÄUFERNUMMER (readonly)         │
+│  a3f9c2d1  [⧉ Kopieren]      [QR-Code]   │
+├─────────────────────────────────────────┤
 │ PERSONENDATEN                            │
 │  [Vorname 50%] [Nachname 50%]            │
 │  [Anschrift 100%]                        │
@@ -59,6 +62,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 |---|---|
 | Tab-Navigation | `p-tabs` |
 | Panel-Container (alle Panels) | `card` Panel-Block-Variante (wie Epic_Verkaeufer) |
+| Verkäufernummer-Panel | [verkaeufer-nummer](../custom/verkaeufer-nummer.md), Variante `card`, `sellerId` = `id` aus `GET /api/profile` — read-only, kein Teil des Submits |
 | Personendaten-/Kontakt-Felder | [Input](../standard/input.md), Variante Text, E-Mail readonly |
 | Verkäufer-Typ | [Select](../standard/select.md), Variante Dropdown, `[disabled]="true"` |
 | Gebühr/Provision | [Input](../standard/input.md), Variante Number, readonly |
@@ -68,7 +72,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 ## Akzeptanzkriterien
 
-Siehe Epic_Profil AC-1 bis AC-8 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe Epic_Profil AC-1 bis AC-9 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 
