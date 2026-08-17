@@ -47,7 +47,9 @@ Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich (F
 
 ## Werkzeug-Voraussetzungen
 
-Node.js in einer von der Angular CLI 22 akzeptierten Version (`^22.22.3`, `^24.15.0` oder `>= 26.0.0`) und das .NET-SDK 10.x. Vollständige Tabelle mit Begründung → [BPROJ-S01](stories/BPROJ-S01-angular-projekt-anlegen.md) Abschnitt „Voraussetzungen an die Entwicklungsumgebung".
+Node.js in einer von der Angular CLI 22 akzeptierten Version (`^22.22.3`, `^24.15.0` oder `>= 26.0.0`), das .NET-SDK 10.x und ein laufender Docker-Daemon — für die Entwicklungs-Datenbank **und** die Integrationstests.
+
+Vollständige Tabellen mit Begründung → [BPROJ-S01](stories/BPROJ-S01-angular-projekt-anlegen.md) Abschnitt „Voraussetzungen an die Entwicklungsumgebung" und [BPROJ-S06](stories/BPROJ-S06-test-und-architektur-setup.md) Abschnitt „Voraussetzungen an die Testumgebung".
 
 ## Stories
 

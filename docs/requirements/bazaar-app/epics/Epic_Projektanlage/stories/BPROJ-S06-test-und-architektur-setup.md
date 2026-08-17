@@ -22,6 +22,25 @@ Der Architektur-Test schließt die Lücke, die der Compiler offen lässt: Projek
 
 **Out of Scope:** Fachliche Tests (entstehen mit dem jeweiligen Epic), E2E-Tests (Playwright/Cypress — bewusst nicht im MVP), CI-Pipeline.
 
+## Voraussetzungen an die Testumgebung
+
+Testcontainers startet echte Container. Ohne die folgenden Voraussetzungen schlagen die
+Integrationstests fehl — nicht mit einem Testfehler, sondern beim Aufbau der Umgebung:
+
+| Voraussetzung | Anforderung | Wirkung, wenn sie fehlt |
+|---|---|---|
+| **Docker-Daemon** | läuft und ist für den ausführenden Benutzer erreichbar | `dotnet test` scheitert beim Start des Postgres-Containers, keine Testausführung |
+| **Image `postgres:18-alpine`** | wird beim ersten Lauf gezogen | erster Testlauf braucht Netzzugang; danach liegt es im lokalen Cache |
+| **Freie Ports** | Testcontainers wählt selbst zufällige Host-Ports | keine Kollision mit dem Dev-Container aus BPROJ-S03, weil dieser auf 5432 liegt und Testcontainers 5432 nicht belegt |
+
+Dieselbe PostgreSQL-Major wie in Entwicklung und Betrieb — sonst testet man gegen ein
+anderes Datenbankverhalten als das ausgelieferte (BPROJ-S03).
+
+**Unit- und Architektur-Tests brauchen kein Docker.** Nur `Bazaar.Api.IntegrationTests` ist
+betroffen; `Bazaar.Domain.UnitTests`, `Bazaar.Application.UnitTests` und
+`Bazaar.Architecture.Tests` laufen ohne. Wer ohne Docker arbeitet, kann diese drei Projekte
+einzeln ausführen.
+
 ## Test-Struktur
 
 ```
@@ -41,7 +60,8 @@ Testprojekte spiegeln die Produktionsstruktur 1:1. Namensschema der Testmethoden
 
 - [ ] **AC-1** — THE SYSTEM SHALL im Frontend Jest mit `jest-preset-angular` konfigurieren; `npm test` SHALL die `.spec.ts`-Dateien ausführen (kein Karma).
 - [ ] **AC-2** — THE SYSTEM SHALL im Backend die Testprojekte `Bazaar.Domain.UnitTests`, `Bazaar.Application.UnitTests` und `Bazaar.Api.IntegrationTests` mit xUnit v3, FluentAssertions und Moq anlegen und in `Bazaar.sln` aufnehmen.
-- [ ] **AC-3** — THE SYSTEM SHALL `Bazaar.Api.IntegrationTests` über `WebApplicationFactory` gegen die echte Endpoint-Registrierung testen; die Datenbank SHALL dabei über einen PostgreSQL-Container (Testcontainers) bereitgestellt werden, nicht über einen In-Memory-Provider.
+- [ ] **AC-3** — THE SYSTEM SHALL `Bazaar.Api.IntegrationTests` über `WebApplicationFactory` gegen die echte Endpoint-Registrierung testen; die Datenbank SHALL dabei über einen PostgreSQL-Container (Testcontainers, Image **`postgres:18-alpine`** wie in [BPROJ-S03](BPROJ-S03-docker-compose-setup.md)) bereitgestellt werden, nicht über einen In-Memory-Provider.
+- [ ] **AC-3b** — IF kein erreichbarer Docker-Daemon vorhanden ist, THEN SHALL der Testlauf mit einer Meldung abbrechen, die Docker als Ursache nennt — nicht mit einem unspezifischen Verbindungsfehler.
 - [ ] **AC-4** — THE SYSTEM SHALL ein Projekt `Bazaar.Architecture.Tests` mit NetArchTest anlegen.
 - [ ] **AC-5** — THE SYSTEM SHALL folgende Architektur-Regeln als Tests prüfen: (a) Typen in `Bazaar.Domain` haben keine Abhängigkeit auf `Microsoft.EntityFrameworkCore`, `Microsoft.AspNetCore` oder `System.Text.Json`; (b) Typen in `Bazaar.Application` haben keine Abhängigkeit auf `Bazaar.Infrastructure`; (c) Repository- und Query-Interfaces liegen ausschließlich in `Bazaar.Domain.Ports`.
 - [ ] **AC-6** — WHEN eine Architektur-Regel verletzt wird, THEN SHALL `dotnet test` mit Fehler abbrechen und den verletzenden Typnamen nennen.
