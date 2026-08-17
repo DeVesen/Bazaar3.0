@@ -90,9 +90,27 @@ In der Abrechnungs-Ansicht gibt es ein **„← Zurück"**-Element zur Selektion
 | Verkaufte Artikel | success |
 | Umsatz | — |
 
+### Bereits abgerechneter Verkäufer
+
+Die Auswahl bleibt **erlaubt** — der endgültige Beleg wird auch nachträglich gedruckt, und „was hat Meier bekommen?" ist eine Frage, die nachmittags gestellt wird. Die Ansicht ist dann schreibgeschützt:
+
+| Element | Zustand |
+|---|---|
+| Kopfzeile | zusätzliches Badge „Abgerechnet am 17.08.2026 16:40 · 332,94 €" |
+| „↩ Zurückgeben" | deaktiviert |
+| „✓ Abrechnen" | deaktiviert |
+| „🖨️ Drucken" | **aktiv** — liefert den endgültigen Beleg |
+| Artikelliste | vollständig, rein lesend |
+
+Der Betrag im Badge kommt aus `payoutAmount`. Genau hier zeigt sich, warum das Feld gespeichert wird und nicht nachgerechnet: Nach einem Storno mit Korrektur wäre der ursprünglich ausgezahlte Betrag sonst verloren.
+
+Für weitere Artikel dieses Verkäufers muss ein Admin die Abrechnung stornieren — die Artikelannahme blockiert die Auswahl entsprechend ([Epic_Artikelannahme](../Epic_Artikelannahme/epic.md)).
+
 ### Artikelliste
 
 Alle Artikel dieses Verkäufers — Nummer, Bezeichnung, Preis, Status. **Rein lesend:** kein Edit-Button, kein Artikelstatus-Popup.
+
+**Sortierung: Artikelnummer aufsteigend** — auf dem Bildschirm und im Ausdruck, dort innerhalb jeder der drei Gruppen. Die Nummer steht auf dem Etikett; beim Einsammeln vergleicht der Verkäufer Nummern, und jede andere Ordnung zwingt zum Suchen. Eine Gruppierung wie im Ausdruck braucht der Bildschirm nicht, weil dort die Statusspalte sichtbar und sortierbar ist.
 
 Die Abrechnung ist ein Zählvorgang, kein Pflegevorgang. Wer korrigieren muss, tut das auf der [Artikel-Seite](../Epic_Artikel/epic.md), wo die Sperrregeln stehen. Zwei Oberflächen mit denselben Aktionen und unterschiedlichen Sperren wären genau die Doppelung, die auseinanderläuft.
 
@@ -201,9 +219,11 @@ Das **Stornieren** liegt bei [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md) (`DEL
 7. **AC-7** — WHEN eine Abrechnung storniert wird, THEN SHALL das System `payoutAmount` auf `null` zurücksetzen.
 8. **AC-8** — IF der Verkäufer Artikel mit leerem `releasedAt` hat, THEN SHALL der Abrechnen-Dialog deren Anzahl nennen und diese Artikel beim Buchen entfernen.
 9. **AC-9** — THE SYSTEM SHALL `settledAt`, `payoutAmount` und das Entfernen der nicht abgegebenen Artikel in einer Transaktion ausführen.
-10. **AC-10** — THE SYSTEM SHALL die Artikelliste dieser Seite ohne Edit-Button und ohne Artikelstatus-Popup anzeigen.
-5. **AC-5** — WHEN „Zurückgeben" geklickt wird, THEN SHALL das System bei allen noch im Verkauf befindlichen Artikeln des Verkäufers (`releasedAt` gesetzt, `soldAt` leer) `returnedAt = jetzt` setzen.
-6. **AC-6** — WHEN „🖨️ Drucken" geklickt wird, THEN SHALL das System den Druckdialog mit gruppierten Artikeln (Im Verkauf, Verkauft, Sonstige) öffnen.
+10. **AC-10** — WHEN „Zurückgeben" geklickt wird, THEN SHALL das System bei allen noch im Verkauf befindlichen Artikeln des Verkäufers (`releasedAt` gesetzt, `soldAt` leer) `returnedAt = jetzt` setzen.
+11. **AC-11** — WHEN „🖨️ Drucken" geklickt wird, THEN SHALL das System den Druckdialog mit gruppierten Artikeln (Im Verkauf, Verkauft, Sonstige) öffnen.
+12. **AC-12** — THE SYSTEM SHALL die Artikelliste dieser Seite ohne Edit-Button und ohne Artikelstatus-Popup anzeigen.
+13. **AC-13** — WHEN ein bereits abgerechneter Verkäufer ausgewählt wird, THEN SHALL das System die Ansicht schreibgeschützt zeigen: „Zurückgeben" und „Abrechnen" deaktiviert, „Drucken" aktiv, und im Kopf ein Badge mit Abrechnungszeitpunkt und ausgezahltem Betrag.
+14. **AC-14** — THE SYSTEM SHALL die Artikelliste nach Artikelnummer aufsteigend sortieren — auf dem Bildschirm und im Ausdruck innerhalb jeder Gruppe.
 
 ## Tags & Piles
 

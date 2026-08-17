@@ -56,9 +56,23 @@ Hinweistext darunter: `ENTER bei 1 Treffer öffnet Wizard · Kein Treffer: Anleg
 | Mehr als 1 Treffer + ENTER | Keine Aktion |
 | Kein Treffer | Liste ausgeblendet; Button „+ Neuen Verkäufer anlegen" erscheint |
 
+### Abgerechnete Verkäufer
+
+Ein abgerechneter Verkäufer erscheint in der Trefferliste — mit dem Badge **„Abgerechnet"** —, aber die Auswahl führt **nicht** in den Wizard. Stattdessen erscheint der Hinweis:
+
+> Anna Meier ist bereits abgerechnet. Für weitere Artikel muss ein Admin die Abrechnung stornieren.
+
+Der Fall ist real: Um 14 Uhr abgerechnet und ausgezahlt, um 15 Uhr mit einer zweiten Kiste zurück.
+
+**Blockieren statt zulassen**, weil ein zweiter Abrechnungslauf nicht modelliert ist: Technisch würde die Annahme funktionieren — neue Artikel sind neue Datensätze, und die Sperre nach der Abrechnung gilt nur für bestehende. Fachlich entstünden damit Artikel, die **nie** abgerechnet werden können, weil ein zweites `settledAt` mit `settlement.already_settled` abgelehnt wird. Der Verkäufer hätte Ware im Verkauf, für die er kein Geld bekommen kann.
+
+**Blockiert wird bei der Auswahl, nicht beim Buchen** — sonst erfasst Kassenpersonal zwanzig Artikel, bevor der Fehler auftaucht.
+
+**In der Liste sichtbar lassen** statt zu verbergen: „nicht gefunden" sähe wie ein Datenproblem aus, und dann sucht jemand nach dem Verkäufer, der ordentlich angelegt ist.
+
 ### Aktionen
 
-- **Klick auf Verkäufer in der Liste** → Wizard Schritt 2
+- **Klick auf Verkäufer in der Liste** (nicht abgerechnet) → Wizard Schritt 2
 - **„+ Neuen Verkäufer anlegen"-Button** (oder ENTER wenn sichtbar) → Wizard Schritt 1
   - Aktuelle Sucheingabe wird als Vorname/Nachname vorbelegt: Text **vor erstem Leerzeichen** = Vorname, Text **danach** = Nachname
 
@@ -227,6 +241,7 @@ Die Nummernprüfung nutzt denselben Endpoint wie die Artikel-Erkennung an der Ka
 9. **AC-9** — WHEN gebucht wird, THEN SHALL das System die berechnete Annahmegebühr auf `intakeFeePaid` des Verkäufers addieren; „Betrag erhalten" und „Rückgeld" SHALL nicht gespeichert werden.
 10. **AC-10** — WHEN ein Verkäufer ohne Voranmeldung angelegt wurde und das Artikelnummer-Feld leer ist, THEN SHALL das System die nächste freie Nummer über dem höchsten vergebenen Wert vorschlagen, ohne die Eingabe zu erzwingen.
 11. **AC-11** — WHEN der Wizard nach Schritt 1 abgebrochen wird und der gerade angelegte Verkäufer keine Artikel hat, THEN SHALL das System diesen Verkäufer wieder entfernen — auch mit der Rolle Kassenpersonal.
+12. **AC-12** — WHEN ein abgerechneter Verkäufer in der Trefferliste ausgewählt wird, THEN SHALL das System den Wizard **nicht** öffnen und den Hinweis anzeigen, dass ein Admin die Abrechnung stornieren muss; der Verkäufer SHALL in der Liste mit dem Badge „Abgerechnet" sichtbar bleiben.
 
 ## Stories
 

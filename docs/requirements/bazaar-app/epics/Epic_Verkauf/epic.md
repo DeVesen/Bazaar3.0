@@ -69,11 +69,20 @@ Kassenvorgang mit Artikelnummer-Eingabe (USB-Barcode-Scanner oder Kamera-Scan), 
 
 Nach Eingabe / Scan wird der Artikel gesucht:
 
-| Ergebnis | Anzeige |
-|---|---|
-| **Erkannt & im Verkauf** | Grüner InfoArea-Text; Preis-Button wird aktiv |
-| **Bereits im Warenkorb** | **Gelber** InfoArea-Text „Artikel ist bereits im Warenkorb"; **kein** Preis-Button |
-| **Nicht erkannt / falscher Status** | Roter InfoArea-Text mit Hinweis |
+| Ergebnis | InfoArea | Text |
+|---|---|---|
+| **Erkannt & im Verkauf** | `success` | Preis des Artikels; Preis-Button wird aktiv |
+| **Bereits im Warenkorb** | `warn` | „Artikel ist bereits im Warenkorb." — **kein** Preis-Button |
+| Nummer unbekannt | `error` | „Artikelnummer *n* ist nicht bekannt." |
+| noch nicht freigegeben (`Registriert`) | `error` | „Artikel *n* ist noch nicht freigegeben — zuerst annehmen." |
+| bereits verkauft | `error` | „Artikel *n* ist bereits verkauft." |
+| zurückgegeben | `error` | „Artikel *n* wurde an den Verkäufer zurückgegeben." |
+
+**Konkrete Texte statt eines generischen Hinweises**, weil die Fälle verschiedene Handlungen nach sich ziehen: Bei „noch nicht freigegeben" gehört der Artikel in die Artikelannahme, bei „zurückgegeben" gar nicht mehr auf den Tresen.
+
+Der Fall **zurückgegeben** ist der praktisch häufigste dieser Fehler: Ein zurückgegebener Artikel bleibt liegen, weil der Verkäufer ihn vergessen hat, und landet später an der Kasse. Ein generischer Text würde die Kasse rätseln lassen.
+
+**Einen Fall „Verkäufer ist abgerechnet" gibt es hier nicht** — er kann regulär nicht entstehen: Abrechnen ist gesperrt, solange ein Artikel im Verkauf ist, also ist jeder Artikel eines abgerechneten Verkäufers verkauft oder zurückgegeben und fällt damit schon in eine der Zeilen oben.
 
 **Ein Artikel kann nur einmal im Warenkorb liegen.** Ohne diese Sperre zählt ein doppelt ausgelöster Handscanner den Artikel zweimal: Der Kunde zahlt doppelt, gebucht wird einmal, und in der Abstimmung fehlt Geld — zugunsten des Basars. Die Warnung ist gelb und nicht rot, weil es kein Fehler des Kassenpersonals ist.
 
@@ -200,6 +209,7 @@ Entweder alle Artikel sind gebucht oder keiner: Ein halb gebuchter Kassenvorgang
 10. **AC-10** — WHEN eine Buchung erfolgreich war, THEN SHALL das System einen Button „Letzten Vorgang stornieren" anzeigen, der bis zum nächsten Scan sichtbar bleibt.
 11. **AC-11** — WHEN „Letzten Vorgang stornieren" geklickt wird, THEN SHALL das System `soldAt` aller Artikel dieses Vorgangs zurücksetzen und die Artikel **nicht** in den Warenkorb zurücklegen — auch mit der Rolle Kassenpersonal.
 12. **AC-12** — THE SYSTEM SHALL „Betrag erhalten" und Rückgeld nicht persistieren.
+13. **AC-13** — WHEN ein gescannter Artikel nicht verkäuflich ist, THEN SHALL das System den zum Zustand gehörenden Text anzeigen (unbekannt, nicht freigegeben, bereits verkauft, zurückgegeben) und **keinen** generischen Fehlerhinweis verwenden.
 
 ## Stories
 

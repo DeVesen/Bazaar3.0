@@ -42,7 +42,9 @@ An allen übergebenen Artikeln wird `soldAt` auf den Vorgangszeitpunkt gesetzt. 
 
 ### Erneute Statusprüfung
 
-Der Endpoint prüft für jeden Artikel, dass er verkäuflich ist (`releasedAt` gesetzt, `soldAt` und `returnedAt` leer) und dass sein Verkäufer nicht abgerechnet ist. Ist einer davon nicht mehr verkäuflich, wird der **ganze** Vorgang abgelehnt und die betroffene Nummer genannt — damit die Kasse weiß, welchen Artikel sie aus dem Korb nehmen muss.
+Der Endpoint prüft für jeden Artikel, dass er verkäuflich ist (`releasedAt` gesetzt, `soldAt` und `returnedAt` leer) und dass sein Verkäufer nicht abgerechnet ist.
+
+**Die Abrechnungsprüfung ist eine Absicherung, kein regulärer Pfad:** Sie kann normalerweise nicht auslösen, weil Abrechnen gesperrt ist, solange ein Artikel im Verkauf steht — ein verkäuflicher Artikel eines abgerechneten Verkäufers ist damit ausgeschlossen. Erreichbar wird der Fall nur, wenn ein Admin über das Artikelstatus-Popup Zeitstempel von Hand verdreht hat ([`articles.md`](articles.md)). Sie bleibt trotzdem im Vertrag: Genau solche Handkorrekturen sind der Grund, warum vor dem Buchen erneut geprüft wird. Ist einer davon nicht mehr verkäuflich, wird der **ganze** Vorgang abgelehnt und die betroffene Nummer genannt — damit die Kasse weiß, welchen Artikel sie aus dem Korb nehmen muss.
 
 Der Grund für die zweite Prüfung: Der Scan liegt bei einem großen Warenkorb Minuten vor dem Buchen.
 
