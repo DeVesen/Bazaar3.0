@@ -21,7 +21,7 @@ updated: 2026-08-14
 **Navigation:** Stammdaten → Marken
 **Sichtbar für:** Admin
 
-Component-Details → [`components/marke-popup.md`](../../components/marke-popup.md)
+Component-Details → [`components/stammdaten-popup.md`](../../components/stammdaten-popup.md) (Ausprägung Marke)
 Entity-Details → [`entities/marke.md`](../../entities/marke.md)
 
 **Ziel:** Admin verwaltet Marken in der Voranmelde-App.

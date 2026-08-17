@@ -1,38 +1,60 @@
 ---
 status: reviewed
-reviewed-date: 2026-08-14
+reviewed-date: 2026-08-17
 ---
 
 # Component: Select
 
-Standard-Dropdown für feste/geladene Optionslisten (kein Freitext, kein Inline-Anlegen).
+Ein Primitive für „einen Wert aus einer Liste wählen" — in zwei Varianten: **Dropdown** und
+**Type-Ahead**. Beide ohne Freitext-Übernahme und ohne Inline-Anlegen.
 
 ## Bild
 
 ```
+Dropdown:
 ┌─────────────────────────────┐
 │ Privat                   ▾ │
 └─────────────────────────────┘
+
+Type-Ahead:
+┌─────────────────────────────┐
+│ 🔍 max                   ▾ │
+├─────────────────────────────┤
+│ Max Mustermann (#7)        │
+│ Maximilian Weber (#12)     │
+└─────────────────────────────┘
 ```
 
-## Aufbau
+## Varianten
 
-`p-select [options] [(ngModel)]` — zeigt Liste beim Öffnen, ein Wert wählbar.
+| Variante       | Aufbau                                | Einsatz |
+| -------------- | ------------------------------------- | ------- |
+| **Dropdown**   | `p-select [options] [(ngModel)]`      | feste/kurze Optionsliste, komplett beim Öffnen sichtbar |
+| **Type-Ahead** | `p-autoComplete`                      | große Liste, Filterung live nach Eingabe, nur Auswahl aus der Liste |
+
+## Modifier
+
+| Modifier | Umsetzung | Bemerkung |
+|---|---|---|
+| Readonly-Anzeige | `[disabled]="true"` | Wert sichtbar, nicht änderbar |
 
 ## Abgrenzung
 
-- Braucht der Nutzer Freitext + Inline-Anlegen (z. B. Marke/Kategorie) → [AutoComplete-Create](../../../components/autocomplete-create/component.md) (Suite-weit), **nicht** `p-select`.
-- Braucht der Nutzer Type-Ahead über eine große Liste ohne Anlegen (z. B. Verkäufer-Suche) → [AutoComplete (Type-Ahead)](autocomplete-typeahead.md).
+| Fall | Stattdessen |
+|---|---|
+| Freitext + Inline-Anlegen (z. B. Marke/Kategorie im Artikel-Dialog) | [AutoComplete-Create](../../../components/autocomplete-create/component.md) (Suite-weit) — hat Anlegen-Modal |
+| Freitext ohne Liste | [input.md](input.md) |
 
 ## Verwendung
 
-| Epic/Component | Feld | Bemerkung |
+| Epic/Component | Feld | Variante |
 |---|---|---|
-| [filter-panel.md](filter-panel.md) | Marke-/Kategorie-Filter | |
-| [einstellungen-form.md](einstellungen-form.md) | `defaultTypeId` | Liste aller Verkäufer-Typen |
-| [profil-page.md](profil-page.md) | Verkäufer-Typ | `[disabled]="true"` (read-only-Anzeige) |
-| [verkaeufer-dialog.md](verkaeufer-dialog.md) | Verkäufer-Typ | nur bestehende Typen, kein Inline-Anlegen (Feld-Mismatch, siehe dort) |
+| [filter-panel.md](filter-panel.md) | Marke-/Kategorie-Filter | Dropdown |
+| [filter-panel.md](filter-panel.md) | Verkäufer-Filter (nur Alle Artikel) | Type-Ahead — filtert über Vorname/Nachname/Nummer |
+| [einstellungen-form.md](einstellungen-form.md) | `defaultTypeId` | Dropdown — Liste aller Verkäufer-Typen |
+| [profil-page.md](profil-page.md) | Verkäufer-Typ | Dropdown, `[disabled]="true"` |
+| [verkaeufer-dialog.md](verkaeufer-dialog.md) | Verkäufer-Typ | Dropdown — nur bestehende Typen, kein Inline-Anlegen (Feld-Mismatch, siehe dort) |
 
 ## Tags & Piles
 
-**Tags:** #select #dropdown #primitive #shared-across-epics
+**Tags:** #select #dropdown #autocomplete #type-ahead #primitive #shared-across-epics

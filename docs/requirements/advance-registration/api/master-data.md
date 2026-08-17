@@ -15,8 +15,7 @@ Epics → [Epic_Marken](../epics/Epic_Marken/epic.md) ·
 [Epic_Kategorien](../epics/Epic_Kategorien/epic.md) ·
 Entities → [`entities/marke.md`](../entities/marke.md),
 [`entities/kategorie.md`](../entities/kategorie.md) ·
-Components → [`marke-popup.md`](../components/marke-popup.md),
-[`kategorie-popup.md`](../components/kategorie-popup.md)
+Components → [`stammdaten-popup.md`](../components/stammdaten-popup.md)
 
 ---
 

@@ -30,7 +30,7 @@ Registrieren →        ← Text/Link
 
 ## Verwendung
 
-Praktisch jede Komponente mit Formular/Dialog/Aktion — siehe die jeweiligen `Aufbau`-Tabellen (login-form, registrierung-form, artikel-dialog, kategorie-popup, marke-popup, typ-popup, filter-panel, sidebar-footer, export-panel, verkaeufer-dialog, profil-page).
+Praktisch jede Komponente mit Formular/Dialog/Aktion — siehe die jeweiligen `Aufbau`-Tabellen (login-form, registrierung-form, artikel-dialog, stammdaten-popup, typ-popup, filter-panel, sidebar-footer, export-panel, verkaeufer-dialog, profil-page).
 
 ## Tags & Piles
 

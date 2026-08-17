@@ -29,8 +29,7 @@ Für Meldungen mit **Zahlen/Details, die stehen bleiben sollen** (z. B. Export-E
 |---|---|---|
 | [verkaeufer-dialog.md](verkaeufer-dialog.md) | Einladungs-Link kopieren | „✓ Einladungs-Link kopiert!" |
 | [verkaeufer-dialog.md](verkaeufer-dialog.md) | Speichern (Erfolg/Fehler) | „✓ Verkäufer gespeichert" / Fehler-InfoArea |
-| [marke-popup.md](marke-popup.md) | Speichern | „✓ Marke gespeichert" |
-| [kategorie-popup.md](kategorie-popup.md) | Speichern | „✓ Kategorie gespeichert" |
+| [stammdaten-popup.md](stammdaten-popup.md) | Speichern | „✓ Marke gespeichert" / „✓ Kategorie gespeichert" |
 | [typ-popup.md](typ-popup.md) | Speichern | „✓ Verkäufer-Typ gespeichert" |
 | [einstellungen-form.md](einstellungen-form.md) | Speichern | „✓ Einstellungen gespeichert" |
 

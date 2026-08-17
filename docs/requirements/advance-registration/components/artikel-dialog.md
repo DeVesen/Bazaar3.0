@@ -33,6 +33,8 @@ Modal-Muster: Standard-Größe, Footer „Mit Löschen" (siehe `docs/components/
 
 ## Aufbau
 
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](form.md).
+
 | Feld                | PrimeNG                                                                                                                                                                                                                                                                                |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Artikelnummer       | [Input](input.md), Variante Text, readonly                                                                                                                                                                                                                                             |

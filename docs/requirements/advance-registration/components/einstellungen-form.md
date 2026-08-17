@@ -31,10 +31,12 @@ INFO-TEXT
 
 ## Aufbau
 
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](form.md).
+
 | Feld | PrimeNG |
 |---|---|
 | Die 5 Basar-Termine | [Datepicker](datepicker.md) |
-| `defaultTypeId` | [Select](select.md) — Liste aller Verkäufer-Typen |
+| `defaultTypeId` | [Select](select.md), Variante Dropdown — Liste aller Verkäufer-Typen |
 | `startNumber` / `blockSize` / `defaultBlockCount` | [Input](input.md), Variante Number |
 | `infoText` | `pTextarea` |
 | Speichern-Button | [Button](button.md) primary |

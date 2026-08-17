@@ -29,6 +29,8 @@ Nutzt `login-layout` als Rahmen (linke Spalte identisch mit Login), rechte Spalt
 
 ## Aufbau
 
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](form.md).
+
 | Element | PrimeNG |
 |---|---|
 | Form-Container | Shared [`card`](../../../components/card/component.md) (wie `login-form`) |

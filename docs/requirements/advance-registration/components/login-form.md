@@ -26,6 +26,8 @@ Sitzt in der rechten Spalte von `login-layout`. Container: `p-card`.
 
 ## Aufbau
 
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](form.md).
+
 | Element | PrimeNG |
 |---|---|
 | Form-Container | Shared [`card`](../../../components/card/component.md) |

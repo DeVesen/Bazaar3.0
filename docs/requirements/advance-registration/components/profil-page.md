@@ -53,12 +53,14 @@ Klick → p-confirmdialog „Möchten Sie Ihren Account wirklich löschen?"
 
 ## Aufbau
 
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](form.md).
+
 | Element | PrimeNG |
 |---|---|
 | Tab-Navigation | `p-tabs` |
 | Panel-Container (alle Panels) | `card` Panel-Block-Variante (wie Epic_Verkaeufer) |
 | Personendaten-/Kontakt-Felder | [Input](input.md), Variante Text, E-Mail readonly |
-| Verkäufer-Typ | [Select](select.md) `[disabled]="true"` |
+| Verkäufer-Typ | [Select](select.md), Variante Dropdown, `[disabled]="true"` |
 | Gebühr/Provision | [Input](input.md), Variante Number, readonly |
 | E-Mail ändern | [Input](input.md) Variante Icon (neue E-Mail) + Variante Password (aktuelles Passwort) |
 | Passwort ändern | 3× [Input](input.md) Variante Password (aktuell/neu/Bestätigung) + [password-strength-meter.md](password-strength-meter.md) |

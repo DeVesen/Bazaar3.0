@@ -26,6 +26,8 @@ Reine Instanziierung — keine neuen PrimeNG-Entscheidungen. Gleiches Popup für
 
 ## Aufbau
 
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](form.md).
+
 | Feld | PrimeNG |
 |---|---|
 | Name | [Input](input.md), Variante Text |

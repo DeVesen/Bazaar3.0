@@ -69,7 +69,7 @@ Kombinierbar mit jeder Variante, wo fachlich sinnvoll:
 |---|---|
 | Prefix-/Suffix-Add-on (z. B. Preis mit „€") | Shared [`input-group`](../../../components/input-group/component.md) — Suffix-Betrag passt zum Addon-Muster, nicht zum Icon-Overlay |
 | Passwort-Stärke-Feedback | [password-strength-meter.md](password-strength-meter.md) — `pInputPassword` liefert kein automatisches Feedback |
-| Type-Ahead-Auswahl aus Liste | [autocomplete-typeahead.md](autocomplete-typeahead.md) — Auswahl statt Freitext |
+| Auswahl aus Liste (Dropdown oder Type-Ahead) | [select.md](select.md) — Auswahl statt Freitext |
 
 ## Verwendung
 
@@ -79,7 +79,7 @@ Kombinierbar mit jeder Variante, wo fachlich sinnvoll:
 | [artikel-dialog.md](artikel-dialog.md) | Bezeichnung, Größe, Farbe | Text |
 | [artikel-dialog.md](artikel-dialog.md) | Preis | Number, 2 Nachkommastellen (in `input-group` mit €-Addon) |
 | [artikel-readonly-modal.md](artikel-readonly-modal.md) | Verkäufer (Name+Nummer) | Text, readonly |
-| [kategorie-popup.md](kategorie-popup.md), [marke-popup.md](marke-popup.md), [typ-popup.md](typ-popup.md) | Name | Text |
+| [stammdaten-popup.md](stammdaten-popup.md), [typ-popup.md](typ-popup.md) | Name | Text |
 | [typ-popup.md](typ-popup.md) | Provision (%), Gebühr (€) | Number, 2 Nachkommastellen |
 | [einstellungen-form.md](einstellungen-form.md) | `startNumber`/`blockSize`/`defaultBlockCount` | Number |
 | [filter-panel.md](filter-panel.md) | Freitext-Suche | Icon (`pi-search`) |
