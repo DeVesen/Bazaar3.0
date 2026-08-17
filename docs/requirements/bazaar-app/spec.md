@@ -20,10 +20,10 @@ updated: 2026-08-17
 - 11. Offene Fragen — Backlog
 - Tags & Piles — Ablage
 
-**Version:** 0.8
-**Datum:** 2026-07-31
+**Version:** 0.9
+**Datum:** 2026-08-17
 **Autor:** Sven Reichert
-**Status:** Entwurf
+**Status:** Entwurf (6 von 14 Epics reviewed)
 
 ---
 
@@ -107,8 +107,9 @@ Verbindlich für alle Epics. Ein Epic, das davon abweichen will, ändert diese T
 | Abrechnung | ✅ | ✅ |
 | Drucken (Aktion in Artikelannahme und Abrechnung, keine eigene Seite) | ✅ | ✅ |
 | Artikel (Übersicht) | ✅ | ✅ lesen, kein Status-Popup |
-| Verkäufer | ✅ | ✅ lesen |
-| Marken / Kategorien / Verkäufer-Typen | ✅ | ✅ lesen; Anlegen nur implizit über AutoComplete (Abschnitt 9.3) |
+| Verkäufer | ✅ | ✅ anlegen und bearbeiten, kein Löschen |
+| Verkäufer-Konditionen überschreiben (`salesCommission`, `feePerItem`) | ✅ | ❌ — sieht die aus dem Typ abgeleiteten Werte schreibgeschützt |
+| Marken / Kategorien / Verkäufer-Typen | ✅ | ✅ lesen; Marken und Kategorien zusätzlich implizit über AutoComplete anlegen (Abschnitt 9.3) |
 | Statistik | ✅ | ✅ lesen |
 | Einstellungen (inkl. Import und Benutzerverwaltung) | ✅ | ❌ |
 | Abrechnung stornieren, Artikel löschen | ✅ | ❌ |
@@ -367,7 +368,8 @@ Alle Entitäten verwenden eine **8-stellige alphanumerische ID** (Groß-/Kleinbu
 
 - Enthalten `commissionRate` (Provision in %) und `itemFee` (Gebühr pro Stück in €)
 - Template / Vorlage — kein verbindlicher Join
-- Beim Anlegen/Ändern eines Verkäufers werden `salesCommission` und `feePerItem` daraus vorausgefüllt und können individuell überschrieben werden
+- Beim Anlegen eines Verkäufers werden `salesCommission` und `feePerItem` daraus belegt; ein **Typwechsel überschreibt** beide Felder, auch manuell gesetzte (Bestätigungsdialog, siehe [Epic_Verkaeufer_Typen](epics/Epic_Verkaeufer_Typen/epic.md) Abschnitt 3)
+- Überschreiben der Konditionen ist **Admin-only**; Kassenpersonal wählt nur den Typ
 
 Details → [`entities/verkaeufer-typ.md`](entities/verkaeufer-typ.md)
 

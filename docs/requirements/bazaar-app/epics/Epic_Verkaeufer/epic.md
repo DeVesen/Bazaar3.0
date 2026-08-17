@@ -133,9 +133,21 @@ Die Verkäufer-Seite zeigt alle Verkäufer als Karten-Grid. Von hier aus wird de
 Dialog (Standard-Größe) mit Panels 01–03 (Personendaten, Kontakt, Konditionen) — identische Feldanordnung wie Wizard Schritt 1.
 
 Zusätzlich **Panel 05 — Sonstiges**:
-- **Toggle-Schalter „Admin-Rechte"**: gibt nach Login die Admin-Ansicht frei (nur für Admins sichtbar)
-  - In der Haupt-App nicht relevant (kein Auth-System) — dieses Feld existiert nur in der Voranmelde-App
+- **Toggle-Schalter „Admin-Rechte"** existiert nur in der Voranmelde-App. In der Haupt-App gibt es ihn nicht — nicht weil Auth fehlte (die App hat Login und Rollen, siehe [Epic_Login](../Epic_Login/epic.md)), sondern weil **Verkäufer hier keine Benutzer sind**: Sie melden sich nie an, Konten verwaltet der Admin getrennt in [Epic_Einstellungen](../Epic_Einstellungen/epic.md).
 - Kein Einladungs-Link in der Haupt-App
+
+**Konditionen (Panel 03) — wer darf was** (Rechte-Matrix → [`spec.md`](../../spec.md) Abschnitt 4.1):
+
+| Aktion | Admin | Kassenpersonal |
+|---|---|---|
+| Verkäufer anlegen, Stammdaten bearbeiten | ✅ | ✅ |
+| Verkäufer-Typ wählen | ✅ | ✅ |
+| `salesCommission` / `feePerItem` überschreiben | ✅ | ❌ — schreibgeschützt sichtbar |
+| Verkäufer löschen | ✅ | ❌ |
+
+**Typwechsel überschreibt die Konditionen.** Wechselt der Admin den Typ, werden `salesCommission` und `feePerItem` mit den Werten des neuen Typs überschrieben — auch manuell gesetzte. Vorher erscheint ein Bestätigungsdialog mit den konkreten alten und neuen Werten. Begründung und Regel → [Epic_Verkaeufer_Typen](../Epic_Verkaeufer_Typen/epic.md) Abschnitt 3.
+
+**Vorbelegung beim Anlegen:** Der Typ ist mit dem am häufigsten zugewiesenen Typ vorbelegt, bleibt aber änderbar.
 
 ---
 
@@ -180,7 +192,7 @@ Nach Ablauf der Anzeigezeit → Kamerabild wieder aktiv.
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN der Nutzer Text in das Suchfeld eingibt und die Debounce-Zeit abgelaufen ist, THEN SHALL das System die Verkäuferliste auf Einträge filtern, die den Suchbegriff in Name oder Nummer enthalten.
-2. **AC-2** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit leeren Pflichtfeldern (Vorname, Nachname, Verkäufer-Typ) öffnen.
+2. **AC-2** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit leeren Pflichtfeldern (Vorname, Nachname) öffnen; der Verkäufer-Typ SHALL mit dem am häufigsten zugewiesenen Typ vorbelegt sein.
 3. **AC-3** — WHEN ein neuer Verkäufer gespeichert wird, THEN SHALL das System ihn in der Datenbank anlegen und in der Liste anzeigen.
 4. **AC-4** — WHEN „Edit" bei einem Verkäufer geklickt wird, THEN SHALL das System das Popup mit den vorausgefüllten Verkäuferdaten öffnen.
 5. **AC-5** — WHEN auf einen Verkäufer-Eintrag geklickt wird, THEN SHALL das System das Verkäufer-Detail-Panel mit QR-Code (Shared-Component [`qr-code`](../../../../components/qr-code/component.md), Inhalt = Verkäufer-`id`) und Artikelliste anzeigen.

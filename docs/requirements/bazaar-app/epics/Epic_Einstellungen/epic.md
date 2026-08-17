@@ -48,6 +48,7 @@ Einstellungen werden im `localStorage` gespeichert.
 2. **Import-Vorschau erscheint sofort nach Dateiauswahl** (ohne zusätzlichen Bestätigungs-Klick):
    - Anzahl Verkäufer / Artikel
    - Welche werden ersetzt / neu angelegt
+   - **Unbekannte Verkäufer-Typen** mit Anzahl betroffener Verkäufer und je einer Auswahl zur Zuordnung auf einen existierenden Typ
 3. Admin bestätigt den Import explizit per Button
 4. **Fortschrittsanzeige** (`p-progressbar`) während des Imports
 5. Toast-Benachrichtigung: „✓ Import erfolgreich"
@@ -68,6 +69,12 @@ abweichendes Import-Vokabular wäre eine zweite Quelle für dasselbe Schema.
 Die Epic-Dokumente dieser App führen an einigen Stellen noch die alten deutschen
 Feldnamen. Sie werden beim Review der Haupt-App nachgezogen; verbindlich ist
 [`entities/`](../../entities/overview.md).
+
+### Auflösung der Verkäufer-Typen
+
+Die Import-Datei liefert `sellerType` als **Namen**. Existiert der Name in dieser App nicht, bricht der Import **nicht** ab und legt auch **nichts** automatisch an — die Vorschau verlangt vom Admin für jeden unbekannten Namen eine Zuordnung auf einen existierenden Typ. Erst danach ist „Import bestätigen" möglich.
+
+Kein automatisches Anlegen, weil ein Typ Provision und Gebühr trägt, die der Import nicht erfinden kann; ein Typ mit 0 % Provision wäre ein stiller Geldverlust. Regel und Begründung → [Epic_Verkaeufer_Typen](../Epic_Verkaeufer_Typen/epic.md) Abschnitt 4.
 
 ### Upsert-Logik
 
@@ -112,6 +119,8 @@ Nur für Admins erreichbar (Rechte-Matrix → [`spec.md`](../../spec.md) Abschni
 6. **AC-6** — THE SYSTEM SHALL die Benutzerverwaltung ausschließlich für die Rolle Admin erreichbar machen; ein Request mit der Rolle Kassenpersonal SHALL mit `403` abgelehnt werden.
 7. **AC-7** — WHEN ein Admin einen Benutzer anlegt oder dessen Passwort zurücksetzt, THEN SHALL das System für diesen Benutzer den Zwangswechsel beim nächsten Login setzen.
 8. **AC-8** — IF versucht wird, das letzte verbleibende Admin-Konto zu löschen, THEN SHALL das System die Löschung mit `409` ablehnen.
+9. **AC-9** — IF die Import-Datei Verkäufer-Typen enthält, deren Name in dieser App nicht existiert, THEN SHALL das System sie in der Vorschau mit der Anzahl betroffener Verkäufer auflisten, je Name eine Zuordnung auf einen existierenden Typ verlangen und „Import bestätigen" bis dahin deaktiviert lassen.
+10. **AC-10** — THE SYSTEM SHALL beim Import keinen Verkäufer-Typ automatisch anlegen und keinen unbekannten Namen stillschweigend durch einen Standardtyp ersetzen.
 
 ## Tags & Piles
 

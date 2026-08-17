@@ -76,6 +76,8 @@ Tab-Item: padding 10 px 20 px, 600, 13 px, muted; aktiver Tab: primary-Farbe + b
 Formular mit allen Verkäufer-Feldern (Panels 01–03, siehe Lastenheft Abschnitt 6.5).
 Vorname/Nachname-Vorbelegung aus der Sucheingabe.
 
+**Verkäufer-Typ und Konditionen (Panel 03):** Der Typ ist mit dem am häufigsten zugewiesenen Typ vorbelegt und frei wählbar — auch von Kassenpersonal, das hier Verkäufer anlegen darf. Die daraus abgeleiteten Konditionen (`salesCommission`, `feePerItem`) zeigt das Formular **schreibgeschützt**; überschreiben darf sie ausschließlich der Admin über [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md). Grund: Es ist die einzige Eingabe in dieser App, die unmittelbar Geld verschiebt, und am Annahmetisch wird unter Zeitdruck im Gespräch mit dem Verkäufer getippt. Rechte-Matrix → [`spec.md`](../../spec.md) Abschnitt 4.1.
+
 **„Weiter"-Button** → Verkäufer wird sofort in der DB angelegt → Wechsel zu Schritt 2.
 
 ---
