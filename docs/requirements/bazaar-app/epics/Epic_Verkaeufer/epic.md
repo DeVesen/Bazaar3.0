@@ -25,7 +25,7 @@ updated: 2026-08-17
 **Route:** `/sellers`
 **Sichtbar für:** Admin (alles) · Kassenpersonal (anlegen und bearbeiten, kein Löschen, keine Konditionen)
 
-Component-Details → [`seller-card`](../../components/seller-card.md) · [`filter-panel`](../../../../components/filter-panel/component.md) · [`scan-dialog`](../../../../components/scan-dialog/component.md)
+Component-Details → [`seller-card`](../../components/seller-card.md) · [`seller-detail-modal`](../../components/seller-detail-modal.md) · [`verkaeufer-dialog`](../../components/verkaeufer-dialog.md) · [`filter-panel`](../../../../components/filter-panel/component.md) · [`scan-dialog`](../../../../components/scan-dialog/component.md)
 
 **Ziel:** Admin verwaltet Verkäufer-Stammdaten der Haupt-App.
 

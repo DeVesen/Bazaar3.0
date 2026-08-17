@@ -16,6 +16,8 @@ Grundgerüst der Angular-App: Sidebar-Navigation, responsives Zwei-Spalten-Layou
 - **Admin** — sieht die vollständige Sidebar inklusive Einstellungen.
 - **Kassenpersonal** — sieht die Sidebar ohne Einstellungen.
 
+Component-Details → [`topbar`](../../components/topbar.md) · [`sidebar`](../../../../components/sidebar/component.md) · [`sidebar-footer`](../../../../components/sidebar-footer/component.md)
+
 ## Bereiche
 
 - Sidebar mit Navigationsgruppen (Tagesgeschäft, Stammdaten, System), **rollenabhängig** — ohne Role-Toggle

@@ -21,7 +21,7 @@ updated: 2026-08-17
 **Route:** `/settings`
 **Sichtbar für:** Admin (`adminGuard`)
 
-Component-Details → [`import-panel`](../../components/import-panel.md)
+Component-Details → [`import-panel`](../../components/import-panel.md) · [`settings-form`](../../components/settings-form.md) · [`user-management`](../../components/user-management.md)
 
 **Ziel:** Admin konfiguriert Systemparameter und importiert Daten aus der Voranmelde-App.
 

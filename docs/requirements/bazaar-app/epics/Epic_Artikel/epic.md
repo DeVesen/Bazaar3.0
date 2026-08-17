@@ -24,7 +24,7 @@ updated: 2026-08-17
 
 Entity-Details → [`entities/artikel.md`](../../entities/artikel.md)
 
-Component-Details → [`article-status-popup`](../../components/article-status-popup.md) · [`filter-panel`](../../../../components/filter-panel/component.md) · [`table`](../../../../components/table/component.md)
+Component-Details → [`article-status-popup`](../../components/article-status-popup.md) · [`artikel-dialog`](../../components/artikel-dialog.md) · [`filter-panel`](../../../../components/filter-panel/component.md) · [`table`](../../../../components/table/component.md)
 
 **Ziel:** Admin sieht und verwaltet alle Artikel des laufenden Basars.
 

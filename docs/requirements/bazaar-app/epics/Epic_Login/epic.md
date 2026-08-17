@@ -22,6 +22,8 @@ updated: 2026-08-17
 **Route:** `/login` (öffentlich, ohne AppShell/Sidebar)
 **Sichtbar für:** Jeder mit Netzzugang im LAN
 
+Component-Details → [`login-form`](../../components/login-form.md) · [`change-password-page`](../../components/change-password-page.md)
+
 **Ziel:** Admin und Kassenpersonal authentifizieren sich in der Haupt-App; die Rolle entscheidet über den Zugriff auf konfigurierende und zerstörende Aktionen.
 
 **User Story:** Als Betreiber möchte ich, dass sich Kassenpersonal mit eigenem Konto anmeldet, damit Einstellungen, Import und Storno-Aktionen dem Admin vorbehalten bleiben.

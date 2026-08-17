@@ -24,6 +24,8 @@ updated: 2026-08-17
 **Route:** `/statistics`
 **Sichtbar für:** Admin und Kassenpersonal (lesend)
 
+Component-Details → [`leaderboard`](../../components/leaderboard.md) · [`kpi-tile`](../../../../components/kpi-tile/component.md)
+
 **Ziel:** Admin und Kassenpersonal sehen eine aktuelle Übersicht der Basar-Kennzahlen ohne Caching.
 
 **User Story:** Als Mitglied des Basar-Teams möchte ich bei jedem Seitenaufruf aktuelle Kennzahlen sehen, damit ich den Veranstaltungsfortschritt jederzeit beurteilen kann.
