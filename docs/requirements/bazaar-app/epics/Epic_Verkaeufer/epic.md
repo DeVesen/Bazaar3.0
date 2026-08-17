@@ -202,11 +202,13 @@ Artikel, die am Tisch neu aufgenommen werden, erscheinen hier **nie**: Beim Buch
 
 Eingabefeld (Artikelnummer) + AutoComplete-Liste darunter.
 
+**Gescannt wird gesammelt, geschrieben wird am Ende.** Der Dialog liest während des Scannens nur und merkt sich die Treffer — wie der Warenkorb an der Kasse. Erst der Abschluss über das Payment-Panel schickt einen Request (`POST /api/release`, siehe Abschnitt 7). Würde jeder Scan sofort schreiben, hinterließe ein Abbruch nach 30 Scans 30 freigegebene Artikel **ohne** kassierte Gebühr.
+
 | Zustand | Verhalten |
 |---|---|
-| (leer) | Liste zeigt alle noch **nicht freigegebenen** Artikel dieses Verkäufers (`releasedAt = null`) |
+| (leer) | Liste zeigt alle noch **nicht freigegebenen** Artikel dieses Verkäufers (`releasedAt = null`), die in dieser Sitzung bereits erfassten markiert |
 | Eingabe | Filtert die Liste nach Artikelnummer |
-| Genau 1 Treffer + ENTER | Artikel bekommt `releasedAt = jetzt`; Eingabefeld leert sich; Liste zeigt wieder alle ausstehenden |
+| Genau 1 Treffer + ENTER | Artikel wird in die Sitzungsliste übernommen; Eingabefeld leert sich; Liste zeigt wieder alle ausstehenden |
 | Kein Treffer | Liste verschwindet; Text: *„Artikel nicht bekannt"* |
 | Alle freigegeben | Nur Text: *„Alle Artikel freigegeben"* |
 
@@ -238,26 +240,30 @@ Beim Verlassen des Dialogs erscheint — sofern in dieser Sitzung mindestens ein
 
 Grund: `feePerItem` ist eine Gebühr **pro abgegebenem** Artikel, und abgegeben wird beim Freigeben. Ohne diesen Abschluss wäre ein vorangemeldeter Verkäufer mit 40 Artikeln gebührenfrei, während der Laufkunde mit 12 Artikeln zahlt. Regel und Begründung → [Epic_Artikelannahme](../Epic_Artikelannahme/epic.md) Abschnitt 4.
 
-Nach dem Payment-Panel startet **automatisch der Abgabe-Beleg** mit den in dieser Sitzung freigegebenen Artikeln und dem gezahlten Gebührenbetrag — dasselbe Dokument wie nach dem Buchen in der Artikelannahme ([Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md) Abschnitt 1). Zwei Wege zum selben Vorgang dürfen nicht zu zwei verschiedenen Belegsituationen führen.
+Der Abschluss läuft als **ein** Request: `POST /api/release` setzt `releasedAt` an allen Artikeln der Sitzung und erhöht `intakeFeePaid` in derselben Transaktion. Erst nach erfolgreicher Antwort startet **automatisch der Abgabe-Beleg** mit den freigegebenen Artikeln und dem gezahlten Gebührenbetrag — dasselbe Dokument wie nach dem Buchen in der Artikelannahme ([Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md) Abschnitt 1). Zwei Wege zum selben Vorgang dürfen nicht zu zwei verschiedenen Belegsituationen führen.
 
 ---
 
 ## 7. Backend & API
+
+API-Details → [`api/sellers.md`](../../api/sellers.md), [`api/release.md`](../../api/release.md), [`api/settlement.md`](../../api/settlement.md)
 
 Die Karten-Aggregate kommen über einen **eigenen Query-Port** ([`spec.md`](../../spec.md) Abschnitt 7.0.1) als fertiges Read-Model — eine Query für die ganze Seite. Würde das Frontend rechnen, müsste es alle Artikel aller Verkäufer laden; würde jede Karte einzeln nachfragen, wären es bei 200 Verkäufern 200 Requests.
 
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
 | `GET /api/sellers` | `authenticated` | Seite der Verkäuferliste inkl. aller Karten-Aggregate; Parameter für Suche, Status, Sortierung, Seite |
+| `GET /api/sellers/search` | `authenticated` | Schmale Treffer ohne Aggregate für Such-Ansichten — die Tippsuche darf keine Summen auslösen |
 | `POST /api/sellers` | `authenticated` | Legt Verkäufer an; `sellerTypeId` ist Pflicht |
 | `PUT /api/sellers/{id}` | `authenticated` | Stammdaten. Mitgesendete `salesCommission`/`feePerItem` SHALL nur mit Rolle `admin` wirken, sonst `403` |
-| `DELETE /api/sellers/{id}` | `admin` | `409` falls der Verkäufer noch Artikel hat |
+| `DELETE /api/sellers/{id}` | `authenticated` | `409` falls der Verkäufer noch Artikel hat — die Datenbedingung trägt die Sicherheit, nicht die Rolle |
 | `GET /api/sellers/{id}/articles` | `authenticated` | Artikelliste für das Detail-Modal (Abschnitt 5) |
-| `PUT /api/articles/{id}/release` | `authenticated` | Setzt `releasedAt` (Scan-Dialog, Abschnitt 6) |
-| `POST /api/sellers/{id}/intake-fee` | `authenticated` | Addiert die Annahmegebühr der Freigabe-Sitzung auf `intakeFeePaid` |
+| `POST /api/release` | `authenticated` | Abschluss der Freigabe-Sitzung: `releasedAt` an N Artikeln + Gebühr, in einer Transaktion (Abschnitt 6) |
 | `DELETE /api/sellers/{id}/settlement` | `admin` | Setzt `settledAt` **und** `payoutAmount` zurück |
 
 Kein `IQueryable` über die Portgrenze, ein Repository pro Aggregate — die Aggregat-Abfrage ist ein Query-Port, kein erweitertes Repository.
+
+**`DELETE` ist `authenticated`, nicht `admin`:** Löschbar ist nur ein Verkäufer **ohne Artikel** — also eine gerade entstandene Fehleingabe oder ein Laufkunde, der nie abgegeben hat. Importierte Verkäufer haben immer Artikel. Ein Sonderrecht für den Admin würde nichts zusätzlich schützen, aber Kassenpersonal daran hindern, die eigene Fehleingabe zurückzunehmen.
 
 ## Akzeptanzkriterien
 

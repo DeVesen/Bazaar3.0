@@ -97,6 +97,8 @@ Kategorien können beim JSON-Import aus der Voranmelde-App mit übernommen werde
 
 ## 6. Backend & API
 
+API-Details → [`api/master-data.md`](../../api/master-data.md) (gemeinsam mit Marken — endpoint-seitig identisch)
+
 Endpoint-seitig identisch zu [Epic_Marken](../Epic_Marken/epic.md) — dieselben vier Operationen, dieselbe Auth-Stufung, nur eine andere Ressource.
 
 | Endpoint | Auth | Beschreibung |

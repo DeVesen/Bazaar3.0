@@ -197,14 +197,18 @@ Ohne diese Abgrenzung erfinden zwei Teams zwei Verfahren für denselben Vorgang.
 
 ## 7. Backend & API
 
+API-Details → [`api/intake.md`](../../api/intake.md), [`api/sellers.md`](../../api/sellers.md), [`api/articles.md`](../../api/articles.md)
+
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
-| `GET /api/sellers?q=` | `authenticated` | Verkäufer-Suche über ID, Vor- und Nachname (Abschnitt 1) |
+| `GET /api/sellers/search?q=` | `authenticated` | Verkäufer-Suche über ID, Vor- und Nachname (Abschnitt 1) — schmale Treffer ohne Aggregate |
 | `POST /api/sellers` | `authenticated` | Verkäufer aus Wizard-Schritt 1; `sellerTypeId` Pflicht |
-| `DELETE /api/sellers/{id}` | `authenticated`, eingeschränkt | Abbrechen im Wizard — nur für einen Verkäufer ohne Artikel |
-| `GET /api/articles/number-available/{number}` | `authenticated` | Prüft die Nummer auf systemweite Eindeutigkeit |
+| `DELETE /api/sellers/{id}` | `authenticated` | Abbrechen im Wizard — greift nur, solange der Verkäufer keine Artikel hat |
+| `GET /api/articles/by-number/{number}` | `authenticated` | Nummernprüfung: `404` heißt „Nummer frei", `200` heißt „bereits vergeben" |
 | `GET /api/articles/next-number` | `authenticated` | Nächste freie Nummer über dem höchsten vergebenen Wert (Vorschlag für Laufkunden) |
 | `POST /api/intake` | `authenticated` | **Ein atomarer Vorgang:** Verkäufer-ID + komplette Artikelliste + Gebührenbetrag |
+
+Die Nummernprüfung nutzt denselben Endpoint wie die Artikel-Erkennung an der Kasse — zwei Lesarten einer Antwort statt zweier Endpoints, die dieselbe Zeile suchen. Verbindlich entschieden wird die Eindeutigkeit erst in der Transaktion: Zwei Annahmeplätze können dieselbe freie Nummer gleichzeitig gesehen haben.
 
 **`POST /api/intake` läuft in einer Transaktion.** Entweder alle Artikel sind gebucht, alle Zeitstempel gesetzt und `intakeFeePaid` erhöht — oder nichts davon. Kein Endpoint pro Artikel: Bricht eine Schleife aus N Einzel-Requests in der Mitte ab, sind drei Artikel gebucht und vier nicht, während der Verkäufer bereits bezahlt hat und geht.
 

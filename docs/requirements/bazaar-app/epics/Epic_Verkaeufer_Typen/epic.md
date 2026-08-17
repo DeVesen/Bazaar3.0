@@ -96,6 +96,8 @@ Kein automatisches Anlegen, weil ein Typ Provision und Gebühr trägt — die ka
 
 ## 5. Backend & API
 
+API-Details → [`api/seller-types.md`](../../api/seller-types.md)
+
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
 | `GET /api/seller-types` | `authenticated` | Liste aller Typen inkl. `sellerCount` |

@@ -176,6 +176,8 @@ Der Ausdruck wird **vor** dem Rückgabe-Scan gebraucht: Dort ist die Gruppe „N
 
 ## 7. Backend & API
 
+API-Details → [`api/settlement.md`](../../api/settlement.md)
+
 Die Kennzahlen und Posten kommen über den **Query-Port** als fertiges Read-Model ([`spec.md`](../../spec.md) Abschnitt 7.0.1) — dieselbe Bauweise wie die Verkäufer-Karten.
 
 | Endpoint | Auth | Beschreibung |

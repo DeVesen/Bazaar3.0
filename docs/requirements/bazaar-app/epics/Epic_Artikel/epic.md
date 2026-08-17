@@ -131,6 +131,8 @@ Nach der Abrechnung gibt es genau einen Weg zurück: die Abrechnung stornieren (
 
 ## 5. Backend & API
 
+API-Details → [`api/articles.md`](../../api/articles.md)
+
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
 | `GET /api/articles` | `authenticated` | Seite der Artikelliste; Parameter für Freitext, Marke, Kategorie, Status, Sortierung, Seite |

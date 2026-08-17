@@ -150,6 +150,8 @@ Stil: 12 px, 700, uppercase, 0.8 px letter-spacing, `#4a6080`, mb 8 px, mt 6 px 
 
 ## 7. Backend & API
 
+API-Details → [`api/statistics.md`](../../api/statistics.md)
+
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
 | `GET /api/statistics` | `authenticated` | Read-Model für die ganze Seite: alle KPI-Zeilen, Metergroup-Segmente und das Leaderboard |

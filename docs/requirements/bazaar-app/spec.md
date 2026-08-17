@@ -108,7 +108,7 @@ Verbindlich für alle Epics. Ein Epic, das davon abweichen will, ändert diese T
 | Abrechnung | ✅ | ✅ |
 | Drucken (Aktion in Artikelannahme und Abrechnung, keine eigene Seite) | ✅ | ✅ |
 | Artikel (Übersicht) | ✅ | ✅ lesen und bearbeiten, kein Löschen, kein Status-Popup |
-| Verkäufer | ✅ | ✅ anlegen und bearbeiten, kein Löschen — Ausnahme: ein im Annahme-Wizard gerade selbst angelegter Verkäufer ohne Artikel darf beim Abbrechen entfernt werden |
+| Verkäufer | ✅ | ✅ anlegen und bearbeiten; löschen nur, solange der Verkäufer **keine Artikel** hat (dieselbe Grenze gilt für den Admin) |
 | Verkäufer-Konditionen überschreiben (`salesCommission`, `feePerItem`) | ✅ | ❌ — sieht die aus dem Typ abgeleiteten Werte schreibgeschützt |
 | Marken / Kategorien / Verkäufer-Typen | ✅ | ✅ lesen; Marken und Kategorien zusätzlich implizit über AutoComplete anlegen (Abschnitt 9.3) |
 | Statistik | ✅ | ✅ lesen |
@@ -167,6 +167,15 @@ Fachliche Epics folgen in der Reihenfolge ihrer Abhängigkeiten.
 | 14 | **Einstellungen** | Systemparameter, Benutzerverwaltung, JSON-Import | [Epic_Einstellungen](epics/Epic_Einstellungen/epic.md) |
 
 **Epic-IDs sind Identität, nicht Sortierung.** `Epic_Login` trägt F-BA-012, weil F-BA-001…011 vergeben sind; die Reihenfolge steht ausschließlich in dieser Tabelle.
+
+---
+
+## 5.1 API
+
+Alle Endpoints stehen zentral in [`api/overview.md`](api/overview.md), die Querschnitts-Regeln
+(Verb-Muster, Auth-Stufen, `ProblemDetails`, Pagination, Transaktionen, Sperrregeln) in
+[`api/cross-cutting.md`](api/cross-cutting.md). Die Epics verweisen dorthin und wiederholen
+nur ihre eigene Endpoint-Tabelle als Kurzfassung.
 
 ---
 

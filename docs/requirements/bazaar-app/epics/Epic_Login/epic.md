@@ -107,6 +107,8 @@ Beim ersten Login mit diesem Konto erzwingt die App den Passwortwechsel. Damit g
 
 ## 5. Backend & API
 
+API-Details → [`api/auth.md`](../../api/auth.md)
+
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
 | `POST /api/auth/login` | `public` | `{ username, password }` → `200 { accessToken }` / `401` bei falschen Daten |

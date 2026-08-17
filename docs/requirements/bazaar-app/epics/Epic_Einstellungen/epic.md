@@ -131,18 +131,20 @@ Entity-Details → [`entities/benutzer.md`](../../entities/benutzer.md)
 
 ## 4. Backend & API
 
-Alle Endpoints dieser Seite verlangen die Rolle **`admin`**.
+API-Details → [`api/settings.md`](../../api/settings.md), [`api/users.md`](../../api/users.md), [`api/import.md`](../../api/import.md)
 
-| Endpoint | Beschreibung |
-|---|---|
-| `GET /api/settings` | Systemparameter lesen |
-| `PUT /api/settings` | Systemparameter schreiben |
-| `POST /api/import/preview` | Datei hochladen, **nichts schreiben**, Vorschau zurückgeben |
-| `POST /api/import` | Datei plus Typ-Zuordnungen und Stammdaten-Auswahl — **eine Transaktion** |
-| `GET /api/users` | Benutzerliste |
-| `POST /api/users` | Benutzer anlegen |
-| `PUT /api/users/{id}` | Rolle ändern oder Passwort zurücksetzen |
-| `DELETE /api/users/{id}` | Benutzer löschen; `409` beim letzten Admin |
+Alle Endpoints dieser Seite verlangen die Rolle **`admin`** — mit **einer Ausnahme**: `GET /api/settings` ist `authenticated`. `scannerPauseMs` steuert den Kamera-Modus am Annahmetisch (ANNAHME-S01 AC-9); mit Admin-only-Lesen könnte die App des Kassenpersonals den Wert nicht laden und müsste auf einen hartkodierten Default zurückfallen. Geändert werden darf er weiterhin nur vom Admin, und die Seite selbst bleibt über `adminGuard` geschützt.
+
+| Endpoint | Auth | Beschreibung |
+|---|---|---|
+| `GET /api/settings` | `authenticated` | Systemparameter lesen |
+| `PUT /api/settings` | `admin` | Systemparameter schreiben |
+| `POST /api/import/preview` | `admin` | Datei hochladen, **nichts schreiben**, Vorschau zurückgeben |
+| `POST /api/import` | `admin` | Datei plus Typ-Zuordnungen und Stammdaten-Auswahl — **eine Transaktion** |
+| `GET /api/users` | `admin` | Benutzerliste |
+| `POST /api/users` | `admin` | Benutzer anlegen |
+| `PUT /api/users/{id}` | `admin` | Rolle ändern oder Passwort zurücksetzen |
+| `DELETE /api/users/{id}` | `admin` | Benutzer löschen; `409` beim letzten Admin |
 
 **Die Datei wird zweimal übertragen**, für Vorschau und Import getrennt. Ein serverseitiger Zwischenspeicher bräuchte Lebensdauer, Aufräumjob und eine Kennung — bei wenigen hundert Kilobyte ist der zweite Upload billiger als dieser Apparat.
 

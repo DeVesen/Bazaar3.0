@@ -172,6 +172,8 @@ Klick → `soldAt` aller Artikel dieses Vorgangs wird zurückgesetzt. Die Artike
 
 ## 8. Backend & API
 
+API-Details → [`api/sales.md`](../../api/sales.md), [`api/articles.md`](../../api/articles.md)
+
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
 | `GET /api/articles/by-number/{number}` | `authenticated` | Artikel-Erkennung beim Scan; liefert Artikel samt abgeleitetem Status |
