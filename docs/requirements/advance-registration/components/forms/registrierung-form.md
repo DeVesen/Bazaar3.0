@@ -34,12 +34,12 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 | Element | PrimeNG |
 |---|---|
 | Form-Container | Shared [`card`](../../../../components/card/component.md) (wie `login-form`) |
-| E-Mail-Feld | [Input](../standard/input.md), Variante Icon (Envelope) |
-| Passwort-Feld | [Input](../standard/input.md), Variante Password (mit Toggle) |
+| E-Mail-Feld | [Input](../../../../components/input/component.md), Variante Icon (Envelope) |
+| Passwort-Feld | [Input](../../../../components/input/component.md), Variante Password (mit Toggle) |
 | Passwort-Stärke | [password-strength-meter.md](../custom/password-strength-meter.md) |
-| Passwort-Bestätigung | [Input](../standard/input.md), Variante Password (ohne Toggle, gleiches Icon-Muster für visuelle Konsistenz) |
-| Registrieren-Button | [Button](../standard/button.md) primary, volle Breite, `[disabled]` solange Stärke < „Mittel" oder Passwörter nicht übereinstimmen |
-| „Schon ein Konto?"-Link | [Button](../standard/button.md) text → `routerLink="/login"` |
+| Passwort-Bestätigung | [Input](../../../../components/input/component.md), Variante Password (ohne Toggle, gleiches Icon-Muster für visuelle Konsistenz) |
+| Registrieren-Button | [Button](../../../../components/button/component.md) primary, volle Breite, `[disabled]` solange Stärke < „Mittel" oder Passwörter nicht übereinstimmen |
+| „Schon ein Konto?"-Link | [Button](../../../../components/button/component.md) text → `routerLink="/login"` |
 
 ## Verhalten
 

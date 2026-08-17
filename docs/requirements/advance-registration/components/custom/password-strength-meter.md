@@ -11,7 +11,7 @@ Neue, eigene Komponente — kombiniert PrimeNG-Bausteine, kein fertiges PrimeNG-
 
 ```
 Passwort
-[🔒______________________👁]   ← siehe [input.md](../standard/input.md), Variante Password
+[🔒______________________👁]   ← siehe [input.md](../../../../components/input/component.md), Variante Password
 ▓▓▓░░                          ← p-progressbar
                         Mittel │ ← p-tag
 ```

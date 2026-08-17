@@ -23,7 +23,7 @@ Datum + Uhrzeit kombiniert.
 
 | Epic/Component | Feld |
 |---|---|
-| [einstellungen-form.md](../forms/einstellungen-form.md) | Die 5 Basar-Termine (`registrationDeadline`, `dropOffFrom`, `dropOffUntil`, `bazaarFrom`, `bazaarUntil`) |
+| [einstellungen-form.md](../../requirements/advance-registration/components/forms/einstellungen-form.md) | Die 5 Basar-Termine (`registrationDeadline`, `dropOffFrom`, `dropOffUntil`, `bazaarFrom`, `bazaarUntil`) |
 
 ## Tags & Piles
 

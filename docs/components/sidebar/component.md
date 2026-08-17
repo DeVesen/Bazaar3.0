@@ -5,7 +5,24 @@ reviewed-date: 2026-08-14
 
 # Component: sidebar (PrimeNG 22 Compound)
 
-Basis ist die PrimeNG-22-`Sidebar`-Compound-Familie (`primeng/sidebar`, stabil seit `22.0.0`) — kein selbstgebauter Ersatz, aber auch keine reine 1:1-Instanziierung: die Slots werden mit eigenen Bausteinen gefüllt ([sidebar-title.md](sidebar-title.md) im Header, [sidebar-footer.md](sidebar-footer.md) im Footer). Ersetzt die ursprünglich geplante, komplett selbstgebaute Sidebar.
+Basis ist die PrimeNG-22-`Sidebar`-Compound-Familie (`primeng/sidebar`, stabil seit `22.0.0`) — kein selbstgebauter Ersatz, aber auch keine reine 1:1-Instanziierung: die Slots werden mit eigenen Bausteinen gefüllt ([sidebar-title.md](../../requirements/advance-registration/components/custom/sidebar-title.md) im Header, [sidebar-footer.md](../sidebar-footer/component.md) im Footer). Ersetzt die ursprünglich geplante, komplett selbstgebaute Sidebar.
+
+**Verwendung:** beide Apps. Der Compound, der Slot-Aufbau und das Active-Highlight sind identisch; app-spezifisch sind nur Farben, Gruppen und Einträge.
+
+| Aspekt | Voranmelde-App | Haupt-App |
+|---|---|---|
+| Breite expandiert | 240 px | 228 px |
+| Hintergrund | Teal `#1b3a4b` | Navy `var(--sidebar-bg)` |
+| Gruppen | Mein Bereich · Verwaltung · Stammdaten · System | Tagesgeschäft · Stammdaten · System |
+| Rollenabhängigkeit | Verkäufer sieht nur „Mein Bereich" und „Konto" | Kassenpersonal sieht alles außer „Einstellungen" |
+| Role-Toggle im Footer | **ja** — der Admin erfasst selbst Artikel und braucht die Verkäufer-Ansicht | **nein** — der Admin hat alle Rechte des Kassenpersonals, ein Toggle würde ihm nur künstlich Rechte wegnehmen |
+| Eingeklappter Zustand | `[collapsible]="'icon'"`, 60 px | dito |
+| Badge am Eintrag | Anzahl eigener Artikel | Anzahl offener Artikel (`releasedAt` leer) |
+| Labels | über ngx-translate (DE/EN) | feste deutsche Konstanten — die App ist einsprachig |
+
+**Die Komponente ist eine Dumb Component:** Sie erhält ihre Einträge — Label, Icon, Route, Badge-Zahl — als Input und kennt weder Übersetzung noch Datenbeschaffung. Genau dadurch trägt sie beide Apps: Die Voranmelde-App füttert übersetzte Strings hinein, die Haupt-App deutsche Konstanten, und die i18n-Entscheidung bleibt in der App.
+
+Die konkreten Einträge je App stehen in den jeweiligen Shell-Stories (VSHELL-S01 bzw. BSHELL-S01), nicht hier — sie ändern sich mit der Navigation, nicht mit der Komponente.
 
 ## Kontext (voller Shell-Ausschnitt)
 

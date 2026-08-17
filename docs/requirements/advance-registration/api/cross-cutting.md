@@ -222,9 +222,9 @@ wiederholen):
 
 | Fall | Verhalten |
 |---|---|
-| Erfolg | [Toast](../components/standard/toast.md) „✓ &lt;Entität&gt; gespeichert" |
+| Erfolg | [Toast](../../../components/toast/component.md) „✓ &lt;Entität&gt; gespeichert" |
 | Fehler | Eingegebene Werte bleiben im Formular erhalten; Meldung „&lt;Entität&gt; konnte nicht gespeichert werden" in einer Error-InfoArea |
-| Löschen | Vorab-Bestätigung über [Confirmdialog](../components/standard/confirmdialog.md) (`ConfirmationService`) |
+| Löschen | Vorab-Bestätigung über [Confirmdialog](../../../components/confirmdialog/component.md) (`ConfirmationService`) |
 
 **Bewusste Abweichungen** bleiben im jeweiligen Epic dokumentiert — z. B.
 Epic_Export AC-4 (Info-InfoArea mit Bilanz, kein Auto-Dismiss).

@@ -56,7 +56,7 @@ merken oder kopieren genügt. Es gibt daher **nur eine** Darstellung, kein
 | Panel-Titel „Meine Verkäufernummer" | Text, 11 px, 700, uppercase, `#3a7057` |
 | Nummer | Text, monospace, `--primary`, 24 px/800 |
 | QR-Code | Shared [qr-code](../../../../components/qr-code/component.md), `value` = `id`, `size="128"` |
-| Kopieren-Button | [Button](../standard/button.md) `secondary outlined small`, Icon ⧉ → Clipboard + [Toast](../standard/toast.md) „✓ Nummer kopiert" |
+| Kopieren-Button | [Button](../../../../components/button/component.md) `secondary outlined small`, Icon ⧉ → Clipboard + [Toast](../../../../components/toast/component.md) „✓ Nummer kopiert" |
 | Hinweistext | 12 px, muted |
 
 Die Caption des QR-Codes bleibt leer — die Nummer steht daneben schon im

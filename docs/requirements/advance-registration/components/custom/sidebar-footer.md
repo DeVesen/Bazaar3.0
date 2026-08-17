@@ -5,7 +5,7 @@ reviewed-date: 2026-08-14
 
 # Component: sidebar-footer (Inhalt im `p-sidebar-footer`-Slot)
 
-Kein eigener Wrapper mehr — Inhalt lebt direkt im `p-sidebar-footer`-Slot des Sidebar-Compounds (siehe [sidebar.md](sidebar.md)). Immer sichtbar, kein Popup-Pattern (bewusste Abweichung von den offiziellen PrimeNG-Demos, die Logout/Settings hinter einem Klick-Popup verstecken — hier soll gerade der Admin-Role-Toggle ohne Extra-Klick erreichbar bleiben).
+Kein eigener Wrapper mehr — Inhalt lebt direkt im `p-sidebar-footer`-Slot des Sidebar-Compounds (siehe [sidebar.md](../../../../components/sidebar/component.md)). Immer sichtbar, kein Popup-Pattern (bewusste Abweichung von den offiziellen PrimeNG-Demos, die Logout/Settings hinter einem Klick-Popup verstecken — hier soll gerade der Admin-Role-Toggle ohne Extra-Klick erreichbar bleiben).
 
 ## Kontext (voller Footer-Ausschnitt)
 
@@ -26,7 +26,7 @@ Kein eigener Wrapper mehr — Inhalt lebt direkt im `p-sidebar-footer`-Slot des 
 | Username | `<span>`, 13 px, `font-weight: 600`, weiß |
 | Role-Label | `<span>`, 11 px, section-label-Farbe |
 | Role-Toggle | `p-selectbutton` (`options: ['Admin', 'Verkäufer']`) — **nur wenn Rolle Admin ist** |
-| Logout | eigenständiger [Button](../standard/button.md) `link`-Variante mit Icon (`pi pi-sign-out`) + Text „Abmelden" |
+| Logout | eigenständiger [Button](../../../../components/button/component.md) `link`-Variante mit Icon (`pi pi-sign-out`) + Text „Abmelden" |
 
 ## Sichtbarkeit
 

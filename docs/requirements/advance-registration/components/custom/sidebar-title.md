@@ -18,7 +18,7 @@ Neue, eigene Komponente — nicht Teil des PrimeNG-Katalogs. Zeigt Logo-Icon + M
 │  ...                     │
 ```
 
-Sitzt im `p-sidebar-header`-Slot des Sidebar-Compounds (siehe [sidebar.md](sidebar.md)). Kein Collapse-Toggle daneben — der lebt separat im Content-Header (VSHELL-S02).
+Sitzt im `p-sidebar-header`-Slot des Sidebar-Compounds (siehe [sidebar.md](../../../../components/sidebar/component.md)). Kein Collapse-Toggle daneben — der lebt separat im Content-Header (VSHELL-S02).
 
 ## ASCII-Darstellung (Komponente isoliert)
 

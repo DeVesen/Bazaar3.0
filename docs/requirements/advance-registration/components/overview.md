@@ -18,25 +18,27 @@ und werden von hier nur verlinkt, nie dupliziert.
 
 ---
 
+Mit **⧉** markierte Einträge liegen **suite-weit** unter [`docs/components/`](../../../components/overview.md) und werden von beiden Apps genutzt — sie beschreiben PrimeNG-Verhalten plus Projektkonventionen, daran ist nichts app-spezifisch. Die Datei bleibt hier als Index verlinkt, damit dieses Verzeichnis weiterhin für sich lesbar ist.
+
 ## Standard
 
 | Komponente | PrimeNG | Kurz |
 |---|---|---|
-| [input.md](standard/input.md) | `pInputText`, `p-iconfield`, `pInputPassword`, `p-inputnumber` | Eingabefeld in vier Varianten: Text, Icon, Password, Number |
-| [select.md](standard/select.md) | `p-select`, `p-autoComplete` | Wert aus Liste wählen — Varianten Dropdown und Type-Ahead |
-| [boolean-input.md](standard/boolean-input.md) | `p-checkbox`, `p-toggleswitch` | Ja/Nein-Wert — Varianten Checkbox und Switch |
-| [button.md](standard/button.md) | `p-button` | Alle Varianten über Properties, keine separaten Komponenten |
-| [datepicker.md](standard/datepicker.md) | `p-datepicker` | Datum + Uhrzeit kombiniert |
-| [confirmdialog.md](standard/confirmdialog.md) | `p-confirmdialog` | Bestätigung vor irreversiblen Aktionen |
-| [toast.md](standard/toast.md) | `p-toast` | Kurze Erfolgs-/Fehlermeldung mit Auto-Dismiss |
+| [input ⧉](../../../components/input/component.md) | `pInputText`, `p-iconfield`, `pInputPassword`, `p-inputnumber` | Eingabefeld in vier Varianten: Text, Icon, Password, Number |
+| [select ⧉](../../../components/select/component.md) | `p-select`, `p-autoComplete` | Wert aus Liste wählen — Varianten Dropdown und Type-Ahead |
+| [boolean-input ⧉](../../../components/boolean-input/component.md) | `p-checkbox`, `p-toggleswitch` | Ja/Nein-Wert — Varianten Checkbox und Switch |
+| [button ⧉](../../../components/button/component.md) | `p-button` | Alle Varianten über Properties, keine separaten Komponenten |
+| [datepicker ⧉](../../../components/datepicker/component.md) | `p-datepicker` | Datum + Uhrzeit kombiniert |
+| [confirmdialog ⧉](../../../components/confirmdialog/component.md) | `p-confirmdialog` | Bestätigung vor irreversiblen Aktionen |
+| [toast ⧉](../../../components/toast/component.md) | `p-toast` | Kurze Erfolgs-/Fehlermeldung mit Auto-Dismiss |
 
 ## Custom
 
 | Komponente | Kurz |
 |---|---|
-| [sidebar.md](custom/sidebar.md) | Shell-Sidebar auf Basis der `primeng/sidebar`-Compound-Familie, mit eigenen Slot-Inhalten (Title, Footer) |
+| [sidebar ⧉](../../../components/sidebar/component.md) | Shell-Sidebar auf Basis der `primeng/sidebar`-Compound-Familie, mit eigenen Slot-Inhalten (Title, Footer) |
 | [password-strength-meter.md](custom/password-strength-meter.md) | Stärke-Anzeige aus `p-progressbar` + `p-tag` — PrimeNG liefert keine fertige |
-| [filter-panel.md](custom/filter-panel.md) | Such-/Filterzeile über der Tabelle (`card`-Filter-Variante), nicht das Spalten-Filter-Menü |
+| [filter-panel ⧉](../../../components/filter-panel/component.md) | Such-/Filterzeile über der Tabelle (`card`-Filter-Variante), nicht das Spalten-Filter-Menü |
 | [block-liste.md](custom/block-liste.md) | Read-only-Liste der Nummernblöcke im Verkäufer-Dialog |
 | [sidebar-title.md](custom/sidebar-title.md) | Logo-Icon + Markenname im `p-sidebar-header`-Slot |
 | [sidebar-footer.md](custom/sidebar-footer.md) | Avatar, Rolle, Role-Toggle, Logout im `p-sidebar-footer`-Slot |
@@ -63,8 +65,8 @@ Readonly, Autofokus). Die visuelle Hülle steht in den Suite-Docs
 | [einstellungen-form.md](forms/einstellungen-form.md) | Seiten-Formular | Basar-Termine, Nummernblock-Parameter, Infotext |
 | [profil-page.md](forms/profil-page.md) | Seiten-Formular | Drei Tabs: Steckbrief, Zugangsdaten, Löschen |
 | [export-panel.md](forms/export-panel.md) | Panel mit Aktion | Export-Optionen + Ergebnis-Info-Area |
-| [stammdaten-popup.md](forms/stammdaten-popup.md) | Modal `sm` | Anlegen/Bearbeiten für Marke und Kategorie |
-| [typ-popup.md](forms/typ-popup.md) | Modal `sm` | Anlegen/Bearbeiten Verkäufer-Typ (Name, Provision, Gebühr) |
+| [stammdaten-popup ⧉](../../../components/stammdaten-popup/component.md) | Modal `sm` | Anlegen/Bearbeiten für Marke und Kategorie |
+| [typ-popup ⧉](../../../components/typ-popup/component.md) | Modal `sm` | Anlegen/Bearbeiten Verkäufer-Typ (Name, Provision, Gebühr) |
 | [artikel-dialog.md](forms/artikel-dialog.md) | Modal Standard | Artikel bearbeiten inkl. Löschen |
 | [artikel-readonly-modal.md](forms/artikel-readonly-modal.md) | Modal Standard | Artikel ansehen (Alle Artikel), alle Felder readonly |
 | [verkaeufer-dialog.md](forms/verkaeufer-dialog.md) | Modal `lg` | Verkäufer anlegen/bearbeiten inkl. Nummernblöcke |

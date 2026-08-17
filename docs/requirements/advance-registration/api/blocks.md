@@ -157,7 +157,7 @@ sein.
 Das Frontend blendet den Löschen-Button bei `usedCount > 0` ohnehin aus und zeigt
 stattdessen das Badge „Voll — nicht löschbar"; der Endpoint prüft es zusätzlich
 serverseitig. Vor dem Löschen fragt ein
-[Confirmdialog](../components/standard/confirmdialog.md) nach (AC-7).
+[Confirmdialog](../../../components/confirmdialog/component.md) nach (AC-7).
 
 ---
 

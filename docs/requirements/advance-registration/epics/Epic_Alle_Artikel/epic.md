@@ -34,7 +34,7 @@ Der Admin sieht die vollständige Artikelliste **aller Verkäufer**. Fremde Arti
 
 ## 1. Filter-Panel
 
-Details → [`components/custom/filter-panel.md`](../../components/custom/filter-panel.md).
+Details → [`filter-panel`](../../../../components/filter-panel/component.md).
 
 | Filter | Vorhanden |
 |---|---|

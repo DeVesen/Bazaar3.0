@@ -35,7 +35,7 @@ Alle Felder wie in `artikel-dialog.md`, aber durchgängig `[readonly]="true"` bz
 
 | Feld | PrimeNG |
 |---|---|
-| Verkäufer (Name + Nummer) | [Input](../standard/input.md), Variante Text, readonly |
+| Verkäufer (Name + Nummer) | [Input](../../../../components/input/component.md), Variante Text, readonly |
 
 ## Akzeptanzkriterien
 

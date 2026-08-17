@@ -45,7 +45,7 @@ Beispiel: [login-form.md](login-form.md) — Enter im Passwort-Feld meldet an.
 
 | Fall | Komponente |
 |---|---|
-| Kurze CRUD-Bestätigung („✓ … gespeichert") | [Toast](../standard/toast.md) — Auto-Dismiss |
+| Kurze CRUD-Bestätigung („✓ … gespeichert") | [Toast](../../../../components/toast/component.md) — Auto-Dismiss |
 | Meldung mit Zahlen/Details, die stehen bleiben soll | Shared [`info-area`](../../../../components/info-area/component.md) — kein Auto-Dismiss |
 | Server-/Fehler-Antwort auf ein Submit | Shared [`info-area`](../../../../components/info-area/component.md) Typ `error` im Formular (nicht als Toast — Nutzer muss reagieren) |
 
@@ -54,21 +54,21 @@ Beispiel Info-Area: [export-panel.md](export-panel.md) („12 Verkäufer, 87 Art
 ### R-5 — Irreversibles erst nach Bestätigung
 
 Löschen und vergleichbar irreversible Aktionen laufen über
-[Confirmdialog](../standard/confirmdialog.md); der API-Call erfolgt erst nach Bestätigung. Der
+[Confirmdialog](../../../../components/confirmdialog/component.md); der API-Call erfolgt erst nach Bestätigung. Der
 auslösende Button ist `danger` und sitzt im Footer links (Muster „Mit Löschen" im
 Shared-`modal`-Doc).
 
 ### R-6 — Readonly statt Ausblenden
 
 Nicht editierbare Werte werden als readonly/disabled **angezeigt**, nicht weggelassen —
-[input.md](../standard/input.md) Modifier Readonly, [select.md](../standard/select.md) `[disabled]="true"`.
+[input.md](../../../../components/input/component.md) Modifier Readonly, [select.md](../../../../components/select/component.md) `[disabled]="true"`.
 
 Beispiel: [profil-page.md](profil-page.md) — E-Mail, Verkäufer-Typ, Gebühr/Provision.
 
 ### R-7 — Autofokus auf das erste Eingabefeld
 
 Beim Öffnen eines Dialogs/Popups erhält das erste editierbare Feld den Fokus
-([input.md](../standard/input.md) Modifier Autofokus). Bei readonly-Dialogen kein Autofokus.
+([input.md](../../../../components/input/component.md) Modifier Autofokus). Bei readonly-Dialogen kein Autofokus.
 
 Beispiel: [verkaeufer-dialog.md](verkaeufer-dialog.md) — Vorname.
 
@@ -79,7 +79,7 @@ Beispiel: [verkaeufer-dialog.md](verkaeufer-dialog.md) — Vorname.
 | [login-form.md](login-form.md), [registrierung-form.md](registrierung-form.md) | Seiten-Formular in Card |
 | [einstellungen-form.md](einstellungen-form.md), [profil-page.md](profil-page.md) | Seiten-Formular mit Panel-Blöcken |
 | [export-panel.md](export-panel.md) | Panel mit Aktion |
-| [stammdaten-popup.md](stammdaten-popup.md), [typ-popup.md](typ-popup.md) | Modal `sm` |
+| [stammdaten-popup.md](../../../../components/stammdaten-popup/component.md), [typ-popup.md](../../../../components/typ-popup/component.md) | Modal `sm` |
 | [artikel-dialog.md](artikel-dialog.md), [verkaeufer-dialog.md](verkaeufer-dialog.md) | Modal Standard / `lg` |
 | [artikel-readonly-modal.md](artikel-readonly-modal.md) | Modal, nur Anzeige — R-1/2/3/7 entfallen |
 

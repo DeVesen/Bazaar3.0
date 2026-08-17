@@ -31,11 +31,11 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 | Element | PrimeNG |
 |---|---|
 | Form-Container | Shared [`card`](../../../../components/card/component.md) |
-| E-Mail-Feld | [Input](../standard/input.md), Variante Icon (Envelope) |
-| Passwort-Feld | [Input](../standard/input.md), Variante Password (mit Toggle) |
-| Anmelden-Button | [Button](../standard/button.md) primary, volle Breite |
+| E-Mail-Feld | [Input](../../../../components/input/component.md), Variante Icon (Envelope) |
+| Passwort-Feld | [Input](../../../../components/input/component.md), Variante Password (mit Toggle) |
+| Anmelden-Button | [Button](../../../../components/button/component.md) primary, volle Breite |
 | Passwort-vergessen | `<a>`-Link, öffnet `p-popover` mit Text „Bitte wende dich an den Admin, um dein Passwort zurückzusetzen." |
-| Registrierung-Link | [Button](../standard/button.md) text → `routerLink="/register"` |
+| Registrierung-Link | [Button](../../../../components/button/component.md) text → `routerLink="/register"` |
 
 ## Verhalten
 

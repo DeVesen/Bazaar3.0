@@ -26,9 +26,9 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 | Element | PrimeNG |
 |---|---|
-| Marken/Kategorien einschließen | [Boolean-Input](../standard/boolean-input.md), Variante Checkbox |
-| Exportieren-Button | [Button](../standard/button.md) primary |
-| Bestätigungsmeldung | Shared [`info-area`](../../../../components/info-area/component.md) (Typ `info`), bleibt stehen — kein Auto-Dismiss wie [Toast](../standard/toast.md), besser lesbar für die Zahlen |
+| Marken/Kategorien einschließen | [Boolean-Input](../../../../components/boolean-input/component.md), Variante Checkbox |
+| Exportieren-Button | [Button](../../../../components/button/component.md) primary |
+| Bestätigungsmeldung | Shared [`info-area`](../../../../components/info-area/component.md) (Typ `info`), bleibt stehen — kein Auto-Dismiss wie [Toast](../../../../components/toast/component.md), besser lesbar für die Zahlen |
 
 ## Akzeptanzkriterien
 

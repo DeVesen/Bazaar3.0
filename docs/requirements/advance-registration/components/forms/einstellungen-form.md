@@ -43,14 +43,14 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 | Feld | PrimeNG |
 |---|---|
-| Die 5 Basar-Termine | [Datepicker](../standard/datepicker.md) |
-| `defaultTypeId` | [Select](../standard/select.md), Variante Dropdown — Liste aller Verkäufer-Typen |
-| `startNumber` / `blockSize` / `defaultBlockCount` | [Input](../standard/input.md), Variante Number |
+| Die 5 Basar-Termine | [Datepicker](../../../../components/datepicker/component.md) |
+| `defaultTypeId` | [Select](../../../../components/select/component.md), Variante Dropdown — Liste aller Verkäufer-Typen |
+| `startNumber` / `blockSize` / `defaultBlockCount` | [Input](../../../../components/input/component.md), Variante Number |
 | `infoText` | `pTextarea` (min. 8 Zeilen, vertikal resizable), `maxlength="4000"` + Zeichenzähler |
 | Info-Text-Vorschau | [`markdown-text`](../custom/markdown-text.md) — **dieselbe** Komponente, die den Text später auf Login-Seite und Home rendert |
 | Syntax-Hilfe | `p-popover`, geöffnet über ein ⓘ-Icon (`p-button [text]="true" [rounded]="true"`) rechts neben dem Abschnittstitel |
-| Speichern-Button | [Button](../standard/button.md) primary |
-| Save-Feedback | [Toast](../standard/toast.md) „✓ Einstellungen gespeichert" |
+| Speichern-Button | [Button](../../../../components/button/component.md) primary |
+| Save-Feedback | [Toast](../../../../components/toast/component.md) „✓ Einstellungen gespeichert" |
 
 ### Info-Text: Vorschau
 

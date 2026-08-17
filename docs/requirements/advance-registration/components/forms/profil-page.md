@@ -63,12 +63,12 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 | Tab-Navigation | `p-tabs` |
 | Panel-Container (alle Panels) | `card` Panel-Block-Variante (wie Epic_Verkaeufer) |
 | Verkäufernummer-Panel | [verkaeufer-nummer](../custom/verkaeufer-nummer.md), Variante `card`, `sellerId` = `id` aus `GET /api/profile` — read-only, kein Teil des Submits |
-| Personendaten-/Kontakt-Felder | [Input](../standard/input.md), Variante Text, E-Mail readonly |
-| Verkäufer-Typ | [Select](../standard/select.md), Variante Dropdown, `[disabled]="true"` |
-| Gebühr/Provision | [Input](../standard/input.md), Variante Number, readonly |
-| E-Mail ändern | [Input](../standard/input.md) Variante Icon (neue E-Mail) + Variante Password (aktuelles Passwort) |
-| Passwort ändern | 3× [Input](../standard/input.md) Variante Password (aktuell/neu/Bestätigung) + [password-strength-meter.md](../custom/password-strength-meter.md) |
-| Account löschen | [Button](../standard/button.md) danger → [Confirmdialog](../standard/confirmdialog.md) |
+| Personendaten-/Kontakt-Felder | [Input](../../../../components/input/component.md), Variante Text, E-Mail readonly |
+| Verkäufer-Typ | [Select](../../../../components/select/component.md), Variante Dropdown, `[disabled]="true"` |
+| Gebühr/Provision | [Input](../../../../components/input/component.md), Variante Number, readonly |
+| E-Mail ändern | [Input](../../../../components/input/component.md) Variante Icon (neue E-Mail) + Variante Password (aktuelles Passwort) |
+| Passwort ändern | 3× [Input](../../../../components/input/component.md) Variante Password (aktuell/neu/Bestätigung) + [password-strength-meter.md](../custom/password-strength-meter.md) |
+| Account löschen | [Button](../../../../components/button/component.md) danger → [Confirmdialog](../../../../components/confirmdialog/component.md) |
 
 ## Akzeptanzkriterien
 

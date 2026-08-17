@@ -74,7 +74,28 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Badge** | Status-Badge für Artikel- und Verkäufer-Zustände (success/danger/warn/info/sec/original/neu) | [badge/](badge/component.md) |
 | **Modal** | Modaler Dialog auf Basis von `p-dialog [modal]="true"` (via `DialogService`) | [modal/](modal/component.md) |
 | **Card** | Standard-Card und Panel-Block-Container für Formular- und Listeninhalte | [card/](card/component.md) |
-| **Sidebar-Footer** | Footer-Bereich der Sidebar mit Avatar, Rollenangabe, Role-Toggle und Abmelden-Button | [sidebar-footer/](sidebar-footer/component.md) |
+| **Sidebar** | App-weite Navigations-Sidebar auf Basis der `p-sidebar`-Compound-Familie; Gruppen, Trennlinien, Active-Highlight, Footer-Slot | [sidebar/](sidebar/component.md) |
+| **Sidebar-Footer** | Footer-Bereich der Sidebar mit Avatar, Rollenangabe, optionalem Role-Toggle und Abmelden-Button | [sidebar-footer/](sidebar-footer/component.md) |
+| **Filter-Panel** | Mehrzeiliges Filter-Panel über Listen: Freitextsuche, Dropdowns, aktive Filter als Chips | [filter-panel/](filter-panel/component.md) |
+| **Stammdaten-Popup** | Anlege-/Bearbeiten-Popup für einfache Stammdaten (Name + optionales Original-Flag) | [stammdaten-popup/](stammdaten-popup/component.md) |
+| **Typ-Popup** | Anlege-/Bearbeiten-Popup für Verkäufer-Typen (Name, Provision, Gebühr) | [typ-popup/](typ-popup/component.md) |
+
+### Atomare Bausteine
+
+Einzelne Formular- und Feedback-Elemente. Sie beschreiben PrimeNG-Verhalten **plus** Projektkonventionen (Label-Stil, Pflichtfeld-Markierung, Fehlerdarstellung) — daran ist nichts app-spezifisch, darum liegen sie suite-weit. Zusammengesetzte Formulare verlinken sie statt sie erneut zu beschreiben.
+
+**Bewusst ohne eigene Datei:** `p-chip`, `p-paginator`, `p-progressbar`, `p-fileupload` und `p-metergroup`. Sie werden je nur an einer oder zwei Stellen eingesetzt und tragen keine Projektkonvention über die PrimeNG-Standardnutzung hinaus — sie stehen dort beschrieben, wo sie vorkommen (Filter-Panel, Table, Import-Panel, Statistik). Eine eigene Datei je Einzelnutzung wäre Verwaltung ohne Ertrag.
+
+| Komponente | Beschreibung | Verzeichnis |
+|---|---|---|
+| **Input** | Textfeld (`pInputText`) inkl. Label-, Pflichtfeld- und Fehlerkonvention | [input/](input/component.md) |
+| **Select** | Auswahlfeld (`p-select`) | [select/](select/component.md) |
+| **InputNumber** | Zahleneingabe mit deutscher Locale und festen Dezimalstellen je Variante (Geld, Prozent, Anzahl) | [inputnumber/](inputnumber/component.md) |
+| **Boolean-Input** | Schalter und Checkbox (`p-toggleswitch`, `p-checkbox`) | [boolean-input/](boolean-input/component.md) |
+| **Button** | Schaltflächen-Varianten und Severity-Konventionen | [button/](button/component.md) |
+| **Datepicker** | Datums- und Zeitauswahl (`p-datepicker`) | [datepicker/](datepicker/component.md) |
+| **Confirmdialog** | Bestätigungsdialog für zerstörende Aktionen | [confirmdialog/](confirmdialog/component.md) |
+| **Toast** | Kurzbestätigung ohne eigene Ergebnisseite | [toast/](toast/component.md) |
 
 ---
 
