@@ -29,17 +29,17 @@ Nutzt `login-layout` als Rahmen (linke Spalte identisch mit Login), rechte Spalt
 
 ## Aufbau
 
-Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](form.md).
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](../../../components/form/component.md).
 
 | Element | PrimeNG |
 |---|---|
-| Form-Container | Shared [`card`](../../../../components/card/component.md) (wie `login-form`) |
-| E-Mail-Feld | [Input](../../../../components/input/component.md), Variante Icon (Envelope) |
-| Passwort-Feld | [Input](../../../../components/input/component.md), Variante Password (mit Toggle) |
-| Passwort-Stärke | [password-strength-meter.md](../custom/password-strength-meter.md) |
-| Passwort-Bestätigung | [Input](../../../../components/input/component.md), Variante Password (ohne Toggle, gleiches Icon-Muster für visuelle Konsistenz) |
-| Registrieren-Button | [Button](../../../../components/button/component.md) primary, volle Breite, `[disabled]` solange Stärke < „Mittel" oder Passwörter nicht übereinstimmen |
-| „Schon ein Konto?"-Link | [Button](../../../../components/button/component.md) text → `routerLink="/login"` |
+| Form-Container | Shared [`card`](../../../components/card/component.md) (wie `login-form`) |
+| E-Mail-Feld | [Input](../../../components/input/component.md), Variante Icon (Envelope) |
+| Passwort-Feld | [Input](../../../components/input/component.md), Variante Password (mit Toggle) |
+| Passwort-Stärke | [password-strength-meter.md](password-strength-meter.md) |
+| Passwort-Bestätigung | [Input](../../../components/input/component.md), Variante Password (ohne Toggle, gleiches Icon-Muster für visuelle Konsistenz) |
+| Registrieren-Button | [Button](../../../components/button/component.md) primary, volle Breite, `[disabled]` solange Stärke < „Mittel" oder Passwörter nicht übereinstimmen |
+| „Schon ein Konto?"-Link | [Button](../../../components/button/component.md) text → `routerLink="/login"` |
 
 ## Verhalten
 
@@ -48,7 +48,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_Login](../../epics/Epic_Login/epic.md) — dort die Akzeptanzkriterien zur **Registrierung**: Pflichtfelder, Passwort-Stärke, Passwort-Bestätigung, bereits registrierte E-Mail, automatischer Login nach Erfolg, Typ- und Blockvergabe, abgelehnte Registrierung bei fehlendem `defaultTypeId`. Bewusst ohne AC-Nummern — die alte Spanne „AC-5 bis AC-10" hatte das Kriterium zum fehlenden `defaultTypeId` bereits nicht mehr erfasst. Diese Datei ist die Struktur-Referenz für die Formular-Bausteine, keine eigenen zusätzlichen AC.
+Siehe [Epic_Login](../epics/Epic_Login/epic.md) — dort die Akzeptanzkriterien zur **Registrierung**: Pflichtfelder, Passwort-Stärke, Passwort-Bestätigung, bereits registrierte E-Mail, automatischer Login nach Erfolg, Typ- und Blockvergabe, abgelehnte Registrierung bei fehlendem `defaultTypeId`. Bewusst ohne AC-Nummern — die alte Spanne „AC-5 bis AC-10" hatte das Kriterium zum fehlenden `defaultTypeId` bereits nicht mehr erfasst. Diese Datei ist die Struktur-Referenz für die Formular-Bausteine, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

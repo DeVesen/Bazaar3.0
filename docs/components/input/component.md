@@ -68,35 +68,35 @@ Kombinierbar mit jeder Variante, wo fachlich sinnvoll:
 | Fall | Stattdessen |
 |---|---|
 | Prefix-/Suffix-Add-on (z. B. Preis mit „€") | Shared [`input-group`](../input-group/component.md) — Suffix-Betrag passt zum Addon-Muster, nicht zum Icon-Overlay |
-| Passwort-Stärke-Feedback | [password-strength-meter.md](../../requirements/advance-registration/components/custom/password-strength-meter.md) — `pInputPassword` liefert kein automatisches Feedback |
+| Passwort-Stärke-Feedback | [password-strength-meter.md](../../requirements/advance-registration/components/password-strength-meter.md) — `pInputPassword` liefert kein automatisches Feedback |
 | Auswahl aus Liste (Dropdown oder Type-Ahead) | [select.md](../select/component.md) — Auswahl statt Freitext |
 
 ## Verwendung
 
 | Epic/Component | Feld | Variante |
 |---|---|---|
-| [artikel-dialog.md](../../requirements/advance-registration/components/forms/artikel-dialog.md) | Artikelnummer | Text, readonly |
-| [artikel-dialog.md](../../requirements/advance-registration/components/forms/artikel-dialog.md) | Bezeichnung, Größe, Farbe | Text |
-| [artikel-dialog.md](../../requirements/advance-registration/components/forms/artikel-dialog.md) | Preis | Number, 2 Nachkommastellen (in `input-group` mit €-Addon) |
-| [artikel-readonly-modal.md](../../requirements/advance-registration/components/forms/artikel-readonly-modal.md) | Verkäufer (Name+Nummer) | Text, readonly |
+| [artikel-dialog.md](../../requirements/advance-registration/components/artikel-dialog.md) | Artikelnummer | Text, readonly |
+| [artikel-dialog.md](../../requirements/advance-registration/components/artikel-dialog.md) | Bezeichnung, Größe, Farbe | Text |
+| [artikel-dialog.md](../../requirements/advance-registration/components/artikel-dialog.md) | Preis | Number, 2 Nachkommastellen (in `input-group` mit €-Addon) |
+| [artikel-readonly-modal.md](../../requirements/advance-registration/components/artikel-readonly-modal.md) | Verkäufer (Name+Nummer) | Text, readonly |
 | [stammdaten-popup.md](../stammdaten-popup/component.md), [typ-popup.md](../typ-popup/component.md) | Name | Text |
 | [typ-popup.md](../typ-popup/component.md) | Provision (%), Gebühr (€) | Number, 2 Nachkommastellen |
-| [einstellungen-form.md](../../requirements/advance-registration/components/forms/einstellungen-form.md) | `startNumber`/`blockSize`/`defaultBlockCount` | Number |
+| [einstellungen-form.md](../../requirements/advance-registration/components/einstellungen-form.md) | `startNumber`/`blockSize`/`defaultBlockCount` | Number |
 | [filter-panel.md](../filter-panel/component.md) | Freitext-Suche | Icon (`pi-search`) |
-| [login-form.md](../../requirements/advance-registration/components/forms/login-form.md) | E-Mail | Icon (`pi-envelope`) |
-| [login-form.md](../../requirements/advance-registration/components/forms/login-form.md) | Passwort | Password, mit Toggle |
-| [registrierung-form.md](../../requirements/advance-registration/components/forms/registrierung-form.md) | E-Mail | Icon (`pi-envelope`) |
-| [registrierung-form.md](../../requirements/advance-registration/components/forms/registrierung-form.md) | Passwort | Password, mit Toggle |
-| [registrierung-form.md](../../requirements/advance-registration/components/forms/registrierung-form.md) | Passwort-Bestätigung | Password, ohne Toggle (gleiches Icon-Muster für visuelle Konsistenz) |
-| [profil-page.md](../../requirements/advance-registration/components/forms/profil-page.md) | Personendaten/Kontakt | Text (E-Mail readonly) |
-| [profil-page.md](../../requirements/advance-registration/components/forms/profil-page.md) | Neue E-Mail | Icon (`pi-envelope`) |
-| [profil-page.md](../../requirements/advance-registration/components/forms/profil-page.md) | Aktuelles/Neues/Bestätigungs-Passwort (3×) | Password, mit Toggle |
-| [profil-page.md](../../requirements/advance-registration/components/forms/profil-page.md) | Gebühr/Provision | Number, readonly |
-| [verkaeufer-dialog.md](../../requirements/advance-registration/components/forms/verkaeufer-dialog.md) | Vorname | Text + Autofokus |
-| [verkaeufer-dialog.md](../../requirements/advance-registration/components/forms/verkaeufer-dialog.md) | weitere Personendaten/Kontakt | Text |
-| [verkaeufer-dialog.md](../../requirements/advance-registration/components/forms/verkaeufer-dialog.md) | Filter-Panel Freitext | Icon (`pi-search`) |
-| [verkaeufer-dialog.md](../../requirements/advance-registration/components/forms/verkaeufer-dialog.md) | Provision/Gebühr-Anzeige | Number, readonly, 2 Nachkommastellen |
-| [verkaeufer-dialog.md](../../requirements/advance-registration/components/forms/verkaeufer-dialog.md) | Nummernblock-Initialfeld, Reservieren-Form (2×) | Number |
+| [login-form.md](../../requirements/advance-registration/components/login-form.md) | E-Mail | Icon (`pi-envelope`) |
+| [login-form.md](../../requirements/advance-registration/components/login-form.md) | Passwort | Password, mit Toggle |
+| [registrierung-form.md](../../requirements/advance-registration/components/registrierung-form.md) | E-Mail | Icon (`pi-envelope`) |
+| [registrierung-form.md](../../requirements/advance-registration/components/registrierung-form.md) | Passwort | Password, mit Toggle |
+| [registrierung-form.md](../../requirements/advance-registration/components/registrierung-form.md) | Passwort-Bestätigung | Password, ohne Toggle (gleiches Icon-Muster für visuelle Konsistenz) |
+| [profil-page.md](../../requirements/advance-registration/components/profil-page.md) | Personendaten/Kontakt | Text (E-Mail readonly) |
+| [profil-page.md](../../requirements/advance-registration/components/profil-page.md) | Neue E-Mail | Icon (`pi-envelope`) |
+| [profil-page.md](../../requirements/advance-registration/components/profil-page.md) | Aktuelles/Neues/Bestätigungs-Passwort (3×) | Password, mit Toggle |
+| [profil-page.md](../../requirements/advance-registration/components/profil-page.md) | Gebühr/Provision | Number, readonly |
+| [verkaeufer-dialog.md](../../requirements/advance-registration/components/verkaeufer-dialog.md) | Vorname | Text + Autofokus |
+| [verkaeufer-dialog.md](../../requirements/advance-registration/components/verkaeufer-dialog.md) | weitere Personendaten/Kontakt | Text |
+| [verkaeufer-dialog.md](../../requirements/advance-registration/components/verkaeufer-dialog.md) | Filter-Panel Freitext | Icon (`pi-search`) |
+| [verkaeufer-dialog.md](../../requirements/advance-registration/components/verkaeufer-dialog.md) | Provision/Gebühr-Anzeige | Number, readonly, 2 Nachkommastellen |
+| [verkaeufer-dialog.md](../../requirements/advance-registration/components/verkaeufer-dialog.md) | Nummernblock-Initialfeld, Reservieren-Form (2×) | Number |
 
 ## Tags & Piles
 

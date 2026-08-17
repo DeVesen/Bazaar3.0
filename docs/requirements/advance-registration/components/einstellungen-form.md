@@ -39,18 +39,18 @@ INFO-TEXT                          Unterstützte Formatierung ⓘ
 
 ## Aufbau
 
-Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](form.md).
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](../../../components/form/component.md).
 
 | Feld | PrimeNG |
 |---|---|
-| Die 5 Basar-Termine | [Datepicker](../../../../components/datepicker/component.md) |
-| `defaultTypeId` | [Select](../../../../components/select/component.md), Variante Dropdown — Liste aller Verkäufer-Typen |
-| `startNumber` / `blockSize` / `defaultBlockCount` | [Input](../../../../components/input/component.md), Variante Number |
+| Die 5 Basar-Termine | [Datepicker](../../../components/datepicker/component.md) |
+| `defaultTypeId` | [Select](../../../components/select/component.md), Variante Dropdown — Liste aller Verkäufer-Typen |
+| `startNumber` / `blockSize` / `defaultBlockCount` | [Input](../../../components/input/component.md), Variante Number |
 | `infoText` | `pTextarea` (min. 8 Zeilen, vertikal resizable), `maxlength="4000"` + Zeichenzähler |
-| Info-Text-Vorschau | [`markdown-text`](../custom/markdown-text.md) — **dieselbe** Komponente, die den Text später auf Login-Seite und Home rendert |
+| Info-Text-Vorschau | [`markdown-text`](markdown-text.md) — **dieselbe** Komponente, die den Text später auf Login-Seite und Home rendert |
 | Syntax-Hilfe | `p-popover`, geöffnet über ein ⓘ-Icon (`p-button [text]="true" [rounded]="true"`) rechts neben dem Abschnittstitel |
-| Speichern-Button | [Button](../../../../components/button/component.md) primary |
-| Save-Feedback | [Toast](../../../../components/toast/component.md) „✓ Einstellungen gespeichert" |
+| Speichern-Button | [Button](../../../components/button/component.md) primary |
+| Save-Feedback | [Toast](../../../components/toast/component.md) „✓ Einstellungen gespeichert" |
 
 ### Info-Text: Vorschau
 
@@ -62,7 +62,7 @@ sonst erst nach dem Speichern auf der öffentlichen Login-Seite auffällt.
 
 **Bewusst dieselbe Komponente**, kein zweiter Renderer: eine abweichende Vorschau wäre
 schlimmer als keine. Die Vorschau erbt damit automatisch den Umfang aus
-[`markdown-text`](../custom/markdown-text.md) Abschnitt 3.1 und dessen Fallback für nicht
+[`markdown-text`](markdown-text.md) Abschnitt 3.1 und dessen Fallback für nicht
 unterstützte Syntax (Abschnitt 3.2).
 
 Die Vorschau zeigt den **Textfluss**, nicht die endgültige Optik: sie übernimmt nicht den
@@ -73,27 +73,27 @@ in diesem Fall entfällt die Box auf Login und Home ganz (markdown-text Abschnit
 
 ### Info-Text: Längengrenze
 
-Das Feld ist auf **4000 Zeichen** begrenzt (Begründung → [`entities/einstellungen.md`](../../entities/einstellungen.md)).
+Das Feld ist auf **4000 Zeichen** begrenzt (Begründung → [`entities/einstellungen.md`](../entities/einstellungen.md)).
 Unter der Textarea steht rechtsbündig ein Zeichenzähler `1204 / 4000` (12 px, muted), ab
 3800 Zeichen in Warnfarbe. Das Feld nimmt über `maxlength` keine weiteren Zeichen an —
 Kürzen bereits getippten Texts ist damit nie nötig, es lässt sich einfach nichts mehr
 eingeben. Der Speichern-Button bleibt bedienbar; die Grenze ist keine Submit-Sperre.
 
 Die Prüfung steht **zusätzlich** im Backend (`400`, siehe
-[`api/settings.md`](../../api/settings.md)) — bei Text, der per Paste über die Grenze
+[`api/settings.md`](../api/settings.md)) — bei Text, der per Paste über die Grenze
 kommt, oder bei direktem Aufruf des Endpoints ohne dieses Formular.
 
 ### Info-Text: Syntax-Hilfe
 
 Das ⓘ-Icon neben dem Abschnittstitel „INFO-TEXT" öffnet ein `p-popover` mit der
-Element-Tabelle aus [`markdown-text`](../custom/markdown-text.md) Abschnitt 3.1 —
+Element-Tabelle aus [`markdown-text`](markdown-text.md) Abschnitt 3.1 —
 Syntax links, Wirkung rechts — plus dem Satz: „Nicht aufgeführte Syntax bleibt als
 Klartext stehen." Die Liste wird **nicht** in diese Datei kopiert; sie ist im Code aus der
 Komponenten-Doku zu übernehmen und bleibt dort die einzige Quelle.
 
 ## Akzeptanzkriterien
 
-Struktur-Referenz zu [Epic_Einstellungen](../../epics/Epic_Einstellungen/epic.md) — dort gelten **alle** Akzeptanzkriterien, hier bewusst ohne Nummernspanne. Zusätzlich für die Info-Text-Bearbeitung:
+Struktur-Referenz zu [Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) — dort gelten **alle** Akzeptanzkriterien, hier bewusst ohne Nummernspanne. Zusätzlich für die Info-Text-Bearbeitung:
 
 1. **AC-F1** — WHILE der Admin im `infoText`-Feld tippt, SHALL das System die Vorschau bei jeder Eingabe aktualisiert anzeigen, ohne dass gespeichert werden muss.
 2. **AC-F2** — THE SYSTEM SHALL die Vorschau mit derselben `markdown-text`-Komponente rendern, die den Text auf Login-Seite und Home anzeigt.

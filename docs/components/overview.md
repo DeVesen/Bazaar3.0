@@ -80,6 +80,12 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Stammdaten-Popup** | Anlege-/Bearbeiten-Popup für einfache Stammdaten (Name + optionales Original-Flag) | [stammdaten-popup/](stammdaten-popup/component.md) |
 | **Typ-Popup** | Anlege-/Bearbeiten-Popup für Verkäufer-Typen (Name, Provision, Gebühr) | [typ-popup/](typ-popup/component.md) |
 
+### Querschnitts-Regeln
+
+| Dokument | Beschreibung | Verzeichnis |
+|---|---|---|
+| **Form** | Verhaltensregeln R-1 bis R-7 für **jedes** Formular beider Apps (Feldfehler, Submit-Sperre, Enter, Feedback-Wahl, Bestätigung, Readonly, Autofokus) — inklusive der Verschärfungen, die in der Haupt-App gelten | [form/](form/component.md) |
+
 ### Atomare Bausteine
 
 Einzelne Formular- und Feedback-Elemente. Sie beschreiben PrimeNG-Verhalten **plus** Projektkonventionen (Label-Stil, Pflichtfeld-Markierung, Fehlerdarstellung) — daran ist nichts app-spezifisch, darum liegen sie suite-weit. Zusammengesetzte Formulare verlinken sie statt sie erneut zu beschreiben.

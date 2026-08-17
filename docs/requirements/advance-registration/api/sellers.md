@@ -13,7 +13,7 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 
 Epic → [Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md) ·
 Entity → [`entities/verkaeufer.md`](../entities/verkaeufer.md) ·
-Component → [`verkaeufer-dialog.md`](../components/forms/verkaeufer-dialog.md)
+Component → [`verkaeufer-dialog.md`](../components/verkaeufer-dialog.md)
 
 ---
 

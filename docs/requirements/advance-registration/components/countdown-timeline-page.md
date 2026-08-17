@@ -36,7 +36,7 @@ Hintergrund transparent, kein eigener Card-Rahmen (passt sich fremdem Wordpress-
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_Countdown_Widget](../../epics/Epic_Countdown_Widget/epic.md) — **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Countdown_Widget](../epics/Epic_Countdown_Widget/epic.md) — **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

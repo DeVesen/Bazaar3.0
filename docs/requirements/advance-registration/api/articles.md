@@ -14,8 +14,8 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 Epics → [Epic_Meine_Artikel](../epics/Epic_Meine_Artikel/epic.md) ·
 [Epic_Alle_Artikel](../epics/Epic_Alle_Artikel/epic.md) ·
 Entity → [`entities/artikel.md`](../entities/artikel.md) ·
-Components → [`artikel-dialog.md`](../components/forms/artikel-dialog.md),
-[`artikel-readonly-modal.md`](../components/forms/artikel-readonly-modal.md),
+Components → [`artikel-dialog.md`](../components/artikel-dialog.md),
+[`artikel-readonly-modal.md`](../components/artikel-readonly-modal.md),
 [`filter-panel.md`](../../../components/filter-panel/component.md)
 
 ---
@@ -207,7 +207,7 @@ Artikel gespeichert wird.
 Die Nummer, die derselbe Verkäufer beim **nächsten** Anlegen bekäme — dieselbe
 Berechnung wie Abschnitt 2, im selben Dry-Run-Pfad, nach der Vergabe von
 `number`. Sie bedient „Speichern + kopieren"
-([`artikel-dialog.md`](../components/forms/artikel-dialog.md)): der Dialog bleibt
+([`artikel-dialog.md`](../components/artikel-dialog.md)): der Dialog bleibt
 offen und braucht die Folgenummer sofort. Gleiches Argument wie beim `409`:
 spart den zweiten `next-number`-Roundtrip und schließt das Fenster, in dem der
 Wert bereits wieder veraltet wäre.

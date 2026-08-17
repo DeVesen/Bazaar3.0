@@ -67,7 +67,7 @@ Details → [`filter-panel`](../../../../components/filter-panel/component.md).
 
 ## 3. Artikelanlage / Artikel bearbeiten
 
-Details → [`components/forms/artikel-dialog.md`](../../components/forms/artikel-dialog.md). Löschen (AC-5) fragt vorher über `p-confirmdialog` (`ConfirmationService`) nach.
+Details → [`artikel-dialog`](../../components/artikel-dialog.md). Löschen (AC-5) fragt vorher über `p-confirmdialog` (`ConfirmationService`) nach.
 
 #### Feldlayout
 
@@ -91,7 +91,7 @@ Details → [`components/forms/artikel-dialog.md`](../../components/forms/artike
   Nummer ist über die gesamte Basar-Laufzeit dieselbe, [Home](../Epic_Home_Verkaeufer/epic.md)
   und [Profil](../Epic_Profil/epic.md) zeigen sie dauerhaft samt Kopieren-Button.
   Im Erfassungsformular kostete sie nur die oberste Zeile
-  ([verkaeufer-nummer.md](../../components/custom/verkaeufer-nummer.md))
+  ([verkaeufer-nummer.md](../../components/verkaeufer-nummer.md))
 - **AutoComplete Kategorie/Marke:** identisch mit Haupt-App (▾-Modus / +-Modus)
 - **„Speichern + kopieren" (nur Anlegen):** zweiter Speichern-Button im Footer,
   zwischen Abbrechen und Speichern. Speichert genau wie „Speichern", lässt aber
@@ -99,7 +99,7 @@ Details → [`components/forms/artikel-dialog.md`](../../components/forms/artike
   auf die nächste und fokussiert die Bezeichnung mit selektiertem Inhalt — wie ein
   Duplizieren. Fachlicher Fall: fünf Bodys Größe 74, gleiche Marke, gleicher Preis.
   Ablauf, Fehlerfälle und Footer-Muster →
-  [`artikel-dialog.md`](../../components/forms/artikel-dialog.md)
+  [`artikel-dialog.md`](../../components/artikel-dialog.md)
 
 #### AutoComplete — Detail
 

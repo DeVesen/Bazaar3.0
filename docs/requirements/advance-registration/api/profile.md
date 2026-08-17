@@ -12,7 +12,7 @@ ID im Pfad, die Auflösung passiert über den `sub`-Claim.
 Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 
 Epic → [Epic_Profil](../epics/Epic_Profil/epic.md) ·
-Component → [`profil-page.md`](../components/forms/profil-page.md) ·
+Component → [`profil-page.md`](../components/profil-page.md) ·
 Entity → [`entities/verkaeufer.md`](../entities/verkaeufer.md)
 
 ---

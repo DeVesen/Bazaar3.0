@@ -163,7 +163,7 @@ Alle 5 Termine kommen aus `GET /api/public/info` (siehe Epic_Countdown_Widget) �
 
 **Varianten `'kpi'`/`'info-box'`:** keine PrimeNG-Komponente involviert — reines Template + Timer-Logik, Typografie und Layout per CSS.
 
-**Variante `'timeline'`:** `p-timeline [value]="phases"` — `#opposite` (Phasen-Label), `#marker` (Status-Icon+Farbe: abgeschlossen/läuft/bevorstehend), `#content` (Countdown/Status-Text). Details → [countdown-timeline-page.md](../../requirements/advance-registration/components/custom/countdown-timeline-page.md).
+**Variante `'timeline'`:** `p-timeline [value]="phases"` — `#opposite` (Phasen-Label), `#marker` (Status-Icon+Farbe: abgeschlossen/läuft/bevorstehend), `#content` (Countdown/Status-Text). Details → [countdown-timeline-page.md](../../requirements/advance-registration/components/countdown-timeline-page.md).
 
 ---
 

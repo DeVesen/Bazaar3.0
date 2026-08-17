@@ -32,7 +32,7 @@ Kein Block zugewiesen:
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_Nummernbloecke](../../epics/Epic_Nummernbloecke/epic.md) — **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Nummernbloecke](../epics/Epic_Nummernbloecke/epic.md) — **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

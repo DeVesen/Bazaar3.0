@@ -77,33 +77,33 @@ Footer „Standard + Zweitaktion" im Modus Anlegen (siehe
 
 ## Aufbau
 
-Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](form.md).
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](../../../components/form/component.md).
 
 | Feld                | Anlegen | Bearbeiten | PrimeNG                                                                                                                                                                                                                                                                                |
 | ------------------- | --- | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Artikelnummer       | ✅ Vorschlag | ✅ Ist-Wert | [Input](../../../../components/input/component.md), Variante Text, readonly                                                                                                                                                                                                                                             |
+| Artikelnummer       | ✅ Vorschlag | ✅ Ist-Wert | [Input](../../../components/input/component.md), Variante Text, readonly                                                                                                                                                                                                                                             |
 | Hinweis unter Nummer | ✅ | ❌ | Hinweistext (12 px, muted): „wird beim Speichern endgültig vergeben" — gleiche Ausprägung wie der Berechnungs-Hinweis in Epic_Verkaeufer Panel 04                                                                                                                                            |
-| Bezeichnung         | ✅ | ✅ | [Input](../../../../components/input/component.md), Variante Text                                                                                                                                                                                                                                                       |
-| Kategorie           | ✅ | ✅ | Shared [`autocomplete-create`](../../../../components/autocomplete-create/component.md)                                                                                                                                                                                                   |
-| Marke               | ✅ | ✅ | Shared [`autocomplete-create`](../../../../components/autocomplete-create/component.md)                                                                                                                                                                                                   |
-| Größe               | ✅ | ✅ | [Input](../../../../components/input/component.md), Variante Text                                                                                                                                                                                                                                                       |
-| Farbe               | ✅ | ✅ | [Input](../../../../components/input/component.md), Variante Text                                                                                                                                                                                                                                                       |
-| Preis               | ✅ | ✅ | Shared [`input-group`](../../../../components/input-group/component.md) (`p-inputgroup`+[Input](../../../../components/input/component.md) Variante Number+`p-inputgroupaddon` „€" rechts) — bewusst **nicht** Variante Icon, Suffix-Betrag passt besser zum InputGroup-Addon-Muster als zu einem Icon-Overlay |
+| Bezeichnung         | ✅ | ✅ | [Input](../../../components/input/component.md), Variante Text                                                                                                                                                                                                                                                       |
+| Kategorie           | ✅ | ✅ | Shared [`autocomplete-create`](../../../components/autocomplete-create/component.md)                                                                                                                                                                                                   |
+| Marke               | ✅ | ✅ | Shared [`autocomplete-create`](../../../components/autocomplete-create/component.md)                                                                                                                                                                                                   |
+| Größe               | ✅ | ✅ | [Input](../../../components/input/component.md), Variante Text                                                                                                                                                                                                                                                       |
+| Farbe               | ✅ | ✅ | [Input](../../../components/input/component.md), Variante Text                                                                                                                                                                                                                                                       |
+| Preis               | ✅ | ✅ | Shared [`input-group`](../../../components/input-group/component.md) (`p-inputgroup`+[Input](../../../components/input/component.md) Variante Number+`p-inputgroupaddon` „€" rechts) — bewusst **nicht** Variante Icon, Suffix-Betrag passt besser zum InputGroup-Addon-Muster als zu einem Icon-Overlay |
 | Beschreibung        | ✅ | ✅ | `pTextarea`                                                                                                                                                                                                                                                                            |
-| Löschen-Button      | ❌ | ✅ | [Button](../../../../components/button/component.md) danger, Footer links                                                                                                                                                                                                                                               |
-| Löschen-Bestätigung | ❌ | ✅ | [Confirmdialog](../../../../components/confirmdialog/component.md) — erst nach Bestätigung `DELETE /api/articles/:id`                                                                                                                                                                                                   |
-| Abbrechen/Speichern | ✅ | ✅ | [Button](../../../../components/button/component.md), Footer rechts — im Modus Anlegen Abbrechen `text` (Footer-Muster „Standard + Zweitaktion"), im Modus Bearbeiten `secondary outlined`; Speichern immer `primary` |
-| Speichern + kopieren | ✅ | ❌ | [Button](../../../../components/button/component.md) secondary outlined, Tooltip „Artikel speichern und einen weiteren mit denselben Werten anlegen" — siehe Abschnitt „Speichern + kopieren". Nur im Modus „Anlegen": ein bestehender Artikel wird bearbeitet, nicht vervielfacht |
+| Löschen-Button      | ❌ | ✅ | [Button](../../../components/button/component.md) danger, Footer links                                                                                                                                                                                                                                               |
+| Löschen-Bestätigung | ❌ | ✅ | [Confirmdialog](../../../components/confirmdialog/component.md) — erst nach Bestätigung `DELETE /api/articles/:id`                                                                                                                                                                                                   |
+| Abbrechen/Speichern | ✅ | ✅ | [Button](../../../components/button/component.md), Footer rechts — im Modus Anlegen Abbrechen `text` (Footer-Muster „Standard + Zweitaktion"), im Modus Bearbeiten `secondary outlined`; Speichern immer `primary` |
+| Speichern + kopieren | ✅ | ❌ | [Button](../../../components/button/component.md) secondary outlined, Tooltip „Artikel speichern und einen weiteren mit denselben Werten anlegen" — siehe Abschnitt „Speichern + kopieren". Nur im Modus „Anlegen": ein bestehender Artikel wird bearbeitet, nicht vervielfacht |
 | Nummer-Konflikt-Dialog | ✅ | ❌ | Modal, Footer-Muster „Nur Schließen" mit Label „OK" (siehe `docs/components/modal/component.md`) — kein Confirmdialog, es gibt nichts zu bestätigen oder abzubrechen |
 
 ## Artikelnummer im Modus „Anlegen"
 
-1. Beim Öffnen ruft der Dialog [`GET /api/articles/next-number`](../../api/articles.md) und
+1. Beim Öffnen ruft der Dialog [`GET /api/articles/next-number`](../api/articles.md) und
    zeigt den Wert schreibgeschützt an. Bis die Antwort da ist, bleibt das Feld leer
    und der Speichern-Button gesperrt.
 2. Scheitert der Abruf mit `409 article.no_free_number`, öffnet der Dialog gar
    nicht — stattdessen erscheint die Meldung „Keine freie Artikelnummer verfügbar
-   — bitte Admin kontaktieren" als [Toast](../../../../components/toast/component.md).
+   — bitte Admin kontaktieren" als [Toast](../../../components/toast/component.md).
 3. Beim Speichern schickt das Frontend den angezeigten Wert als
    `expectedNumber` mit. Antwortet das Backend `409 article.number_taken`, zeigt
    der Konflikt-Dialog `detail` aus der Antwort. Nach „OK" **bleibt der
@@ -124,7 +124,7 @@ Bezeichnung wechselt. „Speichern + kopieren" spart pro Artikel das erneute
    gesperrt**, ein Spinner läuft auf dem geklickten Button. Zwei Artikel aus einem
    Doppelklick sind hier der teuerste Fehler: die Nummer ist verbraucht und wird
    auch nach dem Löschen nicht wiederverwendet
-   ([`api/articles.md`](../../api/articles.md) Abschnitt 5).
+   ([`api/articles.md`](../api/articles.md) Abschnitt 5).
 3. **Nur bei `201`:** Der Dialog **bleibt offen**. Kein Feld wird geleert — alle
    Werte bleiben stehen, auch die Bezeichnung. Das Nummernfeld übernimmt
    `nextNumber` aus der Antwort. Der Fokus springt in die Bezeichnung und
@@ -134,7 +134,7 @@ Bezeichnung wechselt. „Speichern + kopieren" spart pro Artikel das erneute
    Fehlermarkierungen wären Altlast des Vorgängers.
 4. Die Tabelle dahinter wird **sofort** aktualisiert, nicht erst beim Schließen —
    sonst zeigt die Liste beim späteren Abbrechen falsche Zahlen.
-5. Ein [Toast](../../../../components/toast/component.md) meldet „✓ Artikel *n* gespeichert — nächste
+5. Ein [Toast](../../../components/toast/component.md) meldet „✓ Artikel *n* gespeichert — nächste
    Nummer: *m*". Beide Nummern in einer Aussage: der Dialog bleibt stehen und
    zeigt schon *m*, während der Verkäufer noch das Etikett für *n* beschriftet.
 6. **Fehlerfälle:** `409 article.number_taken` verhält sich exakt wie beim
@@ -152,7 +152,7 @@ Ausnahme und wird bewusst geklickt.
 
 ## Validierung
 
-Feldregeln nach [form.md](form.md) R-1/R-2. Dialog-spezifisch: Preis > 0
+Feldregeln nach [form.md](../../../components/form/component.md) R-1/R-2. Dialog-spezifisch: Preis > 0
 (Epic_Meine_Artikel AC-6), Pflichtfelder aus Abschnitt 3 der Epic-Doku (AC-2).
 Die Artikelnummer ist in beiden Modi readonly und nimmt an der Validierung nicht
 teil.

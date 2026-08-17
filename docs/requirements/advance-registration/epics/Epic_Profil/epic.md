@@ -22,7 +22,7 @@ updated: 2026-08-17
 **Navigation:** System → Profil (Admin) / Konto → Profil (Verkäufer)
 **Sichtbar für:** Alle
 
-Component-Details → [`components/forms/profil-page.md`](../../components/forms/profil-page.md)
+Component-Details → [`profil-page`](../../components/profil-page.md)
 
 **Ziel:** Verkäufer pflegt sein Profil in der Voranmelde-App.
 
@@ -52,7 +52,7 @@ Feldlayout gemäß Panels 01–03 (Lastenheft Abschnitt 9.4). **Panel-Styling** 
 ```
 [a3f9c2d1  ⧉ Kopieren]              [QR-Code]
 ```
-Komponente: [verkaeufer-nummer](../../components/custom/verkaeufer-nummer.md),
+Komponente: [verkaeufer-nummer](../../components/verkaeufer-nummer.md),
 Variante `card`. Zeigt die Verkäufer-`id` im Klartext und als QR-Code — derselbe
 Baustein wie auf der Home-Seite (Epic_Home_Verkaeufer Abschnitt 2), inklusive der
 Begründung, warum die `id` und nicht die abgeleitete „Nr." des ersten

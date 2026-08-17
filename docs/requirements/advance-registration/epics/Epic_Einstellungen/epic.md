@@ -20,7 +20,7 @@ updated: 2026-08-17
 **Navigation:** System → Einstellungen
 **Sichtbar für:** Admin
 
-Component-Details → [`components/forms/einstellungen-form.md`](../../components/forms/einstellungen-form.md)
+Component-Details → [`einstellungen-form`](../../components/einstellungen-form.md)
 Entity-Details → [`entities/einstellungen.md`](../../entities/einstellungen.md)
 
 **Ziel:** Admin konfiguriert systemweite Parameter der Voranmelde-App.
@@ -72,14 +72,14 @@ Wird angezeigt auf: Verkäufer-Home (Info-Panel) + Login-Seite (Info-Area).
 gerendert aussieht — gerendert von derselben `markdown-text`-Komponente, die den Text
 später öffentlich anzeigt. Dazu eine Syntax-Hilfe hinter einem ⓘ-Icon. Ohne das würde ein
 falsch getipptes `## Hinweise` erst als sichtbares `##` auf der öffentlichen Login-Seite
-auffallen. Layout und AC → [`einstellungen-form.md`](../../components/forms/einstellungen-form.md)
+auffallen. Layout und AC → [`einstellungen-form.md`](../../components/einstellungen-form.md)
 Abschnitt „Info-Text: Vorschau" / „Info-Text: Syntax-Hilfe".
 
 **Längengrenze:** max. 4000 Zeichen Markdown-Rohtext — im Formular per `maxlength` +
 Zeichenzähler, zusätzlich serverseitig geprüft (`400`). Begründung → [`entities/einstellungen.md`](../../entities/einstellungen.md).
 
 **Unterstützter Markdown-Umfang:** verbindlich und abschließend in
-[`markdown-text`](../../components/custom/markdown-text.md) Abschnitt 3.1 — hier
+[`markdown-text`](../../components/markdown-text.md) Abschnitt 3.1 — hier
 bewusst **nicht** wiederholt, damit die Liste nicht an drei Stellen driftet. Dort steht
 auch, was mit nicht unterstützter Syntax passiert (Abschnitt 3.2: bleibt als Klartext
 sichtbar) und was bei leerem `infoText` passiert (Abschnitt 3.3).

@@ -51,7 +51,7 @@ Epics → [Epic_Countdown_Widget](../epics/Epic_Countdown_Widget/epic.md) ·
 |---|---|---|
 | `registrationDeadline` … `bazaarUntil` | ISO 8601 \| `null` | Einstellungen Abschnitt 1 → [`settings.md`](settings.md) |
 | `defaultConditions` | `{ commissionRate, itemFee }` \| `null` | Backend löst `defaultTypeId` gegen den Verkäufer-Typ auf und liefert die Werte **fertig aufgelöst**. `defaultTypeId` selbst wird nicht ausgeliefert — sonst bräuchte es einen öffentlichen Seller-Types-Endpoint. |
-| `infoText` | Markdown-String \| `null` | Einstellungen Abschnitt 3 — unveränderter Rohtext, das Backend rendert nichts; Rendering-Umfang → [`markdown-text`](../components/custom/markdown-text.md) Abschnitt 3.1 |
+| `infoText` | Markdown-String \| `null` | Einstellungen Abschnitt 3 — unveränderter Rohtext, das Backend rendert nichts; Rendering-Umfang → [`markdown-text`](../components/markdown-text.md) Abschnitt 3.1 |
 
 ### Nicht konfigurierte Werte
 
@@ -64,9 +64,9 @@ Countdown-Phase aus. Kein `500`, damit die Login-Seite bedienbar bleibt.
 
 | Verwendung | Genutzte Felder |
 |---|---|
-| Login-Seite, [`login-info-panel`](../components/custom/login-info-panel.md) | alle |
-| `/embed/countdown`, [`countdown-timeline-page`](../components/custom/countdown-timeline-page.md) | nur die 5 Termine |
-| Home Verkäufer, [`home-dashboard`](../components/custom/home-dashboard.md) | `dropOffFrom`, `dropOffUntil` |
+| Login-Seite, [`login-info-panel`](../components/login-info-panel.md) | alle |
+| `/embed/countdown`, [`countdown-timeline-page`](../components/countdown-timeline-page.md) | nur die 5 Termine |
+| Home Verkäufer, [`home-dashboard`](../components/home-dashboard.md) | `dropOffFrom`, `dropOffUntil` |
 | Home Admin | alle 5 Termine |
 
 **Ein Response-Shape für alle vier** — das Embed-Widget erhält `infoText` und

@@ -19,7 +19,7 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 
 Epics → [Epic_Home_Verkaeufer](../epics/Epic_Home_Verkaeufer/epic.md) ·
 [Epic_Home_Admin](../epics/Epic_Home_Admin/epic.md) ·
-Component → [`home-dashboard.md`](../components/custom/home-dashboard.md)
+Component → [`home-dashboard.md`](../components/home-dashboard.md)
 
 ---
 
@@ -79,7 +79,7 @@ Home-Ansicht feuert also zwei parallele Requests — bewusst so
 
 **Ebenfalls nicht enthalten:** die Kachel „Abgabegebühr gesamt". Sie ist
 `articleCount × typeConditions.itemFee` und wird im Frontend gerechnet
-(siehe [`home-dashboard.md`](../components/custom/home-dashboard.md)).
+(siehe [`home-dashboard.md`](../components/home-dashboard.md)).
 
 ---
 

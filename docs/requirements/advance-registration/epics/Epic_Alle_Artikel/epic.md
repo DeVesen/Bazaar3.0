@@ -65,7 +65,7 @@ Suche auslösen: gleiches Muster wie Epic_Meine_Artikel (Enter oder „Suchen"-B
 
 ## 3. Readonly Modal (`modal-artikel-view`)
 
-Details → [`components/forms/artikel-readonly-modal.md`](../../components/forms/artikel-readonly-modal.md).
+Details → [`artikel-readonly-modal`](../../components/artikel-readonly-modal.md).
 
 Identische Feldanordnung wie Artikel-Bearbeiten-Modal (Zeilen 1–6 gemäß Feldlayout in [Epic_Meine_Artikel](../Epic_Meine_Artikel/epic.md)).
 

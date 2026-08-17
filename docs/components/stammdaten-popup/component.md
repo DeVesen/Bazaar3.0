@@ -37,7 +37,7 @@ Anlegen (Modal sm):        Bearbeiten (Modal sm):
 
 ## Aufbau
 
-Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](../../requirements/advance-registration/components/forms/form.md).
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](../form/component.md).
 
 | Feld | PrimeNG |
 |---|---|

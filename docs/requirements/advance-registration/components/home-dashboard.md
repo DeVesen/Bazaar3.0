@@ -10,8 +10,8 @@ Reine Instanziierung bereits entschiedener Shared-Components — keine neuen Pri
 
 | Variante | Verwendung | Kacheln |
 |---|---|---|
-| Verkäufer | [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) | 4 (`columns="4"`) |
-| Admin | [Epic_Home_Admin](../../epics/Epic_Home_Admin/epic.md) | 5 (`columns="5"`) + Activity-Heatmap |
+| Verkäufer | [Epic_Home_Verkaeufer](../epics/Epic_Home_Verkaeufer/epic.md) | 4 (`columns="4"`) |
+| Admin | [Epic_Home_Admin](../epics/Epic_Home_Admin/epic.md) | 5 (`columns="5"`) + Activity-Heatmap |
 
 ## Kontext (volle Seite)
 
@@ -62,7 +62,7 @@ nicht `markdown-text` — die Leaf-Komponente rendert bei leerem `content` ledig
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) bzw. [Epic_Home_Admin](../../epics/Epic_Home_Admin/epic.md) — jeweils **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC. Bewusst ohne AC-Nummern: beide Epics werden weiter ergänzt, eine Nummernspanne hier wäre sofort veraltet.
+Siehe [Epic_Home_Verkaeufer](../epics/Epic_Home_Verkaeufer/epic.md) bzw. [Epic_Home_Admin](../epics/Epic_Home_Admin/epic.md) — jeweils **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC. Bewusst ohne AC-Nummern: beide Epics werden weiter ergänzt, eine Nummernspanne hier wäre sofort veraltet.
 
 ## Tags & Piles
 

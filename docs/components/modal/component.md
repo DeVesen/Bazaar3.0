@@ -79,7 +79,7 @@ Alle vier Muster gelten identisch für beide Apps.
 **Muster „Standard + Zweitaktion":** für Dialoge, die neben dem regulären
 Speichern eine zweite, gleichwertige Speicher-Variante anbieten — heute nur
 „Speichern + kopieren" im
-[artikel-dialog](../../requirements/advance-registration/components/forms/artikel-dialog.md).
+[artikel-dialog](../../requirements/advance-registration/components/artikel-dialog.md).
 Abbrechen fällt hier auf `text` zurück: drei Buttons in einer Reihe, von denen
 zwei gleich aussehen, lesen sich nicht mehr als Rangfolge. Die Rangfolge von
 links nach rechts ist Abbruch → Nebenweg → Hauptweg. Genau **eine** Zweitaktion,

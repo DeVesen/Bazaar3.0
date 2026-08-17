@@ -26,16 +26,16 @@ Sitzt in der rechten Spalte von `login-layout`. Container: `p-card`.
 
 ## Aufbau
 
-Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](form.md).
+Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](../../../components/form/component.md).
 
 | Element | PrimeNG |
 |---|---|
-| Form-Container | Shared [`card`](../../../../components/card/component.md) |
-| E-Mail-Feld | [Input](../../../../components/input/component.md), Variante Icon (Envelope) |
-| Passwort-Feld | [Input](../../../../components/input/component.md), Variante Password (mit Toggle) |
-| Anmelden-Button | [Button](../../../../components/button/component.md) primary, volle Breite |
+| Form-Container | Shared [`card`](../../../components/card/component.md) |
+| E-Mail-Feld | [Input](../../../components/input/component.md), Variante Icon (Envelope) |
+| Passwort-Feld | [Input](../../../components/input/component.md), Variante Password (mit Toggle) |
+| Anmelden-Button | [Button](../../../components/button/component.md) primary, volle Breite |
 | Passwort-vergessen | `<a>`-Link, öffnet `p-popover` mit Text „Bitte wende dich an den Admin, um dein Passwort zurückzusetzen." |
-| Registrierung-Link | [Button](../../../../components/button/component.md) text → `routerLink="/register"` |
+| Registrierung-Link | [Button](../../../components/button/component.md) text → `routerLink="/register"` |
 
 ## Verhalten
 
@@ -44,7 +44,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_Login](../../epics/Epic_Login/epic.md) — dort die Akzeptanzkriterien zum **Anmelden**: Prüfung der Anmeldedaten, Meldung bei falschen Daten, Enter-Submit im Passwortfeld, Passwort-vergessen-Popover. Bewusst ohne AC-Nummern, weil das Epic auch Registrierung und Info-Panel abdeckt und weiter ergänzt wird. Diese Datei ist die Struktur-Referenz für die Formular-Bausteine, keine eigenen zusätzlichen AC.
+Siehe [Epic_Login](../epics/Epic_Login/epic.md) — dort die Akzeptanzkriterien zum **Anmelden**: Prüfung der Anmeldedaten, Meldung bei falschen Daten, Enter-Submit im Passwortfeld, Passwort-vergessen-Popover. Bewusst ohne AC-Nummern, weil das Epic auch Registrierung und Info-Panel abdeckt und weiter ergänzt wird. Diese Datei ist die Struktur-Referenz für die Formular-Bausteine, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

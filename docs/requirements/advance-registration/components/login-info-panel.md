@@ -34,7 +34,7 @@ Sitzt in der linken Spalte von `login-layout`.
 ## Fehlende Werte
 
 Alle drei Boxen hängen an `GET /api/public/info`, dessen Felder einzeln `null` sein können
-([`api/public.md`](../../api/public.md), Abschnitt „Nicht konfigurierte Werte").
+([`api/public.md`](../api/public.md), Abschnitt „Nicht konfigurierte Werte").
 
 | Fehlt | Verhalten |
 |---|---|

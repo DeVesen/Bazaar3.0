@@ -51,9 +51,9 @@ Type-Ahead:
 |---|---|---|
 | [filter-panel.md](../filter-panel/component.md) | Marke-/Kategorie-Filter | Dropdown |
 | [filter-panel.md](../filter-panel/component.md) | Verkäufer-Filter (nur Alle Artikel) | Type-Ahead — filtert über Vorname/Nachname/Nummer |
-| [einstellungen-form.md](../../requirements/advance-registration/components/forms/einstellungen-form.md) | `defaultTypeId` | Dropdown — Liste aller Verkäufer-Typen |
-| [profil-page.md](../../requirements/advance-registration/components/forms/profil-page.md) | Verkäufer-Typ | Dropdown, `[disabled]="true"` |
-| [verkaeufer-dialog.md](../../requirements/advance-registration/components/forms/verkaeufer-dialog.md) | Verkäufer-Typ | Dropdown — nur bestehende Typen, kein Inline-Anlegen (Feld-Mismatch, siehe dort) |
+| [einstellungen-form.md](../../requirements/advance-registration/components/einstellungen-form.md) | `defaultTypeId` | Dropdown — Liste aller Verkäufer-Typen |
+| [profil-page.md](../../requirements/advance-registration/components/profil-page.md) | Verkäufer-Typ | Dropdown, `[disabled]="true"` |
+| [verkaeufer-dialog.md](../../requirements/advance-registration/components/verkaeufer-dialog.md) | Verkäufer-Typ | Dropdown — nur bestehende Typen, kein Inline-Anlegen (Feld-Mismatch, siehe dort) |
 
 ## Tags & Piles
 

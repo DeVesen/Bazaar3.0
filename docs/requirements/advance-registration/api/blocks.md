@@ -16,7 +16,7 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 Epics → [Epic_Nummernbloecke](../epics/Epic_Nummernbloecke/epic.md) (Verkäufer-Sicht) ·
 [Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md) Panel 04 (Admin-Verwaltung) ·
 Entity → [`entities/nummernblock.md`](../entities/nummernblock.md) ·
-Component → [`block-liste.md`](../components/custom/block-liste.md)
+Component → [`block-liste.md`](../components/block-liste.md)
 
 ---
 

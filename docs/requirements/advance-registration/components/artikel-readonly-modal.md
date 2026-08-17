@@ -29,13 +29,13 @@ Modal-Muster: Standard-Größe, Footer „Nur Schließen" (siehe `docs/component
 
 ## Aufbau
 
-Querschnitts-Regeln → [form.md](form.md) (nur Anzeige: R-1/2/3/7 entfallen).
+Querschnitts-Regeln → [form.md](../../../components/form/component.md) (nur Anzeige: R-1/2/3/7 entfallen).
 
 Alle Felder wie in `artikel-dialog.md`, aber durchgängig `[readonly]="true"` bzw. `[disabled]="true"` (kein `p-select`/`p-autoComplete`-Interaktion, keine `p-confirmdialog`-Logik). Zusätzliches Feld:
 
 | Feld | PrimeNG |
 |---|---|
-| Verkäufer (Name + Nummer) | [Input](../../../../components/input/component.md), Variante Text, readonly |
+| Verkäufer (Name + Nummer) | [Input](../../../components/input/component.md), Variante Text, readonly |
 
 ## Akzeptanzkriterien
 

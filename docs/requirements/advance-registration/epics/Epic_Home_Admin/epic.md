@@ -19,7 +19,7 @@ updated: 2026-08-17
 **App:** Voranmelde-App
 **Navigation:** Mein Bereich → Home
 
-Component-Details → [`components/custom/home-dashboard.md`](../../components/custom/home-dashboard.md)
+Component-Details → [`home-dashboard`](../../components/home-dashboard.md)
 **Sichtbar für:** Admins (wenn Role-Toggle auf „Admin" steht)
 
 **Ziel:** Admin sieht auf der Home-Seite eine Übersicht aller Registrierungen und Systemkennzahlen.
@@ -82,7 +82,7 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 ## 3. Info-Panel
 
 Identisch mit der Verkäufer-Ansicht — dieselbe Custom-Component
-[markdown-text](../../components/custom/markdown-text.md), derselbe `infoText`.
+[markdown-text](../../components/markdown-text.md), derselbe `infoText`.
 Details → [Epic_Home_Verkaeufer](../Epic_Home_Verkaeufer/epic.md) Abschnitt „Info-Panel";
 die Akzeptanzkriterien zum Rendering und zum leeren `infoText` stehen dort und gelten
 unverändert auch für diese Ansicht.

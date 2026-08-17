@@ -6,9 +6,19 @@ updated: 2026-08-17
 
 # Components — Voranmelde-App
 
-App-lokale Komponenten-Dokumente, gruppiert nach Bauart. Suite-weite Komponenten
-(beide Apps) liegen dagegen unter [`docs/components/`](../../../components/overview.md)
-und werden von hier nur verlinkt, nie dupliziert.
+App-lokale Komponenten-Dokumente. Suite-weite Komponenten (beide Apps) liegen unter
+[`docs/components/`](../../../components/overview.md) und werden von hier **verlinkt, nicht
+kopiert**.
+
+**Struktur:** flach, ohne Unterordner — wie in der Haupt-App. Die frühere Aufteilung in
+`custom/`, `forms/` und `standard/` trennte nichts Belastbares: `login-layout` lag unter
+„custom", `login-form` unter „forms", beide beschreiben dieselbe Seite; `filter-panel` und
+`stammdaten-popup` sind beides Aufsätze über Listen und lagen in verschiedenen Ordnern. Die
+Gruppen unten bleiben als **Lesehilfe im Index** erhalten, sie sind keine Verzeichnisse mehr.
+
+Mit **⧉** markierte Einträge liegen **suite-weit** und werden von beiden Apps genutzt — sie
+beschreiben PrimeNG-Verhalten plus Projektkonventionen, daran ist nichts app-spezifisch. Sie
+stehen hier im Index, damit dieses Verzeichnis weiterhin für sich lesbar ist.
 
 | Gruppe | Definition |
 |---|---|
@@ -17,8 +27,6 @@ und werden von hier nur verlinkt, nie dupliziert.
 | [Forms](#forms) | Formulare, Dialoge, Modals, Panels mit Aktion |
 
 ---
-
-Mit **⧉** markierte Einträge liegen **suite-weit** unter [`docs/components/`](../../../components/overview.md) und werden von beiden Apps genutzt — sie beschreiben PrimeNG-Verhalten plus Projektkonventionen, daran ist nichts app-spezifisch. Die Datei bleibt hier als Index verlinkt, damit dieses Verzeichnis weiterhin für sich lesbar ist.
 
 ## Standard
 
@@ -37,21 +45,21 @@ Mit **⧉** markierte Einträge liegen **suite-weit** unter [`docs/components/`]
 | Komponente | Kurz |
 |---|---|
 | [sidebar ⧉](../../../components/sidebar/component.md) | Shell-Sidebar auf Basis der `primeng/sidebar`-Compound-Familie, mit eigenen Slot-Inhalten (Title, Footer) |
-| [password-strength-meter.md](custom/password-strength-meter.md) | Stärke-Anzeige aus `p-progressbar` + `p-tag` — PrimeNG liefert keine fertige |
+| [password-strength-meter.md](password-strength-meter.md) | Stärke-Anzeige aus `p-progressbar` + `p-tag` — PrimeNG liefert keine fertige |
 | [filter-panel ⧉](../../../components/filter-panel/component.md) | Such-/Filterzeile über der Tabelle (`card`-Filter-Variante), nicht das Spalten-Filter-Menü |
-| [block-liste.md](custom/block-liste.md) | Read-only-Liste der Nummernblöcke im Verkäufer-Dialog |
-| [sidebar-title.md](custom/sidebar-title.md) | Logo-Icon + Markenname im `p-sidebar-header`-Slot |
+| [block-liste.md](block-liste.md) | Read-only-Liste der Nummernblöcke im Verkäufer-Dialog |
+| [sidebar-title.md](sidebar-title.md) | Logo-Icon + Markenname im `p-sidebar-header`-Slot |
 | [sidebar-footer ⧉](../../../components/sidebar-footer/component.md) | Avatar, Rolle, Role-Toggle, Logout im `p-sidebar-footer`-Slot |
-| [login-layout.md](custom/login-layout.md) | 2-Spalten-Grid für Login- und Registrierungsseite |
-| [login-info-panel.md](custom/login-info-panel.md) | Linke Login-Spalte: Countdown, Default-Konditionen, Markdown-Infotext |
-| [markdown-text.md](custom/markdown-text.md) | Rendert den admin-gepflegten `infoText` als HTML — **verbindliche Quelle für den unterstützten Markdown-Umfang**; genutzt in `login-info-panel`, `home-dashboard` und der Vorschau in `einstellungen-form` |
-| [home-dashboard.md](custom/home-dashboard.md) | Kachel-Grid der Home-Seite, rollenabhängig 4 oder 5 Kacheln |
-| [verkaeufer-nummer.md](custom/verkaeufer-nummer.md) | Eigene Verkäufernummer im Klartext + QR-Code (Karte auf Home und Profil) |
-| [countdown-timeline-page.md](custom/countdown-timeline-page.md) | Öffentliche Timeline-Seite ohne Shell |
+| [login-layout.md](login-layout.md) | 2-Spalten-Grid für Login- und Registrierungsseite |
+| [login-info-panel.md](login-info-panel.md) | Linke Login-Spalte: Countdown, Default-Konditionen, Markdown-Infotext |
+| [markdown-text.md](markdown-text.md) | Rendert den admin-gepflegten `infoText` als HTML — **verbindliche Quelle für den unterstützten Markdown-Umfang**; genutzt in `login-info-panel`, `home-dashboard` und der Vorschau in `einstellungen-form` |
+| [home-dashboard.md](home-dashboard.md) | Kachel-Grid der Home-Seite, rollenabhängig 4 oder 5 Kacheln |
+| [verkaeufer-nummer.md](verkaeufer-nummer.md) | Eigene Verkäufernummer im Klartext + QR-Code (Karte auf Home und Profil) |
+| [countdown-timeline-page.md](countdown-timeline-page.md) | Öffentliche Timeline-Seite ohne Shell |
 
 ## Forms
 
-[form.md](forms/form.md) hält die Querschnitts-Regeln, die für **alle** Einträge dieser
+[form.md](../../../components/form/component.md) hält die Querschnitts-Regeln, die für **alle** Einträge dieser
 Gruppe gelten (Feldfehler, Submit-Sperre, Enter-Submit, Feedback-Wahl, Confirmdialog,
 Readonly, Autofokus). Die visuelle Hülle steht in den Suite-Docs
 [`card`](../../../components/card/component.md) und
@@ -59,17 +67,17 @@ Readonly, Autofokus). Die visuelle Hülle steht in den Suite-Docs
 
 | Komponente | Typ | Kurz |
 |---|---|---|
-| [form.md](forms/form.md) | Querschnitt | Regeln R-1 bis R-7 für alle Formulare |
-| [login-form.md](forms/login-form.md) | Seiten-Formular | E-Mail + Passwort, Passwort-vergessen-Popover |
-| [registrierung-form.md](forms/registrierung-form.md) | Seiten-Formular | E-Mail, Passwort + Bestätigung, Stärke-Meter |
-| [einstellungen-form.md](forms/einstellungen-form.md) | Seiten-Formular | Basar-Termine, Nummernblock-Parameter, Infotext |
-| [profil-page.md](forms/profil-page.md) | Seiten-Formular | Drei Tabs: Steckbrief, Zugangsdaten, Löschen |
-| [export-panel.md](forms/export-panel.md) | Panel mit Aktion | Export-Optionen + Ergebnis-Info-Area |
+| [form ⧉](../../../components/form/component.md) | Querschnitt | Regeln R-1 bis R-7 für alle Formulare **beider Apps** |
+| [login-form.md](login-form.md) | Seiten-Formular | E-Mail + Passwort, Passwort-vergessen-Popover |
+| [registrierung-form.md](registrierung-form.md) | Seiten-Formular | E-Mail, Passwort + Bestätigung, Stärke-Meter |
+| [einstellungen-form.md](einstellungen-form.md) | Seiten-Formular | Basar-Termine, Nummernblock-Parameter, Infotext |
+| [profil-page.md](profil-page.md) | Seiten-Formular | Drei Tabs: Steckbrief, Zugangsdaten, Löschen |
+| [export-panel.md](export-panel.md) | Panel mit Aktion | Export-Optionen + Ergebnis-Info-Area |
 | [stammdaten-popup ⧉](../../../components/stammdaten-popup/component.md) | Modal `sm` | Anlegen/Bearbeiten für Marke und Kategorie |
 | [typ-popup ⧉](../../../components/typ-popup/component.md) | Modal `sm` | Anlegen/Bearbeiten Verkäufer-Typ (Name, Provision, Gebühr) |
-| [artikel-dialog.md](forms/artikel-dialog.md) | Modal Standard | Artikel bearbeiten inkl. Löschen |
-| [artikel-readonly-modal.md](forms/artikel-readonly-modal.md) | Modal Standard | Artikel ansehen (Alle Artikel), alle Felder readonly |
-| [verkaeufer-dialog.md](forms/verkaeufer-dialog.md) | Modal `lg` | Verkäufer anlegen/bearbeiten inkl. Nummernblöcke |
+| [artikel-dialog.md](artikel-dialog.md) | Modal Standard | Artikel bearbeiten inkl. Löschen |
+| [artikel-readonly-modal.md](artikel-readonly-modal.md) | Modal Standard | Artikel ansehen (Alle Artikel), alle Felder readonly |
+| [verkaeufer-dialog.md](verkaeufer-dialog.md) | Modal `lg` | Verkäufer anlegen/bearbeiten inkl. Nummernblöcke |
 
 ---
 
@@ -109,6 +117,8 @@ Keine Komponente ist beides. Konkrete Folgen für die Einträge oben:
   Seite, Panel oder Modal ist.
 - Zeigt sich eine Komponente als in **beiden** Apps identisch, gehört sie nicht hierher,
   sondern nach [`docs/components/`](../../../components/overview.md).
+- Die Gruppen sind eine **Lesehilfe im Index**, keine Verzeichnisse. Eine Datei wechselt die
+  Gruppe, indem ihre Zeile umzieht — nicht die Datei.
 
 ## Tags & Piles
 

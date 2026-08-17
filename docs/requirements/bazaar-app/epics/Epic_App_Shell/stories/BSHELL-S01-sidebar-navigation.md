@@ -26,7 +26,7 @@ Am Tisch aufgenommene Artikel zählen **nicht** mit: Beim Buchen der Annahme set
 
 **Die Sidebar ist eine Dumb Component:** Sie erhält ihre Einträge — Label, Icon, Route, Badge-Zahl — als Input und kennt weder Übersetzung noch Datenbeschaffung. Die Haupt-App füttert feste deutsche Labels hinein, die Voranmelde-App übersetzte Strings; damit bleibt die i18n-Entscheidung in der App und die Komponente in beiden Apps dieselbe (Grundregel → [`docs/components/overview.md`](../../../../../components/overview.md)).
 
-Die Komponente selbst gehört **suite-weit** nach `docs/components/sidebar/` — beide Apps bauen denselben PrimeNG-Compound mit denselben Gruppen-und-Trennlinien-Struktur; Unterschied sind nur Farben und Einträge. Aktuell liegt die Beschreibung noch unter `advance-registration/components/custom/sidebar.md`; das Verschieben ist Sache von `element-extraction`.
+Die Komponente selbst liegt **suite-weit** unter [`docs/components/sidebar/`](../../../../../components/sidebar/component.md) — beide Apps bauen denselben PrimeNG-Compound mit derselben Gruppen-und-Trennlinien-Struktur; Unterschied sind nur Farben, Gruppen und Einträge. Die Varianten-Tabelle dort nennt beide Ausprägungen.
 
 **Out of Scope:** Mobile-Burger-Menü (folgt in BSHELL-S02), Seiteninhalte, Badge-Daten-API-Anbindung (folgt im Epic Artikelannahme), Auth-Infrastruktur und Guards (eigene Story, siehe Hinweis in [epic.md](../epic.md)).
 

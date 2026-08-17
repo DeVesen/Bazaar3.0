@@ -20,7 +20,7 @@ updated: 2026-08-17
 **App:** Voranmelde-App
 **Navigation:** Mein Bereich → Home
 
-Component-Details → [`components/custom/home-dashboard.md`](../../components/custom/home-dashboard.md)
+Component-Details → [`home-dashboard`](../../components/home-dashboard.md)
 **Sichtbar für:** Alle (Verkäufer + Admins im Verkäufer-Modus)
 
 **Ziel:** Verkäufer sieht auf der Home-Seite eine Übersicht seines Registrierungsstatus.
@@ -51,7 +51,7 @@ Die Home-Seite ist die **Einstiegsseite** nach dem Login. Sie zeigt dem Verkäuf
 
 ## 2. Verkäufernummer-Karte
 
-→ Komponente: [verkaeufer-nummer](../../components/custom/verkaeufer-nummer.md), Variante `card`
+→ Komponente: [verkaeufer-nummer](../../components/verkaeufer-nummer.md), Variante `card`
 
 Direkt **unterhalb der KPI-Kacheln**, volle Breite. Zeigt dem Verkäufer seine
 eigene Verkäufernummer im Klartext (24 px, monospace) und als QR-Code (128 px),
@@ -87,13 +87,13 @@ Vollständig spezifiziert → [Epic_Home_Admin](../Epic_Home_Admin/epic.md) Absc
 
 Unterhalb der Heatmap: freies **Informations-Panel** mit mehrzeiligem Text.
 
-→ Komponente: [markdown-text](../../components/custom/markdown-text.md) — dieselbe
-Custom-Component wie im [`login-info-panel`](../../components/custom/login-info-panel.md)
+→ Komponente: [markdown-text](../../components/markdown-text.md) — dieselbe
+Custom-Component wie im [`login-info-panel`](../../components/login-info-panel.md)
 (Epic_Login Abschnitt 2), gefüttert mit demselben `infoText`.
 
 - Text wird vom **Admin** in den Einstellungen gepflegt (`infoText`-Parameter)
 - **Markdown-Formatierung** unterstützt — welche Elemente genau, steht verbindlich in
-  [`markdown-text`](../../components/custom/markdown-text.md) Abschnitt 3.1 und wird
+  [`markdown-text`](../../components/markdown-text.md) Abschnitt 3.1 und wird
   hier nicht wiederholt
 - Zweck: Hinweise zu Abgaberegeln, Öffnungszeiten, organisatorischen Details
 - Gleicher Text wie auf der Login-Seite (Info-Area)
@@ -119,7 +119,7 @@ API-Details → [`api/home.md`](../../api/home.md)
 3. **AC-3** — WHEN der Verkäufer noch keine Artikel erfasst hat, THEN SHALL das System einen Hinweis „Noch keine Artikel erfasst" und einen Link zu „Meine Artikel" anzeigen.
 4. **AC-4** — WHEN die Home-Seite geladen ist, THEN SHALL das System die eigene Verkäufernummer (Verkäufer-`id`) im Klartext und als QR-Code anzeigen, ohne dafür einen zusätzlichen Endpoint zu rufen.
 5. **AC-5** — WHEN der Kopieren-Button der Verkäufernummer-Karte geklickt wird, THEN SHALL das System die Nummer in die Zwischenablage legen und einen Toast „✓ Nummer kopiert" anzeigen.
-6. **AC-6** — WHEN die Home-Seite geladen ist und `infoText` gesetzt ist, THEN SHALL das System den Text im Info-Panel **als gerendertes HTML** anzeigen (Umfang → [markdown-text](../../components/custom/markdown-text.md) Abschnitt 3.1) und keine Markdown-Syntaxzeichen unterstützter Elemente im Klartext stehen lassen.
+6. **AC-6** — WHEN die Home-Seite geladen ist und `infoText` gesetzt ist, THEN SHALL das System den Text im Info-Panel **als gerendertes HTML** anzeigen (Umfang → [markdown-text](../../components/markdown-text.md) Abschnitt 3.1) und keine Markdown-Syntaxzeichen unterstützter Elemente im Klartext stehen lassen.
 7. **AC-7** — IF `infoText` `null`, leer oder nur Whitespace ist, THEN SHALL das System die Info-Panel-Box vollständig ausblenden statt eine leere Box anzuzeigen.
 
 ## Tags & Piles

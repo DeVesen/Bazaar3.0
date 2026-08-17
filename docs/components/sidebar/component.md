@@ -5,7 +5,7 @@ reviewed-date: 2026-08-14
 
 # Component: sidebar (PrimeNG 22 Compound)
 
-Basis ist die PrimeNG-22-`Sidebar`-Compound-Familie (`primeng/sidebar`, stabil seit `22.0.0`) — kein selbstgebauter Ersatz, aber auch keine reine 1:1-Instanziierung: die Slots werden mit eigenen Bausteinen gefüllt ([sidebar-title.md](../../requirements/advance-registration/components/custom/sidebar-title.md) im Header, [sidebar-footer.md](../sidebar-footer/component.md) im Footer). Ersetzt die ursprünglich geplante, komplett selbstgebaute Sidebar.
+Basis ist die PrimeNG-22-`Sidebar`-Compound-Familie (`primeng/sidebar`, stabil seit `22.0.0`) — kein selbstgebauter Ersatz, aber auch keine reine 1:1-Instanziierung: die Slots werden mit eigenen Bausteinen gefüllt ([sidebar-title.md](../../requirements/advance-registration/components/sidebar-title.md) im Header, [sidebar-footer.md](../sidebar-footer/component.md) im Footer). Ersetzt die ursprünglich geplante, komplett selbstgebaute Sidebar.
 
 **Verwendung:** beide Apps. Der Compound, der Slot-Aufbau und das Active-Highlight sind identisch; app-spezifisch sind nur Farben, Gruppen und Einträge.
 
