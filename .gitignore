@@ -114,5 +114,9 @@ x86/
 # Built Visual Studio Code Extensions
 *.vsix
 .obsidian
-.claude
 .mcp.json
+
+### Claude Code
+# Lokale Konfiguration bleibt draussen, Projekt-Skills bleiben im Repo
+.claude/*
+!.claude/skills/
