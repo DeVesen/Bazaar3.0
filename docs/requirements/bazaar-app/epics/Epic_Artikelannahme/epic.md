@@ -139,7 +139,7 @@ Nach Pflichtfelder-Ausfüllung: Klick **„Übernehmen"** → Artikel erscheint 
      - alle Artikel aus der Liste anlegt bzw. aktualisiert
      - an jedem `acceptedAt` und `releasedAt = jetzt` setzt → sofort im Verkauf
      - die Annahmegebühr auf `intakeFeePaid` des Verkäufers addiert (Abschnitt 4)
-   - Erst **nach** der Antwort startet der **Druckdialog** automatisch (Artikelannahme-Liste mit QR-Code)
+   - Erst **nach** der Antwort startet der **Druckdialog** automatisch: der Abgabe-Beleg mit QR-Code, den Artikeln **dieses Vorgangs** und dem gezahlten Gebührenbetrag ([Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md) Abschnitt 1)
 
 ---
 

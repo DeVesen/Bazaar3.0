@@ -164,6 +164,14 @@ Kein zusätzlicher Zeitstempel `notDeliveredAt`: Er würde ein Feld und eine Fil
 Beim Klick auf **„Drucken"** wird die Verkäufer-Übersicht gedruckt.
 Details → [Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md)
 
+**Verbindliche Reihenfolge:**
+
+```
+Drucken  →  einsammeln  →  Rückgabe-Scan  →  Abrechnen  →  Drucken (endgültig)
+```
+
+Der Ausdruck wird **vor** dem Rückgabe-Scan gebraucht: Dort ist die Gruppe „Noch im Verkauf" die Einsammelliste für den Verkäufer. Alle Beträge sind zu diesem Zeitpunkt als **„vorläufig"** gekennzeichnet, weil erst nach dem Scan feststeht, was verkauft und was zurückgegeben wurde. Nach dem Abrechnen liefert derselbe Button den endgültigen Beleg mit dem Auszahlungsbetrag — darum bleibt „Drucken" immer aktiv, während „Zurückgeben" und „Abrechnen" Bedingungen haben.
+
 ---
 
 ## 7. Backend & API

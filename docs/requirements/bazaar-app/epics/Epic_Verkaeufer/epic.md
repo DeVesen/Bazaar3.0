@@ -238,6 +238,8 @@ Beim Verlassen des Dialogs erscheint — sofern in dieser Sitzung mindestens ein
 
 Grund: `feePerItem` ist eine Gebühr **pro abgegebenem** Artikel, und abgegeben wird beim Freigeben. Ohne diesen Abschluss wäre ein vorangemeldeter Verkäufer mit 40 Artikeln gebührenfrei, während der Laufkunde mit 12 Artikeln zahlt. Regel und Begründung → [Epic_Artikelannahme](../Epic_Artikelannahme/epic.md) Abschnitt 4.
 
+Nach dem Payment-Panel startet **automatisch der Abgabe-Beleg** mit den in dieser Sitzung freigegebenen Artikeln und dem gezahlten Gebührenbetrag — dasselbe Dokument wie nach dem Buchen in der Artikelannahme ([Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md) Abschnitt 1). Zwei Wege zum selben Vorgang dürfen nicht zu zwei verschiedenen Belegsituationen führen.
+
 ---
 
 ## 7. Backend & API
