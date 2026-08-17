@@ -28,12 +28,15 @@ updated: 2026-07-31
 
 Der Countdown zeigt die verbleibende Zeit bis zu einem konfigurierbaren Zieldatum als **Tage + HH:MM:SS** an und aktualisiert sich jede Sekunde. Beim Erreichen des Zieldatums zeigt er `0 Tage 00:00:00`.
 
-Zwei visuelle Varianten für unterschiedliche Verwendungsstellen:
+**Sequence-Mode:** Statt eines einzelnen `targetDate` kann eine geordnete Liste `phases` übergeben werden. Die Komponente zeigt automatisch die nächste noch nicht erreichte Phase; ist eine Phase erreicht, schaltet sie automatisch zur nächsten weiter. So braucht jede Seite nur ihre relevante Phasen-Auswahl zu konfigurieren, die Umschalt-Logik lebt einmalig hier (DRY).
 
-| Variante | Verwendung |
-|---|---|
-| `'kpi'` | Eingebettet in eine KPI-Tile (Home-Seite) |
-| `'info-box'` | Eigenständige Info-Box auf dunklem Hintergrund (Login-Seite) |
+Drei visuelle Varianten für unterschiedliche Verwendungsstellen:
+
+| Variante | Verwendung | Modus |
+|---|---|---|
+| `'kpi'` | Eingebettet in eine KPI-Tile (Home-Seite) | Einzelanzeige, Sequence-Mode |
+| `'info-box'` | Eigenständige Info-Box auf dunklem Hintergrund (Login-Seite) | Einzelanzeige, Sequence-Mode |
+| `'timeline'` | Eigenständige Liste **aller** Phasen gleichzeitig (Countdown-Embed-Widget) | Alle Phasen mit je eigenem Status |
 
 ---
 
@@ -78,11 +81,16 @@ Abgelaufen (targetDate in der Vergangenheit):
 
 | Parameter | Typ | Richtung | Beschreibung |
 |---|---|---|---|
-| `targetDate` | `Date` | `@Input` | Zieldatum und -uhrzeit für den Countdown |
-| `label` | `string` | `@Input` | Beschriftung über dem Countdown (z. B. „BIS ZUM BASAR") |
-| `variant` | `'kpi' \| 'info-box'` | `@Input` | Visuelle Darstellungsvariante (Default: `'kpi'`) |
+| `targetDate` | `Date` | `@Input` | Zieldatum und -uhrzeit für den Countdown (Einzelmodus, ohne Sequence) |
+| `label` | `string` | `@Input` | Beschriftung über dem Countdown (Einzelmodus, z. B. „BIS ZUM BASAR") |
+| `phases` | `{ label: string; targetDate: Date }[]` | `@Input` | Geordnete Phasen-Liste (Sequence-Mode). Wenn gesetzt, überschreibt `targetDate`/`label` |
+| `variant` | `'kpi' \| 'info-box' \| 'timeline'` | `@Input` | Visuelle Darstellungsvariante (Default: `'kpi'`) |
 
 Keine `@Output`-Events — die Komponente ist reine Anzeige.
+
+**Phasen-Auswahl-Logik (Sequence-Mode, `variant` `'kpi'`/`'info-box'`):** die erste Phase aus `phases`, deren `targetDate` noch in der Zukunft liegt, wird angezeigt. Sind alle Phasen erreicht, zeigt die Komponente die letzte Phase im „Abgeschlossen"-Zustand (`0 Tage 00:00:00`, Label bleibt).
+
+**`'timeline'`-Variante:** rendert **alle** Phasen aus `phases` als Liste. Je Phase ein Status: `bevorstehend` (targetDate in Zukunft, eigener Countdown), `abgeschlossen` (targetDate in Vergangenheit und keine nachfolgende Phase überlappt), `läuft` (targetDate in Vergangenheit, aber die direkt nachfolgende Phase in `phases` liegt noch in der Zukunft — z. B. „Abgabe-Start" erreicht, „Abgabe-Ende" noch offen → Countdown zeigt Restzeit bis zur nächsten Phase statt „abgeschlossen").
 
 ---
 
@@ -140,18 +148,22 @@ Singular/Plural: `1 Tag` vs. `X Tage`.
 
 ## 6. Verwendung in Epics
 
-| Epic | App | Variante | Zieldatum |
+Alle 5 Termine kommen aus `GET /api/public/info` (siehe Epic_Countdown_Widget) — einzige Quelle, keine Duplizierung in authentifizierten Endpoints.
+
+| Epic | App | Variante | Phasen (Sequence-Mode) |
 |---|---|---|---|
-| Home — Verkäufer (KPI-Kachel) | Voranmelde | `'kpi'` | `abgabeVon` (Abgabe-Starttermin) |
-| Home — Admin (KPI-Kachel) | Voranmelde | `'kpi'` | `basarDatum` |
-| Login (Info-Box) | Voranmelde | `'info-box'` | `basarDatum` |
+| Home — Verkäufer (KPI-Kachel) | Voranmelde | `'kpi'` | `abgabeVon` → `abgabeBis` |
+| Home — Admin (KPI-Kachel) | Voranmelde | `'kpi'` | `voranmeldeschluss` → `abgabeVon` → `abgabeBis` → `basarVon` → `basarBis` |
+| Login (Info-Box) | Voranmelde | `'info-box'` | `voranmeldeschluss` → `abgabeVon` → `abgabeBis` → `basarVon` → `basarBis` |
+| Countdown-Embed-Widget | Voranmelde | `'timeline'` | alle 5, gleichzeitig |
 
 ---
 
 ## 7. PrimeNG-Basis
 
-Keine PrimeNG-Komponente involviert — reines Template + Timer-Logik.
-Typografie und Layout per CSS.
+**Varianten `'kpi'`/`'info-box'`:** keine PrimeNG-Komponente involviert — reines Template + Timer-Logik, Typografie und Layout per CSS.
+
+**Variante `'timeline'`:** `p-timeline [value]="phases"` — `#opposite` (Phasen-Label), `#marker` (Status-Icon+Farbe: abgeschlossen/läuft/bevorstehend), `#content` (Countdown/Status-Text). Details → [countdown-timeline-page.md](../../requirements/advance-registration/components/countdown-timeline-page.md).
 
 ---
 
@@ -163,6 +175,9 @@ Typografie und Layout per CSS.
 4. **AC-4** — WHERE die Variante `'kpi'` konfiguriert ist, SHALL das System den Countdown als KPI-Kachel mit Tagen und Zeit untereinander rendern.
 5. **AC-5** — WHERE die Variante `'info-box'` konfiguriert ist, SHALL das System den Countdown als Info-Box mit rgba-Hintergrund und Tagen + Zeit nebeneinander rendern.
 6. **AC-6** — THE SYSTEM SHALL Singular und Plural korrekt unterscheiden: `1 Tag` vs. `X Tage`.
+7. **AC-7** — WHERE `phases` gesetzt ist (Sequence-Mode), SHALL das System die erste Phase mit `targetDate` in der Zukunft anzeigen und beim Erreichen automatisch zur nächsten Phase weiterschalten.
+8. **AC-8** — WHERE alle Phasen in `phases` erreicht sind, SHALL das System die letzte Phase im abgeschlossenen Zustand (`0 Tage 00:00:00`) anzeigen.
+9. **AC-9** — WHERE die Variante `'timeline'` konfiguriert ist, SHALL das System alle Phasen aus `phases` gleichzeitig als Liste mit je eigenem Status (bevorstehend/läuft/abgeschlossen) rendern.
 
 ## Tags & Piles
 

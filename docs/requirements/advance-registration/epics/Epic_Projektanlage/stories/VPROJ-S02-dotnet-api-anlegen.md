@@ -27,9 +27,11 @@ GET /health
 → 200 OK
    { "status": "healthy" }
 
-Alle anderen Endpoints (außer /health und /api/auth/*):
+Alle anderen Endpoints (außer /health, /api/auth/* und /api/public/*):
 → 401 Unauthorized wenn kein gültiges Bearer-Token
 ```
+
+`/api/public/*` (z. B. `GET /api/public/info`, siehe Epic_Countdown_Widget) ist bewusst ohne Auth — enthält keine sensiblen Daten.
 
 ## Akzeptanzkriterien
 
@@ -37,6 +39,7 @@ Alle anderen Endpoints (außer /health und /api/auth/*):
 - [ ] **AC-2** — THE SYSTEM SHALL die Verzeichnisstruktur `Features/<FeatureName>/` (Endpoints, DTOs, Services je Feature) als Konvention etablieren.
 - [ ] **AC-3** — THE SYSTEM SHALL CORS konfigurieren: Angular Dev (`http://localhost:4200`) erlaubt; Production-Origin über die Environment-Variable `CORS_ALLOWED_ORIGIN` konfigurierbar.
 - [ ] **AC-4** — THE SYSTEM SHALL einen `GET /health` Endpoint bereitstellen, der ohne Auth `{ "status": "healthy" }` mit HTTP 200 zurückgibt.
+- [ ] **AC-4b** — THE SYSTEM SHALL Endpoints unter `/api/public/*` von der Auth-Pflicht ausnehmen (analog `/health` und `/api/auth/*`).
 - [ ] **AC-5** — THE SYSTEM SHALL `Microsoft.AspNetCore.Authentication.JwtBearer` installieren und in `Program.cs` mit `AddAuthentication().AddJwtBearer()` registrieren; Token-Parameter (Issuer, Audience, Secret) aus Environment-Variablen lesen.
 - [ ] **AC-6** — WHEN die App mit `dotnet run` gestartet wird, THEN SHALL `GET /health` unter `http://localhost:5001/health` mit HTTP 200 antworten.
 - [ ] **AC-7** — THE SYSTEM SHALL alle Secrets (JWT-Secret, DB-Passwort) ausschließlich über Environment-Variablen oder User Secrets lesen — keine Hardcodes.

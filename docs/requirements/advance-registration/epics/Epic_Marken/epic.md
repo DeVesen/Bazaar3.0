@@ -1,7 +1,8 @@
 ---
 id: F-AR-009
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-14
+updated: 2026-08-14
 ---
 
 # Epic: Marken
@@ -12,12 +13,16 @@ updated: 2026-07-31
 - 2. Aktionen — CRUD
 - 3. `original`-Flag — Herkunftskennzeichen
 - 4. Export / Import — Datenschnittstelle
+- 5. Backend & API — Endpoints
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
 **App:** Voranmelde-App
 **Navigation:** Stammdaten → Marken
 **Sichtbar für:** Admin
+
+Component-Details → [`components/marke-popup.md`](../../components/marke-popup.md)
+Entity-Details → [`entities/marke.md`](../../entities/marke.md)
 
 **Ziel:** Admin verwaltet Marken in der Voranmelde-App.
 
@@ -45,9 +50,10 @@ Verwaltung der Marken-Stammdaten. Exportierbar und importierbar für Synchronisi
 
 **„+ Neu"-Button** (Seitentitel) → öffnet Popup mit:
 - „Name"
-- „Original" (Toggle-Switch `p-toggleswitch`)
 
-**„Edit"-Button** pro Zeile → öffnet Popup mit denselben Feldern vorausgefüllt.
+Admin-erstellte Marke ist per Definition kuratiert → `original` wird automatisch auf `true` gesetzt, kein Toggle im Create-Popup.
+
+**„Edit"-Button** pro Zeile → öffnet Popup mit „Name" **und** „Original" (Toggle-Switch `p-toggleswitch`) — ermöglicht Admin, eine von einem Verkäufer angelegte „Neu"-Marke nachträglich zu „Original" zu befördern (oder umgekehrt).
 
 ---
 
@@ -69,11 +75,27 @@ Marken können in der Export-Seite in den JSON-Export eingeschlossen und in die 
 
 ---
 
+## 5. Backend & API
+
+API-Details → [`api/master-data.md`](../../api/master-data.md) (gemeinsam mit Kategorien — endpoint-seitig identisch)
+
+| Endpoint | Auth | Beschreibung |
+|---|---|---|
+| `GET /api/brands` | `authenticated` | Liste aller Marken. `articleCount` nur für die Admin-Rolle enthalten. |
+| `POST /api/brands` | `authenticated` | Legt Marke an. `original` serverseitig aus der Rolle: Admin → `true`, Verkäufer → `false`. `409` bei Duplikat (case-insensitiv nach Trim). |
+| `PUT /api/brands/{id}` | `admin` | Aktualisiert Name und/oder `original`-Flag. Namensänderung wird in alle betroffenen Artikel nachgezogen. |
+| `DELETE /api/brands/{id}` | `admin` | `409` falls noch Artikeln zugewiesen. |
+
+**Auth-Korrektur:** `GET` und `POST` standen hier ursprünglich als „Auth + Admin". Nicht haltbar — der Verkäufer braucht die Liste für AutoComplete und Filter im Artikel-Dialog und legt über den `+`-Modus selbst neue Marken an (Abschnitt 3, Epic_Meine_Artikel Abschnitt 3). `PUT`/`DELETE` bleiben Admin-only.
+
+---
+
 ## Akzeptanzkriterien
 
-1. **AC-1** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit einem Namens-Feld öffnen.
+1. **AC-1** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit einem Namens-Feld öffnen (ohne Original-Toggle) und die Marke mit `original = true` anlegen.
 2. **AC-2** — WHEN eine neue Marke gespeichert wird, THEN SHALL das System sie in der Datenbank anlegen und in der Tabelle anzeigen.
 3. **AC-3** — IF eine Marke gelöscht werden soll, die noch Artikeln zugewiesen ist, THEN SHALL das System eine Fehlermeldung „Marke wird noch verwendet" anzeigen und nicht löschen.
+4. **AC-4** — WHEN Admin im Edit-Popup das „Original"-Flag umschaltet und speichert, THEN SHALL das System den neuen Wert übernehmen und das Badge in der Tabelle entsprechend aktualisieren.
 
 ## Tags & Piles
 

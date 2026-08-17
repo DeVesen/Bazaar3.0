@@ -13,6 +13,7 @@ updated: 2026-07-31
 - Kategorie — Felder
 - Verkäufer-Type — Felder
 - Nummernblock — Felder
+- Einstellungen — Felder
 - Export-Format — JSON-Schema
 - Artikel-Status — Statusmodell
 - Tags & Piles — Ablage
@@ -31,6 +32,7 @@ Legende: ✅ beide Apps | 🏠 nur Haupt-App | ☁️ nur Voranmelde-App
 |---|---|---|---|---|
 | `id` | string (8 Zeichen) | ✅ | ✅ | Alphanumerisch, Groß-/Kleinbuchstaben + Zahlen, unique |
 | `nummer` | int | ✅ | ✅ | Artikelnummer aus dem zugewiesenen Nummernblock; für Barcode/QR |
+| `verkaeuferId` | string (8 Zeichen) | ✅ | ✅ | FK auf Verkäufer. Explizites Feld statt Ableitung über `nummer` → Nummernblock — Ownership-Prüfung, Verkäufer-Filter und Export-Gruppierung brauchen es direkt, und die Ableitung bräche bei Neuvergabe eines Blocks |
 | `bezeichnung` | string | ✅ | ✅ | |
 | `marke` | string | ✅ | ✅ | AutoComplete; Freitext möglich → Popup „als neue Marke speichern?" |
 | `kategorie` | string | ✅ | ✅ | AutoComplete; Freitext möglich → Popup „als neue Kategorie speichern?" |
@@ -60,10 +62,13 @@ Legende: ✅ beide Apps | 🏠 nur Haupt-App | ☁️ nur Voranmelde-App
 | `ort` | string | ✅ | ✅ | |
 | `telefon` | string | ✅ | ✅ | |
 | `email` | string | ✅ | ✅ | In der Voranmelde-App auch Login |
-| `verkaueferType` | string | ✅ | ✅ | Referenz auf Verkäufer-Type |
+| `verkaueferTypeId` | string (8 Zeichen) | ✅ | ✅ | FK auf die `id` des Verkäufer-Types, **nicht** auf die Bezeichnung — die Zuordnung bleibt damit beim Umbenennen eines Typs stabil. (Anders als `marke`/`kategorie` im Artikel: dort ist die Denormalisierung durch das AutoComplete-Create begründet, hier gibt es keinen solchen Grund.) |
+| `istAdmin` | bool | ✅ | ☁️ | Default `false`. Quelle des `role`-Claims im JWT (`true` → `admin`, sonst `seller`); gepflegt über die Checkbox „Admin-Rechte" in Epic_Verkaeufer Panel 05 |
 | `umsatzVerkaufsprovision` | double | ✅ | 🏠 | Wird aus Verkäufer-Type übernommen / überschreibbar |
 | `gebuehrProStueck` | double | ✅ | 🏠 | Wird aus Verkäufer-Type übernommen / überschreibbar |
 | `abgerechnetAm` | DateTime? | — | 🏠 | Wird bei Abrechnung gesetzt |
+| `inviteToken` | string? | — | ☁️ | Einmaliges Token für den Einladungs-Link (Admin legt Verkäufer ohne Passwort an) |
+| `inviteTokenExpiresAt` | DateTime? | — | ☁️ | Ablaufzeitpunkt des Invite-Tokens (7 Tage nach Generierung) |
 
 ---
 
@@ -72,7 +77,8 @@ Legende: ✅ beide Apps | 🏠 nur Haupt-App | ☁️ nur Voranmelde-App
 | Feld | Typ | Pflicht | Apps | Bemerkung |
 |---|---|---|---|---|
 | `id` | string (8 Zeichen) | ✅ | ✅ | |
-| `bezeichnung` | string | ✅ | ✅ | |
+| `bezeichnung` | string | ✅ | ✅ | Unique case-insensitive |
+| `original` | boolean | ✅ | ☁️ | `true` bei Admin-Anlage, `false` bei Verkäufer-AutoComplete-Create (Voranmelde-App-Herkunftskennzeichen) |
 
 ---
 
@@ -81,7 +87,8 @@ Legende: ✅ beide Apps | 🏠 nur Haupt-App | ☁️ nur Voranmelde-App
 | Feld | Typ | Pflicht | Apps | Bemerkung |
 |---|---|---|---|---|
 | `id` | string (8 Zeichen) | ✅ | ✅ | |
-| `bezeichnung` | string | ✅ | ✅ | |
+| `bezeichnung` | string | ✅ | ✅ | Unique case-insensitive |
+| `original` | boolean | ✅ | ☁️ | `true` bei Admin-Anlage, `false` bei Verkäufer-AutoComplete-Create (Voranmelde-App-Herkunftskennzeichen) |
 
 ---
 
@@ -108,6 +115,24 @@ Legende: ✅ beide Apps | 🏠 nur Haupt-App | ☁️ nur Voranmelde-App
 
 ---
 
+## Einstellungen ☁️ (nur Voranmelde-App, Singleton)
+
+| Feld | Typ | Pflicht | Bemerkung |
+|---|---|---|---|
+| `id` | string (fix) | ✅ | Fester Wert, Singleton-Row |
+| `voranmeldeschluss` | DateTime | ✅ | Ende Selbstregistrierungsphase |
+| `abgabeVon` | DateTime | ✅ | Start Abgabe-Zeitraum |
+| `abgabeBis` | DateTime | ✅ | Ende Abgabe-Zeitraum |
+| `basarVon` | DateTime | ✅ | Start Basar |
+| `basarBis` | DateTime | ✅ | Ende Basar |
+| `defaultTypeId` | string (8 Zeichen) | ✅ | FK auf Verkäufer-Type |
+| `infoText` | string | ❌ | Markdown-Freitext |
+| `startNumber` | int | ✅ | Erste Artikelnummer überhaupt |
+| `blockSize` | int | ✅ | Anzahl Nummern pro Nummernblock |
+| `defaultBlockCount` | int | ✅ | Standard-Anzahl Blöcke für neue Verkäufer |
+
+---
+
 ## Export-Format (JSON, Voranmelde → Haupt-App)
 
 ```json
@@ -118,6 +143,7 @@ Legende: ✅ beide Apps | 🏠 nur Haupt-App | ☁️ nur Voranmelde-App
       "id": "Ab3dEf7G",
       "vorname": "Max",
       "nachname": "Mustermann",
+      "anschrift": "Hauptstr. 1",
       "plz": "12345",
       "ort": "Musterstadt",
       "telefon": "0123456789",
@@ -132,15 +158,23 @@ Legende: ✅ beide Apps | 🏠 nur Haupt-App | ☁️ nur Voranmelde-App
           "kategorie": "Jacken",
           "preis": 25.00,
           "groesse": "M",
-          "farbe": "Blau"
+          "farbe": "Blau",
+          "beschreibung": "kaum getragen"
         }
       ]
     }
   ],
-  "brands": [],
-  "categories": []
+  "brands": ["Nike", "Adidas"],
+  "categories": ["Jacken", "Hosen"]
 }
 ```
+
+**Anmerkungen zum Schema:**
+
+- **`verkaueferType` ist hier die Bezeichnung, nicht die Id** — bewusst abweichend vom internen Feld `verkaueferTypeId`. Eine Id aus der Voranmelde-App wäre in der Haupt-App bedeutungslos; diese pflegt eigene Verkäufer-Typen und löst Provision/Gebühr über den **Namen** auf. Der Name ist damit der app-übergreifende Matching-Schlüssel.
+- **`brands`/`categories` sind Arrays von Bezeichnungen**, keine Objekte: `id` ist app-lokal und drüben wertlos, `original` ist ☁️-exklusiv. Die Haupt-App legt fehlende Namen an. Passt zur Denormalisierung im Artikel, der ohnehin nur den Namen trägt.
+- Die Arrays sind **immer vorhanden** — leer, wenn die zugehörige Checkbox im Export-Dialog nicht gesetzt war. So bleibt das Schema stabil.
+- `anschrift` und `beschreibung` sind optional (können fehlen bzw. `null` sein), werden aber übertragen — beide Felder existieren in der Haupt-App, sie beim Transfer zu verlieren hieße, sie am Basar-Tag neu zu erfassen.
 
 ---
 

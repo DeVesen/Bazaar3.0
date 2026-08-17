@@ -1,7 +1,8 @@
 ---
 id: F-AR-003
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-14
+updated: 2026-08-14
 ---
 
 # Epic: Home — Admin-Ansicht
@@ -11,11 +12,14 @@ updated: 2026-07-31
 - 1. KPI-Kacheln — Kennzahlen
 - 2. Aktivitäts-Heatmap — Aktivitätsverlauf
 - 3. Info-Panel — Freitext
+- 4. Backend & API — Endpoint
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
 **App:** Voranmelde-App
 **Navigation:** Mein Bereich → Home
+
+Component-Details → [`components/home-dashboard.md`](../../components/home-dashboard.md)
 **Sichtbar für:** Admins (wenn Role-Toggle auf „Admin" steht)
 
 **Ziel:** Admin sieht auf der Home-Seite eine Übersicht aller Registrierungen und Systemkennzahlen.
@@ -37,7 +41,7 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 
 | Kachel | Inhalt |
 |---|---|
-| **Countdown** | Countdown bis zum Basar (live, Tage + HH:MM:SS). Darunter: Datum des Basars. |
+| **Countdown** | Sequence-Mode-Phasen `voranmeldeschluss` → `abgabeVon` → `abgabeBis` → `basarVon` → `basarBis` (live, Tage + HH:MM:SS) — zeigt automatisch die aktuell relevante Phase. Darunter: Datum der jeweiligen Phase. |
 | **Verkäufer** | Anzahl registrierter Verkäufer |
 | **Artikel gesamt** | Anzahl aller erfassten Artikel |
 | **Kategorien** | Anzahl aktiver Kategorien |
@@ -49,8 +53,29 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 
 → Komponente: [Activity-Heatmap](../../../../components/activity-heatmap/component.md)
 
-Identisch mit der Verkäufer-Ansicht — nur für Admin sichtbar.
-Details → [Epic_Home_Verkaeufer](../Epic_Home_Verkaeufer/epic.md) Abschnitt 2.
+**Nur für Admin sichtbar** (Role-Toggle „Admin"). Zeigt die Aktivität **aller Artikel** (nicht nur eigene). Ownership dieser Section liegt hier (Sichtbarkeits-Epic) — Epic_Home_Verkaeufer verweist nur zurück.
+
+### Inhalt
+
+- Zeigt die letzten **12 Wochen** als Grid (Spalte = Woche, Zeile = Wochentag, 7 × 12 Zellen)
+- **Aktivität** = Anzahl der Ereignisse `erstelltAm` + `updatedAm` aller Artikel an diesem Tag
+- Hover-Tooltip: Datum + Anzahl Aktivitäten
+- Monats-Labels oberhalb des Grids
+- Wochentag-Labels (Mo/Mi/Fr) links
+- Legende (Weniger → Mehr) oben rechts
+
+### Visuelles Design
+
+| Parameter | Wert |
+|---|---|
+| Zellgröße | 12 × 12 px |
+| Zellenabstand | 3 px |
+| Zellenform | abgerundete Ecken (2 px radius) |
+| Farb-Palette | leer: `#ebedf0` · L1: `#9be9a8` · L2: `#40c463` · L3: `#30a14e` · L4: `#216e39` |
+| Legende-Position | oben rechts neben Heatmap-Titel |
+| Legende-Text | „Weniger [Farbscala] Mehr" |
+| Wochentag-Labels | Mo, Mi, Fr (links, linksbündig) |
+| Monats-Labels | über Grid, linksbündig pro erstem Auftreten |
 
 ---
 
@@ -61,11 +86,21 @@ Details → [Epic_Home_Verkaeufer](../Epic_Home_Verkaeufer/epic.md) Abschnitt 3.
 
 ---
 
+## 4. Backend & API
+
+API-Details → [`api/home.md`](../../api/home.md)
+
+| Endpoint | Auth | Beschreibung |
+|---|---|---|
+| `GET /api/home/admin` | `admin` | Gibt `{ sellerCount, articleCount, categoryCount, brandCount, heatmapData }` zurück — **weder Termine noch `infoText`**, beides kommt aus `GET /api/public/info` (DRY, siehe Epic_Countdown_Widget). `heatmapData` exakt im Component-Contract-Format: `{ date: string, count: number }[]` (siehe [Activity-Heatmap](../../../../components/activity-heatmap/component.md)), festes Fenster von 12 Wochen. |
+
+---
+
 ## Akzeptanzkriterien
 
-1. **AC-1** — WHEN ein Admin sich anmeldet, THEN SHALL das System die Admin-Home-Seite mit systemweiten Kennzahlen (Anzahl Verkäufer, Artikel, Nummernblöcke) laden und anzeigen.
-2. **AC-2** — THE SYSTEM SHALL eine Aktivitäts-Heatmap der letzten 12 Wochen mit Registrierungsaktivität anzeigen.
-3. **AC-3** — WHEN eine Kennzahl-Kachel für Verkäufer oder Artikel angeklickt wird, THEN SHALL das System zur entsprechenden Verwaltungsseite navigieren.
+1. **AC-1** — WHEN ein Admin sich anmeldet, THEN SHALL das System die Admin-Home-Seite mit systemweiten Kennzahlen (Anzahl Verkäufer, Artikel, Kategorien, Marken) laden und anzeigen.
+2. **AC-2** — THE SYSTEM SHALL eine Aktivitäts-Heatmap der letzten 12 Wochen mit Artikel-Aktivität anzeigen.
+3. **AC-3** — WHEN eine Kennzahl-Kachel (Verkäufer, Artikel, Kategorien oder Marken) angeklickt wird, THEN SHALL das System zur entsprechenden Verwaltungsseite navigieren. Die Countdown-Kachel ist nicht klickbar.
 
 ## Tags & Piles
 

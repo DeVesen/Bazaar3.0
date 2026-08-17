@@ -104,6 +104,8 @@ erfassen    registrieren   (einmalig)
   - [Profil](advance-registration/epics/Epic_Profil/epic.md)
   - [Einstellungen](advance-registration/epics/Epic_Einstellungen/epic.md)
   - [Export](advance-registration/epics/Epic_Export/epic.md)
+  - **Öffentlich (kein Login)**
+  - [Countdown-Embed-Widget](advance-registration/epics/Epic_Countdown_Widget/epic.md)
 
 ---
 

@@ -8,7 +8,7 @@ depends-on: [VPROJ-S01]
 
 ## Ziel
 
-PrimeNG 20 ist mit dem Teal/Grün-Branding der Voranmelde-App konfiguriert. Globale CSS Custom Properties stellen Farben, Borders und Abstände einheitlich bereit. ngx-translate ist mit DE (Default) und EN initialisiert.
+PrimeNG 22.0.0 ist mit dem Teal/Grün-Branding der Voranmelde-App konfiguriert. Globale CSS Custom Properties stellen Farben, Borders und Abstände einheitlich bereit. ngx-translate ist mit DE (Default) und EN initialisiert.
 
 ## Kontext
 
@@ -43,7 +43,7 @@ Die Voranmelde-App verwendet Teal `#1b3a4b` und Grün `#0e8a5f` als Branding —
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL PrimeNG 20 mit einem konfigurierten Preset in `providePrimeNG()` initialisieren, das die Primärfarbe auf `#0e8a5f` setzt.
+- [ ] **AC-1** — THE SYSTEM SHALL PrimeNG 22.0.0 mit einem konfigurierten Preset in `providePrimeNG()` initialisieren, das die Primärfarbe auf `#0e8a5f` setzt.
 - [ ] **AC-2** — THE SYSTEM SHALL alle sieben CSS Custom Properties in `styles.scss` auf `:root` definieren.
 - [ ] **AC-3** — THE SYSTEM SHALL `provideTranslateService` in `app.config.ts` initialisieren: DE als Standardsprache, EN als Fallback, Loader auf `assets/i18n/`.
 - [ ] **AC-4** — WHEN eine Komponente `translate.instant('key')` aufruft und der Key in `de.json` vorhanden ist, THEN SHALL der deutsche Text zurückgegeben werden.

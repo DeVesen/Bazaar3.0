@@ -1,7 +1,8 @@
 ---
 code: VSHELL
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-14
+updated: 2026-08-14
 ---
 
 # Epic: App Shell — Voranmelde-App
@@ -20,7 +21,7 @@ Grundgerüst der Angular-App: Sidebar-Navigation (rollenabhängig), responsives 
 - Sidebar mit rollenabhängigen Navigationsgruppen + Sidebar-Footer (Avatar, Role-Toggle, Logout)
 - Responsives Layout: Desktop (>1024 px) / Tablet (≤1024 px) / Mobile (≤768 px)
 - Angular Routing Skeleton (Lazy Loading je Feature, AuthGuard, AdminGuard)
-- JWT-Auth-Infrastruktur (AuthService, JWT-Interceptor, RoleService, Role-Toggle)
+- JWT-Auth-Infrastruktur (AuthService, JWT-Interceptor inkl. Token-Refresh, RoleService, Role-Toggle)
 - PrimeNG 20 Theme & globale CSS Custom Properties
 - ngx-translate initialisieren (DE Default, EN Fallback)
 

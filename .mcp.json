@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "browser-inspector": {
+      "command": "npx",
+      "args": [
+        "browser-inspector-mcp"
+      ]
+    },
+    "primeng": {
+      "command": "npx",
+      "args": ["-y", "@primeng/mcp"]
+    },
+    "microsoft-learn": {
+      "url": "https://learn.microsoft.com/api/mcp"
+    }
+  }
+}

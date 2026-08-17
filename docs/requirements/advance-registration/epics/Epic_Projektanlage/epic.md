@@ -1,7 +1,8 @@
 ---
 code: VPROJ
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-14
+updated: 2026-08-14
 ---
 
 # Epic: Projektanlage — Voranmelde-App

@@ -16,7 +16,7 @@ Die Voranmelde-App hat eine Login-Seite (nicht eingeloggte Nutzer). Alle anderen
 
 ## Scope
 
-**In Scope:** `app.routes.ts` mit Lazy-Routes für alle 13 Seiten, `/login` als öffentliche Route, `AuthGuard` für alle nicht-öffentlichen Routen, `AdminGuard` für Admin-Only-Routen, Redirect `/` → `/home`, Wildcard → 404.
+**In Scope:** `app.routes.ts` mit Lazy-Routes für alle 14 Seiten, `/login` und `/registrieren` als öffentliche Routen, `/embed/countdown` als öffentliche Route **ohne AppShell** (kein Sidebar/Topbar, siehe Epic_Countdown_Widget), `AuthGuard` für alle nicht-öffentlichen Routen, `AdminGuard` für Admin-Only-Routen, Redirect `/` → `/home`, Wildcard → 404.
 
 **Out of Scope:** Seiteninhalte, konkrete Guard-Implementierung (folgt in VSHELL-S04), Login-Formular (folgt in Epic_Login).
 
@@ -26,6 +26,8 @@ Die Voranmelde-App hat eine Login-Seite (nicht eingeloggte Nutzer). Alle anderen
 Route-Tabelle:
 /                        → redirect → /home
 /login                   → öffentlich, LoginComponent
+/registrieren            → öffentlich, RegistrierenComponent
+/embed/countdown         → öffentlich, kein AppShell (kein Sidebar/Topbar), EmbedCountdownComponent
 /home                    → AuthGuard, HomeComponent (Verkäufer-/Admin-Ansicht)
 /meine-artikel           → AuthGuard, MeineArtikelComponent
 /profil                  → AuthGuard, ProfilComponent
@@ -53,6 +55,7 @@ AdminGuard: Token vorhanden, aber nicht Admin → redirect /home
 - [ ] **AC-5** — WHEN der Nutzer eine unbekannte Route aufruft, THEN SHALL die `NotFoundComponent` mit dem Text „Seite nicht gefunden" angezeigt werden.
 - [ ] **AC-6** — THE SYSTEM SHALL für jede Route eine Platzhalter-Komponente bereitstellen, die den Seitennamen anzeigt, bis das fachliche Epic implementiert ist.
 - [ ] **AC-7** — WHEN ein eingeloggter Nutzer `/login` aufruft, THEN SHALL Angular zu `/home` weiterleiten (kein erneutes Anzeigen der Login-Seite).
+- [ ] **AC-8** — THE SYSTEM SHALL `/embed/countdown` außerhalb des AppShell-Layouts rendern (kein Sidebar, kein Topbar) — unabhängig vom Login-Status.
 
 ## Abhängigkeiten
 

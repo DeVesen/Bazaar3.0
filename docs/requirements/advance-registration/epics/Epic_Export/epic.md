@@ -1,7 +1,8 @@
 ---
 id: F-AR-013
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-14
+updated: 2026-08-14
 ---
 
 # Epic: Export
@@ -18,6 +19,8 @@ updated: 2026-07-31
 **App:** Voranmelde-App
 **Navigation:** System → Export
 **Sichtbar für:** Admin
+
+Component-Details → [`components/export-panel.md`](../../components/export-panel.md)
 
 **Ziel:** Admin exportiert alle Basar-Daten als JSON-Datei für den Import in die Haupt-App.
 
@@ -46,8 +49,7 @@ Diese werden für die Stammdaten-Synchronisierung mit der Haupt-App verwendet.
 
 ## 2. Technische Umsetzung
 
-Der Export-Button löst direkt einen **Browser-Download** aus — **kein separater Server-Endpunkt**, kein Zwischenscreen.
-Der Export ist rein client-seitig implementiert.
+Der Export-Button ruft `GET /api/export` auf — das Backend generiert die JSON-Datei serverseitig (filtert Verkäufer ohne Artikel, baut die Struktur exakt nach `entities.md`) und liefert sie als Download-Response. Das Frontend triggert nur den Browser-Download aus der Response, kein clientseitiger Aufbau der Datei (vermeidet ungepaginiertes Laden aller Datensätze in den Browser).
 
 **Dateiname-Muster:**
 ```
@@ -58,25 +60,7 @@ basar-export-YYYY-MM-DD.json
 
 ## 3. Export-Format
 
-JSON-ASCII-Datei mit folgender Struktur (vereinfacht):
-
-```json
-{
-  "exportedAt": "2026-06-25",
-  "sellers": [
-    {
-      "id": "ABCD1234",
-      "firstName": "...",
-      "lastName": "...",
-      "provision": 0.1,
-      "gebuehr": 0.5,
-      "items": [...]
-    }
-  ],
-  "brands": [...],
-  "categories": [...]
-}
-```
+JSON-ASCII-Datei — Struktur ist identisch mit dem kanonischen Export-Format in [`entities.md`](../../../entities.md) (dort die verbindliche Quelle, hier nicht dupliziert). Kein `provision`/`gebuehr` pro Verkäufer — nur `verkaueferType` (Referenz), die Haupt-App löst Provision/Gebühr über ihre eigenen Verkäufer-Typen auf (konsistent mit der Q0-Entscheidung aus Epic_Verkaeufer: kein Override in der Voranmelde-App).
 
 ---
 
@@ -87,12 +71,22 @@ Details → [Epic_Einstellungen](../../../bazaar-app/epics/Epic_Einstellungen/ep
 
 ---
 
+## 4b. Backend & API
+
+API-Details → [`api/export.md`](../../api/export.md)
+
+| Endpoint | Auth | Beschreibung |
+|---|---|---|
+| `GET /api/export` | `admin` | Generiert die Export-JSON serverseitig (Schema siehe `entities.md`). Query-Params `includeBrands`, `includeCategories` (beide Default `false`); nicht angefordert → leeres Array statt fehlendem Feld. Antwortet mit `Content-Disposition: attachment; filename="basar-export-YYYY-MM-DD.json"`. |
+
+---
+
 ## Akzeptanzkriterien
 
-1. **AC-1** — WHEN „Exportieren" geklickt wird, THEN SHALL das System eine JSON-Datei generieren, die alle Verkäufer mit mindestens einem Artikel enthält.
+1. **AC-1** — WHEN „Exportieren" geklickt wird, THEN SHALL das System via `GET /api/export` eine JSON-Datei generieren, die alle Verkäufer mit mindestens einem Artikel enthält.
 2. **AC-2** — THE SYSTEM SHALL Verkäufer ohne Artikel nicht in die Export-Datei aufnehmen.
-3. **AC-3** — THE SYSTEM SHALL die Export-Datei im ASCII-JSON-Format erzeugen, das mit der Haupt-App kompatibel ist.
-4. **AC-4** — WHEN die Export-Datei heruntergeladen wird, THEN SHALL das System eine Bestätigungsmeldung mit Anzahl exportierter Verkäufer und Artikel anzeigen.
+3. **AC-3** — THE SYSTEM SHALL die Export-Datei im JSON-Format exakt nach dem in `entities.md` definierten Schema erzeugen (inkl. ISO-8601-`exportedAt`).
+4. **AC-4** — WHEN die Export-Datei heruntergeladen wird, THEN SHALL das System eine Bestätigungsmeldung (Shared `info-area`, Typ `info`) mit Anzahl exportierter Verkäufer und Artikel anzeigen — bleibt stehen, kein Auto-Dismiss.
 
 ## Tags & Piles
 

@@ -1,7 +1,8 @@
 ---
 id: F-AR-002
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-14
+updated: 2026-08-14
 ---
 
 # Epic: Home — Verkäufer-Ansicht
@@ -9,13 +10,16 @@ updated: 2026-07-31
 ## Index
 - Überblick — Konzept
 - 1. KPI-Kacheln — Kennzahlen
-- 2. Aktivitäts-Heatmap — Aktivitätsverlauf
+- 2. Aktivitäts-Heatmap — Verweis (Admin-only)
 - 3. Info-Panel — Freitext
+- 4. Backend & API — Endpoint
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
 **App:** Voranmelde-App
 **Navigation:** Mein Bereich → Home
+
+Component-Details → [`components/home-dashboard.md`](../../components/home-dashboard.md)
 **Sichtbar für:** Alle (Verkäufer + Admins im Verkäufer-Modus)
 
 **Ziel:** Verkäufer sieht auf der Home-Seite eine Übersicht seines Registrierungsstatus.
@@ -37,42 +41,17 @@ Die Home-Seite ist die **Einstiegsseite** nach dem Login. Sie zeigt dem Verkäuf
 
 | Kachel | Inhalt |
 |---|---|
-| **Countdown** | Countdown bis zum Abgabe-Starttermin (Tage / HH:MM:SS, live). Darunter: Datum des Basars. |
+| **Countdown** | Sequence-Mode-Phasen `abgabeVon` → `abgabeBis` (Tage / HH:MM:SS, live) — zeigt automatisch Start oder Restzeit der Abgabe. Darunter: Datum der jeweiligen Phase. |
 | **Meine Artikel** | Anzahl der bisher erfassten Artikel des eingeloggten Verkäufers. |
-| **Meine Konditionen** | Provision (%) und Abgabegebühr pro Stück aus dem Verkäufer-Entity (eigene Felder). |
+| **Meine Konditionen** | Provision (%) und Abgabegebühr pro Stück — read-only, abgeleitet vom zugewiesenen Verkäufer-Typ (kein eigenes Override-Feld in der Voranmelde-App, siehe `entities.md`). |
 | **Abgabegebühr gesamt** | `Artikel-Anzahl × Abgabegebühr/Stück` — zu erwartende Gesamtgebühr. |
 
 ---
 
 ## 2. Aktivitäts-Heatmap
 
-→ Komponente: [Activity-Heatmap](../../../../components/activity-heatmap/component.md)
-
-**Sichtbarkeit: nur für Admins** (wenn Role-Toggle auf „Admin" steht). Verkäufer sehen die Heatmap nicht.
-
-Admins sehen die Aktivität **aller Artikel** (nicht nur eigene).
-
-### Inhalt
-
-- Zeigt die letzten **12 Wochen** als Grid (Spalte = Woche, Zeile = Wochentag, 7 × 12 Zellen)
-- **Aktivität** = Anzahl der Ereignisse `erstelltAm` + `updatedAm` aller Artikel an diesem Tag
-- Hover-Tooltip: Datum + Anzahl Aktivitäten
-- Monats-Labels oberhalb des Grids
-- Wochentag-Labels (Mo/Mi/Fr) links
-- Legende (Weniger → Mehr) oben rechts
-
-### Visuelles Design
-
-| Parameter | Wert |
-|---|---|
-| Zellgröße | 12 × 12 px |
-| Zellenabstand | 3 px |
-| Zellenform | abgerundete Ecken (2 px radius) |
-| Farb-Palette | leer: `#ebedf0` · L1: `#9be9a8` · L2: `#40c463` · L3: `#30a14e` · L4: `#216e39` |
-| Legende-Position | oben rechts neben Heatmap-Titel |
-| Legende-Text | „Weniger [Farbscala] Mehr" |
-| Wochentag-Labels | Mo, Mi, Fr (links, linksbündig) |
-| Monats-Labels | über Grid, linksbündig pro erstem Auftreten |
+**Nur für Admins sichtbar** (Role-Toggle „Admin") — gehört inhaltlich zum Admin-Dashboard, nicht zur Verkäufer-Ansicht.
+Vollständig spezifiziert → [Epic_Home_Admin](../Epic_Home_Admin/epic.md) Abschnitt 2.
 
 ---
 
@@ -87,10 +66,20 @@ Unterhalb der Heatmap: freies **Informations-Panel** mit mehrzeiligem Text.
 
 ---
 
+## 4. Backend & API
+
+API-Details → [`api/home.md`](../../api/home.md)
+
+| Endpoint | Auth | Beschreibung |
+|---|---|---|
+| `GET /api/home/seller` | `authenticated` | Gibt `{ articleCount, typeConditions: { verkaufsprovisionAnteil, abgabegebuehr } }` zurück (Konditionen vom zugewiesenen Verkäufer-Typ, kein Override). **Weder Termine noch `infoText`** — beides kommt aus `GET /api/public/info`, das die Seite für den Countdown ohnehin ruft (DRY, siehe Epic_Countdown_Widget). |
+
+---
+
 ## Akzeptanzkriterien
 
-1. **AC-1** — WHEN ein Verkäufer sich anmeldet, THEN SHALL das System seine Home-Seite mit aktuellen Kennzahlen (Anzahl Artikel, Registrierungsstatus) laden und anzeigen.
-2. **AC-2** — THE SYSTEM SHALL einen Countdown bis zum Basar-Datum anzeigen, sofern dieses in den Einstellungen hinterlegt ist.
+1. **AC-1** — WHEN ein Verkäufer sich anmeldet, THEN SHALL das System seine Home-Seite mit aktuellen Kennzahlen (Anzahl Artikel, eigene Konditionen, Abgabegebühr gesamt) laden und anzeigen.
+2. **AC-2** — THE SYSTEM SHALL einen Countdown im Sequence-Mode über die Phasen Abgabe-Start und Abgabe-Ende anzeigen, sofern diese in den Einstellungen hinterlegt sind.
 3. **AC-3** — WHEN der Verkäufer noch keine Artikel erfasst hat, THEN SHALL das System einen Hinweis „Noch keine Artikel erfasst" und einen Link zu „Meine Artikel" anzeigen.
 
 ## Tags & Piles

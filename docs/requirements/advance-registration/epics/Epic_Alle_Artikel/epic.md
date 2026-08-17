@@ -1,7 +1,8 @@
 ---
 id: F-AR-005
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-14
+updated: 2026-08-14
 ---
 
 # Epic: Alle Artikel (Admin)
@@ -11,6 +12,7 @@ updated: 2026-07-31
 - 1. Filter-Panel — Filteroptionen
 - 2. Tabelle — Artikelliste
 - 3. Readonly Modal — Detailansicht
+- 4. Backend & API — Endpoints
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
@@ -32,13 +34,18 @@ Der Admin sieht die vollständige Artikelliste **aller Verkäufer**. Fremde Arti
 
 ## 1. Filter-Panel
 
+Details → [`components/filter-panel.md`](../../components/filter-panel.md).
+
 | Filter | Vorhanden |
 |---|---|
-| Marke | ✅ |
-| Kategorie | ✅ |
-| Freitext (Nummer, Bezeichnung, Kategorie, Marke, Verkäufer Vor-/Nachname) | ✅ |
+| Verkäufer (`p-autoComplete`, Type-Ahead über Verkäufer-Liste — **nicht** die Seller-Search-Component, die ist Haupt-App-exklusiv für Artikelannahme/Abrechnung gebaut) | ✅ |
+| Marke (`p-select`) | ✅ |
+| Kategorie (`p-select`) | ✅ |
+| Freitext (`p-iconfield`, Nummer, Bezeichnung, Kategorie, Marke, Verkäufer Vor-/Nachname) | ✅ |
 | Verkäufer-Status | ❌ (nur Haupt-App) |
 | Artikelstatus | ❌ (nur Haupt-App) |
+
+Suche auslösen: gleiches Muster wie Epic_Meine_Artikel (Enter oder „Suchen"-Button, kein Live-Filter).
 
 ---
 
@@ -58,6 +65,8 @@ Der Admin sieht die vollständige Artikelliste **aller Verkäufer**. Fremde Arti
 
 ## 3. Readonly Modal (`modal-artikel-view`)
 
+Details → [`components/artikel-readonly-modal.md`](../../components/artikel-readonly-modal.md).
+
 Identische Feldanordnung wie Artikel-Bearbeiten-Modal (Zeilen 1–6 gemäß Feldlayout in [Epic_Meine_Artikel](../Epic_Meine_Artikel/epic.md)).
 
 Zusätzlich oben: **Verkäufer** (Name + Nummer) als schreibgeschütztes Feld.
@@ -66,11 +75,24 @@ Das Modal hat ausschließlich einen **Schließen-Button** — kein Speichern, ke
 
 ---
 
+## 4. Backend & API
+
+API-Details → [`api/articles.md`](../../api/articles.md)
+
+| Endpoint | Auth | Beschreibung |
+|---|---|---|
+| `GET /api/articles` | `admin` | Alle Artikel aller Verkäufer. Query-Params `sellerId`, `brand`, `category`, `search`, `sort`, `page`, `pageSize`. Jedes Item trägt den aufgelösten `verkaeufer` (Id, Nummer, Vor-/Nachname). |
+| `GET /api/articles/{id}` | `admin` | Readonly-Detail für das Modal (inkl. Verkäufer Name + Nummer). |
+
+**Kein `PUT`/`DELETE` auf fremde Artikel** — die Admin-Sicht ist rein lesend. Eigene Artikel bearbeitet auch ein Admin über die `authenticated`-Endpoints aus Epic_Meine_Artikel.
+
+---
+
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN die Alle-Artikel-Seite geöffnet wird, THEN SHALL das System alle Artikel aller Verkäufer paginiert in einer Tabelle anzeigen.
-2. **AC-2** — WHEN ein Verkäufer-Filter gesetzt wird, THEN SHALL das System die Tabelle auf Artikel des ausgewählten Verkäufers einschränken.
-3. **AC-3** — WHEN ein Suchbegriff eingegeben wird, THEN SHALL das System die Tabelle nach Übereinstimmungen in Bezeichnung oder Artikelnummer filtern.
+2. **AC-2** — WHEN im Verkäufer-Filter ein Verkäufer ausgewählt wird, THEN SHALL das System die Tabelle auf Artikel dieses Verkäufers einschränken.
+3. **AC-3** — WHEN ein Suchbegriff eingegeben wird, THEN SHALL das System die Tabelle nach Übereinstimmungen in Artikelnummer, Bezeichnung, Kategorie, Marke oder Verkäufername filtern.
 
 ## Tags & Piles
 
