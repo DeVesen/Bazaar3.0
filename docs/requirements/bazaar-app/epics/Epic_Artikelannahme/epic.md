@@ -1,8 +1,9 @@
 ---
 id: F-BA-001
 code: ANNAHME
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Artikelannahme
@@ -11,13 +12,18 @@ updated: 2026-07-31
 - Überblick — Einstieg
 - 1. Artikelannahme-Such-Ansicht — Verkäufer suchen
 - 2. Verkäufer-Anlage-Wizard — Wizard-Ablauf
-- 3. Artikelnummer-Eindeutigkeit — Eindeutigkeit
-- 4. Visual Specs — Layoutdetails
+- 3. Artikelnummern — Herkunft und Eindeutigkeit
+- 4. Annahmegebühr — Wann sie anfällt, wo sie landet
+- 5. Zwei Wege für vorangemeldete Artikel — Abgrenzung
+- 6. Visual Specs — Layoutdetails
+- 7. Backend & API — Endpoints
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** Tagesgeschäft → Artikelannahme (= Startseite / Home-Redirect)
+**Route:** `/intake`
+**Sichtbar für:** Admin und Kassenpersonal
 
 **Ziel:** Kassenpersonal erfasst Artikel eines Verkäufers und gibt sie für den Verkauf frei.
 
@@ -80,6 +86,10 @@ Vorname/Nachname-Vorbelegung aus der Sucheingabe.
 
 **„Weiter"-Button** → Verkäufer wird sofort in der DB angelegt → Wechsel zu Schritt 2.
 
+Das Sofort-Anlegen ist nötig, weil Schritt 2 eine Verkäufer-ID braucht, um Artikel zuzuordnen; ein Zwischenspeichern im Frontend wäre eine zweite Wahrheit.
+
+**Abbrechen im Wizard** entfernt den gerade angelegten Verkäufer wieder — solange er keine Artikel hat, also genau unter der Bedingung, die [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md) fürs Löschen ohnehin setzt. Das ist die **einzige Ausnahme** von „Löschen ist Admin-Sache": Kassenpersonal muss die eigene Fehleingabe zurücknehmen können, und es gilt nur für den Verkäufer, den dieselbe Sitzung angelegt hat. Ohne diesen Weg bliebe nach jedem Abbruch ein leerer Verkäufer in der Liste und verfälschte `sellerCount` und Statistik.
+
 **Verhältnis zur Artikel-Freigabe:** Beim Buchen in Schritt 2 setzt das System `releasedAt` gleichzeitig mit `acceptedAt` ([`entities/artikel.md`](../../entities/artikel.md)) — hier aufgenommene Artikel sind sofort im Verkauf. Der Freigabe-Scan in [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md) Abschnitt 6 betrifft ausschließlich die **vorangemeldeten** Artikel aus dem JSON-Import, die noch abgegeben werden müssen.
 
 ---
@@ -105,9 +115,9 @@ Vorname/Nachname-Vorbelegung aus der Sucheingabe.
 
 Pflichtfelder mit `*` markiert. **„Übernehmen"-Button** deaktiviert solange Pflichtfelder leer.
 
-**Sonderfall importierter Verkäufer:** Artikelnummer + ENTER → vorhandener Artikel aus Import-Liste wird geladen und Felder vorausgefüllt. Alle Felder bleiben bearbeitbar.
+**Sonderfall importierter Verkäufer:** Artikelnummer + ENTER → vorhandener Artikel aus Import-Liste wird geladen und Felder vorausgefüllt. Alle Felder bleiben bearbeitbar. Abgrenzung zum Freigabe-Scan → Abschnitt 5.
 
-**Sonderfall neue Nummer:** Artikelnummer wird auf **systemweite Eindeutigkeit** geprüft.
+**Sonderfall neue Nummer:** Artikelnummer wird auf **systemweite Eindeutigkeit** geprüft (Abschnitt 3).
 
 Nach Pflichtfelder-Ausfüllung: Klick **„Übernehmen"** → Artikel erscheint in der Übersicht rechts; Felder leeren sich; Fokus zurück auf Artikelnummer.
 
@@ -118,27 +128,59 @@ Nach Pflichtfelder-Ausfüllung: Klick **„Übernehmen"** → Artikel erscheint 
    - Löschen-Button pro Eintrag (keine DB-Auswirkung — Artikel noch nicht gespeichert)
    - Artikel sind noch **nicht in der DB** gespeichert
 
-2. **Gebühr** — `Anzahl Artikel × Verkäufer.feePerItem` (eigenes Feld des Verkäufers)
+2. **Gebühr** — `Anzahl Artikel × Verkäufer.feePerItem` (eigenes Feld des Verkäufers, siehe Abschnitt 4)
 
 3. **Speichern-Button** (volle Breite, `p-button severity="success"`) → Popup erscheint:
    → Komponente: [Payment-Panel](../../../../components/payment-panel/component.md) — `totalLabel="Gesamtgebühr"` · `confirmLabel="Buchen"`
    - **Gesamtgebühr**
    - Eingabefeld: „Betrag erhalten (€)" — Dezimalzahl, InputGroup mit €-Addon
    - Anzeige: **Rückgeld** (live berechnet)
-   - Klick **„Buchen"**:
-     - Alle Artikel aus der Liste werden in der DB gespeichert / aktualisiert
-     - Jeder Artikel bekommt `releasedAt = jetzt` → sofort im Verkauf
-     - **Druckdialog** startet automatisch (Artikelannahme-Liste mit QR-Code)
+   - Klick **„Buchen"** löst **einen** Request aus (`POST /api/intake`, Abschnitt 7), der in einer Transaktion:
+     - alle Artikel aus der Liste anlegt bzw. aktualisiert
+     - an jedem `acceptedAt` und `releasedAt = jetzt` setzt → sofort im Verkauf
+     - die Annahmegebühr auf `intakeFeePaid` des Verkäufers addiert (Abschnitt 4)
+   - Erst **nach** der Antwort startet der **Druckdialog** automatisch (Artikelannahme-Liste mit QR-Code)
 
 ---
 
-## 3. Artikelnummer-Eindeutigkeit
+## 3. Artikelnummern — Herkunft und Eindeutigkeit
 
-Die Artikelnummer wird systemweit auf Eindeutigkeit geprüft. Keine zwei Artikel (unabhängig von Verkäufer oder App) dürfen dieselbe Nummer haben.
+**Diese App vergibt keine Nummern, sie prüft sie.** Die Nummer steht auf dem Etikett, das der Verkäufer mitbringt; Kassenpersonal tippt oder scannt sie. Systemweite Eindeutigkeit: Keine zwei Artikel dürfen dieselbe Nummer haben, unabhängig von Verkäufer und Herkunft.
+
+**Für Verkäufer ohne Voranmeldung** schlägt das System die **nächste freie Nummer oberhalb des höchsten vergebenen Werts** im Feld vor — überschreibbar. So läuft ein Laufkunde nicht in einen Nummernbereich hinein, der einem vorangemeldeten Verkäufer gehört.
+
+Ein Nummernblock-System wie in der Voranmelde-App gibt es hier bewusst **nicht**: Blöcke lösen ein Problem der Voranmeldephase, in der jeder Verkäufer zuhause erfasst und dafür einen eigenen Bereich braucht. Am Annahmetisch vergibt eine Person die Nummern und sieht ein Duplikat sofort.
 
 ---
 
-## 4. Visual Specs
+## 4. Annahmegebühr
+
+Die Gebühr entsteht **pro abgegebenem Artikel** — `feePerItem` ist genau so definiert ([`entities/verkaeufer-typ.md`](../../entities/verkaeufer-typ.md)). Abgegeben wird im Moment der **Freigabe**, nicht beim Tippen.
+
+Daraus folgt: Das Payment-Panel gehört an den Abschluss **beider** Wege — an das Buchen hier **und** an den Freigabe-Scan in [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md) Abschnitt 6, dort über die Anzahl der in dieser Sitzung freigegebenen Artikel. Ohne das wäre ein vorangemeldeter Verkäufer mit 40 Artikeln gebührenfrei, während der Laufkunde mit 12 Artikeln zahlt.
+
+**Was gespeichert wird:** Der berechnete Gebührenbetrag wird auf `intakeFeePaid` am Verkäufer addiert (Feld → [`entities/verkaeufer.md`](../../entities/verkaeufer.md)). „Betrag erhalten" und „Rückgeld" bleiben reine Rechenhilfe für den Moment am Tisch und werden **nicht** gespeichert.
+
+Grund für das Feld: Ohne es lässt sich am Abend nicht sagen, wie viel Gebühren-Bargeld in der Schublade liegen müsste. [Epic_Statistik](../Epic_Statistik/epic.md) weist daraus „Verdienst Gebühren" als **tatsächlich eingenommene Summe** aus, nicht als Hochrechnung.
+
+**Die Gebühr geht nicht von der Auszahlung ab** — sie ist am Annahmetisch bereits bezahlt. Das Abrechnen-Popup in [Epic_Abrechnung](../Epic_Abrechnung/epic.md) zieht darum nur die Provision ab.
+
+---
+
+## 5. Zwei Wege für vorangemeldete Artikel
+
+Vorangemeldete Artikel (`releasedAt` leer) können auf zwei Wegen freigegeben werden. Beide bleiben, mit klarer Rollenteilung:
+
+| Weg | Wofür |
+|---|---|
+| **Freigabe-Scan** ([Epic_Verkaeufer](../Epic_Verkaeufer/epic.md) Abschnitt 6) | Der **Massenweg**: Kiste auf den Tisch, alles durchscannen, nichts ändern |
+| **Artikelannahme** (dieses Epic, Sonderfall importierter Verkäufer) | Der **Einzelweg mit Korrektur**: wenn an einem vorangemeldeten Artikel noch etwas geändert werden muss — Preis heruntergesetzt, Kategorie falsch |
+
+Ohne diese Abgrenzung erfinden zwei Teams zwei Verfahren für denselben Vorgang.
+
+---
+
+## 6. Visual Specs
 
 **Such-Ansicht:** InputGroup in Standard-Card, max-width 500 px.
 
@@ -151,6 +193,21 @@ Die Artikelnummer wird systemweit auf Eindeutigkeit geprüft. Keine zwei Artikel
 [ Preis                        ][ € ]
 ```
 
+---
+
+## 7. Backend & API
+
+| Endpoint | Auth | Beschreibung |
+|---|---|---|
+| `GET /api/sellers?q=` | `authenticated` | Verkäufer-Suche über ID, Vor- und Nachname (Abschnitt 1) |
+| `POST /api/sellers` | `authenticated` | Verkäufer aus Wizard-Schritt 1; `sellerTypeId` Pflicht |
+| `DELETE /api/sellers/{id}` | `authenticated`, eingeschränkt | Abbrechen im Wizard — nur für einen Verkäufer ohne Artikel |
+| `GET /api/articles/number-available/{number}` | `authenticated` | Prüft die Nummer auf systemweite Eindeutigkeit |
+| `GET /api/articles/next-number` | `authenticated` | Nächste freie Nummer über dem höchsten vergebenen Wert (Vorschlag für Laufkunden) |
+| `POST /api/intake` | `authenticated` | **Ein atomarer Vorgang:** Verkäufer-ID + komplette Artikelliste + Gebührenbetrag |
+
+**`POST /api/intake` läuft in einer Transaktion.** Entweder alle Artikel sind gebucht, alle Zeitstempel gesetzt und `intakeFeePaid` erhöht — oder nichts davon. Kein Endpoint pro Artikel: Bricht eine Schleife aus N Einzel-Requests in der Mitte ab, sind drei Artikel gebucht und vier nicht, während der Verkäufer bereits bezahlt hat und geht.
+
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN das Suchfeld leer ist, THEN SHALL das System alle Verkäufer in der Trefferliste anzeigen.
@@ -159,7 +216,11 @@ Die Artikelnummer wird systemweit auf Eindeutigkeit geprüft. Keine zwei Artikel
 4. **AC-4** — WHEN „Weiter" geklickt wird und alle Pflichtfelder (Vorname, Nachname) ausgefüllt sind, THEN SHALL das System den neuen Verkäufer anlegen und Wizard-Schritt 2 öffnen.
 5. **AC-5** — WHILE mindestens ein Pflichtfeld (Artikelnummer, Bezeichnung, Kategorie, Marke, Preis) leer ist, SHALL das System den „Übernehmen"-Button deaktiviert halten.
 6. **AC-6** — IF eine Artikelnummer eingegeben wird, die bereits einem vorhandenen Artikel zugewiesen ist, THEN SHALL das System die Fehlermeldung „Artikelnummer bereits vergeben" anzeigen und „Übernehmen" deaktivieren.
-7. **AC-7** — WHEN „Buchen" geklickt wird, THEN SHALL das System alle Sitzungs-Artikel mit `releasedAt = jetzt` speichern (damit gelten sie als „Im Verkauf") und den Druckdialog starten.
+7. **AC-7** — WHEN „Buchen" geklickt wird, THEN SHALL das System alle Sitzungs-Artikel in **einem** Request mit `acceptedAt` und `releasedAt = jetzt` speichern und erst nach erfolgreicher Antwort den Druckdialog starten.
+8. **AC-8** — IF das Buchen fehlschlägt, THEN SHALL das System **keinen** Artikel gespeichert haben, `intakeFeePaid` unverändert lassen, keinen Druck starten und die Sitzungsliste unverändert erhalten, sodass erneut gebucht werden kann.
+9. **AC-9** — WHEN gebucht wird, THEN SHALL das System die berechnete Annahmegebühr auf `intakeFeePaid` des Verkäufers addieren; „Betrag erhalten" und „Rückgeld" SHALL nicht gespeichert werden.
+10. **AC-10** — WHEN ein Verkäufer ohne Voranmeldung angelegt wurde und das Artikelnummer-Feld leer ist, THEN SHALL das System die nächste freie Nummer über dem höchsten vergebenen Wert vorschlagen, ohne die Eingabe zu erzwingen.
+11. **AC-11** — WHEN der Wizard nach Schritt 1 abgebrochen wird und der gerade angelegte Verkäufer keine Artikel hat, THEN SHALL das System diesen Verkäufer wieder entfernen — auch mit der Rolle Kassenpersonal.
 
 ## Stories
 

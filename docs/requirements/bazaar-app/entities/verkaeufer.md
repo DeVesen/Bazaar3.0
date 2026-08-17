@@ -23,11 +23,18 @@ Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) 
 | `email` | string | ✅ | Kontakt. **Kein Login** — die Haupt-App hat keine Verkäufer-Anmeldung |
 | `sellerTypeId` | string (8 Zeichen) | ✅ | ID-Referenz auf den Verkäufer-Typ. Dient nur als Vorlage, siehe unten |
 | `salesCommission` | decimal | ✅ | Verkaufsprovision in Prozent, die der Basar einbehält |
-| `feePerItem` | decimal | ✅ | Gebühr pro abgegebenem Artikel |
+| `feePerItem` | decimal | ✅ | Gebühr pro abgegebenem Artikel — der **Satz**, mit dem am Tisch gerechnet wird |
+| `intakeFeePaid` | decimal | ✅ | Default `0`. Summe der tatsächlich kassierten Annahmegebühren; wird bei jedem Annahme- und Freigabevorgang erhöht ([Epic_Artikelannahme](../epics/Epic_Artikelannahme/epic.md) Abschnitt 4) |
 | `settledAt` | DateTime? | — | Zeitpunkt der Abrechnung; `null` = noch offen |
 
 **Nicht in dieser App** (nur Voranmelde-App): `isAdmin`, `passwordHash`,
 `inviteToken`/`inviteTokenExpiresAt`, Refresh-Tokens, Nummernblöcke.
+
+`intakeFeePaid` ist der **gezahlte Betrag**, `feePerItem` der **Satz** — beide sind nötig:
+Der Satz kann sich ändern oder pro Verkäufer abweichen, der gezahlte Betrag ist das, was
+in der Geldschublade liegt. Ohne das Feld wäre am Abend nicht feststellbar, wie viel
+Gebühren-Bargeld eingenommen wurde. Der Betrag geht **nicht** von der Auszahlung ab — er
+ist am Annahmetisch schon bezahlt.
 
 **Pflichtfelder sind hier schmaler als in der Voranmelde-App:** Pflicht sind nur
 `firstName`, `lastName`, `email` und `sellerTypeId`. Adresse, PLZ, Ort und Telefon

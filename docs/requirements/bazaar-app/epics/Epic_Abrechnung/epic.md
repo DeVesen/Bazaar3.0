@@ -112,6 +112,8 @@ Auszahlung an Verkäufer                                  XX,XX €
 
 > Maßgeblich ist `Verkäufer.salesCommission` — das eigene Feld der Verkäufer-Entität, nicht der aktuell zugewiesene Wert des Typs (`commissionRate`).
 
+**Die Annahmegebühr geht hier nicht ab.** Sie wurde bereits am Annahmetisch in Bargeld bezahlt und steht als `intakeFeePaid` am Verkäufer ([Epic_Artikelannahme](../Epic_Artikelannahme/epic.md) Abschnitt 4). Sie in dieser Aufstellung abzuziehen würde bedeuten, dass der Verkäufer sie zweimal zahlt — einmal in bar bei der Abgabe und einmal als Abzug von der Auszahlung. Deshalb hat das Popup genau drei Zeilen.
+
 **Zeilen-Stil:** flex space-between, padding 7 px 0, 15 px, border-bottom 1 px `#f2f4f6`.
 **Total-Zeile:** border-top 2 px, kein border-bottom, mt 8 px, pt 10 px; Betrag in success-Farbe, 18 px, 700.
 Provisions-Zeile: Betrag in danger-Farbe.
@@ -130,7 +132,7 @@ Details → [Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md)
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN die Abrechnung-Seite geöffnet wird, THEN SHALL das System die Verkäufer-Auswahl anzeigen und keinen Verkäufer vorselektieren.
-2. **AC-2** — WHEN ein Verkäufer ausgewählt wird, THEN SHALL das System seine Kennzahlen (Warenwert, Provision, Gebühr, Auszahlung) und seine Artikelliste laden und anzeigen.
+2. **AC-2** — WHEN ein Verkäufer ausgewählt wird, THEN SHALL das System seine Abrechnungsposten (Umsatz, Provision, Auszahlung) und seine Artikelliste laden und anzeigen; die bereits kassierte Annahmegebühr SHALL **nicht** als Abzugsposten erscheinen.
 3. **AC-3** — WHILE ein Verkäufer noch Artikel im Verkauf hat (`releasedAt` gesetzt, `soldAt` und `returnedAt` leer), SHALL das System den „Abrechnen"-Button deaktiviert halten.
 4. **AC-4** — WHEN „Abrechnen" geklickt wird, THEN SHALL das System `settledAt = jetzt` am Verkäufer setzen; die verkauften Artikel (`soldAt` gesetzt) bleiben unverändert — „abgerechnet" ist ein Verkäufer-Zustand, kein Artikel-Zustand.
 5. **AC-5** — WHEN „Zurückgeben" geklickt wird, THEN SHALL das System bei allen noch im Verkauf befindlichen Artikeln des Verkäufers (`releasedAt` gesetzt, `soldAt` leer) `returnedAt = jetzt` setzen.

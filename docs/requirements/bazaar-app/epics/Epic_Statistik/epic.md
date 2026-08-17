@@ -69,11 +69,15 @@ Die Statistik-Seite bietet eine aktuelle Übersicht des Basar-Stands (Berechnung
 |---|---|---|
 | 1 | Einnahmen Brutto | Summe der Verkaufspreise aller verkauften Artikel |
 | 2 | Verdienst Provision | Anteil des Veranstalters aus `salesCommission` **des Verkäufers** |
-| 3 | Verdienst Gebühren | `feePerItem` des Verkäufers × Anzahl seiner verkauften Artikel |
+| 3 | Verdienst Gebühren | Summe von `intakeFeePaid` über alle Verkäufer — die **tatsächlich kassierten** Annahmegebühren |
 | 4 | Verdienst Gesamt | Provision + Gebühren |
 | 5 | Auszahlung VK | Einnahmen Brutto − Verdienst Gesamt |
 
-**Nicht der Verkäufer-Typ ist maßgeblich, sondern die eigenen Felder des Verkäufers** (`salesCommission`, `feePerItem`). Der Typ hat sie nur belegt und kann sich seither geändert haben — [`spec.md`](../../spec.md) Abschnitt 9.7 und [Epic_Verkaeufer_Typen](../Epic_Verkaeufer_Typen/epic.md) AC-7.
+**Nicht der Verkäufer-Typ ist maßgeblich, sondern die eigenen Felder des Verkäufers** (`salesCommission`). Der Typ hat sie nur belegt und kann sich seither geändert haben — [`spec.md`](../../spec.md) Abschnitt 9.7 und [Epic_Verkaeufer_Typen](../Epic_Verkaeufer_Typen/epic.md) AC-7.
+
+**Gebühren werden nicht hochgerechnet, sondern abgelesen.** Die Annahmegebühr entsteht pro **abgegebenem** Artikel und wird am Annahmetisch in Bargeld kassiert; der Betrag steht als `intakeFeePaid` am Verkäufer ([Epic_Artikelannahme](../Epic_Artikelannahme/epic.md) Abschnitt 4). Eine Formel über verkaufte Artikel wäre doppelt falsch: Artikel, die abgegeben aber nicht verkauft wurden, haben Gebühr gebracht und würden fehlen — und die Zahl wäre eine Schätzung, obwohl der echte Betrag gespeichert ist.
+
+Diese Summe ist zugleich die Zahl, die das Gebühren-Bargeld in der Schublade erklären muss.
 
 **Manuelle Verkäufe getrennt ausweisen:** Artikel mit `soldManually = true` sind über das Artikelstatus-Popup verkauft worden, ohne Kassenvorgang ([Epic_Artikel](../Epic_Artikel/epic.md) Abschnitt 3). Sie zählen in allen Kennzahlen mit, werden aber zusätzlich als eigene Summe „davon manuell" unter „Einnahmen Brutto" gezeigt — das ist die Zahl, die bei der Kassenabstimmung am Abend fehlt und sonst nicht auffindbar wäre.
 

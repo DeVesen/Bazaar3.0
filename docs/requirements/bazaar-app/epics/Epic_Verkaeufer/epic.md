@@ -232,6 +232,12 @@ Nach Ablauf der Anzeigezeit → Kamerabild wieder aktiv.
 
 **Feedback:** Ton (Web Audio API) + Vibration (`Navigator.vibrate()`).
 
+### Abschluss mit Annahmegebühr
+
+Beim Verlassen des Dialogs erscheint — sofern in dieser Sitzung mindestens ein Artikel freigegeben wurde — dasselbe **Payment-Panel** wie beim Buchen in der Artikelannahme, berechnet über `Anzahl der freigegebenen Artikel × feePerItem`. Der Betrag wird auf `intakeFeePaid` des Verkäufers addiert.
+
+Grund: `feePerItem` ist eine Gebühr **pro abgegebenem** Artikel, und abgegeben wird beim Freigeben. Ohne diesen Abschluss wäre ein vorangemeldeter Verkäufer mit 40 Artikeln gebührenfrei, während der Laufkunde mit 12 Artikeln zahlt. Regel und Begründung → [Epic_Artikelannahme](../Epic_Artikelannahme/epic.md) Abschnitt 4.
+
 ---
 
 ## 7. Backend & API
@@ -246,6 +252,7 @@ Die Karten-Aggregate kommen über einen **eigenen Query-Port** ([`spec.md`](../.
 | `DELETE /api/sellers/{id}` | `admin` | `409` falls der Verkäufer noch Artikel hat |
 | `GET /api/sellers/{id}/articles` | `authenticated` | Artikelliste für das Detail-Modal (Abschnitt 5) |
 | `PUT /api/articles/{id}/release` | `authenticated` | Setzt `releasedAt` (Scan-Dialog, Abschnitt 6) |
+| `POST /api/sellers/{id}/intake-fee` | `authenticated` | Addiert die Annahmegebühr der Freigabe-Sitzung auf `intakeFeePaid` |
 | `DELETE /api/sellers/{id}/settlement` | `admin` | Setzt `settledAt` zurück |
 
 Kein `IQueryable` über die Portgrenze, ein Repository pro Aggregate — die Aggregat-Abfrage ist ein Query-Port, kein erweitertes Repository.

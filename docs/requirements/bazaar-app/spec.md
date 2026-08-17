@@ -107,7 +107,7 @@ Verbindlich für alle Epics. Ein Epic, das davon abweichen will, ändert diese T
 | Abrechnung | ✅ | ✅ |
 | Drucken (Aktion in Artikelannahme und Abrechnung, keine eigene Seite) | ✅ | ✅ |
 | Artikel (Übersicht) | ✅ | ✅ lesen und bearbeiten, kein Löschen, kein Status-Popup |
-| Verkäufer | ✅ | ✅ anlegen und bearbeiten, kein Löschen |
+| Verkäufer | ✅ | ✅ anlegen und bearbeiten, kein Löschen — Ausnahme: ein im Annahme-Wizard gerade selbst angelegter Verkäufer ohne Artikel darf beim Abbrechen entfernt werden |
 | Verkäufer-Konditionen überschreiben (`salesCommission`, `feePerItem`) | ✅ | ❌ — sieht die aus dem Typ abgeleiteten Werte schreibgeschützt |
 | Marken / Kategorien / Verkäufer-Typen | ✅ | ✅ lesen; Marken und Kategorien zusätzlich implizit über AutoComplete anlegen (Abschnitt 9.3) |
 | Statistik | ✅ | ✅ lesen |
