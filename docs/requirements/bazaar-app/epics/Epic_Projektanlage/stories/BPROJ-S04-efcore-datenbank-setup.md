@@ -39,7 +39,7 @@ Migrations werden **bei jedem Start** angewendet, nicht nur in Development. Der 
 | Story-ID | Grund |
 |---|---|
 | BPROJ-S02 | .NET-Projekt muss existieren, bevor EF Core eingerichtet werden kann |
-| BPROJ-S03 | PostgreSQL-Container muss laufen, damit die Migration angewendet werden kann |
+| BPROJ-S03 | Der `db`-Container muss laufen und auf `localhost:5432` erreichbar sein — `dotnet ef` läuft vom Host |
 
 ## Tags & Piles
 
