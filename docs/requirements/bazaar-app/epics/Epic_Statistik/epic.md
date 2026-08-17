@@ -1,7 +1,8 @@
 ---
 id: F-BA-004
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Statistik
@@ -14,15 +15,18 @@ updated: 2026-07-31
 - 4. Metergroup — Segmentbalken
 - 5. Verkäufer-Leaderboard — Rangliste
 - 6. Abschnitts-Labels — Beschriftungen
+- 7. Backend & API — Query-Port
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** System → Statistik
+**Route:** `/statistics`
+**Sichtbar für:** Admin und Kassenpersonal (lesend)
 
-**Ziel:** Admin sieht eine aktuelle Übersicht der Basar-Kennzahlen ohne Caching.
+**Ziel:** Admin und Kassenpersonal sehen eine aktuelle Übersicht der Basar-Kennzahlen ohne Caching.
 
-**User Story:** Als Admin möchte ich bei jedem Seitenaufruf aktuelle Kennzahlen sehen, damit ich den Veranstaltungsfortschritt jederzeit beurteilen kann.
+**User Story:** Als Mitglied des Basar-Teams möchte ich bei jedem Seitenaufruf aktuelle Kennzahlen sehen, damit ich den Veranstaltungsfortschritt jederzeit beurteilen kann.
 
 ---
 
@@ -30,7 +34,11 @@ updated: 2026-07-31
 
 Die Statistik-Seite bietet eine aktuelle Übersicht des Basar-Stands (Berechnung bei jedem Seitenaufruf, kein Caching). Sie ist schreibgeschützt und rein informativ.
 
-**Technisch:** Alle Berechnungen erfolgen **clientseitig** auf Basis des aktuellen Anwendungszustands. Kein separater Backend-Endpunkt. Die Seite wird bei jedem Aufruf neu berechnet (kein Caching).
+Die Seite ist für **beide Rollen** erreichbar (Rechte-Matrix → [`spec.md`](../../spec.md) Abschnitt 4.1). Es gibt nichts zu schützen: keine Aktion, keine Eingabe. „Wie viele Artikel sind noch im Verkauf?" ist am Basar-Tag eine Frage des Kassenteams, nicht nur des Betreibers.
+
+**Technisch:** Alle Kennzahlen kommen **serverseitig** aus einem Query-Port als fertiges Read-Model (Abschnitt 7). Keine Berechnung im Browser: Clientseitig müsste die Seite alle Artikel und alle Verkäufer laden, um 14 Kennzahlen zu bilden — bei 2 000 Artikeln auf einem Tablet die langsamste Seite der App. Außerdem existieren dieselben Summen serverseitig bereits für Verkäufer-Karten und Abrechnung; sie im Frontend erneut zu bilden wäre eine zweite Wahrheit.
+
+„Kein Caching" bleibt und ist eine Aussage über **Frische**, nicht über den Ort: Jeder Seitenaufruf löst eine neue Abfrage aus.
 
 ---
 
@@ -45,7 +53,7 @@ Die Statistik-Seite bietet eine aktuelle Übersicht des Basar-Stands (Berechnung
 | 3 | Im Verkauf | Artikel im Verkauf: `releasedAt` gesetzt, `soldAt` und `returnedAt` leer |
 | 4 | Verkauft | Artikel mit `soldAt` gesetzt |
 | 5 | Retour | Zurückgegebene Artikel — `returnedAt` gesetzt |
-| 6 | Verkaufsquote | Verkauft / Angenommen × 100 % |
+| 6 | Verkaufsquote | `Verkauft / Angenommen × 100` — ist noch kein Artikel angenommen, zeigt die Kachel „–" |
 
 ---
 
@@ -61,9 +69,9 @@ Die Statistik-Seite bietet eine aktuelle Übersicht des Basar-Stands (Berechnung
 
 ---
 
-## 3. KPI-Zeile 3 — FINANZ-KENNZAHLEN (5 Kacheln, Grid `c5`)
+## 3. KPI-Zeile 3 — FINANZ-KENNZAHLEN (6 Kacheln, Grid `c6`)
 
-→ Komponente: [KPI-Tile](../../../../components/kpi-tile/component.md) im Grid `c5`
+→ Komponente: [KPI-Tile](../../../../components/kpi-tile/component.md) im Grid `c6`
 
 | # | Kennzahl | Beschreibung |
 |---|---|---|
@@ -84,7 +92,9 @@ Diese Summe ist zugleich die Zahl, die das Gebühren-Bargeld in der Schublade er
 
 Damit hat diese Seite drei **gespeicherte** Geldanker statt lauter Hochrechnungen: `intakeFeePaid` (rein), die Preise verkaufter Artikel (rein) und `payoutAmount` (raus).
 
-**Manuelle Verkäufe getrennt ausweisen:** Artikel mit `soldManually = true` sind über das Artikelstatus-Popup verkauft worden, ohne Kassenvorgang ([Epic_Artikel](../Epic_Artikel/epic.md) Abschnitt 3). Sie zählen in allen Kennzahlen mit, werden aber zusätzlich als eigene Summe „davon manuell" unter „Einnahmen Brutto" gezeigt — das ist die Zahl, die bei der Kassenabstimmung am Abend fehlt und sonst nicht auffindbar wäre.
+**Manuelle Verkäufe getrennt ausweisen:** Artikel mit `soldManually = true` sind über das Artikelstatus-Popup verkauft worden, ohne Kassenvorgang ([Epic_Artikel](../Epic_Artikel/epic.md) Abschnitt 3). Sie zählen in allen Kennzahlen mit und erscheinen zusätzlich als **Unterzeile „davon manuell" innerhalb der Kachel „Einnahmen Brutto"** — kleiner und gedämpft, und nur wenn der Wert größer als null ist.
+
+Keine eigene Kachel: Es ist keine gleichrangige Kennzahl, sondern eine Einschränkung zu genau einer — und an den meisten Basar-Tagen ist der Wert null und soll dann keinen Platz belegen. Es ist aber die Zahl, die bei der Kassenabstimmung am Abend fehlt und sonst nicht auffindbar wäre.
 
 ---
 
@@ -115,9 +125,11 @@ Standard-Card. Header-Zeile:
 | Angenommen | Anzahl angenommener Artikel |
 | Verkauft | Anzahl verkaufter Artikel |
 | Umsatz | Verkaufserlös |
-| Auszahlung | Auszahlungsbetrag an Verkäufer |
+| Auszahlung | **Erwartete** Auszahlung (Umsatz − gerundete Provision), plus ✓-Symbol wenn der Verkäufer abgerechnet ist |
 
 **Alle Spalten sortierbar** (Multi-Sort per Shift+Klick).
+
+Die Spalte zeigt bewusst **immer** die erwartete Auszahlung, auch bei abgerechneten Verkäufern: Eine Spalte, die je Zeile etwas anderes bedeutet, ist in einer sortierbaren Tabelle unbrauchbar. Für abgerechnete Verkäufer sind beide Werte ohnehin gleich, weil nach dem Abrechnen nichts mehr änderbar ist ([Epic_Artikel](../Epic_Artikel/epic.md) Abschnitt 4). Die Unterscheidung erwartet gegen geleistet interessiert nur in der Summe — und die steht in Zeile 3.
 **Maximale Höhe: 300 px** — bei mehr Einträgen vertikales Scrollen.
 
 Tabellen-Wrapper: `max-height: 300px; overflow-y: auto`.
@@ -134,13 +146,28 @@ Tabellen-Wrapper: `max-height: 300px; overflow-y: auto`.
 
 Stil: 12 px, 700, uppercase, 0.8 px letter-spacing, `#4a6080`, mb 8 px, mt 6 px (bei Folgezeilen).
 
+---
+
+## 7. Backend & API
+
+| Endpoint | Auth | Beschreibung |
+|---|---|---|
+| `GET /api/statistics` | `authenticated` | Read-Model für die ganze Seite: alle KPI-Zeilen, Metergroup-Segmente und das Leaderboard |
+
+Ein **Query-Port** ([`spec.md`](../../spec.md) Abschnitt 7.0.1 nennt Statistik dafür ausdrücklich), keine Erweiterung eines Repositories und kein `IQueryable` über die Portgrenze. Eine Abfrage pro Seitenaufruf — die Kennzahlen sind ein Read-Model, kein Aggregat-Zustand.
+
+Der optionale Typ-Filter des Leaderboards (Abschnitt 5) wird als Parameter mitgegeben, damit die Filterung nicht im Browser über eine vollständige Liste läuft.
+
 ## Akzeptanzkriterien
 
-1. **AC-1** — WHEN die Statistik-Seite aufgerufen wird, THEN SHALL das System alle KPI-Werte clientseitig aus dem aktuellen Anwendungszustand berechnen, ohne einen separaten Backend-Endpunkt aufzurufen.
-2. **AC-2** — THE SYSTEM SHALL die Verkaufsquote als `(Anzahl verkauft + abgerechnet) / Anzahl angenommen × 100` berechnen und als Prozentwert anzeigen.
+1. **AC-1** — WHEN die Statistik-Seite aufgerufen wird, THEN SHALL das System alle Kennzahlen über `GET /api/statistics` serverseitig ermitteln und bei jedem Aufruf neu abfragen (kein Caching).
+2. **AC-2** — THE SYSTEM SHALL die Verkaufsquote als `Anzahl verkauft / Anzahl angenommen × 100` berechnen und als Prozentwert anzeigen; ist noch kein Artikel angenommen, SHALL die Kachel „–" zeigen.
 3. **AC-3** — WHEN kein Filter gesetzt ist, THEN SHALL das System das Leaderboard nach Verkaufsanzahl absteigend sortiert anzeigen und die Spalte „Typ" einblenden.
 4. **AC-4** — WHEN ein Verkäufer-Typ im Dropdown-Filter ausgewählt wird, THEN SHALL das System das Leaderboard auf diesen Typ filtern und die Spalte „Typ" ausblenden.
 5. **AC-5** — THE SYSTEM SHALL die Metergroup direkt unterhalb der Finanz-KPI-Zeile rendern mit den Segmenten Im Verkauf (primary), Verkauft (success) und Retour (warn), bezogen auf alle angenommenen Artikel.
+6. **AC-6** — THE SYSTEM SHALL den Wert „davon manuell" als Unterzeile in der Kachel „Einnahmen Brutto" anzeigen, und zwar nur wenn er größer als null ist.
+7. **AC-7** — THE SYSTEM SHALL in der Leaderboard-Spalte „Auszahlung" immer den erwarteten Betrag anzeigen und abgerechnete Verkäufer zusätzlich mit einem ✓-Symbol kennzeichnen.
+8. **AC-8** — THE SYSTEM SHALL die Seite für beide Rollen lesend erreichbar machen; sie enthält keine schreibende Aktion.
 
 ## Tags & Piles
 
