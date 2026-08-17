@@ -1,7 +1,8 @@
 ---
 id: F-BA-003
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Abrechnung
@@ -11,13 +12,17 @@ updated: 2026-07-31
 - 1. Verkäufer-Selektion — Auswahl
 - 2. Abrechnungs-Ansicht — Hauptansicht
 - 3. Zurückgeben-Popup — Rückgabe
-- 4. Abrechnen-Popup — Abrechnung
-- 5. Druckfunktion — Ausdruck
+- 4. Abrechnen-Popup — Abrechnung, Rundung, Auszahlungsbetrag
+- 5. Nicht abgegebene Artikel — Aufräumen beim Abrechnen
+- 6. Druckfunktion — Ausdruck
+- 7. Backend & API — Endpoints
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** Tagesgeschäft → Abrechnung
+**Route:** `/settlement`
+**Sichtbar für:** Admin und Kassenpersonal (Stornieren nur Admin)
 
 **Ziel:** Kassenpersonal rechnet einen Verkäufer ab und bereitet die Auszahlung vor.
 
@@ -85,7 +90,9 @@ In der Abrechnungs-Ansicht gibt es ein **„← Zurück"**-Element zur Selektion
 
 ### Artikelliste
 
-Alle Artikel dieses Verkäufers (wie Artikel-Übersicht, gefiltert auf diesen Verkäufer).
+Alle Artikel dieses Verkäufers — Nummer, Bezeichnung, Preis, Status. **Rein lesend:** kein Edit-Button, kein Artikelstatus-Popup.
+
+Die Abrechnung ist ein Zählvorgang, kein Pflegevorgang. Wer korrigieren muss, tut das auf der [Artikel-Seite](../Epic_Artikel/epic.md), wo die Sperrregeln stehen. Zwei Oberflächen mit denselben Aktionen und unterschiedlichen Sperren wären genau die Doppelung, die auseinanderläuft.
 
 ---
 
@@ -118,16 +125,58 @@ Auszahlung an Verkäufer                                  XX,XX €
 **Total-Zeile:** border-top 2 px, kein border-bottom, mt 8 px, pt 10 px; Betrag in success-Farbe, 18 px, 700.
 Provisions-Zeile: Betrag in danger-Farbe.
 
-Klick **„Buchen"** → `settledAt = jetzt` wird am Verkäufer gesetzt.
+### Rundung
+
+Verbindliche Reihenfolge, **genau eine** Rundung:
+
+1. Umsatz aufsummieren — bereits centgenau, keine Rundung nötig
+2. Provision berechnen und **kaufmännisch auf 2 Dezimalstellen** runden
+3. Auszahlung = Umsatz − gerundete Provision
+
+Bei 87,50 € Umsatz und 15 % ergibt die Provision 13,125 € → gerundet 13,13 €, Auszahlung 74,37 €. Weil die Auszahlung die Differenz zweier centgenauer Beträge ist, geht sie immer glatt auf. Am Ende zu runden statt bei der Provision würde Anzeige und Ausdruck um einen Cent auseinanderlaufen lassen.
+
+Kein Runden auf 5 Cent: Ein-Cent-Münzen existieren, und ein aufgerundeter Cent zu Lasten des Verkäufers ist unnötig erklärungsbedürftig.
+
+Klick **„Buchen"** → `settledAt = jetzt` **und** `payoutAmount = ausgezahlter Betrag` werden am Verkäufer gesetzt; nicht abgegebene Artikel werden entfernt (Abschnitt 5).
+
+**Warum der Betrag gespeichert wird:** `settledAt` sagt „abgerechnet", nicht „wie viel". Solange nichts mehr änderbar ist, ließe sich der Betrag nachrechnen — aber genau dafür gibt es das Stornieren. Nach Storno, Korrektur und erneutem Abrechnen wäre der ursprünglich ausgezahlte Bargeldbetrag unauffindbar und die Kasse hätte eine Differenz, die niemand erklären kann. Beim Stornieren wird `payoutAmount` auf `null` zurückgesetzt.
+
+Damit stehen der Geldschublade zwei gespeicherte Summen gegenüber statt zweier Hochrechnungen: `intakeFeePaid` (eingenommen) und `payoutAmount` (ausgezahlt).
 
 **Danach ist der Verkäufer gesperrt:** Alle Felder und Zeitstempel seiner Artikel lehnen Änderungen mit `409` ab ([Epic_Artikel](../Epic_Artikel/epic.md) Abschnitt 4). Der einzige Weg zurück ist das **Stornieren der Abrechnung** über das Status-Popup der Verkäufer-Karte — Admin-only und bestätigungspflichtig ([Epic_Verkaeufer](../Epic_Verkaeufer/epic.md) Abschnitt 3). So bleibt eine ausgezahlte Summe nachvollziehbar, statt nachträglich still zu wandern.
 
 ---
 
-## 5. Druckfunktion (Abrechnung)
+## 5. Nicht abgegebene Artikel
+
+Die Abrechnen-Bedingung betrachtet nur **freigegebene** Artikel. Ein vorangemeldeter Verkäufer, der 40 Artikel erfasst und 30 gebracht hat, kann also abgerechnet werden, während 10 Artikel mit leerem `releasedAt` zurückbleiben.
+
+**Diese Artikel werden beim Abrechnen entfernt.** Der Abrechnen-Dialog nennt die Anzahl vorher: „10 nicht abgegebene Artikel werden entfernt".
+
+Begründung: Der Artikel hat den Basar nie erreicht. Es gibt keinen Vorgang zu dokumentieren, es wurde keine Gebühr dafür kassiert und keine Auszahlung berührt ihn. Ihn zu behalten würde das Sidebar-Badge „offene Artikel" ([Epic_App_Shell](../Epic_App_Shell/epic.md)) und jede Artikelstatistik dauerhaft mit Karteileichen belasten. Der Datensatz existiert außerdem weiterhin in der Voranmelde-App.
+
+Kein zusätzlicher Zeitstempel `notDeliveredAt`: Er würde ein Feld und eine Filterbedingung in jede Abfrage einbringen, um eine Historie zu erhalten, die niemand liest.
+
+---
+
+## 6. Druckfunktion (Abrechnung)
 
 Beim Klick auf **„Drucken"** wird die Verkäufer-Übersicht gedruckt.
 Details → [Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md)
+
+---
+
+## 7. Backend & API
+
+Die Kennzahlen und Posten kommen über den **Query-Port** als fertiges Read-Model ([`spec.md`](../../spec.md) Abschnitt 7.0.1) — dieselbe Bauweise wie die Verkäufer-Karten.
+
+| Endpoint | Auth | Beschreibung |
+|---|---|---|
+| `GET /api/sellers/{id}/settlement` | `authenticated` | Read-Model: KPI-Kacheln, Abrechnungsposten, Artikelliste |
+| `PUT /api/articles/{id}/return` | `authenticated` | Setzt `returnedAt` (Zurückgeben-Scan, Abschnitt 3) |
+| `POST /api/sellers/{id}/settlement` | `authenticated` | Setzt `settledAt` und `payoutAmount`, entfernt nicht abgegebene Artikel — in einer Transaktion |
+
+Das **Stornieren** liegt bei [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md) (`DELETE /api/sellers/{id}/settlement`, Admin-only, bestätigungspflichtig) und wird hier nicht dupliziert.
 
 ## Akzeptanzkriterien
 
@@ -135,6 +184,12 @@ Details → [Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md)
 2. **AC-2** — WHEN ein Verkäufer ausgewählt wird, THEN SHALL das System seine Abrechnungsposten (Umsatz, Provision, Auszahlung) und seine Artikelliste laden und anzeigen; die bereits kassierte Annahmegebühr SHALL **nicht** als Abzugsposten erscheinen.
 3. **AC-3** — WHILE ein Verkäufer noch Artikel im Verkauf hat (`releasedAt` gesetzt, `soldAt` und `returnedAt` leer), SHALL das System den „Abrechnen"-Button deaktiviert halten.
 4. **AC-4** — WHEN „Abrechnen" geklickt wird, THEN SHALL das System `settledAt = jetzt` am Verkäufer setzen; die verkauften Artikel (`soldAt` gesetzt) bleiben unverändert — „abgerechnet" ist ein Verkäufer-Zustand, kein Artikel-Zustand.
+5. **AC-5** — THE SYSTEM SHALL die Provision kaufmännisch auf 2 Dezimalstellen runden und die Auszahlung als Umsatz minus gerundete Provision berechnen; eine weitere Rundung SHALL nicht erfolgen.
+6. **AC-6** — WHEN abgerechnet wird, THEN SHALL das System den ausgezahlten Betrag in `payoutAmount` am Verkäufer speichern.
+7. **AC-7** — WHEN eine Abrechnung storniert wird, THEN SHALL das System `payoutAmount` auf `null` zurücksetzen.
+8. **AC-8** — IF der Verkäufer Artikel mit leerem `releasedAt` hat, THEN SHALL der Abrechnen-Dialog deren Anzahl nennen und diese Artikel beim Buchen entfernen.
+9. **AC-9** — THE SYSTEM SHALL `settledAt`, `payoutAmount` und das Entfernen der nicht abgegebenen Artikel in einer Transaktion ausführen.
+10. **AC-10** — THE SYSTEM SHALL die Artikelliste dieser Seite ohne Edit-Button und ohne Artikelstatus-Popup anzeigen.
 5. **AC-5** — WHEN „Zurückgeben" geklickt wird, THEN SHALL das System bei allen noch im Verkauf befindlichen Artikeln des Verkäufers (`releasedAt` gesetzt, `soldAt` leer) `returnedAt = jetzt` setzen.
 6. **AC-6** — WHEN „🖨️ Drucken" geklickt wird, THEN SHALL das System den Druckdialog mit gruppierten Artikeln (Im Verkauf, Verkauft, Sonstige) öffnen.
 

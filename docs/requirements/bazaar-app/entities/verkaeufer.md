@@ -26,6 +26,7 @@ Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) 
 | `feePerItem` | decimal | ✅ | Gebühr pro abgegebenem Artikel — der **Satz**, mit dem am Tisch gerechnet wird |
 | `intakeFeePaid` | decimal | ✅ | Default `0`. Summe der tatsächlich kassierten Annahmegebühren; wird bei jedem Annahme- und Freigabevorgang erhöht ([Epic_Artikelannahme](../epics/Epic_Artikelannahme/epic.md) Abschnitt 4) |
 | `settledAt` | DateTime? | — | Zeitpunkt der Abrechnung; `null` = noch offen |
+| `payoutAmount` | decimal? | — | Tatsächlich ausgezahlter Betrag, beim Abrechnen gesetzt und beim Stornieren auf `null` zurückgesetzt ([Epic_Abrechnung](../epics/Epic_Abrechnung/epic.md) Abschnitt 4) |
 
 **Nicht in dieser App** (nur Voranmelde-App): `isAdmin`, `passwordHash`,
 `inviteToken`/`inviteTokenExpiresAt`, Refresh-Tokens, Nummernblöcke.
@@ -35,6 +36,12 @@ Der Satz kann sich ändern oder pro Verkäufer abweichen, der gezahlte Betrag is
 in der Geldschublade liegt. Ohne das Feld wäre am Abend nicht feststellbar, wie viel
 Gebühren-Bargeld eingenommen wurde. Der Betrag geht **nicht** von der Auszahlung ab — er
 ist am Annahmetisch schon bezahlt.
+
+`intakeFeePaid` und `payoutAmount` sind die beiden **gespeicherten** Geldsummen je
+Verkäufer — eingenommen und ausgezahlt. Beide könnten theoretisch nachgerechnet werden,
+aber nur solange nichts storniert und neu abgerechnet wurde; genau dann bräuchte die
+Kassenabstimmung sie am dringendsten. Was Geld bewegt, wird festgehalten, nicht
+rekonstruiert.
 
 **Pflichtfelder sind hier schmaler als in der Voranmelde-App:** Pflicht sind nur
 `firstName`, `lastName`, `email` und `sellerTypeId`. Adresse, PLZ, Ort und Telefon

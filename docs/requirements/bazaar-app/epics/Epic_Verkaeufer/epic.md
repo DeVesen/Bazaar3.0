@@ -132,7 +132,7 @@ Grund: Jede Karte trägt sieben Aggregate, und sortiert wird nach Summen, die nu
 
 **Klick auf Status-Badge** → Popup mit Abrechnungs-Zeitstempel:
 - Zeigt: „Abgerechnet am ‹Zeitstempel›" — für beide Rollen
-- **Löschen-Button** zum Zurücksetzen auf NULL — **nur für Admins sichtbar**, mit Bestätigungsdialog „Auszahlung vom ‹Zeitstempel› wird verworfen"; der Endpoint antwortet Kassenpersonal mit `403`
+- **Löschen-Button** zum Zurücksetzen auf NULL — **nur für Admins sichtbar**, mit Bestätigungsdialog „Auszahlung von ‹Betrag› vom ‹Zeitstempel› wird verworfen"; setzt `settledAt` und `payoutAmount` zurück; der Endpoint antwortet Kassenpersonal mit `403`
 - Kein manuelles Setzen möglich
 
 Das Zurücksetzen macht eine abgeschlossene Auszahlung wieder offen — die Rechte-Matrix führt es als „Abrechnung stornieren" (Admin-only). Ein einzelner Klick in einem Badge-Popup ist zu wenig Reibung für eine Geldbewegung, darum der Bestätigungsdialog.
@@ -253,7 +253,7 @@ Die Karten-Aggregate kommen über einen **eigenen Query-Port** ([`spec.md`](../.
 | `GET /api/sellers/{id}/articles` | `authenticated` | Artikelliste für das Detail-Modal (Abschnitt 5) |
 | `PUT /api/articles/{id}/release` | `authenticated` | Setzt `releasedAt` (Scan-Dialog, Abschnitt 6) |
 | `POST /api/sellers/{id}/intake-fee` | `authenticated` | Addiert die Annahmegebühr der Freigabe-Sitzung auf `intakeFeePaid` |
-| `DELETE /api/sellers/{id}/settlement` | `admin` | Setzt `settledAt` zurück |
+| `DELETE /api/sellers/{id}/settlement` | `admin` | Setzt `settledAt` **und** `payoutAmount` zurück |
 
 Kein `IQueryable` über die Portgrenze, ein Repository pro Aggregate — die Aggregat-Abfrage ist ein Query-Port, kein erweitertes Repository.
 
