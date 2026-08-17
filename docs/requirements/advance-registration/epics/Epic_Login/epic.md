@@ -65,9 +65,18 @@ Hintergrund: `#1b3a4b`, padding 60 px 48 px.
 |---|---|---|
 | **Countdown** | Sequence-Mode-Phasen `registrationDeadline` → `dropOffFrom` → `dropOffUntil` → `bazaarFrom` → `bazaarUntil` — zeigt automatisch die aktuell relevante Phase · → [Countdown](../../../../components/countdown/component.md) `variant="info-box"` | Label 11 px uppercase, Wert 32 px 800, Datum 13 px |
 | **Default-Konditionen** | Provision (%) + Abgabegebühr (€) des `defaultTypeId`-Types — reines `<div>`, kein PrimeNG-Bezug | Werte in Akzentfarbe `#3ecf8e`, 700 |
-| **Markdown-Info** | Admin-konfigurierter Info-Text, gerendert über die wiederverwendbare Shared-Component `markdown-text` (Details → [`markdown-text`](../../../../components/markdown-text/component.md); auch in Epic_Home_Verkaeufer/Epic_Home_Admin genutzt) | 13 px, line-height 1.7 |
+| **Markdown-Info** | Admin-konfigurierter Info-Text, gerendert über die app-lokale Custom-Component `markdown-text` (Details → [`markdown-text`](../../components/custom/markdown-text.md); auch in Epic_Home_Verkaeufer/Epic_Home_Admin und in der Vorschau von Epic_Einstellungen genutzt) | 13 px, line-height 1.7 |
 
 Box-Stil: `background: rgba(255,255,255,0.06–0.08); border-radius: 10px; padding: 14–18px; margin-bottom: 20px`
+
+**Markdown-Umfang** (welche Elemente gerendert werden, was mit nicht unterstützter Syntax
+passiert): verbindlich in [`markdown-text`](../../components/custom/markdown-text.md)
+Abschnitt 3.1/3.2 — hier nicht wiederholt.
+
+**Fehlende Werte:** Jedes Feld aus `GET /api/public/info` kann `null` sein
+([`api/public.md`](../../api/public.md)). `login-info-panel` blendet die betroffene Box dann
+aus; `markdown-text` selbst rendert bei leerem `content` nichts, entscheidet aber nicht über
+die Box (Leaf-Regel → markdown-text Abschnitt 3.3).
 
 ---
 
@@ -189,6 +198,8 @@ Bewusst zurückgestellt, nicht vergessen:
 9. **AC-9** — WHEN die Registrierung erfolgreich ist, THEN SHALL das System den Nutzer automatisch einloggen (Token speichern) und zu `/home` weiterleiten.
 10. **AC-10** — WHEN ein neuer Verkäufer registriert wird, THEN SHALL das System ihm den Verkäufer-Typ `defaultTypeId` zuweisen und `defaultBlockCount` zusammenhängende Nummernblöcke ab der nächsten freien Nummer reservieren.
 11. **AC-11** — IF bei einem Registrierungsversuch kein `defaultTypeId` in den Einstellungen gesetzt ist, THEN SHALL das System die Registrierung mit `409` und der Meldung „Registrierung ist noch nicht freigeschaltet" ablehnen und keinen Verkäufer anlegen.
+12. **AC-12** — WHEN die Login-Seite geladen ist und `infoText` aus `GET /api/public/info` gesetzt ist, THEN SHALL das System den Text in der Markdown-Box **als gerendertes HTML** anzeigen (Umfang → [markdown-text](../../components/custom/markdown-text.md) Abschnitt 3.1) und keine Markdown-Syntaxzeichen unterstützter Elemente im Klartext stehen lassen.
+13. **AC-13** — IF `defaultConditions` oder `infoText` aus `GET /api/public/info` `null` bzw. leer ist, THEN SHALL das System die betroffene Info-Box ausblenden statt eine leere Box anzuzeigen, und die Login-Form uneingeschränkt bedienbar halten.
 
 **Hinweis:** „Aktive Sitzung → Login-Seite überspringen" ist bereits in Epic_App_Shell (VSHELL-S03 AC-7) spezifiziert und wird hier nicht dupliziert.
 

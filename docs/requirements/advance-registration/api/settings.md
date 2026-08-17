@@ -50,7 +50,7 @@ Quelle, keine Duplizierung der Werte.
 |---|---|---|
 | `registrationDeadline` … `bazaarUntil` | ISO 8601 \| `null` | Die 5 Phasen der Countdown-Sequence, in dieser Reihenfolge (Voranmeldeschluss, Abgabe von/bis, Basar von/bis). Pflege per `p-datepicker` (Datum + Uhrzeit). |
 | `defaultTypeId` | string \| `null` | Standard-Verkäufer-Typ für die Selbstregistrierung und die Konditions-Anzeige der Login-Seite |
-| `infoText` | Markdown \| `null` | Freitext für Verkäufer-Home und Login-Seite |
+| `infoText` | Markdown \| `null` | Freitext für Verkäufer-Home und Login-Seite, **max. 4000 Zeichen** Rohtext ([`entities/einstellungen.md`](../entities/einstellungen.md)) |
 | `startNumber` | int | Erste Artikelnummer überhaupt |
 | `blockSize` | int | Nummern pro Nummernblock |
 | `defaultBlockCount` | int | Standard-Anzahl Blöcke für neue Verkäufer |
@@ -83,6 +83,7 @@ Unterscheidung „Feld fehlt" vs. „Feld ist `null`" ohne UI-Bedarf.
 | `400` | **Termin-Reihenfolge:** Die gesetzten Termine müssen aufsteigend sein (`registrationDeadline` ≤ `dropOffFrom` ≤ `dropOffUntil` ≤ `bazaarFrom` ≤ `bazaarUntil`). `null`-Werte werden übersprungen, Teilkonfiguration bleibt erlaubt. Sonst wäre der Countdown-Sequence-Mode unsinnig. |
 | `400` | `defaultTypeId` verweist auf keinen existierenden Typ → `errors.defaultTypeId: ["Unbekannter Verkäufer-Typ"]` |
 | `400` | `startNumber`, `blockSize`, `defaultBlockCount` ≤ 0 |
+| `400` | `infoText` länger als 4000 Zeichen → `errors.infoText: ["Info-Text darf maximal 4000 Zeichen lang sein"]`. Gezählt wird der Markdown-Rohtext. Serverseitig geprüft, nicht nur im Formular — der Endpoint ist auch ohne UI erreichbar. |
 | `409` | `errorCode: settings.start_number_conflict` — „Startnummer liegt über bereits vergebenen Artikelnummern", siehe unten |
 
 ### Änderungen an den Nummernblock-Parametern

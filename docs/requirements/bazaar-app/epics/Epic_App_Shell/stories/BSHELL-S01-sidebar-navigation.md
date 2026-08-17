@@ -24,7 +24,7 @@ Am Tisch aufgenommene Artikel zählen **nicht** mit: Beim Buchen der Annahme set
 
 **In Scope:** Sidebar-Komponente, Navigationsstruktur (drei Gruppen + Trennlinien), Logo-Block, Sidebar-Footer (Benutzeridentität + Logout), Active-Route-Highlight, Badge für offene Artikel (Zahl), alle visuellen Maße.
 
-**Die Sidebar ist eine Dumb Component:** Sie erhält ihre Einträge — Label, Icon, Route, Badge-Zahl — als Input und kennt weder Übersetzung noch Datenbeschaffung. Die Haupt-App füttert feste deutsche Labels hinein, die Voranmelde-App übersetzte Strings; damit bleibt die i18n-Entscheidung in der App und die Komponente in beiden Apps dieselbe (Grundregel → [`docs/components/overview.md`](../../../../components/overview.md)).
+**Die Sidebar ist eine Dumb Component:** Sie erhält ihre Einträge — Label, Icon, Route, Badge-Zahl — als Input und kennt weder Übersetzung noch Datenbeschaffung. Die Haupt-App füttert feste deutsche Labels hinein, die Voranmelde-App übersetzte Strings; damit bleibt die i18n-Entscheidung in der App und die Komponente in beiden Apps dieselbe (Grundregel → [`docs/components/overview.md`](../../../../../components/overview.md)).
 
 Die Komponente selbst gehört **suite-weit** nach `docs/components/sidebar/` — beide Apps bauen denselben PrimeNG-Compound mit denselben Gruppen-und-Trennlinien-Struktur; Unterschied sind nur Farben und Einträge. Aktuell liegt die Beschreibung noch unter `advance-registration/components/custom/sidebar.md`; das Verschieben ist Sache von `element-extraction`.
 
@@ -63,7 +63,7 @@ Aktiver Eintrag: Akzentfarbe (`var(--accent)`) als Hintergrund-Highlight.
 
 **Kein Eintrag „Druckfunktionen".** Drucken ist eine Aktion innerhalb eines Arbeitsschritts, keine Seite: Der Ausdruck startet automatisch nach dem Buchen in der Artikelannahme bzw. per Button in der Abrechnung (siehe [Epic_Druckfunktionen](../../Epic_Druckfunktionen/epic.md)).
 
-**Sidebar-Footer:** Avatar, Benutzername, Rollenname und Abmelden — Beschreibung → [`sidebar-footer`](../../../../components/sidebar-footer/component.md) (C-009). Ohne Role-Toggle; den nutzt nur die Voranmelde-App.
+**Sidebar-Footer:** Avatar, Benutzername, Rollenname und Abmelden — Beschreibung → [`sidebar-footer`](../../../../../components/sidebar-footer/component.md) (C-009). Ohne Role-Toggle; den nutzt nur die Voranmelde-App.
 
 **Maße** (Farben → spec.md §10.1):
 

@@ -1,6 +1,7 @@
 ---
 status: draft
 reviewed-date: 2026-08-14
+updated: 2026-08-17
 ---
 
 # Component: home-dashboard
@@ -52,11 +53,16 @@ Aktivität — letzte 12 Wochen
 | Kachel — Marken | Shared `kpi-tile`, klickbar → `/marken` | — | ✅ |
 | Activity-Heatmap | Shared `activity-heatmap`-Component, Datensatz = alle Artikel (nicht nur eigene) | — | ✅ |
 | Verkäufernummer-Karte | [verkaeufer-nummer](verkaeufer-nummer.md), Variante `card`, unterhalb des Kachel-Grids; `sellerId` aus dem `sub`-Claim | ✅ | — (nur Verkäufer-Modus, siehe Epic_Home_Verkaeufer Abschnitt 2) |
-| Markdown-Info-Panel | Shared-Component `markdown-text` (siehe [`docs/components/markdown-text/component.md`](../../../../components/markdown-text/component.md)) | ✅ | ✅ |
+| Markdown-Info-Panel | Custom-Component [`markdown-text`](markdown-text.md), `content` = `infoText` aus `GET /api/public/info`; unterstützter Umfang und Fallback → dort Abschnitt 3.1/3.2 | ✅ | ✅ |
+
+**Fehlender `infoText`:** Ist `infoText` `null`, leer oder nur Whitespace, blendet
+`home-dashboard` das Markdown-Info-Panel aus. Das Ausblenden entscheidet dieses Dashboard,
+nicht `markdown-text` — die Leaf-Komponente rendert bei leerem `content` lediglich nichts
+(markdown-text Abschnitt 3.3). Gilt in beiden Varianten identisch.
 
 ## Akzeptanzkriterien
 
-Siehe [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) AC-1 bis AC-5 bzw. [Epic_Home_Admin](../../epics/Epic_Home_Admin/epic.md) AC-1 bis AC-3 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
+Siehe [Epic_Home_Verkaeufer](../../epics/Epic_Home_Verkaeufer/epic.md) AC-1 bis AC-7 bzw. [Epic_Home_Admin](../../epics/Epic_Home_Admin/epic.md) AC-1 bis AC-3 — diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
 
 ## Tags & Piles
 

@@ -20,10 +20,20 @@ Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) 
 | `bazaarFrom` | DateTime | ✅ | Start Basar |
 | `bazaarUntil` | DateTime | ✅ | Ende Basar |
 | `defaultTypeId` | string (8 Zeichen) | ✅ | Referenz auf Verkäufer-Typ — Standard für Selbstregistrierung/Login |
-| `infoText` | string | ❌ | Markdown-Freitext, Anzeige auf Verkäufer-Home + Login-Seite |
+| `infoText` | string (max. 4000 Zeichen) | ❌ | Markdown-Freitext, Anzeige auf Verkäufer-Home + Login-Seite |
 | `startNumber` | int | ✅ | Erste Artikelnummer überhaupt |
 | `blockSize` | int | ✅ | Anzahl Nummern pro Nummernblock |
 | `defaultBlockCount` | int | ✅ | Standard-Anzahl Blöcke für neue Verkäufer |
+
+**Längengrenze `infoText`:** 4000 Zeichen, als Spaltenlänge in der Datenbank **und** als
+Backend-Validierung (`400`, siehe [`api/settings.md`](../api/settings.md)). Gezählt werden
+Zeichen des Markdown-**Rohtexts**, nicht des gerenderten HTML. Begründung: Das Feld ist ein
+Info-Kasten von wenigen Absätzen, kein Redaktionssystem; 4000 Zeichen sind rund zwei
+Bildschirmseiten und damit weit über jedem realen Bedarf. Ohne Grenze wäre `infoText` ein
+unbegrenzter Text in einem **öffentlichen**, uncachebaren Response
+([`api/public.md`](../api/public.md)) — jeder Aufruf der Login-Seite lädt ihn vollständig.
+Der Wert ist bewusst großzügig gewählt: er soll ein Versehen abfangen, nicht redaktionell
+begrenzen.
 
 **Kein Domain-Port.** Die drei Nummern-Parameter werden nicht über eine Abstraktion in
 die Domäne injiziert: Der Handler lädt die Einstellungen über `ISettingsRepository` und

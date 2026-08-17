@@ -51,7 +51,7 @@ Epics → [Epic_Countdown_Widget](../epics/Epic_Countdown_Widget/epic.md) ·
 |---|---|---|
 | `registrationDeadline` … `bazaarUntil` | ISO 8601 \| `null` | Einstellungen Abschnitt 1 → [`settings.md`](settings.md) |
 | `defaultConditions` | `{ commissionRate, itemFee }` \| `null` | Backend löst `defaultTypeId` gegen den Verkäufer-Typ auf und liefert die Werte **fertig aufgelöst**. `defaultTypeId` selbst wird nicht ausgeliefert — sonst bräuchte es einen öffentlichen Seller-Types-Endpoint. |
-| `infoText` | Markdown-String \| `null` | Einstellungen Abschnitt 3 |
+| `infoText` | Markdown-String \| `null` | Einstellungen Abschnitt 3 — unveränderter Rohtext, das Backend rendert nichts; Rendering-Umfang → [`markdown-text`](../components/custom/markdown-text.md) Abschnitt 3.1 |
 
 ### Nicht konfigurierte Werte
 

@@ -87,10 +87,18 @@ Vollständig spezifiziert → [Epic_Home_Admin](../Epic_Home_Admin/epic.md) Absc
 
 Unterhalb der Heatmap: freies **Informations-Panel** mit mehrzeiligem Text.
 
+→ Komponente: [markdown-text](../../components/custom/markdown-text.md) — dieselbe
+Custom-Component wie im [`login-info-panel`](../../components/custom/login-info-panel.md)
+(Epic_Login Abschnitt 2), gefüttert mit demselben `infoText`.
+
 - Text wird vom **Admin** in den Einstellungen gepflegt (`infoText`-Parameter)
-- **Markdown-Formatierung** unterstützt (Überschriften, Fettdruck, Listen, Trennlinien, Code)
+- **Markdown-Formatierung** unterstützt — welche Elemente genau, steht verbindlich in
+  [`markdown-text`](../../components/custom/markdown-text.md) Abschnitt 3.1 und wird
+  hier nicht wiederholt
 - Zweck: Hinweise zu Abgaberegeln, Öffnungszeiten, organisatorischen Details
 - Gleicher Text wie auf der Login-Seite (Info-Area)
+- IF `infoText` `null` oder leer ist, blendet `home-dashboard` die Box aus
+  (markdown-text Abschnitt 3.3 — die Leaf-Komponente entscheidet das nicht selbst)
 
 ---
 
@@ -111,6 +119,8 @@ API-Details → [`api/home.md`](../../api/home.md)
 3. **AC-3** — WHEN der Verkäufer noch keine Artikel erfasst hat, THEN SHALL das System einen Hinweis „Noch keine Artikel erfasst" und einen Link zu „Meine Artikel" anzeigen.
 4. **AC-4** — WHEN die Home-Seite geladen ist, THEN SHALL das System die eigene Verkäufernummer (Verkäufer-`id`) im Klartext und als QR-Code anzeigen, ohne dafür einen zusätzlichen Endpoint zu rufen.
 5. **AC-5** — WHEN der Kopieren-Button der Verkäufernummer-Karte geklickt wird, THEN SHALL das System die Nummer in die Zwischenablage legen und einen Toast „✓ Nummer kopiert" anzeigen.
+6. **AC-6** — WHEN die Home-Seite geladen ist und `infoText` gesetzt ist, THEN SHALL das System den Text im Info-Panel **als gerendertes HTML** anzeigen (Umfang → [markdown-text](../../components/custom/markdown-text.md) Abschnitt 3.1) und keine Markdown-Syntaxzeichen unterstützter Elemente im Klartext stehen lassen.
+7. **AC-7** — IF `infoText` `null`, leer oder nur Whitespace ist, THEN SHALL das System die Info-Panel-Box vollständig ausblenden statt eine leere Box anzuzeigen.
 
 ## Tags & Piles
 
