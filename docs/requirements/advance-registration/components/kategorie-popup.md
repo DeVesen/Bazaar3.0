@@ -26,7 +26,7 @@ Anlegen (Modal sm):        Bearbeiten (Modal sm):
 
 | Feld | PrimeNG |
 |---|---|
-| Name | [Input](input.md) |
+| Name | [Input](input.md), Variante Text |
 | Original (nur Edit) | [Toggle-Switch](toggle-switch.md) |
 | Footer | [Button](button.md) secondary outlined / primary |
 | Save-Feedback | [Toast](toast.md) „✓ Kategorie gespeichert" |

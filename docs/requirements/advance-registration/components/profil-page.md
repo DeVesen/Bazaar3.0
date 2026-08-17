@@ -57,11 +57,11 @@ Klick → p-confirmdialog „Möchten Sie Ihren Account wirklich löschen?"
 |---|---|
 | Tab-Navigation | `p-tabs` |
 | Panel-Container (alle Panels) | `card` Panel-Block-Variante (wie Epic_Verkaeufer) |
-| Personendaten-/Kontakt-Felder | [Input](input.md), E-Mail readonly |
+| Personendaten-/Kontakt-Felder | [Input](input.md), Variante Text, E-Mail readonly |
 | Verkäufer-Typ | [Select](select.md) `[disabled]="true"` |
-| Gebühr/Provision | [Number-Input](number-input.md) readonly |
-| E-Mail ändern | [Icon-Input](icon-input.md) (neue E-Mail) + [Password-Input](password-input.md) (aktuelles Passwort) |
-| Passwort ändern | 3× [Password-Input](password-input.md) (aktuell/neu/Bestätigung) + [password-strength-meter.md](password-strength-meter.md) |
+| Gebühr/Provision | [Input](input.md), Variante Number, readonly |
+| E-Mail ändern | [Input](input.md) Variante Icon (neue E-Mail) + Variante Password (aktuelles Passwort) |
+| Passwort ändern | 3× [Input](input.md) Variante Password (aktuell/neu/Bestätigung) + [password-strength-meter.md](password-strength-meter.md) |
 | Account löschen | [Button](button.md) danger → [Confirmdialog](confirmdialog.md) |
 
 ## Akzeptanzkriterien

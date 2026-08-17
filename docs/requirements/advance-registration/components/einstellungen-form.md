@@ -35,7 +35,7 @@ INFO-TEXT
 |---|---|
 | Die 5 Basar-Termine | [Datepicker](datepicker.md) |
 | `defaultTypeId` | [Select](select.md) — Liste aller Verkäufer-Typen |
-| `startNumber` / `blockSize` / `defaultBlockCount` | [Number-Input](number-input.md) |
+| `startNumber` / `blockSize` / `defaultBlockCount` | [Input](input.md), Variante Number |
 | `infoText` | `pTextarea` |
 | Speichern-Button | [Button](button.md) primary |
 | Save-Feedback | [Toast](toast.md) „✓ Einstellungen gespeichert" |

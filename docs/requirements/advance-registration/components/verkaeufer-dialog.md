@@ -56,15 +56,15 @@ Anlege-/Bearbeiten-Dialog (Modal lg, 80/90% resp. 100/100%):
 
 | Element | PrimeNG |
 |---|---|
-| Filter-Panel (Freitext) | [Icon-Input](icon-input.md) |
+| Filter-Panel (Freitext) | [Input](input.md), Variante Icon |
 | Table | Shared `table` |
 | Panel-Container (alle 5 Panels) | `card` Panel-Block-Variante (`background: #f5f9f6`, siehe `docs/components/card/`) |
-| Personendaten-/Kontakt-Felder | [Input](input.md) (Vorname mit Autofokus) |
+| Personendaten-/Kontakt-Felder | [Input](input.md), Variante Text (Vorname mit Autofokus) |
 | Verkäufer-Typ | [Select](select.md) — **nur bestehende Typen**, kein `autocomplete-create` (Feld-Mismatch: Typ braucht Provision+Gebühr, Anlegen-Modal von `autocomplete-create` hat nur ein Namensfeld) |
-| Provision/Gebühr-Anzeige | [Number-Input](number-input.md) readonly |
-| Nummernblock-Initialfeld | [Number-Input](number-input.md) |
+| Provision/Gebühr-Anzeige | [Input](input.md), Variante Number, readonly |
+| Nummernblock-Initialfeld | [Input](input.md), Variante Number |
 | Block-Liste (Panel 04) | Bereich-Text + Zähler-Text, Löschen-[Button](button.md) (secondary outlined small), [Confirmdialog](confirmdialog.md) vor Löschung, Badge „Voll — nicht löschbar" (Shared `badge`, `type="warn"`) |
-| Reservieren-Form | 2× [Number-Input](number-input.md), „✓ Reservieren"-[Button](button.md) (primary small) |
+| Reservieren-Form | 2× [Input](input.md) Variante Number, „✓ Reservieren"-[Button](button.md) (primary small) |
 | Admin-Rechte | [Checkbox](checkbox.md) |
 | Einladungs-Link | [Button](button.md) (secondary outlined small) + [Toast](toast.md) |
 | Dialog-Footer | [Button](button.md) secondary outlined (Abbrechen) / primary (Speichern) |

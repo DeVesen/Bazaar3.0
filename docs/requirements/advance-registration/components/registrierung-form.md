@@ -32,10 +32,10 @@ Nutzt `login-layout` als Rahmen (linke Spalte identisch mit Login), rechte Spalt
 | Element | PrimeNG |
 |---|---|
 | Form-Container | Shared [`card`](../../../components/card/component.md) (wie `login-form`) |
-| E-Mail-Feld | [Icon-Input](icon-input.md) (Envelope) |
-| Passwort-Feld | [Password-Input](password-input.md) (mit Toggle) |
+| E-Mail-Feld | [Input](input.md), Variante Icon (Envelope) |
+| Passwort-Feld | [Input](input.md), Variante Password (mit Toggle) |
 | Passwort-Stärke | [password-strength-meter.md](password-strength-meter.md) |
-| Passwort-Bestätigung | [Password-Input](password-input.md) (ohne Toggle, gleiches Icon-Muster für visuelle Konsistenz) |
+| Passwort-Bestätigung | [Input](input.md), Variante Password (ohne Toggle, gleiches Icon-Muster für visuelle Konsistenz) |
 | Registrieren-Button | [Button](button.md) primary, volle Breite, `[disabled]` solange Stärke < „Mittel" oder Passwörter nicht übereinstimmen |
 | „Schon ein Konto?"-Link | [Button](button.md) text → `routerLink="/login"` |
 

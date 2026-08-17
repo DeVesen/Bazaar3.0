@@ -41,7 +41,7 @@ Basis (Meine Artikel):
 | Verkäufer-Filter | [AutoComplete (Type-Ahead)](autocomplete-typeahead.md) — über alle Verkäufer (Vorname/Nachname/Nummer) | Alle Artikel |
 | Marke-Filter | [Select](select.md) — Liste aller Marken | beide |
 | Kategorie-Filter | [Select](select.md) — Liste aller Kategorien | beide |
-| Freitext-Feld | [Icon-Input](icon-input.md) (Such-Icon) | beide |
+| Freitext-Feld | [Input](input.md), Variante Icon (Such-Icon) | beide |
 | Suchen-Button | [Button](button.md) `icon="pi pi-search"` + Text „Suchen", ganz rechts im Panel | beide |
 
 ## Verhalten

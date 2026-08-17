@@ -28,9 +28,9 @@ Reine Instanziierung — keine neuen PrimeNG-Entscheidungen. Gleiches Popup für
 
 | Feld | PrimeNG |
 |---|---|
-| Name | [Input](input.md) |
-| Provision (%) | [Number-Input](number-input.md), 2 Nachkommastellen |
-| Gebühr (€) | [Number-Input](number-input.md), 2 Nachkommastellen |
+| Name | [Input](input.md), Variante Text |
+| Provision (%) | [Input](input.md), Variante Number, 2 Nachkommastellen |
+| Gebühr (€) | [Input](input.md), Variante Number, 2 Nachkommastellen |
 | Footer | [Button](button.md) secondary outlined (Abbrechen) / primary (Speichern) |
 | Save-Feedback | [Toast](toast.md) „✓ Verkäufer-Typ gespeichert" |
 

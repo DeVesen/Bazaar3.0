@@ -29,8 +29,8 @@ Sitzt in der rechten Spalte von `login-layout`. Container: `p-card`.
 | Element | PrimeNG |
 |---|---|
 | Form-Container | Shared [`card`](../../../components/card/component.md) |
-| E-Mail-Feld | [Icon-Input](icon-input.md) (Envelope-Icon) |
-| Passwort-Feld | [Password-Input](password-input.md) (mit Toggle) |
+| E-Mail-Feld | [Input](input.md), Variante Icon (Envelope) |
+| Passwort-Feld | [Input](input.md), Variante Password (mit Toggle) |
 | Anmelden-Button | [Button](button.md) primary, volle Breite |
 | Passwort-vergessen | `<a>`-Link, öffnet `p-popover` mit Text „Bitte wende dich an den Admin, um dein Passwort zurückzusetzen." |
 | Registrierung-Link | [Button](button.md) text → `routerLink="/registrieren"` |
