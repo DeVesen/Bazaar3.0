@@ -21,6 +21,7 @@ Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) 
 
 **Constraints:**
 - Kein Overlap: `[fromNumber, toNumber]` darf sich mit keinem anderen Block überschneiden (über alle Verkäufer hinweg).
+- Vor **jeder** Vergabe wird geprüft, dass der gesamte Bereich frei ist — Vergabe-Kaskade und Prüf-Kaskade sind verbindlich in [`api/blocks.md`](../api/blocks.md) Abschnitt 5 und 6 festgeschrieben und gelten für alle vier Vergabewege. Kein Aufrufer darf einen Block anlegen, ohne sie durchlaufen zu haben.
 - 1:n-Beziehung Verkäufer↔Block: initial ein Block bei Anlage, automatische Erweiterung um weiteren Block sobald der aktuelle aufgebraucht ist (siehe [Epic_Nummernbloecke](../epics/Epic_Nummernbloecke/epic.md) Abschnitt 2).
 
 **Aggregate und Invariante:** `NumberBlock` ist ein **eigenes Aggregate**. Die

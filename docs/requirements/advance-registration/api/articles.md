@@ -122,9 +122,10 @@ Nummer damit vor dem Speichern und kann sie direkt aufs Etikett schreiben
 { "number": 104 }
 ```
 
-**Berechnung:** nächster freier Platz im aktuellen Nummernblock des Verkäufers;
-ist der Block aufgebraucht, die `fromNumber` des Blocks, den die automatische
-Erweiterung zuweisen würde (→ [`blocks.md`](blocks.md) Abschnitt 5).
+**Berechnung:** dieselbe Vergabe-Kaskade wie beim echten Anlegen, nur ohne zu
+schreiben (→ [`blocks.md`](blocks.md) Abschnitt 5): Stufe 1 liefert den nächsten
+freien Platz in den bestehenden Blöcken, Stufe 2 die `fromNumber` des Blocks, den
+die automatische Erweiterung anlegen würde, Stufe 3 den `409`.
 
 **Der Vorschlag ist unverbindlich und reserviert nichts.** Der Endpoint schreibt
 nicht — er legt keinen Block an und vergibt keine Nummer. Zwei parallele
@@ -139,8 +140,10 @@ im Dry-Run-Pfad — die Vergaberegel darf nicht in zwei Code-Pfaden getrennt
 existieren, sonst laufen Vorschlag und tatsächliche Nummer auseinander.
 
 **Fehler:** `409` `errorCode: article.no_free_number` — gleiche Meldung wie in
-Abschnitt 3. Das Anlegen scheitert damit bereits beim Öffnen des Dialogs statt
-erst nach vollständiger Eingabe.
+Abschnitt 3, gleicher **Notfall-Pfad** (Stufe 3 der Kaskade). Das Anlegen scheitert
+damit bereits beim Öffnen des Dialogs statt erst nach vollständiger Eingabe. Ein
+aufgebrauchter Block des Verkäufers ist **kein** Grund für diesen Fehler — der
+Dry-Run liefert dann die `fromNumber` aus Stufe 2.
 
 ---
 
@@ -220,7 +223,7 @@ Fortsetzung nicht (Epic_Meine_Artikel AC-10).
 |---|---|
 | `400` | Pflichtfeld fehlt, oder `price` ≤ 0 → `errors.price: ["Preis muss größer als 0 sein"]` (Epic_Meine_Artikel AC-6) |
 | `409` | `errorCode: article.number_taken` — `expectedNumber` ist inzwischen vergeben. Nichts wurde gespeichert. Zusätzliches Extension-Member `nextNumber` trägt den neuen Vorschlag: `{ "errorCode": "article.number_taken", "detail": "Artikelnummer 104 ist inzwischen vergeben — neue Nummer: 105", "nextNumber": 105 }` (Epic_Meine_Artikel AC-7) |
-| `409` | `errorCode: article.no_free_number` — „Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren", wenn global keine Nummer mehr vergeben werden kann |
+| `409` | `errorCode: article.no_free_number` — „Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren". **Notfall-Pfad**: nur erreichbar über Stufe 3 der Vergabe-Kaskade (→ [`blocks.md`](blocks.md) Abschnitt 5), also wenn global kein freier Bereich der Größe `blockSize` mehr existiert. Da keine Obergrenze des Nummernkreises gepflegt wird, tritt das im Normalbetrieb nicht ein. Ein aufgebrauchter Block des Verkäufers allein löst diesen Fehler **nicht** aus |
 
 `nextNumber` erspart dem Frontend einen zweiten `next-number`-Roundtrip und
 schließt das Zeitfenster, in dem auch dieser Wert schon wieder veraltet wäre.

@@ -168,14 +168,92 @@ legt er einen weiteren Artikel an, weist **`POST /api/articles`** ihm in
 derselben Transaktion automatisch den nächsten freien Block zu
 (Epic_Nummernbloecke AC-4, kanonische Regel dort Abschnitt 2).
 
-Der neue Block erscheint anschließend in `GET /api/blocks/mine`. Existiert
-global kein freier Bereich mehr, schlägt das Anlegen mit `409` fehl
-(siehe [`articles.md`](articles.md)).
+### Vergabe-Kaskade des `NumberBlockAllocator`
+
+Verbindliche Auswertungsreihenfolge. Jede Stufe beendet bei Erfolg die Kaskade.
+Beide Aufrufwege nutzen dieselbe Kaskade — `POST /api/articles` schreibend,
+`GET /api/articles/next-number` im Dry-Run.
+
+| Stufe | Vorbedingung | Ergebnis |
+|---|---|---|
+| 1 | Der Verkäufer hat mindestens einen Block mit freier Nummer in `[fromNumber, toNumber]` | Kleinste freie Nummer über alle seine Blöcke (aufsteigend nach `fromNumber`) vergeben. Kein neuer Block. **Fertig.** |
+| 2 | Alle Blöcke des Verkäufers sind aufgebraucht **und** es existiert global ein freier Bereich von `blockSize` Nummern ab `startNumber` — nachgewiesen über die Freiheitsprüfung aus Abschnitt 6 | Neuen Block für diesen `sellerId` anlegen (`fromNumber` = erste Nummer des Bereichs, `toNumber` = `fromNumber + blockSize - 1`), dessen `fromNumber` vergeben. **In derselben Transaktion** wie der Artikel. **Fertig.** |
+| 3 | Stufe 2 findet keinen freien Bereich | `409` `errorCode: article.no_free_number` — **Notfall-Pfad**, siehe unten |
+
+**Stufe 3 ist ausschließlich über die Bedingung in ihrer Zeile erreichbar.** Ein
+aufgebrauchter eigener Block allein erreicht sie **nicht** — das ist genau der
+Fall, für den Stufe 2 existiert. Ein Allocator, der nur die bereits zugewiesenen
+Blöcke des Verkäufers durchsucht und beim Fehltreffer `no_free_number` liefert,
+ist nicht spec-konform.
+
+**Stufe 3 ist ein Notfall-Pfad und greift im Normalbetrieb nie.** Es gibt bewusst
+**keine** konfigurierbare Obergrenze des Nummernkreises — ein Block ist über
+`fromNumber` und die Länge `blockSize` bestimmt, ein globales Ende wird nicht
+gepflegt. Die Vergabe läuft ab `startNumber` aufwärts, ein freier Bereich existiert
+daher praktisch immer. Erreichbar ist Stufe 3 nur, wenn der Wertebereich des
+`int`-Feldes ausgeschöpft ist oder die Suche technisch scheitert.
+
+Konsequenzen daraus:
+
+- Stufe 3 wird **implementiert und getestet**, aber nicht als fachlicher
+  Regelfall behandelt — sie ist kein Grund, Verkäufern eine Warnung „Nummern
+  gehen zur Neige" anzuzeigen oder ein Kontingent-Konzept einzuführen.
+- Wer die Meldung „Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren"
+  im Test oder Betrieb sieht, hat mit hoher Wahrscheinlichkeit **einen Fehler in
+  Stufe 2**, keinen ausgeschöpften Nummernkreis. Erste Prüfung ist dann immer, ob
+  Stufe 2 überhaupt implementiert ist (Epic_Nummernbloecke AC-5).
+
+Stufe 2 vergibt **einen** Block, nicht `defaultBlockCount` — dieser Parameter
+gilt nur für Erstanlage und Selbstregistrierung. Der neue Block muss **nicht**
+an die bestehenden Blöcke des Verkäufers anschließen; er liegt dort, wo global
+Platz ist, und kann daher eine Lücke zu den vorhandenen Blöcken haben.
+
+Der neue Block erscheint anschließend in `GET /api/blocks/mine` (aufsteigend
+nach `fromNumber` einsortiert, nicht zwingend zusammenhängend).
 
 `GET /api/articles/next-number` liefert dieselbe Nummer als **Vorschau**, ohne
 etwas zu vergeben — beide Wege nutzen denselben `NumberBlockAllocator`, einmal
 schreibend und einmal im Dry-Run (siehe [`articles.md`](articles.md)
 Abschnitt 2).
+
+---
+
+## 6. Freiheitsprüfung bei jeder Blockvergabe
+
+Gilt **ohne Ausnahme für alle vier Vergabewege**: Selbstregistrierung
+([`auth.md`](auth.md)), Admin-Anlage (`POST /api/sellers`), Reservierung
+(Abschnitt 3) und automatische Erweiterung (Abschnitt 5, Stufe 2). Es gibt keinen
+Weg, auf dem ein Block ohne diese Prüfung entsteht — sie liegt daher im
+`NumberBlockAllocator`, nicht im jeweiligen Aufrufer.
+
+Ein neu zu vergebender Block ist durch `fromNumber` und die Länge `blockSize`
+bestimmt; seine letzte Nummer ist `fromNumber + blockSize - 1`. Beim Anlegen wird
+dieser Wert als `toNumber` **persistiert** und danach nie neu berechnet
+([`entities/nummernblock.md`](../entities/nummernblock.md)) — bestehende Blöcke
+werden deshalb über ihr gespeichertes `[fromNumber, toNumber]` verglichen, nicht
+über das aktuelle `blockSize`. Nur so bleibt die Prüfung auch dann korrekt, wenn
+`blockSize` nach der Vergabe geändert wurde.
+
+Geprüft wird immer der **gesamte Bereich**, nicht nur die Startnummer.
+
+### Prüf-Kaskade — verbindliche Reihenfolge je Vergabe
+
+| Stufe | Prüfung | Bei Verstoß |
+|---|---|---|
+| 1 | `fromNumber` ≥ `startNumber` aus den Einstellungen | Ablehnen — `409` `block.overlap` bzw. `article.no_free_number` je Aufrufweg |
+| 2 | Der komplette Bereich `[fromNumber, fromNumber + blockSize - 1]` überschneidet sich mit **keinem** bestehenden Block — auch nicht mit einem Block eines **anderen** Verkäufers, auch nicht teilweise, auch nicht randberührend | Ablehnen, siehe Stufe 1 |
+| 3 | Bei mehreren gewünschten Blöcken (`blockCount > 1`): der zusammenhängende Gesamtbereich `blockCount × blockSize` ist **lückenlos** frei — nicht jeder Block einzeln | Ablehnen, siehe Stufe 1 |
+| 4 | Insert innerhalb derselben Transaktion wie die Prüfung, abgesichert durch den PostgreSQL-Exclusion-Constraint auf `int4range(fromNumber, toNumber + 1)` | Constraint-Verstoß = anderer Vorgang war schneller. Kein `500`: der Vorgang wird als Konflikt behandelt — Aufrufweg „Reservierung" antwortet `409` `block.overlap`, Aufrufweg „automatische Erweiterung" wiederholt die Suche **einmal** mit dem dann aktuellen Stand und antwortet erst bei erneutem Verstoß `409` |
+
+**Stufe 2 und 3 werden unmittelbar vor dem Insert erneut ausgeführt**, auch wenn
+der Bereich aus einem Vorschlag (`GET /api/blocks/next-free`) stammt oder aus
+einer Suche derselben Anfrage: zwischen Vorschlag/Suche und Insert kann ein
+paralleler Vorgang denselben Bereich belegt haben. Ein einmal berechneter
+Vorschlag gilt nie als geprüft.
+
+**Stufe 4 ersetzt Stufe 2 und 3 nicht, und umgekehrt.** Die Vorprüfung liefert die
+fachliche Fehlermeldung, der Constraint schützt gegen die Race Condition. Eine
+Implementierung mit nur einem der beiden ist nicht spec-konform.
 
 ---
 
