@@ -80,6 +80,8 @@ Vorname/Nachname-Vorbelegung aus der Sucheingabe.
 
 **„Weiter"-Button** → Verkäufer wird sofort in der DB angelegt → Wechsel zu Schritt 2.
 
+**Verhältnis zur Artikel-Freigabe:** Beim Buchen in Schritt 2 setzt das System `releasedAt` gleichzeitig mit `acceptedAt` ([`entities/artikel.md`](../../entities/artikel.md)) — hier aufgenommene Artikel sind sofort im Verkauf. Der Freigabe-Scan in [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md) Abschnitt 6 betrifft ausschließlich die **vorangemeldeten** Artikel aus dem JSON-Import, die noch abgegeben werden müssen.
+
 ---
 
 ### Schritt 2 — Artikelannahme

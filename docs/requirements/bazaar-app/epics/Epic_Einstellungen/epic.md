@@ -81,6 +81,10 @@ Kein automatisches Anlegen, weil ein Typ Provision und Gebühr trägt, die der I
 1. Existiert ein Verkäufer (anhand der **Verkäufer-ID** aus Voranmelde-App) bereits → Verkäufer **inkl. aller seiner Artikel vollständig löschen**
 2. Danach: Verkäufer + Artikel aus der Import-Datei neu anlegen
 
+**Ausnahme — bereits verkauft oder abgerechnet:** Hat ein betroffener Verkäufer Artikel mit gesetztem `soldAt`, oder ist er selbst abgerechnet (`settledAt` gesetzt), wird er **nicht** ersetzt, sondern übersprungen; die Vorschau nennt ihn. Sonst würde ein zweiter Import am Basar-Tag Kassenumsätze löschen.
+
+Dass der Import einen Verkäufer samt Artikeln ersetzt, während das manuelle Löschen in [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md) bei vorhandenen Artikeln mit `409` abbricht, ist gewollt: Der Import setzt **denselben** Verkäufer in neuerem Stand ein (gleiche ID aus der Voranmelde-App), manuelles Löschen entfernt ihn dauerhaft.
+
 Die **Verkäufer-ID** aus der Voranmelde-App wird 1:1 übernommen.
 
 Artikel, die **manuell** in der Haupt-App angelegt wurden (ohne Import-Bezug), bleiben unberührt.
@@ -121,6 +125,7 @@ Nur für Admins erreichbar (Rechte-Matrix → [`spec.md`](../../spec.md) Abschni
 8. **AC-8** — IF versucht wird, das letzte verbleibende Admin-Konto zu löschen, THEN SHALL das System die Löschung mit `409` ablehnen.
 9. **AC-9** — IF die Import-Datei Verkäufer-Typen enthält, deren Name in dieser App nicht existiert, THEN SHALL das System sie in der Vorschau mit der Anzahl betroffener Verkäufer auflisten, je Name eine Zuordnung auf einen existierenden Typ verlangen und „Import bestätigen" bis dahin deaktiviert lassen.
 10. **AC-10** — THE SYSTEM SHALL beim Import keinen Verkäufer-Typ automatisch anlegen und keinen unbekannten Namen stillschweigend durch einen Standardtyp ersetzen.
+11. **AC-11** — IF ein zu ersetzender Verkäufer Artikel mit gesetztem `soldAt` hat oder selbst `settledAt` gesetzt hat, THEN SHALL das System ihn beim Import überspringen, seine Daten unverändert lassen und ihn in der Vorschau als übersprungen ausweisen.
 
 ## Tags & Piles
 

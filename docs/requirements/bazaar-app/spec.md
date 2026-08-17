@@ -420,7 +420,7 @@ Erste Zeile: Tage (ganzzahlig, kein Padding). Zweite Zeile: HH:MM:SS (zero-padde
 | 3 | Marken/Kategorien Freitext oder Liste? | ✅ AutoComplete + Freitext via Popup |
 | 4 | Welche Einstellungen soll der Admin konfigurieren? | ✅ `suchDebounceMs` (800 ms) + `scannerPauseMs` (3 000 ms) |
 | 5 | Offline-Fähigkeit? | ✅ Ja — lokales LAN, kein Internetzugang, alles im Bundle |
-| 6 | Scan-Ergebnis Anzeigedauer? | ✅ Konfigurierbar, Default 5 Sekunden |
+| 6 | Scan-Ergebnis Anzeigedauer? | ✅ Konfigurierbar über `scannerPauseMs`, Default 3 000 ms (Abschnitt 8) |
 | 7 | Artikel löschen im Wizard (noch nicht gespeichert)? | ✅ Ja — Löschen-Button pro Eintrag in Session-Liste |
 | 8 | Scan-Feedback: Ton und/oder Vibration? | ✅ Beides — Web Audio API + `Navigator.vibrate()` |
 | 9 | PrimeNG-Major-Version dieser App? | ✅ 22.0.0, identisch zur Voranmelde-App |

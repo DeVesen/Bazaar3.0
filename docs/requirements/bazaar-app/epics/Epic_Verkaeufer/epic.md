@@ -1,8 +1,9 @@
 ---
 id: F-BA-005
 code: VERK
-status: draft
-updated: 2026-07-31
+status: reviewed
+reviewed-date: 2026-08-17
+updated: 2026-08-17
 ---
 
 # Epic: Verkäufer
@@ -12,13 +13,17 @@ updated: 2026-07-31
 - 1. Filter-Panel — Filteroptionen
 - 2. Status-Definition — Statuslogik
 - 3. Verkäufer-Karte — Kartenaufbau
-- 4. Verkäufer bearbeiten — Bearbeiten
-- 5. Artikel-Freigeben-Popup — Freigabe
+- 4. Verkäufer bearbeiten — Bearbeiten, Löschen
+- 5. Verkäufer-Detail-Modal — Nummer, QR-Code, Artikelliste
+- 6. Artikel-Freigeben-Popup — Freigabe vorangemeldeter Artikel
+- 7. Backend & API — Endpoints, Query-Port
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
 **Navigation:** Stammdaten → Verkäufer
+**Route:** `/sellers`
+**Sichtbar für:** Admin (alles) · Kassenpersonal (anlegen und bearbeiten, kein Löschen, keine Konditionen)
 
 **Ziel:** Admin verwaltet Verkäufer-Stammdaten der Haupt-App.
 
@@ -55,6 +60,10 @@ Die Verkäufer-Seite zeigt alle Verkäufer als Karten-Grid. Von hier aus wird de
 | Umsatz | Summe der verkauften Artikel, absteigend |
 
 **Aktive Filter** werden als `p-chip`-Tags unterhalb des Filter-Panels angezeigt (mit × zum Entfernen).
+
+**Suche, Filter, Sortierung und Paginierung laufen serverseitig** — das Frontend hält nur die aktuelle Seite. **60 Karten pro Seite** (`p-paginator` unter dem Grid).
+
+Grund: Jede Karte trägt sieben Aggregate, und sortiert wird nach Summen, die nur der Server kennt. Paginierung statt endlosem Scrollen, weil am Annahmetisch gesucht und nicht gestöbert wird — wer scrollt, hat die Suche nicht benutzt. 60 deckt etwa drei Bildschirmhöhen ab und bleibt auf einem Tablet flüssig.
 
 ---
 
@@ -122,9 +131,13 @@ Die Verkäufer-Seite zeigt alle Verkäufer als Karten-Grid. Von hier aus wird de
 | Kein freigegebener Artikel | `Offen` (sec, grau) |
 
 **Klick auf Status-Badge** → Popup mit Abrechnungs-Zeitstempel:
-- Zeigt: „Abgerechnet Am ‹Zeitstempel›"
-- **Löschen-Button** zum Zurücksetzen auf NULL
+- Zeigt: „Abgerechnet am ‹Zeitstempel›" — für beide Rollen
+- **Löschen-Button** zum Zurücksetzen auf NULL — **nur für Admins sichtbar**, mit Bestätigungsdialog „Auszahlung vom ‹Zeitstempel› wird verworfen"; der Endpoint antwortet Kassenpersonal mit `403`
 - Kein manuelles Setzen möglich
+
+Das Zurücksetzen macht eine abgeschlossene Auszahlung wieder offen — die Rechte-Matrix führt es als „Abrechnung stornieren" (Admin-only). Ein einzelner Klick in einem Badge-Popup ist zu wenig Reibung für eine Geldbewegung, darum der Bestätigungsdialog.
+
+**Klick auf die Karte** (nicht auf einen der Buttons) → Detail-Modal, siehe Abschnitt 5.
 
 ---
 
@@ -149,13 +162,41 @@ Zusätzlich **Panel 05 — Sonstiges**:
 
 **Vorbelegung beim Anlegen:** Der Typ ist mit dem am häufigsten zugewiesenen Typ vorbelegt, bleibt aber änderbar.
 
+### Verkäufer löschen
+
+Im Bearbeiten-Dialog, **nur für Admins**, mit Bestätigungsdialog — bewusst nicht als vierter Button auf jeder Karte, das lädt zum Verklicken ein.
+
+**Löschen ist nur möglich, solange der Verkäufer keine Artikel hat.** Andernfalls `409` mit der Anzahl der Artikel. Ein Verkäufer mit verkauften Artikeln hängt an Kassenvorgängen; ihn zu entfernen würde Umsätze verwaisen lassen. Für den häufigsten Anlass — eine am Annahmetisch versehentlich doppelt angelegte Person — reicht die Regel, weil die Dublette in der Regel leer ist.
+
+**Zwei Verkäufer zusammenführen ist ausdrücklich nicht Teil des MVP.**
+
+Das ist strenger als der JSON-Import, der einen existierenden Verkäufer samt Artikeln ersetzt ([Epic_Einstellungen](../Epic_Einstellungen/epic.md)). Der Unterschied ist gewollt: Der Import ersetzt einen Verkäufer durch **denselben** Verkäufer in neuerem Stand (gleiche ID aus der Voranmelde-App), es verschwindet nichts, was nicht sofort wieder entsteht. Manuelles Löschen entfernt ihn dauerhaft.
+
 ---
 
-## 5. Artikel-Freigeben-Popup
+## 5. Verkäufer-Detail-Modal
+
+Öffnet sich beim **Klick auf die Karte** (nicht auf Edit oder Scanner). Rein lesend, keine Aktionen.
+
+| Bereich | Inhalt |
+|---|---|
+| Kopf | Name, Typ-Badge, Status-Badge |
+| Verkäufernummer | `id` im Klartext **und** als QR-Code → Shared-Component [`qr-code`](../../../../components/qr-code/component.md), Inhalt = Verkäufer-`id` |
+| Artikelliste | alle Artikel des Verkäufers mit Nummer, Bezeichnung, Preis und Status |
+
+Zweck: „Welche Artikel hat dieser Verkäufer, und welche sind schon freigegeben?" ist die häufigste Frage am Annahmetisch. Der QR-Code ist derselbe Baustein, den die Voranmelde-App für die Verkäufernummer-Anzeige nutzt — eine Komponente, zwei Apps.
+
+---
+
+## 6. Artikel-Freigeben-Popup
 
 → Komponente: [Scan-Dialog](../../../../components/scan-dialog/component.md) — `targetField="releasedAt"`
 
 Erreichbar über den **Scanner-Button** in der Verkäufer-Karte.
+
+**Wofür dieser Dialog da ist:** Er arbeitet die **vorangemeldeten, noch nicht abgegebenen** Artikel eines Verkäufers ab — also solche mit `releasedAt = null`, Status „Registriert". Das ist der Massenvorgang am Basar-Morgen, wenn ein vorangemeldeter Verkäufer seine Kiste bringt.
+
+Artikel, die am Tisch neu aufgenommen werden, erscheinen hier **nie**: Beim Buchen der Annahme setzt das System `releasedAt` gleichzeitig mit `acceptedAt` ([`entities/artikel.md`](../../entities/artikel.md)), sie sind also sofort freigegeben.
 
 ### Eingabe-Modus
 
@@ -163,7 +204,7 @@ Eingabefeld (Artikelnummer) + AutoComplete-Liste darunter.
 
 | Zustand | Verhalten |
 |---|---|
-| (leer) | Liste zeigt alle noch **nicht freigegebenen** Artikel dieses Verkäufers |
+| (leer) | Liste zeigt alle noch **nicht freigegebenen** Artikel dieses Verkäufers (`releasedAt = null`) |
 | Eingabe | Filtert die Liste nach Artikelnummer |
 | Genau 1 Treffer + ENTER | Artikel bekommt `releasedAt = jetzt`; Eingabefeld leert sich; Liste zeigt wieder alle ausstehenden |
 | Kein Treffer | Liste verschwindet; Text: *„Artikel nicht bekannt"* |
@@ -179,9 +220,11 @@ Nach erfolgreichem Scan:
 
 | Ergebnis | Farbe | Dauer |
 |---|---|---|
-| Erfolgreich freigegeben | 🟢 Grün | konfigurierbar (Default 5 Sek.) |
-| Bereits freigegeben | 🟡 Gelb | konfigurierbar |
-| Nicht bekannt | 🔴 Rot | konfigurierbar |
+| Erfolgreich freigegeben | 🟢 Grün | `scannerPauseMs`, Default 3 000 ms |
+| Bereits freigegeben | 🟡 Gelb | `scannerPauseMs` |
+| Nicht bekannt | 🔴 Rot | `scannerPauseMs` |
+
+Die Dauer kommt aus dem Einstellungs-Parameter `scannerPauseMs` ([`spec.md`](../../spec.md) Abschnitt 8), nicht aus einer Konstante. Fünf Sekunden Zwangspause je Scan summieren sich bei 300 Artikeln auf 25 Minuten Warten.
 
 Nach Ablauf der Anzeigezeit → Kamerabild wieder aktiv.
 
@@ -189,14 +232,37 @@ Nach Ablauf der Anzeigezeit → Kamerabild wieder aktiv.
 
 **Feedback:** Ton (Web Audio API) + Vibration (`Navigator.vibrate()`).
 
+---
+
+## 7. Backend & API
+
+Die Karten-Aggregate kommen über einen **eigenen Query-Port** ([`spec.md`](../../spec.md) Abschnitt 7.0.1) als fertiges Read-Model — eine Query für die ganze Seite. Würde das Frontend rechnen, müsste es alle Artikel aller Verkäufer laden; würde jede Karte einzeln nachfragen, wären es bei 200 Verkäufern 200 Requests.
+
+| Endpoint | Auth | Beschreibung |
+|---|---|---|
+| `GET /api/sellers` | `authenticated` | Seite der Verkäuferliste inkl. aller Karten-Aggregate; Parameter für Suche, Status, Sortierung, Seite |
+| `POST /api/sellers` | `authenticated` | Legt Verkäufer an; `sellerTypeId` ist Pflicht |
+| `PUT /api/sellers/{id}` | `authenticated` | Stammdaten. Mitgesendete `salesCommission`/`feePerItem` SHALL nur mit Rolle `admin` wirken, sonst `403` |
+| `DELETE /api/sellers/{id}` | `admin` | `409` falls der Verkäufer noch Artikel hat |
+| `GET /api/sellers/{id}/articles` | `authenticated` | Artikelliste für das Detail-Modal (Abschnitt 5) |
+| `PUT /api/articles/{id}/release` | `authenticated` | Setzt `releasedAt` (Scan-Dialog, Abschnitt 6) |
+| `DELETE /api/sellers/{id}/settlement` | `admin` | Setzt `settledAt` zurück |
+
+Kein `IQueryable` über die Portgrenze, ein Repository pro Aggregate — die Aggregat-Abfrage ist ein Query-Port, kein erweitertes Repository.
+
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN der Nutzer Text in das Suchfeld eingibt und die Debounce-Zeit abgelaufen ist, THEN SHALL das System die Verkäuferliste auf Einträge filtern, die den Suchbegriff in Name oder Nummer enthalten.
 2. **AC-2** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit leeren Pflichtfeldern (Vorname, Nachname) öffnen; der Verkäufer-Typ SHALL mit dem am häufigsten zugewiesenen Typ vorbelegt sein.
 3. **AC-3** — WHEN ein neuer Verkäufer gespeichert wird, THEN SHALL das System ihn in der Datenbank anlegen und in der Liste anzeigen.
 4. **AC-4** — WHEN „Edit" bei einem Verkäufer geklickt wird, THEN SHALL das System das Popup mit den vorausgefüllten Verkäuferdaten öffnen.
-5. **AC-5** — WHEN auf einen Verkäufer-Eintrag geklickt wird, THEN SHALL das System das Verkäufer-Detail-Panel mit QR-Code (Shared-Component [`qr-code`](../../../../components/qr-code/component.md), Inhalt = Verkäufer-`id`) und Artikelliste anzeigen.
+5. **AC-5** — WHEN auf eine Verkäufer-Karte geklickt wird (nicht auf Edit oder Scanner), THEN SHALL das System das Detail-Modal mit der Verkäufernummer im Klartext, demselben Wert als QR-Code (Shared-Component [`qr-code`](../../../../components/qr-code/component.md), Inhalt = Verkäufer-`id`) und der Artikelliste mit Status je Artikel anzeigen.
 6. **AC-6** — IF beim Speichern ein Pflichtfeld leer ist, THEN SHALL das System eine Fehlermeldung unter dem jeweiligen Feld anzeigen und nicht speichern.
+7. **AC-7** — THE SYSTEM SHALL Suche, Statusfilter, Sortierung und Paginierung serverseitig auflösen und je Seite höchstens 60 Karten liefern; die Karten-Aggregate SHALL aus einer einzigen Abfrage stammen.
+8. **AC-8** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL das System die Konditionsfelder schreibgeschützt anzeigen, den Löschen-Button im Bearbeiten-Dialog nicht rendern und den Löschen-Button im Abrechnungs-Popup nicht rendern; entsprechende Requests SHALL mit `403` abgelehnt werden.
+9. **AC-9** — IF ein Verkäufer gelöscht werden soll, der noch Artikel hat, THEN SHALL das System die Löschung mit `409` ablehnen und die Anzahl der Artikel nennen.
+10. **AC-10** — WHEN der Löschen-Button im Abrechnungs-Popup geklickt wird, THEN SHALL das System einen Bestätigungsdialog mit dem Text „Auszahlung vom ‹Zeitstempel› wird verworfen" anzeigen und `settledAt` erst nach Bestätigung zurücksetzen.
+11. **AC-11** — WHEN der Freigeben-Dialog geöffnet wird, THEN SHALL das System ausschließlich Artikel mit leerem `releasedAt` listen; am Tisch aufgenommene Artikel SHALL dort nicht erscheinen.
 
 ## Stories
 

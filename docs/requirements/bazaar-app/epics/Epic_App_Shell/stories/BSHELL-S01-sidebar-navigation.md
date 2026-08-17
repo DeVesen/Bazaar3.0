@@ -14,7 +14,9 @@ Admin und Kassenpersonal navigieren über eine fest sichtbare Sidebar zwischen d
 
 Die Sidebar ist auf allen Seiten hinter dem Login sichtbar; die Login-Seite selbst läuft ohne AppShell (siehe [Epic_Login](../../Epic_Login/epic.md)). Sie gliedert sich in drei Gruppen: Tagesgeschäft, Stammdaten, System, plus einen Footer mit Benutzeridentität und Logout. Das Logo zeigt „Bazaar **Suite**", wobei „Suite" in der Akzentfarbe erscheint.
 
-**„Offene Artikel"** im Badge heißt: Artikel, die angenommen, aber noch nicht freigegeben sind. Die Zahl stammt aus derselben Abfrage, die die Artikelannahme-Seite ohnehin braucht — fachlich verbindlich ist [Epic_Artikelannahme](../../Epic_Artikelannahme/epic.md).
+**„Offene Artikel"** im Badge heißt: Artikel mit leerem `releasedAt` — vorangemeldet über den JSON-Import, aber noch nicht abgegeben. Das Badge zählt damit die Arbeit, die am Basar-Morgen noch vor dem Team liegt.
+
+Am Tisch aufgenommene Artikel zählen **nicht** mit: Beim Buchen der Annahme setzt das System `releasedAt` gleichzeitig mit `acceptedAt` ([`entities/artikel.md`](../../../entities/artikel.md)), sie sind also nie „offen". Freigegeben werden die vorangemeldeten Artikel über den Scan-Dialog in [Epic_Verkaeufer](../../Epic_Verkaeufer/epic.md) Abschnitt 6.
 
 **Rollenabhängig:** Kassenpersonal sieht den Eintrag **Einstellungen** nicht (Rechte-Matrix → [`spec.md`](../../../spec.md) Abschnitt 4.1). Einen Role-Toggle wie in der Voranmelde-App gibt es hier **nicht** — der Admin hat alle Rechte des Kassenpersonals, ein Toggle würde ihm nur künstlich Rechte wegnehmen.
 
