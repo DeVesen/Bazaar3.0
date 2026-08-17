@@ -225,8 +225,8 @@ Feature-spezifische UI-Specs:
 
 | Komponente | Technologie |
 |---|---|
-| **Frontend** | Angular 20 (Standalone Components, Signals, OnPush) |
-| **Backend** | .NET 9 Minimal API |
+| **Frontend** | Angular 22 (Standalone Components, Signals, OnPush) |
+| **Backend** | .NET 10 Minimal API |
 | **ORM** | Entity Framework Core |
 | **Datenbank** | PostgreSQL |
 | **UI-Bibliothek** | PrimeNG 22.0.0 |
@@ -235,6 +235,16 @@ Feature-spezifische UI-Specs:
 | **Mehrsprachigkeit** | ngx-translate (DE + EN) |
 | **Icons** | Material Symbols (npm-Paket) |
 | **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) |
+
+**Warum diese Majors** (geprüft am 2026-08-17, bei Beginn der Umsetzung):
+
+- **PrimeNG 22.0.0 verlangt `@angular/core ^22.0.0`.** Die zuvor hier stehende Kombination
+  „Angular 20 + PrimeNG 22.0.0" ist nicht installierbar; PrimeNG 20 gehört zu Angular 20,
+  PrimeNG 21 zu Angular 21. Da die Sidebar bewusst auf der `p-sidebar`-Compound-Familie
+  aufsetzt, die es erst ab PrimeNG 22 gibt, folgt daraus Angular 22.
+- **.NET 9 ist seit Mai 2026 aus dem Support** (STS-Release). .NET 10 ist LTS — ein Projekt
+  auf einem EOL-Framework zu beginnen wäre eine Altlast ab Tag eins.
+
 
 ### 10.0.1 Architektur
 

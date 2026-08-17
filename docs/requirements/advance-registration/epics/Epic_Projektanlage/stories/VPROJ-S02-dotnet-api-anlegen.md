@@ -8,7 +8,7 @@ depends-on: []
 
 ## Ziel
 
-Ein Entwickler legt das .NET 9 Minimal API Backend der Voranmelde-App als hexagonale Projektstruktur (vier csproj) an und konfiguriert die Grundlage für JWT-Authentifizierung, zentrale Fehlerabbildung, Validierung sowie einen Health-Check-Endpoint.
+Ein Entwickler legt das .NET 10 Minimal API Backend der Voranmelde-App als hexagonale Projektstruktur (vier csproj) an und konfiguriert die Grundlage für JWT-Authentifizierung, zentrale Fehlerabbildung, Validierung sowie einen Health-Check-Endpoint.
 
 ## Kontext
 
@@ -62,7 +62,7 @@ Alle anderen Endpoints (außer /health, /api/auth/* und /api/public/*):
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL vier .NET 9 Projekte anlegen — `Bazaar.Api` (`dotnet new webapi`), `Bazaar.Application`, `Bazaar.Domain`, `Bazaar.Infrastructure` (jeweils `classlib`) — und in einer Solution `Bazaar.sln` zusammenfassen.
+- [ ] **AC-1** — THE SYSTEM SHALL vier .NET 10 Projekte anlegen — `Bazaar.Api` (`dotnet new webapi`), `Bazaar.Application`, `Bazaar.Domain`, `Bazaar.Infrastructure` (jeweils `classlib`) — und in einer Solution `Bazaar.sln` zusammenfassen.
 - [ ] **AC-2** — THE SYSTEM SHALL die Projektreferenzen ausschließlich in dieser Richtung setzen: `Api` → `Application`, `Infrastructure`, `Domain`; `Infrastructure` → `Application`, `Domain`; `Application` → `Domain`; `Domain` → **keine**. `Bazaar.Domain` SHALL kein NuGet-Paket von EF Core, ASP.NET oder Serialisierung referenzieren.
 - [ ] **AC-2b** — THE SYSTEM SHALL innerhalb von `Application` und `Api` je Feature einen Ordner `<FeatureName>/` als Konvention etablieren (ein Handler pro Use Case in `Application`, Endpoint-Registrierung + Request-/Response-DTOs in `Api`).
 - [ ] **AC-2c** — THE SYSTEM SHALL einen globalen `IExceptionHandler` registrieren, der Domain-Exceptions als einziger Ort auf `ProblemDetails` abbildet (`NotFoundException` → 404, `ConflictException` → 409, `UnauthorizedException` → 401) und dabei zusätzlich zu `detail` das Extension-Member `errorCode` setzt (siehe [`cross-cutting.md`](../../../api/cross-cutting.md) Abschnitt 3).

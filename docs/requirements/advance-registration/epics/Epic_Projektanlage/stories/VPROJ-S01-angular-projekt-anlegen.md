@@ -8,7 +8,7 @@ depends-on: []
 
 ## Ziel
 
-Ein Entwickler legt das Angular 20 Frontend-Projekt der Voranmelde-App an, konfiguriert PrimeNG 22.0.0, Material Icons und ngx-translate (DE/EN) und stellt die Grundstruktur für eine mehrsprachige Cloud-App bereit.
+Ein Entwickler legt das Angular 22 Frontend-Projekt der Voranmelde-App an, konfiguriert PrimeNG 22.0.0, Material Icons und ngx-translate (DE/EN) und stellt die Grundstruktur für eine mehrsprachige Cloud-App bereit.
 
 ## Kontext
 
@@ -22,7 +22,7 @@ Die Voranmelde-App läuft in der Cloud und unterstützt Deutsch (Default) und En
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL ein Angular 20 Projekt mit Standalone Components und Signals-Support erzeugen und in `angular.json` unter `schematics` `ChangeDetectionStrategy.OnPush` als Default für neu generierte Komponenten konfigurieren.
+- [ ] **AC-1** — THE SYSTEM SHALL ein Angular 22 Projekt mit Standalone Components und Signals-Support erzeugen und in `angular.json` unter `schematics` `ChangeDetectionStrategy.OnPush` als Default für neu generierte Komponenten konfigurieren.
 - [ ] **AC-2** — THE SYSTEM SHALL PrimeNG in Version `22.0.0` (npm dist-tag `latest`, stabil) installieren und `providePrimeNG({ theme: { preset: Aura } })` in `app.config.ts` registrieren (Aura als Placeholder; wird in Epic_App_Shell durch das finale Preset ersetzt).
 - [ ] **AC-3** — THE SYSTEM SHALL `@ngx-translate/core` und `@ngx-translate/http-loader` installieren und `provideTranslateService` in `app.config.ts` mit DE als Standardsprache und EN als Fallback registrieren.
 - [ ] **AC-4** — THE SYSTEM SHALL leere Übersetzungs-Dateien `src/assets/i18n/de.json` und `src/assets/i18n/en.json` anlegen.

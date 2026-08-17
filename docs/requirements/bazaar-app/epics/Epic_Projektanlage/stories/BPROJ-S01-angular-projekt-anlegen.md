@@ -8,7 +8,7 @@ depends-on: []
 
 ## Ziel
 
-Ein Entwickler legt das Angular 20 Frontend-Projekt der Haupt-App an, konfiguriert PrimeNG 22.0.0 und Material Icons als npm-Pakete, richtet die Feature-First-Verzeichnisstruktur samt erzwungener Importgrenzen ein und stellt sicher, dass das Projekt vollständig offline-fähig ist (kein CDN-Verweis).
+Ein Entwickler legt das Angular 22 Frontend-Projekt der Haupt-App an, konfiguriert PrimeNG 22.0.0 und Material Icons als npm-Pakete, richtet die Feature-First-Verzeichnisstruktur samt erzwungener Importgrenzen ein und stellt sicher, dass das Projekt vollständig offline-fähig ist (kein CDN-Verweis).
 
 ## Kontext
 
@@ -37,7 +37,7 @@ Cross-Feature-Imports sind verboten; `shared/` und `core/` importieren nie aus `
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL ein Angular 20 Projekt mit Standalone Components, `changeDetection: ChangeDetectionStrategy.OnPush` als Default und Signals-Support erzeugen.
+- [ ] **AC-1** — THE SYSTEM SHALL ein Angular 22 Projekt mit Standalone Components, `changeDetection: ChangeDetectionStrategy.OnPush` als Default und Signals-Support erzeugen.
 - [ ] **AC-2** — THE SYSTEM SHALL PrimeNG 22.0.0 (`primeng`, `@primeuix/styled`) per npm installieren und `providePrimeNG` in `app.config.ts` registrieren.
 - [ ] **AC-3** — THE SYSTEM SHALL `@material-symbols/font-200` (oder äquivalentes Material-Icons-npm-Paket) installieren und in `angular.json` als Asset einbinden, sodass Icons ohne CDN-Aufruf verfügbar sind.
 - [ ] **AC-4** — WHEN `ng build --configuration production` ausgeführt wird, THEN SHALL der Build-Output keinen externen CDN-Verweis (fonts.googleapis.com, cdn.jsdelivr.net o. Ä.) enthalten.

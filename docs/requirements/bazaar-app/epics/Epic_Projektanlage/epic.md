@@ -17,8 +17,8 @@ Technisches Grundsetup der Haupt-App: Angular-Frontend und .NET-Backend werden a
 
 ## Bereiche
 
-- Angular 20 Frontend-Projekt (`frontend/`) mit PrimeNG 22.0.0, Feature-First-Struktur und ESLint-Importgrenzen
-- .NET 9 Minimal API Backend (`backend/`) als hexagonaler Vier-Projekt-Schnitt, inkl. JWT-Grundkonfiguration
+- Angular 22 Frontend-Projekt (`frontend/`) mit PrimeNG 22.0.0, Feature-First-Struktur und ESLint-Importgrenzen
+- .NET 10 Minimal API Backend (`backend/`) als hexagonaler Vier-Projekt-Schnitt, inkl. JWT-Grundkonfiguration
 - Docker Compose für lokales Dev-Setup, separates Overlay für den Insel-Betrieb (nginx + Production-Build)
 - Entity Framework Core mit PostgreSQL (ausschließlich in `Bazaar.Infrastructure`)
 - Test- und Architektur-Test-Infrastruktur (Jest, xUnit v3, NetArchTest)

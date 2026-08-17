@@ -11,7 +11,7 @@ Ressourcen-Dateien, die Querschnitts-Regeln (Verb-Muster, Auth-Stufen, Fehlerfor
 Pagination, Transaktionen, Sperrregeln) einmalig in
 [`cross-cutting.md`](cross-cutting.md).
 
-**Backend:** .NET 9 Minimal API · **Basis-Präfix:** `/api` (Ausnahme `/health`)
+**Backend:** .NET 10 Minimal API · **Basis-Präfix:** `/api` (Ausnahme `/health`)
 
 ---
 

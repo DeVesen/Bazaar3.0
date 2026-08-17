@@ -9,7 +9,7 @@ Verbindliche Konventionen für **alle** Endpoints der Voranmelde-App. Die
 ressourcenspezifischen Dateien in diesem Verzeichnis verweisen hierher statt
 diese Regeln zu wiederholen.
 
-**Backend:** .NET 9 Minimal API, **hexagonal** in vier Projekten
+**Backend:** .NET 10 Minimal API, **hexagonal** in vier Projekten
 (`Bazaar.Domain` / `.Application` / `.Infrastructure` / `.Api`) — Feature-Ordner nur
 innerhalb von `Application` und `Api`, ein Handler pro Use Case
 (siehe [VPROJ-S02](../epics/Epic_Projektanlage/stories/VPROJ-S02-dotnet-api-anlegen.md)).

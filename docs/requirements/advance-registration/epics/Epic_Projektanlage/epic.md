@@ -17,8 +17,8 @@ Technisches Grundsetup der Voranmelde-App: Angular-Frontend und .NET-Backend wer
 
 ## Bereiche
 
-- Angular 20 Frontend-Projekt (`frontend/`) mit ngx-translate (DE/EN), Feature-First-Struktur und ESLint-Importgrenzen
-- .NET 9 Minimal API Backend (`backend/`) als hexagonaler Vier-Projekt-Schnitt mit JWT-Auth-Middleware-Grundlage
+- Angular 22 Frontend-Projekt (`frontend/`) mit ngx-translate (DE/EN), Feature-First-Struktur und ESLint-Importgrenzen
+- .NET 10 Minimal API Backend (`backend/`) als hexagonaler Vier-Projekt-Schnitt mit JWT-Auth-Middleware-Grundlage
 - Docker Compose für lokales Dev-Setup (cloud-kompatibel)
 - Entity Framework Core mit PostgreSQL (ausschließlich in `Bazaar.Infrastructure`)
 - Test- und Architektur-Test-Infrastruktur (Jest, xUnit, NetArchTest)

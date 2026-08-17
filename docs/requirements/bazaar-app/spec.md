@@ -195,8 +195,8 @@ Feature-spezifische UI-Specs:
 
 | Komponente | Technologie |
 |---|---|
-| **Frontend** | Angular 20 (Standalone Components, Signals, OnPush) |
-| **Backend** | .NET 9 Minimal API |
+| **Frontend** | Angular 22 (Standalone Components, Signals, OnPush) |
+| **Backend** | .NET 10 Minimal API |
 | **ORM** | Entity Framework Core |
 | **Datenbank** | PostgreSQL |
 | **UI-Bibliothek** | PrimeNG 22.0.0 (kein Angular Material) |
@@ -206,6 +206,16 @@ Feature-spezifische UI-Specs:
 | **Icons** | Material Symbols (npm-Paket, kein CDN) |
 | **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) · NetArchTest (Architektur) |
 | **Auth** | JWT-Bearer, ein Access-Token (16 h), kein Refresh-Token |
+
+**Warum diese Majors** (geprüft am 2026-08-17, bei Beginn der Umsetzung):
+
+- **PrimeNG 22.0.0 verlangt `@angular/core ^22.0.0`.** Die zuvor hier stehende Kombination
+  „Angular 20 + PrimeNG 22.0.0" ist nicht installierbar; PrimeNG 20 gehört zu Angular 20,
+  PrimeNG 21 zu Angular 21. Da die Sidebar bewusst auf der `p-sidebar`-Compound-Familie
+  aufsetzt, die es erst ab PrimeNG 22 gibt, folgt daraus Angular 22.
+- **.NET 9 ist seit Mai 2026 aus dem Support** (STS-Release). .NET 10 ist LTS — ein Projekt
+  auf einem EOL-Framework zu beginnen wäre eine Altlast ab Tag eins.
+
 
 Die PrimeNG-Major-Version ist **identisch zur Voranmelde-App** — beide Apps teilen dieselben
 Komponenten-Muster und eigenen Wrapper; zwei Majors würden dieses Wissen doppeln.
