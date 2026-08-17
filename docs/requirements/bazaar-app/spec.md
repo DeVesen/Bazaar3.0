@@ -1,6 +1,7 @@
 ---
 id: DOC-005
-status: draft
+status: reviewed
+reviewed-date: 2026-08-17
 updated: 2026-08-17
 ---
 
@@ -23,7 +24,7 @@ updated: 2026-08-17
 **Version:** 0.9
 **Datum:** 2026-08-17
 **Autor:** Sven Reichert
-**Status:** Entwurf (14 von 14 Epics reviewed)
+**Status:** Reviewed (14 von 14 Epics)
 
 ---
 
