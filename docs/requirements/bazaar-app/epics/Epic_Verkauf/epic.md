@@ -1,9 +1,8 @@
 ---
 id: F-BA-002
 code: VERKAUF
-status: reviewed
-reviewed-date: 2026-08-17
-updated: 2026-08-17
+status: draft
+updated: 2026-08-18
 ---
 
 # Epic: Verkauf
@@ -62,8 +61,23 @@ Kassenvorgang mit Artikelnummer-Eingabe (USB-Barcode-Scanner oder Kamera-Scan), 
 
 ### Eingabemöglichkeiten
 
-1. **USB-Barcode-Scanner** (Tastatur-Emulation) — Scanner tippt Nummer direkt ins Feld und bestätigt mit Enter
-2. **Kamera-Scan** — Button neben dem Eingabefeld öffnet Popup-Modus mit Kamerabild ([Barcode-Scanner](../../../../components/barcode-scanner/component.md)); nach Scan wird Wert ins Feld übernommen
+Das Artikelnummer-Feld ist eine [InputGroup](../../../../components/input-group/component.md)
+mit `modes = ['keyboard', 'camera', 'numpad']`. Die Umschaltmechanik steht dort in
+Abschnitt 3; hier stehen nur die Verkauf-spezifischen Ausprägungen.
+
+| Modus | Ausprägung im Verkauf |
+|---|---|
+| Tastatur | Startmodus. Der **USB-Barcode-Scanner** tippt die Nummer hierhin und bestätigt mit Enter |
+| Kamera | Inline-Kamerabild an der Position des Feldes ([Barcode-Scanner](../../../../components/barcode-scanner/component.md)) — kein Modal. Nach dem ersten Treffer kehrt das Feld in den zuvor aktiven Modus zurück |
+| Numpad | `showDecimal="false"` (Artikelnummern sind ganzzahlig), `showEnter="true"`; `⏎` löst den Artikel-Lookup aus |
+
+**Die Kamera verlässt sich nach einem Treffer selbst.** Anders als beim Dauerscan der
+Artikelannahme ([ANNAHME-S01](../Epic_Artikelannahme/stories/ANNAHME-S01-inline-camera-mode.md))
+wird hier kassiert: Der erkannte Artikel geht **nicht** direkt in den Warenkorb, sondern
+erst per Klick auf den Preis-Button. Bliebe die Kamera aktiv, liefe der Scanner während
+dieser Bestätigung weiter und erfasste den nächstbesten Artikel im Bild.
+
+Details → [VERKAUF-S01](stories/VERKAUF-S01-eingabemodi.md)
 
 ### Artikel-Erkennung
 
@@ -131,7 +145,7 @@ Klick auf **„BUCHEN"** → Popup (Größe `sm`) öffnet sich — **ohne** noch
 ### Popup-Inhalt
 
 1. **Gesamt-Zeile:** flex space-between, 700, 19 px, border-top 2 px `--border`, mt 6 px, pt 10 px
-2. **InputGroup** „Betrag erhalten (€)": `p-inputgroup` + `pInputText type="number"` + `p-inputgroupaddon "€"`, mt 16 px
+2. **InputGroup** „Betrag erhalten (€)" — `modes = ['keyboard', 'numpad']`, €-Addon rechts, mt 16 px. Aufbau und `⏎`-Verhalten → [Payment-Panel](../../../../components/payment-panel/component.md)
 3. **Rückgeld-Box:** 32 px, 800, text-align center, padding 14 px, background `#e8f8f0`, radius 8 px, color `#1a5c38`, margin 12 px 0
 
 **„Betrag erhalten" und Rückgeld werden nicht gespeichert** — reine Rechenhilfe für den Moment am Tresen. Der Umsatz steht ohnehin fest: Er ist die Summe der Preise der Artikel mit `soldAt`. Was der Kunde hingelegt und zurückbekommen hat, ergäbe eine Zahl, die niemand prüft. Dieselbe Regel gilt bei der Annahmegebühr ([Epic_Artikelannahme](../Epic_Artikelannahme/epic.md) Abschnitt 4).
@@ -213,7 +227,7 @@ Entweder alle Artikel sind gebucht oder keiner: Ein halb gebuchter Kassenvorgang
 
 ## Stories
 
-- [VERKAUF-S01 — Popup-Kamera-Scanner im Kassenvorgang](stories/VERKAUF-S01-popup-camera-mode.md)
+- [VERKAUF-S01 — Eingabemodi im Kassenvorgang](stories/VERKAUF-S01-eingabemodi.md)
 
 ## Tags & Piles
 
