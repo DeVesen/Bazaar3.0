@@ -26,8 +26,10 @@ updated: 2026-08-18
 ## Überblick
 
 Der Numpad ist ein **zustandsloser Event-Relay** — er kennt keinen Wert und verwaltet keinen Buffer.
-Er zeigt 12 Buttons und emittiert bei jedem Klick entweder ein `KeyboardEventInit`-Objekt
-(für 0–9, Komma, Backspace) oder ein `cleared`-Event (für die C-Taste).
+Er zeigt zwölf bis vierzehn Buttons — je nachdem, ob Komma-Taste und `⏎` eingeblendet sind
+(Abschnitt 2) — und emittiert bei jedem Klick eines von drei Events: ein
+`KeyboardEventInit`-Objekt (für 0–9, Komma, Backspace), ein `cleared`-Event (für die
+C-Taste) oder ein `submitted`-Event (für `⏎`).
 
 Das Parent dispatcht das empfangene Event auf das native `<input>`-Element des zugehörigen
 `p-inputnumber` — so übernimmt PrimeNG automatisch die gesamte Buffer-Logik, Locale-Formatierung
