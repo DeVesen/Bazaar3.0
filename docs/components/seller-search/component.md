@@ -54,9 +54,9 @@ Epic_Abrechnung beschreibt es explizit als „identische Suchfeld-Ansicht wie Ar
 Tastatur-Modus (showScanButton=false):
 ┌─────────────────────────────────────────────────────┐
 │                                                     │
-│   ┌────────────────────────────────────┬────────┐  │
-│   │ 🔍  Name, Vorname oder Nummer ...  │ Suchen │  │
-│   └────────────────────────────────────┴────────┘  │
+│   ┌──────────────────────────────┬────────┬─────┐  │
+│   │ 🔍  Name, Vorname oder Nr... │ Suchen │  ⊞  │  │
+│   └──────────────────────────────┴────────┴─────┘  │
 │                                                     │
 │   ENTER bei 1 Treffer öffnet Wizard …  ← Hinweis   │
 │                                                     │
@@ -74,9 +74,9 @@ Tastatur-Modus (showScanButton=false):
 Tastatur-Modus (showScanButton=true):
 ┌─────────────────────────────────────────────────────┐
 │                                                     │
-│   ┌──────────────────────────────┬────────┬─────┐  │
-│   │ 🔍  Name, Vorname oder Nr... │ Suchen │ 📷  │  │
-│   └──────────────────────────────┴────────┴─────┘  │
+│   ┌────────────────────────┬────────┬─────┬─────┐  │
+│   │ 🔍  Name, Vorname... │ Suchen │ 📷  │  ⊞  │  │
+│   └────────────────────────┴────────┴─────┴─────┘  │
 │                                                     │
 │   ENTER bei 1 Treffer öffnet Wizard …  ← Hinweis   │
 │                                                     │
@@ -91,9 +91,9 @@ Tastatur-Modus (showScanButton=true):
 Kamera-Modus (nach Klick auf 📷 — Kamera ersetzt Trefferliste):
 ┌─────────────────────────────────────────────────────┐
 │                                                     │
-│   ┌──────────────────────────────┬────────┬─────┐  │
-│   │ 🔍  042                      │ Suchen │ 📷  │  │
-│   └──────────────────────────────┴────────┴─────┘  │
+│   ┌────────────────────────┬────────┬─────┬─────┐  │
+│   │ 🔍  042               │ Suchen │  ⌨  │  ⊞  │  │
+│   └────────────────────────┴────────┴─────┴─────┘  │
 │                                                     │
 │   ENTER bei 1 Treffer öffnet Wizard …  ← Hinweis   │
 │                                                     │
@@ -115,6 +115,8 @@ Zustandsübersicht Suchfeld:
 │             → Anlegen-Button sichtbar (wenn aktiv)   │
 └──────────────────────────────────────────────────────┘
 ```
+
+Bei nicht gesetztem `showScanButton` sind nur zwei Modi konfiguriert (Tastatur, Numpad); da stets nur die nicht aktiven Modi als Buttons erscheinen, zeigt das Suchfeld in diesem Fall genau einen Modus-Button.
 
 ---
 
@@ -251,7 +253,7 @@ Barcode-Dekodierung: `BarcodeDetector`-API (Chromium) oder `@zxing/browser` als 
 2. **AC-2** — WHEN der Nutzer Text eingibt, THEN SHALL das System die Trefferliste auf Einträge filtern, deren `id`, `firstName` oder `lastName` den Suchbegriff als Substring enthält (case-insensitive).
 3. **AC-3** — WHEN genau ein Treffer vorhanden ist und Enter gedrückt wird, THEN SHALL das System das `sellerSelected`-Event mit dem gefundenen Verkäufer emittieren.
 4. **AC-4** — WHEN die Trefferliste leer ist und `showCreateButton === true`, THEN SHALL das System den Button „+ Neuen Verkäufer anlegen" einblenden und bei Klick das `createRequested`-Event mit dem aktuellen Suchtext emittieren.
-5. **AC-5** — WHERE `showScanButton === true`, SHALL das System einen 📷-Toggle-Button neben dem Suchfeld anzeigen; Klick darauf stoppt die Trefferliste und zeigt den live Videostream.
+5. **AC-5** — WHERE `showScanButton === true`, SHALL das System einen Kamera-Modus-Button neben dem Suchfeld anzeigen; Klick darauf stoppt die Trefferliste und zeigt den live Videostream.
 6. **AC-6** — WHEN im Kamera-Modus ein QR-Code oder Barcode erkannt wird und genau ein Treffer gefunden wird, THEN SHALL das System `sellerSelected` emittieren und die Kamera stoppen.
 7. **AC-7** — WHEN Escape im Kamera-Modus gedrückt wird, THEN SHALL das System die Kamera stoppen, in den zuvor aktiven Modus zurückkehren und die Trefferliste wieder anzeigen.
 
