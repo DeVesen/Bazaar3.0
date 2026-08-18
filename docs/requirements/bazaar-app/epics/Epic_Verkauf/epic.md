@@ -227,7 +227,7 @@ Entweder alle Artikel sind gebucht oder keiner: Ein halb gebuchter Kassenvorgang
 
 ## Stories
 
-- [VERKAUF-S01 — Eingabemodi im Kassenvorgang](stories/VERKAUF-S01-eingabemodi.md)
+- [VERKAUF-S01 — Drei Eingabemodi im Kassenvorgang](stories/VERKAUF-S01-eingabemodi.md)
 
 ## Tags & Piles
 
