@@ -107,7 +107,7 @@ flowchart TD
 - [ ] **AC-3** — WHEN ein Scan-Ergebnis vorliegt, THEN SHALL das System ein akustisches Feedback ausgeben (Ping 880→1320 Hz bei Erfolg / Zonk 180→120 Hz bei Fehler, Web Audio API) und, sofern `Navigator.vibrate()` verfügbar ist, eine Vibration auslösen.
 - [ ] **AC-4** — WHEN das Scan-Ergebnis angezeigt wird, THEN SHALL das System einen kreisförmigen SVG-Countdown über `scannerPauseMs` Millisekunden (Default 3 000 ms) einblenden und nach dessen Ablauf das Kamerabild ohne weiteren Nutzereingriff wieder aktivieren.
 - [ ] **AC-5** — WHEN einer der Modus-Buttons unterhalb des Kamerabilds geklickt wird, THEN SHALL das System jederzeit in den gewählten Eingabemodus wechseln und die Kamera deaktivieren.
-- [ ] **AC-6** — IF die Kamera nicht verfügbar oder der Zugriff verweigert wird, THEN SHALL das System eine rote InfoArea mit dem Text „Kamerazugriff nicht möglich" anzeigen und in den Tastatur-Modus wechseln.
+- [ ] **AC-6** — IF die Kamera nicht verfügbar oder der Zugriff verweigert wird, THEN SHALL das System in den Tastatur-Modus zurückkehren und eine rote InfoArea mit dem Text „Kamerazugriff nicht möglich" anzeigen.
 - [ ] **AC-7** — WHILE ein Scan-Ergebnis angezeigt wird, SHALL das System weitere erkannte Codes verwerfen — derselbe Code darf nicht mehrfach verarbeitet werden, obwohl der Scan-Loop weiterläuft.
 - [ ] **AC-8** — WHEN der Inline-Modus verlassen oder das umgebende Popup geschlossen wird, THEN SHALL das System `active=false` setzen, sodass die Scanner-Komponente alle MediaStream-Tracks freigibt.
 - [ ] **AC-9** — THE SYSTEM SHALL `scannerPauseMs` aus den Einstellungen lesen und nicht als Konstante im Code führen.

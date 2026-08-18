@@ -14,7 +14,7 @@ updated: 2026-08-18
 - Überblick — Konzept & Modi
 - 1. ASCII-Darstellung — Layoutskizze
 - 2. Input / Output Schnittstelle — Parameter & Events
-- 3. Tastatur-Modus — Tastatureingabe
+- 3. Tastatur- und Numpad-Modus — Tastatureingabe
 - 4. Kamera-Modus — Scan & Overlay
 - 5. Dialog-Verhalten — Öffnen & Schließen
 - 6. PrimeNG-Basis — Technische Basis
@@ -57,7 +57,7 @@ Tastatur-Modus:
 ├─────────────────────────────────────────────┤
 │                                             │
 │  ┌──────────────────────────────┬──┬──┬──┐  │
-│  │Artikelnummer eingeben ...    │↩ │📷 │⊞ │  │
+│  │Artikelnummer eingeben ...    │↩ │📷│⊞ │  │
 │  └──────────────────────────────┴──┴──┴──┘  │
 │                                             │
 │  ┌─────────────────────────────────────┐   │
@@ -107,7 +107,7 @@ Kamera-Modus:
 
 ---
 
-## 3. Tastatur-Modus
+## 3. Tastatur- und Numpad-Modus
 
 ### Verhalten der AutoComplete-Liste
 
@@ -193,7 +193,7 @@ Kameraintegration und Barcode-Dekodierung: [Barcode-Scanner](../barcode-scanner/
 5. **AC-5** — WHEN der Dialog über ✕-Button oder Escape geschlossen wird, THEN SHALL das System die Kamera stoppen, alle MediaStream-Tracks freigeben und `visibleChange: false` emittieren.
 6. **AC-6** — WHEN der Dialog geöffnet wird, THEN SHALL das System den Tastatur-Modus aktivieren und die drei Modi `keyboard`, `camera`, `numpad` anbieten.
 7. **AC-7** — WHEN aus dem Kamera-Modus in einen anderen Modus gewechselt wird, THEN SHALL das System die Kamera stoppen und alle MediaStream-Tracks freigeben.
-8. **AC-8** — IF die Kamera nicht verfügbar ist oder der Zugriff verweigert wird, THEN SHALL das System in den Tastatur-Modus zurückkehren und eine sichtbare Fehlermeldung „Kamerazugriff nicht möglich" anzeigen.
+8. **AC-8** — IF die Kamera nicht verfügbar ist oder der Zugriff verweigert wird, THEN SHALL das System in den Tastatur-Modus zurückkehren und eine rote InfoArea mit dem Text „Kamerazugriff nicht möglich" anzeigen.
 
 ## Tags & Piles
 

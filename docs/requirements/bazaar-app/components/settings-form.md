@@ -42,7 +42,7 @@ Das Formular hat **ein** Feld. Das ist kein Versehen, sondern das Ergebnis des R
 └──────────────────────────────────────────────────┘
 ```
 
-Feld als [`input-group`](../../../components/input-group/component.md), Variante **Anzahl** (keine Dezimalstellen, keine Tausendertrennung im Eingabewert), mit `ms` als Add-on und `modes = ['keyboard', 'numpad']` — analog zur Preis-Zeile im [`intake-wizard`](intake-wizard.md), Numpad mit `showDecimal="false"`.
+Feld als [`input-group`](../../../components/input-group/component.md) mit der Variante [**Anzahl**](../../../components/inputnumber/component.md) (keine Dezimalstellen, keine Tausendertrennung im Eingabewert), mit `ms` als Add-on und `modes = ['keyboard', 'numpad']` — analog zur Preis-Zeile im [`intake-wizard`](intake-wizard.md), Numpad mit `showDecimal="false"`.
 
 Der Hilfstext unter dem Feld erklärt die **Wirkung**, nicht das Feld: „Anzeigedauer" allein sagt nicht, was länger oder kürzer bedeutet.
 

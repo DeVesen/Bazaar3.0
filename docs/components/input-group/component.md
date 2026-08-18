@@ -115,6 +115,13 @@ könnte. Das System setzt `active = false` und gibt alle MediaStream-Tracks frei
 - ein Treffer den Kamera-Modus beendet (Ausprägung je Verwendungsstelle),
 - das umgebende Popup geschlossen oder die Route verlassen wird.
 
+**Kamera nicht verfügbar oder Zugriff verweigert.** In diesem Fall SHALL das System in den
+Tastatur-Modus zurückkehren und eine rote InfoArea mit dem Text „Kamerazugriff nicht möglich"
+anzeigen. Diese Formulierung ist die einzige Quelle für diesen Fehlerfall — alle
+Verwendungsstellen ([Scan-Dialog](../scan-dialog/component.md),
+[Seller-Search](../seller-search/component.md) u. a.) verweisen hierher, statt die Regel
+eigenständig zu formulieren.
+
 ---
 
 ## 4. Verhalten
@@ -172,8 +179,9 @@ p-inputgroup          ← Äußerer Wrapper (flex-Container)
 └── p-button          ← Modus-Button B ([text]="true" [rounded]="true", nur bei drei Modi)
 ```
 
-Im Kamera-Modus ersetzt `barcode-scanner` das `pInputText` an dessen Position;
-im Numpad-Modus steht `app-numpad` unterhalb der `p-inputgroup`.
+Im Kamera-Modus ersetzt `barcode-scanner` je nach Verwendungsstelle das `pInputText` oder
+ein anderes Element (Abschnitt 3); im Numpad-Modus steht `app-numpad` unterhalb der
+`p-inputgroup`.
 
 Preis-Variante: `p-inputnumber` anstelle von `pInputText`; nur ein Addon (rechts, €).
 

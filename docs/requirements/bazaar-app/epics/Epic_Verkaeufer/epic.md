@@ -204,6 +204,8 @@ Artikel, die am Tisch neu aufgenommen werden, erscheinen hier **nie**: Beim Buch
 
 Das Artikelnummer-Feld, seine drei Modi (Tastatur, Kamera, Numpad), deren Reihenfolge, Startmodus und Kamera-Freigabe entsprechen exakt dem [Scan-Dialog](../../../../components/scan-dialog/component.md) sowie [InputGroup](../../../../components/input-group/component.md) Abschnitt 3 und werden hier nicht wiederholt. Der Dauerscan mit Countdown-Feedback im Kamera-Modus ist in [ANNAHME-S01](../Epic_Artikelannahme/stories/ANNAHME-S01-inline-camera-mode.md) beschrieben.
 
+### Sammelscan und Zustände
+
 **Gescannt wird gesammelt, geschrieben wird am Ende.** Der Dialog liest während des Scannens nur und merkt sich die Treffer — wie der Warenkorb an der Kasse. Erst der Abschluss über das Payment-Panel schickt einen Request (`POST /api/release`, siehe Abschnitt 7). Würde jeder Scan sofort schreiben, hinterließe ein Abbruch nach 30 Scans 30 freigegebene Artikel **ohne** kassierte Gebühr. Das ist der einzige fachliche Unterschied zum generischen Scan-Dialog, der pro Treffer sofort schreibt.
 
 | Zustand | Verhalten |

@@ -46,7 +46,7 @@ in der Voranmelde-App. Diese App vergibt keine Nummern, sie prüft sie
 
 - [Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) — Pflege
 - [Epic_Artikelannahme](../epics/Epic_Artikelannahme/epic.md) — Kamera-Modus liest `scannerPauseMs`
-- [Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md) — Freigabe-Scan liest `scannerPauseMs`
+- [Scan-Dialog](../../../components/scan-dialog/component.md) — Freigabe-Scan liest `scannerPauseMs` (`pauseMs`-Default)
 
 ## Tags & Piles
 

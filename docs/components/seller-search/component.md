@@ -257,7 +257,7 @@ Barcode-Dekodierung: `BarcodeDetector`-API (Chromium) oder `@zxing/browser` als 
 6. **AC-6** — WHEN im Kamera-Modus ein QR-Code oder Barcode erkannt wird und genau ein Treffer gefunden wird, THEN SHALL das System `sellerSelected` emittieren und die Kamera stoppen.
 7. **AC-7** — WHEN Escape im Kamera-Modus gedrückt wird, THEN SHALL das System die Kamera stoppen, in den zuvor aktiven Modus zurückkehren und die Trefferliste wieder anzeigen.
 8. **AC-8** — WHILE der Numpad-Modus aktiv ist, SHALL das System bei Klick auf `⏎` dieselbe Aktion auslösen wie `Enter` im Tastatur-Modus (Abschnitt 4).
-9. **AC-9** — IF die Kamera nicht verfügbar ist oder der Zugriff verweigert wird, THEN SHALL das System in den Tastatur-Modus zurückkehren und eine sichtbare Fehlermeldung „Kamerazugriff nicht möglich" anzeigen.
+9. **AC-9** — IF die Kamera nicht verfügbar ist oder der Zugriff verweigert wird, THEN SHALL das System in den Tastatur-Modus zurückkehren und eine rote InfoArea mit dem Text „Kamerazugriff nicht möglich" anzeigen.
 
 ## Tags & Piles
 

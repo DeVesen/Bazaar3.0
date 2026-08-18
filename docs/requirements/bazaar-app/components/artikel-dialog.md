@@ -105,6 +105,7 @@ Ein verkaufter Artikel ist ein Geldvorgang, kein Datensatz. Für Fehleingaben vo
 4. **AC-4** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL der Löschen-Button nicht gerendert werden.
 5. **AC-5** — IF `soldAt` gesetzt ist, THEN SHALL das System das Löschen ablehnen.
 6. **AC-6** — THE SYSTEM SHALL beim Speichern eines Pflichtfelds ohne Wert eine Feldmeldung anzeigen und nicht speichern.
+7. **AC-7** — THE SYSTEM SHALL das Preisfeld mit `modes = ['keyboard', 'numpad']` anbieten und im Numpad-Modus `showDecimal="true"` verwenden.
 
 ## Tags & Piles
 
