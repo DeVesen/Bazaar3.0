@@ -175,7 +175,6 @@ p-dialog
   [modal]="true"
   [closable]="true"
 
-pInputText         ← Artikelnummer-Eingabefeld
 p-inputgroup       ← Artikelnummer-Feld mit ↩- und Modus-Buttons (siehe input-group)
 app-numpad         ← nur im Numpad-Modus
 p-listbox          ← AutoComplete-Liste der ausstehenden Artikel
