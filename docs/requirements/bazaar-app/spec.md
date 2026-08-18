@@ -2,7 +2,7 @@
 id: DOC-005
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-08-18
 ---
 
 # Lastenheft — Bazaar Haupt-App
@@ -13,7 +13,7 @@ updated: 2026-08-17
 - 3. Ziel — Kernprozesse
 - 4. Navigation & Rechte — Seitenstruktur, Rechte-Matrix
 - 5. Epic-Übersicht & Implementierungsreihenfolge — Setup + fachliche Epics
-- 6. UI-Konventionen & Komponenten — Design
+- 6. UI-Konventionen & Komponenten — Design, Styleguide
 - 7. Technische Rahmenbedingungen — Tech-Stack, Architektur, Offline
 - 8. Einstellungen — Parameter
 - 9. Gemeinsame Anforderungen — Querschnitt
@@ -187,6 +187,9 @@ Geteilte UI-Komponenten (app- und feature-übergreifend):
 Feature-spezifische UI-Specs:
 → jeweils als Story im Verzeichnis des betreffenden Features
 
+**Styleguide & Theme:** Aussehen, Farb-Tokens, Typografie, Spacing und das „Blueprint"-Frame
+→ [`design/industry-styleguide.md`](design/industry-styleguide.md)
+
 ---
 
 ## 7. Technische Rahmenbedingungen
@@ -204,6 +207,7 @@ Feature-spezifische UI-Specs:
 | **Barcode/QR-Scan** | ZXing / ngx-scanner (Browser-Kamera, offline) |
 | **QR-Code-Erzeugung** | `@zxing/library` (`BrowserQRCodeSvgWriter`, clientseitig, offline) — Shared-Component [`qr-code`](../../components/qr-code/component.md) |
 | **Icons** | `@primeicons/angular` (npm-Paket, kein CDN, ein Import je Icon) |
+| **Fonts** | Barlow + Barlow Condensed, lokal via `@fontsource/*` (kein Google-Fonts-CDN — siehe [Styleguide](design/industry-styleguide.md) Abschnitt 7) |
 | **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) · NetArchTest (Architektur) |
 | **Auth** | JWT-Bearer, ein Access-Token (16 h), kein Refresh-Token |
 
@@ -342,7 +346,7 @@ Die Haupt-App **muss vollständig offline-fähig** sein. Sie läuft auf einem Se
 
 | Bereich | Anforderung |
 |---|---|
-| Fonts | Lokal im App-Bundle — kein CDN |
+| Fonts | Lokal im App-Bundle — kein CDN. Barlow + Barlow Condensed via `@fontsource/*` (Styleguide Abschnitt 7) |
 | Icons | Lokal (`@primeicons/angular` als npm-Paket, siehe Abschnitt 7.0.3) |
 | CSS-Bibliotheken | Lokal über npm |
 | JS-Abhängigkeiten | Ausschließlich npm-Bundle |
@@ -430,14 +434,22 @@ zugewiesenen Typs. Details → [`entities/verkaeufer.md`](entities/verkaeufer.md
 
 ### 10.1 Visuelles Branding & Farben
 
-| Element | Wert |
-|---|---|
-| Sidebar-Hintergrund | Dunkles Navy `#1a2e4a` |
-| Akzentfarbe | Blau `#2e86c1` |
-| Sidebar-Logo | „Bazaar **Suite**" (Wort „Suite" in Akzentfarbe) |
-| Topbar-Text | „Bazaar Haupt-App" |
-| Content-Hintergrund | `#f0f2f5` |
-| Titel-Farbe | `#0f1f30` |
+Verbindliche Quelle ist der Styleguide
+[`design/industry-styleguide.md`](design/industry-styleguide.md) — Design System „Industry",
+helle Stahlblau-Palette. Die Tabelle unten ist die Ableitung daraus.
+
+| Element | Wert | Industry-Token |
+|---|---|---|
+| Sidebar-Hintergrund | `#e9e9ea`, rechte Kante 1px Divider | `--color-surface` |
+| Titelleiste | `#e9e9ea` (= Sidebar-Farbe) | `--color-surface` |
+| Akzentfarbe | Steel Blue `#5980a6` | Accent 500/600 |
+| Sidebar-Logo | „Bazaar **Suite**" (Wort „Suite" in Akzentfarbe) | Barlow Condensed 600 |
+| Topbar-Text | „Bazaar Haupt-App" | Barlow Condensed 600 |
+| Content-Hintergrund | `#f2f2f3` | `--color-bg` |
+| Titel-Farbe | `#1d1f20` | `--color-text` |
+
+Die frühere Navy/Blau-Palette (`#1a2e4a` / `#2e86c1`) ist damit abgelöst. Die Sidebar ist
+nicht mehr dunkel — Begründung und Rückfallwert in Abschnitt 7 des Styleguides.
 
 ### 10.2 Toast-Benachrichtigungen
 
@@ -470,6 +482,7 @@ Erste Zeile: Tage (ganzzahlig, kein Padding). Zweite Zeile: HH:MM:SS (zero-padde
 | 8 | Scan-Feedback: Ton und/oder Vibration? | ✅ Beides — Web Audio API + `Navigator.vibrate()` |
 | 9 | PrimeNG-Major-Version dieser App? | ✅ 22.0.0, identisch zur Voranmelde-App |
 | 10 | Login und Rollen in der Haupt-App? | ✅ Ja — Admin + Kassenpersonal, siehe Abschnitt 4.1 und [Epic_Login](epics/Epic_Login/epic.md) |
+| 11 | Industry-Styleguide vs. PrimeNG-Grundregel (Lucide-Icons, eigene CSS-Klassen, Blueprint-Eckkreuze) | ⏳ Offen — Konfliktliste in [`design/industry-styleguide.md`](design/industry-styleguide.md) Abschnitt 8 |
 
 ---
 

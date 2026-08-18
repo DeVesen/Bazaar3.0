@@ -2,7 +2,7 @@
 id: DOC-004
 status: draft
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-08-18
 ---
 
 # Lastenheft — Voranmelde-App
@@ -16,7 +16,7 @@ updated: 2026-08-17
 - 6. Nummernblock-System — Nummerierung
 - 7. Navigation (Sidebar) — Seitenstruktur
 - 8. Epic-Übersicht & Implementierungsreihenfolge — Setup + fachliche Epics
-- 9. UI-Konventionen & Komponenten — Design
+- 9. UI-Konventionen & Komponenten — Design, Styleguide
 - 10. Technische Rahmenbedingungen — Tech-Stack, Architektur, Responsive
 - 11. Gemeinsame Anforderungen — Querschnitt
 - 12. Design-Entscheidungen — Visuelles
@@ -217,6 +217,9 @@ Geteilte UI-Komponenten (app- und feature-übergreifend):
 Feature-spezifische UI-Specs:
 → jeweils als Story im Verzeichnis des betreffenden Features
 
+**Styleguide & Theme:** Aussehen, Farb-Tokens, Typografie, Spacing und das „Blueprint"-Frame
+→ [`design/industry-styleguide.md`](design/industry-styleguide.md)
+
 ---
 
 ## 10. Technische Rahmenbedingungen
@@ -232,6 +235,7 @@ Feature-spezifische UI-Specs:
 | **UI-Bibliothek** | PrimeNG 22.0.0 |
 | **Containerisierung** | Docker / Docker Compose |
 | **QR-Code-Erzeugung** | `@zxing/library` (`BrowserQRCodeSvgWriter`, clientseitig, kein externer Service) |
+| **Fonts** | Barlow + Barlow Condensed, lokal via `@fontsource/*` (kein Google-Fonts-CDN — siehe [Styleguide](design/industry-styleguide.md) Abschnitt 7) |
 | **Mehrsprachigkeit** | ngx-translate (DE + EN) |
 | **Icons** | `@primeicons/angular` (npm-Paket, ein Import je Icon — siehe Abschnitt 10.0.4) |
 | **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) |
@@ -416,15 +420,23 @@ den Namen auf. Erst dort sind die Werte pro Verkäufer überschreibbar. Schema �
 
 ### 12.1 Visuelles Branding & Farben
 
-| Element | Wert |
-|---|---|
-| Sidebar-Hintergrund | Dunkles Teal `#1b3a4b` |
-| Akzentfarbe | Grün `#0e8a5f` |
-| Avatar-Akzent | `#3ecf8e` |
-| Sidebar-Logo | „Basar **Voranmelde**" (Wort in Akzentfarbe) |
-| Topbar-Text | „Bazaar Voranmelde" |
-| Content-Hintergrund | `#f0f4f7` |
-| Titel-Farbe | `#0d1f2a` |
+Verbindliche Quelle ist der Styleguide
+[`design/industry-styleguide.md`](design/industry-styleguide.md) — Design System „Industry",
+helle Stahlblau-Palette. Die Tabelle unten ist die Ableitung daraus.
+
+| Element | Wert | Industry-Token |
+|---|---|---|
+| Sidebar-Hintergrund | `#e9e9ea`, rechte Kante 1px Divider | `--color-surface` |
+| Titelleiste | `#e9e9ea` (= Sidebar-Farbe) | `--color-surface` |
+| Akzentfarbe | Steel Blue `#5980a6` | Accent 500/600 |
+| Avatar-Akzent | `#94bce3` | Accent 400 |
+| Sidebar-Logo | „Basar **Voranmelde**" (Wort in Akzentfarbe) | Barlow Condensed 600 |
+| Topbar-Text | „Bazaar Voranmelde" | Barlow Condensed 600 |
+| Content-Hintergrund | `#f2f2f3` | `--color-bg` |
+| Titel-Farbe | `#1d1f20` | `--color-text` |
+
+Die frühere Teal/Grün-Palette (`#1b3a4b` / `#0e8a5f`) ist damit abgelöst. Die Sidebar ist
+nicht mehr dunkel — Begründung und Rückfallwert in Abschnitt 7 des Styleguides.
 
 ### 12.2 Toast-Benachrichtigungen
 
@@ -459,6 +471,7 @@ In der Entwicklungsversion: kleiner Hinweis auf Demo-Accounts. In Produktion ent
 |---|---|---|
 | 1 | Mehrsprachigkeit? | ✅ Ja — DE + EN via ngx-translate |
 | 2 | Provisionssystem / unterschiedliche Konditionen? | ✅ Ja, via Verkäufer-Typ |
+| 3 | Industry-Styleguide vs. PrimeNG-Grundregel (Lucide-Icons, eigene CSS-Klassen, Blueprint-Eckkreuze) | ⏳ Offen — Konfliktliste in [`design/industry-styleguide.md`](design/industry-styleguide.md) Abschnitt 8 |
 
 ---
 
