@@ -84,7 +84,7 @@ Abschnitte 3–4), der Dauerscan (ANNAHME-S01).
 
 ```
 ┌──────────────────────────────┬──┬──┬──┐
-│  12345678                 ✕  │↩ │⌨ │⊞ │  ← zurück im Tastatur-Modus (AC-4)
+│  12345678                 ✕  │↩ │📷│⊞ │  ← zurück im Tastatur-Modus (AC-4)
 └──────────────────────────────┴──┴──┴──┘
   Artikel-Lookup läuft; Preis-Button erscheint (Epic Abschnitt 2)
 ```
