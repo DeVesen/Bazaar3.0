@@ -50,7 +50,7 @@ Preis-Variante:
 | Slot | Beschreibung |
 |---|---|
 | **Left-Addon** | Optional (🔍 Lupe bei Suchfeldern). _Nur Haupt-App:_ kein Addon bei reinen Nummernfeldern. |
-| **Input-Feld** | Debounce-Suche (800 ms Default). _Nur Haupt-App:_ konfigurierbar via `suchDebounceMs`. |
+| **Input-Feld** | Debounce-Suche. _Nur Haupt-App:_ 300 ms, feste Konstante im Code (Abschnitt 4). |
 | **✕ Clear-Button** | Erscheint wenn Input nicht leer. _Nur Haupt-App:_ löscht + setzt Fokus zurück ins Eingabefeld. |
 | **Spinner** | Ersetzt temporär den Clear-Button während der Suche läuft. |
 | **Action-Button** | ↩ — löst die primäre Aktion aus. Immer sichtbar, `disabled` solange das Feld leer ist. |
@@ -146,8 +146,11 @@ eigenständig zu formulieren.
 
 ### Debounce
 
-- Default: 800 ms.
-- _Nur Haupt-App:_ Konfigurierbar über den Einstellungsparameter `suchDebounceMs` (gespeichert im `localStorage`).
+- _Nur Haupt-App:_ **300 ms**, fest im Code — siehe [`api/cross-cutting.md`](../../requirements/bazaar-app/api/cross-cutting.md)
+  Abschnitt „Pagination, Suche und Sortierung".
+- Ein Einstellungsparameter `suchDebounceMs` existiert **nicht**. Er wurde im Review beider Apps
+  verworfen: eine Debounce-Zeit ist eine Frontend-Tuning-Konstante ohne fachlichen Anlass
+  ([Epic_Einstellungen](../../requirements/bazaar-app/epics/Epic_Einstellungen/epic.md) Abschnitt 1).
 
 ---
 
