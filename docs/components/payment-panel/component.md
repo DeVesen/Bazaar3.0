@@ -1,7 +1,7 @@
 ---
 id: C-007
 status: draft
-updated: 2026-07-31
+updated: 2026-08-18
 ---
 
 # Component: Payment-Panel
@@ -37,7 +37,7 @@ Beide Verwendungsstellen in der Bazaar-App sind strukturell identisch und unters
 
 ## 1. ASCII-Darstellung
 
-### Desktop / Tastatur-Modus
+### Tastatur-Modus
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -48,7 +48,7 @@ Beide Verwendungsstellen in der Bazaar-App sind strukturell identisch und unters
 │                                             │
 │  Betrag erhalten                            │
 │  ┌──────────────────────────┬───┬────┐     │
-│  │  20,00                   │ € │ ⊞  │     │  ← Toggle-Button (→ Numpad)
+│  │  20,00                   │ € │ ⊞  │     │  ← Modus-Button (→ Numpad)
 │  └──────────────────────────┴───┴────┘     │
 │                                             │
 │  ╔═════════════════════════════════════╗   │
@@ -62,7 +62,7 @@ Beide Verwendungsstellen in der Bazaar-App sind strukturell identisch und unters
 └─────────────────────────────────────────────┘
 ```
 
-### Tablet / Mobile — Numpad-Modus
+### Numpad-Modus
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -73,7 +73,7 @@ Beide Verwendungsstellen in der Bazaar-App sind strukturell identisch und unters
 │                                             │
 │  Betrag erhalten                            │
 │  ┌──────────────────────────┬───┬────┐     │
-│  │  20,00          [readonly]│ € │ ⌨  │     │  ← Toggle-Button (→ Tastatur)
+│  │  20,00          [readonly]│ € │ ⌨  │     │  ← Modus-Button (→ Tastatur)
 │  └──────────────────────────┴───┴────┘     │
 │                                             │
 │  ┌──────────┬──────────┬──────────┐        │
@@ -128,17 +128,15 @@ Rückgeld-Zustände (gelten in beiden Modi):
 
 ### Eingabe-Modus: Tastatur vs. Numpad
 
-Das Panel startet automatisch im passenden Modus:
+Das Panel bietet zwei Modi an — `modes = ['keyboard', 'numpad']`. Eine Kamera gibt es hier
+nicht; entsprechend erscheint genau **ein** Modus-Button im Eingabefeld-Addon.
 
-```typescript
-numpadActive = window.matchMedia('(pointer: coarse)').matches;
-```
+Mechanik, Reihenfolge und Startmodus stehen in
+[InputGroup](../input-group/component.md) Abschnitt 3 und werden hier nicht wiederholt.
+Für das Panel heißt das: Es öffnet **immer** im Tastatur-Modus, auch auf einem Tablet.
 
-- **Touch-Gerät** (Tablet, Mobile): Numpad-Modus — `p-inputnumber` ist `readonly`,
-  der In-App-Numpad (`app-numpad`) erscheint darunter. Keine native Tastatur öffnet sich.
-- **Desktop** (Maus): Tastatur-Modus — normales `p-inputnumber`, Numpad ausgeblendet.
-
-Der Nutzer kann jederzeit über den Toggle-Button im Eingabefeld-Addon wechseln.
+Im Numpad-Modus ist `p-inputnumber` auf `readonly` gesetzt, sodass keine native Tastatur
+erscheint.
 
 ### Numpad-Integration
 
@@ -162,12 +160,22 @@ onNumpadKey(init: KeyboardEventInit): void {
 onNumpadClear(): void {
     this.receivedAmount = null;
 }
+
+onNumpadSubmit(): void {
+    this.confirm();
+}
 ```
+
+Der Numpad läuft hier mit `showDecimal="true"` (Beträge haben Nachkommastellen) und
+`showEnter="true"`. `enterDisabled` ist an dieselbe Bedingung gekoppelt wie der
+Bestätigen-Button: `receivedAmount < totalAmount`. Damit bleibt der Kassiervorgang
+einhändig am Numpad, und `⏎` tut nie etwas anderes als der sichtbare Button.
 
 ### Fokus beim Öffnen
 
-- **Tastatur-Modus:** `p-inputnumber` erhält automatisch den Fokus (`pAutoFocus`).
-- **Numpad-Modus:** `pAutoFocus` entfällt; der Nutzer tippt direkt über den Numpad.
+Das Panel öffnet im Tastatur-Modus; `p-inputnumber` erhält automatisch den Fokus
+(`pAutoFocus`). Wechselt der Nutzer in den Numpad-Modus, entfällt der Fokusbedarf — er
+tippt direkt über den Numpad.
 
 ### Bestätigen
 
@@ -176,8 +184,7 @@ Das Panel selbst führt **keine weiteren Aktionen** aus — das Parent entscheid
 
 ### Abbrechen
 
-Klick auf `[Abbrechen]` emittiert `cancelled`. Das Panel setzt `receivedAmount` auf `null`
-und `numpadActive` auf den gerätespezifischen Standardwert zurück.
+Klick auf `[Abbrechen]` emittiert `cancelled`. Das Panel setzt `receivedAmount` auf `null` und den Eingabemodus auf `keyboard` zurück.
 
 ---
 
@@ -187,9 +194,9 @@ und `numpadActive` auf den gerätespezifischen Standardwert zurück.
 |---|---|
 | Gesamtbetrag-Zeile | `display: flex; justify-content: space-between; font-weight: 700; font-size: 17px` |
 | Trennlinie | `border-top: 2px solid var(--p-content-border-color); margin: 10px 0; padding-top: 10px` |
-| InputGroup | `p-inputgroup` mit `€`-Addon und Toggle-Button rechts, margin-top 16 px |
+| InputGroup | `p-inputgroup` mit `€`-Addon und Modus-Button rechts, margin-top 16 px |
 | Rückgeld-Box | `font-size: 32px; font-weight: 800; text-align: center; padding: 14px; background: #e8f8f0; border-radius: 8px; color: #1a5c38; margin: 12px 0` |
-| Numpad | volle Breite, margin-top 8 px |
+| Numpad | volle Breite; Außenabstand kommt aus der Komponente selbst (`margin: 16px 0`, siehe [Numpad](../numpad/component.md) §6) |
 | Footer-Buttons | `display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px` |
 
 ---
@@ -202,17 +209,20 @@ p-inputgroup
     [(ngModel)]="receivedAmount"
     [minFractionDigits]="2"
     [maxFractionDigits]="2"
-    [readonly]="numpadActive"
-    [pAutoFocus]="!numpadActive"
+    [readonly]="mode === 'numpad'"
+    [pAutoFocus]="mode === 'keyboard'"
   p-inputgroupaddon  "€"
-  p-button  [icon]="numpadActive ? 'pi pi-keyboard' : 'pi pi-th-large'"
+  p-button  [icon]="'pi pi-th-large'"   ← Modus-Button; im Numpad-Modus 'pi pi-keyboard'
             severity="secondary"  [rounded]="true"  [text]="true"
-            (onClick)="numpadActive = !numpadActive"
 
 app-numpad
-  *ngIf="numpadActive"
+  *ngIf="mode === 'numpad'"
+  [showDecimal]="true"
+  [showEnter]="true"
+  [enterDisabled]="receivedAmount < totalAmount"
   (keyPressed)="onNumpadKey($event)"
   (cleared)="onNumpadClear()"
+  (submitted)="onNumpadSubmit()"
 
 p-button  label="Abbrechen"  severity="secondary"
 p-button  [label]="confirmLabel"  severity="primary"
@@ -226,9 +236,11 @@ p-button  [label]="confirmLabel"  severity="primary"
 1. **AC-1** — WHEN ein Betrag im Feld „Betrag erhalten" eingegeben wird, THEN SHALL das System das Rückgeld als `receivedAmount − totalAmount` live berechnen und in der grünen Box anzeigen.
 2. **AC-2** — WHILE der eingegebene Betrag kleiner als `totalAmount` ist, SHALL das System die Rückgeld-Box ausblenden und den Bestätigen-Button deaktiviert halten.
 3. **AC-3** — WHEN der Bestätigen-Button geklickt wird, THEN SHALL das System das `confirmed`-Event mit `{ totalAmount, receivedAmount, change }` emittieren.
-4. **AC-4** — WHEN auf einem Touch-Gerät (`pointer: coarse`) das Panel geöffnet wird, THEN SHALL das System automatisch in den Numpad-Modus wechseln und das `p-inputnumber`-Feld auf `readonly` setzen.
-5. **AC-5** — WHEN der Toggle-Button geklickt wird, THEN SHALL das System zwischen Tastatur-Modus und Numpad-Modus wechseln und das Icon entsprechend aktualisieren.
+4. **AC-4** — WHEN das Panel geöffnet wird, THEN SHALL das System den Tastatur-Modus aktivieren, unabhängig vom Eingabegerät.
+5. **AC-5** — WHEN der Modus-Button geklickt wird, THEN SHALL das System zwischen Tastatur- und Numpad-Modus wechseln, das Icon auf den jeweils inaktiven Modus setzen und im Numpad-Modus `p-inputnumber` auf `readonly` schalten.
 6. **AC-6** — WHEN „Abbrechen" geklickt wird, THEN SHALL das System das `cancelled`-Event emittieren und `receivedAmount` auf `null` zurücksetzen.
+7. **AC-7** — WHEN `⏎` auf dem Numpad geklickt wird, THEN SHALL das System denselben Vorgang auslösen wie der Bestätigen-Button.
+8. **AC-8** — WHILE `receivedAmount < totalAmount` gilt, SHALL das System sowohl den Bestätigen-Button als auch `⏎` deaktiviert halten.
 
 ## Tags & Piles
 
