@@ -1,7 +1,7 @@
 ---
 id: C-003
 status: draft
-updated: 2026-07-31
+updated: 2026-08-18
 ---
 
 # Component: Scan-Dialog
@@ -36,10 +36,15 @@ Der Scan-Dialog deckt zwei Anwendungsfälle ab, die **strukturell identisch** si
 | Artikel freigeben | `releasedAt = jetzt` |
 | Artikel zurückgeben | `returnedAt = jetzt` |
 
-Der Dialog hat zwei Modi, zwischen denen der Nutzer jederzeit wechseln kann:
+Das Artikelnummer-Feld des Dialogs ist eine [InputGroup](../input-group/component.md) mit
+`modes = ['keyboard', 'camera', 'numpad']`. Umschaltmechanik, Button-Reihenfolge,
+Startmodus und Kamera-Freigabe stehen dort in Abschnitt 3 und werden hier nicht wiederholt.
 
-- **Eingabe-Modus** — Tastatureingabe + AutoComplete-Liste
-- **Kamera-Modus** — Inline-Kamerabild mit Feedback-Overlay
+| Modus | Besonderheit im Scan-Dialog |
+|---|---|
+| Tastatur | AutoComplete-Liste der ausstehenden Artikel unter dem Feld |
+| Kamera | Kamerabild ersetzt Feld **und** Liste; Dauerscan mit Feedback-Overlay (Abschnitt 4) |
+| Numpad | AutoComplete-Liste bleibt sichtbar; `⏎` bestätigt die getippte Nummer |
 
 ---
 
@@ -52,7 +57,7 @@ Eingabe-Modus:
 ├─────────────────────────────────────────────┤
 │                                             │
 │  ┌────────────────────────────────┬──────┐  │
-│  │ Artikelnummer eingeben ...     │ [📷] │  │
+│  │ Artikelnummer eingeben ... │↩│📷│⊞│  │
 │  └────────────────────────────────┴──────┘  │
 │                                             │
 │  ┌─────────────────────────────────────┐   │
@@ -65,7 +70,7 @@ Eingabe-Modus:
 │                                             │
 └─────────────────────────────────────────────┘
 
-Kamera-Modus (nach Klick auf [📷]):
+Kamera-Modus:
 ┌─────────────────────────────────────────────┐
 │  Artikel freigeben                       [✕] │
 ├─────────────────────────────────────────────┤
@@ -81,7 +86,7 @@ Kamera-Modus (nach Klick auf [📷]):
 │  │  └───────────────────────────────┘  │   │
 │  └─────────────────────────────────────┘   │
 │                                             │
-│  [← Zurück zur Eingabe]                    │
+│  [⌨ Tastatur]  [⊞ Numpad]                  │
 │                                             │
 └─────────────────────────────────────────────┘
 ```
@@ -114,10 +119,11 @@ Kamera-Modus (nach Klick auf [📷]):
 | Kein Treffer | Liste ausgeblendet; Text *„Artikel nicht bekannt"* |
 | Alle Artikel bereits gesetzt | Nur Text: *„Alle Artikel freigegeben"* / *„Alle Artikel zurückgegeben"* |
 
-### BC-Button
+### Numpad-Modus
 
-`p-button [icon]="'pi-camera'" severity="secondary" [outlined]="true"` — rechts neben dem Eingabefeld.
-Klick → wechselt in **Kamera-Modus**.
+Der Numpad läuft hier mit `showDecimal="false"` (Artikelnummern sind ganzzahlig) und
+`showEnter="true"`. `⏎` bestätigt die getippte Nummer — identisch zu `Enter` im
+Tastatur-Modus (Tabelle oben).
 
 ---
 
@@ -142,10 +148,12 @@ Erscheint nach jedem Scan für `pauseMs` Millisekunden, dann wird das Kamerabild
 - **Ton:** Web Audio API (kein Audio-File-Dependency)
 - **Vibration:** `Navigator.vibrate()` — nur auf mobilen Geräten mit Unterstützung
 
-### Abbrechen-Button
+### Verlassen des Kamera-Modus
 
-`p-button label="← Zurück zur Eingabe" severity="secondary" [text]="true"` — unterhalb des Kamerabilds.
-Klick → zurück in **Eingabe-Modus**.
+Über die Modus-Buttons unterhalb des Kamerabilds — `⌨ Tastatur` und `⊞ Numpad`. Ein eigener
+„Zurück"-Button entfällt; das Zurückschalten *ist* der Moduswechsel. Beim Wechsel gibt das
+System die Kamera frei ([InputGroup](../input-group/component.md) Abschnitt 3,
+Kamera-Lebensdauer).
 
 ---
 
@@ -168,7 +176,8 @@ p-dialog
   [closable]="true"
 
 pInputText         ← Artikelnummer-Eingabefeld
-p-button           ← BC-Button (Kamera-Wechsel), Zurück-Button
+p-inputgroup       ← Artikelnummer-Feld mit ↩- und Modus-Buttons (siehe input-group)
+app-numpad         ← nur im Numpad-Modus
 p-listbox          ← AutoComplete-Liste der ausstehenden Artikel
 ```
 
@@ -183,6 +192,8 @@ Kameraintegration und Barcode-Dekodierung: [Barcode-Scanner](../barcode-scanner/
 3. **AC-3** — WHEN im Kamera-Modus ein Barcode erkannt wird, dessen Zeitstempel bereits gesetzt ist, THEN SHALL das System das Feedback-Overlay in Gelb für `pauseMs` Millisekunden einblenden und `scanComplete` mit `result: 'already-set'` emittieren.
 4. **AC-4** — IF eine eingegebene oder gescannte Nummer keinem ausstehenden Artikel des Verkäufers entspricht, THEN SHALL das System im Eingabe-Modus den Text „Artikel nicht bekannt" unterhalb des Felds anzeigen und im Kamera-Modus das Feedback-Overlay in Rot für `pauseMs` Millisekunden einblenden.
 5. **AC-5** — WHEN der Dialog über ✕-Button oder Escape geschlossen wird, THEN SHALL das System die Kamera stoppen, alle MediaStream-Tracks freigeben und `visibleChange: false` emittieren.
+6. **AC-6** — WHEN der Dialog geöffnet wird, THEN SHALL das System den Tastatur-Modus aktivieren und die drei Modi `keyboard`, `camera`, `numpad` anbieten.
+7. **AC-7** — WHEN aus dem Kamera-Modus in einen anderen Modus gewechselt wird, THEN SHALL das System die Kamera stoppen und alle MediaStream-Tracks freigeben.
 
 ## Tags & Piles
 
