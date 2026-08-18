@@ -74,7 +74,7 @@ Formular mit den Verkäufer-Panels 01–03. Vorname und Nachname sind aus der Su
 | 1 | Artikelnummer ([`input-group`](../../../components/input-group/component.md), `modes = ['keyboard', 'camera', 'numpad']` — Modus-Mechanik siehe dort, Abschnitt 3) | — | ✅ |
 | 2 | Bezeichnung (volle Breite) | — | ✅ |
 | 3 | Kategorie ([`autocomplete-create`](../../../components/autocomplete-create/component.md)) | Marke (dito) | ✅ |
-| 4 | Preis ([`inputnumber`](../../../components/inputnumber/component.md) Geld + €-Add-on) | — | ✅ |
+| 4 | Preis ([`input-group`](../../../components/input-group/component.md), €-Addon rechts, `modes = ['keyboard', 'numpad']`, Numpad mit `showDecimal="true"`) | — | ✅ |
 | 5 | Größe | Farbe | ❌ |
 | 6 | Beschreibung (Textarea, volle Breite) | — | ❌ |
 
