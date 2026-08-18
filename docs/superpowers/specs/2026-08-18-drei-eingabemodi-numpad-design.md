@@ -177,7 +177,7 @@ Für diese Felder ist beim Umsetzen festzulegen, welche Modi sie anbieten:
 
 | Feld | Vorschlag |
 |---|---|
-| `docs/components/seller-search/component.md` | Sucht nach Name *und* Nummer: Tastatur + Numpad, keine Kamera. Nur Tastatur, falls die Nummernsuche entfällt |
+| `docs/components/seller-search/component.md` | Hat bereits einen Inline-Kamera-Modus (`showScanButton`, Kamera ersetzt die Trefferliste) — alle drei Modi, Kamera nur wenn `showScanButton` gesetzt ist. Der heutige 📷-Toggle und das `Escape`-Verhalten gehen in die Modus-Mechanik auf |
 | Epic_Verkaeufer §5 — Freigeben-Popup | alle drei (über Scan-Dialog) |
 | Epic_Abrechnung — Rückgabe-Popup | alle drei (über Scan-Dialog) |
 | InputGroup-Preis-Variante (€) | Tastatur + Numpad, keine Kamera. Achtung: C-012 §4 schreibt für diese Variante heute „kein Clear-Button, kein Action-Button" — der Modus-Button ist eine bewusste Ausnahme davon und muss dort ergänzt werden |
