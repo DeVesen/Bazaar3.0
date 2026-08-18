@@ -124,13 +124,13 @@ Beim Hinzufügen eines Fehlers zuerst hier nachsehen: Ein Code, den es schon gib
 | `article.sold_and_returned` | 409 | Artikel kann nicht gleichzeitig verkauft und zurückgegeben sein | [`articles.md`](articles.md) — Zeitstempel |
 | `article.not_sellable` | 409 | Artikel *n* ist nicht mehr im Verkauf | [`sales.md`](sales.md) |
 | `article.not_releasable` | 409 | Artikel *n* ist bereits freigegeben | [`release.md`](release.md) |
-| `brand.already_exists` | 409 | Marke existiert bereits | [`master-data.md`](master-data.md) |
+| `brand.name_taken` | 409 | Marke existiert bereits | [`master-data.md`](master-data.md) |
 | `brand.in_use` | 409 | Marke wird noch verwendet | [`master-data.md`](master-data.md) |
-| `category.already_exists` | 409 | Kategorie existiert bereits | [`master-data.md`](master-data.md) |
+| `category.name_taken` | 409 | Kategorie existiert bereits | [`master-data.md`](master-data.md) |
 | `category.in_use` | 409 | Kategorie wird noch verwendet | [`master-data.md`](master-data.md) |
 | `seller.has_articles` | 409 | Verkäufer hat noch *n* Artikel | [`sellers.md`](sellers.md) — Löschen |
 | `seller.conditions_admin_only` | 403 | Konditionen dürfen nur von einem Admin geändert werden | [`sellers.md`](sellers.md) |
-| `seller_type.already_exists` | 409 | Verkäufer-Typ existiert bereits | [`seller-types.md`](seller-types.md) |
+| `seller_type.name_taken` | 409 | Verkäufer-Typ existiert bereits | [`seller-types.md`](seller-types.md) |
 | `seller_type.in_use` | 409 | Typ ist noch *n* Verkäufern zugewiesen | [`seller-types.md`](seller-types.md) |
 | `settlement.locked` | 409 | Verkäufer ist abgerechnet — Abrechnung zuerst stornieren | [`articles.md`](articles.md), [`sales.md`](sales.md), [`sellers.md`](sellers.md), [`settlement.md`](settlement.md) |
 | `settlement.articles_open` | 409 | *n* Artikel sind noch im Verkauf | [`settlement.md`](settlement.md) |
@@ -144,6 +144,20 @@ Beim Hinzufügen eines Fehlers zuerst hier nachsehen: Ein Code, den es schon gib
 **`*n*` und `*x*`** stehen für Werte, die der Server einsetzt — Anzahl bzw. Name. Sie gehören in `detail`, damit die Meldung ohne zweiten Request handlungsleitend ist; das Frontend übernimmt sie in seine Dialoge.
 
 **Wiederverwendung ist gewollt:** `article.sold` und `settlement.locked` treten an mehreren Endpoints auf, weil es dieselbe Situation ist. Ein eigener Code je Aufrufstelle würde das Frontend zwingen, dieselbe Reaktion mehrfach zu verdrahten.
+
+**Namensregel — gilt in beiden Apps der Suite:**
+
+| Fall | Muster | Beispiele |
+|---|---|---|
+| Wert schon von einem anderen Datensatz belegt | `<resource>.<feld>_taken` | `user.username_taken`, `brand.name_taken`, `article.number_taken` |
+| Löschen scheitert an bestehenden Referenzen | `<resource>.in_use` | `brand.in_use`, `seller_type.in_use` |
+| Alles Übrige — Zustand oder verbotene Aktion | `<resource>.<zustand>` bzw. `<resource>.<aktion>_<grund>` | `article.sold`, `settlement.locked`, `user.last_admin` |
+
+`<resource>` ist die API-Ressourcen-Familie in snake_case, nicht der Entitätsname.
+
+**Ein Verb für Eindeutigkeitskonflikte, nicht drei.** Bis zur Einführung der Regel hießen die Duplikat-Codes hier `brand.already_exists`, `category.already_exists` und `seller_type.already_exists`, in der Voranmelde-App zusätzlich `email.already_registered` — drei Schreibweisen für dieselbe Situation, obwohl `article.number_taken` und `user.username_taken` schon `_taken` verwendeten. `_taken` hat gewonnen, weil es in beiden Apps die Mehrheit stellte; die drei `already_exists`-Codes wurden umbenannt.
+
+Die Regel ist bewusst in **beiden** App-Katalogen ausgeschrieben statt in einer gemeinsamen Datei: Ein App-Verzeichnis muss vollständig für sich stehen ([`advance-registration/api/cross-cutting.md`](../../advance-registration/api/cross-cutting.md) Abschnitt „Fehler-Responses"). Die Codes selbst überqueren die App-Grenze nirgends — der Import liest den Export-JSON, und der enthält keine Fehlercodes —, deshalb bleiben die Kataloge je App abschließend, und ein Code darf in nur einer App existieren.
 
 ### Status-Code-Katalog
 

@@ -49,7 +49,7 @@ POST /api/seller-types
 
 → 201 Created   Location: /api/seller-types/c2d8a1b9
 → 400 Bad Request  errors: { "commissionRate": ["Provision muss zwischen 0 und 100 liegen"] }
-→ 409 Conflict     errorCode: seller_type.already_exists
+→ 409 Conflict     errorCode: seller_type.name_taken
 ```
 
 **Wertebereiche werden serverseitig geprüft:** `commissionRate` zwischen 0 und 100, `itemFee` nicht negativ. Ein Formular lässt sich umgehen, der Handler nicht — und eine Provision von 150 % würde die Abrechnung stillschweigend zerlegen.

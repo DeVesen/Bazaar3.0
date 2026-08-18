@@ -88,7 +88,7 @@ Kein Verkäufer-Typ im Request — die Zuordnung passiert serverseitig über
 | Code | `detail` |
 |---|---|
 | `400` | Validierung — Passwortstärke mindestens „Mittel" (Epic_Login §6) |
-| `409` | `errorCode: email.already_registered` — „Diese E-Mail ist bereits registriert" (AC-8) |
+| `409` | `errorCode: seller.email_taken` — „Diese E-Mail ist bereits registriert" (AC-8) |
 | `409` | `errorCode: registration.not_enabled` — „Registrierung ist noch nicht freigeschaltet", wenn `defaultTypeId` in den Einstellungen nicht gesetzt ist. Ohne Typ kann das Pflichtfeld `sellerTypeId` nicht gefüllt werden (siehe [`entities/verkaeufer.md`](../entities/verkaeufer.md)). |
 
 ---

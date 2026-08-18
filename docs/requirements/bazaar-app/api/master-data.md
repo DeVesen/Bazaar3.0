@@ -49,7 +49,7 @@ POST /api/brands
 { "name": "Nike" }
 
 → 201 Created   Location: /api/brands/f1a8c3d7
-→ 409 Conflict  errorCode: brand.already_exists
+→ 409 Conflict  errorCode: brand.name_taken
                 detail: "Marke existiert bereits"
 ```
 
@@ -68,7 +68,7 @@ PUT /api/brands/{id}
 { "name": "Nike", "original": true }
 
 → 204 No Content
-→ 409 Conflict   errorCode: brand.already_exists
+→ 409 Conflict   errorCode: brand.name_taken
 ```
 
 **Admin-only.** Zwei Änderungen in einem Vertrag:

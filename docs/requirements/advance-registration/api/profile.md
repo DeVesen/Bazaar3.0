@@ -120,7 +120,7 @@ E-Mail (siehe [`auth.md`](auth.md)). Das bestehende Access-Token bleibt gültig.
 |---|---|
 | `400` | E-Mail-Format ungültig |
 | `401` | `currentPassword` falsch |
-| `409` | `errorCode: email.already_registered` — „Diese E-Mail ist bereits registriert" |
+| `409` | `errorCode: seller.email_taken` — „Diese E-Mail ist bereits registriert" |
 
 ---
 

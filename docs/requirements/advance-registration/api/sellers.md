@@ -129,7 +129,7 @@ Einladungs-Link (Abschnitt 5) und `POST /api/auth/set-password`.
 | Code | `detail` |
 |---|---|
 | `400` | Pflichtfeld fehlt oder E-Mail-Format ungültig |
-| `409` | `errorCode: email.already_registered` — „Diese E-Mail ist bereits registriert" |
+| `409` | `errorCode: seller.email_taken` — „Diese E-Mail ist bereits registriert" |
 | `409` | `errorCode: block.overlap` — „Nummernbereich überschneidet sich mit bestehendem Block" |
 
 ---

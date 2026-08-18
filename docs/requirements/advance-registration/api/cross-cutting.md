@@ -76,7 +76,7 @@ Alle Fehler folgen **RFC 9457 `ProblemDetails`** — der .NET-Standardform über
 
 Jeder fachliche Fehler trägt zusätzlich zu `detail` das Extension-Member
 **`errorCode`** (kleingeschrieben, punktgetrennt: `category.in_use`,
-`email.already_registered`, `block.overlap`, `registration.not_enabled`).
+`seller.email_taken`, `block.overlap`, `registration.not_enabled`).
 
 Grund: Die App ist zweisprachig (DE/EN), `detail` ist deutscher Klartext. Das
 Frontend zeigt bevorzugt die über `errorCode` aufgelöste ngx-translate-Meldung und
@@ -131,7 +131,7 @@ wird wiederverwendet, nicht variiert.
 | `block.overlap` | 409 | Nummernbereich überschneidet sich mit bestehendem Block | [`blocks.md`](blocks.md), [`sellers.md`](sellers.md) |
 | `block.in_use` | 409 | Block enthält bereits vergebene Nummern | [`blocks.md`](blocks.md) — Löschen |
 | `block.no_free_range` | 409 | Kein zusammenhängender freier Nummernbereich verfügbar | [`blocks.md`](blocks.md) |
-| `email.already_registered` | 409 | Diese E-Mail ist bereits registriert | [`auth.md`](auth.md), [`profile.md`](profile.md), [`sellers.md`](sellers.md) |
+| `seller.email_taken` | 409 | Diese E-Mail ist bereits registriert | [`auth.md`](auth.md), [`profile.md`](profile.md), [`sellers.md`](sellers.md) |
 | `registration.not_enabled` | 409 | Registrierung ist noch nicht freigeschaltet | [`auth.md`](auth.md) |
 | `master_data.name_taken` | 409 | *x* existiert bereits | [`master-data.md`](master-data.md) — Anlegen, Umbenennen |
 | `brand.in_use` | 409 | Marke wird noch verwendet | [`master-data.md`](master-data.md) |
@@ -154,24 +154,36 @@ scheitert nicht an einer fachlichen Invariante, sondern daran, dass ein Admin di
 Endpoint für sich selbst nicht aufrufen darf. Die Rolle ist der Grund, nicht der
 Datenzustand.
 
-**Wiederverwendung ist gewollt:** `email.already_registered` tritt an drei Endpoints
+**Wiederverwendung ist gewollt:** `seller.email_taken` tritt an drei Endpoints
 auf, weil es dieselbe Situation ist. Ein eigener Code je Aufrufstelle würde drei
 Übersetzungseinträge für einen Satz bedeuten.
 
-**Ein Code für beide Stammdaten-Arten:** `master_data.name_taken` deckt Marke und
-Kategorie ab, weil beide über dieselbe Endpoint-Familie laufen und die Meldung
-identisch ist. Beim *Löschen* dagegen sind es zwei Codes (`brand.in_use`,
-`category.in_use`) — dort nennt die Meldung die Art, weil der Nutzer wissen muss,
-welche Referenz er auflösen soll.
+**Namensregel — gilt in beiden Apps der Suite:**
 
-**Abweichung zur Haupt-App ist bekannt und bleibt:** Dort heißen die
-Duplikat-Codes `brand.already_exists` und `category.already_exists`, der Typ-Fall
-`seller_type.already_exists` ([`bazaar-app/api/cross-cutting.md`](../../bazaar-app/api/cross-cutting.md)
-Abschnitt „Fehler-Responses"). Das ist kein Versehen: Die Haupt-App ist einsprachig
-und braucht die Codes für Frontend-Reaktionen, hier tragen sie Übersetzungen. Beide
-Kataloge sind je App abschließend, und keine Komponente liest beide — die Codes
-gehen nirgends über die App-Grenze, der Export-JSON-Contract enthält keine
-Fehlercodes.
+| Fall | Muster | Beispiele |
+|---|---|---|
+| Wert schon von einem anderen Datensatz belegt | `<resource>.<feld>_taken` | `seller.email_taken`, `master_data.name_taken`, `article.number_taken` |
+| Löschen scheitert an bestehenden Referenzen | `<resource>.in_use` | `brand.in_use`, `seller_type.in_use` |
+| Alles Übrige — Zustand oder verbotene Aktion | `<resource>.<zustand>` bzw. `<resource>.<aktion>_<grund>` | `seller.last_admin`, `settings.start_number_conflict` |
+
+`<resource>` ist die API-Ressourcen-Familie in snake_case, nicht der Entitätsname —
+darum `master_data.name_taken` für Marke *und* Kategorie: beide laufen über dieselbe
+Endpoint-Familie, und die Meldung ist identisch. Beim *Löschen* sind es zwei Codes
+(`brand.in_use`, `category.in_use`), weil die Meldung dort die Art nennen muss —
+der Nutzer soll wissen, welche Referenz er auflösen soll.
+
+**Ein Verb für Eindeutigkeitskonflikte, nicht drei.** Vor dieser Regel standen in
+der Suite `_taken`, `already_exists` und `already_registered` nebeneinander — für
+dieselbe Situation. `_taken` hat gewonnen, weil es in beiden Apps die Mehrheit
+stellte und den kürzeren Übersetzungsschlüssel ergibt. Die Haupt-App wurde
+mitgezogen ([`bazaar-app/api/cross-cutting.md`](../../bazaar-app/api/cross-cutting.md)
+Abschnitt „Fehler-Responses").
+
+Die Regel ist bewusst in **beiden** App-Katalogen ausgeschrieben statt in einer
+gemeinsamen Datei: Ein App-Verzeichnis muss vollständig für sich stehen. Die Codes
+selbst überqueren die App-Grenze nirgends — der Export-JSON-Contract enthält keine
+Fehlercodes —, deshalb bleiben die beiden Kataloge je App abschließend, und ein
+Code darf in nur einer App existieren.
 
 ### Status-Code-Katalog
 
