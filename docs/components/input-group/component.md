@@ -140,15 +140,15 @@ könnte. Das System setzt `active = false` und gibt alle MediaStream-Tracks frei
 ## 5. Preis-Variante — €-Addon
 
 ```
-[ Preis eingeben (Kommazahl)    ][ € ]
+[ Preis eingeben (Kommazahl)    ][ € ][ Modus-A ]
 ```
 
 - Das €-Zeichen erscheint als rechter Addon (kein Left-Addon, kein Clear-Button, kein Action-Button).
-- _Nur Haupt-App:_ Erlaubte Eingabe: Dezimalzahl mit Komma oder Punkt.
-- PrimeNG-Komponente: `p-inputnumber` (Locale DE, `minFractionDigits="2"`).
 - **Ausnahme zur Regel „keine Buttons":** Bietet die Verwendungsstelle neben der Tastatur
   auch den Numpad an, erscheint rechts des €-Addons ein einzelner Modus-Button. Clear- und
   Action-Button bleiben auch dann ausgeblendet.
+- _Nur Haupt-App:_ Erlaubte Eingabe: Dezimalzahl mit Komma oder Punkt.
+- PrimeNG-Komponente: `p-inputnumber` (Locale DE, `minFractionDigits="2"`).
 
 ---
 
