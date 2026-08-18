@@ -120,12 +120,12 @@ Das Sofort-Anlegen ist nötig, weil Schritt 2 eine Verkäufer-ID braucht, um Art
 
 | Zeile | Links | Rechts | Pflicht |
 |---|---|---|---|
-| 1 | Artikelnummer (InputGroup, kein Addon, Kamera-Popup-Button rechts → öffnet [Barcode-Scanner](../../../../components/barcode-scanner/component.md)) | *(leer)* | ✅ |
+| 1 | Artikelnummer ([InputGroup](../../../../components/input-group/component.md), kein Addon, `modes = ['keyboard', 'camera', 'numpad']`; Kamera inline an der Position des Feldes über [Barcode-Scanner](../../../../components/barcode-scanner/component.md), kehrt nach einem Treffer in den vorherigen Modus zurück) | *(leer)* | ✅ |
 | 2 | Bezeichnung (volle Breite) | — | ✅ |
 | 3 | Kategorie (AutoComplete ▾/+) | Marke (AutoComplete ▾/+) | ✅ |
 
 → Komponente für Kategorie und Marke: [AutoComplete-Create](../../../../components/autocomplete-create/component.md)
-| 4 | Preis (InputGroup, €-Addon rechts) | *(leer)* | ✅ |
+| 4 | Preis (InputGroup, €-Addon rechts, `modes = ['keyboard', 'numpad']`, Numpad mit `showDecimal="true"`) | *(leer)* | ✅ |
 | 5 | Größe | Farbe | ❌ |
 | 6 | Beschreibung (Textarea, volle Breite) | — | ❌ |
 

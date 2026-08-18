@@ -58,7 +58,7 @@ Formular mit den Verkäufer-Panels 01–03. Vorname und Nachname sind aus der Su
 
 ```
 ┌────────────────────────────────────┬──────────────────────┐
-│ Artikelnummer  [1043      ] [📷]   │ SITZUNG (2)          │
+│ Artikelnummer  [1043   ] [↩][📷][⊞]│ SITZUNG (2)          │
 │ Bezeichnung    [Winterjacke      ] │ 1043 Winterjacke  🗑 │
 │ Kategorie [Jacken ▾+] Marke [Nike▾+]│ 1044 Gummistiefel 🗑 │
 │ Preis          [12,00     ] [€]    │                      │
@@ -71,7 +71,7 @@ Formular mit den Verkäufer-Panels 01–03. Vorname und Nachname sind aus der Su
 
 | Zeile | Links | Rechts | Pflicht |
 |---|---|---|---|
-| 1 | Artikelnummer ([`input-group`](../../../components/input-group/component.md), Kamera-Button rechts) | — | ✅ |
+| 1 | Artikelnummer ([`input-group`](../../../components/input-group/component.md), `modes = ['keyboard', 'camera', 'numpad']` — Modus-Mechanik siehe dort, Abschnitt 3) | — | ✅ |
 | 2 | Bezeichnung (volle Breite) | — | ✅ |
 | 3 | Kategorie ([`autocomplete-create`](../../../components/autocomplete-create/component.md)) | Marke (dito) | ✅ |
 | 4 | Preis ([`inputnumber`](../../../components/inputnumber/component.md) Geld + €-Add-on) | — | ✅ |
