@@ -14,7 +14,7 @@ updated: 2026-08-18
 - Überblick — Konzept & Modi
 - 1. ASCII-Darstellung — Layoutskizze
 - 2. Input / Output Schnittstelle — Parameter & Events
-- 3. Eingabe-Modus — Tastatureingabe
+- 3. Tastatur-Modus — Tastatureingabe
 - 4. Kamera-Modus — Scan & Overlay
 - 5. Dialog-Verhalten — Öffnen & Schließen
 - 6. PrimeNG-Basis — Technische Basis
@@ -51,14 +51,14 @@ Startmodus und Kamera-Freigabe stehen dort in Abschnitt 3 und werden hier nicht 
 ## 1. ASCII-Darstellung
 
 ```
-Eingabe-Modus:
+Tastatur-Modus:
 ┌─────────────────────────────────────────────┐
 │  Artikel freigeben                       [✕] │
 ├─────────────────────────────────────────────┤
 │                                             │
-│  ┌────────────────────────────────┬──────┐  │
-│  │ Artikelnummer eingeben ... │↩│📷│⊞│  │
-│  └────────────────────────────────┴──────┘  │
+│  ┌──────────────────────────────┬──┬──┬──┐  │
+│  │Artikelnummer eingeben ...    │↩ │📷 │⊞ │  │
+│  └──────────────────────────────┴──┴──┴──┘  │
 │                                             │
 │  ┌─────────────────────────────────────┐   │
 │  │  101 — Jacke blau                   │   │
@@ -107,7 +107,7 @@ Kamera-Modus:
 
 ---
 
-## 3. Eingabe-Modus
+## 3. Tastatur-Modus
 
 ### Verhalten der AutoComplete-Liste
 
@@ -189,10 +189,11 @@ Kameraintegration und Barcode-Dekodierung: [Barcode-Scanner](../barcode-scanner/
 1. **AC-1** — WHEN der Dialog geöffnet wird, THEN SHALL das System den Fokus automatisch auf das Artikelnummer-Eingabefeld setzen.
 2. **AC-2** — WHEN eine Artikelnummer eingegeben und bestätigt wird und der Artikel dem Verkäufer gehört und der Zeitstempel noch nicht gesetzt ist, THEN SHALL das System den konfigurierten Zeitstempel (`releasedAt` oder `returnedAt`) auf den aktuellen Zeitpunkt setzen und `scanComplete` mit `result: 'success'` emittieren.
 3. **AC-3** — WHEN im Kamera-Modus ein Barcode erkannt wird, dessen Zeitstempel bereits gesetzt ist, THEN SHALL das System das Feedback-Overlay in Gelb für `pauseMs` Millisekunden einblenden und `scanComplete` mit `result: 'already-set'` emittieren.
-4. **AC-4** — IF eine eingegebene oder gescannte Nummer keinem ausstehenden Artikel des Verkäufers entspricht, THEN SHALL das System im Eingabe-Modus den Text „Artikel nicht bekannt" unterhalb des Felds anzeigen und im Kamera-Modus das Feedback-Overlay in Rot für `pauseMs` Millisekunden einblenden.
+4. **AC-4** — IF eine eingegebene oder gescannte Nummer keinem ausstehenden Artikel des Verkäufers entspricht, THEN SHALL das System im Tastatur-Modus den Text „Artikel nicht bekannt" unterhalb des Felds anzeigen und im Kamera-Modus das Feedback-Overlay in Rot für `pauseMs` Millisekunden einblenden.
 5. **AC-5** — WHEN der Dialog über ✕-Button oder Escape geschlossen wird, THEN SHALL das System die Kamera stoppen, alle MediaStream-Tracks freigeben und `visibleChange: false` emittieren.
 6. **AC-6** — WHEN der Dialog geöffnet wird, THEN SHALL das System den Tastatur-Modus aktivieren und die drei Modi `keyboard`, `camera`, `numpad` anbieten.
 7. **AC-7** — WHEN aus dem Kamera-Modus in einen anderen Modus gewechselt wird, THEN SHALL das System die Kamera stoppen und alle MediaStream-Tracks freigeben.
+8. **AC-8** — IF die Kamera nicht verfügbar ist oder der Zugriff verweigert wird, THEN SHALL das System in den Tastatur-Modus zurückkehren und eine sichtbare Fehlermeldung „Kamerazugriff nicht möglich" anzeigen.
 
 ## Tags & Piles
 

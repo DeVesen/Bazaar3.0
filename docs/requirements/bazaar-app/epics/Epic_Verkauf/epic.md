@@ -35,7 +35,7 @@ Component-Details → [`cart`](../../components/cart.md) · [`payment-panel`](..
 
 ## Überblick
 
-Kassenvorgang mit Artikelnummer-Eingabe (USB-Barcode-Scanner oder Kamera-Scan), Warenkorb und Bezahlpopup.
+Kassenvorgang mit Artikelnummer-Eingabe (USB-Barcode-Scanner, Kamera-Scan oder Numpad), Warenkorb und Bezahlpopup.
 
 ---
 

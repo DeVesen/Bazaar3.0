@@ -19,7 +19,7 @@ alle Bereiche darunter bleiben sichtbar. Gedacht für Abläufe, in denen mehrere
 nacheinander gescannt werden, ohne jedes Mal ein Modal zu öffnen und zu schließen.
 
 **Einsatzstellen:** Artikel-Freigeben-Popup ([Epic_Verkaeufer](../../Epic_Verkaeufer/epic.md)
-Abschnitt 5) und Rückgabe-Popup ([Epic_Abrechnung](../../Epic_Abrechnung/epic.md)) — beide
+Abschnitt 6) und Rückgabe-Popup ([Epic_Abrechnung](../../Epic_Abrechnung/epic.md)) — beide
 über den [Scan-Dialog](../../../../../components/scan-dialog/component.md).
 
 Der Kamera-Modus im Verkauf verhält sich anders — er kehrt nach dem ersten Treffer in den

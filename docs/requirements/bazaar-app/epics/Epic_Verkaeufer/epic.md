@@ -200,11 +200,11 @@ Erreichbar über den **Scanner-Button** in der Verkäufer-Karte.
 
 Artikel, die am Tisch neu aufgenommen werden, erscheinen hier **nie**: Beim Buchen der Annahme setzt das System `releasedAt` gleichzeitig mit `acceptedAt` ([`entities/artikel.md`](../../entities/artikel.md)), sie sind also sofort freigegeben.
 
-### Eingabe-Modus
+### Eingabemodi
 
-Eingabefeld (Artikelnummer) + AutoComplete-Liste darunter.
+Das Artikelnummer-Feld, seine drei Modi (Tastatur, Kamera, Numpad), deren Reihenfolge, Startmodus und Kamera-Freigabe entsprechen exakt dem [Scan-Dialog](../../../../components/scan-dialog/component.md) sowie [InputGroup](../../../../components/input-group/component.md) Abschnitt 3 und werden hier nicht wiederholt. Der Dauerscan mit Countdown-Feedback im Kamera-Modus ist in [ANNAHME-S01](../Epic_Artikelannahme/stories/ANNAHME-S01-inline-camera-mode.md) beschrieben.
 
-**Gescannt wird gesammelt, geschrieben wird am Ende.** Der Dialog liest während des Scannens nur und merkt sich die Treffer — wie der Warenkorb an der Kasse. Erst der Abschluss über das Payment-Panel schickt einen Request (`POST /api/release`, siehe Abschnitt 7). Würde jeder Scan sofort schreiben, hinterließe ein Abbruch nach 30 Scans 30 freigegebene Artikel **ohne** kassierte Gebühr.
+**Gescannt wird gesammelt, geschrieben wird am Ende.** Der Dialog liest während des Scannens nur und merkt sich die Treffer — wie der Warenkorb an der Kasse. Erst der Abschluss über das Payment-Panel schickt einen Request (`POST /api/release`, siehe Abschnitt 7). Würde jeder Scan sofort schreiben, hinterließe ein Abbruch nach 30 Scans 30 freigegebene Artikel **ohne** kassierte Gebühr. Das ist der einzige fachliche Unterschied zum generischen Scan-Dialog, der pro Treffer sofort schreibt.
 
 | Zustand | Verhalten |
 |---|---|
@@ -213,28 +213,6 @@ Eingabefeld (Artikelnummer) + AutoComplete-Liste darunter.
 | Genau 1 Treffer + ENTER | Artikel wird in die Sitzungsliste übernommen; Eingabefeld leert sich; Liste zeigt wieder alle ausstehenden |
 | Kein Treffer | Liste verschwindet; Text: *„Artikel nicht bekannt"* |
 | Alle freigegeben | Nur Text: *„Alle Artikel freigegeben"* |
-
-Neben dem Eingabefeld: **BC-Button** → wechselt in Kamera-Modus (Inline-Modus).
-
-### Kamera-Modus (Inline)
-
-Kamerabild ersetzt Eingabefeld + Liste.
-
-Nach erfolgreichem Scan:
-
-| Ergebnis | Farbe | Dauer |
-|---|---|---|
-| Erfolgreich freigegeben | 🟢 Grün | `scannerPauseMs`, Default 3 000 ms |
-| Bereits freigegeben | 🟡 Gelb | `scannerPauseMs` |
-| Nicht bekannt | 🔴 Rot | `scannerPauseMs` |
-
-Die Dauer kommt aus dem Einstellungs-Parameter `scannerPauseMs` ([`spec.md`](../../spec.md) Abschnitt 8), nicht aus einer Konstante. Fünf Sekunden Zwangspause je Scan summieren sich bei 300 Artikeln auf 25 Minuten Warten.
-
-Nach Ablauf der Anzeigezeit → Kamerabild wieder aktiv.
-
-**Abbrechen-Button** → zurück in Eingabe-Modus.
-
-**Feedback:** Ton (Web Audio API) + Vibration (`Navigator.vibrate()`).
 
 ### Abschluss mit Annahmegebühr
 

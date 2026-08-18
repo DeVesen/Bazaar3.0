@@ -5,7 +5,7 @@ reviewed-date: 2026-08-17
 
 # Component: artikel-dialog
 
-**Bibliothek:** [`modal`](../../../components/modal/component.md) + [`input`](../../../components/input/component.md) + [`inputnumber`](../../../components/inputnumber/component.md) + [`autocomplete-create`](../../../components/autocomplete-create/component.md) + [`confirmdialog`](../../../components/confirmdialog/component.md)
+**Bibliothek:** [`modal`](../../../components/modal/component.md) + [`input`](../../../components/input/component.md) + [`input-group`](../../../components/input-group/component.md) + [`autocomplete-create`](../../../components/autocomplete-create/component.md) + [`confirmdialog`](../../../components/confirmdialog/component.md)
 **Verwendung:** Nur Haupt-App — [Epic_Artikel](../epics/Epic_Artikel/epic.md) Abschnitt 2
 
 ## Index
@@ -45,7 +45,7 @@ reviewed-date: 2026-08-17
 │                                                  │
 │  [Bezeichnung *                        100%]     │
 │  [Kategorie * ▾+  50%] [Marke * ▾+      50%]    │
-│  [Preis *         50%] [€]                       │
+│  [Preis *         50%] [€][⊞]                    │
 │  [Größe           50%] [Farbe           50%]    │
 │  [Beschreibung                         100%]     │
 ├────────────────────────────────────────────────┤
@@ -66,7 +66,7 @@ Modal Standard-Größe. Feldanordnung identisch zur Artikeleingabe im [`intake-w
 | Artikelnummer | — | **read-only**, oben; die Nummer klebt am Etikett |
 | Bezeichnung | ✅ | |
 | Kategorie, Marke | ✅ | [`autocomplete-create`](../../../components/autocomplete-create/component.md) — neue Werte anlegbar |
-| Preis | ✅ | [`inputnumber`](../../../components/inputnumber/component.md) Geld, €-Add-on |
+| Preis | ✅ | [`input-group`](../../../components/input-group/component.md), €-Addon rechts, `modes = ['keyboard', 'numpad']`, Numpad mit `showDecimal="true"` — analog zur Preis-Zeile im [`intake-wizard`](intake-wizard.md) |
 | Größe, Farbe, Beschreibung | ❌ | |
 
 Der Verkäufer ist **nicht** änderbar und erscheint nicht als Feld — ein Artikel wechselt nicht den Besitzer.

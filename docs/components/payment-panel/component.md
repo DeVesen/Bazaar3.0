@@ -76,15 +76,15 @@ Beide Verwendungsstellen in der Bazaar-App sind strukturell identisch und unters
 │  │  20,00          [readonly]│ € │ ⌨  │     │  ← Modus-Button (→ Tastatur)
 │  └──────────────────────────┴───┴────┘     │
 │                                             │
-│  ┌──────────┬──────────┬──────────┐        │
-│  │    7     │    8     │    9     │        │
-│  ├──────────┼──────────┼──────────┤        │
-│  │    4     │    5     │    6     │        │
-│  ├──────────┼──────────┼──────────┤        │
-│  │    1     │    2     │    3     │        │
-│  ├──────────┼──────────┼──────────┤        │
-│  │    C     │    0     │    ⌫    │        │
-│  └──────────┴──────────┴──────────┘        │
+│  ┌──────┬──────┬──────┬──────┐             │
+│  │  7   │  8   │  9   │      │             │
+│  ├──────┼──────┼──────┤  ⌫   │             │
+│  │  4   │  5   │  6   │      │             │
+│  ├──────┼──────┼──────┼──────┤             │
+│  │  1   │  2   │  3   │      │             │
+│  ├──────┼──────┼──────┤  ⏎   │             │
+│  │  C   │  ,   │  0   │      │             │
+│  └──────┴──────┴──────┴──────┘             │
 │                                             │
 │  ╔═════════════════════════════════════╗   │
 │  ║           7,50 €  Rückgeld          ║   │
@@ -126,7 +126,7 @@ Rückgeld-Zustände (gelten in beiden Modi):
 - Ist `receivedAmount < totalAmount`: Box ausgeblendet, `[Bestätigen]`-Button deaktiviert
 - Rückgeld wird auf 2 Dezimalstellen gerundet angezeigt
 
-### Eingabe-Modus: Tastatur vs. Numpad
+### Tastatur- vs. Numpad-Modus
 
 Das Panel bietet zwei Modi an — `modes = ['keyboard', 'numpad']`. Eine Kamera gibt es hier
 nicht; entsprechend erscheint genau **ein** Modus-Button im Eingabefeld-Addon.

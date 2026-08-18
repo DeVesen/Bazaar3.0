@@ -5,7 +5,7 @@ reviewed-date: 2026-08-17
 
 # Component: settings-form
 
-**Bibliothek:** [`card`](../../../components/card/component.md) + [`inputnumber`](../../../components/inputnumber/component.md) + [`button`](../../../components/button/component.md) + [`toast`](../../../components/toast/component.md)
+**Bibliothek:** [`card`](../../../components/card/component.md) + [`input-group`](../../../components/input-group/component.md) + [`button`](../../../components/button/component.md) + [`toast`](../../../components/toast/component.md)
 **Verwendung:** Nur Haupt-App, **nur Admin** — [Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) Abschnitt 1
 
 ## Index
@@ -34,7 +34,7 @@ Das Formular hat **ein** Feld. Das ist kein Versehen, sondern das Ergebnis des R
 │  Systemparameter                                  │
 ├──────────────────────────────────────────────────┤
 │  ANZEIGEDAUER SCAN-ERGEBNIS                       │
-│  [ 3.000            ] ms                          │
+│  [ 3.000            ] ms [⊞]                      │
 │  Wie lange das Ergebnis im Kamera-Modus           │
 │  stehen bleibt. Zwischen 500 und 15.000 ms.       │
 │                                                    │
@@ -42,7 +42,7 @@ Das Formular hat **ein** Feld. Das ist kein Versehen, sondern das Ergebnis des R
 └──────────────────────────────────────────────────┘
 ```
 
-Feld als [`inputnumber`](../../../components/inputnumber/component.md), Variante **Anzahl** (keine Dezimalstellen, keine Tausendertrennung im Eingabewert), mit `ms` als Add-on über [`input-group`](../../../components/input-group/component.md).
+Feld als [`input-group`](../../../components/input-group/component.md), Variante **Anzahl** (keine Dezimalstellen, keine Tausendertrennung im Eingabewert), mit `ms` als Add-on und `modes = ['keyboard', 'numpad']` — analog zur Preis-Zeile im [`intake-wizard`](intake-wizard.md), Numpad mit `showDecimal="false"`.
 
 Der Hilfstext unter dem Feld erklärt die **Wirkung**, nicht das Feld: „Anzeigedauer" allein sagt nicht, was länger oder kürzer bedeutet.
 
@@ -67,6 +67,7 @@ Die Grenzen haben einen praktischen Grund: Unter einer halben Sekunde ist das Sc
 3. **AC-3** — IF der Wert außerhalb von 500–15.000 liegt, THEN SHALL das System serverseitig mit einem Feldfehler ablehnen.
 4. **AC-4** — WHEN gespeichert wird, THEN SHALL der Wert serverseitig persistiert werden und für alle Geräte gelten.
 5. **AC-5** — THE SYSTEM SHALL die Parameter **nicht** im `localStorage` ablegen.
+6. **AC-6** — THE SYSTEM SHALL das Feld mit `modes = ['keyboard', 'numpad']` anbieten und im Numpad-Modus `showDecimal="false"` verwenden.
 
 ## Tags & Piles
 

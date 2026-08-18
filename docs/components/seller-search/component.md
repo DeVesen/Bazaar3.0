@@ -36,7 +36,7 @@ Button-Reihenfolge und Startmodus stehen dort in Abschnitt 3.
 |---|---|
 | Tastatur | Manuelle Eingabe von Name oder Nummer |
 | Kamera | QR-/Barcode-Erkennung; Kamerabild ersetzt die Trefferliste. Nur verfügbar, wenn `showScanButton` gesetzt ist |
-| Numpad | Für die Suche nach reiner Verkäufernummer; `showDecimal="false"`, `showEnter="true"`, `⏎` startet die Suche |
+| Numpad | Für die Suche nach reiner Verkäufernummer; `showDecimal="false"`, `showEnter="true"`, `⏎` löst dieselbe Aktion aus wie `Enter` (Abschnitt 4) |
 
 Epic_Abrechnung beschreibt es explizit als „identische Suchfeld-Ansicht wie Artikelannahme". Einzige Unterschiede zwischen den Verwendungsstellen sind über Parameter steuerbar:
 
@@ -256,6 +256,8 @@ Barcode-Dekodierung: `BarcodeDetector`-API (Chromium) oder `@zxing/browser` als 
 5. **AC-5** — WHERE `showScanButton === true`, SHALL das System einen Kamera-Modus-Button neben dem Suchfeld anzeigen; Klick darauf stoppt die Trefferliste und zeigt den live Videostream.
 6. **AC-6** — WHEN im Kamera-Modus ein QR-Code oder Barcode erkannt wird und genau ein Treffer gefunden wird, THEN SHALL das System `sellerSelected` emittieren und die Kamera stoppen.
 7. **AC-7** — WHEN Escape im Kamera-Modus gedrückt wird, THEN SHALL das System die Kamera stoppen, in den zuvor aktiven Modus zurückkehren und die Trefferliste wieder anzeigen.
+8. **AC-8** — WHILE der Numpad-Modus aktiv ist, SHALL das System bei Klick auf `⏎` dieselbe Aktion auslösen wie `Enter` im Tastatur-Modus (Abschnitt 4).
+9. **AC-9** — IF die Kamera nicht verfügbar ist oder der Zugriff verweigert wird, THEN SHALL das System in den Tastatur-Modus zurückkehren und eine sichtbare Fehlermeldung „Kamerazugriff nicht möglich" anzeigen.
 
 ## Tags & Piles
 

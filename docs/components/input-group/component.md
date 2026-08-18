@@ -72,8 +72,15 @@ type InputMode = 'keyboard' | 'camera' | 'numpad';
 | Modus | Verhalten |
 |---|---|
 | `keyboard` | Normales Eingabefeld mit `pAutoFocus`. Ein **USB-Barcode-Scanner** arbeitet per Tastatur-Emulation und tippt in genau dieses Feld — er ist deshalb kein eigener Modus. |
-| `camera` | Live-Kamerabild **an der Position des Eingabefeldes** ([Barcode-Scanner](../barcode-scanner/component.md)), kein Modal und kein Backdrop. Die Modus-Buttons bleiben dadurch bedienbar. |
-| `numpad` | Feld auf `readonly`, damit keine native Tastatur erscheint. [Numpad](../numpad/component.md) unter dem Feld. Dessen `⏎` löst dieselbe Aktion aus wie der ↩-Button; das Parent bindet `submitted` an dieselbe Methode. |
+| `camera` | Live-Kamerabild **an der Position des Eingabefeldes** ([Barcode-Scanner](../barcode-scanner/component.md)), kein Modal und kein Backdrop. Die Modus-Buttons bleiben dadurch bedienbar (Ausprägung je Verwendungsstelle — in [Seller-Search](../seller-search/component.md) ersetzt das Kamerabild stattdessen die **Trefferliste**, weil das Suchfeld den erkannten Wert weiterhin anzeigen muss). |
+| `numpad` | Feld auf `readonly`, damit keine native Tastatur erscheint. [Numpad](../numpad/component.md) unter dem Feld. Dessen `⏎` löst dieselbe Aktion aus wie der ↩-Button; das Parent bindet `submitted` an dieselbe Methode. Ein **USB-Barcode-Scanner** kann hier nicht tippen — er arbeitet per Tastatur-Emulation auf ein fokussierbares `<input>`, und das `readonly`-Feld nimmt keine Eingabe an. Rückweg ist der Tastatur-Modus. |
+
+**Position der Modus-Buttons im Kamera-Modus.** Ersetzt das Kamerabild das Eingabefeld
+selbst (Standardfall), rutschen die Modus-Buttons unter das Bild — dort stehen sie in einer
+eigenen Zeile, wie im [Scan-Dialog](../scan-dialog/component.md). Bleibt das Eingabefeld
+dagegen stehen und ersetzt das Kamerabild nur ein anderes Element (z. B. die Trefferliste
+im [Seller-Search](../seller-search/component.md)), bleiben die Modus-Buttons an ihrer
+gewohnten Position in der `p-inputgroup`.
 
 ### Sichtbarkeitsregel der Modus-Buttons
 

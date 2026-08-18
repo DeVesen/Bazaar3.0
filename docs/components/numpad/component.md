@@ -231,6 +231,8 @@ Abstand nicht erneut fest.
 6. **AC-6** — WHEN `⏎` geklickt wird, THEN SHALL das System das `submitted`-Event emittieren und kein `keyPressed`-Event.
 7. **AC-7** — WHILE `showEnter` nicht gesetzt ist, SHALL das System `⏎` ausblenden und `⌫` über alle vier Zeilen der Aktionsspalte spannen.
 8. **AC-8** — THE SYSTEM SHALL keinen internen Wert-Buffer verwalten; jeder Klick resultiert ausschließlich in einem emittierten Event.
+9. **AC-9** — WHILE `enterDisabled` gesetzt ist, SHALL das System `⏎` deaktiviert darstellen und bei Klick kein `submitted`-Event emittieren.
+10. **AC-10** — THE SYSTEM SHALL das Grid mit `margin: 16px 0` darstellen, sodass jede Verwendungsstelle den Abstand nach oben zum Eingabefeld und nach unten zum Folgeelement selbst nicht erneut festlegt.
 
 ## Tags & Piles
 

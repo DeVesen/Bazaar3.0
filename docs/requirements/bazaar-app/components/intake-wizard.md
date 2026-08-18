@@ -61,7 +61,7 @@ Formular mit den Verkäufer-Panels 01–03. Vorname und Nachname sind aus der Su
 │ Artikelnummer  [1043   ] [↩][📷][⊞]│ SITZUNG (2)          │
 │ Bezeichnung    [Winterjacke      ] │ 1043 Winterjacke  🗑 │
 │ Kategorie [Jacken ▾+] Marke [Nike▾+]│ 1044 Gummistiefel 🗑 │
-│ Preis          [12,00     ] [€]    │                      │
+│ Preis          [12,00     ] [€][⊞] │                      │
 │ Größe [128    ] Farbe [rot      ]  │ Gebühr:      1,00 €  │
 │ Beschreibung   [               ]   │ ┌──────────────────┐ │
 │                                    │ │    Speichern     │ │
