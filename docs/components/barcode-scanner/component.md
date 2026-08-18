@@ -103,7 +103,7 @@ Breite: 100 % des Eltern-Elements. Höhe: `auto` (Kamera-Seitenverhältnis).
 |---|---|---|
 | Kamera-Modus | [Scan-Dialog](../scan-dialog/component.md) | Artikelnummer scannen |
 | Scan-Modus | [Seller-Search](../seller-search/component.md) | Verkäufer-ID scannen |
-| Kamera-Popup-Button | [Epic: Artikelannahme](../../requirements/bazaar-app/epics/Epic_Artikelannahme/epic.md) | Artikelnummer scannen |
+| Kamera-Modus | [Epic: Artikelannahme](../../requirements/bazaar-app/epics/Epic_Artikelannahme/epic.md) | Artikelnummer scannen |
 | Kamera-Scan | [Epic: Verkauf](../../requirements/bazaar-app/epics/Epic_Verkauf/epic.md) | Artikelnummer scannen |
 
 ---
