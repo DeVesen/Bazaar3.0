@@ -1,7 +1,7 @@
 ---
 id: C-006
 status: draft
-updated: 2026-07-31
+updated: 2026-08-18
 ---
 
 # Component: Seller-Search
@@ -14,13 +14,13 @@ updated: 2026-07-31
 - 3. Filterlogik — Suchverhalten
 - 4. Tastaturverhalten — Shortcuts
 - 5. „+ Neu anlegen"-Button — Anlegen-Option
-- 6. Scan-Modus — QR/Barcode-Erkennung
+- 6. Kamera-Modus — QR/Barcode-Erkennung
 - 7. Layout — Aufbau
 - 8. PrimeNG-Basis — Technische Basis
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
-**Bibliothek:** PrimeNG-Komposition — `p-inputgroup` + `p-card` + `p-listbox`
+**Bibliothek:** PrimeNG-Komposition — [InputGroup](../input-group/component.md) + `p-card` + `p-listbox`
 **Verwendung:** Bazaar Haupt-App — überall dort, wo ein Verkäufer per Suche ausgewählt werden muss, bevor ein weiterer Schritt möglich ist.
 
 ---
@@ -29,9 +29,14 @@ updated: 2026-07-31
 
 Das Seller-Search-Panel ist die einheitliche Einstiegs-Ansicht für Prozesse, die einen einzelnen Verkäufer erfordern. Es besteht aus einem Suchfeld in einer Card sowie einer Trefferliste darunter.
 
-Die Komponente unterstützt zwei Eingabe-Modi:
-- **Text-Modus** — manuelle Eingabe von Name oder Nummer
-- **Scan-Modus** — QR-/Barcode-Erkennung per Kamera (optional, via `showScanButton`)
+Das Suchfeld ist eine [InputGroup](../input-group/component.md); Umschaltmechanik,
+Button-Reihenfolge und Startmodus stehen dort in Abschnitt 3.
+
+| Modus | Besonderheit in der Verkäufersuche |
+|---|---|
+| Tastatur | Manuelle Eingabe von Name oder Nummer |
+| Kamera | QR-/Barcode-Erkennung; Kamerabild ersetzt die Trefferliste. Nur verfügbar, wenn `showScanButton` gesetzt ist |
+| Numpad | Für die Suche nach reiner Verkäufernummer; `showDecimal="false"`, `showEnter="true"`, `⏎` startet die Suche |
 
 Epic_Abrechnung beschreibt es explizit als „identische Suchfeld-Ansicht wie Artikelannahme". Einzige Unterschiede zwischen den Verwendungsstellen sind über Parameter steuerbar:
 
@@ -46,7 +51,7 @@ Epic_Abrechnung beschreibt es explizit als „identische Suchfeld-Ansicht wie Ar
 ## 1. ASCII-Darstellung
 
 ```
-Text-Modus (showScanButton=false):
+Tastatur-Modus (showScanButton=false):
 ┌─────────────────────────────────────────────────────┐
 │                                                     │
 │   ┌────────────────────────────────────┬────────┐  │
@@ -66,7 +71,7 @@ Text-Modus (showScanButton=false):
 │                                   und 0 Treffer     │
 └─────────────────────────────────────────────────────┘
 
-Text-Modus (showScanButton=true):
+Tastatur-Modus (showScanButton=true):
 ┌─────────────────────────────────────────────────────┐
 │                                                     │
 │   ┌──────────────────────────────┬────────┬─────┐  │
@@ -83,7 +88,7 @@ Text-Modus (showScanButton=true):
 │                                                     │
 └─────────────────────────────────────────────────────┘
 
-Scan-Modus (nach Klick auf 📷 — Kamera ersetzt Trefferliste):
+Kamera-Modus (nach Klick auf 📷 — Kamera ersetzt Trefferliste):
 ┌─────────────────────────────────────────────────────┐
 │                                                     │
 │   ┌──────────────────────────────┬────────┬─────┐  │
@@ -120,7 +125,7 @@ Zustandsübersicht Suchfeld:
 | `sellers` | `SellerSummary[]` | `@Input` | Vollständige Verkäufer-Liste (Filterung erfolgt in der Komponente) |
 | `hint` | `string` | `@Input` | Hinweistext unterhalb des Suchfelds |
 | `showCreateButton` | `boolean` | `@Input` | Zeigt den „+ Neu anlegen"-Button wenn `true` und 0 Treffer vorhanden (Default: `false`) |
-| `showScanButton` | `boolean` | `@Input` | Zeigt den 📷-Toggle-Button neben dem Suchfeld (Default: `false`) |
+| `showScanButton` | `boolean` | `@Input` | Steuert, ob der Kamera-Modus im Suchfeld verfügbar ist — siehe [InputGroup](../input-group/component.md) Abschnitt 3 (Default: `false`) |
 | `sellerSelected` | `SellerSummary` | `@Output` | Emittiert wenn ein Verkäufer angeklickt, per ENTER bestätigt oder per Scan erkannt wird |
 | `createRequested` | `string` | `@Output` | Emittiert wenn „+ Neu anlegen" geklickt wird; übergibt den aktuellen Suchtext |
 | `searchChanged` | `string` | `@Output` | Emittiert bei jeder Texteingabe (debounced, für optionales Parent-Tracking) |
@@ -157,8 +162,8 @@ Der Hinweistext unter dem Feld (Slot für `hint`) erscheint immer, unabhängig v
 | `Enter` (> 1 Treffer) | Keine Aktion |
 | `Enter` (0 Treffer + `showCreateButton`) | `createRequested` emittiert |
 | `↓` / `↑` | Navigation in der Trefferliste |
-| `Escape` (Text-Modus) | Suchfeld leert sich, Liste zeigt alle |
-| `Escape` (Scan-Modus) | Kamera stoppt, zurück zu Text-Modus |
+| `Escape` (Tastatur-Modus) | Suchfeld leert sich, Liste zeigt alle |
+| `Escape` (Kamera-Modus) | Kamera stoppt, zurück in den zuvor aktiven Modus |
 
 ---
 
@@ -174,16 +179,17 @@ Erscheint **ausschließlich** wenn:
 
 ---
 
-## 6. Scan-Modus
+## 6. Kamera-Modus
 
-Der Scan-Modus ist ein **alternativer Eingabe-Kanal** — er schreibt in dasselbe Suchfeld wie die Tastatureingabe und löst dieselbe Filterlogik aus. Kein eigener Workflow, kein separates Feedback-Overlay.
+Der Kamera-Modus ist ein **alternativer Eingabe-Kanal** — er schreibt in dasselbe Suchfeld wie die Tastatureingabe und löst dieselbe Filterlogik aus. Kein eigener Workflow, kein separates Feedback-Overlay.
 
 ### Aktivierung
 
 Der 📷-Button erscheint **nur wenn** `showScanButton === true`.
 
-Klick auf 📷 → Kamera startet, Videostream **ersetzt die Trefferliste** im Kartenbereich.
-Klick erneut auf 📷 (oder `Escape`) → Kamera stoppt, Trefferliste erscheint wieder.
+Wechsel in den Kamera-Modus → Videostream **ersetzt die Trefferliste** im Kartenbereich.
+Wechsel in einen anderen Modus (oder `Escape`) → Kamera stoppt, Trefferliste erscheint
+wieder und alle MediaStream-Tracks werden freigegeben.
 
 ### Scan-Ablauf
 
@@ -195,7 +201,7 @@ Klick erneut auf 📷 (oder `Escape`) → Kamera stoppt, Trefferliste erscheint 
 | Treffer nach Scan | Verhalten |
 |---|---|
 | **Genau 1** | Auto-ENTER: `sellerSelected` emittiert, Kamera stoppt |
-| **Mehrere** | Kamera stoppt, Scan-Modus verlassen, Trefferliste erscheint |
+| **Mehrere** | Kamera stoppt, Rückkehr in den zuvor aktiven Modus, Trefferliste erscheint |
 | **0** | Wert bleibt im Feld sichtbar (implizites Feedback), Kamera bleibt aktiv |
 
 ### Scan-Technik
@@ -209,10 +215,11 @@ Kapselt `@zxing/browser` + `@zxing/library`; MediaStream-Tracks werden beim Deak
 ## 7. Layout
 
 - Äußere Card: `max-width: 500px`, zentriert auf der Seite
-- Suchfeld: `p-inputgroup` (volle Breite)
+- Suchfeld: [InputGroup](../input-group/component.md) (volle Breite)
 - Hinweistext: 12.5 px, muted, margin-top 10 px
 - Trefferliste: `p-listbox` ohne Border, direkt unterhalb — kein eigener Card-Rahmen
-- Kamera-View: [Barcode-Scanner](../barcode-scanner/component.md), volle Breite, ersetzt `p-listbox` im Scan-Modus
+- Kamera-View: [Barcode-Scanner](../barcode-scanner/component.md), volle Breite, ersetzt `p-listbox` im Kamera-Modus
+- Numpad: erscheint unterhalb des Suchfelds im Numpad-Modus (siehe [Numpad](../numpad/component.md))
 - Anlegen-Button: margin-top 12 px, volle Breite
 
 ---
@@ -222,17 +229,13 @@ Kapselt `@zxing/browser` + `@zxing/library`; MediaStream-Tracks werden beim Deak
 ```
 p-card              ← Außenrahmen (max-width 500 px)
 
-p-inputgroup
-  pInputText        ← Suchfeld
-  p-button          ← optionaler Such-Button (kein sichtbarer Nutzen nötig — Enter reicht)
-  p-button          ← 📷 Scan-Toggle (conditional, showScanButton=true)
+app-input-group     ← Suchfeld inkl. Eingabemodi
+                    ← → siehe: docs/components/input-group/component.md
+  [modes]="showScanButton ? ['keyboard','camera','numpad'] : ['keyboard','numpad']"
 
-p-listbox           ← Trefferliste (ausgeblendet im Scan-Modus)
+p-listbox           ← Trefferliste (ausgeblendet im Kamera-Modus)
   [options]="filteredSellers"
   (onChange)="onSelect($event)"
-
-barcode-scanner   ← Kamera-View (sichtbar nur im Scan-Modus)
-                  ← → siehe: docs/components/barcode-scanner/component.md
 
 p-button            ← „+ Neu anlegen" (conditional)
 ```
@@ -249,10 +252,10 @@ Barcode-Dekodierung: `BarcodeDetector`-API (Chromium) oder `@zxing/browser` als 
 3. **AC-3** — WHEN genau ein Treffer vorhanden ist und Enter gedrückt wird, THEN SHALL das System das `sellerSelected`-Event mit dem gefundenen Verkäufer emittieren.
 4. **AC-4** — WHEN die Trefferliste leer ist und `showCreateButton === true`, THEN SHALL das System den Button „+ Neuen Verkäufer anlegen" einblenden und bei Klick das `createRequested`-Event mit dem aktuellen Suchtext emittieren.
 5. **AC-5** — WHERE `showScanButton === true`, SHALL das System einen 📷-Toggle-Button neben dem Suchfeld anzeigen; Klick darauf stoppt die Trefferliste und zeigt den live Videostream.
-6. **AC-6** — WHEN im Scan-Modus ein QR-Code oder Barcode erkannt wird und genau ein Treffer gefunden wird, THEN SHALL das System `sellerSelected` emittieren und die Kamera stoppen.
-7. **AC-7** — WHEN Escape im Scan-Modus gedrückt wird, THEN SHALL das System die Kamera stoppen und zur Trefferliste zurückkehren.
+6. **AC-6** — WHEN im Kamera-Modus ein QR-Code oder Barcode erkannt wird und genau ein Treffer gefunden wird, THEN SHALL das System `sellerSelected` emittieren und die Kamera stoppen.
+7. **AC-7** — WHEN Escape im Kamera-Modus gedrückt wird, THEN SHALL das System die Kamera stoppen, in den zuvor aktiven Modus zurückkehren und die Trefferliste wieder anzeigen.
 
 ## Tags & Piles
 
 **Piles:** #pile/shared-components
-**Tags:** #seller-search #verkäufer-suche #scan-modus #trefferliste #artikelannahme #primeng
+**Tags:** #seller-search #verkäufer-suche #kamera-modus #trefferliste #artikelannahme #primeng
