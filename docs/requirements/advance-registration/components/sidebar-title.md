@@ -34,7 +34,7 @@ Sitzt im `p-sidebar-header`-Slot des Sidebar-Compounds (siehe [sidebar.md](../..
 
 | Element | Umsetzung |
 |---|---|
-| Icon | klassische PrimeIcon-CSS-Klasse (`<i class="pi pi-shopping-cart">` bzw. passendes Icon), 18–20 px |
+| Icon | `@primeicons/angular` — `<svg data-p-icon="shopping-cart">` (bzw. passendes Icon), 18–20 px |
 | Text | ein `<span>` mit zwei Farb-Teilspannen: „Basar" (weiß) + „Voranmelde" (`#0e8a5f`, `font-weight: 700`) |
 | Container | einfacher `flex`-Container, `align-items: center`, `gap: 8px` |
 
@@ -44,7 +44,7 @@ Keine Inputs/Outputs nötig — reiner statischer Marken-Baustein, keine Paramet
 
 ## Akzeptanzkriterien
 
-1. **AC-1** — THE SYSTEM SHALL das Icon (PrimeIcon-Klasse) links vom Text rendern.
+1. **AC-1** — THE SYSTEM SHALL das Icon (`@primeicons/angular`-SVG-Kindelement) links vom Text rendern.
 2. **AC-2** — THE SYSTEM SHALL „Basar" in weiß und „Voranmelde" in `#0e8a5f`, `font-weight: 700` im selben Textfluss rendern.
 3. **AC-3** — WHILE die Sidebar eingeklappt ist (60 px), SHALL das System nur das Icon rendern, der Text-Teil ist ausgeblendet.
 

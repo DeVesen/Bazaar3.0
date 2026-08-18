@@ -61,7 +61,7 @@ Der Sidebar-Footer zeigt die Identität des angemeldeten Nutzers (Avatar, Userna
 | Username | `<span>`, 13 px, `font-weight: 600`, weiß |
 | Role-Label | `<span>`, 11 px, section-label-Farbe |
 | Role-Toggle | `p-selectbutton` (`options: ['Admin', 'Verkäufer']`) — **nur wenn Rolle Admin ist** |
-| Logout | eigenständiger `<button pButton link>` mit Icon (`pi pi-sign-out`) + Text „Abmelden" |
+| Logout | eigenständiger `<button pButton link>` mit `<svg data-p-icon="sign-out">` + Text „Abmelden" |
 
 ---
 

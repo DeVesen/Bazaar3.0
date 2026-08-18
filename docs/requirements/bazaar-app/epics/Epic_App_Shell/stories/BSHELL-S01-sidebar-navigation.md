@@ -89,7 +89,7 @@ Aktiver Eintrag: Akzentfarbe (`var(--accent)`) als Hintergrund-Highlight.
 - [ ] **AC-5** — WHILE der Nutzer auf einer Route ist, SHALL der zugehörige Navigationseintrag dauerhaft aktiv hervorgehoben bleiben (auch nach Seiten-Reload).
 - [ ] **AC-6** — WHEN die Anzahl offener Artikel > 0 ist, THEN SHALL ein `p-badge` mit der Zahl am Navigationseintrag „Artikelannahme" erscheinen; bei 0 offenen Artikeln ist kein Badge sichtbar.
 - [ ] **AC-6b** — THE SYSTEM SHALL die Badge-Zahl beim Betreten einer Route und nach jeder Änderung an Artikeln neu laden; ein zeitgesteuertes Polling SHALL **nicht** stattfinden.
-- [ ] **AC-7** — THE SYSTEM SHALL Material Icons (npm-Paket, kein CDN) für die Nav-Icons verwenden.
+- [ ] **AC-7** — THE SYSTEM SHALL `@primeicons/angular` (npm-Paket, kein CDN) für die Nav-Icons verwenden.
 
 ## Abhängigkeiten
 

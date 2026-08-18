@@ -188,15 +188,15 @@ Das Parent bindet lediglich die drei Events:
   p-button  label="7"   (digit)
   p-button  label="8"   (digit)
   p-button  label="9"   (digit)
-  p-button  icon="pi pi-delete-left"  severity="secondary"   ← Spalte 4, Zeile 1–2
+  p-button  severity="secondary"  <svg data-p-icon="delete-left"></svg>   ← Spalte 4, Zeile 1–2
   p-button  label="4"   (digit)
   p-button  label="5"   (digit)
   p-button  label="6"   (digit)
   p-button  label="1"   (digit)
   p-button  label="2"   (digit)
   p-button  label="3"   (digit)
-  p-button  icon="pi pi-arrow-turn-down-left"  severity="secondary"
-            [disabled]="enterDisabled"                       ← Spalte 4, Zeile 3–4
+  p-button  severity="secondary"  [disabled]="enterDisabled"
+            <svg data-p-icon="arrow-turn-down-left"></svg>              ← Spalte 4, Zeile 3–4
   p-button  label="C"   severity="secondary"
   p-button  label=","   severity="secondary"  *ngIf="showDecimal"
   p-button  label="0"   (digit)

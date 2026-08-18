@@ -89,9 +89,14 @@ beiden *nicht* aktiven Modi in genau dieser Reihenfolge:
 
 | Aktiver Modus | Modus-A | Modus-B |
 |---|---|---|
-| Tastatur | 📷 Kamera (`pi pi-camera`) | ⊞ Numpad (`pi pi-th-large`) |
-| Kamera | ⌨ Tastatur (`pi pi-keyboard`) | ⊞ Numpad (`pi pi-th-large`) |
-| Numpad | ⌨ Tastatur (`pi pi-keyboard`) | 📷 Kamera (`pi pi-camera`) |
+| Tastatur | 📷 Kamera (`data-p-icon="camera"`) | ⊞ Numpad (`data-p-icon="th-large"`) |
+| Kamera | ⌨ Tastatur (`data-p-icon="keyboard"`) | ⊞ Numpad (`data-p-icon="th-large"`) |
+| Numpad | ⌨ Tastatur (`data-p-icon="keyboard"`) | 📷 Kamera (`data-p-icon="camera"`) |
+
+Da der aktive Modus zur Laufzeit wechselt, bindet die Verwendungsstelle das Icon
+programmatisch über `pIcon` (PrimeNG-22-Guide „Icons" Abschnitt „Programmatic") statt es
+fest zu importieren — siehe [Payment-Panel](../payment-panel/component.md) Abschnitt 5 für
+das konkrete Muster.
 
 Die feste Reihenfolge hält die Button-Positionen vorhersehbar — der linke Modus-Button ist
 immer der in der Kette frühere. Bietet ein Feld nur zwei Modi an, erscheint genau **ein**

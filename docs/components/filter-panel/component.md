@@ -54,7 +54,7 @@ Basis (Meine Artikel):
 | Marke-Filter | [Select](../select/component.md), Variante Dropdown — Liste aller Marken | beide |
 | Kategorie-Filter | [Select](../select/component.md), Variante Dropdown — Liste aller Kategorien | beide |
 | Freitext-Feld | [Input](../input/component.md), Variante Icon (Such-Icon) | beide |
-| Suchen-Button | [Button](../button/component.md) `icon="pi pi-search"` + Text „Suchen", ganz rechts im Panel | beide |
+| Suchen-Button | [Button](../button/component.md) mit `<svg data-p-icon="search">` + Text „Suchen", ganz rechts im Panel | beide |
 
 ## Verhalten
 

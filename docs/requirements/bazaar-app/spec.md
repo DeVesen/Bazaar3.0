@@ -203,7 +203,7 @@ Feature-spezifische UI-Specs:
 | **Containerisierung** | Docker / Docker Compose |
 | **Barcode/QR-Scan** | ZXing / ngx-scanner (Browser-Kamera, offline) |
 | **QR-Code-Erzeugung** | `@zxing/library` (`BrowserQRCodeSvgWriter`, clientseitig, offline) — Shared-Component [`qr-code`](../../components/qr-code/component.md) |
-| **Icons** | Material Symbols (npm-Paket, kein CDN) |
+| **Icons** | `@primeicons/angular` (npm-Paket, kein CDN, ein Import je Icon) |
 | **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) · NetArchTest (Architektur) |
 | **Auth** | JWT-Bearer, ein Access-Token (16 h), kein Refresh-Token |
 
@@ -307,6 +307,26 @@ für alle fachlichen Epics und enthalten keine Business-Logik.
 Ausschließlich **PrimeNG**, kein natives HTML für interaktive Elemente, keine weiteren
 UI-Libraries. Fehlt eine Komponente, entsteht ein eigener Wrapper auf PrimeNG-Basis.
 
+**Icons.** Icons kommen aus `@primeicons/angular` und werden als eigenständige
+Angular-Komponenten eingebunden — ein Import je Icon, gesetzt als SVG-Kindelement:
+
+```typescript
+import { Camera } from '@primeicons/angular/camera';
+// <button pButton iconOnly><svg data-p-icon="camera"></svg></button>
+```
+
+Die CSS-Klassen-Schreibweise `icon="pi pi-camera"` ist in PrimeNG 22 zwar weiterhin gültig
+und nicht als veraltet markiert, wird aber **nicht** verwendet: Sie setzt das globale
+`primeicons`-Stylesheet voraus, während der Einzelimport tree-shakeable ist und ohne
+zusätzliches CSS auskommt. Der Icon-Name wandert dabei unverändert aus der Klasse in den
+Import-Pfad und das `data-p-icon`-Attribut — `pi pi-shopping-cart` wird zu
+`@primeicons/angular/shopping-cart` und `data-p-icon="shopping-cart"`; der exportierte
+Klassenname ist dessen PascalCase-Form (`ShoppingCart`).
+
+Ob ein konkreter Icon-Name im installierten Paket existiert, wird bei der Projektanlage
+geprüft: Die PrimeNG-Doku listet nur die in ihren Demos verwendeten Icons und taugt nicht
+als Katalog.
+
 ### 7.1 Responsive Design
 
 | Breakpoint | Sidebar | Titelleiste | Modals |
@@ -323,7 +343,7 @@ Die Haupt-App **muss vollständig offline-fähig** sein. Sie läuft auf einem Se
 | Bereich | Anforderung |
 |---|---|
 | Fonts | Lokal im App-Bundle — kein CDN |
-| Icons | Lokal (Material Icons als npm-Paket) |
+| Icons | Lokal (`@primeicons/angular` als npm-Paket, siehe Abschnitt 7.0.3) |
 | CSS-Bibliotheken | Lokal über npm |
 | JS-Abhängigkeiten | Ausschließlich npm-Bundle |
 | QR-/Barcode-Scanner | Browser-Kamera, kein externer Service |

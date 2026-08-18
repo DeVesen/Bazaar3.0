@@ -75,7 +75,7 @@ p-sidebar-layout
               p-sidebar-menu
                 p-sidebar-menu-item        (1× pro Eintrag)
                   button[pSidebarMenuButton][routerLink][isActive]
-                    i.pi.pi-*              Icon (klassische PrimeIcon-Klasse)
+                    svg[data-p-icon]       Icon (`@primeicons/angular`, siehe spec.md Abschnitt 7.0.3/10.0.4)
                     span                   Label
                   p-sidebar-menu-badge     (nur "Meine Artikel", nur wenn count > 0)
           <hr>                             (manuell zwischen den Gruppen-Blöcken)
@@ -98,7 +98,6 @@ Die Liste der `p-sidebar-group`-Blöcke wird clientseitig nach aktiver Rolle gef
 ## Bewusst nicht verwendet
 
 - **`pSidebarRail`** — Zweck in der PrimeNG-Doku nicht als Fließtext dokumentiert (nur eine CSS-Klassen-Zeile gefunden). Unser Trigger-Button deckt das Ein-/Ausklappen bereits ab (YAGNI).
-- **`@primeicons/angular`-Icon-Komponenten** (`<svg data-p-icon="...">`) — die offiziellen PrimeNG-22-Demos nutzen dieses neue Tree-Shakable-System, wir bleiben bei klassischen `pi pi-*`-CSS-Klassen für Konsistenz mit dem Rest des Projekts.
 
 ## Akzeptanzkriterien
 

@@ -39,7 +39,7 @@ Die Voranmelde-App unterscheidet zwei Rollen. Die Sidebar zeigt nur Einträge, a
 | Navigationseintrag | `p-sidebar-menu-item` → `button[pSidebarMenuButton][routerLink]` |
 | Active-Highlight | nativ über `[isActive]="true"` auf `pSidebarMenuButton` (KEIN eigenes CSS/`routerLinkActive`-Handling nötig — Korrektur ggü. ursprünglicher Annahme) |
 | Badge (Artikel-Anzahl) | nativ `<p-sidebar-menu-badge>{{count}}</p-sidebar-menu-badge>` innerhalb `p-sidebar-menu-item` (KEIN custom `itemTemplate` nötig — Korrektur ggü. ursprünglicher Annahme) |
-| Icons | klassische PrimeIcons-CSS-Klassen (`pi pi-*`), **nicht** die neuen `@primeicons/angular`-Tree-Shakable-Komponenten aus den offiziellen v22-Demos — Konsistenz mit dem Rest des Projekts |
+| Icons | `@primeicons/angular` — Tree-Shakable-Komponenten, ein Import je Icon, gesetzt als SVG-Kindelement (siehe [`spec.md`](../../../spec.md) Abschnitt 10.0.4) |
 | Rail (`pSidebarRail`) | **nicht verwendet** — Zweck in PrimeNG-Doku nicht dokumentiert, unser Trigger-Button reicht (YAGNI) |
 | Sidebar-Footer-Inhalt | Avatar/Rollenname/Role-Toggle/Logout wie bisher spezifiziert, jetzt als Inhalt im `p-sidebar-footer`-Slot statt eigener Wrapper-Komponente |
 

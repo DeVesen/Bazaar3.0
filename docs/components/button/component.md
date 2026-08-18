@@ -25,7 +25,7 @@ Registrieren →        ← Text/Link
 | Secondary Outlined | `p-button secondary outlined` | Abbrechen |
 | Danger | `p-button severity="danger"` | Löschen |
 | Text/Link | `p-button [text]="true"` bzw. `pButton link` | Registrierung-Link, Logout |
-| Icon + Text | `p-button icon="pi pi-search"` + Textlabel | Suchen-Button (Filter-Panel) |
+| Icon + Text | `p-button` + `<svg data-p-icon="search">` + Textlabel | Suchen-Button (Filter-Panel) |
 | Small Outlined | `p-button secondary outlined size="small"` | Einladungs-Link generieren, Block löschen |
 
 ## Verwendung

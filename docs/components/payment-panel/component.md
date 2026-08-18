@@ -212,8 +212,11 @@ p-inputgroup
     [readonly]="mode === 'numpad'"
     [pAutoFocus]="mode === 'keyboard'"
   p-inputgroupaddon  "€"
-  p-button  [icon]="'pi pi-th-large'"   ← Modus-Button; im Numpad-Modus 'pi pi-keyboard'
-            severity="secondary"  [rounded]="true"  [text]="true"
+  p-button  severity="secondary"  [rounded]="true"  [text]="true"  ← Modus-Button
+    svg  [pIcon]="mode === 'numpad' ? 'keyboard' : 'th-large'"
+                                       ← programmatischer Icon-Wechsel statt Einzelimport,
+                                         siehe PrimeNG-22-Guide „Icons" § Programmatic
+                                         (`import { PIcon } from '@primeicons/angular/p-icon'`)
 
 app-numpad
   *ngIf="mode === 'numpad'"

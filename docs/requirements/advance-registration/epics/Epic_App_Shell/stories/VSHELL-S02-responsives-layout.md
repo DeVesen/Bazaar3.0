@@ -29,7 +29,7 @@ Die Voranmelde-App wird von Verkäufern auch auf Mobilgeräten (Smartphones) gen
 | Backdrop (Mobile, offen) | `p-sidebar-backdrop` (nur gerendert wenn `isMobile() && open()`) |
 | Content-Bereich | `p-sidebar-main` |
 | Content-Header | eigenes `<header>` mit `button[pButton][pSidebarTrigger][target]="'<sidebar-id>'"` |
-| Trigger-Icon | `pi pi-bars` (klassische PrimeIcon-Klasse, konsistent mit VSHELL-S01) |
+| Trigger-Icon | `@primeicons/angular` — `<svg data-p-icon="bars">`, konsistent mit VSHELL-S01 |
 | Breakpoint-Logik | `window.matchMedia('(max-width: 1024px)')` → `isMobile` Signal, analog PrimeNG-Beispiel |
 
 ## UI-Spezifikation
