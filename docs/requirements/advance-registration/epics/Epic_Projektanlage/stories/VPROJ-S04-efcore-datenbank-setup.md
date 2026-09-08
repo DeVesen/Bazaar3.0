@@ -8,7 +8,7 @@ depends-on: [VPROJ-S02, VPROJ-S03]
 
 ## Ziel
 
-Ein Entwickler richtet Entity Framework Core mit PostgreSQL ein, erstellt den `BazaarDbContext`, legt die erste leere Migration an und stellt sicher, dass Migrations bei jedem Start der App zuverlässig angewendet werden.
+Ein Entwickler richtet Entity Framework Core mit PostgreSQL ein, erstellt den `BarDbContext`, legt die erste leere Migration an und stellt sicher, dass Migrations bei jedem Start der App zuverlässig angewendet werden.
 
 ## Kontext
 
@@ -16,9 +16,9 @@ Alle Entitäten der Voranmelde-App (Artikel, Verkäufer, Marken, Kategorien, Ver
 
 ## Scope
 
-**In Scope:** `Npgsql.EntityFrameworkCore.PostgreSQL` installieren, `BazaarDbContext` anlegen, Connection String aus Environment lesen, erste leere Migration `InitialCreate`, `MigrateAsync()` beim App-Start samt Wartelogik, `EnableRetryOnFailure`, Readiness-Endpoint.
+**In Scope:** `Npgsql.EntityFrameworkCore.PostgreSQL` installieren, `BarDbContext` anlegen, Connection String aus Environment lesen, erste leere Migration `InitialCreate`, `MigrateAsync()` beim App-Start samt Wartelogik, `EnableRetryOnFailure`, Readiness-Endpoint.
 
-**Verortung (Hexagonal, siehe VPROJ-S02):** `BazaarDbContext`, Migrations, Entity-Konfigurationen und Repository-Implementierungen liegen ausschließlich in `Bazaar.Infrastructure`. Die Entity-Klassen selbst liegen in `Bazaar.Domain` und tragen **keine** EF-Attribute — das Mapping passiert per Fluent API in `Infrastructure/Persistence/Configurations/` (`IEntityTypeConfiguration<T>` je Aggregate).
+**Verortung (Hexagonal, siehe VPROJ-S02):** `BarDbContext`, Migrations, Entity-Konfigurationen und Repository-Implementierungen liegen ausschließlich in `BAR.Infrastructure`. Die Entity-Klassen selbst liegen in `BAR.Domain` und tragen **keine** EF-Attribute — das Mapping passiert per Fluent API in `Infrastructure/Persistence/Configurations/` (`IEntityTypeConfiguration<T>` je Aggregate).
 
 **Out of Scope:** Fachliche Entitäten (folgen in den jeweiligen Epics), Seed-Daten, Datenbankschema für User/Auth (folgt in Epic_Login).
 
@@ -76,7 +76,7 @@ Andernfalls würde der Constraint-Verstoß als transienter Fehler behandelt und 
 
 Die Readiness-Probe ist der richtige Ort: Sie nimmt die Instanz aus dem Verkehr, ohne sie zu töten, und holt sie zurück, sobald die Datenbank wieder antwortet.
 
-Umsetzung über `AddHealthChecks()` mit zwei Tags — `AddDbContextCheck<BazaarDbContext>()` nur im Readiness-Satz. Kein Eigenbau.
+Umsetzung über `AddHealthChecks()` mit zwei Tags — `AddDbContextCheck<BarDbContext>()` nur im Readiness-Satz. Kein Eigenbau.
 
 **Bewusste Abweichung von der Haupt-App:** Dort prüft `/health` die Datenbank mit, weil es keine Plattform gibt, die daraus Neustarts ableitet — im LAN schaut ein Mensch hin. Hier entscheidet eine Probe über Neustarts.
 
@@ -84,9 +84,9 @@ Umsetzung über `AddHealthChecks()` mit zwei Tags — `AddDbContextCheck<BazaarD
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL `Npgsql.EntityFrameworkCore.PostgreSQL` als NuGet-Paket **in `Bazaar.Infrastructure`** installieren und den DbContext über eine `AddInfrastructure()`-Extension in `Program.cs` registrieren (`Bazaar.Api` referenziert Npgsql nicht direkt).
-- [ ] **AC-2** — THE SYSTEM SHALL einen `BazaarDbContext` in `Bazaar.Infrastructure/Persistence/` anlegen, der den Connection String **ausschließlich** aus `ConnectionStrings__DefaultConnection` liest.
-- [ ] **AC-3** — THE SYSTEM SHALL eine erste Migration mit dem Namen `InitialCreate` im Projekt `Bazaar.Infrastructure` anlegen (`dotnet ef migrations add InitialCreate -p Bazaar.Infrastructure -s Bazaar.Api`); die Migration enthält keine Tabellenänderungen (leerer Stand).
+- [ ] **AC-1** — THE SYSTEM SHALL `Npgsql.EntityFrameworkCore.PostgreSQL` als NuGet-Paket **in `BAR.Infrastructure`** installieren und den DbContext über eine `AddInfrastructure()`-Extension in `Program.cs` registrieren (`BAR.Host` referenziert Npgsql nicht direkt).
+- [ ] **AC-2** — THE SYSTEM SHALL einen `BarDbContext` in `BAR.Infrastructure/Persistence/` anlegen, der den Connection String **ausschließlich** aus `ConnectionStrings__DefaultConnection` liest.
+- [ ] **AC-3** — THE SYSTEM SHALL eine erste Migration mit dem Namen `InitialCreate` im Projekt `BAR.Infrastructure` anlegen (`dotnet ef migrations add InitialCreate -p BAR.Infrastructure -s BAR.Host`); die Migration enthält keine Tabellenänderungen (leerer Stand).
 - [ ] **AC-4** — WHEN die App startet (unabhängig von der Umgebung), THEN SHALL `dbContext.Database.MigrateAsync()` automatisch ausgeführt werden.
 - [ ] **AC-4b** — THE SYSTEM SHALL das Deployment auf **genau eine Replica** festlegen (`minReplicas: 1`, `maxReplicas: 1`), solange die Migration beim App-Start läuft.
 - [ ] **AC-5** — WHEN die App startet und die Datenbank noch nicht erreichbar ist, THEN SHALL das System den Verbindungsaufbau bis zu 10-mal wiederholen (Wartezeit ab 1 s verdoppelnd, maximal 15 s je Versuch, insgesamt höchstens 60 Sekunden), bevor es abbricht.

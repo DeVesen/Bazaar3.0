@@ -45,9 +45,9 @@ jederzeit — eine Zeile löschen.
 
 ## Verortung im Backend
 
-Eigenes Aggregate mit Port `IRefreshTokenRepository` (`Bazaar.Domain/Ports/`).
+Eigenes Aggregate mit Port `IRefreshTokenRepository` (`BAR.Domain/Ports/`).
 Die Hash-Bildung ist eine reine Funktion in der Domäne; das Ausstellen des JWT
-selbst bleibt im Adapter (`Bazaar.Infrastructure`), weil es Signaturschlüssel braucht.
+selbst bleibt im Adapter (`BAR.Infrastructure`), weil es Signaturschlüssel braucht.
 
 ## Verwendung
 

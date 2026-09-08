@@ -30,6 +30,45 @@ keine anderen Libraries. Fehlende Komponenten → eigener Wrapper auf PrimeNG-Ba
 Epic-spezifische Ausprägungen (z. B. welche Spalten eine Tabelle zeigt) bleiben
 im jeweiligen Epic-Dokument.
 
+## Quellcode-Ablage
+
+Die Anforderungen aus `docs/requirements/<app>/` werden unter `src/<app>/` umgesetzt —
+Doku-Verzeichnisname und Code-Verzeichnisname sind identisch.
+
+**Voranmelde-App** (`docs/requirements/advance-registration/`):
+```
+src/advance-registration/
+├── frontend/                  ← Angular-Frontend
+└── backend/                   ← alle Backend-Projekte (Domain/Application/Infrastructure/Api)
+```
+
+**Haupt-App** (`docs/requirements/bazaar-app/`):
+```
+src/bazaar-app/
+├── frontend/                  ← Angular-Frontend
+└── backend/                   ← alle Backend-Projekte (Domain/Application/Infrastructure/Api)
+```
+
+## Knowledge Graph (graphify)
+
+Der Skill `graphify` legt seine Ergebnisse in `graphify-out/` **relativ zum Working Directory**
+ab — bei einem Lauf im Repo-Root also `C:\Develop\Bazaar3.0\graphify-out\`.
+
+| Datei | Inhalt |
+|-------|--------|
+| `graph.json` | Rohgraph, GraphRAG-ready |
+| `GRAPH_REPORT.md` | Audit-Report: God Nodes, Surprising Connections, Suggested Questions |
+| `graph.html` | interaktiver Graph für den Browser |
+| `cost.json` | kumulierter Token-Verbrauch aller Läufe |
+| `obsidian/` | Obsidian-Vault, nur mit `--obsidian` |
+| `.graphify_*` | Zwischenstände und Extraktions-Cache |
+
+`graphify-out/` ist in `.gitignore` — generierte Artefakte werden **nicht** versioniert.
+
+Ein Lauf im Repo-Root fasst `docs/` und beide Apps in einen Graph. Für einen App-scharfen
+Graph aus dem jeweiligen App-Verzeichnis heraus starten (`src/advance-registration/` bzw.
+`src/bazaar-app/`) — das `graphify-out/` entsteht dann dort.
+
 ## Architektur
 
 > **Diese Datei ist nicht die Quelle der Wahrheit.** Alle App-Entscheidungen — Architektur,
@@ -43,10 +82,17 @@ im jeweiligen Epic-Dokument.
 | Haupt-App | [`bazaar-app/spec.md`](docs/requirements/bazaar-app/spec.md) §7.0.1 Architektur · §7.0.2 Durchstich · §7.0.3 UI-Bibliothek |
 
 Kurzorientierung (Details ausschließlich dort): Backend **hexagonal** in vier Projekten
-(`Bazaar.Domain` / `.Application` / `.Infrastructure` / `.Api`), Frontend **Feature-First**
+(`Domain` / `Application` / `Infrastructure` + Host-Projekt), Frontend **Feature-First**
 (`src/app/features/<feature>/` + `core/` + `shared/`), Deployment **Monolith**, Data-Flow
 **CRUD** mit eigenen Query-Ports für Read-Models. Code, Routen und JSON-Contract englisch,
 Doku deutsch.
+
+Die Assembly-Präfixe unterscheiden sich je App, damit die Namen nicht kollidieren:
+
+| App | Präfix | Host-Projekt |
+|-----|--------|--------------|
+| Voranmelde-App | `BAR.` | `BAR.Host` |
+| Haupt-App | `Bazaar.` | `Bazaar.Api` |
 
 Stil-Nachschlagewerk (nicht projektverbindlich): Skill `architecture-styles`
 

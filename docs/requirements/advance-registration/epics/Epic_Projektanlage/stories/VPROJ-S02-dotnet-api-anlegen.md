@@ -27,22 +27,45 @@ Compiler blockt eine falsche Abhängigkeitsrichtung, nicht bloß eine Konvention
 ## Projektstruktur
 
 ```
-backend/
-├── Bazaar.sln
-├── Bazaar.Domain/          ← referenziert NICHTS
+backend/                          ← liegt direkt unter src/advance-registration/
+├── BAR.slnx
+├── global.json                   ← Test-Runner: Microsoft.Testing.Platform
+├── Directory.Build.props         ← TargetFramework + Compiler-Strenge, einmalig
+├── Directory.Packages.props      ← Central Package Management, alle Paketversionen
+├── compose.yaml
+├── .dockerignore
+├── BAR.Domain/          ← referenziert NICHTS
 │   ├── <Aggregate>/        ← Entities, Value Objects, Domain-Services
+│   ├── Common/             ← EntityId
+│   ├── Exceptions/         ← DomainException + Ableitungen
 │   └── Ports/              ← Repository- und Query-Interfaces
-├── Bazaar.Application/     ← → Domain
-│   └── <Feature>/          ← ein Handler pro Use Case
-├── Bazaar.Infrastructure/  ← → Domain, Application
-│   └── Persistence/        ← BazaarDbContext, Configurations/, Repositories/, Queries/
-└── Bazaar.Api/             ← → alle
-    ├── Features/<Feature>/ ← Endpoint-Registrierung (Map…-Extension) + Request/Response-DTOs
-    ├── Filters/            ← ValidationFilter<TRequest>
-    └── ExceptionHandling/  ← Exception-Typ → ProblemDetails
+├── BAR.Application/     ← → Domain
+│   ├── <Feature>/          ← ein Handler pro Use Case
+│   └── Abstractions/       ← IClock, IPasswordHasher, ITokenIssuer
+├── BAR.Infrastructure/  ← → Domain, Application
+│   ├── Persistence/        ← BarDbContext, Configurations/, Repositories/, Queries/
+│   ├── Security/           ← Passwort-Hashing, JWT-Ausgabe
+│   ├── Time/               ← SystemClock
+│   └── DependencyInjection.cs  ← AddInfrastructure(), einziger Registrierungsort
+├── BAR.Host/            ← → alle
+│   ├── Program.cs          ← Composition Root
+│   ├── Features/<Feature>/ ← Endpoint-Registrierung (Map…-Extension) + Request/Response-DTOs
+│   ├── Filters/            ← ValidationFilter<TRequest>
+│   ├── ExceptionHandling/  ← Exception-Typ → ProblemDetails
+│   ├── Auth/               ← Policies, CurrentUser (sub/role aus dem Token)
+│   ├── Security/           ← Security-Header (frame-ancestors nur /embed/countdown)
+│   └── Dockerfile
+└── tests/                ← Struktur siehe VPROJ-S05
 ```
 
-Die Feature-Ordner sind ein reiner Ordnerschnitt innerhalb von `Application` und `Api` —
+**Keine Zwischenebene** zwischen `backend/` und den Projekten — `backend/` benennt die
+Ebene bereits; ein zusätzlicher Solution-Ordner darüber hätte keinen Zweck.
+
+**`BAR.slnx` statt `BAR.sln`:** Das .NET-10-SDK erzeugt mit `dotnet new sln` das neue
+XML-Solution-Format. `dotnet build`/`dotnet test` und Rider verarbeiten es; GUIDs
+entfallen, was Merge-Konflikte in der Solution-Datei praktisch beendet.
+
+Die Feature-Ordner sind ein reiner Ordnerschnitt innerhalb von `Application` und `Host` —
 **kein** Hexagon pro Feature. Es gibt einen Bounded Context („Voranmeldung"), dessen
 Aggregate (Verkäufer, Artikel, Nummernblock, Stammdaten) sich gegenseitig referenzieren;
 Mini-Hexagone würden Ports duplizieren.
@@ -62,9 +85,10 @@ Alle anderen Endpoints (außer /health, /api/auth/* und /api/public/*):
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL vier .NET 10 Projekte anlegen — `Bazaar.Api` (`dotnet new webapi`), `Bazaar.Application`, `Bazaar.Domain`, `Bazaar.Infrastructure` (jeweils `classlib`) — und in einer Solution `Bazaar.sln` zusammenfassen.
-- [ ] **AC-2** — THE SYSTEM SHALL die Projektreferenzen ausschließlich in dieser Richtung setzen: `Api` → `Application`, `Infrastructure`, `Domain`; `Infrastructure` → `Application`, `Domain`; `Application` → `Domain`; `Domain` → **keine**. `Bazaar.Domain` SHALL kein NuGet-Paket von EF Core, ASP.NET oder Serialisierung referenzieren.
-- [ ] **AC-2b** — THE SYSTEM SHALL innerhalb von `Application` und `Api` je Feature einen Ordner `<FeatureName>/` als Konvention etablieren (ein Handler pro Use Case in `Application`, Endpoint-Registrierung + Request-/Response-DTOs in `Api`).
+- [ ] **AC-1** — THE SYSTEM SHALL vier .NET 10 Projekte anlegen — `BAR.Host` (`dotnet new webapi`), `BAR.Application`, `BAR.Domain`, `BAR.Infrastructure` (jeweils `classlib`) — und in einer Solution `BAR.slnx` zusammenfassen.
+- [ ] **AC-1b** — THE SYSTEM SHALL `Directory.Build.props` (TargetFramework `net10.0`, `Nullable`, `ImplicitUsings`, `TreatWarningsAsErrors`) und `Directory.Packages.props` (`ManagePackageVersionsCentrally`) auf `backend/`-Ebene anlegen; kein csproj SHALL eine Paketversion oder ein TargetFramework selbst setzen.
+- [ ] **AC-2** — THE SYSTEM SHALL die Projektreferenzen ausschließlich in dieser Richtung setzen: `Host` → `Application`, `Infrastructure`, `Domain`; `Infrastructure` → `Application`, `Domain`; `Application` → `Domain`; `Domain` → **keine**. `BAR.Domain` SHALL kein NuGet-Paket von EF Core, ASP.NET oder Serialisierung referenzieren.
+- [ ] **AC-2b** — THE SYSTEM SHALL innerhalb von `Application` und `Host` je Feature einen Ordner `<FeatureName>/` als Konvention etablieren (ein Handler pro Use Case in `Application`, Endpoint-Registrierung + Request-/Response-DTOs in `Host`).
 - [ ] **AC-2c** — THE SYSTEM SHALL einen globalen `IExceptionHandler` registrieren, der Domain-Exceptions als einziger Ort auf `ProblemDetails` abbildet (`NotFoundException` → 404, `ConflictException` → 409, `UnauthorizedException` → 401) und dabei zusätzlich zu `detail` das Extension-Member `errorCode` setzt (siehe [`cross-cutting.md`](../../../api/cross-cutting.md) Abschnitt 3).
 - [ ] **AC-2d** — THE SYSTEM SHALL `FluentValidation` installieren und einen generischen Endpoint-Filter `ValidationFilter<TRequest>` bereitstellen, der bei Verstoß `Results.ValidationProblem()` mit dem `errors`-Dictionary (Schlüssel = englischer DTO-Feldname) liefert.
 - [ ] **AC-3** — THE SYSTEM SHALL CORS konfigurieren: Angular Dev (`http://localhost:4200`) erlaubt; Production-Origin über die Environment-Variable `CORS_ALLOWED_ORIGIN` konfigurierbar.
@@ -73,6 +97,8 @@ Alle anderen Endpoints (außer /health, /api/auth/* und /api/public/*):
 - [ ] **AC-5** — THE SYSTEM SHALL `Microsoft.AspNetCore.Authentication.JwtBearer` installieren und in `Program.cs` mit `AddAuthentication().AddJwtBearer()` registrieren; Token-Parameter (Issuer, Audience, Secret) aus Environment-Variablen lesen.
 - [ ] **AC-6** — WHEN die App mit `dotnet run` gestartet wird, THEN SHALL `GET /health` unter `http://localhost:5001/health` mit HTTP 200 antworten.
 - [ ] **AC-7** — THE SYSTEM SHALL alle Secrets (JWT-Secret, DB-Passwort) ausschließlich über Environment-Variablen oder User Secrets lesen — keine Hardcodes.
+- [ ] **AC-8** — THE SYSTEM SHALL die Adapter-Registrierung in `BAR.Infrastructure/DependencyInjection.cs` als `AddInfrastructure()` bündeln; `Program.cs` SHALL keinen Adapter-Typ namentlich kennen.
+- [ ] **AC-9** — THE SYSTEM SHALL den `errorCode` am Exception-Objekt tragen (`DomainException(errorCode, detail)`), nicht in einer Abbildungstabelle im `IExceptionHandler` — ein neuer Fehlercode SHALL keine zentrale Datei ändern.
 
 ## Tags & Piles
 

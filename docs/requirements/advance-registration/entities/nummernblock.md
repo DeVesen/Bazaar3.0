@@ -27,7 +27,7 @@ Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) 
 **Aggregate und Invariante:** `NumberBlock` ist ein **eigenes Aggregate**. Die
 Überlappungsfreiheit ist eine globale Invariante — kein Seller-Aggregate kann sie
 schützen, es sieht nur seine eigenen Blöcke. Sie lebt daher im Domain-Service
-`NumberBlockAllocator` (`Bazaar.Domain`), den alle Vergabewege gemeinsam nutzen
+`NumberBlockAllocator` (`BAR.Domain`), den alle Vergabewege gemeinsam nutzen
 (Selbstregistrierung, Admin-Anlage, Reservierung, Auto-Erweiterung). Zusätzlich
 sichert ein PostgreSQL-Exclusion-Constraint auf `int4range(fromNumber, toNumber + 1)`
 gegen zwei parallele Vergaben ab — eine Vorprüfung im Code allein ist nicht

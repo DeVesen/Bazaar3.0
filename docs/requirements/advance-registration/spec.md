@@ -238,7 +238,7 @@ Feature-spezifische UI-Specs:
 | **Fonts** | Barlow + Barlow Condensed, lokal via `@fontsource/*` (kein Google-Fonts-CDN — siehe [Styleguide](design/industry-styleguide.md) Abschnitt 7) |
 | **Mehrsprachigkeit** | ngx-translate (DE + EN) |
 | **Icons** | `@primeicons/angular` (npm-Paket, ein Import je Icon — siehe Abschnitt 10.0.4) |
-| **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) |
+| **Tests** | Jest (Frontend) · xUnit v3 + AwesomeAssertions + Moq (Backend) |
 
 **Warum diese Majors** (geprüft am 2026-08-17, bei Beginn der Umsetzung):
 
@@ -248,6 +248,16 @@ Feature-spezifische UI-Specs:
   aufsetzt, die es erst ab PrimeNG 22 gibt, folgt daraus Angular 22.
 - **.NET 9 ist seit Mai 2026 aus dem Support** (STS-Release). .NET 10 ist LTS — ein Projekt
   auf einem EOL-Framework zu beginnen wäre eine Altlast ab Tag eins.
+- **AwesomeAssertions statt FluentAssertions** (entschieden am 2026-09-08 bei der
+  Projektanlage): FluentAssertions ist ab Version 8 Xceed-lizenziert und für kommerzielle
+  Nutzung kostenpflichtig. AwesomeAssertions ist der Apache-2.0-Fork von FluentAssertions 7
+  mit identischer API — nur der `using` unterscheidet sich. Ein Wechsel später würde jede
+  Testdatei anfassen.
+- **xUnit v3 läuft auf Microsoft.Testing.Platform, nicht auf VSTest.** xUnit v3 (Paket
+  `xunit.v3`) bringt MTP 2.x mit, und das hat den VSTest-Pfad unter dem .NET-10-SDK fallen
+  gelassen — `dotnet test` bricht sonst mit *„Testing with VSTest target is no longer
+  supported"* ab. Konsequenzen in
+  [VPROJ-S05](epics/Epic_Projektanlage/stories/VPROJ-S05-test-und-architektur-setup.md).
 
 
 ### 10.0.1 Architektur
@@ -269,17 +279,35 @@ alle innerhalb dieses Verzeichnisses.
 **Backend — vier Projekte**, Abhängigkeitsrichtung compiler-erzwungen:
 
 ```
-Bazaar.Domain          ← referenziert nichts (Entities, Value Objects, Domain-Services, Ports)
-Bazaar.Application     ← Domain (ein Handler pro Use Case)
-Bazaar.Infrastructure  ← Domain, Application (EF Core, Repositories, Query-Ports)
-Bazaar.Api             ← alle (Minimal-API-Endpoints, Filter, ExceptionHandler)
+BAR.Domain          ← referenziert nichts (Entities, Value Objects, Domain-Services, Ports)
+BAR.Application     ← Domain (ein Handler pro Use Case)
+BAR.Infrastructure  ← Domain, Application (EF Core, Repositories, Query-Ports)
+BAR.Host            ← alle (Minimal-API-Endpoints, Filter, ExceptionHandler, Composition Root)
 ```
 
-Feature-Ordner existieren **innerhalb** von `Application` und `Api` — kein Hexagon je
+**Namens-Präfix `BAR.`** (Bazaar Advance Registration): Assembly-Namen müssen sich von
+denen der Haupt-App unterscheiden, sonst kollidieren sie, sobald ein Suite-weites
+Testprojekt, ein gemeinsames Paket oder gemeinsames Tooling entsteht. Umbenennen wäre
+später jede Migration und jeder Namespace.
+
+**`BAR.Host` statt `BAR.Api`:** Das Projekt hält die HTTP-Fläche *und* ist Composition
+Root — `Program.cs` verdrahtet DI, Konfiguration und Middleware und startet Kestrel.
+„Host" benennt beide Rollen und beansprucht weder Logik noch Storage; die liegen in
+`Application` bzw. `Infrastructure`. Der frühere Arbeitsname `BAR.GatewayService`
+entfällt: „Gateway" verspricht bei einem Monolithen eine Netzgrenze, die es nicht gibt.
+
+Feature-Ordner existieren **innerhalb** von `Application` und `Host` — kein Hexagon je
 Feature. Die Domäne kennt weder EF Core noch ASP.NET; das Entity-Mapping läuft per
 Fluent API in `Infrastructure`. Ein Architektur-Testprojekt (NetArchTest) prüft die
 Richtung dort, wo der Compiler es nicht kann
 ([VPROJ-S05](epics/Epic_Projektanlage/stories/VPROJ-S05-test-und-architektur-setup.md)).
+
+**`BAR.Infrastructure` → `BAR.Application` ist beabsichtigt**, aber ausschließlich wegen
+`BAR.Application/Abstractions/` (`IClock`, `IPasswordHasher`, `ITokenIssuer`). Diese Ports
+liegen dort und nicht in `BAR.Domain/Ports/`, weil JWT-Signatur und Hash-Verfahren keine
+Begriffe der Voranmeldung sind. Repository- und Query-Ports liegen unverändert in
+`BAR.Domain/Ports/`. Damit die Referenz nicht zum Einfallstor wird, prüft ein
+Architektur-Test, dass in `BAR.Infrastructure` kein Typ auf `Handler` endet.
 
 **Frontend — Feature-First:**
 

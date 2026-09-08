@@ -11,7 +11,7 @@ Component.
 
 **Backend-Verortung:** Beide Endpoints sind **Read-Models** und laufen nicht über
 Repositories, sondern über einen eigenen Query-Port `IHomeQueries`
-(Implementierung mit direktem EF-/SQL-Zugriff in `Bazaar.Infrastructure`). Für
+(Implementierung mit direktem EF-/SQL-Zugriff in `BAR.Infrastructure`). Für
 Kennzahlen und Heatmap-Aggregate Aggregate zu laden wäre pure Verschwendung —
 siehe [`cross-cutting.md`](cross-cutting.md), Abschnitt „Persistenz-Zugriff".
 

@@ -10,7 +10,7 @@ ressourcenspezifischen Dateien in diesem Verzeichnis verweisen hierher statt
 diese Regeln zu wiederholen.
 
 **Backend:** .NET 10 Minimal API, **hexagonal** in vier Projekten
-(`Bazaar.Domain` / `.Application` / `.Infrastructure` / `.Api`) — Feature-Ordner nur
+(`BAR.Domain` / `.Application` / `.Infrastructure` / `.Api`) — Feature-Ordner nur
 innerhalb von `Application` und `Api`, ein Handler pro Use Case
 (siehe [VPROJ-S02](../epics/Epic_Projektanlage/stories/VPROJ-S02-dotnet-api-anlegen.md)).
 
@@ -87,7 +87,7 @@ Lokalisierung im Backend (`Accept-Language`) wäre die Alternative — abgelehnt
 sie ein zweites Übersetzungssystem für dieselbe App bedeutet.
 
 **Erzeugt** wird die gesamte Abbildung an genau einem Ort: dem globalen
-`IExceptionHandler` in `Bazaar.Api` (VPROJ-S02 AC-2c), der Domain-Exception-Typen auf
+`IExceptionHandler` in `BAR.Host` (VPROJ-S02 AC-2c), der Domain-Exception-Typen auf
 Status-Code + `errorCode` abbildet. Handler und Domäne werfen Exceptions, sie bauen
 keine HTTP-Antworten.
 
@@ -324,8 +324,8 @@ bewusster Kaskade sind einzeln dokumentiert
 
 Alle Listen- und Detail-Zugriffe laufen über **Repositories pro Aggregate**
 (`ISellerRepository`, `IArticleRepository`, `INumberBlockRepository`,
-`IMasterDataRepository`, `ISettingsRepository`) — Interfaces in `Bazaar.Domain/Ports/`,
-Implementierung in `Bazaar.Infrastructure`. Kein generisches `IRepository<T>`, kein
+`IMasterDataRepository`, `ISettingsRepository`) — Interfaces in `BAR.Domain/Ports/`,
+Implementierung in `BAR.Infrastructure`. Kein generisches `IRepository<T>`, kein
 `IQueryable` über die Port-Grenze.
 
 **Ausnahme Read-Models:** `GET /api/home/seller`, `GET /api/home/admin` und
