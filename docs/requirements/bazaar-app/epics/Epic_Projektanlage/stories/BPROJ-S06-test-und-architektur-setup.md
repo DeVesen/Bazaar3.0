@@ -18,7 +18,7 @@ Der Architektur-Test schließt die Lücke, die der Compiler offen lässt: Projek
 
 ## Scope
 
-**In Scope:** Jest + `jest-preset-angular` im Frontend, xUnit v3 + FluentAssertions + Moq im Backend, Testprojekt-Struktur, `Bazaar.Architecture.Tests` mit NetArchTest, ein Beispieltest je Ebene als lauffähiger Nachweis.
+**In Scope:** Jest + `jest-preset-angular` im Frontend, xUnit v3 + Moq im Backend, Testprojekt-Struktur, `Bazaar.Architecture.Tests` mit NetArchTest, ein Beispieltest je Ebene als lauffähiger Nachweis.
 
 **Out of Scope:** Fachliche Tests (entstehen mit dem jeweiligen Epic), E2E-Tests (Playwright/Cypress — bewusst nicht im MVP), CI-Pipeline.
 
@@ -59,7 +59,7 @@ Testprojekte spiegeln die Produktionsstruktur 1:1. Namensschema der Testmethoden
 ## Akzeptanzkriterien
 
 - [ ] **AC-1** — THE SYSTEM SHALL im Frontend Jest mit `jest-preset-angular` konfigurieren; `npm test` SHALL die `.spec.ts`-Dateien ausführen (kein Karma).
-- [ ] **AC-2** — THE SYSTEM SHALL im Backend die Testprojekte `Bazaar.Domain.UnitTests`, `Bazaar.Application.UnitTests` und `Bazaar.Api.IntegrationTests` mit xUnit v3, FluentAssertions und Moq anlegen und in `Bazaar.sln` aufnehmen.
+- [ ] **AC-2** — THE SYSTEM SHALL im Backend die Testprojekte `Bazaar.Domain.UnitTests`, `Bazaar.Application.UnitTests` und `Bazaar.Api.IntegrationTests` mit xUnit v3 und Moq anlegen und in `Bazaar.sln` aufnehmen.
 - [ ] **AC-3** — THE SYSTEM SHALL `Bazaar.Api.IntegrationTests` über `WebApplicationFactory` gegen die echte Endpoint-Registrierung testen; die Datenbank SHALL dabei über einen PostgreSQL-Container (Testcontainers, Image **`postgres:18-alpine`** wie in [BPROJ-S03](BPROJ-S03-docker-compose-setup.md)) bereitgestellt werden, nicht über einen In-Memory-Provider.
 - [ ] **AC-3b** — IF kein erreichbarer Docker-Daemon vorhanden ist, THEN SHALL der Testlauf mit einer Meldung abbrechen, die Docker als Ursache nennt — nicht mit einem unspezifischen Verbindungsfehler.
 - [ ] **AC-4** — THE SYSTEM SHALL ein Projekt `Bazaar.Architecture.Tests` mit NetArchTest anlegen.

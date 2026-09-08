@@ -23,17 +23,17 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
     {
         // Arrange
         var client = _factory.CreateClient();
-
         var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
         var response = await client.GetAsync("/health", cancellationToken);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = await response.Content.ReadFromJsonAsync<HealthPayload>(cancellationToken);
-        body!.Status.Should().Be("healthy");
+        Assert.NotNull(body);
+        Assert.Equal("healthy", body.Status);
     }
 
     private sealed record HealthPayload(string Status);

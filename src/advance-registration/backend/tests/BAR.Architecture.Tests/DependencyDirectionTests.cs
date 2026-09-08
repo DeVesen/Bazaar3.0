@@ -27,7 +27,7 @@ public class DependencyDirectionTests
             .GetResult();
 
         // Assert
-        result.IsSuccessful.Should().BeTrue(FailureMessage(result));
+        Assert.True(result.IsSuccessful, FailureMessage(result));
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class DependencyDirectionTests
             .GetResult();
 
         // Assert
-        result.IsSuccessful.Should().BeTrue(FailureMessage(result));
+        Assert.True(result.IsSuccessful, FailureMessage(result));
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class DependencyDirectionTests
             .GetResult();
 
         // Assert
-        result.IsSuccessful.Should().BeTrue(FailureMessage(result));
+        Assert.True(result.IsSuccessful, FailureMessage(result));
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class DependencyDirectionTests
             .GetResult();
 
         // Assert — greift erst, sobald die ersten Ports existieren (VPROJ-S04).
-        result.IsSuccessful.Should().BeTrue(FailureMessage(result));
+        Assert.True(result.IsSuccessful, FailureMessage(result));
     }
 
     private static string FailureMessage(NetArchTest.Rules.TestResult result) =>

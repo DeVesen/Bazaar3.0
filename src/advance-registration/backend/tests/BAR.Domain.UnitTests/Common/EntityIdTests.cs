@@ -11,8 +11,8 @@ public class EntityIdTests
         var id = EntityId.New();
 
         // Assert
-        id.Should().HaveLength(8);
-        EntityId.IsValid(id).Should().BeTrue();
+        Assert.Equal(8, id.Length);
+        Assert.True(EntityId.IsValid(id));
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public class EntityIdTests
         var ids = Enumerable.Range(0, count).Select(_ => EntityId.New()).ToList();
 
         // Assert
-        ids.Distinct().Should().HaveCount(count);
+        Assert.Equal(count, ids.Distinct().Count());
     }
 
     [Theory]
@@ -40,6 +40,6 @@ public class EntityIdTests
         var result = EntityId.IsValid(value);
 
         // Assert
-        result.Should().BeFalse();
+        Assert.False(result);
     }
 }

@@ -238,7 +238,7 @@ Feature-spezifische UI-Specs:
 | **Fonts** | Barlow + Barlow Condensed, lokal via `@fontsource/*` (kein Google-Fonts-CDN — siehe [Styleguide](design/industry-styleguide.md) Abschnitt 7) |
 | **Mehrsprachigkeit** | ngx-translate (DE + EN) |
 | **Icons** | `@primeicons/angular` (npm-Paket, ein Import je Icon — siehe Abschnitt 10.0.4) |
-| **Tests** | Jest (Frontend) · xUnit v3 + AwesomeAssertions + Moq (Backend) |
+| **Tests** | Jest (Frontend) · xUnit v3 + Moq (Backend) |
 
 **Warum diese Majors** (geprüft am 2026-08-17, bei Beginn der Umsetzung):
 
@@ -248,11 +248,15 @@ Feature-spezifische UI-Specs:
   aufsetzt, die es erst ab PrimeNG 22 gibt, folgt daraus Angular 22.
 - **.NET 9 ist seit Mai 2026 aus dem Support** (STS-Release). .NET 10 ist LTS — ein Projekt
   auf einem EOL-Framework zu beginnen wäre eine Altlast ab Tag eins.
-- **AwesomeAssertions statt FluentAssertions** (entschieden am 2026-09-08 bei der
-  Projektanlage): FluentAssertions ist ab Version 8 Xceed-lizenziert und für kommerzielle
-  Nutzung kostenpflichtig. AwesomeAssertions ist der Apache-2.0-Fork von FluentAssertions 7
-  mit identischer API — nur der `using` unterscheidet sich. Ein Wechsel später würde jede
-  Testdatei anfassen.
+- **Keine Assertion-Library — `Assert.*` von xUnit** (entschieden am 2026-09-08 bei der
+  Projektanlage, gilt für **beide** Apps der Suite): Auslöser war die Lizenz —
+  FluentAssertions ist ab Version 8 Xceed-lizenziert und für kommerzielle Nutzung
+  kostenpflichtig. Statt auf den Apache-2.0-Fork (AwesomeAssertions) auszuweichen fällt
+  die Abhängigkeit ganz weg: xUnit bringt seine Assertions mit, und eine Lizenz- oder
+  Wartungsfrage kann bei einem Paket, das nicht referenziert ist, nicht wieder auftreten.
+  Der Preis ist die weniger flüssige Lesart (`Assert.Equal(erwartet, ist)` statt
+  `ist.Should().Be(erwartet)`) — bei strikt eingehaltenem Arrange-Act-Assert kein
+  wesentlicher Verlust. **Moq bleibt**: Mocking ist keine Assertion-Frage.
 - **xUnit v3 läuft auf Microsoft.Testing.Platform, nicht auf VSTest.** xUnit v3 (Paket
   `xunit.v3`) bringt MTP 2.x mit, und das hat den VSTest-Pfad unter dem .NET-10-SDK fallen
   gelassen — `dotnet test` bricht sonst mit *„Testing with VSTest target is no longer

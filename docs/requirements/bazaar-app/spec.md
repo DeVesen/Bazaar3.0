@@ -208,7 +208,7 @@ Feature-spezifische UI-Specs:
 | **QR-Code-Erzeugung** | `@zxing/library` (`BrowserQRCodeSvgWriter`, clientseitig, offline) — Shared-Component [`qr-code`](../../components/qr-code/component.md) |
 | **Icons** | `@primeicons/angular` (npm-Paket, kein CDN, ein Import je Icon) |
 | **Fonts** | Barlow + Barlow Condensed, lokal via `@fontsource/*` (kein Google-Fonts-CDN — siehe [Styleguide](design/industry-styleguide.md) Abschnitt 7) |
-| **Tests** | Jest (Frontend) · xUnit v3 + FluentAssertions + Moq (Backend) · NetArchTest (Architektur) |
+| **Tests** | Jest (Frontend) · xUnit v3 + Moq (Backend) · NetArchTest (Architektur) |
 | **Auth** | JWT-Bearer, ein Access-Token (16 h), kein Refresh-Token |
 
 **Warum diese Majors** (geprüft am 2026-08-17, bei Beginn der Umsetzung):
@@ -219,6 +219,15 @@ Feature-spezifische UI-Specs:
   aufsetzt, die es erst ab PrimeNG 22 gibt, folgt daraus Angular 22.
 - **.NET 9 ist seit Mai 2026 aus dem Support** (STS-Release). .NET 10 ist LTS — ein Projekt
   auf einem EOL-Framework zu beginnen wäre eine Altlast ab Tag eins.
+- **Keine Assertion-Library — `Assert.*` von xUnit** (entschieden am 2026-09-08, gilt für
+  **beide** Apps der Suite): Auslöser war die Lizenz — FluentAssertions, das hier zuvor
+  stand, ist ab Version 8 Xceed-lizenziert und für kommerzielle Nutzung kostenpflichtig.
+  Statt auf den Apache-2.0-Fork (AwesomeAssertions) auszuweichen fällt die Abhängigkeit
+  ganz weg: xUnit bringt seine Assertions mit, und eine Lizenz- oder Wartungsfrage kann
+  bei einem Paket, das nicht referenziert ist, nicht wieder auftreten. Der Preis ist die
+  weniger flüssige Lesart (`Assert.Equal(erwartet, ist)` statt `ist.Should().Be(erwartet)`)
+  — bei strikt eingehaltenem Arrange-Act-Assert kein wesentlicher Verlust. **Moq bleibt**:
+  Mocking ist keine Assertion-Frage.
 
 
 Die PrimeNG-Major-Version ist **identisch zur Voranmelde-App** — beide Apps teilen dieselben

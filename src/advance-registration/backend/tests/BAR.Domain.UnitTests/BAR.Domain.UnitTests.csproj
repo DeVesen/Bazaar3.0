@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
-    <PackageReference Include="AwesomeAssertions" />
   </ItemGroup>
 
   <!-- Aggregate und Domain-Services werden ohne Mocks getestet. -->
@@ -12,7 +11,6 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
-    <Using Include="AwesomeAssertions" />
   </ItemGroup>
 
 </Project>
