@@ -1,5 +1,11 @@
 {
   "mcpServers": {
+    "dev-mcp": {
+      "command": "C:/Develop/.apps/dev-mcp/Dev.Mcp.exe",
+      "env": {
+        "LOG_VIEWER_PORT": "51011"
+      }
+    },
     "browser-inspector": {
       "command": "npx",
       "args": [
@@ -8,7 +14,10 @@
     },
     "primeng": {
       "command": "npx",
-      "args": ["-y", "@primeng/mcp"]
+      "args": [
+        "-y",
+        "@primeng/mcp"
+      ]
     },
     "microsoft-learn": {
       "url": "https://learn.microsoft.com/api/mcp"

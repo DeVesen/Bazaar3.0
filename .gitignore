@@ -120,3 +120,7 @@ x86/
 # Lokale Konfiguration bleibt draussen, Projekt-Skills bleiben im Repo
 .claude/*
 !.claude/skills/
+
+### graphify
+# Generierte Knowledge-Graph-Artefakte und Extraktions-Cache
+graphify-out/
