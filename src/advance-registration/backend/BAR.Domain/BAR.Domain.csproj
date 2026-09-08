@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Referenziert NICHTS. Keine PackageReference auf EF Core, ASP.NET oder
+       System.Text.Json - die Abhaengigkeitsrichtung ist compiler-erzwungen,
+       nicht bloss Konvention (spec.md 10.0.1). -->
+
+</Project>

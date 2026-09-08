@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Application wird referenziert, weil Infrastructure die Adapter fuer
+       BAR.Application/Abstractions implementiert (IPasswordHasher, ITokenIssuer,
+       IClock). Die Repository- und Query-Ports liegen dagegen in BAR.Domain/Ports.
+       Architektur-Test haelt gegen, dass hier kein *Handler entsteht. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BAR.Domain\BAR.Domain.csproj" />
+    <ProjectReference Include="..\BAR.Application\BAR.Application.csproj" />
+  </ItemGroup>
+
+</Project>

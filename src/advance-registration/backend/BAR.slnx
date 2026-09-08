@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="BAR.Domain/BAR.Domain.csproj" />
+  <Project Path="BAR.Application/BAR.Application.csproj" />
+  <Project Path="BAR.Infrastructure/BAR.Infrastructure.csproj" />
+  <Project Path="BAR.Host/BAR.Host.csproj" />
+  <Folder Name="/tests/">
+    <Project Path="tests/BAR.Domain.UnitTests/BAR.Domain.UnitTests.csproj" />
+<!-- tests/BAR.Application.UnitTests entsteht mit dem ersten Handler (Epic_Login) -->
+    <Project Path="tests/BAR.Host.IntegrationTests/BAR.Host.IntegrationTests.csproj" />
+    <Project Path="tests/BAR.Architecture.Tests/BAR.Architecture.Tests.csproj" />
+  </Folder>
+</Solution>

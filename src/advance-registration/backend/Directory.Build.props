@@ -1,0 +1,25 @@
+<Project>
+
+  <!-- Gilt fuer alle Projekte der Voranmelde-App. Einzige Quelle fuer TargetFramework
+       und Compiler-Strenge - kein csproj setzt diese Werte erneut. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- Testprojekte: nie paketieren, xUnit v3 laeuft als eigene Executable auf
+       Microsoft.Testing.Platform. VSTest ist unter SDK 10 kein gueltiger Weg
+       mehr ("Testing with VSTest target is no longer supported"), darum die
+       Opt-in-Property statt Microsoft.NET.Test.Sdk. -->
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('Tests'))">
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+  </PropertyGroup>
+
+</Project>
