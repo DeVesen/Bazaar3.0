@@ -39,7 +39,7 @@ Die Voranmelde-App unterscheidet zwei Rollen. Die Sidebar zeigt nur Einträge, a
 | Navigationseintrag | `p-sidebar-menu-item` → `button[pSidebarMenuButton][routerLink]` |
 | Active-Highlight | nativ über `[isActive]="true"` auf `pSidebarMenuButton` (KEIN eigenes CSS/`routerLinkActive`-Handling nötig — Korrektur ggü. ursprünglicher Annahme) |
 | Badge (Artikel-Anzahl) | nativ `<p-sidebar-menu-badge>{{count}}</p-sidebar-menu-badge>` innerhalb `p-sidebar-menu-item` (KEIN custom `itemTemplate` nötig — Korrektur ggü. ursprünglicher Annahme) |
-| Icons | `@primeicons/angular` — Tree-Shakable-Komponenten, ein Import je Icon, gesetzt als SVG-Kindelement (siehe [`spec.md`](../../../spec.md) Abschnitt 10.0.4) |
+| Icons | `@lucide/angular` — Tree-Shakable-Attribut-Direktiven, ein Import je Icon, gesetzt als `<svg lucideXxx>` (siehe [`spec.md`](../../../spec.md) Abschnitt 10.0.4) |
 | Rail (`pSidebarRail`) | **nicht verwendet** — Zweck in PrimeNG-Doku nicht dokumentiert, unser Trigger-Button reicht (YAGNI) |
 | Sidebar-Footer-Inhalt | Avatar/Rollenname/Role-Toggle/Logout wie bisher spezifiziert, jetzt als Inhalt im `p-sidebar-footer`-Slot statt eigener Wrapper-Komponente |
 
@@ -48,17 +48,17 @@ Die Voranmelde-App unterscheidet zwei Rollen. Die Sidebar zeigt nur Einträge, a
 ### Expandierte Sidebar (240 px)
 
 ```
-Admin-Sidebar (240px, #1b3a4b) — Toggle-Button lebt NICHT hier, siehe VSHELL-S02:
+Admin-Sidebar (240px, --color-surface / #e9e9ea) — Toggle-Button lebt NICHT hier, siehe VSHELL-S02:
 ┌──────────────────────────┐
-│  🛒 Basar Voranmelde     │  ← sidebar-title-Komponente, "Voranmelde" in #0e8a5f
+│  🛒 Basar Voranmelde     │  ← sidebar-title-Komponente, "Voranmelde" in --color-accent (#5980a6)
 ├──────────────────────────┤
-│  MEIN BEREICH            │  ← p-sidebar-group-label: 10px, uppercase, muted (#8ab4c4)
+│  MEIN BEREICH            │  ← p-sidebar-group-label: 10px, uppercase, muted (Neutral 500 / #98989b)
 │  ○ Home                  │
 │  ○ Meine Artikel    [5]  │  ← p-sidebar-menu-badge rechts
 │  ──────────────          │  ← manuelles <hr> zwischen p-sidebar-group-Blöcken
 │  VERWALTUNG              │
 │  ○ Verkäufer             │
-│  ○ Alle Artikel          │
+│  ○ Artikel               │
 │  ──────────────          │
 │  STAMMDATEN              │
 │  ○ Marken                │
@@ -70,7 +70,7 @@ Admin-Sidebar (240px, #1b3a4b) — Toggle-Button lebt NICHT hier, siehe VSHELL-S
 │  ○ Einstellungen         │
 │  ○ Export                │
 ├──────────────────────────┤  ← p-sidebar-footer (immer sichtbar)
-│  [A]  Admin User         │  ← Avatar (#3ecf8e, 36px)
+│  [A]  Admin User         │  ← Avatar (Accent 400 / #94bce3, 36px)
 │       Administrator      │
 │  [ Admin | Verkäufer ]   │  ← Role-Toggle
 │  🚪 Abmelden             │
@@ -106,7 +106,7 @@ Zustand: nur Icons, keine Labels, keine Gruppen-Label, kein Footer-Text. Logout 
 │ 📋•│  ← Meine Artikel (Dot-Badge wenn > 0)
 │    │
 │ 👥 │  ← Verkäufer
-│ 📦 │  ← Alle Artikel
+│ 📦 │  ← Artikel
 │    │
 │ 🏷 │  ← Marken
 │ 🗂 │  ← Kategorien
@@ -128,8 +128,8 @@ Zustand: nur Icons, keine Labels, keine Gruppen-Label, kein Footer-Text. Logout 
 
 | Element | Stil |
 |---|---|
-| Gruppen-Label (z. B. „MEIN BEREICH") | 10 px, uppercase, letter-spacing 0.08em, Farbe `#8ab4c4` (muted), padding 16 px 12 px 4 px |
-| Gruppen-Trenner | `<hr>` oder border-top 1px `rgba(255,255,255,0.08)`, margin 8 px 12 px |
+| Gruppen-Label (z. B. „MEIN BEREICH") | 10 px, uppercase, letter-spacing 0.08em, Farbe Neutral 500 (`#98989b`), padding 16 px 12 px 4 px |
+| Gruppen-Trenner | `<hr>` oder border-top 1px `var(--color-divider)`, margin 8 px 12 px |
 | Eingeklappt | Gruppen-Label und Trenner werden ausgeblendet (`display: none`) |
 
 **Collapse-Verhalten:** wird vom vereinheitlichten Trigger-Button gesteuert (VSHELL-S02), nicht von dieser Story. Hier nur die resultierenden Breiten/Übergänge:
@@ -145,23 +145,27 @@ Zustand: nur Icons, keine Labels, keine Gruppen-Label, kein Footer-Text. Logout 
 
 | Element | Stil |
 |---|---|
-| Avatar-Kreis | 36 px, `#3ecf8e`, weiß, Initial-Buchstabe 15 px 700 |
+| Avatar-Kreis | 36 px, Accent 400 (`#94bce3`), weiß, Initial-Buchstabe 15 px 700 |
 | Username | 13 px, 600, weiß |
 | Role-Label | 11 px, section-label-Farbe |
-| Role-Toggle-Container | `background: rgba(255,255,255,0.08)`, radius 6 px |
-| Toggle-Button | flex: 1, padding 6 px 10 px; aktiv = Akzentfarbe `#0e8a5f` + weiß |
+| Role-Toggle-Container | `background: var(--color-divider)`, radius 6 px |
+| Toggle-Button | flex: 1, padding 6 px 10 px; aktiv = Akzentfarbe `--color-accent` (`#5980a6`) + weiß |
 | Logout | 13 px, muted; hover = weiß; mt 8 px |
 | Eingeklappt | nur Avatar sichtbar, kein Text/Toggle/Logout |
 
+**Implementierungshinweis Role-Toggle:** `p-selectbutton` erwartet eine Forms-Bindung (kein reiner
+`[value]`-Input) — gebunden über `[ngModel]`/`(ngModelChange)` gegen `RoleService.activeRole()`, ohne
+umschließendes `<form>`.
+
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL eine Sidebar-Komponente im expandierten Zustand mit der Breite 240 px und dem Hintergrund `#1b3a4b` rendern.
-- [ ] **AC-2** — THE SYSTEM SHALL die `sidebar-title`-Komponente im Sidebar-Header rendern, die „Basar **Voranmelde**" anzeigt, wobei „Voranmelde" in `#0e8a5f` gefärbt ist (Details → [`components/sidebar-title.md`](../../../components/sidebar-title.md)).
+- [ ] **AC-1** — THE SYSTEM SHALL eine Sidebar-Komponente im expandierten Zustand mit der Breite 240 px und dem Hintergrund `--color-surface` (`#e9e9ea`) rendern.
+- [ ] **AC-2** — THE SYSTEM SHALL die `sidebar-title`-Komponente im Sidebar-Header rendern, die „Basar **Voranmelde**" anzeigt, wobei „Voranmelde" in `--color-accent` (`#5980a6`) gefärbt ist (Details → [`components/sidebar-title.md`](../../../components/sidebar-title.md)).
 - [ ] **AC-3** — WHILE die aktive Rolle „Admin" ist, SHALL das System die Admin-Navigationsgruppen (Mein Bereich, Verwaltung, Stammdaten, System) als `p-sidebar-group`-Blöcke mit `p-sidebar-group-label` und `<hr>`-Trennern dazwischen rendern.
 - [ ] **AC-4** — WHILE die aktive Rolle „Verkäufer" ist (einschließlich Admin im Verkäufer-Modus), SHALL das System nur die Verkäufer-Navigationsgruppen (Mein Bereich, Konto) rendern.
 - [ ] **AC-5** — WHEN der Nutzer einen Navigationseintrag anklickt, THEN SHALL Angular Router zur zugehörigen Route navigieren und `pSidebarMenuButton[isActive]` auf `true` stehen (nativ, keine eigene Highlight-Logik).
 - [ ] **AC-6** — WHEN die Artikel-Anzahl > 0 ist, THEN SHALL ein `p-sidebar-menu-badge` am Eintrag „Meine Artikel" erscheinen; bei 0 ist kein Badge sichtbar.
-- [ ] **AC-7** — THE SYSTEM SHALL im `p-sidebar-footer`-Slot den Avatar mit dem ersten Buchstaben des Nutzernamens und Hintergrund `#3ecf8e` rendern (`p-avatar`).
+- [ ] **AC-7** — THE SYSTEM SHALL im `p-sidebar-footer`-Slot den Avatar mit dem ersten Buchstaben des Nutzernamens und Hintergrund Accent 400 (`#94bce3`) rendern (`p-avatar`).
 - [ ] **AC-8** — WHILE die aktive Rolle „Admin" ist, SHALL das System den Role-Toggle (Admin/Verkäufer) im Footer anzeigen.
 - [ ] **AC-9** — WHILE die aktive Rolle „Verkäufer" (echter Verkäufer, kein Admin im Verkäufer-Modus) ist, SHALL das System keinen Role-Toggle anzeigen.
 - [ ] **AC-10** — WHEN `[collapsible]="'icon'"` aktiv wird (via Trigger aus VSHELL-S02), THEN SHALL die Sidebar auf 60 px einklappen, dabei SHALL die Breite animiert werden (PrimeNG-Standard-Transition).
