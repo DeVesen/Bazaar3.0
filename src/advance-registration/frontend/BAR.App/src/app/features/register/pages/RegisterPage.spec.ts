@@ -28,7 +28,11 @@ describe('RegisterPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RegisterPage],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
+      // Stub-Route fuer /home: erfolgreiche Registrierung navigiert wirklich
+      // dorthin (vi.spyOn ruft das Original mit auf). Ohne die Route wird die
+      // Navigation nach dem Teardown abgelehnt und Vitest meldet eine
+      // Unhandled Rejection.
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([{ path: 'home', children: [] }])]
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterPage);
@@ -64,6 +68,45 @@ describe('RegisterPage', () => {
 
     expect(fixture.componentInstance.emailTakenError()).toBe(true);
     expect(fixture.componentInstance.registrationNotEnabled()).toBe(false);
+    expect(fixture.componentInstance.genericError()).toBeNull();
+  });
+
+  it('on 500 shows a generic error without touching the two specific 409 signals', () => {
+    fixture.componentInstance.onRegisterSubmitted(formValue);
+
+    const req = httpMock.expectOne('/api/auth/register');
+    req.flush({ detail: 'Interner Fehler' }, { status: 500, statusText: 'Internal Server Error' });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.genericError()).toBe('Interner Fehler');
+    expect(fixture.componentInstance.emailTakenError()).toBe(false);
+    expect(fixture.componentInstance.registrationNotEnabled()).toBe(false);
+    // Die Form bleibt stehen, die Meldung ist tatsaechlich sichtbar.
+    expect(fixture.nativeElement.querySelector('app-registrierung-form')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="register-generic-error"]')?.textContent).toContain('Interner Fehler');
+  });
+
+  it('on an unrecognized errorCode falls back to a default message', () => {
+    fixture.componentInstance.onRegisterSubmitted(formValue);
+
+    const req = httpMock.expectOne('/api/auth/register');
+    req.flush({ errorCode: 'block.overlap' }, { status: 409, statusText: 'Conflict' });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.genericError()).toBe('Registrierung fehlgeschlagen. Bitte versuche es erneut.');
+    expect(fixture.componentInstance.emailTakenError()).toBe(false);
+    expect(fixture.componentInstance.registrationNotEnabled()).toBe(false);
+  });
+
+  it('clears a previous generic error when the form is submitted again', () => {
+    fixture.componentInstance.onRegisterSubmitted(formValue);
+    httpMock.expectOne('/api/auth/register').flush({}, { status: 500, statusText: 'Internal Server Error' });
+    expect(fixture.componentInstance.genericError()).not.toBeNull();
+
+    fixture.componentInstance.onRegisterSubmitted(formValue);
+
+    expect(fixture.componentInstance.genericError()).toBeNull();
+    httpMock.expectOne('/api/auth/register').flush({ accessToken: 'a', refreshToken: 'r' });
   });
 
   it('on 409 registration.not_enabled shows the alternate message instead of the form', () => {

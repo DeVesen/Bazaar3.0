@@ -9,7 +9,12 @@ describe('RegistrierungForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RegistrierungForm],
-      providers: [provideRouter([])]
+      // Stub-Routen statt provideRouter([]): der Klick-Test unten loest eine
+      // echte Router-Navigation aus. Ohne passende Route wird deren Promise
+      // abgelehnt - und zwar erst nach dem Teardown des Fixtures, was Vitest
+      // als "Unhandled Rejection - NG0205: Injector has already been destroyed"
+      // meldet. Mit registrierter Route laeuft die Navigation sauber durch.
+      providers: [provideRouter([{ path: 'login', children: [] }, { path: 'register', children: [] }])]
     }).compileComponents();
     fixture = TestBed.createComponent(RegistrierungForm);
     fixture.detectChanges();

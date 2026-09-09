@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -34,6 +34,7 @@ export class LoginPage {
   private readonly authService = inject(AuthService);
   private readonly publicInfoService = inject(PublicInfoService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly isProduction = environment.production;
   readonly info = signal<PublicInfo | null>(null);
@@ -48,7 +49,11 @@ export class LoginPage {
     this.authApi.login(credentials.email, credentials.password).subscribe({
       next: (tokens) => {
         this.authService.login(tokens.accessToken, tokens.refreshToken);
-        void this.router.navigateByUrl('/home');
+        // authGuard haengt die urspruenglich angesteuerte Route als returnUrl an
+        // (core/auth/auth.guard.ts). Ohne diese Auswertung landet jeder
+        // abgefangene Deep-Link nach dem Login stumm auf /home.
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        void this.router.navigateByUrl(returnUrl ?? '/home');
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set(err.error?.detail ?? 'Ungültige Anmeldedaten');

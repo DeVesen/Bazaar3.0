@@ -15,6 +15,9 @@ import { RegistrierungForm, RegistrierungFormValue } from '../components/registr
     @if (registrationNotEnabled()) {
       <p class="register-page__error">Registrierung ist noch nicht freigeschaltet.</p>
     } @else {
+      @if (genericError(); as message) {
+        <p class="register-page__error" data-testid="register-generic-error">{{ message }}</p>
+      }
       <app-registrierung-form [emailTakenError]="emailTakenError()" (submitted)="onRegisterSubmitted($event)" />
     }
   `
@@ -26,9 +29,16 @@ export class RegisterPage {
 
   readonly emailTakenError = signal(false);
   readonly registrationNotEnabled = signal(false);
+  /**
+   * Auffangbecken fuer alles, was nicht einer der beiden bekannten Fachfehler
+   * ist: Netzwerkfehler, 500, unbekannter errorCode. Ohne diese Anzeige bliebe
+   * die Form nach dem Klick auf "Registrieren" stumm stehen.
+   */
+  readonly genericError = signal<string | null>(null);
 
   onRegisterSubmitted(value: RegistrierungFormValue): void {
     this.emailTakenError.set(false);
+    this.genericError.set(null);
     this.authApi.register(value).subscribe({
       next: (tokens) => {
         this.authService.login(tokens.accessToken, tokens.refreshToken);
@@ -39,6 +49,8 @@ export class RegisterPage {
           this.emailTakenError.set(true);
         } else if (err.error?.errorCode === 'registration.not_enabled') {
           this.registrationNotEnabled.set(true);
+        } else {
+          this.genericError.set(err.error?.detail ?? 'Registrierung fehlgeschlagen. Bitte versuche es erneut.');
         }
       }
     });
