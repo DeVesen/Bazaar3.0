@@ -3,6 +3,8 @@ using BAR.Application.Auth.Login;
 using BAR.Application.Auth.Refresh;
 using BAR.Application.Auth.Register;
 using BAR.Application.Blocks.GetMine;
+using BAR.Application.Profile.GetProfile;
+using BAR.Application.Profile.UpdateProfile;
 using BAR.Application.Public.GetInfo;
 using BAR.Domain.Ports;
 using BAR.Infrastructure.Persistence;
@@ -48,9 +50,12 @@ public static class DependencyInjection
         services.AddScoped<RefreshCommandHandler>();
         services.AddScoped<GetPublicInfoQueryHandler>();
         services.AddScoped<GetMyBlocksQueryHandler>();
+        services.AddScoped<GetProfileQueryHandler>();
+        services.AddScoped<UpdateProfileCommandHandler>();
         services.AddScoped<IValidator<RegisterCommand>, RegisterCommandValidator>();
         services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
         services.AddScoped<IValidator<RefreshCommand>, RefreshCommandValidator>();
+        services.AddScoped<IValidator<UpdateProfileCommand>, UpdateProfileCommandValidator>();
 
         return services;
     }
