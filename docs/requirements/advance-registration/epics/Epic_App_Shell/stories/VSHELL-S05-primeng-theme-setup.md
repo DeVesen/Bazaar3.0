@@ -21,7 +21,7 @@ Accent-Farbramp ersetzt PrimeNGs `primary`-Skala, die Neutral-Ramp ersetzt die `
 
 ## Scope
 
-**In Scope:** PrimeNG-Theme-Konfiguration (Preset, Primärfarbe `#0e8a5f`), `styles.scss` mit CSS Custom Properties, ngx-translate mit DE/EN, globale Reset-/Basis-Styles. Kein CDN-Verweis erforderlich (Cloud, kein Offline-Zwang — aber npm bevorzugt).
+**In Scope:** PrimeNG-Theme-Konfiguration (Preset, Accent-Farbe `#5980a6`), `styles.scss` mit CSS Custom Properties, ngx-translate mit DE/EN, globale Reset-/Basis-Styles. Kein CDN-Verweis erforderlich (Cloud, kein Offline-Zwang — aber npm bevorzugt).
 
 **Out of Scope:** Epic-spezifische Styles, Übersetzungs-Keys für Epics.
 
