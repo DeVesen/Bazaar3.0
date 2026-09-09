@@ -1,9 +1,14 @@
+using System.Text;
 using BAR.Host.Features.Public;
 using BAR.Infrastructure;
 using BAR.Infrastructure.Persistence;
+using BAR.Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +16,33 @@ builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddExceptionHandler<BAR.Host.DomainExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+// JWT-Bearer-Auth + Autorisierungs-Policies (api/cross-cutting.md Abschnitt 2):
+// "authenticated" (jedes gueltige Token) ist Default-Policy, "admin" verlangt
+// role == admin. Literale Claim-Typen "sub"/"role" statt ASP.NET-Standard-URIs,
+// passend zu JwtTokenIssuer.
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;
+        var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
+            ?? throw new InvalidOperationException("Jwt-Konfiguration fehlt.");
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SigningKey)),
+            RoleClaimType = "role",
+            NameClaimType = "sub"
+        };
+    });
+
+builder.Services.AddAuthorizationBuilder()
+    .SetDefaultPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
+    .AddPolicy("admin", policy => policy.RequireRole("admin"));
 
 // CORS: Angular Dev fest, Production-Origin ueber Environment-Variable
 // (VPROJ-S02 AC-3, api/cross-cutting.md Abschnitt 8).
@@ -37,6 +69,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors(corsPolicy);
 
 app.UseExceptionHandler();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapHealthEndpoints();
 
