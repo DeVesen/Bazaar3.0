@@ -11,7 +11,7 @@ describe('Shell', () => {
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: { currentUser: () => ({ sub: 'u', role: 'admin', exp: 0 }) } },
-        { provide: RoleService, useValue: { activeRole: () => 'admin', setRole: () => {} } }
+        { provide: RoleService, useValue: { activeRole: () => 'admin', setRole: () => undefined } }
       ]
     });
   });

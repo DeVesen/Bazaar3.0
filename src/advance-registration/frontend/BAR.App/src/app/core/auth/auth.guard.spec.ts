@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { authGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
@@ -7,9 +7,9 @@ describe('authGuard', () => {
   it('allows navigation when logged in', () => {
     const authService = { isLoggedIn: () => true } as Partial<AuthService> as AuthService;
     TestBed.overrideProvider(AuthService, { useValue: authService });
-    const result = TestBed.runInInjectionContext(() =>
-      authGuard({} as any, { url: '/profile' } as any)
-    );
+    const route = {} as Partial<ActivatedRouteSnapshot> as ActivatedRouteSnapshot;
+    const state = { url: '/profile' } as Partial<RouterStateSnapshot> as RouterStateSnapshot;
+    const result = TestBed.runInInjectionContext(() => authGuard(route, state));
     expect(result).toBe(true);
   });
 
@@ -17,10 +17,10 @@ describe('authGuard', () => {
     const authService = { isLoggedIn: () => false } as Partial<AuthService> as AuthService;
     TestBed.overrideProvider(AuthService, { useValue: authService });
     const router = TestBed.inject(Router);
-    const result = TestBed.runInInjectionContext(() =>
-      authGuard({} as any, { url: '/profile' } as any)
-    );
-    const tree = router.serializeUrl(result as any);
+    const route = {} as Partial<ActivatedRouteSnapshot> as ActivatedRouteSnapshot;
+    const state = { url: '/profile' } as Partial<RouterStateSnapshot> as RouterStateSnapshot;
+    const result = TestBed.runInInjectionContext(() => authGuard(route, state));
+    const tree = router.serializeUrl(result as UrlTree);
     expect(tree).toBe('/login?returnUrl=%2Fprofile');
   });
 });

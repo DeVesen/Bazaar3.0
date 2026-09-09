@@ -4,7 +4,6 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { Router } from '@angular/router';
 import { jwtInterceptor } from './jwt.interceptor';
 import { TokenStore } from './token-store';
-import { AuthService } from './auth.service';
 
 describe('jwtInterceptor', () => {
   beforeEach(() => {
@@ -106,7 +105,7 @@ describe('jwtInterceptor', () => {
     const router = TestBed.inject(Router);
     const navigateByUrlSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
-    http.get('/api/profile').subscribe({ error: () => {} });
+    http.get('/api/profile').subscribe({ error: () => undefined });
     httpMock.expectOne('/api/profile').flush(null, { status: 401, statusText: 'Unauthorized' });
     httpMock.expectOne('/api/auth/refresh').flush(null, { status: 401, statusText: 'Unauthorized' });
 

@@ -12,7 +12,7 @@ describe('Sidebar', () => {
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: { currentUser: () => ({ sub: 'u', role, exp: 0 }) } },
-        { provide: RoleService, useValue: { activeRole: () => role, setRole: () => {} } }
+        { provide: RoleService, useValue: { activeRole: () => role, setRole: () => undefined } }
       ]
     });
     const fixture = TestBed.createComponent(Sidebar);
