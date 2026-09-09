@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - bar-db-data:/var/lib/postgresql/data
+      - bar-db-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U bar -d bar"]
       interval: 5s
