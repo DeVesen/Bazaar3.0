@@ -29,6 +29,29 @@ describe('ArticlesApiService', () => {
     expect(result).toEqual({ items: [], totalCount: 0, page: 1, pageSize: 25 });
   });
 
+  it('getMine(query) sends all provided filters as query parameters', () => {
+    service.getMine({ page: 2, pageSize: 10, sort: 'price:desc', brand: 'Nike', category: 'Jacken', search: 'jack' }).subscribe();
+
+    const req = httpMock.expectOne((r) => r.url === '/api/articles/mine');
+    expect(req.request.params.get('page')).toBe('2');
+    expect(req.request.params.get('pageSize')).toBe('10');
+    expect(req.request.params.get('sort')).toBe('price:desc');
+    expect(req.request.params.get('brand')).toBe('Nike');
+    expect(req.request.params.get('category')).toBe('Jacken');
+    expect(req.request.params.get('search')).toBe('jack');
+    req.flush({ items: [], totalCount: 0, page: 2, pageSize: 10 });
+  });
+
+  it('getMine(query) omits parameters that are not set', () => {
+    service.getMine({ page: 1 }).subscribe();
+
+    const req = httpMock.expectOne((r) => r.url === '/api/articles/mine');
+    expect(req.request.params.get('page')).toBe('1');
+    expect(req.request.params.has('brand')).toBe(false);
+    expect(req.request.params.has('search')).toBe(false);
+    req.flush({ items: [], totalCount: 0, page: 1, pageSize: 25 });
+  });
+
   it('getNextNumber() requests /api/articles/next-number', () => {
     let result: { number: number } | undefined;
     service.getNextNumber().subscribe((r) => (result = r));
