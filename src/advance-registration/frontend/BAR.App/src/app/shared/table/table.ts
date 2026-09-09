@@ -1,0 +1,154 @@
+import { Component, computed, input, output } from '@angular/core';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { SkeletonModule } from 'primeng/skeleton';
+
+export interface ColumnConfig {
+  field: string;
+  header: string;
+  type: 'text' | 'number' | 'currency' | 'date' | 'badge';
+  sortable?: boolean;
+}
+
+export interface ActionButtonConfig {
+  actionId: string;
+  icon: string;
+  ariaLabel: string;
+}
+
+export interface ActionColumnConfig {
+  actions: ActionButtonConfig[];
+}
+
+export interface SortMeta {
+  field: string;
+  order: 'asc' | 'desc';
+}
+
+export interface TablePageEvent {
+  first: number;
+  rows: number;
+}
+
+export interface ActionClickEvent<T> {
+  actionId: string;
+  row: T;
+}
+
+interface PrimeNgSortEvent {
+  field?: string;
+  order?: number;
+  multiSortMeta?: { field: string; order: number }[];
+}
+
+interface PrimeNgPageEvent {
+  first: number;
+  rows: number;
+}
+
+@Component({
+  selector: 'app-table',
+  imports: [TableModule, ButtonModule, SkeletonModule],
+  template: `
+    <p-table
+      [value]="data()"
+      [totalRecords]="totalRecords()"
+      [loading]="loading()"
+      [lazy]="true"
+      [paginator]="showPaginator()"
+      [rows]="rows()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [sortMode]="'multiple'"
+      [stripedRows]="true"
+      [rowHover]="true"
+      currentPageReportTemplate="Zeige {first} – {last} von {totalRecords} Einträgen"
+      (onSort)="onSort($event)"
+      (onPage)="onPage($event)"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          @for (col of columns(); track col.field) {
+            @if (col.sortable === false) {
+              <th>{{ col.header }}</th>
+            } @else {
+              <th [pSortableColumn]="col.field">{{ col.header }}</th>
+            }
+          }
+          @if (actionColumn()) {
+            <th></th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          @for (col of columns(); track col.field) {
+            <td [class.number]="col.type === 'number' || col.type === 'currency'">{{ row[col.field] }}</td>
+          }
+          @if (actionColumn()) {
+            <td class="actions">
+              @for (action of actionColumn()!.actions; track action.actionId) {
+                <button
+                  pButton [text]="true" [rounded]="true"
+                  [attr.aria-label]="action.ariaLabel" [attr.data-action-id]="action.actionId"
+                  type="button"
+                  (click)="actionClick.emit({ actionId: action.actionId, row })"
+                >
+                  <i [class]="action.icon"></i>
+                </button>
+              }
+            </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="totalColumns()">
+            <p class="empty-state">{{ hasActiveFilter() ? filteredEmptyText : emptyText() }}</p>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="loadingbody">
+        @for (skeletonRow of skeletonRows; track skeletonRow) {
+          <tr>
+            @for (col of columns(); track col.field) {
+              <td><p-skeleton /></td>
+            }
+            @if (actionColumn()) {
+              <td></td>
+            }
+          </tr>
+        }
+      </ng-template>
+    </p-table>
+  `
+})
+export class AppTable<T> {
+  readonly columns = input.required<ColumnConfig[]>();
+  readonly data = input.required<T[]>();
+  readonly totalRecords = input<number>(0);
+  readonly loading = input<boolean>(false);
+  readonly rows = input<number>(25);
+  readonly actionColumn = input<ActionColumnConfig | null>(null);
+  readonly emptyText = input<string>('Keine Einträge gefunden.');
+  readonly hasActiveFilter = input<boolean>(false);
+
+  readonly sortChange = output<SortMeta[]>();
+  readonly pageChange = output<TablePageEvent>();
+  readonly actionClick = output<ActionClickEvent<T>>();
+  readonly rowAdd = output<void>();
+
+  readonly filteredEmptyText = 'Keine Einträge für den gewählten Filter gefunden.';
+  readonly skeletonRows = [0, 1, 2, 3, 4];
+
+  readonly showPaginator = computed(() => this.totalRecords() > this.rows());
+  readonly totalColumns = computed(() => this.columns().length + (this.actionColumn() ? 1 : 0));
+
+  onSort(event: PrimeNgSortEvent): void {
+    const metas = event.multiSortMeta ?? (event.field ? [{ field: event.field, order: event.order ?? 1 }] : []);
+    this.sortChange.emit(metas.map((m) => ({ field: m.field, order: m.order === 1 ? 'asc' : ('desc' as const) })));
+  }
+
+  onPage(event: PrimeNgPageEvent): void {
+    this.pageChange.emit({ first: event.first, rows: event.rows });
+  }
+}
