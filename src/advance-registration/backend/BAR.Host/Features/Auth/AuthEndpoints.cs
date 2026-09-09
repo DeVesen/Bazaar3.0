@@ -31,14 +31,15 @@ public static class AuthEndpoints
             return Results.Ok(new TokenPairResponse(result.AccessToken, result.RefreshToken));
         }).AddEndpointFilter<ValidationFilter<LoginCommand>>();
 
-        // Kein FluentValidation-Validator: der Token-Wert selbst hat kein
-        // pruefbares Format ausser "vorhanden" - das prueft der Handler
-        // (UnauthorizedException bei unbekanntem/abgelaufenem Hash).
+        // Der Validator prueft nur "vorhanden" - alles Weitere entscheidet der
+        // Handler (UnauthorizedException bei unbekanntem/abgelaufenem Hash).
+        // Ohne ihn bindet ein Body wie {} den Token auf null und der Handler
+        // wirft eine ArgumentNullException, also 500 statt 400.
         group.MapPost("/refresh", async (RefreshCommand command, RefreshCommandHandler handler, CancellationToken ct) =>
         {
             var result = await handler.HandleAsync(command, ct);
             return Results.Ok(new TokenPairResponse(result.AccessToken, result.RefreshToken));
-        });
+        }).AddEndpointFilter<ValidationFilter<RefreshCommand>>();
 
         return app;
     }

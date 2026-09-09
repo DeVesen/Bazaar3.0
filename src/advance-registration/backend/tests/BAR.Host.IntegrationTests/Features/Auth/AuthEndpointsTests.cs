@@ -111,4 +111,21 @@ public class AuthEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
         var second = await client.PostAsJsonAsync("/api/auth/refresh", new { refreshToken = tokens.RefreshToken }, TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Unauthorized, second.StatusCode);
     }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"refreshToken\":null}")]
+    [InlineData("{\"refreshToken\":\"\"}")]
+    public async Task Refresh_BodyWithoutToken_Returns400NotServerError(string body)
+    {
+        // System.Text.Json erzwingt bei einem positional record keine
+        // non-nullable Properties - ohne Validator liefe null bis in
+        // RefreshToken.HashOf und ergaebe eine 500.
+        var client = _factory.CreateClient();
+        using var content = new StringContent(body, System.Text.Encoding.UTF8, "application/json");
+
+        var response = await client.PostAsync("/api/auth/refresh", content, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }
