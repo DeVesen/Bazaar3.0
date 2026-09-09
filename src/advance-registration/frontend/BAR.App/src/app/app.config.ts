@@ -3,7 +3,9 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { providePrimeNG } from 'primeng/config';
 import { routes } from './app.routes';
+import { IndustryPreset } from './core/theme/industry-preset';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,6 +16,12 @@ export const appConfig: ApplicationConfig = {
       lang: 'de',
       fallbackLang: 'en',
       loader: provideTranslateHttpLoader({ prefix: '/i18n/', suffix: '.json' })
+    }),
+    providePrimeNG({
+      theme: {
+        preset: IndustryPreset,
+        options: { darkModeSelector: false }
+      }
     })
   ]
 };
