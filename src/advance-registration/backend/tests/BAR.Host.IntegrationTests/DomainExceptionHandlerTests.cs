@@ -29,6 +29,7 @@ public class DomainExceptionHandlerTests : IClassFixture<Features.Public.Postgre
         var response = await client.GetAsync("/__test/conflict", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
         var body = await response.Content.ReadFromJsonAsync<ProblemPayload>(TestContext.Current.CancellationToken);
         Assert.Equal("seller.email_taken", body!.ErrorCode);
     }
