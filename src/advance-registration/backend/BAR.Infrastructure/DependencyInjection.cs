@@ -32,6 +32,10 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<INumberBlockRepository, NumberBlockRepository>();
 
+        services.Configure<Security.JwtOptions>(configuration.GetSection(Security.JwtOptions.SectionName));
+        services.AddSingleton<IPasswordHasher, Security.BCryptPasswordHasher>();
+        services.AddSingleton<ITokenIssuer, Security.JwtTokenIssuer>();
+
         return services;
     }
 }
