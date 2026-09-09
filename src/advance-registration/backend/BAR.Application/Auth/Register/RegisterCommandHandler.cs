@@ -8,7 +8,6 @@ namespace BAR.Application.Auth.Register;
 
 public sealed class RegisterCommandHandler(
     ISellerRepository sellers,
-    ISellerTypeRepository sellerTypes,
     ISettingsRepository settingsRepository,
     IRefreshTokenRepository refreshTokens,
     INumberBlockRepository blocks,
@@ -18,11 +17,6 @@ public sealed class RegisterCommandHandler(
 {
     public async Task<TokenPairResult> HandleAsync(RegisterCommand command, CancellationToken cancellationToken)
     {
-        // sellerTypes ist Teil der Konstruktor-Signatur (Interfaces-Liste des Tasks) fuer
-        // Konsistenz mit Login/Refresh, wird in diesem Ablauf aber nicht gebraucht -
-        // Register vertraut settings.DefaultTypeId ohne erneute Existenzpruefung.
-        _ = sellerTypes;
-
         var settings = await settingsRepository.GetAsync(cancellationToken)
             ?? throw new ConflictException("registration.not_enabled", "Registrierung ist noch nicht freigeschaltet");
 

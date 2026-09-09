@@ -3,7 +3,6 @@ using BAR.Application.Auth.Register;
 using BAR.Domain.NumberBlocks;
 using BAR.Domain.Ports;
 using BAR.Domain.Sellers;
-using BAR.Domain.SellerTypes;
 using Moq;
 
 namespace BAR.Application.UnitTests.Auth.Register;
@@ -11,7 +10,6 @@ namespace BAR.Application.UnitTests.Auth.Register;
 public class RegisterCommandHandlerTests
 {
     private readonly Mock<ISellerRepository> _sellers = new();
-    private readonly Mock<ISellerTypeRepository> _sellerTypes = new();
     private readonly Mock<ISettingsRepository> _settings = new();
     private readonly Mock<IRefreshTokenRepository> _refreshTokens = new();
     private readonly Mock<INumberBlockRepository> _blocks = new();
@@ -20,7 +18,7 @@ public class RegisterCommandHandlerTests
     private readonly Mock<IClock> _clock = new();
 
     private RegisterCommandHandler CreateHandler() => new(
-        _sellers.Object, _sellerTypes.Object, _settings.Object, _refreshTokens.Object,
+        _sellers.Object, _settings.Object, _refreshTokens.Object,
         _blocks.Object, _hasher.Object, _tokenIssuer.Object, _clock.Object);
 
     private void SetUpHappyPath()
