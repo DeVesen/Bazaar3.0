@@ -1,5 +1,7 @@
 using System.Reflection;
+using BAR.Domain.Articles;
 using BAR.Domain.Auth;
+using BAR.Domain.MasterData;
 using BAR.Domain.NumberBlocks;
 using BAR.Domain.Sellers;
 using BAR.Domain.SellerTypes;
@@ -14,6 +16,9 @@ public sealed class BarDbContext(DbContextOptions<BarDbContext> options) : DbCon
     public DbSet<Domain.Settings.Settings> Settings => Set<Domain.Settings.Settings>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<NumberBlock> NumberBlocks => Set<NumberBlock>();
+    public DbSet<Article> Articles => Set<Article>();
+    public DbSet<Brand> Brands => Set<Brand>();
+    public DbSet<Category> Categories => Set<Category>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
