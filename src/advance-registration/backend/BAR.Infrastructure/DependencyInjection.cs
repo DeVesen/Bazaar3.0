@@ -14,6 +14,10 @@ using BAR.Application.MasterData.Brands.Create;
 using BAR.Application.MasterData.Brands.Delete;
 using BAR.Application.MasterData.Brands.GetAll;
 using BAR.Application.MasterData.Brands.Update;
+using BAR.Application.MasterData.Categories.Create;
+using BAR.Application.MasterData.Categories.Delete;
+using BAR.Application.MasterData.Categories.GetAll;
+using BAR.Application.MasterData.Categories.Update;
 using BAR.Application.Profile.GetProfile;
 using BAR.Application.Profile.UpdateProfile;
 using BAR.Application.Public.GetInfo;
@@ -88,6 +92,12 @@ public static class DependencyInjection
         services.AddScoped<UpdateBrandCommandHandler>();
         services.AddScoped<IValidator<UpdateBrandCommand>, UpdateBrandCommandValidator>();
         services.AddScoped<DeleteBrandCommandHandler>();
+        services.AddScoped<GetAllCategoriesQueryHandler>();
+        services.AddScoped<CreateCategoryCommandHandler>();
+        services.AddScoped<IValidator<CreateCategoryCommand>, CreateCategoryCommandValidator>();
+        services.AddScoped<UpdateCategoryCommandHandler>();
+        services.AddScoped<IValidator<UpdateCategoryCommand>, UpdateCategoryCommandValidator>();
+        services.AddScoped<DeleteCategoryCommandHandler>();
 
         return services;
     }
