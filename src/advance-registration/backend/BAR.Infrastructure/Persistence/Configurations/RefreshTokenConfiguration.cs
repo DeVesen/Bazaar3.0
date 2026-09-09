@@ -10,10 +10,13 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
     {
         builder.ToTable("refresh_token");
         builder.HasKey(t => t.Id);
-        builder.Property(t => t.Id).HasMaxLength(8);
-        builder.Property(t => t.SellerId).HasMaxLength(8).IsRequired();
+        builder.Property(t => t.Id).HasMaxLength(8).HasColumnName("id");
+        builder.Property(t => t.SellerId).HasMaxLength(8).IsRequired().HasColumnName("seller_id");
         builder.HasIndex(t => t.SellerId);
-        builder.Property(t => t.TokenHash).IsRequired();
+        builder.Property(t => t.TokenHash).IsRequired().HasColumnName("token_hash");
         builder.HasIndex(t => t.TokenHash).IsUnique();
+        builder.Property(t => t.ExpiresAt).HasColumnName("expires_at");
+        builder.Property(t => t.CreatedAt).HasColumnName("created_at");
+        builder.Property(t => t.LastUsedAt).HasColumnName("last_used_at");
     }
 }
