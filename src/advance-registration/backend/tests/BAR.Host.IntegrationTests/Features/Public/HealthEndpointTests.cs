@@ -68,5 +68,14 @@ public class HealthEndpointTests : IClassFixture<PostgresWebApplicationFactory>
         Assert.Equal("healthy", body.Status);
     }
 
+    [Fact]
+    public async Task GetHealthReady_WhenDatabaseReachable_ReturnsOk()
+    {
+        var client = _factory.CreateClient();
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var response = await client.GetAsync("/health/ready", cancellationToken);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
     private sealed record HealthPayload(string Status);
 }

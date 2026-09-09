@@ -1,7 +1,9 @@
 using BAR.Host.Features.Public;
 using BAR.Infrastructure;
 using BAR.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +36,17 @@ if (app.Environment.IsDevelopment())
 app.UseCors(corsPolicy);
 
 app.MapHealthEndpoints();
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var status = report.Status == HealthStatus.Healthy ? "healthy" : "unhealthy";
+        await context.Response.WriteAsync($$"""{"status":"{{status}}"}""");
+    }
+}).AllowAnonymous();
 
 app.Run();
 
