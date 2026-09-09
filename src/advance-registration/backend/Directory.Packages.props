@@ -27,6 +27,11 @@
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.11" />
   </ItemGroup>
 
+  <!-- Sicherheit -->
+  <ItemGroup>
+    <PackageVersion Include="BCrypt.Net-Next" Version="4.0.3" />
+  </ItemGroup>
+
   <!-- Test-Stack -->
   <ItemGroup>
     <PackageVersion Include="xunit.v3" Version="4.0.0" />
