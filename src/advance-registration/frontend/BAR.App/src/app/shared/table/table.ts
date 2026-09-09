@@ -2,12 +2,14 @@ import { Component, computed, input, output } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
+import { TagModule } from 'primeng/tag';
 
-export interface ColumnConfig {
+export interface ColumnConfig<T = unknown> {
   field: string;
   header: string;
   type: 'text' | 'number' | 'currency' | 'date' | 'badge';
   sortable?: boolean;
+  badge?: (row: T) => { label: string; severity: 'success' | 'warn' | 'secondary' | 'info' | 'danger' };
 }
 
 export interface ActionButtonConfig {
@@ -48,14 +50,27 @@ interface PrimeNgPageEvent {
 
 @Component({
   selector: 'app-table',
-  imports: [TableModule, ButtonModule, SkeletonModule],
+  imports: [TableModule, ButtonModule, SkeletonModule, TagModule],
   styleUrl: './table.scss',
   template: `
+    @if (title() || canAdd()) {
+      <div class="app-table-toolbar">
+        @if (title()) {
+          <h2>{{ title() }}</h2>
+        }
+        @if (canAdd()) {
+          <button
+            pButton type="button" data-testid="add-button"
+            (click)="rowAdd.emit()"
+          >+ Neu</button>
+        }
+      </div>
+    }
     <p-table
       [value]="data()"
       [totalRecords]="totalRecords()"
       [loading]="loading()"
-      [lazy]="true"
+      [lazy]="lazy()"
       [paginator]="showPaginator()"
       [rows]="rows()"
       [first]="first()"
@@ -85,7 +100,13 @@ interface PrimeNgPageEvent {
       <ng-template #body let-row>
         <tr>
           @for (col of columns(); track col.field) {
-            <td [class.number]="col.type === 'number' || col.type === 'currency'">{{ formatCell(col, row) }}</td>
+            <td [class.number]="col.type === 'number' || col.type === 'currency'">
+              @if (col.type === 'badge' && col.badge) {
+                <p-tag [value]="col.badge!(row).label" [severity]="col.badge!(row).severity" />
+              } @else {
+                {{ formatCell(col, row) }}
+              }
+            </td>
           }
           @if (actionColumn()) {
             <td class="actions">
@@ -135,6 +156,9 @@ export class AppTable<T> {
   readonly actionColumn = input<ActionColumnConfig | null>(null);
   readonly emptyText = input<string>('Keine Einträge gefunden.');
   readonly hasActiveFilter = input<boolean>(false);
+  readonly canAdd = input<boolean>(false);
+  readonly title = input<string>('');
+  readonly lazy = input<boolean>(true);
 
   readonly sortChange = output<SortMeta[]>();
   readonly pageChange = output<TablePageEvent>();

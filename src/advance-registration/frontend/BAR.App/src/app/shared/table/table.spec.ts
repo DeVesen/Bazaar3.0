@@ -92,4 +92,71 @@ describe('AppTable', () => {
     const skeletons = fixture.debugElement.queryAll(By.css('p-skeleton'));
     expect(skeletons.length).toBeGreaterThan(0);
   });
+
+  it('renders a p-tag with the badge callback label/severity for a badge column', () => {
+    const badgeColumns: ColumnConfig<Row>[] = [
+      ...COLUMNS,
+      {
+        field: 'name',
+        header: 'Status',
+        type: 'badge',
+        badge: (row: Row) => ({ label: row.name === 'A' ? 'Aktiv' : 'Inaktiv', severity: 'success' })
+      }
+    ];
+    const fixture = TestBed.createComponent(AppTable<Row>);
+    fixture.componentRef.setInput('columns', badgeColumns);
+    fixture.componentRef.setInput('data', [{ number: 1, name: 'A' }]);
+    fixture.componentRef.setInput('totalRecords', 1);
+    fixture.detectChanges();
+
+    const tag = fixture.debugElement.query(By.css('p-tag'));
+    expect(tag).toBeTruthy();
+    expect(tag.nativeElement.textContent).toContain('Aktiv');
+    expect(tag.attributes['ng-reflect-severity'] ?? tag.componentInstance?.severity).toBeTruthy();
+  });
+
+  it('renders a toolbar with title and add button when canAdd and title are set, and emits rowAdd on click', () => {
+    const fixture = create([]);
+    fixture.componentRef.setInput('title', 'Meine Artikel');
+    fixture.componentRef.setInput('canAdd', true);
+    fixture.detectChanges();
+
+    const heading = fixture.debugElement.query(By.css('h2'));
+    expect(heading.nativeElement.textContent).toContain('Meine Artikel');
+
+    const addButton = fixture.debugElement.query(By.css('[data-testid="add-button"]'));
+    expect(addButton).toBeTruthy();
+
+    const component = fixture.componentInstance;
+    const emitted: unknown[] = [];
+    component.rowAdd.subscribe(() => emitted.push(true));
+    addButton.nativeElement.click();
+
+    expect(emitted.length).toBe(1);
+  });
+
+  it('renders no toolbar when canAdd is false and title is empty (default)', () => {
+    const fixture = create([]);
+    const addButton = fixture.debugElement.query(By.css('[data-testid="add-button"]'));
+    const heading = fixture.debugElement.query(By.css('h2'));
+    expect(addButton).toBeFalsy();
+    expect(heading).toBeFalsy();
+  });
+
+  it('binds [lazy]="false" to the underlying p-table when lazy input is false', () => {
+    const fixture = create([]);
+    fixture.componentRef.setInput('lazy', false);
+    fixture.detectChanges();
+
+    const pTable = fixture.debugElement.query(By.css('p-table'));
+    const lazyValue = pTable.componentInstance.lazy;
+    expect(typeof lazyValue === 'function' ? lazyValue() : lazyValue).toBe(false);
+  });
+
+  it('defaults [lazy]="true" on the underlying p-table when lazy input is not set', () => {
+    const fixture = create([]);
+    const pTable = fixture.debugElement.query(By.css('p-table'));
+    const lazyValue = pTable.componentInstance.lazy;
+    expect(typeof lazyValue === 'function' ? lazyValue() : lazyValue).toBe(true);
+  });
 });
