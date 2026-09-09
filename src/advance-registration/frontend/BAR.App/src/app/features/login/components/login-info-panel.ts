@@ -1,0 +1,83 @@
+import { Component, computed, input } from '@angular/core';
+import { Countdown } from '../../../shared/countdown/countdown';
+import { CountdownPhase } from '../../../shared/countdown/select-active-phase';
+import { MarkdownText } from '../../../shared/markdown-text/markdown-text';
+import { PublicInfo } from '../../../core/public-info/public-info.service';
+
+// Orchestriert drei unabhaengige Anzeige-Boxen (Countdown/Konditionen/Markdown) ueber
+// `GET /api/public/info` (docs/requirements/advance-registration/components/login-info-panel.md).
+// Das Ausblenden-pro-Box entscheidet dieses Panel, nicht die Kind-Komponenten — der Panel-Root
+// selbst bleibt immer sichtbar (dunkler Hintergrund, volle Flaeche), auch wenn alle drei Boxen
+// leer sind (Epic_Login AC-13).
+@Component({
+  selector: 'app-login-info-panel',
+  imports: [Countdown, MarkdownText],
+  template: `
+    @if (countdownPhases().length > 0) {
+      <app-countdown [phases]="countdownPhases()" />
+    }
+    @if (info().defaultConditions; as conditions) {
+      <div data-testid="conditions-box" class="login-info-panel__box">
+        <span>{{ conditions.commissionRate }} % Provision</span>
+        <span>{{ formattedItemFee(conditions.itemFee) }} Gebühr pro Artikel</span>
+      </div>
+    }
+    @if (hasInfoText()) {
+      <div data-testid="markdown-box" class="login-info-panel__box">
+        <app-markdown-text [content]="info().infoText" />
+      </div>
+    }
+  `,
+  styles: [
+    `
+      :host {
+        display: block;
+        background: #1b3a4b;
+        padding: 60px 48px;
+      }
+
+      .login-info-panel__box {
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 20px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      app-countdown {
+        display: block;
+        margin-bottom: 20px;
+      }
+    `
+  ]
+})
+export class LoginInfoPanel {
+  readonly info = input.required<PublicInfo>();
+
+  readonly countdownPhases = computed<CountdownPhase[]>(() => {
+    const i = this.info();
+    const candidates: { label: string; targetDate: string | null }[] = [
+      { label: 'Anmeldeschluss', targetDate: i.registrationDeadline },
+      { label: 'Abgabe ab', targetDate: i.dropOffFrom },
+      { label: 'Abgabe bis', targetDate: i.dropOffUntil },
+      { label: 'Basar ab', targetDate: i.bazaarFrom },
+      { label: 'Basar bis', targetDate: i.bazaarUntil }
+    ];
+
+    return candidates
+      .filter((c): c is { label: string; targetDate: string } => c.targetDate !== null)
+      .map((c) => ({ label: c.label, targetDate: new Date(c.targetDate) }));
+  });
+
+  hasInfoText(): boolean {
+    const text = this.info().infoText;
+    return !!text && text.trim().length > 0;
+  }
+
+  formattedItemFee(itemFee: number): string {
+    return `${itemFee.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+  }
+}
