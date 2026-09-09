@@ -1,6 +1,8 @@
+using BAR.Domain.Exceptions;
 using BAR.Domain.Ports;
 using BAR.Domain.Sellers;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace BAR.Infrastructure.Persistence.Repositories;
 
@@ -15,6 +17,17 @@ public sealed class SellerRepository(BarDbContext dbContext) : ISellerRepository
     public async Task AddAsync(Seller seller, CancellationToken cancellationToken)
     {
         dbContext.Sellers.Add(seller);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
+        {
+            // Zwei gleichzeitige Registrierungen mit derselben E-Mail: die
+            // Vorab-Pruefung im Handler sah beide Male "frei", der eindeutige
+            // Index entscheidet. Das ist derselbe Fachfehler, kein 500.
+            dbContext.Entry(seller).State = EntityState.Detached;
+            throw new ConflictException("seller.email_taken", "Diese E-Mail ist bereits registriert");
+        }
     }
 }

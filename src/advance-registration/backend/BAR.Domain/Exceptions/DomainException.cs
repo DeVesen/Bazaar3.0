@@ -22,8 +22,18 @@ public sealed class NotFoundException(string errorCode, string detail)
     : DomainException(errorCode, detail);
 
 /// <summary>Fachliche Invariante verletzt -> 409.</summary>
-public sealed class ConflictException(string errorCode, string detail)
+public class ConflictException(string errorCode, string detail)
     : DomainException(errorCode, detail);
+
+/// <summary>
+/// Zwei Registrierungen haben gleichzeitig denselben freien Nummernbereich
+/// berechnet; die Datenbank hat den zweiten Einfuegeversuch am
+/// EXCLUDE-Constraint <c>CK_number_block_no_overlap</c> abgewiesen.
+/// Eigener Typ, damit der Register-Handler genau diesen Fall einmal
+/// wiederholen kann, ohne jede andere Konflikt-Ursache mitzufangen.
+/// </summary>
+public sealed class NumberBlockOverlapException(string detail)
+    : ConflictException("block.overlap", detail);
 
 /// <summary>Anmeldedaten oder Token ungueltig -> 401.</summary>
 public sealed class UnauthorizedException(string errorCode, string detail)

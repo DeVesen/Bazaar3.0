@@ -16,10 +16,21 @@ public class RegisterCommandHandlerTests
     private readonly Mock<IPasswordHasher> _hasher = new();
     private readonly Mock<ITokenIssuer> _tokenIssuer = new();
     private readonly Mock<IClock> _clock = new();
+    private readonly Mock<IUnitOfWork> _unitOfWork = new();
+
+    public RegisterCommandHandlerTests()
+    {
+        // Die Transaktionsklammer selbst gehoert zur Infrastruktur; hier wird der
+        // uebergebene Delegat einfach direkt ausgefuehrt, damit die Asserts auf
+        // die Repository-Aufrufe unveraendert greifen.
+        _unitOfWork
+            .Setup(u => u.ExecuteInTransactionAsync(It.IsAny<Func<CancellationToken, Task>>(), It.IsAny<CancellationToken>()))
+            .Returns<Func<CancellationToken, Task>, CancellationToken>((action, ct) => action(ct));
+    }
 
     private RegisterCommandHandler CreateHandler() => new(
         _sellers.Object, _settings.Object, _refreshTokens.Object,
-        _blocks.Object, _hasher.Object, _tokenIssuer.Object, _clock.Object);
+        _blocks.Object, _hasher.Object, _tokenIssuer.Object, _clock.Object, _unitOfWork.Object);
 
     private void SetUpHappyPath()
     {
@@ -70,6 +81,58 @@ public class RegisterCommandHandlerTests
             () => handler.HandleAsync(ValidCommand(), TestContext.Current.CancellationToken));
 
         Assert.Equal("seller.email_taken", ex.ErrorCode);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WholeRegistration_RunsInsideOneTransaction()
+    {
+        SetUpHappyPath();
+
+        await CreateHandler().HandleAsync(ValidCommand(), TestContext.Current.CancellationToken);
+
+        _unitOfWork.Verify(u => u.ExecuteInTransactionAsync(
+            It.IsAny<Func<CancellationToken, Task>>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_BlockRangeTakenConcurrently_RetriesAllocationOnceAndSucceeds()
+    {
+        SetUpHappyPath();
+        var attempts = 0;
+        _blocks
+            .Setup(b => b.AddRangeAsync(It.IsAny<IReadOnlyList<NumberBlock>>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                attempts++;
+                return attempts == 1
+                    ? throw new BAR.Domain.Exceptions.NumberBlockOverlapException("belegt")
+                    : Task.CompletedTask;
+            });
+
+        var result = await CreateHandler().HandleAsync(ValidCommand(), TestContext.Current.CancellationToken);
+
+        Assert.Equal("access-token", result.AccessToken);
+        Assert.Equal(2, attempts);
+        // Der zweite Versuch liest den Bestand neu, statt die veraltete Liste
+        // ein zweites Mal zu verwenden.
+        _blocks.Verify(b => b.GetAllOrderedByFromNumberAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _refreshTokens.Verify(r => r.AddAsync(It.IsAny<BAR.Domain.Auth.RefreshToken>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_BlockRangeTakenTwice_ThrowsConflictInsteadOfBubblingUp()
+    {
+        SetUpHappyPath();
+        _blocks
+            .Setup(b => b.AddRangeAsync(It.IsAny<IReadOnlyList<NumberBlock>>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new BAR.Domain.Exceptions.NumberBlockOverlapException("belegt"));
+
+        var ex = await Assert.ThrowsAsync<BAR.Domain.Exceptions.ConflictException>(
+            () => CreateHandler().HandleAsync(ValidCommand(), TestContext.Current.CancellationToken));
+
+        Assert.Equal("block.overlap", ex.ErrorCode);
+        _blocks.Verify(b => b.AddRangeAsync(It.IsAny<IReadOnlyList<NumberBlock>>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _refreshTokens.Verify(r => r.AddAsync(It.IsAny<BAR.Domain.Auth.RefreshToken>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

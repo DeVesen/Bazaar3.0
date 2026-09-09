@@ -1,6 +1,8 @@
+using BAR.Domain.Exceptions;
 using BAR.Domain.NumberBlocks;
 using BAR.Domain.Ports;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace BAR.Infrastructure.Persistence.Repositories;
 
@@ -21,6 +23,50 @@ public sealed class NumberBlockRepository(BarDbContext dbContext) : INumberBlock
     public async Task AddRangeAsync(IReadOnlyList<NumberBlock> blocks, CancellationToken cancellationToken)
     {
         dbContext.NumberBlocks.AddRange(blocks);
-        await dbContext.SaveChangesAsync(cancellationToken);
+
+        // PostgreSQL bricht bei einem Constraint-Fehler die gesamte Transaktion
+        // ab - jeder Folgebefehl liefe in 25P02. Damit der Handler denselben
+        // Vorgang noch einmal versuchen kann, wird nur bis zu diesem Savepoint
+        // zurueckgerollt statt die ganze Registrierung zu verlieren.
+        var transaction = dbContext.Database.CurrentTransaction;
+        const string savepoint = "number_block_allocation";
+        if (transaction is not null)
+        {
+            await transaction.CreateSavepointAsync(savepoint, cancellationToken);
+        }
+
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (IsExclusionViolation(ex))
+        {
+            if (transaction is not null)
+            {
+                await transaction.RollbackToSavepointAsync(savepoint, cancellationToken);
+            }
+
+            // Der Change-Tracker haelt die abgelehnten Zeilen weiterhin als Added.
+            // Ohne Detach wuerde ein Wiederholungsversuch sie erneut mitschicken.
+            foreach (var block in blocks)
+            {
+                dbContext.Entry(block).State = EntityState.Detached;
+            }
+
+            throw new NumberBlockOverlapException(
+                "Der berechnete Nummernbereich wurde zwischenzeitlich vergeben");
+        }
+
+        if (transaction is not null)
+        {
+            await transaction.ReleaseSavepointAsync(savepoint, cancellationToken);
+        }
     }
+
+    /// <summary>
+    /// SQLSTATE 23P01 = <c>exclusion_violation</c>, das PostgreSQL fuer
+    /// <c>EXCLUDE USING gist</c> meldet (hier: <c>CK_number_block_no_overlap</c>).
+    /// </summary>
+    private static bool IsExclusionViolation(DbUpdateException exception) =>
+        exception.InnerException is PostgresException { SqlState: "23P01" };
 }

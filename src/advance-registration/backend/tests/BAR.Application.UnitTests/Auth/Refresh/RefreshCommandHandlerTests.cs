@@ -13,9 +13,19 @@ public class RefreshCommandHandlerTests
     private readonly Mock<IRefreshTokenRepository> _refreshTokens = new();
     private readonly Mock<ITokenIssuer> _tokenIssuer = new();
     private readonly Mock<IClock> _clock = new();
+    private readonly Mock<IUnitOfWork> _unitOfWork = new();
+
+    public RefreshCommandHandlerTests()
+    {
+        // Fuehrt den Delegaten direkt aus - die Transaktionsklammer selbst ist
+        // Infrastruktur und wird hier nicht nachgebaut.
+        _unitOfWork
+            .Setup(u => u.ExecuteInTransactionAsync(It.IsAny<Func<CancellationToken, Task>>(), It.IsAny<CancellationToken>()))
+            .Returns<Func<CancellationToken, Task>, CancellationToken>((action, ct) => action(ct));
+    }
 
     private RefreshCommandHandler CreateHandler() =>
-        new(_sellers.Object, _refreshTokens.Object, _tokenIssuer.Object, _clock.Object);
+        new(_sellers.Object, _refreshTokens.Object, _tokenIssuer.Object, _clock.Object, _unitOfWork.Object);
 
     [Fact]
     public async Task HandleAsync_ValidToken_RotatesAndReturnsNewPair()
@@ -36,6 +46,9 @@ public class RefreshCommandHandlerTests
         Assert.Equal("new-refresh-plain", result.RefreshToken);
         _refreshTokens.Verify(r => r.DeleteAsync(existing.Id, It.IsAny<CancellationToken>()), Times.Once);
         _refreshTokens.Verify(r => r.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()), Times.Once);
+        // Loeschen und Anlegen duerfen nicht als zwei unabhaengige Commits laufen.
+        _unitOfWork.Verify(u => u.ExecuteInTransactionAsync(
+            It.IsAny<Func<CancellationToken, Task>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

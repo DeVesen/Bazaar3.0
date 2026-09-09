@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddHealthChecks()
             .AddDbContextCheck<BarDbContext>("database", tags: ["ready"]);
 
+        services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         services.AddScoped<ISellerRepository, SellerRepository>();
         services.AddScoped<ISellerTypeRepository, SellerTypeRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
@@ -49,6 +50,7 @@ public static class DependencyInjection
         services.AddScoped<GetMyBlocksQueryHandler>();
         services.AddScoped<IValidator<RegisterCommand>, RegisterCommandValidator>();
         services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
+        services.AddScoped<IValidator<RefreshCommand>, RefreshCommandValidator>();
 
         return services;
     }
