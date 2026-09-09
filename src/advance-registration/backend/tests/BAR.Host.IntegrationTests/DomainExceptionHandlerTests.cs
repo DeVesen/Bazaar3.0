@@ -34,5 +34,27 @@ public class DomainExceptionHandlerTests : IClassFixture<Features.Public.Postgre
         Assert.Equal("seller.email_taken", body!.ErrorCode);
     }
 
+    [Fact]
+    public async Task ArticleNumberConflictException_MapsTo409WithNextNumberExtension()
+    {
+        var client = _factory.WithWebHostBuilder(builder =>
+            builder.Configure(app =>
+            {
+                app.UseExceptionHandler();
+                app.UseRouting();
+                app.UseEndpoints(endpoints => endpoints.MapGet("/__test/article-number-conflict", (HttpContext _) =>
+                    throw new BAR.Domain.Exceptions.ArticleNumberConflictException(
+                        "Artikelnummer 104 ist inzwischen vergeben — neue Nummer: 105", 105)));
+            })).CreateClient();
+
+        var response = await client.GetAsync("/__test/article-number-conflict", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        var body = await response.Content.ReadFromJsonAsync<NextNumberProblemPayload>(TestContext.Current.CancellationToken);
+        Assert.Equal(105, body!.NextNumber);
+    }
+
     private sealed record ProblemPayload(string? Detail, string? ErrorCode);
+    private sealed record NextNumberProblemPayload(string? Detail, string? ErrorCode, int NextNumber);
 }

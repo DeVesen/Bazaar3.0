@@ -1,4 +1,5 @@
 using System.Text;
+using BAR.Host.Features.Articles;
 using BAR.Host.Features.Auth;
 using BAR.Host.Features.Blocks;
 using BAR.Host.Features.Profile;
@@ -89,6 +90,7 @@ app.MapAuthEndpoints();
 app.MapPublicInfoEndpoints();
 app.MapBlocksEndpoints();
 app.MapProfileEndpoints();
+app.MapArticlesEndpoints();
 
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {

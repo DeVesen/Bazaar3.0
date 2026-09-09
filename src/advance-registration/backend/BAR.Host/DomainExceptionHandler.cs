@@ -35,6 +35,11 @@ public sealed class DomainExceptionHandler : IExceptionHandler
         };
         problemDetails.Extensions["errorCode"] = domainException.ErrorCode;
 
+        if (domainException is ArticleNumberConflictException numberConflict)
+        {
+            problemDetails.Extensions["nextNumber"] = numberConflict.NextNumber;
+        }
+
         httpContext.Response.StatusCode = status;
         await httpContext.Response.WriteAsJsonAsync(problemDetails, options: null, contentType: "application/problem+json", cancellationToken);
         return true;
