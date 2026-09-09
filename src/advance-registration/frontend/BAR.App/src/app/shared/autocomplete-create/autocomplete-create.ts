@@ -20,7 +20,7 @@ import type { MasterDataItem } from '../../features/my-articles/master-data-api.
       (onSelect)="onSelect($event)"
     />
     @if (isCreateMode()) {
-      <button pButton type="button" icon="pi pi-plus" severity="success" (click)="openCreateModal()"></button>
+      <button pButton type="button" [iconOnly]="true" severity="success" (click)="openCreateModal()"><i class="pi pi-plus"></i></button>
     }
 
     <p-dialog [(visible)]="createModalOpenModel" [modal]="true" [header]="'Neuer Eintrag: ' + value()">
