@@ -40,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<INumberBlockRepository, NumberBlockRepository>();
+        services.AddScoped<IArticleRepository, ArticleRepository>();
 
         services.Configure<Security.JwtOptions>(configuration.GetSection(Security.JwtOptions.SectionName));
         services.AddSingleton<IPasswordHasher, Security.BCryptPasswordHasher>();
