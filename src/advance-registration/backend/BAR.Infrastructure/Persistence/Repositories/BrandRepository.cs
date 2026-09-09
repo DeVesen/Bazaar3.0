@@ -1,3 +1,4 @@
+using BAR.Domain.Articles;
 using BAR.Domain.MasterData;
 using BAR.Domain.Ports;
 using Microsoft.EntityFrameworkCore;
@@ -33,18 +34,26 @@ public sealed class BrandRepository(BarDbContext dbContext) : IBrandRepository
             await dbContext.Articles
                 .Where(a => a.Brand == renameArticlesFrom)
                 .ExecuteUpdateAsync(setters => setters.SetProperty(a => a.Brand, brand.Name), cancellationToken);
-        }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
-        if (renameArticlesFrom is not null)
-        {
             // ExecuteUpdateAsync schreibt direkt in die DB, ohne den ChangeTracker
             // zu aktualisieren. Bereits im Context getrackte Article-Instanzen
             // (z.B. aus einem vorherigen CreateAsync) haetten sonst weiterhin den
             // alten Brand-Namen im Speicher - ein spaeteres GetByIdAsync im selben
             // Scope wuerde die veraltete getrackte Instanz statt der DB liefern.
-            dbContext.ChangeTracker.Clear();
+            // Nur die betroffenen Article-Entries detachen, nicht den gesamten
+            // ChangeTracker leeren - ein geteilter DbContext-Scope (EfUnitOfWork)
+            // koennte sonst unabhaengige, andere getrackte Entities verlieren.
+            foreach (var entry in dbContext.ChangeTracker.Entries<Article>()
+                .Where(e => e.Entity.Brand == renameArticlesFrom).ToList())
+            {
+                entry.State = EntityState.Detached;
+            }
+        }
+        else
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 
