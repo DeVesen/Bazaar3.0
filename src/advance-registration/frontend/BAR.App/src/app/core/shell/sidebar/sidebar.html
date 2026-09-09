@@ -1,0 +1,46 @@
+<p-sidebar-spacer />
+<p-sidebar-aside>
+  <p-sidebar-panel>
+    <p-sidebar-header>
+      <app-sidebar-title />
+    </p-sidebar-header>
+    <p-sidebar-content>
+      @for (group of visibleGroups(); track group.label) {
+        <p-sidebar-group data-nav-group>
+          <p-sidebar-group-label>{{ group.label.toUpperCase() }}</p-sidebar-group-label>
+          <p-sidebar-group-content>
+            <p-sidebar-menu>
+              @for (item of group.items; track item.route) {
+                <p-sidebar-menu-item data-nav-item>
+                  <button pSidebarMenuButton [routerLink]="item.route" routerLinkActive="active" #rla="routerLinkActive" [isActive]="rla.isActive">
+                    <span>{{ item.label }}</span>
+                  </button>
+                </p-sidebar-menu-item>
+              }
+            </p-sidebar-menu>
+          </p-sidebar-group-content>
+        </p-sidebar-group>
+        <hr />
+      }
+    </p-sidebar-content>
+    <p-sidebar-footer>
+      <p-avatar [label]="initials()" shape="circle" [style]="{ 'background-color': 'var(--p-primary-400)', color: '#ffffff', width: '36px', height: '36px' }" />
+      <span class="sidebar-username">{{ authService.currentUser()?.sub }}</span>
+      @if (isAdmin()) {
+        <p-selectbutton
+          data-role-toggle
+          [options]="roleOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="activeRole()"
+          (ngModelChange)="setRole($event)"
+          [allowEmpty]="false"
+        />
+      }
+      <button pButton link (click)="logout()">
+        <svg lucideLogOut></svg>
+        <span>Abmelden</span>
+      </button>
+    </p-sidebar-footer>
+  </p-sidebar-panel>
+</p-sidebar-aside>
