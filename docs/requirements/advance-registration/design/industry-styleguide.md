@@ -182,10 +182,10 @@ PrimeNG, kein natives HTML, keine weiteren UI-Libraries):
 
 | # | Konflikt | Styleguide sagt | App-Spec sagt | Status |
 |---|---|---|---|---|
-| 1 | Icon-Set | Lucide, Stroke 1.5 | `@primeicons/angular`, Einzelimport | offen |
-| 2 | Komponenten-CSS | Eigene Klassen `.btn`, `.input`, `.card`, `.dialog`, `.table`, `.tag` auf nativem HTML | PrimeNG-Komponenten, kein natives HTML für interaktive Elemente | offen |
-| 3 | Theming-Mechanismus | Freie CSS-Variablen (`--color-*`, `--space-*`) | PrimeNG-Theme mit eigenen Design-Tokens | offen |
-| 4 | Blueprint-Eckkreuze | Vier `<i class="corner">`-Kindelemente im Container | kein Mechanismus vorgesehen | offen |
+| 1 | Icon-Set | Lucide, Stroke 1.5 | `@lucide/angular`, Einzelimport | ✅ Entschieden — Lucide gewinnt, siehe spec.md §10.0.4 |
+| 2 | Komponenten-CSS | Eigene Klassen `.btn`, `.input`, `.card`, `.dialog`, `.table`, `.tag` auf nativem HTML | PrimeNG-Komponenten, kein natives HTML für interaktive Elemente | ✅ Entschieden — PrimeNG-Komponenten setzen das visuelle Bild um, kein natives HTML |
+| 3 | Theming-Mechanismus | Freie CSS-Variablen (`--color-*`, `--space-*`) | PrimeNG-Theme mit eigenen Design-Tokens | ✅ Entschieden — beide koexistieren: Farb-/Surface-Tokens über `definePreset` (PrimeNG-Skalen), Spacing/Shadow/Font/Divider als eigene CSS Custom Properties |
+| 4 | Blueprint-Eckkreuze | Vier `<i class="corner">`-Kindelemente im Container | kein Mechanismus vorgesehen | ✅ Entschieden — eigene `bar-blueprint`-Komponente in `shared/` |
 | 5 | Dunkle Sidebar | nicht vorgesehen | bisher dunkles Teal | ✅ Entschieden — Sidebar hell auf `--color-surface`, siehe Abschnitt 7 |
 
 Bis zur Entscheidung gilt: Farb-, Typo-, Spacing- und Radius-Werte (Abschnitte 1–4) sind

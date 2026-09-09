@@ -237,8 +237,8 @@ Feature-spezifische UI-Specs:
 | **QR-Code-Erzeugung** | `@zxing/library` (`BrowserQRCodeSvgWriter`, clientseitig, kein externer Service) |
 | **Fonts** | Barlow + Barlow Condensed, lokal via `@fontsource/*` (kein Google-Fonts-CDN — siehe [Styleguide](design/industry-styleguide.md) Abschnitt 7) |
 | **Mehrsprachigkeit** | ngx-translate (DE + EN) |
-| **Icons** | `@primeicons/angular` (npm-Paket, ein Import je Icon — siehe Abschnitt 10.0.4) |
-| **Tests** | Jest (Frontend) · xUnit v3 + Moq (Backend) |
+| **Icons** | `@lucide/angular` (npm-Paket, ein Import je Icon, Stroke-Width 1.5 global via `provideLucideConfig` — siehe Abschnitt 10.0.4) |
+| **Tests** | Vitest (Frontend) · xUnit v3 + Moq (Backend) |
 
 **Warum diese Majors** (geprüft am 2026-08-17, bei Beginn der Umsetzung):
 
@@ -363,25 +363,17 @@ das Schema der Export-Datei in [`api/export.md`](api/export.md).
 Ausschließlich **PrimeNG**, kein natives HTML für interaktive Elemente, keine weiteren
 UI-Libraries. Fehlt eine Komponente, entsteht ein eigener Wrapper auf PrimeNG-Basis
 (Gruppe „Custom" in [components/overview.md](components/overview.md)).
-**Icons.** Icons kommen aus `@primeicons/angular` und werden als eigenständige
-Angular-Komponenten eingebunden — ein Import je Icon, gesetzt als SVG-Kindelement:
+**Icons.** Icons kommen aus `@lucide/angular` und werden als eigenständige Angular-Komponenten
+eingebunden — ein Import je Icon, als Attribut-Direktive auf einem `<svg>`-Element gesetzt:
 
 ```typescript
-import { Camera } from '@primeicons/angular/camera';
-// <button pButton iconOnly><svg data-p-icon="camera"></svg></button>
+import { LucideCamera } from '@lucide/angular';
+// imports: [LucideCamera] am Component, dann im Template:
+// <button pButton iconOnly><svg lucideCamera></svg></button>
 ```
 
-Die CSS-Klassen-Schreibweise `icon="pi pi-camera"` ist in PrimeNG 22 zwar weiterhin gültig
-und nicht als veraltet markiert, wird aber **nicht** verwendet: Sie setzt das globale
-`primeicons`-Stylesheet voraus, während der Einzelimport tree-shakeable ist und ohne
-zusätzliches CSS auskommt. Der Icon-Name wandert dabei unverändert aus der Klasse in den
-Import-Pfad und das `data-p-icon`-Attribut — `pi pi-shopping-cart` wird zu
-`@primeicons/angular/shopping-cart` und `data-p-icon="shopping-cart"`; der exportierte
-Klassenname ist dessen PascalCase-Form (`ShoppingCart`).
-
-Ob ein konkreter Icon-Name im installierten Paket existiert, wird bei der Projektanlage
-geprüft: Die PrimeNG-Doku listet nur die in ihren Demos verwendeten Icons und taugt nicht
-als Katalog.
+Stroke-Width 1.5 gilt App-weit über eine einzige zentrale Stelle: `provideLucideConfig({ strokeWidth: 1.5 })`
+in `app.config.ts`. `@primeicons/angular` wird nicht installiert.
 
 ### 10.1 Responsive Design
 
@@ -503,7 +495,7 @@ In der Entwicklungsversion: kleiner Hinweis auf Demo-Accounts. In Produktion ent
 |---|---|---|
 | 1 | Mehrsprachigkeit? | ✅ Ja — DE + EN via ngx-translate |
 | 2 | Provisionssystem / unterschiedliche Konditionen? | ✅ Ja, via Verkäufer-Typ |
-| 3 | Industry-Styleguide vs. PrimeNG-Grundregel (Lucide-Icons, eigene CSS-Klassen, Blueprint-Eckkreuze) | ⏳ Offen — Konfliktliste in [`design/industry-styleguide.md`](design/industry-styleguide.md) Abschnitt 8 |
+| 3 | Industry-Styleguide vs. PrimeNG-Grundregel (Lucide-Icons, eigene CSS-Klassen, Blueprint-Eckkreuze) | ✅ Entschieden — Icon-Konflikt zugunsten Lucide (§10.0.4), die übrigen drei Konfliktzeilen in [`design/industry-styleguide.md`](design/industry-styleguide.md) Abschnitt 8 sind keine echten Widersprüche |
 
 ---
 
