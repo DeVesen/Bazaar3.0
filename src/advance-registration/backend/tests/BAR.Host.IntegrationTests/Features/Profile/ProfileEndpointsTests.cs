@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using BAR.Host.IntegrationTests.Features.Public;
 
 namespace BAR.Host.IntegrationTests.Features.Profile;
@@ -63,6 +64,14 @@ public class ProfileEndpointsTests : IClassFixture<PostgresWebApplicationFactory
         }, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        // Regression: FluentValidation liefert PropertyName als Dictionary-Key
+        // (PascalCase); ohne globale DictionaryKeyPolicy matcht das Frontend
+        // (camelCase-Feldnamen) nie einen Fehler-Key.
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        var errors = body.GetProperty("errors");
+        Assert.True(errors.TryGetProperty("firstName", out _));
+        Assert.False(errors.TryGetProperty("FirstName", out _));
     }
 
     private async Task<HttpClient> RegisterAndAuthenticateAsync()

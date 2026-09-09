@@ -20,6 +20,14 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddExceptionHandler<BAR.Host.DomainExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+// Dictionary-Keys (z.B. Feld-Namen in ValidationProblem.errors) folgen sonst
+// nicht der globalen CamelCase-Policy fuer Objekt-Properties - explizit
+// gleichziehen, damit das Frontend (camelCase) die Keys ueberhaupt matchen kann.
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+});
+
 // JWT-Bearer-Auth + Autorisierungs-Policies (api/cross-cutting.md Abschnitt 2):
 // "authenticated" (jedes gueltige Token) ist Default-Policy, "admin" verlangt
 // role == admin. Literale Claim-Typen "sub"/"role" statt ASP.NET-Standard-URIs,
