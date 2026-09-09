@@ -19,7 +19,7 @@ public class BarDbContextTests : IClassFixture<PostgresWebApplicationFactory>
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<BarDbContext>();
 
-        Assert.Empty(await db.Sellers.ToListAsync(TestContext.Current.CancellationToken));
+        Assert.Single(await db.Sellers.ToListAsync(TestContext.Current.CancellationToken)); // Seed: Admin
         Assert.Empty(await db.RefreshTokens.ToListAsync(TestContext.Current.CancellationToken));
         Assert.Single(await db.SellerTypes.ToListAsync(TestContext.Current.CancellationToken)); // Seed
         Assert.Single(await db.Settings.ToListAsync(TestContext.Current.CancellationToken)); // Seed
