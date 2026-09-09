@@ -40,7 +40,7 @@ Desktop (> 1024px) — Sidebar im Icon-Collapse-Modus:
 │   Sidebar    │  [☰]  ← Trigger im Content-Header
 │   240/60 px  │──────────────────────────────│
 │   (inkl.     │      <router-outlet>          │
-│   Footer)    │  Content-BG: #f0f4f7, 26/22px │
+│   Footer)    │  Content-BG: --color-bg (#f2f2f3), 26/22px │
 └──────────────┴──────────────────────────────┘
 
 Tablet (≤ 1024px) / Mobile (≤ 768px) — Sidebar als Offcanvas, initial geschlossen:
@@ -57,6 +57,8 @@ Offcanvas offen (Mobile/Tablet):
 │ (mit Footer) │  (Tap → schließt)             │
 └──────────────┴──────────────────────────────┘
 ```
+
+Die Titelleiste (Content-Header) trägt den Hintergrund `--color-surface` (`#e9e9ea`) — bislang ohne festgelegten Wert.
 
 ## Akzeptanzkriterien
 

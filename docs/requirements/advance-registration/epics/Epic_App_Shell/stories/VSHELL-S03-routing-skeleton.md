@@ -38,7 +38,7 @@ Route-Tabelle:
 /profile             → authGuard, ProfilePage
 /number-blocks       → authGuard, NumberBlocksPage
 /sellers             → authGuard + adminGuard, SellersPage
-/all-articles        → authGuard + adminGuard, AllArticlesPage
+/articles             → authGuard + adminGuard, ArticlesPage
 /brands              → authGuard + adminGuard, BrandsPage
 /categories          → authGuard + adminGuard, CategoriesPage
 /seller-types        → authGuard + adminGuard, SellerTypesPage
