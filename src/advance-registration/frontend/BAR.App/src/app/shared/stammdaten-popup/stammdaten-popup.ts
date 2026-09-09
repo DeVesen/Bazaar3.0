@@ -29,7 +29,7 @@ import type { MasterDataItem } from '../../features/my-articles/master-data-api.
       }
 
       <div class="dialog-footer">
-        <button pButton type="button" class="p-button-text p-button-secondary" (click)="cancel()">Abbrechen</button>
+        <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">Abbrechen</button>
         <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">{{ mode() === 'create' ? 'Anlegen' : 'Speichern' }}</button>
       </div>
     </p-dialog>
