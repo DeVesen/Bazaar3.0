@@ -31,7 +31,7 @@ braucht ein Node-Update, bevor diese Story beginnen kann.
 
 ## Scope
 
-**In Scope:** `ng new`, Standalone Components, OnPush, Signals, PrimeNG 22.0.0 (stabile Version, nicht die parallel laufende 22.1.0-rc — verwendet für die neue `Sidebar`-Compound-Komponentenfamilie, siehe Epic_App_Shell VSHELL-S01), `@primeicons/angular` (npm), `ngx-translate` installieren und initialisieren (DE/EN JSON-Dateien anlegen), App-Verzeichnisstruktur anlegen.
+**In Scope:** `ng new`, Standalone Components, OnPush, Signals, PrimeNG 22.0.0 (stabile Version, nicht die parallel laufende 22.1.0-rc — verwendet für die neue `Sidebar`-Compound-Komponentenfamilie, siehe Epic_App_Shell VSHELL-S01), `@primeicons/angular` (npm), `ngx-translate` installieren und initialisieren (DE/EN JSON-Dateien anlegen), App-Verzeichnisstruktur anlegen, kein SSR (Angular-App bleibt reine Browser-App, siehe R00-Restumfang R-1).
 
 **Out of Scope:** Routing, Sidebar, Theme-CSS, Übersetzungs-Keys für Epics (folgen in den jeweiligen Epics).
 
@@ -40,13 +40,11 @@ braucht ein Node-Update, bevor diese Story beginnen kann.
 - [ ] **AC-1** — THE SYSTEM SHALL ein Angular 22 Projekt mit Standalone Components und Signals-Support erzeugen und in `angular.json` unter `schematics` `ChangeDetectionStrategy.OnPush` als Default für neu generierte Komponenten konfigurieren.
 - [ ] **AC-2** — THE SYSTEM SHALL PrimeNG in Version `22.0.0` (npm dist-tag `latest`, stabil) installieren und `providePrimeNG({ theme: { preset: Aura } })` in `app.config.ts` registrieren (Aura als Placeholder; wird in Epic_App_Shell durch das finale Preset ersetzt).
 - [ ] **AC-3** — THE SYSTEM SHALL `@ngx-translate/core` und `@ngx-translate/http-loader` installieren und `provideTranslateService` in `app.config.ts` mit DE als Standardsprache und EN als Fallback registrieren.
-- [ ] **AC-4** — THE SYSTEM SHALL leere Übersetzungs-Dateien `src/assets/i18n/de.json` und `src/assets/i18n/en.json` anlegen.
-- [ ] **AC-5** — THE SYSTEM SHALL `@primeicons/angular` als npm-Paket installieren, sodass Icons ohne CDN-Aufruf importierbar sind.
+- [ ] **AC-4** — THE SYSTEM SHALL leere Übersetzungs-Dateien `public/i18n/de.json` und `public/i18n/en.json` anlegen.
 - [ ] **AC-6** — THE SYSTEM SHALL die Feature-First-Verzeichnisstruktur `src/app/features/`, `src/app/core/`, `src/app/shared/` anlegen. Pro Feature gilt die Konvention `features/<feature>/` mit `<feature>.routes.ts`, `pages/`, `components/`, `data/` (Api + Store), `model/`.
 - [ ] **AC-7** — WHEN `ng serve` ausgeführt wird, THEN SHALL die App unter `http://localhost:4200` erreichbar sein und keine Browser-Konsolenfehler zeigen.
 - [ ] **AC-8** — THE SYSTEM SHALL in `tsconfig.json` die Path-Aliases `@core/*`, `@shared/*` und `@features/*` auf die entsprechenden Verzeichnisse konfigurieren.
 - [ ] **AC-9** — THE SYSTEM SHALL per ESLint-Regel `no-restricted-imports` folgende Import-Grenzen erzwingen: kein Import zwischen zwei Features (`features/a` → `features/b`), kein Import aus `shared/` nach `features/` oder `core/`, kein Import aus `core/` nach `features/`. Ein Verstoß SHALL den Lint-Lauf mit Fehler beenden.
-- [ ] **AC-10** — THE SYSTEM SHALL bei der Projektanlage prüfen, ob alle in der Komponenten-Doku verwendeten Icon-Namen (z. B. `shopping-cart`, `bars`) im installierten `@primeicons/angular` tatsächlich existieren; fehlt ein Icon-Name, SHALL ein Ersatz-Icon gewählt und die betroffene Komponenten-Doku entsprechend nachgezogen werden.
 
 ## Sprach- und Struktur-Konvention
 

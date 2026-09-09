@@ -34,7 +34,7 @@ JSON-Contract sind englisch, Doku bleibt deutsch.
 
 Dieses Epic ist ein **technisches Setup-Epic** — kein fachlicher Durchstich. Es ist Voraussetzung für alle nachfolgenden Epics. Siehe Entwicklungsrichtlinie in [`spec.md`](../../spec.md) Abschnitt 10.0.2.
 
-Die Voranmelde-App lebt in einem **eigenen Repository** — `frontend/` und `backend/` liegen direkt am Repository-Root.
+Die Voranmelde-App lebt in diesem Monorepo unter `src/advance-registration/` — `frontend/` und `backend/` liegen dort nebeneinander (siehe Root-`CLAUDE.md`).
 
 Der Unterschied zur Haupt-App: Mehrsprachigkeit (ngx-translate) wird hier bereits im Projekt-Setup verankert, und das Backend enthält die Grundkonfiguration für JWT-Authentifizierung.
 

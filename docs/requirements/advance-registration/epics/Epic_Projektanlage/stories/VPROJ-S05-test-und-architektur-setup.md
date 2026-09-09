@@ -8,8 +8,7 @@ depends-on: [VPROJ-S01, VPROJ-S02]
 
 ## Ziel
 
-Ein Entwickler richtet die Testinfrastruktur beider Seiten ein — Jest für das Angular-Frontend,
-xUnit für das .NET-Backend — und ergänzt ein Architektur-Testprojekt, das die hexagonale
+Ein Entwickler richtet die Testinfrastruktur beider Seiten ein — **Vitest** für das Angular-Frontend, xUnit für das .NET-Backend — und ergänzt ein Architektur-Testprojekt, das die hexagonale
 Abhängigkeitsrichtung automatisiert prüft.
 
 ## Kontext
@@ -22,7 +21,7 @@ trägt oder ein Handler direkt einen `DbContext` erwartet.
 
 ## Scope
 
-**In Scope:** Jest + `jest-preset-angular` im Frontend, xUnit v3 + Moq
+**In Scope:** Vitest im Frontend, xUnit v3 + Moq
 im Backend, Testprojekt-Struktur, `BAR.Architecture.Tests` mit NetArchTest, ein
 Beispieltest je Ebene als lauffähiger Nachweis.
 
@@ -91,7 +90,7 @@ entsteht mit dem ersten Handler (Epic_Login), nicht bereits in dieser Story.
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL im Frontend Jest mit `jest-preset-angular` konfigurieren; `npm test` SHALL die `.spec.ts`-Dateien ausführen (kein Karma).
+- [ ] **AC-1** — THE SYSTEM SHALL im Frontend Vitest über den `@angular/build:unit-test`-Builder konfigurieren; `npm test` SHALL die `.spec.ts`-Dateien ausführen (kein Karma, kein Jest).
 - [ ] **AC-2** — THE SYSTEM SHALL im Backend unter `tests/` die Projekte `BAR.Domain.UnitTests` und `BAR.Host.IntegrationTests` mit xUnit v3 anlegen und in `BAR.slnx` aufnehmen. `BAR.Application.UnitTests` (zusätzlich mit Moq) SHALL erst mit dem ersten Handler entstehen — siehe Abschnitt Test-Runner.
 - [ ] **AC-2b** — THE SYSTEM SHALL `dotnet test` über `global.json` auf Microsoft.Testing.Platform umschalten und **keines** der VSTest-Pakete (`Microsoft.NET.Test.Sdk`, `xunit.runner.visualstudio`, `coverlet.collector`) referenzieren.
 - [ ] **AC-3** — THE SYSTEM SHALL `BAR.Host.IntegrationTests` über `WebApplicationFactory` gegen die echte Endpoint-Registrierung testen; die Datenbank SHALL dabei über einen PostgreSQL-Container (Testcontainers, Image **`postgres:18-alpine`** wie in [VPROJ-S03](VPROJ-S03-docker-compose-setup.md)) bereitgestellt werden, nicht über In-Memory-Provider.

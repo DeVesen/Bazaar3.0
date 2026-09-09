@@ -57,7 +57,7 @@ Stand der Prüfung: PostgreSQL 18 ist die aktuelle stabile Major (Docker Hub, 20
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL eine `docker-compose.yml` im Projekt-Root bereitstellen, die die Services `frontend`, `backend` und `db` definiert; `db` SHALL das Image `postgres:18-alpine` verwenden.
+- [ ] **AC-1** — THE SYSTEM SHALL eine `compose.yaml` unter `src/advance-registration/` bereitstellen, die die Services `frontend`, `api` und `db` definiert; `db` SHALL das Image `postgres:18-alpine` verwenden.
 - [ ] **AC-2** — WHEN `docker compose up` ausgeführt wird, THEN SHALL alle drei Services starten und `GET http://localhost:5001/health` mit HTTP 200 antworten.
 - [ ] **AC-3** — THE SYSTEM SHALL den Service `backend` so konfigurieren, dass er erst startet, wenn `db` als `healthy` gilt (PostgreSQL `pg_isready`-Health-Check).
 - [ ] **AC-4** — THE SYSTEM SHALL alle Secrets (DB-Passwort, JWT-Secret, Connection String) ausschließlich über Environment-Variablen oder eine `.env`-Datei (gitignored) einlesen.
