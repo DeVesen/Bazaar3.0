@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, catchError, switchMap, throwError } from 'rxjs';
+import { Observable, catchError, shareReplay, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { TokenStore } from './token-store';
 
@@ -15,7 +15,8 @@ interface RefreshResponse {
 let refreshInFlight: Observable<string> | null = null;
 
 function isExcluded(url: string): boolean {
-  return EXCLUDED_PREFIXES.some((prefix) => url.includes(prefix));
+  const path = new URL(url, 'http://placeholder/').pathname;
+  return EXCLUDED_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
 
 function refreshAccessToken(http: HttpClient, tokenStore: TokenStore): Observable<string> {
@@ -35,7 +36,8 @@ function refreshAccessToken(http: HttpClient, tokenStore: TokenStore): Observabl
       catchError((error: unknown) => {
         refreshInFlight = null;
         return throwError(() => error);
-      })
+      }),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
   return refreshInFlight;
 }

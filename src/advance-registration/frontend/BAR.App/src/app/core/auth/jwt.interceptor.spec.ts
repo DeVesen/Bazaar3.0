@@ -66,6 +66,38 @@ describe('jwtInterceptor', () => {
     httpMock.verify();
   });
 
+  it('shares a single refresh call across two concurrent 401s', () => {
+    TestBed.inject(TokenStore).setToken('expired-token');
+    TestBed.inject(TokenStore).setRefreshToken('refresh-abc');
+    const http = TestBed.inject(HttpClient);
+    const httpMock = TestBed.inject(HttpTestingController);
+
+    let resultA: unknown;
+    let resultB: unknown;
+    http.get('/api/profile').subscribe((r) => (resultA = r));
+    http.get('/api/accounts').subscribe((r) => (resultB = r));
+
+    const firstReq = httpMock.expectOne('/api/profile');
+    const secondReq = httpMock.expectOne('/api/accounts');
+    firstReq.flush(null, { status: 401, statusText: 'Unauthorized' });
+    secondReq.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    const refreshReqs = httpMock.match('/api/auth/refresh');
+    expect(refreshReqs.length).toBe(1);
+    refreshReqs[0].flush({ accessToken: 'new-token', refreshToken: 'new-refresh' });
+
+    const retriedFirst = httpMock.expectOne('/api/profile');
+    const retriedSecond = httpMock.expectOne('/api/accounts');
+    expect(retriedFirst.request.headers.get('Authorization')).toBe('Bearer new-token');
+    expect(retriedSecond.request.headers.get('Authorization')).toBe('Bearer new-token');
+    retriedFirst.flush({ ok: 'a' });
+    retriedSecond.flush({ ok: 'b' });
+
+    expect(resultA).toEqual({ ok: 'a' });
+    expect(resultB).toEqual({ ok: 'b' });
+    httpMock.verify();
+  });
+
   it('logs out and navigates to /login when the refresh call itself fails', () => {
     TestBed.inject(TokenStore).setToken('expired-token');
     TestBed.inject(TokenStore).setRefreshToken('bad-refresh');
