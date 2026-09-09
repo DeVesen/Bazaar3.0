@@ -1,6 +1,7 @@
 using BAR.Application.Abstractions;
 using BAR.Application.Auth.Login;
 using BAR.Application.Auth.Refresh;
+using BAR.Application.Articles.Create;
 using BAR.Application.Auth.Register;
 using BAR.Application.Blocks.GetMine;
 using BAR.Application.Profile.GetProfile;
@@ -58,10 +59,12 @@ public static class DependencyInjection
         services.AddScoped<GetMyBlocksQueryHandler>();
         services.AddScoped<GetProfileQueryHandler>();
         services.AddScoped<UpdateProfileCommandHandler>();
+        services.AddScoped<CreateArticleCommandHandler>();
         services.AddScoped<IValidator<RegisterCommand>, RegisterCommandValidator>();
         services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
         services.AddScoped<IValidator<RefreshCommand>, RefreshCommandValidator>();
         services.AddScoped<IValidator<UpdateProfileCommand>, UpdateProfileCommandValidator>();
+        services.AddScoped<IValidator<CreateArticleCommand>, CreateArticleCommandValidator>();
 
         return services;
     }
