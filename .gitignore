@@ -124,3 +124,6 @@ x86/
 ### graphify
 # Generierte Knowledge-Graph-Artefakte und Extraktions-Cache
 graphify-out/
+
+### Environment variables
+.env
