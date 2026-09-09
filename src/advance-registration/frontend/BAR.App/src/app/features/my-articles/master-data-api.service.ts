@@ -8,6 +8,12 @@ export interface MasterDataItem {
   id: string;
   name: string;
   original: boolean;
+  articleCount?: number;
+}
+
+export interface MasterDataUpdatePayload {
+  name: string;
+  original: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -20,5 +26,13 @@ export class MasterDataApiService {
 
   create(resource: MasterDataResource, name: string): Observable<MasterDataItem> {
     return this.http.post<MasterDataItem>(`/api/${resource}`, { name });
+  }
+
+  update(resource: MasterDataResource, id: string, payload: MasterDataUpdatePayload): Observable<MasterDataItem> {
+    return this.http.put<MasterDataItem>(`/api/${resource}/${id}`, payload);
+  }
+
+  delete(resource: MasterDataResource, id: string): Observable<void> {
+    return this.http.delete<void>(`/api/${resource}/${id}`);
   }
 }

@@ -42,4 +42,21 @@ describe('MasterDataApiService', () => {
     expect(req.request.body).toEqual({ name: 'Nike' });
     req.flush({ id: 'b1', name: 'Nike', original: false });
   });
+
+  it('update("brands", id, payload) puts to /api/brands/:id', () => {
+    service.update('brands', 'b1', { name: 'Nike', original: true }).subscribe();
+
+    const req = httpMock.expectOne('/api/brands/b1');
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({ name: 'Nike', original: true });
+    req.flush({ id: 'b1', name: 'Nike', original: true });
+  });
+
+  it('delete("brands", id) deletes /api/brands/:id', () => {
+    service.delete('brands', 'b1').subscribe();
+
+    const req = httpMock.expectOne('/api/brands/b1');
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
+  });
 });
