@@ -1,0 +1,25 @@
+.login-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+
+  &__info {
+    /* Layout slot for info panel — no styling, let child component (login-info-panel) handle colors/padding */
+  }
+
+  &__form {
+    /* Layout slot for form — no styling */
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+
+    &__info {
+      display: none;
+    }
+
+    &__form {
+      /* Full width on mobile, handled by grid-template-columns change above */
+    }
+  }
+}
