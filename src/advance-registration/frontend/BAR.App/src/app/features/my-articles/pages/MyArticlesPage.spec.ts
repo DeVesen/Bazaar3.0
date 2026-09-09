@@ -3,12 +3,13 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { of } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { MyArticlesPage } from './MyArticlesPage';
 import { ArticlesApiService } from '../articles-api.service';
 import { MasterDataApiService } from '../master-data-api.service';
 
 function create() {
-  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), MessageService] });
   const articlesApi = TestBed.inject(ArticlesApiService);
   const masterDataApi = TestBed.inject(MasterDataApiService);
   vi.spyOn(articlesApi, 'getMine').mockReturnValue(of({ items: [], totalCount: 0, page: 1, pageSize: 25 }));
@@ -64,5 +65,34 @@ describe('MyArticlesPage', () => {
     fixture.componentInstance.onSaved();
 
     expect(articlesApi.getMine).toHaveBeenCalledTimes(1);
+  });
+
+  it('onFilterSearch() reloads with the given filters and resets to page 1', () => {
+    const { fixture, articlesApi } = create();
+    vi.mocked(articlesApi.getMine).mockClear();
+
+    fixture.componentInstance.onFilterSearch({ brand: 'Nike', category: undefined, search: 'jack' });
+
+    expect(articlesApi.getMine).toHaveBeenCalledWith({ page: 1, pageSize: 25, sort: undefined, brand: 'Nike', category: undefined, search: 'jack' });
+    expect(fixture.componentInstance.hasActiveFilter()).toBe(true);
+  });
+
+  it('onTableSort() reloads with a sort string built from the sort metas', () => {
+    const { fixture, articlesApi } = create();
+    vi.mocked(articlesApi.getMine).mockClear();
+
+    fixture.componentInstance.onTableSort([{ field: 'price', order: 'desc' }, { field: 'name', order: 'asc' }]);
+
+    expect(articlesApi.getMine).toHaveBeenCalledWith(
+      expect.objectContaining({ sort: 'price:desc,name:asc' }));
+  });
+
+  it('onTablePage() reloads with the page derived from first/rows', () => {
+    const { fixture, articlesApi } = create();
+    vi.mocked(articlesApi.getMine).mockClear();
+
+    fixture.componentInstance.onTablePage({ first: 50, rows: 25 });
+
+    expect(articlesApi.getMine).toHaveBeenCalledWith(expect.objectContaining({ page: 3, pageSize: 25 }));
   });
 });
