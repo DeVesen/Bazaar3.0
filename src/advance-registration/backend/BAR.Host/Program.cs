@@ -4,7 +4,7 @@ using BAR.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // CORS: Angular Dev fest, Production-Origin ueber Environment-Variable
 // (VPROJ-S02 AC-3, api/cross-cutting.md Abschnitt 8).
