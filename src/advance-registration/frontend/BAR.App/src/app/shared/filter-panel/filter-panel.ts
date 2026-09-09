@@ -20,17 +20,17 @@ export interface FilterPanelSearch {
     <div class="filter-panel">
       <p-select
         [options]="brands()" optionLabel="name" optionValue="name" placeholder="Marke"
-        [(ngModel)]="brandValueModel" [showClear]="true" (onChange)="emit()"
+        [(ngModel)]="brandValueModel" [showClear]="true"
       />
       <p-select
         [options]="categories()" optionLabel="name" optionValue="name" placeholder="Kategorie"
-        [(ngModel)]="categoryValueModel" [showClear]="true" (onChange)="emit()"
+        [(ngModel)]="categoryValueModel" [showClear]="true"
       />
       <p-iconfield>
         <p-inputicon class="pi pi-search" />
         <input pInputText placeholder="Suche..." [(ngModel)]="searchTextModel" (keydown.enter)="emit()" />
       </p-iconfield>
-      <button pButton type="button" label="Suchen" icon="pi pi-search" data-testid="search-button" (click)="emit()"></button>
+      <p-button label="Suchen" icon="pi pi-search" data-testid="search-button" (onClick)="emit()" />
     </div>
   `
 })

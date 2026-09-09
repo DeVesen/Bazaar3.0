@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 import { ArticlesApiService, ArticleListQuery, ArticleResponse } from '../articles-api.service';
 import { MasterDataApiService, MasterDataItem } from '../master-data-api.service';
 import { ArtikelDialog } from '../components/artikel-dialog';
@@ -20,13 +21,13 @@ const ACTION_COLUMN: ActionColumnConfig = {
 
 @Component({
   selector: 'app-my-articles-page',
-  imports: [FilterPanel, AppTable, ArtikelDialog],
+  imports: [FilterPanel, AppTable, ArtikelDialog, ButtonModule],
   template: `
     <h1>Meine Artikel</h1>
 
     <app-filter-panel [brands]="brands()" [categories]="categories()" (search)="onFilterSearch($event)" />
 
-    @if (isEmpty() && !hasActiveFilter()) {
+    @if (isEmpty() && !hasActiveFilter() && !loading()) {
       <p>Noch keine Artikel angemeldet. Mit <strong>+ Neu</strong> den ersten anlegen.</p>
       <button pButton type="button" (click)="openCreateDialog()">+ Neu</button>
     } @else {
@@ -36,6 +37,8 @@ const ACTION_COLUMN: ActionColumnConfig = {
         [data]="articles()"
         [totalRecords]="totalRecords()"
         [loading]="loading()"
+        [rows]="pageSize()"
+        [first]="(page() - 1) * pageSize()"
         [actionColumn]="actionColumn"
         [hasActiveFilter]="hasActiveFilter()"
         (sortChange)="onTableSort($event)"
@@ -101,10 +104,18 @@ export class MyArticlesPage implements OnInit {
     const query: ArticleListQuery = {
       page: this.page(), pageSize: this.pageSize(), sort: this.sort(), ...this.filters()
     };
-    this.articlesApi.getMine(query).subscribe((result) => {
-      this.loading.set(false);
-      this.articles.set(result.items);
-      this.totalRecords.set(result.totalCount);
+    this.articlesApi.getMine(query).subscribe({
+      next: (result) => {
+        this.loading.set(false);
+        this.articles.set(result.items);
+        this.totalRecords.set(result.totalCount);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.messageService.add({
+          severity: 'error', summary: 'Artikel konnten nicht geladen werden'
+        });
+      }
     });
   }
 

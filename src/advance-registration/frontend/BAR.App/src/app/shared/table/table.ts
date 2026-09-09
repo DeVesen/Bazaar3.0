@@ -49,6 +49,7 @@ interface PrimeNgPageEvent {
 @Component({
   selector: 'app-table',
   imports: [TableModule, ButtonModule, SkeletonModule],
+  styleUrl: './table.scss',
   template: `
     <p-table
       [value]="data()"
@@ -57,10 +58,12 @@ interface PrimeNgPageEvent {
       [lazy]="true"
       [paginator]="showPaginator()"
       [rows]="rows()"
+      [first]="first()"
       [rowsPerPageOptions]="[10, 25, 50]"
       [sortMode]="'multiple'"
       [stripedRows]="true"
       [rowHover]="true"
+      [showCurrentPageReport]="true"
       currentPageReportTemplate="Zeige {first} – {last} von {totalRecords} Einträgen"
       (onSort)="onSort($event)"
       (onPage)="onPage($event)"
@@ -82,7 +85,7 @@ interface PrimeNgPageEvent {
       <ng-template #body let-row>
         <tr>
           @for (col of columns(); track col.field) {
-            <td [class.number]="col.type === 'number' || col.type === 'currency'">{{ row[col.field] }}</td>
+            <td [class.number]="col.type === 'number' || col.type === 'currency'">{{ formatCell(col, row) }}</td>
           }
           @if (actionColumn()) {
             <td class="actions">
@@ -128,6 +131,7 @@ export class AppTable<T> {
   readonly totalRecords = input<number>(0);
   readonly loading = input<boolean>(false);
   readonly rows = input<number>(25);
+  readonly first = input<number>(0);
   readonly actionColumn = input<ActionColumnConfig | null>(null);
   readonly emptyText = input<string>('Keine Einträge gefunden.');
   readonly hasActiveFilter = input<boolean>(false);
@@ -142,6 +146,14 @@ export class AppTable<T> {
 
   readonly showPaginator = computed(() => this.totalRecords() > this.rows());
   readonly totalColumns = computed(() => this.columns().length + (this.actionColumn() ? 1 : 0));
+
+  formatCell(col: ColumnConfig, row: T): unknown {
+    const value = (row as Record<string, unknown>)[col.field];
+    if (col.type === 'currency' && typeof value === 'number') {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
+    }
+    return value;
+  }
 
   onSort(event: PrimeNgSortEvent): void {
     const metas = event.multiSortMeta ?? (event.field ? [{ field: event.field, order: event.order ?? 1 }] : []);

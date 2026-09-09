@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, model, output, signal, viewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -29,7 +29,7 @@ import { MasterDataApiService, MasterDataItem } from '../master-data-api.service
       }
 
       <label>Bezeichnung</label>
-      <input pInputText [(ngModel)]="nameModel" />
+      <input pInputText [(ngModel)]="nameModel" #nameInput />
 
       <label>Kategorie</label>
       <app-autocomplete-create [items]="categories()" [(value)]="categoryModel" [createFn]="createCategoryFn" (itemCreated)="categoryCreated.emit($event)" />
@@ -110,6 +110,8 @@ export class ArtikelDialog {
   readonly deleteConfirmVisible = signal(false);
   readonly conflictDialogVisible = signal(false);
   readonly conflictMessage = signal('');
+
+  private readonly nameInput = viewChild<ElementRef<HTMLInputElement>>('nameInput');
 
   private readonly masterDataApi = inject(MasterDataApiService);
   private readonly messageService = inject(MessageService);
@@ -205,6 +207,9 @@ export class ArtikelDialog {
         this.messageService.add({
           severity: 'success', summary: `✓ Artikel ${savedNumber} gespeichert — nächste Nummer: ${response.nextNumber}`
         });
+        // AC-9 Fokus+Selektion auf Bezeichnung; `pristine`-Reset aus der Spec ist hier N/A
+        // (dieser Dialog hat kein NgForm/FormGroup zum Zurücksetzen — reine Signal-Felder).
+        queueMicrotask(() => this.nameInput()?.nativeElement.select());
       },
       error: (err: { status?: number; error?: { detail?: string; nextNumber?: number } }) => {
         this.saving.set(false);

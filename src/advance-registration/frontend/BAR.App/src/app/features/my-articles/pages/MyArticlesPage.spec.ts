@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { MyArticlesPage } from './MyArticlesPage';
 import { ArticlesApiService } from '../articles-api.service';
@@ -94,5 +94,17 @@ describe('MyArticlesPage', () => {
     fixture.componentInstance.onTablePage({ first: 50, rows: 25 });
 
     expect(articlesApi.getMine).toHaveBeenCalledWith(expect.objectContaining({ page: 3, pageSize: 25 }));
+  });
+
+  it('loadArticles() error path resets loading and shows an error toast', () => {
+    const { fixture, articlesApi } = create();
+    vi.mocked(articlesApi.getMine).mockReturnValue(throwError(() => ({ status: 500 })));
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, 'add');
+
+    fixture.componentInstance.loadArticles();
+
+    expect(fixture.componentInstance.loading()).toBe(false);
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error' }));
   });
 });

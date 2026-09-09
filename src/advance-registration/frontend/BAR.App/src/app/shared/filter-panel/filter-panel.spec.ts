@@ -27,6 +27,18 @@ describe('FilterPanel', () => {
     expect(emitted.length).toBe(0);
   });
 
+  it('does not emit when a brand or category is selected', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const emitted: unknown[] = [];
+    component.search.subscribe((v: unknown) => emitted.push(v));
+
+    component.brandValue.set('Nike');
+    component.categoryValue.set('Jacken');
+
+    expect(emitted.length).toBe(0);
+  });
+
   it('emit() sends the current brand/category/search values', () => {
     const fixture = create();
     const component = fixture.componentInstance;
@@ -59,7 +71,7 @@ describe('FilterPanel', () => {
     component.search.subscribe((v: unknown) => emitted.push(v));
     component.searchText.set('jack');
 
-    fixture.debugElement.query(By.css('[data-testid="search-button"]')).nativeElement.click();
+    fixture.debugElement.query(By.css('[data-testid="search-button"] button')).nativeElement.click();
 
     expect(emitted).toEqual([{ brand: undefined, category: undefined, search: 'jack' }]);
   });

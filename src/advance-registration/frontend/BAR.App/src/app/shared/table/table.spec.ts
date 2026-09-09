@@ -72,4 +72,24 @@ describe('AppTable', () => {
 
     expect(emitted).toEqual([{ actionId: 'edit', row: { number: 1, name: 'A' } }]);
   });
+
+  it('formats a currency column as EUR with 2 decimals, right-aligned', () => {
+    const priceColumns = [...COLUMNS, { field: 'price', header: 'Preis', type: 'currency' as const }];
+    const fixture = TestBed.createComponent(AppTable<Row & { price: number }>);
+    fixture.componentRef.setInput('columns', priceColumns);
+    fixture.componentRef.setInput('data', [{ number: 1, name: 'A', price: 5 }]);
+    fixture.componentRef.setInput('totalRecords', 1);
+    fixture.detectChanges();
+
+    const cells = fixture.debugElement.queryAll(By.css('tbody tr td.number'));
+    const priceCell = cells[cells.length - 1];
+    expect(priceCell.nativeElement.textContent).toContain('5,00');
+    expect(priceCell.nativeElement.textContent).toMatch(/€|EUR/);
+  });
+
+  it('shows skeleton rows while loading', () => {
+    const fixture = create([], { loading: true });
+    const skeletons = fixture.debugElement.queryAll(By.css('p-skeleton'));
+    expect(skeletons.length).toBeGreaterThan(0);
+  });
 });

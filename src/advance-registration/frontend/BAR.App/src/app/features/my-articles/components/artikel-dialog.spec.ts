@@ -92,6 +92,8 @@ describe('ArtikelDialog', () => {
     const fixture = create();
     const api = TestBed.inject(ArticlesApiService);
     vi.spyOn(api, 'create').mockReturnValue(of({ id: 'a1', number: 104, nextNumber: 105 } as unknown as CreateArticleResponse));
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, 'add');
     const component = fixture.componentInstance;
     component.name.set('Body langarm'); component.brand.set('Nike'); component.category.set('Bodys'); component.price.set(3);
 
@@ -102,12 +104,33 @@ describe('ArtikelDialog', () => {
     expect(component.brand()).toBe('Nike');
     expect(component.number()).toBe(105);
     expect(component.errorMessage()).toBeNull();
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'success', summary: '✓ Artikel 104 gespeichert — nächste Nummer: 105'
+    }));
+  });
+
+  it('saveAndCopy() with nextNumber focuses and selects the Bezeichnung input', async () => {
+    const fixture = create();
+    const api = TestBed.inject(ArticlesApiService);
+    vi.spyOn(api, 'create').mockReturnValue(of({ id: 'a1', number: 104, nextNumber: 105 } as unknown as CreateArticleResponse));
+    const component = fixture.componentInstance;
+    component.name.set('Body langarm'); component.brand.set('Nike'); component.category.set('Bodys'); component.price.set(3);
+    const nameInputEl = (component as unknown as { nameInput: () => { nativeElement: HTMLInputElement } | undefined })
+      .nameInput()!.nativeElement;
+    const selectSpy = vi.spyOn(nameInputEl, 'select');
+
+    component.saveAndCopy();
+    await Promise.resolve();
+
+    expect(selectSpy).toHaveBeenCalled();
   });
 
   it('saveAndCopy() without nextNumber closes the dialog and keeps it saved', () => {
     const fixture = create();
     const api = TestBed.inject(ArticlesApiService);
     vi.spyOn(api, 'create').mockReturnValue(of({ id: 'a1', number: 104 } as unknown as CreateArticleResponse));
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, 'add');
     const component = fixture.componentInstance;
     component.name.set('Body'); component.brand.set('Nike'); component.category.set('Bodys'); component.price.set(3);
     const emitted: void[] = [];
@@ -117,6 +140,9 @@ describe('ArtikelDialog', () => {
 
     expect(emitted.length).toBe(1);
     expect(component.visible()).toBe(false);
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'warn', summary: 'Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren'
+    }));
   });
 
   it('saveAndCopy() on 409 shows the number-conflict dialog like save()', () => {
