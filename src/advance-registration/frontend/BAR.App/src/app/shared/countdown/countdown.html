@@ -1,0 +1,10 @@
+@if (display(); as d) {
+  <div class="countdown countdown--{{ variant() }}">
+    <div class="countdown__label">{{ d.label }}</div>
+    <div class="countdown__time">
+      <span class="countdown__days">{{ d.daysLabel }}</span>
+      <span class="countdown__clock">{{ d.hours }}:{{ d.minutes }}:{{ d.seconds }}</span>
+    </div>
+    <div class="countdown__date">{{ d.dateLabel }}</div>
+  </div>
+}

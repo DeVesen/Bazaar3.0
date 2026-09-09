@@ -1,0 +1,29 @@
+// 'info-box' — einzige aktuell implementierte Variante (docs/components/countdown/component.md §5).
+// 'kpi' und 'timeline' folgen erst mit späteren Epics (Home-Seiten, Countdown-Embed-Widget).
+.countdown--info-box {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 16px 18px;
+
+  .countdown__label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.5px;
+  }
+
+  .countdown__time {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 32px;
+    font-weight: 800;
+    color: white;
+  }
+
+  .countdown__date {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 4px;
+  }
+}
