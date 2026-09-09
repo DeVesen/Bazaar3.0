@@ -25,6 +25,7 @@ const LINK_SCHEME_RE = /^([a-zA-Z][a-zA-Z0-9+.-]*):/;
 // dieses Zeichen nicht erzeugen, Textarea-Eingabe enthaelt es praktisch nie - verhindert
 // eine Kollision des Platzhalter-Patterns mit echtem Nutzertext.
 const CODE_PLACEHOLDER_DELIM = '\u0001';
+// eslint-disable-next-line no-control-regex
 const CODE_PLACEHOLDER_RE = /\u0001(\d+)\u0001/g;
 
 // Inline-Ebene (component.md 3.1): Inline-Code, Links (mit Schema-Filter), Fett, Kursiv.
