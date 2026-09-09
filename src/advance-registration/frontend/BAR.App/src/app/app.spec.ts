@@ -31,8 +31,8 @@ describe('App', () => {
     const translate = TestBed.inject(TranslateService);
     const httpMock = TestBed.inject(HttpTestingController);
     translate.use('de');
-    // fallbackLang 'en' wird von @ngx-translate/core 18 eager mitgeladen,
-    // deshalb werden hier beide Requests erwartet und geflusht.
+    // fallbackLang 'en' is eagerly loaded by @ngx-translate/core 18,
+    // so both requests are expected and flushed here.
     const deReq = httpMock.expectOne('/i18n/de.json');
     deReq.flush({});
     const enReq = httpMock.expectOne('/i18n/en.json');
