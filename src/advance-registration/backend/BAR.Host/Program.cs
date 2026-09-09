@@ -1,4 +1,5 @@
 using System.Text;
+using BAR.Host.Features.Auth;
 using BAR.Host.Features.Public;
 using BAR.Infrastructure;
 using BAR.Infrastructure.Persistence;
@@ -74,6 +75,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthEndpoints();
+app.MapAuthEndpoints();
 
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {

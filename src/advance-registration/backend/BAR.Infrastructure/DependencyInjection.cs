@@ -1,8 +1,12 @@
 using BAR.Application.Abstractions;
+using BAR.Application.Auth.Login;
+using BAR.Application.Auth.Refresh;
+using BAR.Application.Auth.Register;
 using BAR.Domain.Ports;
 using BAR.Infrastructure.Persistence;
 using BAR.Infrastructure.Persistence.Repositories;
 using BAR.Infrastructure.Time;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +39,12 @@ public static class DependencyInjection
         services.Configure<Security.JwtOptions>(configuration.GetSection(Security.JwtOptions.SectionName));
         services.AddSingleton<IPasswordHasher, Security.BCryptPasswordHasher>();
         services.AddSingleton<ITokenIssuer, Security.JwtTokenIssuer>();
+
+        services.AddScoped<RegisterCommandHandler>();
+        services.AddScoped<LoginCommandHandler>();
+        services.AddScoped<RefreshCommandHandler>();
+        services.AddScoped<IValidator<RegisterCommand>, RegisterCommandValidator>();
+        services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
 
         return services;
     }
