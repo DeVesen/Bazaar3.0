@@ -8,11 +8,16 @@ depends-on: [VPROJ-S01]
 
 ## Ziel
 
-PrimeNG 22.0.0 ist mit dem Teal/Grün-Branding der Voranmelde-App konfiguriert. Globale CSS Custom Properties stellen Farben, Borders und Abstände einheitlich bereit. ngx-translate ist mit DE (Default) und EN initialisiert.
+PrimeNG 22.1.0 ist mit dem Industry-Theme der Voranmelde-App konfiguriert (`definePreset` auf
+Aura-Basis). Globale CSS Custom Properties stellen Spacing, Shadow, Fonts und den Divider-Ton
+einheitlich bereit — Farb-/Surface-Tokens laufen über PrimeNGs eigenes Preset-System, nicht über
+eigene `--color-*`-Variablen. ngx-translate ist mit DE (Default) und EN initialisiert.
 
 ## Kontext
 
-Die Voranmelde-App verwendet Teal `#1b3a4b` und Grün `#0e8a5f` als Branding — unterschiedlich zur Haupt-App. CSS Custom Properties sorgen dafür, dass Feature-Komponenten keine Farben hardcoden. ngx-translate wird hier initialisiert, damit alle Epics ab dem ersten Tag mit Übersetzungs-Keys arbeiten können.
+Die Voranmelde-App verwendet das Design System „Industry" (helle Stahlblau-Palette,
+`design/industry-styleguide.md`) — anders als die frühere Teal/Grün-Fassung dieser Story. Die
+Accent-Farbramp ersetzt PrimeNGs `primary`-Skala, die Neutral-Ramp ersetzt die `surface`-Skala.
 
 ## Scope
 
@@ -22,33 +27,45 @@ Die Voranmelde-App verwendet Teal `#1b3a4b` und Grün `#0e8a5f` als Branding —
 
 ## UI-Spezifikation
 
-**CSS Custom Properties (global in `styles.scss`):**
+**CSS Custom Properties (global in `styles.scss`)** — nur die Werte ohne PrimeNG-Token-Äquivalent:
 
 | Variable | Wert | Verwendung |
 |---|---|---|
-| `--sidebar-bg` | `#1b3a4b` | Sidebar, Topbar |
-| `--accent` | `#0e8a5f` | Aktive Nav-Items, Primär-Buttons |
-| `--avatar-accent` | `#3ecf8e` | Avatar-Hintergrund im Footer |
-| `--content-bg` | `#f0f4f7` | Content-Bereich Hintergrund |
-| `--title-color` | `#0d1f2a` | Seitentitel |
-| `--border` | `#d4e8dc` | Card-Borders, Panel-Borders (Grünton) |
-| `--muted` | `#5a7a6a` | Sekundäre Texte, Labels |
+| `--space-1` … `--space-8` | 3.4px … 27.2px (Dichte 0.85) | Abstände |
+| `--shadow-sm` / `-md` / `-lg` | siehe Styleguide §4 | Elevation |
+| `--font-heading` | `'Barlow Condensed', sans-serif` | Überschriften |
+| `--font-body` | `'Barlow', sans-serif` | Fließtext |
+| `--color-divider` | `color-mix(in srgb, #1d1f20 16%, transparent)` | Trennlinien, Blueprint-Rahmen |
 
-**PrimeNG-Farb-Tokens** werden auf die Primärfarbe `#0e8a5f` gemappt.
+Farb- und Flächen-Tokens (Sidebar-/Content-Hintergrund, Akzentfarbe, Avatar) laufen über PrimeNGs
+generierte Variablen (`--p-primary-*`, `--p-surface-*`) aus dem `definePreset`-Aufruf, nicht über
+eigene `--color-*`-Namen.
+
+**PrimeNG-Preset:** `definePreset(Aura, { semantic: { primary: {...Accent-Ramp...}, colorScheme:
+{ light: { surface: {...Neutral-Ramp...} } } } })`.
 
 **ngx-translate:**
 - Default-Sprache: DE
 - Fallback-Sprache: EN
-- Übersetzungs-Dateien: `assets/i18n/de.json`, `assets/i18n/en.json`
+- Übersetzungs-Dateien: `public/i18n/de.json`, `public/i18n/en.json`
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL PrimeNG 22.0.0 mit einem konfigurierten Preset in `providePrimeNG()` initialisieren, das die Primärfarbe auf `#0e8a5f` setzt.
-- [ ] **AC-2** — THE SYSTEM SHALL alle sieben CSS Custom Properties in `styles.scss` auf `:root` definieren.
-- [ ] **AC-3** — THE SYSTEM SHALL `provideTranslateService` in `app.config.ts` initialisieren: DE als Standardsprache, EN als Fallback, Loader auf `assets/i18n/`.
-- [ ] **AC-4** — WHEN eine Komponente `translate.instant('key')` aufruft und der Key in `de.json` vorhanden ist, THEN SHALL der deutsche Text zurückgegeben werden.
-- [ ] **AC-5** — WHEN eine Komponente `translate.instant('key')` aufruft und der Key nicht in `de.json` vorhanden, aber in `en.json` ist, THEN SHALL der englische Text zurückgegeben werden.
-- [ ] **AC-6** — WHEN eine PrimeNG-Komponente (`p-button`, `p-table`) gerendert wird, THEN SHALL sie die konfigurierten Farb-Tokens korrekt anwenden (Primary-Button in `#0e8a5f`).
+- [ ] **AC-1** — THE SYSTEM SHALL PrimeNG 22.1.0 mit einem via `definePreset(Aura, …)` konfigurierten
+      Preset in `providePrimeNG()` initialisieren, das die Accent-Ramp auf `primary` und die
+      Neutral-Ramp auf `surface` (Light-Colorscheme) mapped.
+- [ ] **AC-2** — THE SYSTEM SHALL die fünf token-losen CSS Custom Properties (`--space-1`…`--space-8`,
+      `--shadow-sm/-md/-lg`, `--font-heading`, `--font-body`, `--color-divider`) in `styles.scss`
+      auf `:root` definieren.
+- [ ] **AC-3** — THE SYSTEM SHALL `provideTranslateService` in `app.config.ts` initialisieren: DE als
+      Standardsprache, EN als Fallback, Loader auf `public/i18n/`.
+- [ ] **AC-4** — WHEN eine Komponente `translate.instant('key')` aufruft und der Key in `de.json`
+      vorhanden ist, THEN SHALL der deutsche Text zurückgegeben werden.
+- [ ] **AC-5** — WHEN eine Komponente `translate.instant('key')` aufruft und der Key nicht in
+      `de.json`, aber in `en.json` vorhanden ist, THEN SHALL der englische Text zurückgegeben werden.
+- [ ] **AC-6** — WHEN eine PrimeNG-Komponente (`p-button`, `p-table`) gerendert wird, THEN SHALL sie
+      die Accent-Ramp über die `primary`-Tokens anwenden (Primary-Button in `--color-accent`,
+      `#5980a6`).
 
 ## Abhängigkeiten
 
