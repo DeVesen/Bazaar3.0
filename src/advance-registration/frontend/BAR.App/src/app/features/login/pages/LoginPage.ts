@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { PublicInfoService, PublicInfo } from '../../../core/public-info/public-info.service';
@@ -21,6 +22,11 @@ import { LoginForm } from '../components/login-form';
       }
       <app-login-form form [errorMessage]="errorMessage()" (submitted)="onLoginSubmitted($event)" />
     </app-login-layout>
+    @if (!isProduction) {
+      <small data-testid="demo-hint" class="login-page__demo-hint">
+        Demo-Zugang: admin&#64;bazaar.local / Admin123!
+      </small>
+    }
   `
 })
 export class LoginPage {
@@ -29,6 +35,7 @@ export class LoginPage {
   private readonly publicInfoService = inject(PublicInfoService);
   private readonly router = inject(Router);
 
+  readonly isProduction = environment.production;
   readonly info = signal<PublicInfo | null>(null);
   readonly errorMessage = signal<string | null>(null);
 

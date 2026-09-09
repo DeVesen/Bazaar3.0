@@ -57,4 +57,13 @@ describe('LoginPage', () => {
 
     expect(fixture.componentInstance.errorMessage()).toBe('Ungültige Anmeldedaten');
   });
+
+  it('shows the demo hint outside production builds', () => {
+    // environment.production ist im Test-Build false (Standard-Vitest-Config aus R00)
+    expect(fixture.nativeElement.querySelector('[data-testid="demo-hint"]')).not.toBeNull();
+  });
+
+  it('exposes isProduction from the environment', () => {
+    expect(fixture.componentInstance.isProduction).toBe(false);
+  });
 });

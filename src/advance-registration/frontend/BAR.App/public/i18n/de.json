@@ -1,1 +1,34 @@
-{}
+{
+  "login": {
+    "title": "Anmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "submit": "Anmelden",
+    "forgotPassword": "Passwort vergessen?",
+    "forgotPasswordHint": "Bitte wende dich an den Admin, um dein Passwort zurückzusetzen.",
+    "noAccount": "Noch kein Konto?",
+    "registerLink": "Jetzt registrieren"
+  },
+  "register": {
+    "title": "Registrierung",
+    "email": "E-Mail",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "address": "Anschrift",
+    "postalCode": "PLZ",
+    "city": "Ort",
+    "phone": "Telefon",
+    "password": "Passwort",
+    "passwordConfirmation": "Passwort-Bestätigung",
+    "submit": "Registrieren",
+    "hasAccount": "Schon ein Konto?",
+    "loginLink": "Zum Login",
+    "passwordMismatch": "Passwörter stimmen nicht überein",
+    "notEnabled": "Registrierung ist noch nicht freigeschaltet."
+  },
+  "errors": {
+    "auth.invalid_credentials": "Ungültige Anmeldedaten",
+    "seller.email_taken": "Diese E-Mail ist bereits registriert",
+    "registration.not_enabled": "Registrierung ist noch nicht freigeschaltet"
+  }
+}
