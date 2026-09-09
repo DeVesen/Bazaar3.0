@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { Observable } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -7,15 +8,17 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
+import { TooltipModule } from 'primeng/tooltip';
+import { MessageService } from 'primeng/api';
 import { AutocompleteCreate } from '../../../shared/autocomplete-create/autocomplete-create';
-import { ArticlesApiService, ArticleResponse } from '../articles-api.service';
+import { ArticlesApiService, ArticleResponse, CreateArticleResponse } from '../articles-api.service';
 import { MasterDataApiService, MasterDataItem } from '../master-data-api.service';
 
 @Component({
   selector: 'app-artikel-dialog',
   imports: [
     FormsModule, DialogModule, InputTextModule, InputGroupModule, InputGroupAddonModule,
-    InputNumberModule, ButtonModule, TextareaModule, AutocompleteCreate
+    InputNumberModule, ButtonModule, TextareaModule, TooltipModule, AutocompleteCreate
   ],
   template: `
     <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="mode() === 'create' ? 'Artikel anlegen' : 'Artikel bearbeiten'">
@@ -55,16 +58,27 @@ import { MasterDataApiService, MasterDataItem } from '../master-data-api.service
 
       <div class="footer">
         @if (mode() === 'edit') {
-          <button pButton type="button" severity="danger" (click)="deleteConfirmVisible.set(true)">Löschen</button>
+          <button pButton type="button" severity="danger" [disabled]="saving()" (click)="deleteConfirmVisible.set(true)">Löschen</button>
         }
-        <button pButton type="button" [text]="true" (click)="visible.set(false)">Abbrechen</button>
-        <button pButton type="button" [disabled]="!isValid() || saving()" (click)="save()">Speichern</button>
+        <button pButton type="button" [text]="true" [disabled]="saving()" (click)="visible.set(false)">Abbrechen</button>
+        @if (mode() === 'create') {
+          <button pButton type="button" severity="secondary" [outlined]="true"
+            [disabled]="!isValid() || saving()" [loading]="saving()"
+            pTooltip="Artikel speichern und einen weiteren mit denselben Werten anlegen"
+            (click)="saveAndCopy()">Speichern + kopieren</button>
+        }
+        <button pButton type="button" [disabled]="!isValid() || saving()" [loading]="saving()" (click)="save()">Speichern</button>
       </div>
     </p-dialog>
 
     <p-dialog [(visible)]="deleteConfirmVisibleModel" [modal]="true" header="Artikel wirklich löschen?">
       <button pButton type="button" [text]="true" (click)="deleteConfirmVisible.set(false)">Abbrechen</button>
       <button pButton type="button" severity="danger" (click)="confirmDelete()">Löschen</button>
+    </p-dialog>
+
+    <p-dialog [(visible)]="conflictDialogVisibleModel" [modal]="true" header="Artikelnummer bereits vergeben">
+      <p>{{ conflictMessage() }}</p>
+      <button pButton type="button" (click)="closeConflictDialog()">OK</button>
     </p-dialog>
   `
 })
@@ -94,8 +108,11 @@ export class ArtikelDialog {
   readonly errorMessage = signal<string | null>(null);
   readonly saving = signal(false);
   readonly deleteConfirmVisible = signal(false);
+  readonly conflictDialogVisible = signal(false);
+  readonly conflictMessage = signal('');
 
   private readonly masterDataApi = inject(MasterDataApiService);
+  private readonly messageService = inject(MessageService);
   readonly createBrandFn = (name: string) => this.masterDataApi.create('brands', name);
   readonly createCategoryFn = (name: string) => this.masterDataApi.create('categories', name);
 
@@ -121,6 +138,8 @@ export class ArtikelDialog {
   set descriptionModel(v: string) { this.description.set(v); }
   get deleteConfirmVisibleModel() { return this.deleteConfirmVisible(); }
   set deleteConfirmVisibleModel(v: boolean) { this.deleteConfirmVisible.set(v); }
+  get conflictDialogVisibleModel() { return this.conflictDialogVisible(); }
+  set conflictDialogVisibleModel(v: boolean) { this.conflictDialogVisible.set(v); }
 
   constructor() {
     effect(() => {
@@ -143,28 +162,65 @@ export class ArtikelDialog {
   }
 
   save(): void {
+    this.submit(false);
+  }
+
+  saveAndCopy(): void {
+    this.submit(true);
+  }
+
+  private submit(andCopy: boolean): void {
     if (!this.isValid()) return;
     this.saving.set(true);
+    const savedNumber = this.number();
     const payload = {
       name: this.name(), brand: this.brand(), category: this.category(), price: this.price()!,
       size: this.size() || undefined, color: this.color() || undefined, description: this.description() || undefined
     };
 
-    const request = this.mode() === 'create'
+    const request: Observable<CreateArticleResponse> = this.mode() === 'create'
       ? this.articlesApi.create({ ...payload, expectedNumber: this.number() ?? undefined })
-      : this.articlesApi.update(this.article()!.id, payload);
+      : (this.articlesApi.update(this.article()!.id, payload) as Observable<CreateArticleResponse>);
 
     request.subscribe({
-      next: () => {
+      next: (response: CreateArticleResponse) => {
         this.saving.set(false);
         this.saved.emit();
-        this.visible.set(false);
+
+        if (!andCopy) {
+          this.visible.set(false);
+          return;
+        }
+
+        if (response.nextNumber === undefined) {
+          this.visible.set(false);
+          this.messageService.add({
+            severity: 'warn', summary: 'Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren'
+          });
+          return;
+        }
+
+        this.number.set(response.nextNumber);
+        this.errorMessage.set(null);
+        this.messageService.add({
+          severity: 'success', summary: `✓ Artikel ${savedNumber} gespeichert — nächste Nummer: ${response.nextNumber}`
+        });
       },
-      error: (err: { status?: number; error?: { detail?: string } }) => {
+      error: (err: { status?: number; error?: { detail?: string; nextNumber?: number } }) => {
         this.saving.set(false);
+        if (err.status === 409 && err.error?.nextNumber !== undefined) {
+          this.conflictMessage.set(err.error.detail ?? '');
+          this.conflictDialogVisible.set(true);
+          this.number.set(err.error.nextNumber);
+          return;
+        }
         this.errorMessage.set(err.error?.detail ?? 'Speichern fehlgeschlagen');
       }
     });
+  }
+
+  closeConflictDialog(): void {
+    this.conflictDialogVisible.set(false);
   }
 
   confirmDelete(): void {

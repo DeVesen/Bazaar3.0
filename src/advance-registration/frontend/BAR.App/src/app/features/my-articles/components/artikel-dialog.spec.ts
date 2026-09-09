@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { ArtikelDialog } from './artikel-dialog';
 import { ArticlesApiService, CreateArticleResponse } from '../articles-api.service';
 
@@ -20,7 +21,7 @@ function create() {
 
 describe('ArtikelDialog', () => {
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), MessageService] });
   });
 
   it('isValid() is false when a required field is empty', () => {
@@ -71,18 +72,81 @@ describe('ArtikelDialog', () => {
     expect(component.visible()).toBe(false);
   });
 
-  it('save() on 409 keeps the dialog open and sets errorMessage', () => {
+  it('save() on 409 keeps the main dialog open and shows the number-conflict dialog', () => {
     const fixture = create();
     const api = TestBed.inject(ArticlesApiService);
     vi.spyOn(api, 'create').mockReturnValue(
-      throwError(() => ({ status: 409, error: { detail: 'Artikelnummer 104 ist inzwischen vergeben — neue Nummer: 105' } })));
+      throwError(() => ({ status: 409, error: { detail: 'Artikelnummer 104 ist inzwischen vergeben — neue Nummer: 105', nextNumber: 105 } })));
     const component = fixture.componentInstance;
     component.name.set('Jacke'); component.brand.set('Nike'); component.category.set('Jacken'); component.price.set(5);
 
     component.save();
 
     expect(component.visible()).toBe(true);
-    expect(component.errorMessage()).toBe('Artikelnummer 104 ist inzwischen vergeben — neue Nummer: 105');
+    expect(component.conflictDialogVisible()).toBe(true);
+    expect(component.conflictMessage()).toBe('Artikelnummer 104 ist inzwischen vergeben — neue Nummer: 105');
+    expect(component.number()).toBe(105);
+  });
+
+  it('saveAndCopy() with nextNumber keeps the dialog open, keeps all field values and updates the number', () => {
+    const fixture = create();
+    const api = TestBed.inject(ArticlesApiService);
+    vi.spyOn(api, 'create').mockReturnValue(of({ id: 'a1', number: 104, nextNumber: 105 } as unknown as CreateArticleResponse));
+    const component = fixture.componentInstance;
+    component.name.set('Body langarm'); component.brand.set('Nike'); component.category.set('Bodys'); component.price.set(3);
+
+    component.saveAndCopy();
+
+    expect(component.visible()).toBe(true);
+    expect(component.name()).toBe('Body langarm');
+    expect(component.brand()).toBe('Nike');
+    expect(component.number()).toBe(105);
+    expect(component.errorMessage()).toBeNull();
+  });
+
+  it('saveAndCopy() without nextNumber closes the dialog and keeps it saved', () => {
+    const fixture = create();
+    const api = TestBed.inject(ArticlesApiService);
+    vi.spyOn(api, 'create').mockReturnValue(of({ id: 'a1', number: 104 } as unknown as CreateArticleResponse));
+    const component = fixture.componentInstance;
+    component.name.set('Body'); component.brand.set('Nike'); component.category.set('Bodys'); component.price.set(3);
+    const emitted: void[] = [];
+    component.saved.subscribe(() => emitted.push(undefined));
+
+    component.saveAndCopy();
+
+    expect(emitted.length).toBe(1);
+    expect(component.visible()).toBe(false);
+  });
+
+  it('saveAndCopy() on 409 shows the number-conflict dialog like save()', () => {
+    const fixture = create();
+    const api = TestBed.inject(ArticlesApiService);
+    vi.spyOn(api, 'create').mockReturnValue(
+      throwError(() => ({ status: 409, error: { detail: 'Artikelnummer 104 ist inzwischen vergeben — neue Nummer: 105', nextNumber: 105 } })));
+    const component = fixture.componentInstance;
+    component.name.set('Body'); component.brand.set('Nike'); component.category.set('Bodys'); component.price.set(3);
+
+    component.saveAndCopy();
+
+    expect(component.visible()).toBe(true);
+    expect(component.conflictDialogVisible()).toBe(true);
+    expect(component.number()).toBe(105);
+  });
+
+  it('closeConflictDialog() hides the conflict dialog and keeps the main dialog open', () => {
+    const fixture = create();
+    const api = TestBed.inject(ArticlesApiService);
+    vi.spyOn(api, 'create').mockReturnValue(
+      throwError(() => ({ status: 409, error: { detail: 'x', nextNumber: 105 } })));
+    const component = fixture.componentInstance;
+    component.name.set('Jacke'); component.brand.set('Nike'); component.category.set('Jacken'); component.price.set(5);
+    component.save();
+
+    component.closeConflictDialog();
+
+    expect(component.conflictDialogVisible()).toBe(false);
+    expect(component.visible()).toBe(true);
   });
 
   it('confirmDelete() deletes via ArticlesApiService and emits deleted', () => {
