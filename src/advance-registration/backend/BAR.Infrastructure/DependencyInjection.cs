@@ -3,6 +3,8 @@ using BAR.Application.Auth.Login;
 using BAR.Application.Auth.Refresh;
 using BAR.Application.Articles.Create;
 using BAR.Application.Articles.Delete;
+using BAR.Application.Articles.GetAll;
+using BAR.Application.Articles.GetById;
 using BAR.Application.Articles.GetMine;
 using BAR.Application.Articles.GetNextNumber;
 using BAR.Application.Articles.Update;
@@ -69,6 +71,8 @@ public static class DependencyInjection
         services.AddScoped<UpdateArticleCommandHandler>();
         services.AddScoped<IValidator<UpdateArticleCommand>, UpdateArticleCommandValidator>();
         services.AddScoped<DeleteArticleCommandHandler>();
+        services.AddScoped<GetAllArticlesQueryHandler>();
+        services.AddScoped<GetArticleByIdQueryHandler>();
         services.AddScoped<IValidator<RegisterCommand>, RegisterCommandValidator>();
         services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
         services.AddScoped<IValidator<RefreshCommand>, RefreshCommandValidator>();
