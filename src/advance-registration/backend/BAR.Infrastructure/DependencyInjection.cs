@@ -10,6 +10,10 @@ using BAR.Application.Articles.GetNextNumber;
 using BAR.Application.Articles.Update;
 using BAR.Application.Auth.Register;
 using BAR.Application.Blocks.GetMine;
+using BAR.Application.MasterData.Brands.Create;
+using BAR.Application.MasterData.Brands.Delete;
+using BAR.Application.MasterData.Brands.GetAll;
+using BAR.Application.MasterData.Brands.Update;
 using BAR.Application.Profile.GetProfile;
 using BAR.Application.Profile.UpdateProfile;
 using BAR.Application.Public.GetInfo;
@@ -78,6 +82,12 @@ public static class DependencyInjection
         services.AddScoped<IValidator<RefreshCommand>, RefreshCommandValidator>();
         services.AddScoped<IValidator<UpdateProfileCommand>, UpdateProfileCommandValidator>();
         services.AddScoped<IValidator<CreateArticleCommand>, CreateArticleCommandValidator>();
+        services.AddScoped<GetAllBrandsQueryHandler>();
+        services.AddScoped<CreateBrandCommandHandler>();
+        services.AddScoped<IValidator<CreateBrandCommand>, CreateBrandCommandValidator>();
+        services.AddScoped<UpdateBrandCommandHandler>();
+        services.AddScoped<IValidator<UpdateBrandCommand>, UpdateBrandCommandValidator>();
+        services.AddScoped<DeleteBrandCommandHandler>();
 
         return services;
     }
