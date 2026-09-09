@@ -5,6 +5,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { providePrimeNG } from 'primeng/config';
 import { provideLucideConfig } from '@lucide/angular';
+import { MessageService } from 'primeng/api';
 import { routes } from './app.routes';
 import { IndustryPreset } from './core/theme/industry-preset';
 import { jwtInterceptor } from './core/auth/jwt.interceptor';
@@ -25,6 +26,7 @@ export const appConfig: ApplicationConfig = {
         options: { darkModeSelector: false }
       }
     }),
-    provideLucideConfig({ strokeWidth: 1.5 })
+    provideLucideConfig({ strokeWidth: 1.5 }),
+    MessageService
   ]
 };

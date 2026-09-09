@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SidebarModule } from 'primeng/sidebar';
+import { ToastModule } from 'primeng/toast';
 import { LucideMenu } from '@lucide/angular';
 import { Sidebar } from './sidebar/sidebar';
 
@@ -9,7 +10,7 @@ const MOBILE_BREAKPOINT = '(max-width: 1024px)';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, ButtonModule, SidebarModule, LucideMenu, Sidebar],
+  imports: [RouterOutlet, ButtonModule, SidebarModule, ToastModule, LucideMenu, Sidebar],
   templateUrl: './shell.html',
   styleUrl: './shell.scss'
 })
