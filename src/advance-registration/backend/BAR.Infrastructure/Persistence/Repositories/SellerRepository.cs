@@ -30,4 +30,7 @@ public sealed class SellerRepository(BarDbContext dbContext) : ISellerRepository
             throw new ConflictException("seller.email_taken", "Diese E-Mail ist bereits registriert");
         }
     }
+
+    public Task UpdateAsync(Seller seller, CancellationToken cancellationToken) =>
+        dbContext.SaveChangesAsync(cancellationToken);
 }

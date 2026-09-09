@@ -29,4 +29,33 @@ public class SellerTests
             firstName, lastName, null, "76133", "Karlsruhe", "0721 12345",
             "anna@example.com", "t1b2c3d4", "hashed"));
     }
+
+    [Fact]
+    public void UpdateProfile_ValidData_UpdatesAllFields()
+    {
+        var seller = Seller.Register("Anna", "Beispiel", null, "76133", "Karlsruhe",
+            "0721 12345", "anna@example.com", "t1b2c3d4", "hashed");
+
+        seller.UpdateProfile("Anna-Maria", "Muster", "Hauptstr. 1", "76135", "Ettlingen", "0721 99999");
+
+        Assert.Equal("Anna-Maria", seller.FirstName);
+        Assert.Equal("Muster", seller.LastName);
+        Assert.Equal("Hauptstr. 1", seller.Address);
+        Assert.Equal("76135", seller.PostalCode);
+        Assert.Equal("Ettlingen", seller.City);
+        Assert.Equal("0721 99999", seller.Phone);
+        Assert.Equal("anna@example.com", seller.Email);
+    }
+
+    [Theory]
+    [InlineData("", "Beispiel")]
+    [InlineData("Anna", "")]
+    public void UpdateProfile_MissingRequiredField_Throws(string firstName, string lastName)
+    {
+        var seller = Seller.Register("Anna", "Beispiel", null, "76133", "Karlsruhe",
+            "0721 12345", "anna@example.com", "t1b2c3d4", "hashed");
+
+        Assert.Throws<ArgumentException>(() =>
+            seller.UpdateProfile(firstName, lastName, null, "76133", "Karlsruhe", "0721 12345"));
+    }
 }

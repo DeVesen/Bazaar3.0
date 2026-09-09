@@ -7,12 +7,12 @@ public sealed class Seller
     private Seller() { }
 
     public string Id { get; private init; } = null!;
-    public string FirstName { get; private init; } = null!;
-    public string LastName { get; private init; } = null!;
-    public string? Address { get; private init; }
-    public string PostalCode { get; private init; } = null!;
-    public string City { get; private init; } = null!;
-    public string Phone { get; private init; } = null!;
+    public string FirstName { get; private set; } = null!;
+    public string LastName { get; private set; } = null!;
+    public string? Address { get; private set; }
+    public string PostalCode { get; private set; } = null!;
+    public string City { get; private set; } = null!;
+    public string Phone { get; private set; } = null!;
     public string Email { get; private init; } = null!;
     public string SellerTypeId { get; private init; } = null!;
     public bool IsAdmin { get; private init; }
@@ -40,5 +40,21 @@ public sealed class Seller
             PostalCode = postalCode, City = city, Phone = phone, Email = email,
             SellerTypeId = sellerTypeId, IsAdmin = isAdmin, PasswordHash = passwordHash
         };
+    }
+
+    public void UpdateProfile(string firstName, string lastName, string? address, string postalCode, string city, string phone)
+    {
+        if (string.IsNullOrWhiteSpace(firstName)) throw new ArgumentException("firstName ist Pflicht.", nameof(firstName));
+        if (string.IsNullOrWhiteSpace(lastName)) throw new ArgumentException("lastName ist Pflicht.", nameof(lastName));
+        if (string.IsNullOrWhiteSpace(postalCode)) throw new ArgumentException("postalCode ist Pflicht.", nameof(postalCode));
+        if (string.IsNullOrWhiteSpace(city)) throw new ArgumentException("city ist Pflicht.", nameof(city));
+        if (string.IsNullOrWhiteSpace(phone)) throw new ArgumentException("phone ist Pflicht.", nameof(phone));
+
+        FirstName = firstName;
+        LastName = lastName;
+        Address = address;
+        PostalCode = postalCode;
+        City = city;
+        Phone = phone;
     }
 }
