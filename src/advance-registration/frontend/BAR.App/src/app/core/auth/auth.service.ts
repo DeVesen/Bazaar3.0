@@ -1,10 +1,16 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { TokenStore } from './token-store';
 import { DecodedToken, decodeJwt } from './jwt-decoder';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly tokenStore = inject(TokenStore);
+  private readonly router = inject(Router);
+
+  // Reset-Hooks statt einer Abhaengigkeit auf RoleService: AuthService darf
+  // nichts kennen, was selbst AuthService injiziert (RoleService tut das).
+  private readonly logoutResets = new Set<() => void>();
 
   readonly currentUser = signal<DecodedToken | null>(this.decodeStoredToken());
 
@@ -19,9 +25,18 @@ export class AuthService {
     this.currentUser.set(decodeJwt(accessToken));
   }
 
+  // Wird beim Logout aufgerufen, damit abgeleiteter Zustand nicht stehen bleibt.
+  registerLogoutReset(reset: () => void): void {
+    this.logoutResets.add(reset);
+  }
+
   logout(): void {
     this.tokenStore.clear();
     this.currentUser.set(null);
+    for (const reset of this.logoutResets) {
+      reset();
+    }
+    void this.router.navigateByUrl('/login');
   }
 
   private decodeStoredToken(): DecodedToken | null {

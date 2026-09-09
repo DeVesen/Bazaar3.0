@@ -40,6 +40,18 @@ describe('jwtInterceptor', () => {
     httpMock.verify();
   });
 
+  it('does not add the header for a static asset outside /api/', () => {
+    TestBed.inject(TokenStore).setToken('token-abc');
+    const http = TestBed.inject(HttpClient);
+    const httpMock = TestBed.inject(HttpTestingController);
+
+    http.get('/i18n/de.json').subscribe();
+    const req = httpMock.expectOne('/i18n/de.json');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush({});
+    httpMock.verify();
+  });
+
   it('refreshes the token once on 401 and retries the original request', () => {
     TestBed.inject(TokenStore).setToken('expired-token');
     TestBed.inject(TokenStore).setRefreshToken('refresh-abc');

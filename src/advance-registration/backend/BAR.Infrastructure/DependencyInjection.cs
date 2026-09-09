@@ -13,14 +13,6 @@ namespace BAR.Infrastructure;
 /// </summary>
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
-    {
-        services.AddSingleton<IClock, SystemClock>();
-
-        // Persistenz (BarDbContext, Repositories, Query-Ports) kommt mit VPROJ-S04.
-        return services;
-    }
-
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IClock, SystemClock>();

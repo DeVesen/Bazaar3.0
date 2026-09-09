@@ -22,10 +22,11 @@ describe('app.routes', () => {
     expect(location.path()).toContain('/login');
   });
 
-  it('redirects an unknown route to the not-found page content', async () => {
+  it('sends an unknown route through the guard to /login (not logged in)', async () => {
     const router = TestBed.inject(Router);
+    const location = TestBed.inject(Location);
     await router.navigateByUrl('/does-not-exist');
-    expect(router.url).toBe('/does-not-exist');
+    expect(location.path()).toContain('/login');
   });
 
   it('keeps /embed/countdown outside the guarded shell', async () => {

@@ -232,7 +232,7 @@ Feature-spezifische UI-Specs:
 | **Backend** | .NET 10 Minimal API |
 | **ORM** | Entity Framework Core |
 | **Datenbank** | PostgreSQL |
-| **UI-Bibliothek** | PrimeNG 22.0.0 |
+| **UI-Bibliothek** | PrimeNG 22.1.0 |
 | **Containerisierung** | Docker / Docker Compose |
 | **QR-Code-Erzeugung** | `@zxing/library` (`BrowserQRCodeSvgWriter`, clientseitig, kein externer Service) |
 | **Fonts** | Barlow + Barlow Condensed, lokal via `@fontsource/*` (kein Google-Fonts-CDN — siehe [Styleguide](design/industry-styleguide.md) Abschnitt 7) |

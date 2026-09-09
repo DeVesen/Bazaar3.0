@@ -4,12 +4,20 @@ import { AuthService } from './auth.service';
 
 export type Role = 'admin' | 'seller';
 
+const DEFAULT_ROLE: Role = 'seller';
+
 @Injectable({ providedIn: 'root' })
 export class RoleService {
   private readonly tokenStore = inject(TokenStore);
   private readonly authService = inject(AuthService);
 
   readonly activeRole = signal<Role>(this.initialRole());
+
+  constructor() {
+    // TokenStore.clear() loescht bazaar_active_role — ohne diesen Reset
+    // bliebe das Signal auf der Rolle des abgemeldeten Nutzers stehen.
+    this.authService.registerLogoutReset(() => this.activeRole.set(DEFAULT_ROLE));
+  }
 
   setRole(role: Role): void {
     this.activeRole.set(role);
@@ -21,6 +29,6 @@ export class RoleService {
     if (stored === 'admin' || stored === 'seller') {
       return stored;
     }
-    return this.authService.currentUser()?.role ?? 'seller';
+    return this.authService.currentUser()?.role ?? DEFAULT_ROLE;
   }
 }

@@ -43,7 +43,7 @@ module.exports = defineConfig([
     rules: {
       'no-restricted-imports': ['error', {
         patterns: [{
-          group: ['@features/*'],
+          group: ['@features/**'],
           message: 'Kein Import zwischen zwei Features — Cross-Feature-Code gehoert nach @core/ oder @shared/.'
         }]
       }]
@@ -54,7 +54,7 @@ module.exports = defineConfig([
     rules: {
       'no-restricted-imports': ['error', {
         patterns: [{
-          group: ['@features/*', '@core/*'],
+          group: ['@features/**', '@core/**'],
           message: 'shared/ darf nicht aus features/ oder core/ importieren.'
         }]
       }]
@@ -65,7 +65,7 @@ module.exports = defineConfig([
     rules: {
       'no-restricted-imports': ['error', {
         patterns: [{
-          group: ['@features/*'],
+          group: ['@features/**'],
           message: 'core/ darf nicht aus features/ importieren.'
         }]
       }]

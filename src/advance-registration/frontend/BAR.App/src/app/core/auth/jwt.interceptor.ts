@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { TokenStore } from './token-store';
 
 const EXCLUDED_PREFIXES = ['/health', '/api/auth/', '/api/public/'];
+const API_PREFIX = '/api/';
 
 interface RefreshResponse {
   accessToken: string;
@@ -14,9 +15,25 @@ interface RefreshResponse {
 
 let refreshInFlight: Observable<string> | null = null;
 
-function isExcluded(url: string): boolean {
-  const path = new URL(url, 'http://placeholder/').pathname;
-  return EXCLUDED_PREFIXES.some((prefix) => path.startsWith(prefix));
+// Allowlist statt Blocklist: der Header geht nur an eigene API-Aufrufe.
+// Alles andere — Fremd-Hosts und statische Assets wie /i18n/de.json —
+// bekommt niemals ein Bearer-Token zu sehen.
+function shouldAttachToken(url: string): boolean {
+  let path: string;
+  try {
+    const parsed = new URL(url, window.location.origin);
+    if (parsed.origin !== window.location.origin) {
+      return false;
+    }
+    path = parsed.pathname;
+  } catch {
+    return false;
+  }
+
+  if (!path.startsWith(API_PREFIX)) {
+    return false;
+  }
+  return !EXCLUDED_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
 
 function refreshAccessToken(http: HttpClient, tokenStore: TokenStore): Observable<string> {
@@ -48,7 +65,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (isExcluded(req.url)) {
+  if (!shouldAttachToken(req.url)) {
     return next(req);
   }
 

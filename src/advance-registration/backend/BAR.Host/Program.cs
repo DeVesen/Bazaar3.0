@@ -4,7 +4,6 @@ using BAR.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,13 +61,17 @@ static async Task ApplyMigrationsAsync(WebApplication app)
         return;
     }
 
+    // Vorab ermittelt: nach einem Verbindungsabbruch in MigrateAsync wuerde
+    // dieselbe Abfrage im catch-Block selbst werfen und die Logzeile schlucken.
+    var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+    var pending = pendingMigrations.FirstOrDefault() ?? "unbekannt";
+
     try
     {
         await dbContext.Database.MigrateAsync();
     }
     catch (Exception ex)
     {
-        var pending = (await dbContext.Database.GetPendingMigrationsAsync()).FirstOrDefault() ?? "unbekannt";
         logger.LogCritical(ex, "Migration {Migration} fehlgeschlagen: {Message}", pending, ex.Message);
         Environment.Exit(1);
     }
@@ -98,9 +101,12 @@ static async Task<bool> WaitForDatabaseAsync(BarDbContext dbContext, ILogger log
         delay = TimeSpan.FromSeconds(Math.Min(delay.TotalSeconds * 2, 15));
     }
 
-    var connectionString = new NpgsqlConnectionStringBuilder(dbContext.Database.GetConnectionString());
+    // Generische ADO.NET-Member statt Npgsql-Typen: BAR.Host darf den
+    // Provider nicht kennen (R-14), und weder DataSource noch Database
+    // enthalten das Passwort (R-15).
+    var connection = dbContext.Database.GetDbConnection();
     logger.LogCritical(
-        "Datenbank nicht erreichbar: Host={Host}, Port={Port}, Database={Database}",
-        connectionString.Host, connectionString.Port, connectionString.Database);
+        "Datenbank nicht erreichbar: DataSource={DataSource}, Database={Database}",
+        connection.DataSource, connection.Database);
     return false;
 }

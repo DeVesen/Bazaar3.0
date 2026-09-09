@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { TokenStore } from './token-store';
 
@@ -9,7 +10,15 @@ function fakeToken(payload: unknown): string {
 }
 
 describe('AuthService', () => {
-  beforeEach(() => localStorage.clear());
+  let navigateByUrl: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    localStorage.clear();
+    navigateByUrl = vi.fn().mockResolvedValue(true);
+    TestBed.configureTestingModule({
+      providers: [{ provide: Router, useValue: { navigateByUrl } }]
+    });
+  });
 
   it('has no current user when no token is stored', () => {
     const service = TestBed.inject(AuthService);
@@ -46,5 +55,19 @@ describe('AuthService', () => {
     service.logout();
     expect(service.currentUser()).toBeNull();
     expect(TestBed.inject(TokenStore).getToken()).toBeNull();
+  });
+
+  it('logout() navigates to /login', () => {
+    const service = TestBed.inject(AuthService);
+    service.logout();
+    expect(navigateByUrl).toHaveBeenCalledWith('/login');
+  });
+
+  it('logout() runs every registered reset hook', () => {
+    const service = TestBed.inject(AuthService);
+    const reset = vi.fn();
+    service.registerLogoutReset(reset);
+    service.logout();
+    expect(reset).toHaveBeenCalledTimes(1);
   });
 });

@@ -2,6 +2,13 @@
   display: block;
 }
 
+// p-sidebar-panel ist das Host-Element der PrimeNG-Panel-Komponente und
+// steht in diesem Template — die Flaeche der Sidebar selbst.
+p-sidebar-panel {
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-divider);
+}
+
 .sidebar-username {
   display: block;
   font-size: 13px;

@@ -62,8 +62,10 @@ dem Theme-Setup fallen, sonst wird VSHELL-S05 zweimal gebaut.
 3. Fenster auf ≤ 768 px verkleinern: Sidebar wird zum Burger-Menü, Titelleiste erscheint,
    Sidebar-Footer bleibt am unteren Rand.
 4. Der Health-Endpoint der API antwortet mit `200`.
-5. Die erste EF-Core-Migration ist eingespielt, die Datenbank enthält die Tabellen.
-6. Frontend-Tests (Jest) und Backend-Tests (xUnit) laufen grün, der NetArchTest-Architekturtest
+5. Die erste EF-Core-Migration ist eingespielt: die Datenbank hat die Migrationstabelle
+   `__EFMigrationsHistory` mit dem Eintrag `InitialCreate` (die Migration ist leer — fachliche
+   Tabellen entstehen erst mit den Fach-Epics).
+6. Frontend-Tests (Vitest) und Backend-Tests (xUnit) laufen grün, der NetArchTest-Architekturtest
    ist dabei und schlägt bei einer verbotenen Referenzrichtung an.
 
 ## Quellen

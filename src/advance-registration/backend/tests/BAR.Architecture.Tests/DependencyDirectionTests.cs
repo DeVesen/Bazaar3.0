@@ -14,6 +14,11 @@ public class DependencyDirectionTests
     private static readonly Assembly Application = typeof(Application.Abstractions.IClock).Assembly;
     private static readonly Assembly Infrastructure = typeof(Infrastructure.Time.SystemClock).Assembly;
 
+    // Die implizite Program-Klasse der Top-Level-Statements ist internal und
+    // nur fuer BAR.Host.IntegrationTests sichtbar — daher ein oeffentlicher
+    // Host-Typ als Anker.
+    private static readonly Assembly Host = typeof(Host.Features.Public.HealthEndpoints).Assembly;
+
     [Fact]
     public void Domain_Always_HasNoDependencyOnFrameworks()
     {
@@ -37,6 +42,32 @@ public class DependencyDirectionTests
         var result = Types.InAssembly(Application)
             .Should()
             .NotHaveDependencyOn("BAR.Infrastructure")
+            .GetResult();
+
+        // Assert
+        Assert.True(result.IsSuccessful, FailureMessage(result));
+    }
+
+    [Fact]
+    public void Host_Always_HasNoDependencyOnNpgsql()
+    {
+        // Arrange & Act
+        var result = Types.InAssembly(Host)
+            .Should()
+            .NotHaveDependencyOnAny("Npgsql")
+            .GetResult();
+
+        // Assert — nur BAR.Infrastructure kennt den Provider (R-14).
+        Assert.True(result.IsSuccessful, FailureMessage(result));
+    }
+
+    [Fact]
+    public void Domain_Always_HasNoDependencyOnApplicationOrInfrastructure()
+    {
+        // Arrange & Act
+        var result = Types.InAssembly(Domain)
+            .Should()
+            .NotHaveDependencyOnAny("BAR.Application", "BAR.Infrastructure", "BAR.Host")
             .GetResult();
 
         // Assert

@@ -8,7 +8,7 @@ depends-on: []
 
 ## Ziel
 
-Ein Entwickler legt das Angular 22 Frontend-Projekt der Voranmelde-App an, konfiguriert PrimeNG 22.0.0, `@primeicons/angular` und ngx-translate (DE/EN) und stellt die Grundstruktur für eine mehrsprachige Cloud-App bereit.
+Ein Entwickler legt das Angular 22 Frontend-Projekt der Voranmelde-App an, konfiguriert PrimeNG 22.1.0, `@lucide/angular` und ngx-translate (DE/EN) und stellt die Grundstruktur für eine mehrsprachige Cloud-App bereit.
 
 ## Kontext
 
@@ -31,14 +31,14 @@ braucht ein Node-Update, bevor diese Story beginnen kann.
 
 ## Scope
 
-**In Scope:** `ng new`, Standalone Components, OnPush, Signals, PrimeNG 22.0.0 (stabile Version, nicht die parallel laufende 22.1.0-rc — verwendet für die neue `Sidebar`-Compound-Komponentenfamilie, siehe Epic_App_Shell VSHELL-S01), `@primeicons/angular` (npm), `ngx-translate` installieren und initialisieren (DE/EN JSON-Dateien anlegen), App-Verzeichnisstruktur anlegen, kein SSR (Angular-App bleibt reine Browser-App, siehe R00-Restumfang R-1).
+**In Scope:** `ng new`, Standalone Components, OnPush, Signals, PrimeNG 22.1.0 (verwendet für die neue `Sidebar`-Compound-Komponentenfamilie, siehe Epic_App_Shell VSHELL-S01), `@lucide/angular` (npm), `ngx-translate` installieren und initialisieren (DE/EN JSON-Dateien anlegen), App-Verzeichnisstruktur anlegen, kein SSR (Angular-App bleibt reine Browser-App, siehe R00-Restumfang R-1).
 
 **Out of Scope:** Routing, Sidebar, Theme-CSS, Übersetzungs-Keys für Epics (folgen in den jeweiligen Epics).
 
 ## Akzeptanzkriterien
 
 - [ ] **AC-1** — THE SYSTEM SHALL ein Angular 22 Projekt mit Standalone Components und Signals-Support erzeugen und in `angular.json` unter `schematics` `ChangeDetectionStrategy.OnPush` als Default für neu generierte Komponenten konfigurieren.
-- [ ] **AC-2** — THE SYSTEM SHALL PrimeNG in Version `22.0.0` (npm dist-tag `latest`, stabil) installieren und `providePrimeNG({ theme: { preset: Aura } })` in `app.config.ts` registrieren (Aura als Placeholder; wird in Epic_App_Shell durch das finale Preset ersetzt).
+- [ ] **AC-2** — THE SYSTEM SHALL PrimeNG in Version `22.1.0` (npm dist-tag `latest`, stabil) installieren und `providePrimeNG({ theme: { preset: Aura } })` in `app.config.ts` registrieren (Aura als Placeholder; wird in Epic_App_Shell durch das finale Preset ersetzt).
 - [ ] **AC-3** — THE SYSTEM SHALL `@ngx-translate/core` und `@ngx-translate/http-loader` installieren und `provideTranslateService` in `app.config.ts` mit DE als Standardsprache und EN als Fallback registrieren.
 - [ ] **AC-4** — THE SYSTEM SHALL leere Übersetzungs-Dateien `public/i18n/de.json` und `public/i18n/en.json` anlegen.
 - [ ] **AC-6** — THE SYSTEM SHALL die Feature-First-Verzeichnisstruktur `src/app/features/`, `src/app/core/`, `src/app/shared/` anlegen. Pro Feature gilt die Konvention `features/<feature>/` mit `<feature>.routes.ts`, `pages/`, `components/`, `data/` (Api + Store), `model/`.
@@ -63,4 +63,4 @@ sprachneutrale URLs vermeiden eine dritte Übersetzungsebene.
 
 ## Tags & Piles
 
-**Tags:** #angular #setup #primeng #ngx-translate #i18n #primeicons
+**Tags:** #angular #setup #primeng #ngx-translate #i18n #lucide

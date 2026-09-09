@@ -39,8 +39,4 @@ export class Shell implements OnInit, OnDestroy {
       this.mediaQuery.removeEventListener('change', this.mediaQueryListener);
     }
   }
-
-  toggle(): void {
-    this.open.set(!this.open());
-  }
 }

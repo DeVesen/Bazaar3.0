@@ -24,7 +24,7 @@ export const routes: Routes = [
       { path: 'seller-types', canActivate: [authGuard, adminGuard], loadChildren: () => import('./features/seller-types/seller-types.routes').then((m) => m.SELLER_TYPES_ROUTES) },
       { path: 'settings', canActivate: [authGuard, adminGuard], loadChildren: () => import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES) },
       { path: 'export', canActivate: [authGuard, adminGuard], loadChildren: () => import('./features/export/export.routes').then((m) => m.EXPORT_ROUTES) },
-      { path: '**', loadChildren: () => import('./features/not-found/not-found.routes').then((m) => m.NOT_FOUND_ROUTES) }
+      { path: '**', canActivate: [authGuard], loadChildren: () => import('./features/not-found/not-found.routes').then((m) => m.NOT_FOUND_ROUTES) }
     ]
   }
 ];

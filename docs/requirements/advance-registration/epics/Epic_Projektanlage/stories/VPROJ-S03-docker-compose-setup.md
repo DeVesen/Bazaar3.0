@@ -59,7 +59,7 @@ Stand der Prüfung: PostgreSQL 18 ist die aktuelle stabile Major (Docker Hub, 20
 
 - [ ] **AC-1** — THE SYSTEM SHALL eine `compose.yaml` unter `src/advance-registration/` bereitstellen, die die Services `frontend`, `api` und `db` definiert; `db` SHALL das Image `postgres:18-alpine` verwenden.
 - [ ] **AC-2** — WHEN `docker compose up` ausgeführt wird, THEN SHALL alle drei Services starten und `GET http://localhost:5001/health` mit HTTP 200 antworten.
-- [ ] **AC-3** — THE SYSTEM SHALL den Service `backend` so konfigurieren, dass er erst startet, wenn `db` als `healthy` gilt (PostgreSQL `pg_isready`-Health-Check).
+- [ ] **AC-3** — THE SYSTEM SHALL den Service `api` so konfigurieren, dass er erst startet, wenn `db` als `healthy` gilt (PostgreSQL `pg_isready`-Health-Check).
 - [ ] **AC-4** — THE SYSTEM SHALL alle Secrets (DB-Passwort, JWT-Secret, Connection String) ausschließlich über Environment-Variablen oder eine `.env`-Datei (gitignored) einlesen.
 - [ ] **AC-5** — THE SYSTEM SHALL ein Docker-Volume für PostgreSQL-Daten definieren, sodass Daten zwischen `docker compose down` und `up` erhalten bleiben.
 - [ ] **AC-6** — IF `docker compose down` ausgeführt wird, THEN SHALL die Daten im Volume erhalten bleiben; `docker compose down -v` entfernt sie explizit.
