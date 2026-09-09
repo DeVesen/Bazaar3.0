@@ -1,5 +1,8 @@
 using BAR.Host.Features.Public;
 using BAR.Infrastructure;
+using BAR.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +24,8 @@ builder.Services.AddCors(options => options.AddPolicy(corsPolicy, policy =>
 
 var app = builder.Build();
 
+await ApplyMigrationsAsync(app);
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -31,3 +36,58 @@ app.UseCors(corsPolicy);
 app.MapHealthEndpoints();
 
 app.Run();
+
+static async Task ApplyMigrationsAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<BarDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    if (!await WaitForDatabaseAsync(dbContext, logger))
+    {
+        Environment.Exit(1);
+        return;
+    }
+
+    try
+    {
+        await dbContext.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        var pending = (await dbContext.Database.GetPendingMigrationsAsync()).FirstOrDefault() ?? "unbekannt";
+        logger.LogCritical(ex, "Migration {Migration} fehlgeschlagen: {Message}", pending, ex.Message);
+        Environment.Exit(1);
+    }
+}
+
+static async Task<bool> WaitForDatabaseAsync(BarDbContext dbContext, ILogger logger)
+{
+    const int maxAttempts = 10;
+    var maxTotalWait = TimeSpan.FromSeconds(60);
+    var delay = TimeSpan.FromSeconds(1);
+    var elapsed = TimeSpan.Zero;
+
+    for (var attempt = 1; attempt <= maxAttempts; attempt++)
+    {
+        if (await dbContext.Database.CanConnectAsync())
+        {
+            return true;
+        }
+
+        if (attempt == maxAttempts || elapsed + delay > maxTotalWait)
+        {
+            break;
+        }
+
+        await Task.Delay(delay);
+        elapsed += delay;
+        delay = TimeSpan.FromSeconds(Math.Min(delay.TotalSeconds * 2, 15));
+    }
+
+    var connectionString = new NpgsqlConnectionStringBuilder(dbContext.Database.GetConnectionString());
+    logger.LogCritical(
+        "Datenbank nicht erreichbar: Host={Host}, Port={Port}, Database={Database}",
+        connectionString.Host, connectionString.Port, connectionString.Database);
+    return false;
+}
