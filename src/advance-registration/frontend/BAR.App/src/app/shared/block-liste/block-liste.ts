@@ -28,8 +28,8 @@ export interface BlockListItem {
       background: #f5f9f6; border: 1px solid #d4e8dc; border-radius: 6px;
       padding: 10px 14px; margin-bottom: 8px;
     }
-    .block-liste__range { font: 700 14px sans-serif; color: var(--primary); }
-    .block-liste__count { font-size: 12px; color: var(--muted); }
+    .block-liste__range { font: 700 14px sans-serif; color: var(--color-accent); }
+    .block-liste__count { font-size: 12px; color: color-mix(in srgb, #1d1f20 55%, transparent); }
     .block-liste__empty { text-align: center; }
   `]
 })

@@ -16,7 +16,8 @@ interface ValidationProblem {
 @Component({
   selector: 'app-profile-page',
   imports: [FormsModule, ButtonModule, InputTextModule, InputNumberModule, TabsModule, VerkaeuferNummer, InfoArea],
-  templateUrl: './ProfilePage.html'
+  templateUrl: './ProfilePage.html',
+  styleUrl: './ProfilePage.scss'
 })
 export class ProfilePage {
   private readonly api = inject(ProfileApiService);
@@ -31,6 +32,7 @@ export class ProfilePage {
   readonly phone = signal('');
   readonly fieldErrors = signal<Record<string, string[]>>({});
   readonly saveError = signal<string | null>(null);
+  readonly loadError = signal<string | null>(null);
 
   readonly canSave = computed(() =>
     this.firstName().trim() !== '' &&
@@ -40,7 +42,10 @@ export class ProfilePage {
     this.phone().trim() !== '');
 
   constructor() {
-    this.api.getProfile().subscribe((profile) => this.applyProfile(profile));
+    this.api.getProfile().subscribe({
+      next: (profile) => this.applyProfile(profile),
+      error: () => this.loadError.set('Profil konnte nicht geladen werden')
+    });
   }
 
   save(): void {

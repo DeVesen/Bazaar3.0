@@ -23,8 +23,8 @@ import { QrCode } from '../qr-code/qr-code';
     .verkaeufer-nummer { background: #f5f9f6; border: 1px solid #d4e8dc; border-radius: 8px; padding: 15px 16px; }
     .verkaeufer-nummer__title { font: 700 11px sans-serif; text-transform: uppercase; color: #3a7057; }
     .verkaeufer-nummer__body { display: flex; justify-content: space-between; align-items: center; }
-    .verkaeufer-nummer__value { font: 800 24px monospace; color: var(--primary); }
-    .verkaeufer-nummer__hint { font-size: 12px; color: var(--muted); }
+    .verkaeufer-nummer__value { font: 800 24px monospace; color: var(--color-accent); }
+    .verkaeufer-nummer__hint { font-size: 12px; color: color-mix(in srgb, #1d1f20 55%, transparent); }
   `]
 })
 export class VerkaeuferNummer {
