@@ -77,7 +77,7 @@ import { PopoverModule } from 'primeng/popover';
           <p>Bitte wende dich an den Admin, um dein Passwort zurückzusetzen.</p>
         </p-popover>
 
-        <p-button [text]="true" label="Noch kein Konto? Jetzt registrieren" routerLink="/register" />
+        <p-button type="button" [text]="true" label="Noch kein Konto? Jetzt registrieren" routerLink="/register" />
       </form>
     </p-card>
   `

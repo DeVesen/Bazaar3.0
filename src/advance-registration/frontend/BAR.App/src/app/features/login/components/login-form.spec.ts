@@ -41,6 +41,20 @@ describe('LoginForm', () => {
     expect(fixture.nativeElement.textContent).toContain('Noch kein Konto?');
   });
 
+  it('clicking the register link does not emit submitted', () => {
+    const component = fixture.componentInstance;
+    let submitEmitted = false;
+    component.submitted.subscribe(() => {
+      submitEmitted = true;
+    });
+
+    const registerLink: HTMLElement | null = fixture.nativeElement.querySelector('[routerLink="/register"]');
+    registerLink?.click();
+    fixture.detectChanges();
+
+    expect(submitEmitted).toBe(false);
+  });
+
   it('shows the exact popover text for forgot password', () => {
     const forgotButton: HTMLElement = fixture.nativeElement.querySelector('.login-form__forgot');
     forgotButton.click();
