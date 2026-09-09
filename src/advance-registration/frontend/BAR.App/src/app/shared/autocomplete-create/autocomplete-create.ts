@@ -20,15 +20,15 @@ import type { MasterDataItem } from '../../features/my-articles/master-data-api.
       (onSelect)="onSelect($event)"
     />
     @if (isCreateMode()) {
-      <button pButton type="button" icon="pi pi-plus" class="p-button-success" (click)="openCreateModal()"></button>
+      <button pButton type="button" icon="pi pi-plus" severity="success" (click)="openCreateModal()"></button>
     }
 
     <p-dialog [(visible)]="createModalOpenModel" [modal]="true" [header]="'Neuer Eintrag: ' + value()">
       @if (createModalError()) {
         <p class="error">{{ createModalError() }}</p>
       }
-      <button pButton type="button" label="Abbrechen" class="p-button-text" (click)="cancelCreate()"></button>
-      <button pButton type="button" label="Anlegen" (click)="confirmCreate()"></button>
+      <button pButton type="button" [text]="true" (click)="cancelCreate()">Abbrechen</button>
+      <button pButton type="button" (click)="confirmCreate()">Anlegen</button>
     </p-dialog>
   `
 })
