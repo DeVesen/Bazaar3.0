@@ -65,13 +65,13 @@ interface PrimeNgPageEvent {
       (onSort)="onSort($event)"
       (onPage)="onPage($event)"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           @for (col of columns(); track col.field) {
             @if (col.sortable === false) {
               <th>{{ col.header }}</th>
             } @else {
-              <th [pSortableColumn]="col.field">{{ col.header }}</th>
+              <th [pSortableColumn]="col.field">{{ col.header }} <p-sort-icon [field]="col.field" /></th>
             }
           }
           @if (actionColumn()) {
@@ -79,7 +79,7 @@ interface PrimeNgPageEvent {
           }
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-row>
+      <ng-template #body let-row>
         <tr>
           @for (col of columns(); track col.field) {
             <td [class.number]="col.type === 'number' || col.type === 'currency'">{{ row[col.field] }}</td>
@@ -100,14 +100,14 @@ interface PrimeNgPageEvent {
           }
         </tr>
       </ng-template>
-      <ng-template pTemplate="emptymessage">
+      <ng-template #emptymessage>
         <tr>
           <td [attr.colspan]="totalColumns()">
             <p class="empty-state">{{ hasActiveFilter() ? filteredEmptyText : emptyText() }}</p>
           </td>
         </tr>
       </ng-template>
-      <ng-template pTemplate="loadingbody">
+      <ng-template #loadingbody>
         @for (skeletonRow of skeletonRows; track skeletonRow) {
           <tr>
             @for (col of columns(); track col.field) {
