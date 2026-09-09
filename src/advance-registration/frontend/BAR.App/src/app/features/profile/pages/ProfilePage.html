@@ -1,0 +1,103 @@
+<p-tabs value="steckbrief">
+  <p-tablist>
+    <p-tab value="steckbrief">Steckbrief</p-tab>
+    <p-tab value="zugangsdaten" disabled>Zugangsdaten</p-tab>
+    <p-tab value="loeschen" disabled>Löschen</p-tab>
+  </p-tablist>
+  <p-tabpanels>
+    <p-tabpanel value="steckbrief">
+      @if (profile(); as p) {
+        <div class="panel-block">
+          <app-verkaeufer-nummer [sellerId]="p.id" />
+        </div>
+
+        <form (ngSubmit)="save()">
+          <div class="panel-block">
+            <p class="panel-block__title">Personendaten</p>
+            <div class="form-grid">
+              <div>
+                <label for="firstName">Vorname *</label>
+                <input id="firstName" pInputText [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" name="firstName" required />
+                @if (fieldErrors()['firstName']; as errors) {
+                  <p class="field-error">{{ errors[0] }}</p>
+                }
+              </div>
+              <div>
+                <label for="lastName">Nachname *</label>
+                <input id="lastName" pInputText [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" name="lastName" required />
+                @if (fieldErrors()['lastName']; as errors) {
+                  <p class="field-error">{{ errors[0] }}</p>
+                }
+              </div>
+              <div class="full">
+                <label for="address">Anschrift</label>
+                <input id="address" pInputText [ngModel]="address()" (ngModelChange)="address.set($event)" name="address" />
+              </div>
+              <div>
+                <label for="postalCode">PLZ *</label>
+                <input id="postalCode" pInputText [ngModel]="postalCode()" (ngModelChange)="postalCode.set($event)" name="postalCode" required />
+                @if (fieldErrors()['postalCode']; as errors) {
+                  <p class="field-error">{{ errors[0] }}</p>
+                }
+              </div>
+              <div>
+                <label for="city">Ort *</label>
+                <input id="city" pInputText [ngModel]="city()" (ngModelChange)="city.set($event)" name="city" required />
+                @if (fieldErrors()['city']; as errors) {
+                  <p class="field-error">{{ errors[0] }}</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-block">
+            <p class="panel-block__title">Kontakt</p>
+            <div class="form-grid">
+              <div>
+                <label for="phone">Telefon *</label>
+                <input id="phone" pInputText [ngModel]="phone()" (ngModelChange)="phone.set($event)" name="phone" required />
+                @if (fieldErrors()['phone']; as errors) {
+                  <p class="field-error">{{ errors[0] }}</p>
+                }
+              </div>
+              <div>
+                <label for="email">E-Mail</label>
+                <input id="email" pInputText [ngModel]="p.email" name="email" [readonly]="true" />
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-block">
+            <p class="panel-block__title">Konditionen</p>
+            <div class="form-grid">
+              <div class="full">
+                <label for="sellerType">Verkäufer-Typ</label>
+                <p id="sellerType" class="readonly-value">{{ p.sellerType.name }}</p>
+              </div>
+              <div>
+                <label for="itemFee">Gebühr je Stück</label>
+                <p-inputnumber [ngModel]="p.sellerType.itemFee" name="itemFee" mode="decimal" locale="de-DE" [minFractionDigits]="2" [readonly]="true" />
+              </div>
+              <div>
+                <label for="commissionRate">Provision</label>
+                <p-inputnumber [ngModel]="p.sellerType.commissionRate" name="commissionRate" mode="decimal" locale="de-DE" [minFractionDigits]="2" [readonly]="true" />
+              </div>
+            </div>
+          </div>
+
+          @if (saveError()) {
+            <app-info-area type="error" [message]="saveError()!" />
+          }
+
+          <p-button type="submit" label="Speichern" [disabled]="!canSave()" />
+        </form>
+      }
+    </p-tabpanel>
+    <p-tabpanel value="zugangsdaten">
+      <p>Verfügbar ab R07.</p>
+    </p-tabpanel>
+    <p-tabpanel value="loeschen">
+      <p>Verfügbar ab R07.</p>
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>
