@@ -28,9 +28,10 @@ public sealed class PostgresWebApplicationFactory : WebApplicationFactory<Progra
         builder.UseSetting("ConnectionStrings:DefaultConnection", _postgres.GetConnectionString());
     }
 
-    public new async ValueTask DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         await _postgres.DisposeAsync();
+        await base.DisposeAsync();
     }
 }
 
