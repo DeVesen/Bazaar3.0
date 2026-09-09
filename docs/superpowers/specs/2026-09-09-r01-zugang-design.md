@@ -24,7 +24,7 @@ Ein Verkäufer kann sich selbst registrieren und anmelden, ein Admin kann sich a
 Anmeldung erreicht er die geschützten Seiten, ein Reload wirft ihn nicht heraus, Logout beendet die
 Sitzung sauber. Das ist der erste Roadmap-Schritt mit fachlichem Nutzen — ab hier gibt es Konten.
 
-## Klärung vorab: zwei Widersprüche zwischen Roadmap und Epic/API
+## Klärung vorab: drei Widersprüche zwischen Roadmap/API und Entity
 
 Diese Spec entscheidet sich für die Epic/API-Quelle (mit dem Requester am 2026-09-09 abgestimmt),
 die Roadmap-Datei selbst wird dabei **nicht** verändert (liegt außerhalb dieser Spec):
@@ -39,6 +39,18 @@ die Roadmap-Datei selbst wird dabei **nicht** verändert (liegt außerhalb diese
    `NumberBlockAllocator`-Domain-Service (Vergabe-Kaskade Stufe 1–2, Freiheitsprüfung Stufe 1–4 aus
    `api/blocks.md` Abschnitt 6) plus der lesende Endpoint `GET /api/blocks/mine`.** Alles andere aus
    `api/blocks.md`/`api/sellers.md` (Admin-Verkäuferverwaltung, `POST/DELETE
+   /api/sellers/{id}/blocks`, `GET /api/blocks/next-free`, automatische Blockerweiterung bei
+   Artikelanlage) bleibt außerhalb von R01 — das sind Epic_Nummernbloecke/Epic_Verkaeufer, spätere
+   Roadmap-Schritte.
+3. **Request-Body von `POST /api/auth/register`.** `api/auth.md` Abschnitt 2 dokumentiert nur
+   `{email, password}`, aber `entities/verkaeufer.md` verlangt `firstName`/`lastName`/`postalCode`/
+   `city`/`phone` als `NOT NULL`-Pflichtfelder. Mit dem Requester am 2026-09-09 geklärt:
+   **Entscheidung: Stammdaten-Pflichtfelder gehören ins Registrierungsformular und in den
+   Request-Body** — nicht leer lassen bis zur ersten Profilbearbeitung. `api/auth.md` ist damit an
+   dieser Stelle veraltet und braucht eine eigene Doku-Korrektur (außerhalb dieser Spec, da
+   `api/auth.md` als reviewte Datei nicht im Rahmen der R01-Umsetzung mitgezogen wird — Nachtrag
+   separat einplanen).
+
    /api/sellers/{id}/blocks`, `GET /api/blocks/next-free`, automatische Blockerweiterung bei
    Artikelanlage) bleibt außerhalb von R01 — das sind Epic_Nummernbloecke/Epic_Verkaeufer, spätere
    Roadmap-Schritte.
@@ -93,7 +105,7 @@ Index auf `sellerId`, `number_block` PostgreSQL-Exclusion-Constraint auf
 | Endpoint | Beschreibung |
 |---|---|
 | `POST /api/auth/login` | `{email, password}` → `200` Token-Hülle / `401` „Ungültige Anmeldedaten" (AC-2) |
-| `POST /api/auth/register` | `{email, password}` → Seller anlegen (`sellerTypeId = defaultTypeId`), `defaultBlockCount` Blöcke reservieren (`NumberBlockAllocator`), Token ausstellen → `201` / `409 seller.email_taken` / `409 registration.not_enabled` (falls `defaultTypeId` nicht gesetzt) |
+| `POST /api/auth/register` | `{email, password, firstName, lastName, address?, postalCode, city, phone}` → Seller anlegen (`sellerTypeId = defaultTypeId`), `defaultBlockCount` Blöcke reservieren (`NumberBlockAllocator`), Token ausstellen → `201` / `409 seller.email_taken` / `409 registration.not_enabled` (falls `defaultTypeId` nicht gesetzt) / `400` bei fehlenden Stammdaten-Pflichtfeldern |
 | `POST /api/auth/refresh` | `{refreshToken}` → Rotation (Zeile löschen + neu anlegen in einer Transaktion) → `200` / `401` bei unbekannt/abgelaufen/bereits rotiert |
 | `GET /api/public/info` | Countdown-Termine, `defaultConditions` (aufgelöst aus `defaultTypeId`), `infoText` — alle Felder `null`-fähig, immer `200` |
 | `GET /api/blocks/mine` | Eigene Blöcke des eingeloggten Nutzers, aufsteigend nach `fromNumber`, leeres Array wenn keine — `authenticated` |
@@ -122,7 +134,9 @@ Placeholder-Pages aus R00 (`LoginPage`, `RegisterPage`) werden mit echten Kompon
   Enter-Submit (AC-3), Fehleranzeige „Ungültige Anmeldedaten" (AC-2), Passwort-vergessen-Popover mit
   Admin-Hinweistext (AC-4, kein Formular), Registrierung-Link
 - [`registrierung-form`](../../requirements/advance-registration/components/registrierung-form.md) —
-  E-Mail/Passwort/Bestätigung, Pflichtfeld-Validierung (AC-5), Passwort-Stärke-Gate „mind. Mittel"
+  E-Mail/Passwort/Bestätigung **plus** Stammdaten-Pflichtfelder `firstName`/`lastName`/`postalCode`/
+  `city`/`phone` und optional `address` (Klärung oben, Punkt 3 — `entities/verkaeufer.md` verlangt
+  sie als `NOT NULL`), Pflichtfeld-Validierung (AC-5), Passwort-Stärke-Gate „mind. Mittel"
   (AC-6), Übereinstimmungs-Check (AC-7), E-Mail-bereits-vergeben-Fehler mit Login-Link (AC-8),
   Erfolg → Auto-Login + Redirect `/home` (AC-9)
 - [`password-strength-meter`](../../requirements/advance-registration/components/password-strength-meter.md) —
