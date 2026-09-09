@@ -24,9 +24,9 @@ public static class NumberBlockAllocator
         while (true)
         {
             var candidateEnd = candidate + totalNeeded - 1;
-            var overlap = occupied.FirstOrDefault(o => candidate <= o.ToNumber && candidateEnd >= o.FromNumber);
+            var hasOverlap = occupied.Any(o => candidate <= o.ToNumber && candidateEnd >= o.FromNumber);
 
-            if (overlap == default)
+            if (!hasOverlap)
             {
                 var blocks = new List<NumberBlock>(blockCount);
                 var next = candidate;
@@ -39,12 +39,15 @@ public static class NumberBlockAllocator
                 return blocks;
             }
 
-            candidate = overlap.ToNumber + 1;
+            var overlap = occupied.First(o => candidate <= o.ToNumber && candidateEnd >= o.FromNumber);
 
-            if (candidate > int.MaxValue - totalNeeded)
+            // Check for overflow BEFORE attempting the addition that could wrap.
+            if (overlap.ToNumber > int.MaxValue - totalNeeded)
             {
                 throw new NoFreeRangeException();
             }
+
+            candidate = overlap.ToNumber + 1;
         }
     }
 }
