@@ -91,6 +91,8 @@
 
           <p-button type="submit" label="Speichern" [disabled]="!canSave()" />
         </form>
+      } @else if (loadError()) {
+        <app-info-area type="error" [message]="loadError()!" />
       }
     </p-tabpanel>
     <p-tabpanel value="zugangsdaten">

@@ -1,13 +1,27 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { NumberBlocksPage } from './NumberBlocksPage';
 
 describe('NumberBlocksPage', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(async () => {
+    vi.stubGlobal('AudioContext', class {
+      createOscillator() {
+        return {
+          type: '',
+          frequency: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() },
+          connect: vi.fn(),
+          start: vi.fn(),
+          stop: vi.fn()
+        };
+      }
+      destination = {}
+      currentTime = 0
+    });
+
     await TestBed.configureTestingModule({
       imports: [NumberBlocksPage],
       providers: [provideHttpClient(), provideHttpClientTesting()]
@@ -37,5 +51,16 @@ describe('NumberBlocksPage', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Noch keine Nummernblöcke zugewiesen');
+  });
+
+  it('shows a load error when the blocks request fails', () => {
+    const fixture = TestBed.createComponent(NumberBlocksPage);
+    fixture.detectChanges();
+
+    httpMock.expectOne('/api/blocks/mine').flush('Server-Fehler', { status: 500, statusText: 'Internal Server Error' });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.loadError()).toBe('Nummernblöcke konnten nicht geladen werden');
+    expect(fixture.nativeElement.textContent).toContain('Nummernblöcke konnten nicht geladen werden');
   });
 });

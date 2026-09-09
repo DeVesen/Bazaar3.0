@@ -21,6 +21,19 @@ describe('ProfilePage', () => {
       unobserve() {}
       disconnect() {}
     });
+    vi.stubGlobal('AudioContext', class {
+      createOscillator() {
+        return {
+          type: '',
+          frequency: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() },
+          connect: vi.fn(),
+          start: vi.fn(),
+          stop: vi.fn()
+        };
+      }
+      destination = {}
+      currentTime = 0
+    });
 
     await TestBed.configureTestingModule({
       imports: [ProfilePage],
@@ -71,6 +84,16 @@ describe('ProfilePage', () => {
 
     expect(fixture.componentInstance.fieldErrors()['city']).toEqual(['Ort ist ein Pflichtfeld.']);
     expect(fixture.componentInstance.city()).toBe('Freiburg');
+  });
+
+  it('shows a load error when the profile request fails', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush('Server-Fehler', { status: 500, statusText: 'Internal Server Error' });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.loadError()).toBe('Profil konnte nicht geladen werden');
+    expect(fixture.nativeElement.textContent).toContain('Profil konnte nicht geladen werden');
   });
 
   it('disables saving when a required field is empty', () => {
