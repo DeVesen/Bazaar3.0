@@ -1,5 +1,7 @@
 using BAR.Application.Abstractions;
+using BAR.Domain.Ports;
 using BAR.Infrastructure.Persistence;
+using BAR.Infrastructure.Persistence.Repositories;
 using BAR.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +25,12 @@ public static class DependencyInjection
 
         services.AddHealthChecks()
             .AddDbContextCheck<BarDbContext>("database", tags: ["ready"]);
+
+        services.AddScoped<ISellerRepository, SellerRepository>();
+        services.AddScoped<ISellerTypeRepository, SellerTypeRepository>();
+        services.AddScoped<ISettingsRepository, SettingsRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<INumberBlockRepository, NumberBlockRepository>();
 
         return services;
     }
