@@ -5,7 +5,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
 import { SidebarModule } from 'primeng/sidebar';
-import { LucideHome, LucideFileText, LucideUsers, LucidePackage, LucideTag, LucideFolder, LucideUserCog, LucideWrench, LucideSettings, LucideUpload, LucideBox, LucideLogOut } from '@lucide/angular';
+import { LucideLogOut } from '@lucide/angular';
 import { AuthService } from '../../auth/auth.service';
 import { RoleService, Role } from '../../auth/role.service';
 import { SidebarTitle } from './sidebar-title';
@@ -51,8 +51,7 @@ const NAV_GROUPS: NavGroup[] = [
   imports: [
     RouterLink, RouterLinkActive, FormsModule,
     AvatarModule, SelectButtonModule, ButtonModule, SidebarModule,
-    LucideHome, LucideFileText, LucideUsers, LucidePackage, LucideTag, LucideFolder,
-    LucideUserCog, LucideWrench, LucideSettings, LucideUpload, LucideBox, LucideLogOut,
+    LucideLogOut,
     SidebarTitle
   ],
   templateUrl: './sidebar.html',
