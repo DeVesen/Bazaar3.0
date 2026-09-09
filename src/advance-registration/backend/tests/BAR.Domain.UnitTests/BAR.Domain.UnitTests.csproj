@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.Testing.Platform.MSBuild" />
   </ItemGroup>
 
   <!-- Aggregate und Domain-Services werden ohne Mocks getestet. -->

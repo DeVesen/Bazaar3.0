@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.Testing.Platform.MSBuild" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Testcontainers.PostgreSql" />
   </ItemGroup>

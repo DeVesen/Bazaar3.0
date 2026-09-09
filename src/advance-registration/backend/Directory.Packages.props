@@ -35,6 +35,12 @@
   <!-- Test-Stack -->
   <ItemGroup>
     <PackageVersion Include="xunit.v3" Version="4.0.0" />
+    <!-- Liefert das MSBuild-Target, ueber das ein blankes `dotnet test` die
+         Testprojekte findet. Ohne diese Referenz greift
+         TestingPlatformDotnetTestSupport ins Leere ("Zero tests ran").
+         2.3.3 ist die Microsoft.Testing.Platform-Version, gegen die xunit.v3
+         4.0.0 aufgeloest wird - Gleichlauf verhindert Versionskonflikte. -->
+    <PackageVersion Include="Microsoft.Testing.Platform.MSBuild" Version="2.3.3" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.11" />
