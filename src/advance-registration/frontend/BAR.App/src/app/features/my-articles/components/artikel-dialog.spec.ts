@@ -101,4 +101,24 @@ describe('ArtikelDialog', () => {
     expect(emitted.length).toBe(1);
     expect(component.visible()).toBe(false);
   });
+
+  it('confirmDelete() on error sets errorMessage, does not emit deleted and keeps the dialog open', () => {
+    const fixture = create();
+    fixture.componentRef.setInput('mode', 'edit');
+    fixture.componentRef.setInput('article', { id: 'a1', number: 104, name: 'Jacke', brand: 'Nike', category: 'Jacken', price: 5 } as never);
+    fixture.detectChanges();
+    const api = TestBed.inject(ArticlesApiService);
+    vi.spyOn(api, 'delete').mockReturnValue(throwError(() => ({ status: 500, error: { detail: undefined } })));
+    const component = fixture.componentInstance;
+    component.deleteConfirmVisible.set(true);
+    const emitted: void[] = [];
+    component.deleted.subscribe(() => emitted.push(undefined));
+
+    component.confirmDelete();
+
+    expect(emitted.length).toBe(0);
+    expect(component.visible()).toBe(true);
+    expect(component.deleteConfirmVisible()).toBe(true);
+    expect(component.errorMessage()).toBe('Löschen fehlgeschlagen');
+  });
 });

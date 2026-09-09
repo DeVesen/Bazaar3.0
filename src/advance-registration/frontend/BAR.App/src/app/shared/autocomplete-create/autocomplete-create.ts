@@ -52,7 +52,7 @@ export class AutocompleteCreate {
   readonly isCreateMode = computed(() => {
     const current = this.value().trim();
     if (!current) return false;
-    return !this.items().some((i) => i.name === current);
+    return !this.items().some((i) => i.name.trim().toLowerCase() === current.toLowerCase());
   });
 
   onFilter(query: string): void {

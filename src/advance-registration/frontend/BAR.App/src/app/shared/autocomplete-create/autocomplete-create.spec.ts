@@ -43,6 +43,13 @@ describe('AutocompleteCreate', () => {
     expect(fixture.componentInstance.isCreateMode()).toBe(false);
   });
 
+  it('isCreateMode() is false for a value matching an existing item only differing in case', () => {
+    const fixture = create();
+    fixture.componentInstance.value.set('nike');
+
+    expect(fixture.componentInstance.isCreateMode()).toBe(false);
+  });
+
   it('isCreateMode() is true for a value with no exact match', () => {
     const fixture = create();
     fixture.componentInstance.value.set('Puma');

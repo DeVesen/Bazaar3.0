@@ -29,8 +29,10 @@ public static class ArticlesEndpoints
             int? page, int? pageSize, string? sort, GetMyArticlesQueryHandler handler, CancellationToken ct) =>
         {
             var sellerId = user.FindFirstValue("sub")!;
+            var effectivePage = Math.Max(1, page ?? 1);
+            var effectivePageSize = Math.Clamp(pageSize ?? 25, 1, 100);
             var result = await handler.HandleAsync(
-                new GetMyArticlesQuery(sellerId, brand, category, search, page ?? 1, pageSize ?? 25, sort), ct);
+                new GetMyArticlesQuery(sellerId, brand, category, search, effectivePage, effectivePageSize, sort), ct);
             return Results.Ok(result);
         }).RequireAuthorization();
 
@@ -67,7 +69,9 @@ public static class ArticlesEndpoints
             string? brand, string? category, string? search, string? sellerId,
             int? page, int? pageSize, string? sort, GetAllArticlesQueryHandler handler, CancellationToken ct) =>
         {
-            var query = new GetAllArticlesQuery(brand, category, search, sellerId, page ?? 1, pageSize ?? 25, sort);
+            var effectivePage = Math.Max(1, page ?? 1);
+            var effectivePageSize = Math.Clamp(pageSize ?? 25, 1, 100);
+            var query = new GetAllArticlesQuery(brand, category, search, sellerId, effectivePage, effectivePageSize, sort);
             return Results.Ok(await handler.HandleAsync(query, ct));
         }).RequireAuthorization("admin");
 

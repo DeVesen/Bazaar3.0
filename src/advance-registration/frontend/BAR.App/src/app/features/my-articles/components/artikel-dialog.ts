@@ -170,10 +170,15 @@ export class ArtikelDialog {
   confirmDelete(): void {
     const a = this.article();
     if (!a) return;
-    this.articlesApi.delete(a.id).subscribe(() => {
-      this.deleteConfirmVisible.set(false);
-      this.deleted.emit();
-      this.visible.set(false);
+    this.articlesApi.delete(a.id).subscribe({
+      next: () => {
+        this.deleteConfirmVisible.set(false);
+        this.deleted.emit();
+        this.visible.set(false);
+      },
+      error: (err: { status?: number; error?: { detail?: string } }) => {
+        this.errorMessage.set(err.error?.detail ?? 'Löschen fehlgeschlagen');
+      }
     });
   }
 

@@ -25,6 +25,16 @@ public class BrandsEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
     }
 
     [Fact]
+    public async Task Post_EmptyName_Returns400()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+
+        var response = await client.PostAsJsonAsync("/api/brands", new { name = "" }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Put_AsSeller_Returns403()
     {
         var client = await RegisterAndAuthenticateAsync();

@@ -42,6 +42,41 @@ public class ArticlesEndpointsTests : IClassFixture<PostgresWebApplicationFactor
     }
 
     [Fact]
+    public async Task GetMine_PageZeroAndHugePageSize_DoesNotReturn500()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+
+        var response = await client.GetAsync("/api/articles/mine?page=0&pageSize=999999", TestContext.Current.CancellationToken);
+
+        Assert.NotEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetMine_NegativePage_DoesNotReturn500()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+
+        var response = await client.GetAsync("/api/articles/mine?page=-5", TestContext.Current.CancellationToken);
+
+        Assert.NotEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_EmptyName_Returns400()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+
+        var response = await client.PostAsJsonAsync("/api/articles", new
+        {
+            name = "", brand = "B", category = "C", price = 1m
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Update_ForeignArticle_Returns404()
     {
         var owner = await RegisterAndAuthenticateAsync();
