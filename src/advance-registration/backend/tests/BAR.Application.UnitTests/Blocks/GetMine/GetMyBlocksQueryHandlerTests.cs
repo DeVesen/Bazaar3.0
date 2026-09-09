@@ -10,16 +10,20 @@ public class GetMyBlocksQueryHandlerTests
     private readonly Mock<INumberBlockRepository> _blocks = new();
 
     [Fact]
-    public async Task HandleAsync_SellerHasBlocks_ReturnsThem()
+    public async Task HandleAsync_SellerHasBlocks_ReturnsThemOrderedWithComputedCounts()
     {
-        var block = NumberBlock.Assign("s1", 101, 10, DateTime.UtcNow);
-        _blocks.Setup(b => b.GetForSellerAsync("s1", It.IsAny<CancellationToken>())).ReturnsAsync([block]);
+        var block1 = NumberBlock.Assign("s1", 111, 10, DateTime.UtcNow);
+        var block2 = NumberBlock.Assign("s1", 101, 10, DateTime.UtcNow);
+        _blocks.Setup(b => b.GetForSellerAsync("s1", It.IsAny<CancellationToken>())).ReturnsAsync([block1, block2]);
         var handler = new GetMyBlocksQueryHandler(_blocks.Object);
 
         var result = await handler.HandleAsync("s1", TestContext.Current.CancellationToken);
 
-        Assert.Single(result);
+        Assert.Equal(2, result.Count);
         Assert.Equal(101, result[0].FromNumber);
+        Assert.Equal(111, result[1].FromNumber);
+        Assert.Equal(10, result[0].NumberCount);
+        Assert.Equal(0, result[0].UsedCount);
     }
 
     [Fact]
