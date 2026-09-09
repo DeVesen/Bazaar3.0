@@ -7,7 +7,9 @@ using BAR.Application.Profile.GetProfile;
 using BAR.Application.Profile.UpdateProfile;
 using BAR.Application.Public.GetInfo;
 using BAR.Domain.Ports;
+using BAR.Domain.Ports.Queries;
 using BAR.Infrastructure.Persistence;
+using BAR.Infrastructure.Persistence.Queries;
 using BAR.Infrastructure.Persistence.Repositories;
 using BAR.Infrastructure.Time;
 using FluentValidation;
@@ -43,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<IArticleRepository, ArticleRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IArticleQueries, ArticleQueries>();
 
         services.Configure<Security.JwtOptions>(configuration.GetSection(Security.JwtOptions.SectionName));
         services.AddSingleton<IPasswordHasher, Security.BCryptPasswordHasher>();
