@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { Shell } from './shell';
 import { AuthService } from '../auth/auth.service';
 import { RoleService } from '../auth/role.service';
@@ -12,6 +12,7 @@ describe('Shell', () => {
       providers: [
         provideRouter([]),
         MessageService,
+        ConfirmationService,
         { provide: AuthService, useValue: { currentUser: () => ({ sub: 'u', role: 'admin', exp: 0 }) } },
         { provide: RoleService, useValue: { activeRole: () => 'admin', setRole: () => undefined } }
       ]
@@ -36,5 +37,13 @@ describe('Shell', () => {
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('p-toast')).not.toBeNull();
+  });
+
+  it('provides MessageService and ConfirmationService for child injectors', () => {
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+
+    expect(() => TestBed.inject(MessageService)).not.toThrow();
+    expect(() => TestBed.inject(ConfirmationService)).not.toThrow();
   });
 });
