@@ -23,6 +23,12 @@ public sealed class EfUnitOfWork(BarDbContext dbContext) : IUnitOfWork
         var strategy = dbContext.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
         {
+            // Bei Retry (transiente Verbindungsstoerung) haelt der ChangeTracker
+            // noch Entities aus dem ersten, zurueckgerollten Versuch als Added/
+            // Modified fest. Ohne Clear() sendet SaveChanges beim Retry sowohl
+            // die alten als auch die neu erzeugten Entities - z.B. zwei Seller
+            // mit derselben E-Mail, was als 23505 faelschlich "email_taken" meldet.
+            dbContext.ChangeTracker.Clear();
             await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
             await action(cancellationToken);
             await transaction.CommitAsync(cancellationToken);

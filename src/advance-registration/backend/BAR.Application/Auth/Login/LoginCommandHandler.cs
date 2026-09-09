@@ -19,7 +19,7 @@ public sealed class LoginCommandHandler(
     /// echten Treffer - der Vergleich kann per Konstruktion nie zutreffen.
     /// </summary>
     private const string DummyPasswordHash =
-        "$2a$11$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
+        "$2a$12$nNtBidjF7mMeu7ST48kZ0eF0577nRtnUm4ix8cr7Ka.hRfEJxmuqO";
 
     public async Task<TokenPairResult> HandleAsync(LoginCommand command, CancellationToken cancellationToken)
     {
@@ -32,9 +32,11 @@ public sealed class LoginCommandHandler(
         // teure Teil ist der BCrypt-Verify (~250 ms). Bei unbekannter E-Mail
         // gaebe es nichts zu verifizieren, und der schnellere Rueckweg waere
         // per Response-Latenz messbar - also User-Enumeration. Der Verify gegen
-        // DummyPasswordHash brennt diese Zeit bewusst ab. Das ist kein
-        // konstante-Zeit-Verfahren (Datenbanklaufzeit und Netzwerk streuen
-        // weiter), aber es schliesst die grosse, gut messbare Luecke. Ein
+        // DummyPasswordHash (Work-Factor 12, identisch zu BCryptPasswordHasher)
+        // brennt diese Zeit bewusst ab. Das ist kein konstante-Zeit-Verfahren -
+        // Datenbanklaufzeit, Netzwerk und BCryptens eigene Restvarianz auch bei
+        // gleichem Work-Factor streuen weiter -, aber es engt die grosse, gut
+        // messbare Luecke so weit ein, dass DB-/Netzwerk-Jitter dominiert. Ein
         // echtes constant-time-Login fordert die Spec nicht - akzeptierter
         // Trade-off.
         if (seller?.PasswordHash is null)
