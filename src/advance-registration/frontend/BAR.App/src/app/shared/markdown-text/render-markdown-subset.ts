@@ -15,7 +15,10 @@ const NUMBERED_RE = /^\d+\.\s+(.*)$/;
 const NUMBERED_START_RE = /^\d+\.\s+/;
 const FENCE_RE = /^```/;
 const CODE_SPAN_RE = /`([^`\n]+)`/g;
-const LINK_RE = /\[([^\]\n]+)\]\(([^)\s]+)\)/g;
+// Negatives Lookbehind (?<!!) verhindert, dass Bild-Syntax (![alt](url)) faelschlich als
+// Link erkannt wird - Bilder sind laut component.md 3.2 explizit nicht unterstuetzt und
+// muessen als sichtbarer Klartext stehen bleiben statt zu <a> verlinkt zu werden.
+const LINK_RE = /(?<!!)\[([^\]\n]+)\]\(([^)\s]+)\)/g;
 const LINK_SCHEME_RE = /^([a-zA-Z][a-zA-Z0-9+.-]*):/;
 
 // Steuerzeichen (U+0001) als Platzhalter-Delimiter statt Leerzeichen: escapeHtml kann

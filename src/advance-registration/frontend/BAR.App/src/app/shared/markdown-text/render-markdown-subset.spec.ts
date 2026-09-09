@@ -100,6 +100,14 @@ describe('renderMarkdownSubset', () => {
     expect(html).toContain('[Klick mich](javascript:alert(1))');
   });
 
+  it('renders image syntax as visible plain text, not as a link (3.2)', () => {
+    const html = renderMarkdownSubset('![Alt](https://x.com/y.png)');
+
+    expect(html).not.toContain('<a');
+    expect(html).not.toContain('<img');
+    expect(html).toContain('![Alt](https://x.com/y.png)');
+  });
+
   it('renders unsupported syntax (table, blockquote) as visible plain text', () => {
     const html = renderMarkdownSubset('| a | b |\n> Zitat');
 
