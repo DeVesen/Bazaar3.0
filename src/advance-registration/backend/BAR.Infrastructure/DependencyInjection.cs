@@ -21,6 +21,10 @@ using BAR.Application.MasterData.Categories.Update;
 using BAR.Application.Profile.GetProfile;
 using BAR.Application.Profile.UpdateProfile;
 using BAR.Application.Public.GetInfo;
+using BAR.Application.SellerTypes.Create;
+using BAR.Application.SellerTypes.Delete;
+using BAR.Application.SellerTypes.GetAll;
+using BAR.Application.SellerTypes.Update;
 using BAR.Domain.Ports;
 using BAR.Domain.Ports.Queries;
 using BAR.Infrastructure.Persistence;
@@ -98,6 +102,12 @@ public static class DependencyInjection
         services.AddScoped<UpdateCategoryCommandHandler>();
         services.AddScoped<IValidator<UpdateCategoryCommand>, UpdateCategoryCommandValidator>();
         services.AddScoped<DeleteCategoryCommandHandler>();
+        services.AddScoped<GetAllSellerTypesQueryHandler>();
+        services.AddScoped<CreateSellerTypeCommandHandler>();
+        services.AddScoped<IValidator<CreateSellerTypeCommand>, CreateSellerTypeCommandValidator>();
+        services.AddScoped<UpdateSellerTypeCommandHandler>();
+        services.AddScoped<IValidator<UpdateSellerTypeCommand>, UpdateSellerTypeCommandValidator>();
+        services.AddScoped<DeleteSellerTypeCommandHandler>();
 
         return services;
     }
