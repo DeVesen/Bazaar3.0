@@ -13,14 +13,37 @@ public sealed class LoginCommandHandler(
 {
     private const string InvalidCredentialsMessage = "Ungültige Anmeldedaten";
 
+    /// <summary>
+    /// Fester BCrypt-Hash ohne zugehoeriges Passwort. Wird nur verifiziert, um
+    /// bei unbekannter E-Mail dieselbe Rechenzeit zu verbrauchen wie bei einem
+    /// echten Treffer - der Vergleich kann per Konstruktion nie zutreffen.
+    /// </summary>
+    private const string DummyPasswordHash =
+        "$2a$11$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
+
     public async Task<TokenPairResult> HandleAsync(LoginCommand command, CancellationToken cancellationToken)
     {
         var seller = await sellers.GetByEmailAsync(command.Email, cancellationToken);
 
         // Bewusst dieselbe Exception fuer unbekannte E-Mail und falsches
-        // Passwort (Epic_Login AC-2) - kein Unterschied im Timing-Pfad, der
-        // verraet, welcher Teil falsch war.
-        if (seller?.PasswordHash is null || !passwordHasher.Verify(command.Password, seller.PasswordHash))
+        // Passwort (Epic_Login AC-2).
+        //
+        // Achtung, die Antwort ist gleich, der Zeitverlauf nur annaehernd: der
+        // teure Teil ist der BCrypt-Verify (~250 ms). Bei unbekannter E-Mail
+        // gaebe es nichts zu verifizieren, und der schnellere Rueckweg waere
+        // per Response-Latenz messbar - also User-Enumeration. Der Verify gegen
+        // DummyPasswordHash brennt diese Zeit bewusst ab. Das ist kein
+        // konstante-Zeit-Verfahren (Datenbanklaufzeit und Netzwerk streuen
+        // weiter), aber es schliesst die grosse, gut messbare Luecke. Ein
+        // echtes constant-time-Login fordert die Spec nicht - akzeptierter
+        // Trade-off.
+        if (seller?.PasswordHash is null)
+        {
+            _ = passwordHasher.Verify(command.Password, DummyPasswordHash);
+            throw new UnauthorizedException("auth.invalid_credentials", InvalidCredentialsMessage);
+        }
+
+        if (!passwordHasher.Verify(command.Password, seller.PasswordHash))
         {
             throw new UnauthorizedException("auth.invalid_credentials", InvalidCredentialsMessage);
         }
