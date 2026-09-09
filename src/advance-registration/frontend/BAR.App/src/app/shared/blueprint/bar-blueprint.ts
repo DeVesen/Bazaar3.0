@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'bar-blueprint',
+  selector: 'app-blueprint',
   templateUrl: './bar-blueprint.html',
   styleUrl: './bar-blueprint.scss'
 })

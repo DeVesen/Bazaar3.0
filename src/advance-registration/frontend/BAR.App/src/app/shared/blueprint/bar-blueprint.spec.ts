@@ -5,7 +5,7 @@ import { BarBlueprint } from './bar-blueprint';
 describe('BarBlueprint', () => {
   it('projects its content inside the blueprint container', () => {
     TestBed.overrideComponent(BarBlueprint, {
-      set: { template: '<bar-blueprint><p>Inhalt</p></bar-blueprint>' }
+      set: { template: '<app-blueprint><p>Inhalt</p></app-blueprint>' }
     });
     const fixture = TestBed.createComponent(BarBlueprint);
     fixture.detectChanges();
