@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddExceptionHandler<BAR.Host.DomainExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // CORS: Angular Dev fest, Production-Origin ueber Environment-Variable
 // (VPROJ-S02 AC-3, api/cross-cutting.md Abschnitt 8).
@@ -33,6 +35,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(corsPolicy);
+
+app.UseExceptionHandler();
 
 app.MapHealthEndpoints();
 
