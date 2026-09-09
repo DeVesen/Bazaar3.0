@@ -2,6 +2,7 @@ using BAR.Application.Abstractions;
 using BAR.Application.Auth.Login;
 using BAR.Application.Auth.Refresh;
 using BAR.Application.Articles.Create;
+using BAR.Application.Articles.GetMine;
 using BAR.Application.Articles.GetNextNumber;
 using BAR.Application.Auth.Register;
 using BAR.Application.Blocks.GetMine;
@@ -62,6 +63,7 @@ public static class DependencyInjection
         services.AddScoped<UpdateProfileCommandHandler>();
         services.AddScoped<CreateArticleCommandHandler>();
         services.AddScoped<GetNextNumberQueryHandler>();
+        services.AddScoped<GetMyArticlesQueryHandler>();
         services.AddScoped<IValidator<RegisterCommand>, RegisterCommandValidator>();
         services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
         services.AddScoped<IValidator<RefreshCommand>, RefreshCommandValidator>();
