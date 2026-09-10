@@ -39,11 +39,9 @@ describe('Shell', () => {
     expect(fixture.nativeElement.querySelector('p-toast')).not.toBeNull();
   });
 
-  it('provides MessageService and ConfirmationService for child injectors', () => {
+  it('renders a single p-confirm-dialog for app-wide confirmations', () => {
     const fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
-
-    expect(() => TestBed.inject(MessageService)).not.toThrow();
-    expect(() => TestBed.inject(ConfirmationService)).not.toThrow();
+    expect(fixture.nativeElement.querySelector('p-confirm-dialog')).not.toBeNull();
   });
 });

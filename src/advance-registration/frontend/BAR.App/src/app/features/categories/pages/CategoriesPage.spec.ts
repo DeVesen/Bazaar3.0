@@ -69,4 +69,20 @@ describe('CategoriesPage', () => {
     expect(deleteSpy).toHaveBeenCalledWith('categories', 'c1');
     expect(api.getAll).toHaveBeenCalledWith('categories');
   });
+
+  it('onTableAction("delete", row) confirms and, on accept, deletes the category', () => {
+    const { fixture, api } = create();
+    const deleteSpy = vi.spyOn(api, 'delete').mockReturnValue(of(undefined));
+    const confirmationService = TestBed.inject(ConfirmationService);
+    const confirmSpy = vi.spyOn(confirmationService, 'confirm');
+    const row = { id: 'c1', name: 'Jacken', original: true, articleCount: 2 };
+
+    fixture.componentInstance.onTableAction({ actionId: 'delete', row });
+
+    expect(confirmSpy).toHaveBeenCalled();
+    const confirmation = confirmSpy.mock.calls[0][0];
+    confirmation.accept!();
+
+    expect(deleteSpy).toHaveBeenCalledWith('categories', 'c1');
+  });
 });

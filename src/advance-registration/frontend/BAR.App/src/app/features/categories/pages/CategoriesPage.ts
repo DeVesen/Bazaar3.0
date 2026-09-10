@@ -48,7 +48,7 @@ export class CategoriesPage implements OnInit {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
 
-  protected readonly COLUMNS = COLUMNS as ColumnConfig[];
+  protected readonly COLUMNS = COLUMNS;
   protected readonly ACTION_COLUMN = ACTION_COLUMN;
 
   readonly categories = signal<MasterDataItem[]>([]);
@@ -69,9 +69,15 @@ export class CategoriesPage implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.masterDataApi.getAll('categories').subscribe((items) => {
-      this.categories.set(items);
-      this.loading.set(false);
+    this.masterDataApi.getAll('categories').subscribe({
+      next: (items) => {
+        this.loading.set(false);
+        this.categories.set(items);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Kategorien konnten nicht geladen werden' });
+      }
     });
   }
 
@@ -93,7 +99,9 @@ export class CategoriesPage implements OnInit {
 
   confirmDelete(row: MasterDataItem): void {
     this.confirmationService.confirm({
-      message: `Kategorie „${row.name}" wirklich löschen?`,
+      message: `Kategorie „${row.name}“ wirklich löschen?`,
+      acceptLabel: 'Löschen',
+      rejectLabel: 'Abbrechen',
       accept: () => this.deleteCategory(row)
     });
   }

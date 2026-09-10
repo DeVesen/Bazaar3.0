@@ -24,7 +24,8 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: IndustryPreset,
         options: { darkModeSelector: false }
-      }
+      },
+      translation: { accept: 'Ja', reject: 'Nein' }
     }),
     provideLucideConfig({ strokeWidth: 1.5 }),
     MessageService,

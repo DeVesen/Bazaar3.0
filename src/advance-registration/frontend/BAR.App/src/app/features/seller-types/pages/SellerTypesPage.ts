@@ -69,9 +69,15 @@ export class SellerTypesPage implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.sellerTypeApi.getAll().subscribe((items) => {
-      this.sellerTypes.set(items);
-      this.loading.set(false);
+    this.sellerTypeApi.getAll().subscribe({
+      next: (items) => {
+        this.loading.set(false);
+        this.sellerTypes.set(items);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Verkäufer-Typen konnten nicht geladen werden' });
+      }
     });
   }
 
@@ -91,7 +97,9 @@ export class SellerTypesPage implements OnInit {
 
   confirmDelete(row: SellerType): void {
     this.confirmationService.confirm({
-      message: `Verkäufer-Typ „${row.name}" wirklich löschen? Betrifft ${row.sellerCount} Verkäufer.`,
+      message: `Verkäufer-Typ „${row.name}“ wirklich löschen? Betrifft ${row.sellerCount} Verkäufer.`,
+      acceptLabel: 'Löschen',
+      rejectLabel: 'Abbrechen',
       accept: () => this.deleteType(row)
     });
   }

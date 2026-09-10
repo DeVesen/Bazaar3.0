@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -68,5 +68,21 @@ describe('BrandsPage', () => {
 
     expect(deleteSpy).toHaveBeenCalledWith('brands', 'b2');
     expect(api.getAll).toHaveBeenCalledWith('brands');
+  });
+
+  it('onTableAction("delete", row) confirms and, on accept, deletes the brand', () => {
+    const { fixture, api } = create();
+    const deleteSpy = vi.spyOn(api, 'delete').mockReturnValue(of(undefined));
+    const confirmationService = TestBed.inject(ConfirmationService);
+    const confirmSpy = vi.spyOn(confirmationService, 'confirm');
+    const row = { id: 'b2', name: 'Adidas', original: false, articleCount: 3 };
+
+    fixture.componentInstance.onTableAction({ actionId: 'delete', row });
+
+    expect(confirmSpy).toHaveBeenCalled();
+    const confirmation = confirmSpy.mock.calls[0][0];
+    confirmation.accept!();
+
+    expect(deleteSpy).toHaveBeenCalledWith('brands', 'b2');
   });
 });

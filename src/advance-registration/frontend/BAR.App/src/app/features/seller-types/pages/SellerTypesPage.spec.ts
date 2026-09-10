@@ -55,4 +55,20 @@ describe('SellerTypesPage', () => {
 
     expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', summary: 'Verkäufer-Typ wird noch verwendet' }));
   });
+
+  it('onTableAction("delete", row) confirms and, on accept, deletes the seller type', () => {
+    const { fixture, api } = create();
+    const deleteSpy = vi.spyOn(api, 'delete').mockReturnValue(of(undefined));
+    const confirmationService = TestBed.inject(ConfirmationService);
+    const confirmSpy = vi.spyOn(confirmationService, 'confirm');
+    const row = { id: 't1', name: 'Standard', commissionRate: 12.5, itemFee: 0.5, sellerCount: 3 };
+
+    fixture.componentInstance.onTableAction({ actionId: 'delete', row });
+
+    expect(confirmSpy).toHaveBeenCalled();
+    const confirmation = confirmSpy.mock.calls[0][0];
+    confirmation.accept!();
+
+    expect(deleteSpy).toHaveBeenCalledWith('t1');
+  });
 });

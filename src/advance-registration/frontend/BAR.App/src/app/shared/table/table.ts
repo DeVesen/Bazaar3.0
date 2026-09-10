@@ -147,7 +147,7 @@ interface PrimeNgPageEvent {
   `
 })
 export class AppTable<T> {
-  readonly columns = input.required<ColumnConfig[]>();
+  readonly columns = input.required<ColumnConfig<T>[]>();
   readonly data = input.required<T[]>();
   readonly totalRecords = input<number>(0);
   readonly loading = input<boolean>(false);
@@ -171,7 +171,7 @@ export class AppTable<T> {
   readonly showPaginator = computed(() => this.totalRecords() > this.rows());
   readonly totalColumns = computed(() => this.columns().length + (this.actionColumn() ? 1 : 0));
 
-  formatCell(col: ColumnConfig, row: T): unknown {
+  formatCell(col: ColumnConfig<T>, row: T): unknown {
     const value = (row as Record<string, unknown>)[col.field];
     if (col.type === 'currency' && typeof value === 'number') {
       return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);

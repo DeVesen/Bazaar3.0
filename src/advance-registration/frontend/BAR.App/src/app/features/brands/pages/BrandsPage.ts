@@ -48,7 +48,7 @@ export class BrandsPage implements OnInit {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
 
-  protected readonly COLUMNS = COLUMNS as ColumnConfig[];
+  protected readonly COLUMNS = COLUMNS;
   protected readonly ACTION_COLUMN = ACTION_COLUMN;
 
   readonly brands = signal<MasterDataItem[]>([]);
@@ -69,9 +69,15 @@ export class BrandsPage implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.masterDataApi.getAll('brands').subscribe((items) => {
-      this.brands.set(items);
-      this.loading.set(false);
+    this.masterDataApi.getAll('brands').subscribe({
+      next: (items) => {
+        this.loading.set(false);
+        this.brands.set(items);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Marken konnten nicht geladen werden' });
+      }
     });
   }
 
@@ -93,7 +99,9 @@ export class BrandsPage implements OnInit {
 
   confirmDelete(row: MasterDataItem): void {
     this.confirmationService.confirm({
-      message: `Marke „${row.name}" wirklich löschen?`,
+      message: `Marke „${row.name}“ wirklich löschen?`,
+      acceptLabel: 'Löschen',
+      rejectLabel: 'Abbrechen',
       accept: () => this.deleteBrand(row)
     });
   }
