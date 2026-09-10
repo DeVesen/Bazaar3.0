@@ -4,17 +4,21 @@
   background: rgba(0, 0, 0, 0.52);
 }
 
-// PrimeNG registriert seine eigenen .p-dialog-Regeln (border-radius/max-height
+// PrimeNG registriert seine eigenen .p-dialog-Regeln (max-height/max-width
 // ueber Design-Token-Variablen bzw. feste Werte) mit derselben Selektor-
 // Spezifitaet und i.d.R. spaeter im Cascade als diese globale Datei — ohne
 // !important gewinnt PrimeNG. Einzelne Dialoge setzen zudem eine feste Pixel-
 // Breite + eigenes max-width per [style]-Binding (z. B. seller-create-dialog),
 // das per se schon staerker ist als jede Klassenregel — auch dafuer ist
 // !important noetig, um den 80%/90vh- bzw. 100%/100vh-Cap aus spec.md §10.1
-// zuverlaessig durchzusetzen.
+// zuverlaessig durchzusetzen. Fuer border-radius liest PrimeNGs eigenes CSS
+// die Design-Token-Variable --p-dialog-border-radius per var() (siehe
+// @primeuix/styles/dist/dialog: border-radius: dt('dialog.border.radius'))
+// — analog zum Sidebar-Hintergrund in sidebar.scss reicht es, die Variable
+// selbst zu ueberschreiben, kein !important noetig.
 .p-dialog {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  border-radius: 10px !important;
+  --p-dialog-border-radius: 10px;
   max-width: 80vw !important;
   max-height: 90vh !important;
 
@@ -34,7 +38,7 @@
 
 @include breakpoints.mobile {
   .p-dialog {
-    border-radius: 0 !important;
+    --p-dialog-border-radius: 0;
     width: 100vw !important;
     height: 100vh !important;
     max-width: 100vw !important;
