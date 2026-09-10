@@ -162,4 +162,44 @@ public class SellerTests
 
         Assert.Throws<UnauthorizedException>(() => seller.ConsumePassword("hashed", DateTime.UtcNow));
     }
+
+    [Fact]
+    public void ChangeEmail_ValidEmail_UpdatesEmail()
+    {
+        var seller = Seller.Register("Anna", "Beispiel", null, "76133", "Karlsruhe",
+            "0721 12345", "anna@example.com", "t1b2c3d4", "hashed");
+
+        seller.ChangeEmail("anna.neu@example.com");
+
+        Assert.Equal("anna.neu@example.com", seller.Email);
+    }
+
+    [Fact]
+    public void ChangeEmail_EmptyEmail_Throws()
+    {
+        var seller = Seller.Register("Anna", "Beispiel", null, "76133", "Karlsruhe",
+            "0721 12345", "anna@example.com", "t1b2c3d4", "hashed");
+
+        Assert.Throws<ArgumentException>(() => seller.ChangeEmail(""));
+    }
+
+    [Fact]
+    public void ChangePassword_ValidHash_UpdatesPasswordHash()
+    {
+        var seller = Seller.Register("Anna", "Beispiel", null, "76133", "Karlsruhe",
+            "0721 12345", "anna@example.com", "t1b2c3d4", "hashed");
+
+        seller.ChangePassword("neuer-hash");
+
+        Assert.Equal("neuer-hash", seller.PasswordHash);
+    }
+
+    [Fact]
+    public void ChangePassword_EmptyHash_Throws()
+    {
+        var seller = Seller.Register("Anna", "Beispiel", null, "76133", "Karlsruhe",
+            "0721 12345", "anna@example.com", "t1b2c3d4", "hashed");
+
+        Assert.Throws<ArgumentException>(() => seller.ChangePassword(""));
+    }
 }

@@ -116,6 +116,18 @@ public sealed class Seller
         InviteTokenExpiresAt = null;
     }
 
+    public void ChangeEmail(string newEmail)
+    {
+        if (string.IsNullOrWhiteSpace(newEmail)) throw new ArgumentException("newEmail ist Pflicht.", nameof(newEmail));
+        Email = newEmail;
+    }
+
+    public void ChangePassword(string newPasswordHash)
+    {
+        if (string.IsNullOrWhiteSpace(newPasswordHash)) throw new ArgumentException("newPasswordHash ist Pflicht.", nameof(newPasswordHash));
+        PasswordHash = newPasswordHash;
+    }
+
     private static void ValidateRequiredFields(
         string firstName, string lastName, string postalCode, string city, string phone, string email, string sellerTypeId)
     {
