@@ -8,7 +8,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { VerkaeuferNummer } from '../../../shared/verkaeufer-nummer/verkaeufer-nummer';
 import { InfoArea } from '../../../shared/info-area/info-area';
 import { ProfileApiService, ProfileDto, ChangeEmailPayload, ChangePasswordPayload } from '../profile-api.service';
-import { PasswordStrengthMeter, PasswordStrengthLevel } from '../../../shared/password-strength-meter/password-strength-meter';
+import { PasswordStrengthMeter } from '../../../shared/password-strength-meter/password-strength-meter';
 import { computePasswordStrength } from '../../../shared/password-strength-meter/password-strength';
 import { AuthService } from '../../../core/auth/auth.service';
 
@@ -55,8 +55,8 @@ export class ProfilePage {
   readonly passwordCurrentPassword = signal('');
   readonly newPassword = signal('');
   readonly newPasswordConfirmation = signal('');
-  readonly newPasswordLevel = signal<PasswordStrengthLevel>('schwach');
   readonly passwordError = signal<string | null>(null);
+  readonly deleteError = signal<string | null>(null);
 
   readonly canChangeEmail = computed(() =>
     this.newEmail().trim() !== '' && this.emailCurrentPassword().trim() !== '');
@@ -120,15 +120,19 @@ export class ProfilePage {
 
     this.api.changeEmail(payload).subscribe({
       next: () => {
+        this.profile.update((p) => (p ? { ...p, email: payload.newEmail } : p));
         this.newEmail.set('');
         this.emailCurrentPassword.set('');
         this.messageService.add({ severity: 'success', summary: '✓ E-Mail geändert' });
       },
-      error: (response: { status: number }) => {
+      error: (response: { status: number; error?: ValidationProblem }) => {
         if (response.status === 401) {
           this.emailError.set('Aktuelles Passwort ist falsch');
         } else if (response.status === 409) {
           this.emailError.set('Diese E-Mail ist bereits vergeben');
+        } else if (response.status === 400 && response.error?.errors) {
+          const messages = Object.values(response.error.errors).flat();
+          this.emailError.set(messages[0] ?? 'E-Mail-Format ist ungültig');
         } else {
           this.emailError.set('E-Mail konnte nicht geändert werden');
         }
@@ -166,12 +170,16 @@ export class ProfilePage {
   }
 
   confirmDeleteAccount(): void {
+    this.deleteError.set(null);
     this.confirmationService.confirm({
       message: 'Konto wirklich löschen? Alle Artikel und Nummernblöcke werden ebenfalls gelöscht.',
       acceptLabel: 'Löschen',
       rejectLabel: 'Abbrechen',
       accept: () => {
-        this.api.deleteAccount().subscribe(() => this.authService.logout());
+        this.api.deleteAccount().subscribe({
+          next: () => this.authService.logout(),
+          error: () => this.deleteError.set('Konto konnte nicht gelöscht werden')
+        });
       }
     });
   }

@@ -164,6 +164,39 @@ describe('ProfilePage - Zugangsdaten', () => {
     expect(fixture.componentInstance.emailError()).toBe('Aktuelles Passwort ist falsch');
   });
 
+  it('updates the profile signal (Steckbrief) with the new email after a successful change', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+
+    fixture.componentInstance.newEmail.set('neu@example.com');
+    fixture.componentInstance.emailCurrentPassword.set('geheim123!');
+    fixture.componentInstance.changeEmail();
+
+    httpMock.expectOne('/api/profile/email').flush(null);
+
+    expect(fixture.componentInstance.profile()?.email).toBe('neu@example.com');
+  });
+
+  it('shows a format error on 400 during email change, distinct from the generic fallback', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+
+    fixture.componentInstance.newEmail.set('abc');
+    fixture.componentInstance.emailCurrentPassword.set('geheim123!');
+    fixture.componentInstance.changeEmail();
+
+    httpMock
+      .expectOne('/api/profile/email')
+      .flush({ errors: { newEmail: ["'New Email' is not a valid email address."] } }, { status: 400, statusText: 'Bad Request' });
+
+    expect(fixture.componentInstance.emailError()).toBe("'New Email' is not a valid email address.");
+    expect(fixture.componentInstance.emailError()).not.toBe('E-Mail konnte nicht geändert werden');
+  });
+
   it('shows 409 as email-taken error on email change', () => {
     const fixture = TestBed.createComponent(ProfilePage);
     fixture.detectChanges();
@@ -269,6 +302,27 @@ describe('ProfilePage - Konto löschen', () => {
 
     httpMock.expectOne('/api/profile').flush(null);
     expect(logoutSpy).toHaveBeenCalled();
+  });
+
+  it('sets a delete error and does not log out when deleting the account fails', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+    const authService = TestBed.inject(AuthService);
+    const logoutSpy = vi.spyOn(authService, 'logout').mockImplementation(() => {});
+    const confirmationService = TestBed.inject(ConfirmationService);
+    vi.spyOn(confirmationService, 'confirm').mockImplementation((options) => {
+      options.accept?.();
+      return confirmationService;
+    });
+
+    fixture.componentInstance.confirmDeleteAccount();
+
+    httpMock.expectOne('/api/profile').flush('Server-Fehler', { status: 500, statusText: 'Internal Server Error' });
+
+    expect(fixture.componentInstance.deleteError()).toBe('Konto konnte nicht gelöscht werden');
+    expect(logoutSpy).not.toHaveBeenCalled();
   });
 
   it('hides the delete tab content for admins', () => {

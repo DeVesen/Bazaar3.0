@@ -127,7 +127,7 @@
             <div>
               <label for="newPassword">Neues Passwort *</label>
               <input id="newPassword" pInputText type="password" [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)" name="newPassword" required />
-              <app-password-strength-meter [password]="newPassword()" (level)="newPasswordLevel.set($event)" />
+              <app-password-strength-meter [password]="newPassword()" />
             </div>
             <div>
               <label for="newPasswordConfirmation">Neues Passwort bestätigen *</label>
@@ -148,6 +148,9 @@
         <div class="panel-block">
           <p class="panel-block__title">Account löschen</p>
           <p>Diese Aktion kann nicht rückgängig gemacht werden. Alle Artikel und Nummernblöcke werden mitgelöscht.</p>
+          @if (deleteError()) {
+            <app-info-area type="error" [message]="deleteError()!" />
+          }
           <p-button label="Account löschen" severity="danger" (onClick)="confirmDeleteAccount()" />
         </div>
       }
