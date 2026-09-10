@@ -54,4 +54,16 @@ public class NumberBlockAllocatorTests
 
         Assert.Equal("a3f9c2d1", result[0].SellerId);
     }
+
+    [Fact]
+    public void Allocate_NoFreeRangeAvailable_ThrowsConflictExceptionWithBlockNoFreeRangeCode()
+    {
+        var occupied = new[] { NumberBlock.Assign("other", 1, int.MaxValue - 1, DateTime.UtcNow) };
+
+        var ex = Assert.Throws<NoFreeRangeException>(() =>
+            NumberBlockAllocator.Allocate(occupied, "a3f9c2d1", 1, 1, 10, DateTime.UtcNow));
+
+        var domainException = Assert.IsAssignableFrom<BAR.Domain.Exceptions.ConflictException>(ex);
+        Assert.Equal("block.no_free_range", domainException.ErrorCode);
+    }
 }

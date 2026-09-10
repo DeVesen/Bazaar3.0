@@ -67,6 +67,61 @@ public class BlocksEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
         Assert.Equal(0, blocksWithoutArticle![0].UsedCount);
     }
 
+    [Fact]
+    public async Task ReserveBlocks_NegativeBlockCount_Returns400InsteadOf500()
+    {
+        var (_, sellerId) = await RegisterAndAuthenticateAsync();
+        var admin = await AuthenticateAsAdminAsync();
+
+        var response = await admin.PostAsJsonAsync($"/api/sellers/{sellerId}/blocks", new
+        {
+            blockCount = -1
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ReserveBlocks_ZeroBlockCount_Returns400InsteadOfEmptyResult()
+    {
+        var (_, sellerId) = await RegisterAndAuthenticateAsync();
+        var admin = await AuthenticateAsAdminAsync();
+
+        var response = await admin.PostAsJsonAsync($"/api/sellers/{sellerId}/blocks", new
+        {
+            blockCount = 0
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ReserveBlocks_StartNumberBelowSettingsStartNumber_Returns409BlockOverlap()
+    {
+        var (_, sellerId) = await RegisterAndAuthenticateAsync();
+        var admin = await AuthenticateAsAdminAsync();
+
+        var response = await admin.PostAsJsonAsync($"/api/sellers/{sellerId}/blocks", new
+        {
+            startNumber = 0,
+            blockCount = 1
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        Assert.Contains("\"errorCode\":\"block.overlap\"", body);
+    }
+
+    [Fact]
+    public async Task NextFree_ZeroBlockCount_Returns400InsteadOf500()
+    {
+        var admin = await AuthenticateAsAdminAsync();
+
+        var response = await admin.GetAsync("/api/blocks/next-free?blockCount=0", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     private async Task<(HttpClient Client, string SellerId)> RegisterAndAuthenticateAsync()
     {
         var client = _factory.CreateClient();

@@ -16,6 +16,9 @@ public sealed class ArticleRepository(BarDbContext dbContext) : IArticleReposito
     public Task<int> CountInRangeForSellerAsync(string sellerId, int fromNumber, int toNumber, CancellationToken cancellationToken) =>
         dbContext.Articles.CountAsync(a => a.SellerId == sellerId && a.Number >= fromNumber && a.Number <= toNumber, cancellationToken);
 
+    public Task<int> CountForSellerAsync(string sellerId, CancellationToken cancellationToken) =>
+        dbContext.Articles.CountAsync(a => a.SellerId == sellerId, cancellationToken);
+
     public async Task CreateAsync(Article article, NumberBlock? newBlock, CancellationToken cancellationToken)
     {
         if (newBlock is not null)

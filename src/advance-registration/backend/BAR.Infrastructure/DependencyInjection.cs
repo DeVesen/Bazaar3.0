@@ -83,6 +83,7 @@ public static class DependencyInjection
         services.AddScoped<GetMyBlocksQueryHandler>();
         services.AddScoped<GetNextFreeQueryHandler>();
         services.AddScoped<ReserveBlocksCommandHandler>();
+        services.AddScoped<IValidator<ReserveBlocksCommand>, ReserveBlocksCommandValidator>();
         services.AddScoped<DeleteBlockCommandHandler>();
         services.AddScoped<GetProfileQueryHandler>();
         services.AddScoped<UpdateProfileCommandHandler>();

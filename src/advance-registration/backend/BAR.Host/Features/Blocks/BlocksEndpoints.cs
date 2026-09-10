@@ -4,6 +4,7 @@ using BAR.Application.Blocks.GetMine;
 using BAR.Application.Blocks.NextFree;
 using BAR.Application.Blocks.Reserve;
 using BAR.Domain.Ports;
+using BAR.Host.Validation;
 
 namespace BAR.Host.Features.Blocks;
 
@@ -27,8 +28,17 @@ public static class BlocksEndpoints
         }).RequireAuthorization();
 
         app.MapGet("/api/blocks/next-free", async (int blockCount, GetNextFreeQueryHandler handler, CancellationToken ct) =>
-            Results.Ok(await handler.HandleAsync(new GetNextFreeQuery(blockCount), ct))
-        ).RequireAuthorization("admin");
+        {
+            if (blockCount < 1)
+            {
+                return Results.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    ["blockCount"] = ["blockCount muss mindestens 1 sein"]
+                });
+            }
+
+            return Results.Ok(await handler.HandleAsync(new GetNextFreeQuery(blockCount), ct));
+        }).RequireAuthorization("admin");
 
         app.MapGet("/api/sellers/{id}/blocks", async (
             string id, INumberBlockRepository blocks, IArticleRepository articles, CancellationToken ct) =>
@@ -44,11 +54,12 @@ public static class BlocksEndpoints
         }).RequireAuthorization("admin");
 
         app.MapPost("/api/sellers/{id}/blocks", async (
-            string id, ReserveBlocksRequestBody body, ReserveBlocksCommandHandler handler, CancellationToken ct) =>
+            string id, ReserveBlocksCommand body, ReserveBlocksCommandHandler handler, CancellationToken ct) =>
         {
-            var result = await handler.HandleAsync(new ReserveBlocksCommand(id, body.StartNumber, body.BlockCount), ct);
+            var command = body with { SellerId = id };
+            var result = await handler.HandleAsync(command, ct);
             return Results.Created($"/api/sellers/{id}/blocks", result);
-        }).RequireAuthorization("admin");
+        }).RequireAuthorization("admin").AddEndpointFilter<ValidationFilter<ReserveBlocksCommand>>();
 
         app.MapDelete("/api/sellers/{id}/blocks/{blockId}", async (
             string id, string blockId, DeleteBlockCommandHandler handler, CancellationToken ct) =>
@@ -60,5 +71,3 @@ public static class BlocksEndpoints
         return app;
     }
 }
-
-public sealed record ReserveBlocksRequestBody(int? StartNumber, int? BlockCount);

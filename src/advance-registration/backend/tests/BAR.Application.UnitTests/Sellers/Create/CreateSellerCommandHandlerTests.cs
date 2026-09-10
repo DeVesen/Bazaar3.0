@@ -65,6 +65,22 @@ public class CreateSellerCommandHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_StartNumberBelowSettingsStartNumber_ThrowsBlockOverlapAndDoesNotCreateSellerOrBlocks()
+    {
+        SetUpHappyPath();
+        var handler = CreateHandler();
+        var command = new CreateSellerCommand(
+            "Anna", "Beispiel", "Hauptstr. 1", "76133", "Karlsruhe", "0721 1", "anna@example.com", "t0000001", false, 0, null);
+
+        var ex = await Assert.ThrowsAsync<BAR.Domain.Exceptions.ConflictException>(
+            () => handler.HandleAsync(command, TestContext.Current.CancellationToken));
+
+        Assert.Equal("block.overlap", ex.ErrorCode);
+        _sellers.Verify(s => s.AddAsync(It.IsAny<Seller>(), It.IsAny<CancellationToken>()), Times.Never);
+        _blocks.Verify(b => b.AddRangeAsync(It.IsAny<IReadOnlyList<NumberBlock>>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task HandleAsync_UnknownSellerTypeId_ThrowsNotFoundAndDoesNotCreateSellerOrBlocks()
     {
         SetUpHappyPath();

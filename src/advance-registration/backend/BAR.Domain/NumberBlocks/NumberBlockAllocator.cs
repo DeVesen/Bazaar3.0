@@ -52,5 +52,6 @@ public static class NumberBlockAllocator
     }
 }
 
-/// <summary>Notfall-Pfad (api/blocks.md Abschnitt 5, Stufe 3) - im Normalbetrieb unerreichbar.</summary>
-public sealed class NoFreeRangeException : Exception;
+/// <summary>Notfall-Pfad (api/blocks.md Abschnitt 5, Stufe 3) - im Normalbetrieb unerreichbar -> 409.</summary>
+public sealed class NoFreeRangeException()
+    : BAR.Domain.Exceptions.ConflictException("block.no_free_range", "Kein zusammenhängender freier Nummernbereich verfügbar");

@@ -9,6 +9,15 @@ public sealed class ReserveBlocksCommandHandler(INumberBlockRepository blocks, I
     {
         var settings = await settingsRepository.GetAsync(cancellationToken)
             ?? throw new BAR.Domain.Exceptions.ConflictException("registration.not_enabled", "Registrierung ist noch nicht freigeschaltet");
+
+        // Pruef-Kaskade Stufe 1 (api/blocks.md Abschnitt 6): eine vom Admin
+        // vorgegebene Startnummer darf nie unterhalb der konfigurierten
+        // Basar-Startnummer liegen.
+        if (command.StartNumber.HasValue && command.StartNumber.Value < settings.StartNumber)
+        {
+            throw new BAR.Domain.Exceptions.ConflictException("block.overlap", "Nummernbereich überschneidet sich mit bestehendem Block");
+        }
+
         var existing = await blocks.GetAllOrderedByFromNumberAsync(cancellationToken);
 
         var blockCount = command.BlockCount ?? settings.DefaultBlockCount;

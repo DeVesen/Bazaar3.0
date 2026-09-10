@@ -26,11 +26,13 @@ public static class SellersEndpoints
         var group = app.MapGroup("/api/sellers").RequireAuthorization("admin");
 
         group.MapGet("/", async (
-            string? search, int page, int pageSize, string? sort,
+            string? search, int? page, int? pageSize, string? sort,
             GetSellersQueryHandler handler, CancellationToken ct) =>
         {
             var sortMeta = ParseSort(sort);
-            var query = new GetSellersQuery(search, page <= 0 ? 1 : page, pageSize <= 0 ? 25 : pageSize, sortMeta);
+            var effectivePage = Math.Max(page ?? 1, 1);
+            var effectivePageSize = Math.Clamp(pageSize ?? 25, 1, 100);
+            var query = new GetSellersQuery(search, effectivePage, effectivePageSize, sortMeta);
             return Results.Ok(await handler.HandleAsync(query, ct));
         });
 

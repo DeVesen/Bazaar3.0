@@ -1,9 +1,11 @@
+using BAR.Application.Abstractions;
 using BAR.Domain.Exceptions;
 using BAR.Domain.Ports;
 
 namespace BAR.Application.Sellers.Update;
 
-public sealed class UpdateSellerCommandHandler(ISellerRepository sellers, ISellerTypeRepository sellerTypes)
+public sealed class UpdateSellerCommandHandler(
+    ISellerRepository sellers, ISellerTypeRepository sellerTypes, IArticleRepository articles, IClock clock)
 {
     public async Task<SellerResponse> HandleAsync(UpdateSellerCommand command, CancellationToken cancellationToken)
     {
@@ -25,10 +27,16 @@ public sealed class UpdateSellerCommandHandler(ISellerRepository sellers, ISelle
 
         await sellers.UpdateAsync(seller, cancellationToken);
 
+        // ArticleCount und HasPendingInvite muessen konsistent mit
+        // SellerListQuery (GET /api/sellers) berechnet werden, sonst weicht
+        // diese Antwort von der Listen-Ansicht fuer denselben Verkaeufer ab.
+        var articleCount = await articles.CountForSellerAsync(seller.Id, cancellationToken);
+        var hasPendingInvite = seller.InviteToken != null && seller.InviteTokenExpiresAt > clock.UtcNow;
+
         return new SellerResponse(
             seller.Id, null, seller.FirstName, seller.LastName, seller.Address, seller.PostalCode,
             seller.City, seller.Phone, seller.Email, seller.SellerTypeId,
             new SellerTypeSummary(sellerType.Id, sellerType.Name, sellerType.CommissionRate, sellerType.ItemFee),
-            seller.IsAdmin, 0, seller.InviteToken != null);
+            seller.IsAdmin, articleCount, hasPendingInvite);
     }
 }

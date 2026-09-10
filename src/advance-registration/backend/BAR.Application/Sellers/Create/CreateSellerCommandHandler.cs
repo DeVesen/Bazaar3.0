@@ -34,6 +34,15 @@ public sealed class CreateSellerCommandHandler(
             var settings = await settingsRepository.GetAsync(ct)
                 ?? throw new ConflictException("registration.not_enabled", "Registrierung ist noch nicht freigeschaltet");
 
+            // Pruef-Kaskade Stufe 1 (api/blocks.md Abschnitt 6): eine vom Admin
+            // vorgegebene Startnummer darf nie unterhalb der konfigurierten
+            // Basar-Startnummer liegen. Vor der Seller-Anlage geprueft, damit bei
+            // Verletzung erst gar kein Verkaeufer erzeugt wird.
+            if (command.StartNumber.HasValue && command.StartNumber.Value < settings.StartNumber)
+            {
+                throw new ConflictException("block.overlap", "Nummernbereich überschneidet sich mit bestehendem Block");
+            }
+
             var seller = Seller.CreateByAdmin(
                 command.FirstName, command.LastName, command.Address, command.PostalCode,
                 command.City, command.Phone, command.Email, command.SellerTypeId, command.IsAdmin);
