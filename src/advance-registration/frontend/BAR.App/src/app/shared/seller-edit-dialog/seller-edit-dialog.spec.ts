@@ -36,6 +36,23 @@ const BLOCKS: NumberBlock[] = [
 ];
 
 function create() {
+  // app-info-area (rendered for the form-save/reserve errors, AC-11) plays an
+  // audio cue via AudioContext - jsdom does not implement it, so it is
+  // stubbed here like in ProfilePage.spec.ts.
+  vi.stubGlobal('AudioContext', class {
+    createOscillator() {
+      return {
+        type: '',
+        frequency: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() },
+        connect: vi.fn(),
+        start: vi.fn(),
+        stop: vi.fn()
+      };
+    }
+    destination = {};
+    currentTime = 0;
+  });
+
   TestBed.configureTestingModule({
     providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
   });
@@ -159,9 +176,26 @@ describe('SellerEditDialog', () => {
     );
 
     fixture.componentInstance.submit();
+    fixture.detectChanges();
 
     expect(fixture.componentInstance.formError()).toBe('E-Mail bereits vergeben');
     expect(fixture.componentInstance.visible()).toBe(true);
+  });
+
+  it('renders the save error in an app-info-area instead of a bare field-error paragraph (AC-11)', () => {
+    const { fixture, sellersApi } = create();
+    open(fixture);
+    vi.spyOn(sellersApi, 'update').mockReturnValue(
+      throwError(() => ({ status: 409, error: { detail: 'E-Mail bereits vergeben' } }))
+    );
+
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+
+    const infoAreas = fixture.nativeElement.querySelectorAll('app-info-area');
+    const texts = Array.from(infoAreas).map((el) => (el as HTMLElement).textContent);
+    expect(texts.some((t) => t?.includes('E-Mail bereits vergeben'))).toBe(true);
+    expect(fixture.nativeElement.querySelector('p.field-error')).toBeNull();
   });
 
   it('submit() on a non-409 error shows the generic error message', () => {
@@ -217,9 +251,14 @@ describe('SellerEditDialog', () => {
     );
 
     fixture.componentInstance.onReserve();
+    fixture.detectChanges();
 
     expect(fixture.componentInstance.reserveError()).toBe('Nummernbereich überschneidet sich mit bestehendem Block');
     expect(fixture.componentInstance.formError()).toBeNull();
+    const infoAreas = fixture.nativeElement.querySelectorAll('app-info-area');
+    const texts = Array.from(infoAreas).map((el) => (el as HTMLElement).textContent);
+    expect(texts.some((t) => t?.includes('Nummernbereich überschneidet sich mit bestehendem Block'))).toBe(true);
+    expect(fixture.nativeElement.querySelector('p.field-error')).toBeNull();
   });
 
   it('onInviteClick() invites, copies the link to the clipboard, and toasts', () => {

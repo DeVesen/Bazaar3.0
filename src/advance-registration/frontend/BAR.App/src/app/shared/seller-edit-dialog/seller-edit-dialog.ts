@@ -11,6 +11,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { SellersApiService, Seller, NumberBlock, UpdateSellerPayload } from '../../features/sellers/sellers-api.service';
 import { SellerTypeApiService, SellerType as SellerTypeOption } from '../../features/seller-types/seller-type-api.service';
 import { Badge } from '../badge/badge';
+import { InfoArea } from '../info-area/info-area';
 
 @Component({
   selector: 'app-seller-edit-dialog',
@@ -23,7 +24,8 @@ import { Badge } from '../badge/badge';
     SelectModule,
     CheckboxModule,
     AutoFocusModule,
-    Badge
+    Badge,
+    InfoArea
   ],
   templateUrl: './seller-edit-dialog.html'
 })

@@ -89,8 +89,8 @@
           <p-inputnumber id="reserve-start-number" [useGrouping]="false" [(ngModel)]="reserveStartNumberModel" />
         </div>
       </div>
-      @if (reserveError()) {
-        <p class="field-error">{{ reserveError() }}</p>
+      @if (reserveError(); as error) {
+        <app-info-area type="error" [message]="error" />
       }
       <button pButton type="button" severity="primary" size="small" (click)="onReserve()">✓ Reservieren</button>
     </div>
@@ -103,8 +103,8 @@
     <button pButton type="button" [outlined]="true" severity="secondary" size="small" (click)="onInviteClick()">📋 Einladungs-Link generieren</button>
   </div>
 
-  @if (formError()) {
-    <p class="field-error">{{ formError() }}</p>
+  @if (formError(); as error) {
+    <app-info-area type="error" [message]="error" />
   }
 
   <div class="dialog-footer">

@@ -9,10 +9,11 @@ import { AutoFocusModule } from 'primeng/autofocus';
 import { MessageService } from 'primeng/api';
 import { SellersApiService, CreateSellerPayload } from '../../features/sellers/sellers-api.service';
 import { SellerTypeApiService, SellerType as SellerTypeOption } from '../../features/seller-types/seller-type-api.service';
+import { InfoArea } from '../info-area/info-area';
 
 @Component({
   selector: 'app-seller-create-dialog',
-  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, SelectModule, AutoFocusModule],
+  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, SelectModule, AutoFocusModule, InfoArea],
   templateUrl: './seller-create-dialog.html'
 })
 export class SellerCreateDialog {

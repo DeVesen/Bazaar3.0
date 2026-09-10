@@ -77,8 +77,8 @@
     </div>
   </div>
 
-  @if (formError()) {
-    <p class="field-error">{{ formError() }}</p>
+  @if (formError(); as error) {
+    <app-info-area type="error" [message]="error" />
   }
 
   <div class="dialog-footer">

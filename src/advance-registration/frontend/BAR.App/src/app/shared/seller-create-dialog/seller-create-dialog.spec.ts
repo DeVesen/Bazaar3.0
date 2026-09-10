@@ -31,6 +31,23 @@ const CREATED_SELLER: Seller = {
 };
 
 function create() {
+  // app-info-area (rendered for the form-save error, AC-11) plays an audio
+  // cue via AudioContext - jsdom does not implement it, so it is stubbed here
+  // like in ProfilePage.spec.ts.
+  vi.stubGlobal('AudioContext', class {
+    createOscillator() {
+      return {
+        type: '',
+        frequency: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() },
+        connect: vi.fn(),
+        start: vi.fn(),
+        stop: vi.fn()
+      };
+    }
+    destination = {};
+    currentTime = 0;
+  });
+
   TestBed.configureTestingModule({
     providers: [provideHttpClient(), provideHttpClientTesting(), MessageService]
   });
@@ -153,12 +170,32 @@ describe('SellerCreateDialog', () => {
       throwError(() => ({ status: 409, error: { detail: 'E-Mail bereits vergeben' } }))
     );
     fixture.componentInstance.visible.set(true);
+    fixture.detectChanges(); // flushes the open-effect's field reset before filling the form
     fillRequiredFields(fixture.componentInstance);
 
     fixture.componentInstance.submit();
+    fixture.detectChanges();
 
     expect(fixture.componentInstance.formError()).toBe('E-Mail bereits vergeben');
     expect(fixture.componentInstance.visible()).toBe(true);
+  });
+
+  it('renders the save error in an app-info-area instead of a bare field-error paragraph (AC-11)', () => {
+    const { fixture, sellersApi } = create();
+    vi.spyOn(sellersApi, 'create').mockReturnValue(
+      throwError(() => ({ status: 409, error: { detail: 'E-Mail bereits vergeben' } }))
+    );
+    fixture.componentInstance.visible.set(true);
+    fixture.detectChanges(); // flushes the open-effect's field reset before filling the form
+    fillRequiredFields(fixture.componentInstance);
+
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+
+    const infoArea = fixture.nativeElement.querySelector('app-info-area');
+    expect(infoArea).not.toBeNull();
+    expect(infoArea.textContent).toContain('E-Mail bereits vergeben');
+    expect(fixture.nativeElement.querySelector('p.field-error')).toBeNull();
   });
 
   it('submit() on a non-409 error shows the generic error message', () => {
