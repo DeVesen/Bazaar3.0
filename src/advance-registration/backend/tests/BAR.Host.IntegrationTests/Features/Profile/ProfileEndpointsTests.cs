@@ -125,6 +125,58 @@ public class ProfileEndpointsTests : IClassFixture<PostgresWebApplicationFactory
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
 
+    [Fact]
+    public async Task PutProfilePassword_CorrectCurrentPassword_ReturnsNewTokenPairAndInvalidatesOldRefreshToken()
+    {
+        var client = _factory.CreateClient();
+        var email = $"{Guid.NewGuid()}@example.com";
+        var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            email, password = "geheim123!", firstName = "Anna", lastName = "Beispiel",
+            address = "Hauptstr. 1", postalCode = "76133", city = "Karlsruhe", phone = "0721 12345"
+        }, TestContext.Current.CancellationToken);
+        var originalTokens = await registerResponse.Content.ReadFromJsonAsync<TokenPair>(TestContext.Current.CancellationToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", originalTokens!.AccessToken);
+
+        var response = await client.PutAsJsonAsync("/api/profile/password", new
+        {
+            currentPassword = "geheim123!", newPassword = "neuGeheim456!", newPasswordConfirmation = "neuGeheim456!"
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var newTokens = await response.Content.ReadFromJsonAsync<TokenPair>(TestContext.Current.CancellationToken);
+        Assert.NotEqual(originalTokens.RefreshToken, newTokens!.RefreshToken);
+
+        var refreshWithOldToken = await client.PostAsJsonAsync("/api/auth/refresh", new { refreshToken = originalTokens.RefreshToken }, TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Unauthorized, refreshWithOldToken.StatusCode);
+    }
+
+    [Fact]
+    public async Task PutProfilePassword_WrongCurrentPassword_Returns401()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+
+        var response = await client.PutAsJsonAsync("/api/profile/password", new
+        {
+            currentPassword = "falsch", newPassword = "neuGeheim456!", newPasswordConfirmation = "neuGeheim456!"
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PutProfilePassword_ConfirmationMismatch_Returns400()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+
+        var response = await client.PutAsJsonAsync("/api/profile/password", new
+        {
+            currentPassword = "geheim123!", newPassword = "neuGeheim456!", newPasswordConfirmation = "anders789!"
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     private async Task<HttpClient> RegisterAndAuthenticateAsync()
     {
         var client = _factory.CreateClient();

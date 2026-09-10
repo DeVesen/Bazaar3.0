@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using BAR.Application.Profile.ChangeEmail;
+using BAR.Application.Profile.ChangePassword;
 using BAR.Application.Profile.GetProfile;
 using BAR.Application.Profile.UpdateProfile;
 using BAR.Host.Validation;
@@ -28,6 +29,13 @@ public static class ProfileEndpoints
             await handler.HandleAsync(sellerId, command, ct);
             return Results.NoContent();
         }).RequireAuthorization().AddEndpointFilter<ValidationFilter<ChangeEmailCommand>>();
+
+        app.MapPut("/api/profile/password", async (ClaimsPrincipal user, ChangePasswordCommand command, ChangePasswordCommandHandler handler, CancellationToken ct) =>
+        {
+            var sellerId = user.FindFirstValue("sub")!;
+            var result = await handler.HandleAsync(sellerId, command, ct);
+            return Results.Ok(result);
+        }).RequireAuthorization().AddEndpointFilter<ValidationFilter<ChangePasswordCommand>>();
 
         return app;
     }
