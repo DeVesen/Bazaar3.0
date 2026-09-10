@@ -291,5 +291,35 @@
     "dayLabelPlural": "Tage"
   },
   "notFound": { "title": "Seite nicht gefunden" },
-  "articles": { "title": "Artikel" }
+  "articles": { "title": "Artikel" },
+  "home": {
+    "untilBazaarLabel": "Bis zum Basar",
+    "untilDropOffLabel": "Bis zur Abgabe",
+    "noDeadlineSet": "Noch kein Termin festgelegt",
+    "sellersLabel": "Verkäufer",
+    "sellersSubLabel": "Registriert",
+    "totalArticlesLabel": "Artikel gesamt",
+    "articlesSubLabel": "Artikel",
+    "categoriesLabel": "Kategorien",
+    "brandsLabel": "Marken",
+    "myArticlesLabel": "Meine Artikel",
+    "piecesSubLabel": "Stück",
+    "myConditionsLabel": "Meine Konditionen",
+    "itemFeeUnit": "€ / Stück",
+    "totalFeeLabel": "Abgabegebühr gesamt",
+    "currencySubLabel": "€",
+    "noArticlesYet": "Noch keine Artikel erfasst.",
+    "registerArticlesNow": "Jetzt Artikel erfassen"
+  },
+  "activityHeatmap": {
+    "title": "Aktivität — letzte 12 Wochen",
+    "less": "Weniger",
+    "more": "Mehr",
+    "weekdayMon": "Mo",
+    "weekdayWed": "Mi",
+    "weekdayFri": "Fr",
+    "noActivity": "Keine Aktivität",
+    "oneActivity": "1 Aktivität",
+    "activitiesCount": "{{count}} Aktivitäten"
+  }
 }

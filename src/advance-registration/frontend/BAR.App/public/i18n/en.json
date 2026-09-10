@@ -291,5 +291,35 @@
     "dayLabelPlural": "days"
   },
   "notFound": { "title": "Page not found" },
-  "articles": { "title": "Articles" }
+  "articles": { "title": "Articles" },
+  "home": {
+    "untilBazaarLabel": "Until the bazaar",
+    "untilDropOffLabel": "Until drop-off",
+    "noDeadlineSet": "No date set yet",
+    "sellersLabel": "Sellers",
+    "sellersSubLabel": "Registered",
+    "totalArticlesLabel": "Total articles",
+    "articlesSubLabel": "Articles",
+    "categoriesLabel": "Categories",
+    "brandsLabel": "Brands",
+    "myArticlesLabel": "My articles",
+    "piecesSubLabel": "Items",
+    "myConditionsLabel": "My conditions",
+    "itemFeeUnit": "€ / item",
+    "totalFeeLabel": "Total drop-off fee",
+    "currencySubLabel": "€",
+    "noArticlesYet": "No articles registered yet.",
+    "registerArticlesNow": "Register articles now"
+  },
+  "activityHeatmap": {
+    "title": "Activity — last 12 weeks",
+    "less": "Less",
+    "more": "More",
+    "weekdayMon": "Mo",
+    "weekdayWed": "We",
+    "weekdayFri": "Fr",
+    "noActivity": "No activity",
+    "oneActivity": "1 activity",
+    "activitiesCount": "{{count}} activities"
+  }
 }

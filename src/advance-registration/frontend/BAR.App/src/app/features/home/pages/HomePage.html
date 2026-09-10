@@ -1,43 +1,46 @@
 @if (isAdminView()) {
   <app-kpi-grid [columns]="5">
-    <app-kpi-tile label="Bis zum Basar" [value]="null">
-      @if (adminPhases().length > 0) {
-        <app-countdown variant="kpi" [phases]="adminPhases()" />
+    <app-kpi-tile [label]="'home.untilBazaarLabel' | translate" [value]="null">
+      @if (adminPhases.length > 0) {
+        <app-countdown variant="kpi" [phases]="adminPhases" />
       } @else {
-        <p class="kpi-tile__sub-label">Noch kein Termin festgelegt</p>
+        <p class="kpi-tile__sub-label">{{ 'home.noDeadlineSet' | translate }}</p>
       }
     </app-kpi-tile>
     <a routerLink="/sellers">
-      <app-kpi-tile label="Verkäufer" [value]="adminSellerCount()" subLabel="Registriert" />
+      <app-kpi-tile [label]="'home.sellersLabel' | translate" [value]="adminSellerCount()" [subLabel]="'home.sellersSubLabel' | translate" />
     </a>
     <a routerLink="/articles">
-      <app-kpi-tile label="Artikel gesamt" [value]="adminArticleCount()" subLabel="Artikel" />
+      <app-kpi-tile [label]="'home.totalArticlesLabel' | translate" [value]="adminArticleCount()" [subLabel]="'home.articlesSubLabel' | translate" />
     </a>
     <a routerLink="/categories">
-      <app-kpi-tile label="Kategorien" [value]="adminCategoryCount()" />
+      <app-kpi-tile [label]="'home.categoriesLabel' | translate" [value]="adminCategoryCount()" />
     </a>
     <a routerLink="/brands">
-      <app-kpi-tile label="Marken" [value]="adminBrandCount()" />
+      <app-kpi-tile [label]="'home.brandsLabel' | translate" [value]="adminBrandCount()" />
     </a>
   </app-kpi-grid>
 
   <app-activity-heatmap [events]="heatmapEvents()" />
 } @else {
   <app-kpi-grid [columns]="4">
-    <app-kpi-tile label="Bis zur Abgabe" [value]="null">
-      @if (dropOffPhases().length > 0) {
-        <app-countdown variant="kpi" [phases]="dropOffPhases()" />
+    <app-kpi-tile [label]="'home.untilDropOffLabel' | translate" [value]="null">
+      @if (dropOffPhases.length > 0) {
+        <app-countdown variant="kpi" [phases]="dropOffPhases" />
       } @else {
-        <p class="kpi-tile__sub-label">Noch kein Termin festgelegt</p>
+        <p class="kpi-tile__sub-label">{{ 'home.noDeadlineSet' | translate }}</p>
       }
     </app-kpi-tile>
-    <app-kpi-tile label="Meine Artikel" [value]="articleCount()" subLabel="Stück" />
-    <app-kpi-tile label="Meine Konditionen" [value]="commissionRate() !== null ? commissionRate() + ' %' : null" [subLabel]="itemFee() !== null ? itemFee() + ' € / Stück' : null" />
-    <app-kpi-tile label="Abgabegebühr gesamt" [value]="totalFee()" subLabel="€" />
+    <app-kpi-tile [label]="'home.myArticlesLabel' | translate" [value]="articleCount()" [subLabel]="'home.piecesSubLabel' | translate" />
+    <app-kpi-tile
+      [label]="'home.myConditionsLabel' | translate"
+      [value]="commissionRate() !== null ? (commissionRate() + ' %') : null"
+      [subLabel]="itemFee() !== null ? (itemFee() + ' ' + ('home.itemFeeUnit' | translate)) : null" />
+    <app-kpi-tile [label]="'home.totalFeeLabel' | translate" [value]="totalFee()" [subLabel]="'home.currencySubLabel' | translate" />
   </app-kpi-grid>
 
   @if (articleCount() === 0) {
-    <p>Noch keine Artikel erfasst. <a routerLink="/my-articles">Jetzt Artikel erfassen</a></p>
+    <p>{{ 'home.noArticlesYet' | translate }} <a routerLink="/my-articles">{{ 'home.registerArticlesNow' | translate }}</a></p>
   }
 
   <app-verkaeufer-nummer [sellerId]="sellerId()" />

@@ -1,31 +1,24 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TooltipModule } from 'primeng/tooltip';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { buildHeatmapGrid, HeatmapEntry } from './heatmap-grid';
 
-const WEEKDAY_LABELS = ['Mo', '', 'Mi', '', 'Fr', '', ''];
-
-function formatTooltip(dateIso: string, count: number): string {
-  const date = new Date(`${dateIso}T00:00:00Z`);
-  const weekday = new Intl.DateTimeFormat('de-DE', { weekday: 'long', timeZone: 'UTC' }).format(date);
-  const formattedDate = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }).format(date);
-  const label = count === 0 ? 'Keine Aktivität' : count === 1 ? '1 Aktivität' : `${count} Aktivitäten`;
-  return `${weekday}, ${formattedDate}\n${label}`;
-}
+const WEEKDAY_LABEL_KEYS = ['activityHeatmap.weekdayMon', '', 'activityHeatmap.weekdayWed', '', 'activityHeatmap.weekdayFri', '', ''];
 
 @Component({
   selector: 'app-activity-heatmap',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TooltipModule],
+  imports: [TooltipModule, TranslatePipe],
   template: `
     <div class="activity-heatmap">
       <div class="activity-heatmap__header">
-        <p class="activity-heatmap__title">Aktivität — letzte 12 Wochen</p>
+        <p class="activity-heatmap__title">{{ 'activityHeatmap.title' | translate }}</p>
         <div class="activity-heatmap__legend">
-          <span>Weniger</span>
+          <span>{{ 'activityHeatmap.less' | translate }}</span>
           @for (level of [0, 1, 2, 3, 4]; track level) {
             <span class="activity-heatmap__legend-cell activity-heatmap__cell--l{{ level }}"></span>
           }
-          <span>Mehr</span>
+          <span>{{ 'activityHeatmap.more' | translate }}</span>
         </div>
       </div>
       <div class="activity-heatmap__grid">
@@ -56,15 +49,40 @@ function formatTooltip(dateIso: string, count: number): string {
   `]
 })
 export class ActivityHeatmap {
+  private readonly translate = inject(TranslateService);
+
   readonly events = input<HeatmapEntry[]>([]);
 
   readonly rows = computed(() => buildHeatmapGrid(this.events()));
 
+  // Plain methods, not computed(): they call translate.instant()/Intl formatting based on the
+  // current language and are re-invoked on every change-detection pass (triggered here by the
+  // TranslatePipe usages in the template above), so they stay correct across language switches —
+  // a computed() wrapping translate.instant() would freeze at the first-read language instead.
   weekdayLabel(rowIndex: number): string {
-    return WEEKDAY_LABELS[rowIndex] ?? '';
+    const key = WEEKDAY_LABEL_KEYS[rowIndex];
+    return key ? this.translate.instant(key) : '';
   }
 
   tooltipFor(date: string, count: number): string {
-    return formatTooltip(date, count);
+    return this.formatTooltip(date, count);
+  }
+
+  private locale(): string {
+    return this.translate.currentLang() === 'en' ? 'en-US' : 'de-DE';
+  }
+
+  private formatTooltip(dateIso: string, count: number): string {
+    const date = new Date(`${dateIso}T00:00:00Z`);
+    const locale = this.locale();
+    const weekday = new Intl.DateTimeFormat(locale, { weekday: 'long', timeZone: 'UTC' }).format(date);
+    const formattedDate = new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }).format(date);
+    const label =
+      count === 0
+        ? this.translate.instant('activityHeatmap.noActivity')
+        : count === 1
+          ? this.translate.instant('activityHeatmap.oneActivity')
+          : this.translate.instant('activityHeatmap.activitiesCount', { count });
+    return `${weekday}, ${formattedDate}\n${label}`;
   }
 }
