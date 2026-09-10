@@ -13,6 +13,9 @@ public sealed class ArticleRepository(BarDbContext dbContext) : IArticleReposito
     public async Task<IReadOnlyList<int>> GetUsedNumbersForSellerAsync(string sellerId, CancellationToken cancellationToken) =>
         await dbContext.Articles.Where(a => a.SellerId == sellerId).Select(a => a.Number).ToListAsync(cancellationToken);
 
+    public Task<int> CountInRangeForSellerAsync(string sellerId, int fromNumber, int toNumber, CancellationToken cancellationToken) =>
+        dbContext.Articles.CountAsync(a => a.SellerId == sellerId && a.Number >= fromNumber && a.Number <= toNumber, cancellationToken);
+
     public async Task CreateAsync(Article article, NumberBlock? newBlock, CancellationToken cancellationToken)
     {
         if (newBlock is not null)
