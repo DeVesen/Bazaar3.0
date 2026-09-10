@@ -48,12 +48,12 @@ const ACTION_COLUMN: ActionColumnConfig = {
   ]
 };
 
-// The table's sort fields are the flattened view-model names; translate the
-// sellerType.* ones back to the nested API field the backend sorts on.
+// The table's sort fields are the flattened view-model names; only
+// sellerTypeName needs translation to the nested API field the backend
+// sorts on. commissionRate/itemFee are already flat on the backend too, so
+// they fall through to their own field name (see SORT_FIELD_MAP[m.field] ?? m.field).
 const SORT_FIELD_MAP: Record<string, string> = {
-  sellerTypeName: 'sellerType.name',
-  commissionRate: 'sellerType.commissionRate',
-  itemFee: 'sellerType.itemFee'
+  sellerTypeName: 'sellerType.name'
 };
 
 @Component({
@@ -170,7 +170,7 @@ export class SellersPage implements OnInit {
       error: (err: { status?: number; error?: { detail?: string } }) => {
         this.messageService.add({
           severity: 'error',
-          summary: err.error?.detail ?? 'Löschen fehlgeschlagen'
+          summary: err.status === 409 ? (err.error?.detail ?? 'Löschen fehlgeschlagen') : 'Löschen fehlgeschlagen'
         });
       }
     });

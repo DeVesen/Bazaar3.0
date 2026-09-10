@@ -85,17 +85,19 @@ describe('SellersPage', () => {
     expect(api.list).toHaveBeenCalledWith(expect.objectContaining({ page: 3, pageSize: 25 }));
   });
 
-  it('onSortChange() builds a sort string, mapping flattened seller-type fields back to their nested API path', () => {
+  it('onSortChange() builds a sort string, mapping sellerTypeName back to its nested API path while leaving already-flat fields as-is', () => {
     const { fixture, api } = create();
     vi.mocked(api.list).mockClear();
 
     fixture.componentInstance.onSortChange([
+      { field: 'sellerTypeName', order: 'asc' },
       { field: 'commissionRate', order: 'desc' },
+      { field: 'itemFee', order: 'desc' },
       { field: 'lastName', order: 'asc' }
     ]);
 
     expect(api.list).toHaveBeenCalledWith(
-      expect.objectContaining({ sort: 'sellerType.commissionRate:desc,lastName:asc' })
+      expect.objectContaining({ sort: 'sellerType.name:asc,commissionRate:desc,itemFee:desc,lastName:asc' })
     );
   });
 
