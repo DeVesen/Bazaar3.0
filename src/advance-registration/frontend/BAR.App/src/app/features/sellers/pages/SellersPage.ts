@@ -13,6 +13,7 @@ import {
   SortMeta,
   TablePageEvent
 } from '../../../shared/table/table';
+import { SellerCreateDialog } from '../../../shared/seller-create-dialog/seller-create-dialog';
 import { SellersApiService, Seller } from '../sellers-api.service';
 
 /**
@@ -58,7 +59,7 @@ const SORT_FIELD_MAP: Record<string, string> = {
 
 @Component({
   selector: 'app-sellers-page',
-  imports: [AppTable, FormsModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule],
+  imports: [AppTable, FormsModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, SellerCreateDialog],
   template: `
     <h1>Verkäufer</h1>
 
@@ -84,6 +85,10 @@ const SORT_FIELD_MAP: Record<string, string> = {
       (sortChange)="onSortChange($event)"
       (pageChange)="onPageChange($event)"
     />
+
+    @if (dialogMode() === 'create') {
+      <app-seller-create-dialog [(visible)]="createDialogVisibleModel" (saved)="onCreateSaved()" />
+    }
   `
 })
 export class SellersPage implements OnInit {
@@ -116,6 +121,9 @@ export class SellersPage implements OnInit {
   get searchTermModel() { return this.searchTerm(); }
   set searchTermModel(v: string) { this.searchTerm.set(v); }
 
+  get createDialogVisibleModel() { return this.dialogMode() === 'create'; }
+  set createDialogVisibleModel(v: boolean) { if (!v) this.dialogMode.set(null); }
+
   ngOnInit(): void {
     this.load();
   }
@@ -128,6 +136,11 @@ export class SellersPage implements OnInit {
   onRowAdd(): void {
     this.selectedSeller.set(null);
     this.dialogMode.set('create');
+  }
+
+  onCreateSaved(): void {
+    this.dialogMode.set(null);
+    this.load();
   }
 
   onTableAction(event: ActionClickEvent<SellerRow>): void {
