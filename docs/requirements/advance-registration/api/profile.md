@@ -109,7 +109,7 @@ gespeichert" bzw. Error-InfoArea „Profil konnte nicht gespeichert werden"
 { "newEmail": "neu@example.com", "currentPassword": "geheim123" }
 ```
 
-**Response `200`** — ohne Body.
+**Response `204`** — ohne Body.
 
 **Kein neues Token nötig:** Der `sub`-Claim enthält die User-ID, nicht die
 E-Mail (siehe [`auth.md`](auth.md)). Das bestehende Access-Token bleibt gültig.
