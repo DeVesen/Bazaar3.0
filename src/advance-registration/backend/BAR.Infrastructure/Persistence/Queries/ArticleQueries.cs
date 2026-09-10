@@ -76,7 +76,8 @@ public sealed class ArticleQueries(BarDbContext dbContext) : IArticleQueries
 
         var pageItems = await ApplySort(
                 joined, sort,
-                x => x.Article.Number, x => x.Article.Name, x => x.Article.Category, x => x.Article.Brand, x => x.Article.Price)
+                x => x.Article.Number, x => x.Article.Name, x => x.Article.Category, x => x.Article.Brand, x => x.Article.Price,
+                x => x.Seller.LastName)
             .Skip((page - 1) * pageSize).Take(pageSize)
             .ToListAsync(cancellationToken);
 
@@ -161,7 +162,8 @@ public sealed class ArticleQueries(BarDbContext dbContext) : IArticleQueries
         Expression<Func<T, string>> byName,
         Expression<Func<T, string>> byCategory,
         Expression<Func<T, string>> byBrand,
-        Expression<Func<T, decimal>> byPrice)
+        Expression<Func<T, decimal>> byPrice,
+        Expression<Func<T, string>>? bySeller = null)
     {
         if (string.IsNullOrWhiteSpace(sort))
         {
@@ -182,11 +184,13 @@ public sealed class ArticleQueries(BarDbContext dbContext) : IArticleQueries
                 (true, "category") => descending ? query.OrderByDescending(byCategory) : query.OrderBy(byCategory),
                 (true, "brand") => descending ? query.OrderByDescending(byBrand) : query.OrderBy(byBrand),
                 (true, "price") => descending ? query.OrderByDescending(byPrice) : query.OrderBy(byPrice),
+                (true, "seller") when bySeller is not null => descending ? query.OrderByDescending(bySeller) : query.OrderBy(bySeller),
                 (false, "number") => descending ? ordered!.ThenByDescending(byNumber) : ordered!.ThenBy(byNumber),
                 (false, "name") => descending ? ordered!.ThenByDescending(byName) : ordered!.ThenBy(byName),
                 (false, "category") => descending ? ordered!.ThenByDescending(byCategory) : ordered!.ThenBy(byCategory),
                 (false, "brand") => descending ? ordered!.ThenByDescending(byBrand) : ordered!.ThenBy(byBrand),
                 (false, "price") => descending ? ordered!.ThenByDescending(byPrice) : ordered!.ThenBy(byPrice),
+                (false, "seller") when bySeller is not null => descending ? ordered!.ThenByDescending(bySeller) : ordered!.ThenBy(bySeller),
                 _ => ordered ?? query.OrderBy(byNumber)
             };
         }

@@ -73,4 +73,30 @@ public class ArticleQueriesTests : IClassFixture<PostgresWebApplicationFactory>
         Assert.Equal("Anna", page.Items[0].SellerFirstName);
         Assert.Equal(3001, page.Items[0].SellerStartNumber);
     }
+
+    [Fact]
+    public async Task SearchAllAsync_SortBySellerDescending_OrdersByLastName()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var sellers = scope.ServiceProvider.GetRequiredService<Domain.Ports.ISellerRepository>();
+        var articles = scope.ServiceProvider.GetRequiredService<Domain.Ports.IArticleRepository>();
+        var queries = scope.ServiceProvider.GetRequiredService<IArticleQueries>();
+        var ct = TestContext.Current.CancellationToken;
+
+        var sellerA = Domain.Sellers.Seller.Register("Anna", "Ackermann", null, "12345", "Ort", "000",
+            $"{Guid.NewGuid()}@example.com", "t0000001", "hash");
+        var sellerZ = Domain.Sellers.Seller.Register("Zora", "Zimmermann", null, "12345", "Ort", "000",
+            $"{Guid.NewGuid()}@example.com", "t0000001", "hash");
+        await sellers.AddAsync(sellerA, ct);
+        await sellers.AddAsync(sellerZ, ct);
+        await articles.CreateAsync(Article.Create(sellerA.Id, 4001, "X1", "M", "K", 1m, null, null, null, Now), null, ct);
+        await articles.CreateAsync(Article.Create(sellerZ.Id, 4002, "X2", "M", "K", 1m, null, null, null, Now), null, ct);
+
+        var page = await queries.SearchAllAsync(null, null, search: null, sellerId: null, 1, 25, sort: "seller:desc", ct);
+
+        var ordered = page.Items.Where(i => i.Article.Number is 4001 or 4002).ToList();
+        Assert.Equal("Zimmermann", ordered[0].SellerLastName);
+        Assert.Equal("Ackermann", ordered[1].SellerLastName);
+    }
 }
