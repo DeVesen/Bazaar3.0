@@ -1,6 +1,7 @@
 import { Component, computed, effect, ElementRef, inject, input, model, output, signal, viewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -18,38 +19,38 @@ import { MasterDataApiService, MasterDataItem } from '../master-data-api.service
   selector: 'app-artikel-dialog',
   imports: [
     FormsModule, DialogModule, InputTextModule, InputGroupModule, InputGroupAddonModule,
-    InputNumberModule, ButtonModule, TextareaModule, TooltipModule, AutocompleteCreate
+    InputNumberModule, ButtonModule, TextareaModule, TooltipModule, AutocompleteCreate, TranslatePipe
   ],
   template: `
-    <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="mode() === 'create' ? 'Artikel anlegen' : 'Artikel bearbeiten'">
-      <label>Artikelnummer</label>
+    <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="header">
+      <label>{{ 'articleDialog.number' | translate }}</label>
       <input pInputText [value]="number()" [readonly]="true" />
       @if (mode() === 'create') {
-        <p class="hint">wird beim Speichern endgültig vergeben</p>
+        <p class="hint">{{ 'articleDialog.numberHint' | translate }}</p>
       }
 
-      <label>Bezeichnung</label>
+      <label>{{ 'articleDialog.name' | translate }}</label>
       <input pInputText [(ngModel)]="nameModel" #nameInput />
 
-      <label>Kategorie</label>
+      <label>{{ 'articleDialog.category' | translate }}</label>
       <app-autocomplete-create [items]="categories()" [(value)]="categoryModel" [createFn]="createCategoryFn" (itemCreated)="categoryCreated.emit($event)" />
 
-      <label>Marke</label>
+      <label>{{ 'articleDialog.brand' | translate }}</label>
       <app-autocomplete-create [items]="brands()" [(value)]="brandModel" [createFn]="createBrandFn" (itemCreated)="brandCreated.emit($event)" />
 
-      <label>Größe</label>
+      <label>{{ 'articleDialog.size' | translate }}</label>
       <input pInputText [(ngModel)]="sizeModel" />
 
-      <label>Farbe</label>
+      <label>{{ 'articleDialog.color' | translate }}</label>
       <input pInputText [(ngModel)]="colorModel" />
 
-      <label>Preis</label>
+      <label>{{ 'articleDialog.price' | translate }}</label>
       <p-inputgroup>
         <p-inputnumber [(ngModel)]="priceModel" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" />
         <p-inputgroup-addon>€</p-inputgroup-addon>
       </p-inputgroup>
 
-      <label>Beschreibung</label>
+      <label>{{ 'articleDialog.description' | translate }}</label>
       <textarea pTextarea [(ngModel)]="descriptionModel"></textarea>
 
       @if (errorMessage()) {
@@ -58,32 +59,33 @@ import { MasterDataApiService, MasterDataItem } from '../master-data-api.service
 
       <div class="footer">
         @if (mode() === 'edit') {
-          <button pButton type="button" severity="danger" [disabled]="saving()" (click)="deleteConfirmVisible.set(true)">Löschen</button>
+          <button pButton type="button" severity="danger" [disabled]="saving()" (click)="deleteConfirmVisible.set(true)">{{ 'common.delete' | translate }}</button>
         }
-        <button pButton type="button" [text]="true" [disabled]="saving()" (click)="visible.set(false)">Abbrechen</button>
+        <button pButton type="button" [text]="true" [disabled]="saving()" (click)="visible.set(false)">{{ 'common.cancel' | translate }}</button>
         @if (mode() === 'create') {
           <button pButton type="button" severity="secondary" [outlined]="true"
             [disabled]="!isValid() || saving()" [loading]="saving()"
-            pTooltip="Artikel speichern und einen weiteren mit denselben Werten anlegen"
-            (click)="saveAndCopy()">Speichern + kopieren</button>
+            [pTooltip]="'articleDialog.saveAndCopyTooltip' | translate"
+            (click)="saveAndCopy()">{{ 'articleDialog.saveAndCopy' | translate }}</button>
         }
-        <button pButton type="button" [disabled]="!isValid() || saving()" [loading]="saving()" (click)="save()">Speichern</button>
+        <button pButton type="button" [disabled]="!isValid() || saving()" [loading]="saving()" (click)="save()">{{ 'common.save' | translate }}</button>
       </div>
     </p-dialog>
 
-    <p-dialog [(visible)]="deleteConfirmVisibleModel" [modal]="true" header="Artikel wirklich löschen?">
-      <button pButton type="button" [text]="true" (click)="deleteConfirmVisible.set(false)">Abbrechen</button>
-      <button pButton type="button" severity="danger" (click)="confirmDelete()">Löschen</button>
+    <p-dialog [(visible)]="deleteConfirmVisibleModel" [modal]="true" [header]="'articleDialog.deleteConfirmHeader' | translate">
+      <button pButton type="button" [text]="true" (click)="deleteConfirmVisible.set(false)">{{ 'common.cancel' | translate }}</button>
+      <button pButton type="button" severity="danger" (click)="confirmDelete()">{{ 'common.delete' | translate }}</button>
     </p-dialog>
 
-    <p-dialog [(visible)]="conflictDialogVisibleModel" [modal]="true" header="Artikelnummer bereits vergeben">
+    <p-dialog [(visible)]="conflictDialogVisibleModel" [modal]="true" [header]="'articleDialog.conflictHeader' | translate">
       <p>{{ conflictMessage() }}</p>
-      <button pButton type="button" (click)="closeConflictDialog()">OK</button>
+      <button pButton type="button" (click)="closeConflictDialog()">{{ 'common.ok' | translate }}</button>
     </p-dialog>
   `
 })
 export class ArtikelDialog {
   private readonly articlesApi = inject(ArticlesApiService);
+  private readonly translate = inject(TranslateService);
 
   readonly visible = model<boolean>(false);
   readonly mode = input.required<'create' | 'edit'>();
@@ -143,6 +145,12 @@ export class ArtikelDialog {
   get conflictDialogVisibleModel() { return this.conflictDialogVisible(); }
   set conflictDialogVisibleModel(v: boolean) { this.conflictDialogVisible.set(v); }
 
+  get header(): string {
+    return this.mode() === 'create'
+      ? this.translate.instant('articleDialog.createHeader')
+      : this.translate.instant('articleDialog.editHeader');
+  }
+
   constructor() {
     effect(() => {
       if (!this.visible()) return;
@@ -197,7 +205,7 @@ export class ArtikelDialog {
         if (response.nextNumber === undefined) {
           this.visible.set(false);
           this.messageService.add({
-            severity: 'warn', summary: 'Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren'
+            severity: 'warn', summary: this.translate.instant('articleDialog.noFreeNumber')
           });
           return;
         }
@@ -205,7 +213,8 @@ export class ArtikelDialog {
         this.number.set(response.nextNumber);
         this.errorMessage.set(null);
         this.messageService.add({
-          severity: 'success', summary: `✓ Artikel ${savedNumber} gespeichert — nächste Nummer: ${response.nextNumber}`
+          severity: 'success',
+          summary: this.translate.instant('articleDialog.savedAndCopied', { number: savedNumber, nextNumber: response.nextNumber })
         });
         // AC-9 Fokus+Selektion auf Bezeichnung; `pristine`-Reset aus der Spec ist hier N/A
         // (dieser Dialog hat kein NgForm/FormGroup zum Zurücksetzen — reine Signal-Felder).
@@ -219,7 +228,7 @@ export class ArtikelDialog {
           this.number.set(err.error.nextNumber);
           return;
         }
-        this.errorMessage.set(err.error?.detail ?? 'Speichern fehlgeschlagen');
+        this.errorMessage.set(err.error?.detail ?? this.translate.instant('articleDialog.saveFailed'));
       }
     });
   }
@@ -238,7 +247,7 @@ export class ArtikelDialog {
         this.visible.set(false);
       },
       error: (err: { status?: number; error?: { detail?: string } }) => {
-        this.errorMessage.set(err.error?.detail ?? 'Löschen fehlgeschlagen');
+        this.errorMessage.set(err.error?.detail ?? this.translate.instant('articleDialog.deleteFailed'));
       }
     });
   }

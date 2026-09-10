@@ -197,5 +197,44 @@
     "inviteCopied": "✓ Invite link copied!",
     "saved": "✓ Seller saved",
     "saveFailed": "Seller could not be saved"
+  },
+  "myArticles": {
+    "title": "My articles",
+    "columnNumber": "No.",
+    "columnName": "Name",
+    "columnCategory": "Category",
+    "columnBrand": "Brand",
+    "columnPrice": "Price",
+    "emptyTextPrefix": "No articles registered yet. Use ",
+    "emptyTextSuffix": " to create the first one.",
+    "createButton": "+ New",
+    "loadError": "Articles could not be loaded",
+    "noFreeNumber": "No free article number available — please contact the admin"
+  },
+  "articleDialog": {
+    "createHeader": "Create article",
+    "editHeader": "Edit article",
+    "number": "Article number",
+    "numberHint": "assigned permanently on save",
+    "name": "Name",
+    "category": "Category",
+    "brand": "Brand",
+    "size": "Size",
+    "color": "Color",
+    "price": "Price",
+    "description": "Description",
+    "deleteConfirmHeader": "Really delete this article?",
+    "saveAndCopyTooltip": "Save the article and create another one with the same values",
+    "saveAndCopy": "Save + copy",
+    "conflictHeader": "Article number already taken",
+    "noFreeNumber": "No free article number available — please contact the admin",
+    "savedAndCopied": "✓ Article {{number}} saved — next number: {{nextNumber}}",
+    "saveFailed": "Save failed",
+    "deleteFailed": "Delete failed"
+  },
+  "autocompleteCreate": {
+    "dialogHeaderPrefix": "New entry: ",
+    "conflict": "Entry already exists",
+    "createFailed": "Create failed"
   }
 }

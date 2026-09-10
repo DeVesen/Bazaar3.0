@@ -1,5 +1,6 @@
-import { Component, computed, model, input, output, signal } from '@angular/core';
+import { Component, computed, inject, model, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -9,7 +10,7 @@ import type { MasterDataItem } from '../../features/my-articles/master-data-api.
 
 @Component({
   selector: 'app-autocomplete-create',
-  imports: [AutoCompleteModule, DialogModule, ButtonModule, InputTextModule, FormsModule],
+  imports: [AutoCompleteModule, DialogModule, ButtonModule, InputTextModule, FormsModule, TranslatePipe],
   template: `
     <p-autocomplete
       [(ngModel)]="valueModel"
@@ -23,16 +24,18 @@ import type { MasterDataItem } from '../../features/my-articles/master-data-api.
       <button pButton type="button" [iconOnly]="true" severity="success" (click)="openCreateModal()"><i class="pi pi-plus"></i></button>
     }
 
-    <p-dialog [(visible)]="createModalOpenModel" [modal]="true" [header]="'Neuer Eintrag: ' + value()">
+    <p-dialog [(visible)]="createModalOpenModel" [modal]="true" [header]="dialogHeader">
       @if (createModalError()) {
         <p class="error">{{ createModalError() }}</p>
       }
-      <button pButton type="button" [text]="true" (click)="cancelCreate()">Abbrechen</button>
-      <button pButton type="button" (click)="confirmCreate()">Anlegen</button>
+      <button pButton type="button" [text]="true" (click)="cancelCreate()">{{ 'common.cancel' | translate }}</button>
+      <button pButton type="button" (click)="confirmCreate()">{{ 'common.create' | translate }}</button>
     </p-dialog>
   `
 })
 export class AutocompleteCreate {
+  private readonly translate = inject(TranslateService);
+
   readonly items = input.required<MasterDataItem[]>();
   readonly createFn = input.required<(name: string) => Observable<MasterDataItem>>();
   readonly label = input<string>('');
@@ -48,6 +51,10 @@ export class AutocompleteCreate {
 
   get createModalOpenModel() { return this.createModalOpen(); }
   set createModalOpenModel(v: boolean) { this.createModalOpen.set(v); }
+
+  get dialogHeader(): string {
+    return this.translate.instant('autocompleteCreate.dialogHeaderPrefix') + this.value();
+  }
 
   readonly isCreateMode = computed(() => {
     const current = this.value().trim();
@@ -85,7 +92,9 @@ export class AutocompleteCreate {
       },
       error: (err: { status?: number; error?: { detail?: string } }) => {
         this.createModalError.set(
-          err.status === 409 ? (err.error?.detail ?? 'Eintrag existiert bereits') : 'Anlegen fehlgeschlagen'
+          err.status === 409
+            ? (err.error?.detail ?? this.translate.instant('autocompleteCreate.conflict'))
+            : this.translate.instant('autocompleteCreate.createFailed')
         );
       }
     });

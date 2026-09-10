@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { ArticlesApiService, ArticleListQuery, ArticleResponse } from '../articles-api.service';
 import { MasterDataApiService, MasterDataItem } from '../master-data-api.service';
@@ -7,31 +8,19 @@ import { ArtikelDialog } from '../components/artikel-dialog';
 import { AppTable, ActionClickEvent, ActionColumnConfig, ColumnConfig, SortMeta, TablePageEvent } from '../../../shared/table/table';
 import { FilterPanel, FilterPanelSearch } from '../../../shared/filter-panel/filter-panel';
 
-const COLUMNS: ColumnConfig[] = [
-  { field: 'number', header: 'Nr.', type: 'number' },
-  { field: 'name', header: 'Bezeichnung', type: 'text' },
-  { field: 'category', header: 'Kategorie', type: 'text' },
-  { field: 'brand', header: 'Marke', type: 'text' },
-  { field: 'price', header: 'Preis', type: 'currency' }
-];
-
-const ACTION_COLUMN: ActionColumnConfig = {
-  actions: [{ actionId: 'edit', icon: 'pi pi-pencil', ariaLabel: 'Bearbeiten' }]
-};
-
 @Component({
   selector: 'app-my-articles-page',
-  imports: [FilterPanel, AppTable, ArtikelDialog, ButtonModule],
+  imports: [FilterPanel, AppTable, ArtikelDialog, ButtonModule, TranslatePipe],
   template: `
-    <h1>Meine Artikel</h1>
+    <h1>{{ 'myArticles.title' | translate }}</h1>
 
     <app-filter-panel [brands]="brands()" [categories]="categories()" (search)="onFilterSearch($event)" />
 
     @if (isEmpty() && !hasActiveFilter() && !loading()) {
-      <p>Noch keine Artikel angemeldet. Mit <strong>+ Neu</strong> den ersten anlegen.</p>
-      <button pButton type="button" (click)="openCreateDialog()">+ Neu</button>
+      <p>{{ 'myArticles.emptyTextPrefix' | translate }}<strong>{{ 'myArticles.createButton' | translate }}</strong>{{ 'myArticles.emptyTextSuffix' | translate }}</p>
+      <button pButton type="button" (click)="openCreateDialog()">{{ 'myArticles.createButton' | translate }}</button>
     } @else {
-      <button pButton type="button" (click)="openCreateDialog()">+ Neu</button>
+      <button pButton type="button" (click)="openCreateDialog()">{{ 'myArticles.createButton' | translate }}</button>
       <app-table
         [columns]="columns"
         [data]="articles()"
@@ -65,9 +54,23 @@ export class MyArticlesPage implements OnInit {
   private readonly articlesApi = inject(ArticlesApiService);
   private readonly masterDataApi = inject(MasterDataApiService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
 
-  readonly columns = COLUMNS;
-  readonly actionColumn = ACTION_COLUMN;
+  get columns(): ColumnConfig[] {
+    return [
+      { field: 'number', header: this.translate.instant('myArticles.columnNumber'), type: 'number' },
+      { field: 'name', header: this.translate.instant('myArticles.columnName'), type: 'text' },
+      { field: 'category', header: this.translate.instant('myArticles.columnCategory'), type: 'text' },
+      { field: 'brand', header: this.translate.instant('myArticles.columnBrand'), type: 'text' },
+      { field: 'price', header: this.translate.instant('myArticles.columnPrice'), type: 'currency' }
+    ];
+  }
+
+  get actionColumn(): ActionColumnConfig {
+    return {
+      actions: [{ actionId: 'edit', icon: 'pi pi-pencil', ariaLabel: this.translate.instant('common.edit') }]
+    };
+  }
 
   readonly articles = signal<ArticleResponse[]>([]);
   readonly totalRecords = signal(0);
@@ -113,7 +116,7 @@ export class MyArticlesPage implements OnInit {
       error: () => {
         this.loading.set(false);
         this.messageService.add({
-          severity: 'error', summary: 'Artikel konnten nicht geladen werden'
+          severity: 'error', summary: this.translate.instant('myArticles.loadError')
         });
       }
     });
@@ -152,7 +155,7 @@ export class MyArticlesPage implements OnInit {
       },
       error: () => {
         this.messageService.add({
-          severity: 'warn', summary: 'Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren'
+          severity: 'warn', summary: this.translate.instant('myArticles.noFreeNumber')
         });
       }
     });

@@ -197,5 +197,44 @@
     "inviteCopied": "✓ Einladungs-Link kopiert!",
     "saved": "✓ Verkäufer gespeichert",
     "saveFailed": "Verkäufer konnte nicht gespeichert werden"
+  },
+  "myArticles": {
+    "title": "Meine Artikel",
+    "columnNumber": "Nr.",
+    "columnName": "Bezeichnung",
+    "columnCategory": "Kategorie",
+    "columnBrand": "Marke",
+    "columnPrice": "Preis",
+    "emptyTextPrefix": "Noch keine Artikel angemeldet. Mit ",
+    "emptyTextSuffix": " den ersten anlegen.",
+    "createButton": "+ Neu",
+    "loadError": "Artikel konnten nicht geladen werden",
+    "noFreeNumber": "Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren"
+  },
+  "articleDialog": {
+    "createHeader": "Artikel anlegen",
+    "editHeader": "Artikel bearbeiten",
+    "number": "Artikelnummer",
+    "numberHint": "wird beim Speichern endgültig vergeben",
+    "name": "Bezeichnung",
+    "category": "Kategorie",
+    "brand": "Marke",
+    "size": "Größe",
+    "color": "Farbe",
+    "price": "Preis",
+    "description": "Beschreibung",
+    "deleteConfirmHeader": "Artikel wirklich löschen?",
+    "saveAndCopyTooltip": "Artikel speichern und einen weiteren mit denselben Werten anlegen",
+    "saveAndCopy": "Speichern + kopieren",
+    "conflictHeader": "Artikelnummer bereits vergeben",
+    "noFreeNumber": "Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren",
+    "savedAndCopied": "✓ Artikel {{number}} gespeichert — nächste Nummer: {{nextNumber}}",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "deleteFailed": "Löschen fehlgeschlagen"
+  },
+  "autocompleteCreate": {
+    "dialogHeaderPrefix": "Neuer Eintrag: ",
+    "conflict": "Eintrag existiert bereits",
+    "createFailed": "Anlegen fehlgeschlagen"
   }
 }

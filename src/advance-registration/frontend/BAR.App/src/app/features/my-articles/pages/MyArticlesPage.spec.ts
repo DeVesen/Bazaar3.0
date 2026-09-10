@@ -2,14 +2,97 @@ import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { MyArticlesPage } from './MyArticlesPage';
 import { ArticlesApiService } from '../articles-api.service';
 import { MasterDataApiService } from '../master-data-api.service';
 
+const DE_TRANSLATIONS = {
+  common: { cancel: 'Abbrechen', save: 'Speichern', create: 'Anlegen', delete: 'Löschen', edit: 'Bearbeiten', ok: 'OK' },
+  myArticles: {
+    title: 'Meine Artikel',
+    columnNumber: 'Nr.',
+    columnName: 'Bezeichnung',
+    columnCategory: 'Kategorie',
+    columnBrand: 'Marke',
+    columnPrice: 'Preis',
+    emptyTextPrefix: 'Noch keine Artikel angemeldet. Mit ',
+    emptyTextSuffix: ' den ersten anlegen.',
+    createButton: '+ Neu',
+    loadError: 'Artikel konnten nicht geladen werden',
+    noFreeNumber: 'Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren'
+  },
+  articleDialog: {
+    createHeader: 'Artikel anlegen',
+    editHeader: 'Artikel bearbeiten',
+    number: 'Artikelnummer',
+    numberHint: 'wird beim Speichern endgültig vergeben',
+    name: 'Bezeichnung',
+    category: 'Kategorie',
+    brand: 'Marke',
+    size: 'Größe',
+    color: 'Farbe',
+    price: 'Preis',
+    description: 'Beschreibung',
+    deleteConfirmHeader: 'Artikel wirklich löschen?',
+    saveAndCopyTooltip: 'Artikel speichern und einen weiteren mit denselben Werten anlegen',
+    saveAndCopy: 'Speichern + kopieren',
+    conflictHeader: 'Artikelnummer bereits vergeben',
+    noFreeNumber: 'Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren',
+    savedAndCopied: '✓ Artikel {{number}} gespeichert — nächste Nummer: {{nextNumber}}',
+    saveFailed: 'Speichern fehlgeschlagen',
+    deleteFailed: 'Löschen fehlgeschlagen'
+  },
+  autocompleteCreate: { dialogHeaderPrefix: 'Neuer Eintrag: ', conflict: 'Eintrag existiert bereits', createFailed: 'Anlegen fehlgeschlagen' }
+};
+
+const EN_TRANSLATIONS = {
+  common: { cancel: 'Cancel', save: 'Save', create: 'Create', delete: 'Delete', edit: 'Edit', ok: 'OK' },
+  myArticles: {
+    title: 'My articles',
+    columnNumber: 'No.',
+    columnName: 'Name',
+    columnCategory: 'Category',
+    columnBrand: 'Brand',
+    columnPrice: 'Price',
+    emptyTextPrefix: 'No articles registered yet. Use ',
+    emptyTextSuffix: ' to create the first one.',
+    createButton: '+ New',
+    loadError: 'Articles could not be loaded',
+    noFreeNumber: 'No free article number available — please contact the admin'
+  },
+  articleDialog: {
+    createHeader: 'Create article',
+    editHeader: 'Edit article',
+    number: 'Article number',
+    numberHint: 'assigned permanently on save',
+    name: 'Name',
+    category: 'Category',
+    brand: 'Brand',
+    size: 'Size',
+    color: 'Color',
+    price: 'Price',
+    description: 'Description',
+    deleteConfirmHeader: 'Really delete this article?',
+    saveAndCopyTooltip: 'Save the article and create another one with the same values',
+    saveAndCopy: 'Save + copy',
+    conflictHeader: 'Article number already taken',
+    noFreeNumber: 'No free article number available — please contact the admin',
+    savedAndCopied: '✓ Article {{number}} saved — next number: {{nextNumber}}',
+    saveFailed: 'Save failed',
+    deleteFailed: 'Delete failed'
+  },
+  autocompleteCreate: { dialogHeaderPrefix: 'New entry: ', conflict: 'Entry already exists', createFailed: 'Create failed' }
+};
+
 function create() {
-  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), MessageService] });
+  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService] });
+  const translate = TestBed.inject(TranslateService);
+  translate.setTranslation('de', DE_TRANSLATIONS);
+  translate.setTranslation('en', EN_TRANSLATIONS);
+  translate.use('de');
   const articlesApi = TestBed.inject(ArticlesApiService);
   const masterDataApi = TestBed.inject(MasterDataApiService);
   vi.spyOn(articlesApi, 'getMine').mockReturnValue(of({ items: [], totalCount: 0, page: 1, pageSize: 25 }));
@@ -17,7 +100,7 @@ function create() {
   vi.spyOn(masterDataApi, 'getAll').mockReturnValue(of([]));
   const fixture = TestBed.createComponent(MyArticlesPage);
   fixture.detectChanges();
-  return { fixture, articlesApi, masterDataApi };
+  return { fixture, articlesApi, masterDataApi, translate };
 }
 
 describe('MyArticlesPage', () => {
@@ -106,5 +189,72 @@ describe('MyArticlesPage', () => {
 
     expect(fixture.componentInstance.loading()).toBe(false);
     expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error' }));
+  });
+
+  it('renders the translated title and empty-state text with the bolded create-button fragment', () => {
+    const { fixture } = create();
+
+    const html = (fixture.nativeElement as HTMLElement).innerHTML;
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Meine Artikel');
+    expect(text).toContain('Noch keine Artikel angemeldet. Mit + Neu den ersten anlegen.');
+    expect(html).toContain('<strong>+ Neu</strong>');
+  });
+
+  it('shows English text when the active language is English', () => {
+    const { fixture, translate } = create();
+    translate.use('en');
+    fixture.detectChanges();
+
+    const html = (fixture.nativeElement as HTMLElement).innerHTML;
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('My articles');
+    expect(text).toContain('No articles registered yet. Use + New to create the first one.');
+    expect(html).toContain('<strong>+ New</strong>');
+  });
+
+  it('translated text re-evaluates when the active language changes after render', () => {
+    const { fixture, translate } = create();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Meine Artikel');
+
+    translate.use('en');
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('My articles');
+  });
+
+  it('columns getter returns translated column headers', () => {
+    const { fixture, translate } = create();
+
+    expect(fixture.componentInstance.columns.map((c) => c.header)).toEqual(['Nr.', 'Bezeichnung', 'Kategorie', 'Marke', 'Preis']);
+
+    translate.use('en');
+
+    expect(fixture.componentInstance.columns.map((c) => c.header)).toEqual(['No.', 'Name', 'Category', 'Brand', 'Price']);
+  });
+
+  it('loadArticles() error toast is translated', () => {
+    const { fixture, articlesApi, translate } = create();
+    vi.mocked(articlesApi.getMine).mockReturnValue(throwError(() => ({ status: 500 })));
+    translate.use('en');
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, 'add');
+
+    fixture.componentInstance.loadArticles();
+
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', summary: 'Articles could not be loaded' }));
+  });
+
+  it('openCreateDialog() error toast is translated', () => {
+    const { fixture, articlesApi, translate } = create();
+    vi.mocked(articlesApi.getNextNumber).mockReturnValue(throwError(() => ({ status: 409 })));
+    translate.use('en');
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, 'add');
+
+    fixture.componentInstance.openCreateDialog();
+
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'warn', summary: 'No free article number available — please contact the admin' }));
   });
 });
