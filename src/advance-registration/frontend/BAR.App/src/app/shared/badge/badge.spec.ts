@@ -13,13 +13,13 @@ describe('Badge', () => {
   });
 
   it.each([
-    ['success', '#d5f5e3', '#1a5c38'],
-    ['danger', '#fadbd8', '#7b241c'],
-    ['warn', '#fef9e7', '#7e5109'],
-    ['info', '#d6eaf8', '#1a5276'],
-    ['sec', '#eaecee', '#566573'],
-    ['original', '#d5f5e3', '#1a5c38'],
-    ['neu', '#fdebd0', '#784212']
+    ['success', 'rgb(213, 245, 227)', 'rgb(26, 92, 56)'],
+    ['danger', 'rgb(250, 219, 216)', 'rgb(123, 36, 28)'],
+    ['warn', 'rgb(254, 249, 231)', 'rgb(126, 81, 9)'],
+    ['info', 'rgb(214, 234, 248)', 'rgb(26, 82, 118)'],
+    ['sec', 'rgb(234, 236, 238)', 'rgb(86, 101, 115)'],
+    ['original', 'rgb(213, 245, 227)', 'rgb(26, 92, 56)'],
+    ['neu', 'rgb(253, 235, 208)', 'rgb(120, 66, 18)']
   ] as const)('applies the %s palette', (type, background, color) => {
     const fixture = TestBed.createComponent(Badge);
     fixture.componentRef.setInput('type', type);
