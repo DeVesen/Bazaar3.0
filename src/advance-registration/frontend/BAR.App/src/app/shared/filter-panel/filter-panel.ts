@@ -34,7 +34,7 @@ export interface SellerOption {
           [(ngModel)]="sellerModelValue"
           [suggestions]="sellerSuggestions()"
           optionLabel="label"
-          minLength="2"
+          [minQueryLength]="2"
           placeholder="Verkäufer"
           [showClear]="true"
           (completeMethod)="onSellerFilter($event.query)"
