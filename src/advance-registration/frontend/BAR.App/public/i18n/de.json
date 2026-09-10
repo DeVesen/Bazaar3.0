@@ -1,4 +1,12 @@
 {
+  "common": {
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "create": "Anlegen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "ok": "OK"
+  },
   "login": {
     "title": "Anmelden",
     "email": "E-Mail",

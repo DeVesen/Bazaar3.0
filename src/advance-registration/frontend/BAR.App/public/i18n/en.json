@@ -1,4 +1,44 @@
 {
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create",
+    "delete": "Delete",
+    "edit": "Edit",
+    "ok": "OK"
+  },
+  "login": {
+    "title": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordHint": "Please contact the admin to reset your password.",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Register now"
+  },
+  "register": {
+    "title": "Registration",
+    "email": "Email",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "address": "Address",
+    "postalCode": "Postal code",
+    "city": "City",
+    "phone": "Phone",
+    "password": "Password",
+    "passwordConfirmation": "Confirm password",
+    "submit": "Register",
+    "hasAccount": "Already have an account?",
+    "loginLink": "Go to login",
+    "passwordMismatch": "Passwords do not match",
+    "notEnabled": "Registration is not open yet."
+  },
+  "errors": {
+    "auth.invalid_credentials": "Invalid credentials",
+    "seller.email_taken": "This email is already registered",
+    "registration.not_enabled": "Registration is not open yet"
+  },
   "export": {
     "title": "Export",
     "includeBrands": "Include brands",
