@@ -1,4 +1,5 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Countdown } from '../../../shared/countdown/countdown';
 import { CountdownPhase } from '../../../shared/countdown/select-active-phase';
 import { MarkdownText } from '../../../shared/markdown-text/markdown-text';
@@ -11,15 +12,15 @@ import { PublicInfo } from '../../../core/public-info/public-info.service';
 // leer sind (Epic_Login AC-13).
 @Component({
   selector: 'app-login-info-panel',
-  imports: [Countdown, MarkdownText],
+  imports: [Countdown, MarkdownText, TranslatePipe],
   template: `
     @if (countdownPhases().length > 0) {
       <app-countdown [phases]="countdownPhases()" />
     }
     @if (info().defaultConditions; as conditions) {
       <div data-testid="conditions-box" class="login-info-panel__box">
-        <span>{{ conditions.commissionRate }} % Provision</span>
-        <span>{{ formattedItemFee(conditions.itemFee) }} Gebühr pro Artikel</span>
+        <span>{{ conditions.commissionRate }} {{ 'login.commissionSuffix' | translate }}</span>
+        <span>{{ formattedItemFee(conditions.itemFee) }} {{ 'login.itemFeeSuffix' | translate }}</span>
       </div>
     }
     @if (hasInfoText()) {
@@ -55,16 +56,18 @@ import { PublicInfo } from '../../../core/public-info/public-info.service';
   ]
 })
 export class LoginInfoPanel {
+  private readonly translate = inject(TranslateService);
+
   readonly info = input.required<PublicInfo>();
 
   readonly countdownPhases = computed<CountdownPhase[]>(() => {
     const i = this.info();
     const candidates: { label: string; targetDate: string | null }[] = [
-      { label: 'Anmeldeschluss', targetDate: i.registrationDeadline },
-      { label: 'Abgabe ab', targetDate: i.dropOffFrom },
-      { label: 'Abgabe bis', targetDate: i.dropOffUntil },
-      { label: 'Basar ab', targetDate: i.bazaarFrom },
-      { label: 'Basar bis', targetDate: i.bazaarUntil }
+      { label: this.translate.instant('login.phaseRegistrationDeadline'), targetDate: i.registrationDeadline },
+      { label: this.translate.instant('login.phaseDropOffFrom'), targetDate: i.dropOffFrom },
+      { label: this.translate.instant('login.phaseDropOffUntil'), targetDate: i.dropOffUntil },
+      { label: this.translate.instant('login.phaseBazaarFrom'), targetDate: i.bazaarFrom },
+      { label: this.translate.instant('login.phaseBazaarUntil'), targetDate: i.bazaarUntil }
     ];
 
     return candidates

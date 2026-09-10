@@ -1,7 +1,21 @@
 import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { LoginForm } from './login-form';
+
+const de = {
+  login: {
+    title: 'Anmelden',
+    email: 'E-Mail',
+    password: 'Passwort',
+    submit: 'Anmelden',
+    forgotPassword: 'Passwort vergessen?',
+    forgotPasswordHint: 'Bitte wende dich an den Admin, um dein Passwort zurückzusetzen.',
+    noAccount: 'Noch kein Konto?',
+    registerLink: 'Jetzt registrieren'
+  }
+};
 
 describe('LoginForm', () => {
   let fixture: ComponentFixture<LoginForm>;
@@ -14,8 +28,14 @@ describe('LoginForm', () => {
       // abgelehnt - und zwar erst nach dem Teardown des Fixtures, was Vitest
       // als "Unhandled Rejection - NG0205: Injector has already been destroyed"
       // meldet. Mit registrierter Route laeuft die Navigation sauber durch.
-      providers: [provideRouter([{ path: 'register', children: [] }, { path: 'login', children: [] }])]
+      providers: [
+        provideRouter([{ path: 'register', children: [] }, { path: 'login', children: [] }]),
+        provideTranslateService()
+      ]
     }).compileComponents();
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('de', de);
+    translate.use('de');
     fixture = TestBed.createComponent(LoginForm);
     fixture.detectChanges();
   });
@@ -68,5 +88,44 @@ describe('LoginForm', () => {
     const popoverText: string = document.body.textContent ?? '';
 
     expect(popoverText).toContain('Bitte wende dich an den Admin, um dein Passwort zurückzusetzen.');
+  });
+
+  it('renders translated labels', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Anmelden');
+    expect(text).toContain('E-Mail');
+    expect(text).toContain('Jetzt registrieren');
+  });
+});
+
+describe('LoginForm (English translation)', () => {
+  it('renders English labels when the active language is en', () => {
+    TestBed.configureTestingModule({
+      imports: [LoginForm],
+      providers: [
+        provideRouter([{ path: 'register', children: [] }, { path: 'login', children: [] }]),
+        provideTranslateService()
+      ]
+    });
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', {
+      login: {
+        title: 'Sign in',
+        email: 'Email',
+        password: 'Password',
+        submit: 'Sign in',
+        forgotPassword: 'Forgot your password?',
+        forgotPasswordHint: 'Please contact the admin to reset your password.',
+        noAccount: "Don't have an account?",
+        registerLink: 'Register now'
+      }
+    });
+    translate.use('en');
+    const fixture = TestBed.createComponent(LoginForm);
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Sign in');
+    expect(text).toContain('Register now');
   });
 });

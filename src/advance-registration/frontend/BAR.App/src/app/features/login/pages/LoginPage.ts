@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -14,7 +15,7 @@ import { LoginForm } from '../components/login-form';
 // sobald PublicInfo geladen ist, weil sein `info`-Input required ist.
 @Component({
   selector: 'app-login-page',
-  imports: [LoginLayout, LoginInfoPanel, LoginForm],
+  imports: [LoginLayout, LoginInfoPanel, LoginForm, TranslatePipe],
   template: `
     <app-login-layout>
       @if (info(); as loadedInfo) {
@@ -24,7 +25,7 @@ import { LoginForm } from '../components/login-form';
     </app-login-layout>
     @if (!isProduction) {
       <small data-testid="demo-hint" class="login-page__demo-hint">
-        Demo-Zugang: admin&#64;bazaar.local / Admin123!
+        {{ 'login.demoHint' | translate }}
       </small>
     }
   `
@@ -35,6 +36,7 @@ export class LoginPage {
   private readonly publicInfoService = inject(PublicInfoService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
 
   readonly isProduction = environment.production;
   readonly info = signal<PublicInfo | null>(null);
@@ -56,7 +58,7 @@ export class LoginPage {
         void this.router.navigateByUrl(returnUrl ?? '/home');
       },
       error: (err: HttpErrorResponse) => {
-        this.errorMessage.set(err.error?.detail ?? 'Ungültige Anmeldedaten');
+        this.errorMessage.set(err.error?.detail ?? this.translate.instant('login.invalidCredentials'));
       }
     });
   }

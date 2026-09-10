@@ -15,7 +15,16 @@
     "forgotPassword": "Forgot your password?",
     "forgotPasswordHint": "Please contact the admin to reset your password.",
     "noAccount": "Don't have an account?",
-    "registerLink": "Register now"
+    "registerLink": "Register now",
+    "demoHint": "Demo access: admin@bazaar.local / Admin123!",
+    "invalidCredentials": "Invalid credentials",
+    "phaseRegistrationDeadline": "Registration deadline",
+    "phaseDropOffFrom": "Drop-off from",
+    "phaseDropOffUntil": "Drop-off until",
+    "phaseBazaarFrom": "Bazaar from",
+    "phaseBazaarUntil": "Bazaar until",
+    "commissionSuffix": "% commission",
+    "itemFeeSuffix": "fee per item"
   },
   "register": {
     "title": "Registration",

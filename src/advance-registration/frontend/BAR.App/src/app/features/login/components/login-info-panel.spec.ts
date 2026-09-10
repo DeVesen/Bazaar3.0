@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { LoginInfoPanel } from './login-info-panel';
 import { PublicInfo } from '../../../core/public-info/public-info.service';
@@ -17,7 +18,7 @@ describe('LoginInfoPanel', () => {
   };
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [LoginInfoPanel] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [LoginInfoPanel], providers: [provideTranslateService()] }).compileComponents();
     fixture = TestBed.createComponent(LoginInfoPanel);
   });
 

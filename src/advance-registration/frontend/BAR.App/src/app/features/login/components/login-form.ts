@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Envelope } from '@primeicons/angular/envelope';
 import { Eye } from '@primeicons/angular/eye';
 import { EyeSlash } from '@primeicons/angular/eye-slash';
@@ -18,6 +19,7 @@ import { PopoverModule } from 'primeng/popover';
   imports: [
     FormsModule,
     RouterLink,
+    TranslatePipe,
     Envelope,
     Eye,
     EyeSlash,
@@ -33,9 +35,9 @@ import { PopoverModule } from 'primeng/popover';
   template: `
     <p-card>
       <form (ngSubmit)="onSubmit()">
-        <h1>Anmelden</h1>
+        <h1>{{ 'login.title' | translate }}</h1>
 
-        <label for="login-email">E-Mail</label>
+        <label for="login-email">{{ 'login.email' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="envelope"></svg>
@@ -43,7 +45,7 @@ import { PopoverModule } from 'primeng/popover';
           <input id="login-email" pInputText [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" type="email" required />
         </p-iconfield>
 
-        <label for="login-password">Passwort</label>
+        <label for="login-password">{{ 'login.password' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="lock"></svg>
@@ -70,14 +72,14 @@ import { PopoverModule } from 'primeng/popover';
           <p class="login-form__error">{{ errorMessage() }}</p>
         }
 
-        <p-button type="submit" label="Anmelden" severity="primary" [style]="{ width: '100%' }" />
+        <p-button type="submit" [label]="'login.submit' | translate" severity="primary" [style]="{ width: '100%' }" />
 
-        <button type="button" class="login-form__forgot" (click)="forgotPopover.toggle($event)">Passwort vergessen?</button>
+        <button type="button" class="login-form__forgot" (click)="forgotPopover.toggle($event)">{{ 'login.forgotPassword' | translate }}</button>
         <p-popover #forgotPopover>
-          <p>Bitte wende dich an den Admin, um dein Passwort zurückzusetzen.</p>
+          <p>{{ 'login.forgotPasswordHint' | translate }}</p>
         </p-popover>
 
-        <p-button type="button" [text]="true" label="Noch kein Konto? Jetzt registrieren" routerLink="/register" />
+        <p-button type="button" [text]="true" label="{{ 'login.noAccount' | translate }} {{ 'login.registerLink' | translate }}" routerLink="/register" />
       </form>
     </p-card>
   `
