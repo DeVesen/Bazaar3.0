@@ -1,5 +1,9 @@
+using BAR.Application.Sellers;
+using BAR.Application.Sellers.Create;
 using BAR.Application.Sellers.List;
+using BAR.Domain.Ports;
 using BAR.Domain.Ports.Queries;
+using BAR.Host.Validation;
 
 namespace BAR.Host.Features.Sellers;
 
@@ -24,6 +28,16 @@ public static class SellersEndpoints
             var query = new GetSellersQuery(search, page <= 0 ? 1 : page, pageSize <= 0 ? 25 : pageSize, sortMeta);
             return Results.Ok(await handler.HandleAsync(query, ct));
         });
+
+        group.MapPost("/", async (
+            CreateSellerCommand command, CreateSellerCommandHandler handler,
+            ISellerTypeRepository sellerTypes, CancellationToken ct) =>
+        {
+            var response = await handler.HandleAsync(command, ct);
+            var type = await sellerTypes.GetByIdAsync(response.SellerTypeId, ct);
+            var enriched = response with { SellerType = new SellerTypeSummary(type!.Id, type.Name, type.CommissionRate, type.ItemFee) };
+            return Results.Created($"/api/sellers/{enriched.Id}", enriched);
+        }).AddEndpointFilter<ValidationFilter<CreateSellerCommand>>();
 
         return app;
     }

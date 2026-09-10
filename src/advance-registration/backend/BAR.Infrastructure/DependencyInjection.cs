@@ -111,6 +111,8 @@ public static class DependencyInjection
         services.AddScoped<IValidator<UpdateSellerTypeCommand>, UpdateSellerTypeCommandValidator>();
         services.AddScoped<DeleteSellerTypeCommandHandler>();
         services.AddScoped<GetSellersQueryHandler>();
+        services.AddScoped<BAR.Application.Sellers.Create.CreateSellerCommandHandler>();
+        services.AddScoped<IValidator<BAR.Application.Sellers.Create.CreateSellerCommand>, BAR.Application.Sellers.Create.CreateSellerCommandValidator>();
 
         return services;
     }
