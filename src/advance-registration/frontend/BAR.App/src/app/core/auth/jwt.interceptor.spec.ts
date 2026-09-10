@@ -125,4 +125,46 @@ describe('jwtInterceptor', () => {
     expect(navigateByUrlSpy).toHaveBeenCalledWith('/login');
     httpMock.verify();
   });
+
+  it('does not attempt a refresh for a business-logic 401 (wrong current password) and rethrows it unchanged', () => {
+    TestBed.inject(TokenStore).setToken('valid-token');
+    TestBed.inject(TokenStore).setRefreshToken('refresh-abc');
+    const http = TestBed.inject(HttpClient);
+    const httpMock = TestBed.inject(HttpTestingController);
+
+    let error: unknown;
+    http.put('/api/profile/email', {}).subscribe({ error: (e) => (error = e) });
+
+    httpMock
+      .expectOne('/api/profile/email')
+      .flush({ errorCode: 'auth.invalid_credentials', detail: 'Ungültiges Passwort' }, { status: 401, statusText: 'Unauthorized' });
+
+    httpMock.expectNone('/api/auth/refresh');
+    expect((error as { status: number }).status).toBe(401);
+    expect((error as { error: { errorCode: string } }).error.errorCode).toBe('auth.invalid_credentials');
+    expect(TestBed.inject(TokenStore).getToken()).toBe('valid-token');
+    httpMock.verify();
+  });
+
+  it('still refreshes and retries a 401 without the business-logic errorCode', () => {
+    TestBed.inject(TokenStore).setToken('expired-token');
+    TestBed.inject(TokenStore).setRefreshToken('refresh-abc');
+    const http = TestBed.inject(HttpClient);
+    const httpMock = TestBed.inject(HttpTestingController);
+
+    let result: unknown;
+    http.put('/api/profile/email', {}).subscribe((r) => (result = r));
+
+    httpMock.expectOne('/api/profile/email').flush({ errorCode: 'seller.email_taken' }, { status: 401, statusText: 'Unauthorized' });
+
+    const refreshReq = httpMock.expectOne('/api/auth/refresh');
+    refreshReq.flush({ accessToken: 'new-token', refreshToken: 'new-refresh' });
+
+    const retriedReq = httpMock.expectOne('/api/profile/email');
+    expect(retriedReq.request.headers.get('Authorization')).toBe('Bearer new-token');
+    retriedReq.flush({ ok: true });
+
+    expect(result).toEqual({ ok: true });
+    httpMock.verify();
+  });
 });

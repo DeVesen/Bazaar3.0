@@ -36,6 +36,17 @@ function shouldAttachToken(url: string): boolean {
   return !EXCLUDED_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
 
+// Manche 401 sind kein abgelaufenes Access-Token, sondern ein fachlicher Fehler
+// (z. B. "aktuelles Passwort falsch" auf PUT /api/profile/email|password). Ein
+// Refresh+Retry aendert daran nichts (die Session ist ja gueltig) und der zweite
+// 401 wuerde ueber den catchError unten zum stillen Logout fuehren. Der Backend-
+// Handler (DomainExceptionHandler) liefert den fachlichen ErrorCode im Body mit,
+// darueber lassen sich beide Faelle unterscheiden.
+function isBusinessLogicUnauthorized(error: HttpErrorResponse): boolean {
+  const body = error.error as { errorCode?: string } | null;
+  return body?.errorCode === 'auth.invalid_credentials';
+}
+
 function refreshAccessToken(http: HttpClient, tokenStore: TokenStore): Observable<string> {
   if (refreshInFlight) {
     return refreshInFlight;
@@ -75,6 +86,10 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authorizedReq).pipe(
     catchError((error: unknown) => {
       if (!(error instanceof HttpErrorResponse) || error.status !== 401) {
+        return throwError(() => error);
+      }
+
+      if (isBusinessLogicUnauthorized(error)) {
         return throwError(() => error);
       }
 
