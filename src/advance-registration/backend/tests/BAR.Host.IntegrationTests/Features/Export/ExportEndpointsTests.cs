@@ -37,6 +37,26 @@ public class ExportEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
         return client;
     }
 
+    private async Task<HttpClient> CreateNonAdminClientAsync()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var sellers = scope.ServiceProvider.GetRequiredService<ISellerRepository>();
+        var types = scope.ServiceProvider.GetRequiredService<ISellerTypeRepository>();
+        var tokenIssuer = scope.ServiceProvider.GetRequiredService<ITokenIssuer>();
+        var ct = TestContext.Current.CancellationToken;
+
+        var seedType = SellerType.Create($"Seed-{Guid.NewGuid():N}", 10m, 0.20m);
+        await types.AddAsync(seedType, ct);
+        var seller = Seller.Register("Seller", "User", null, "76133", "Karlsruhe", "0721", $"{Guid.NewGuid()}@example.com", seedType.Id, "hash", isAdmin: false);
+        await sellers.AddAsync(seller, ct);
+
+        var token = tokenIssuer.IssueAccessToken(seller.Id, "seller", DateTime.UtcNow);
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        return client;
+    }
+
     [Fact]
     public async Task Get_Unauthenticated_Returns401()
     {
@@ -45,6 +65,16 @@ public class ExportEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
         var response = await client.GetAsync("/api/export", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Get_NonAdmin_Returns403()
+    {
+        var client = await CreateNonAdminClientAsync();
+
+        var response = await client.GetAsync("/api/export", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
