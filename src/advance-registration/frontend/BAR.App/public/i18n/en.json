@@ -1,1 +1,10 @@
-{}
+{
+  "export": {
+    "title": "Export",
+    "includeBrands": "Include brands",
+    "includeCategories": "Include categories",
+    "submit": "Export",
+    "success": "{{sellerCount}} sellers and {{articleCount}} articles exported.",
+    "error": "Export failed"
+  }
+}

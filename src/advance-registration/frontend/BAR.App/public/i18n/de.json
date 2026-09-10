@@ -30,5 +30,13 @@
     "auth.invalid_credentials": "Ungültige Anmeldedaten",
     "seller.email_taken": "Diese E-Mail ist bereits registriert",
     "registration.not_enabled": "Registrierung ist noch nicht freigeschaltet"
+  },
+  "export": {
+    "title": "Export",
+    "includeBrands": "Marken einschließen",
+    "includeCategories": "Kategorien einschließen",
+    "submit": "Exportieren",
+    "success": "{{sellerCount}} Verkäufer und {{articleCount}} Artikel exportiert.",
+    "error": "Export fehlgeschlagen"
   }
 }
