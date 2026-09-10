@@ -7,6 +7,7 @@ using BAR.Host.Features.Profile;
 using BAR.Host.Features.Public;
 using BAR.Host.Features.Sellers;
 using BAR.Host.Features.SellerTypes;
+using BAR.Host.Features.Settings;
 using BAR.Infrastructure;
 using BAR.Infrastructure.Persistence;
 using BAR.Infrastructure.Security;
@@ -98,6 +99,7 @@ app.MapBrandsEndpoints();
 app.MapCategoriesEndpoints();
 app.MapSellersEndpoints();
 app.MapSellerTypesEndpoints();
+app.MapSettingsEndpoints();
 
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
