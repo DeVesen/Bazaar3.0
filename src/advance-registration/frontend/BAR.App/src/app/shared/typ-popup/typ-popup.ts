@@ -13,7 +13,7 @@ import type { SellerType, SellerTypePayload } from '../../features/seller-types/
   selector: 'app-typ-popup',
   imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, TranslatePipe],
   template: `
-    <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="dialogTitle()">
+    <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="dialogTitle">
       <div class="field">
         <label for="typ-name">{{ 'typPopup.name' | translate }}</label>
         <input id="typ-name" pInputText [(ngModel)]="nameModel" autofocus />
@@ -53,9 +53,9 @@ export class TypPopup {
   readonly itemFee = signal(0);
   readonly nameError = signal<string | null>(null);
 
-  readonly dialogTitle = computed(() =>
-    this.translate.instant(this.item() ? 'typPopup.editTitle' : 'typPopup.createTitle')
-  );
+  get dialogTitle(): string {
+    return this.translate.instant(this.item() ? 'typPopup.editTitle' : 'typPopup.createTitle');
+  }
 
   get nameModel() { return this.name(); }
   set nameModel(v: string) { this.name.set(v); this.nameError.set(null); }
