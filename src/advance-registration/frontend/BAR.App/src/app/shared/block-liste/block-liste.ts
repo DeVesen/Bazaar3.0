@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export interface BlockListItem {
   id: string;
@@ -10,14 +11,15 @@ export interface BlockListItem {
 
 @Component({
   selector: 'app-block-liste',
+  imports: [TranslatePipe],
   template: `
     @if (blocks().length === 0) {
-      <p class="block-liste__empty">Noch keine Nummernblöcke zugewiesen</p>
+      <p class="block-liste__empty">{{ 'blockListe.empty' | translate }}</p>
     } @else {
       @for (block of blocks(); track block.id) {
         <div class="block-liste__item">
           <span class="block-liste__range">{{ block.fromNumber }} – {{ block.toNumber }}</span>
-          <span class="block-liste__count">{{ block.numberCount }} Nummern · {{ block.usedCount }} vergeben</span>
+          <span class="block-liste__count">{{ 'blockListe.usage' | translate: { count: block.numberCount, used: block.usedCount } }}</span>
         </div>
       }
     }

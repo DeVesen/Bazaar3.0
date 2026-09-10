@@ -1,8 +1,31 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { NumberBlocksPage } from './NumberBlocksPage';
+
+const DE_TRANSLATIONS = {
+  numberBlocks: {
+    title: 'Nummernblöcke',
+    loadError: 'Nummernblöcke konnten nicht geladen werden'
+  },
+  blockListe: {
+    empty: 'Noch keine Nummernblöcke zugewiesen',
+    usage: '{{count}} Nummern · {{used}} vergeben'
+  }
+};
+
+const EN_TRANSLATIONS = {
+  numberBlocks: {
+    title: 'Number blocks',
+    loadError: 'Number blocks could not be loaded'
+  },
+  blockListe: {
+    empty: 'No number blocks assigned yet',
+    usage: '{{count}} numbers · {{used}} assigned'
+  }
+};
 
 describe('NumberBlocksPage', () => {
   let httpMock: HttpTestingController;
@@ -24,9 +47,13 @@ describe('NumberBlocksPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [NumberBlocksPage],
-      providers: [provideHttpClient(), provideHttpClientTesting()]
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService()]
     }).compileComponents();
     httpMock = TestBed.inject(HttpTestingController);
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('de', DE_TRANSLATIONS);
+    translate.setTranslation('en', EN_TRANSLATIONS);
+    translate.use('de');
   });
 
   afterEach(() => httpMock.verify());
@@ -62,5 +89,31 @@ describe('NumberBlocksPage', () => {
 
     expect(fixture.componentInstance.loadError()).toBe('Nummernblöcke konnten nicht geladen werden');
     expect(fixture.nativeElement.textContent).toContain('Nummernblöcke konnten nicht geladen werden');
+  });
+
+  it('shows English text when the active language is English', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.use('en');
+    const fixture = TestBed.createComponent(NumberBlocksPage);
+    fixture.detectChanges();
+
+    httpMock.expectOne('/api/blocks/mine').flush([{ id: 'b1', sellerId: 's1', fromNumber: 101, toNumber: 110, numberCount: 10, usedCount: 3, assignedAt: '2026-08-14T10:00:00+02:00' }]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Number blocks');
+    expect(fixture.nativeElement.textContent).toContain('10 numbers · 3 assigned');
+  });
+
+  it('load error toast text is translated when the active language is English', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.use('en');
+    const fixture = TestBed.createComponent(NumberBlocksPage);
+    fixture.detectChanges();
+
+    httpMock.expectOne('/api/blocks/mine').flush('Server error', { status: 500, statusText: 'Internal Server Error' });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.loadError()).toBe('Number blocks could not be loaded');
+    expect(fixture.nativeElement.textContent).toContain('Number blocks could not be loaded');
   });
 });

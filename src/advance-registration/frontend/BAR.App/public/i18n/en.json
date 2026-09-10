@@ -259,5 +259,19 @@
     "loadError": "Profile could not be loaded",
     "saved": "✓ Profile saved",
     "saveFailed": "Profile could not be saved"
+  },
+  "numberBlocks": {
+    "title": "Number blocks",
+    "loadError": "Number blocks could not be loaded"
+  },
+  "blockListe": {
+    "empty": "No number blocks assigned yet",
+    "usage": "{{count}} numbers · {{used}} assigned"
+  },
+  "sellerNumber": {
+    "title": "My seller number",
+    "copy": "Copy",
+    "hint": "Show this at the bazaar — staff will scan the code.",
+    "copied": "✓ Number copied"
   }
 }

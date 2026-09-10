@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { HomePage } from './HomePage';
@@ -30,6 +31,7 @@ describe('HomePage', () => {
       imports: [HomePage],
       providers: [
         provideRouter([]),
+        provideTranslateService(),
         MessageService,
         { provide: HomeApiService, useValue: homeApi },
         { provide: PublicInfoService, useValue: publicInfo },

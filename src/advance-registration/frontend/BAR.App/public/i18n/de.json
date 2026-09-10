@@ -259,5 +259,19 @@
     "loadError": "Profil konnte nicht geladen werden",
     "saved": "✓ Profil gespeichert",
     "saveFailed": "Profil konnte nicht gespeichert werden"
+  },
+  "numberBlocks": {
+    "title": "Nummernblöcke",
+    "loadError": "Nummernblöcke konnten nicht geladen werden"
+  },
+  "blockListe": {
+    "empty": "Noch keine Nummernblöcke zugewiesen",
+    "usage": "{{count}} Nummern · {{used}} vergeben"
+  },
+  "sellerNumber": {
+    "title": "Meine Verkäufernummer",
+    "copy": "Kopieren",
+    "hint": "Am Basar-Tag vorzeigen — das Kassenpersonal scannt den Code.",
+    "copied": "✓ Nummer kopiert"
   }
 }
