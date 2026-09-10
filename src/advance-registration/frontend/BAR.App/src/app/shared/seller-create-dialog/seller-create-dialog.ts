@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, model, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,13 +14,14 @@ import { InfoArea } from '../info-area/info-area';
 
 @Component({
   selector: 'app-seller-create-dialog',
-  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, SelectModule, AutoFocusModule, InfoArea],
+  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, SelectModule, AutoFocusModule, InfoArea, TranslatePipe],
   templateUrl: './seller-create-dialog.html'
 })
 export class SellerCreateDialog {
   private readonly sellersApi = inject(SellersApiService);
   private readonly sellerTypeApi = inject(SellerTypeApiService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
 
   readonly visible = model<boolean>(false);
   readonly saved = output<void>();
@@ -124,13 +126,15 @@ export class SellerCreateDialog {
 
     this.sellersApi.create(payload).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: '✓ Verkäufer gespeichert' });
+        this.messageService.add({ severity: 'success', summary: this.translate.instant('sellerCreateDialog.saved') });
         this.saved.emit();
         this.visible.set(false);
       },
       error: (err: { status?: number; error?: { detail?: string } }) => {
         this.formError.set(
-          err.status === 409 ? (err.error?.detail ?? 'Verkäufer konnte nicht gespeichert werden') : 'Verkäufer konnte nicht gespeichert werden'
+          err.status === 409
+            ? (err.error?.detail ?? this.translate.instant('sellerCreateDialog.saveFailed'))
+            : this.translate.instant('sellerCreateDialog.saveFailed')
         );
       }
     });

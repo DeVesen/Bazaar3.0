@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { SellerEditDialog } from './seller-edit-dialog';
@@ -54,8 +55,45 @@ function create() {
   });
 
   TestBed.configureTestingModule({
-    providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
+    providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService, ConfirmationService]
   });
+  const translate = TestBed.inject(TranslateService);
+  translate.setTranslation('de', {
+    common: { cancel: 'Abbrechen', save: 'Speichern', delete: 'Löschen' },
+    sellerEditDialog: {
+      header: 'Verkäufer bearbeiten',
+      sectionPersonal: 'Personendaten',
+      firstName: 'Vorname *',
+      lastName: 'Nachname *',
+      sectionContact: 'Kontakt',
+      address: 'Anschrift',
+      postalCode: 'PLZ *',
+      city: 'Ort *',
+      phone: 'Telefon *',
+      email: 'E-Mail (= Login) *',
+      sectionConditions: 'Konditionen',
+      sellerType: 'Verkäufer-Typ *',
+      conditionsSummary: 'Provision: {{commissionRate}} % · Gebühr: {{itemFee}} € pro Stück',
+      sectionBlocks: 'Nummernblöcke',
+      blockUsage: '{{count}} Nummern · {{used}} vergeben',
+      blockFull: 'Voll — nicht löschbar',
+      confirmDeleteBlock: 'Diesen Nummernblock wirklich löschen?',
+      reserveAdditional: 'Zusätzliche Blöcke reservieren:',
+      blockCount: 'Anzahl Blöcke',
+      suggestedStartNumber: 'Startnummer (Vorschlag)',
+      reserve: '✓ Reservieren',
+      reserveConflict: 'Nummernbereich überschneidet sich mit bestehendem Block',
+      reserveFailed: 'Block konnte nicht reserviert werden',
+      reserved: '✓ Block reserviert',
+      sectionOther: 'Sonstiges',
+      isAdmin: 'Dieser Verkäufer hat Admin-Rechte',
+      generateInvite: '📋 Einladungs-Link generieren',
+      inviteCopied: '✓ Einladungs-Link kopiert!',
+      saved: '✓ Verkäufer gespeichert',
+      saveFailed: 'Verkäufer konnte nicht gespeichert werden'
+    }
+  });
+  translate.use('de');
   const sellerTypeApi = TestBed.inject(SellerTypeApiService);
   vi.spyOn(sellerTypeApi, 'getAll').mockReturnValue(of(SELLER_TYPES));
   const sellersApi = TestBed.inject(SellersApiService);
@@ -274,5 +312,43 @@ describe('SellerEditDialog', () => {
 
     expect(writeTextSpy).toHaveBeenCalledWith('https://x/set-password?token=t');
     expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success', summary: '✓ Einladungs-Link kopiert!' }));
+  });
+
+  it('renders the English dialog header and block usage text when the English translation is active', () => {
+    const { fixture } = create();
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', {
+      common: { cancel: 'Cancel', save: 'Save', delete: 'Delete' },
+      sellerEditDialog: {
+        header: 'Edit seller',
+        sectionPersonal: 'Personal details',
+        blockUsage: '{{count}} numbers · {{used}} assigned',
+        isAdmin: 'This seller has admin rights',
+        generateInvite: '📋 Generate invite link'
+      }
+    });
+    translate.use('en');
+    open(fixture);
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('Edit seller');
+    expect(text).toContain('Personal details');
+    expect(text).toContain('10 numbers · 3 assigned');
+    expect(text).toContain('This seller has admin rights');
+    expect(text).toContain('📋 Generate invite link');
+  });
+
+  it('re-renders the dialog header after a post-render language switch', () => {
+    const { fixture } = create();
+    open(fixture);
+
+    expect((fixture.nativeElement.textContent as string)).toContain('Verkäufer bearbeiten');
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', { sellerEditDialog: { header: 'Edit seller' } });
+    translate.use('en');
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement.textContent as string)).toContain('Edit seller');
   });
 });

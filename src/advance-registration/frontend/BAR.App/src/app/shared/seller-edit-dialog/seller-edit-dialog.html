@@ -1,54 +1,54 @@
 <p-dialog
   [(visible)]="visibleModel"
   [modal]="true"
-  header="Verkäufer bearbeiten"
+  [header]="'sellerEditDialog.header' | translate"
   [style]="{ width: '940px', maxWidth: '90vw' }"
 >
   <div class="panel-block">
-    <div class="panel-block__title">Personendaten</div>
+    <div class="panel-block__title">{{ 'sellerEditDialog.sectionPersonal' | translate }}</div>
     <div class="form-grid">
       <div>
-        <label for="edit-first-name">Vorname *</label>
+        <label for="edit-first-name">{{ 'sellerEditDialog.firstName' | translate }}</label>
         <input id="edit-first-name" pInputText [pAutoFocus]="true" [(ngModel)]="firstNameModel" />
       </div>
       <div>
-        <label for="edit-last-name">Nachname *</label>
+        <label for="edit-last-name">{{ 'sellerEditDialog.lastName' | translate }}</label>
         <input id="edit-last-name" pInputText [(ngModel)]="lastNameModel" />
       </div>
     </div>
   </div>
 
   <div class="panel-block">
-    <div class="panel-block__title">Kontakt</div>
+    <div class="panel-block__title">{{ 'sellerEditDialog.sectionContact' | translate }}</div>
     <div class="form-grid">
       <div class="full">
-        <label for="edit-address">Anschrift</label>
+        <label for="edit-address">{{ 'sellerEditDialog.address' | translate }}</label>
         <input id="edit-address" pInputText [(ngModel)]="addressModel" />
       </div>
       <div>
-        <label for="edit-postal-code">PLZ *</label>
+        <label for="edit-postal-code">{{ 'sellerEditDialog.postalCode' | translate }}</label>
         <input id="edit-postal-code" pInputText [(ngModel)]="postalCodeModel" />
       </div>
       <div>
-        <label for="edit-city">Ort *</label>
+        <label for="edit-city">{{ 'sellerEditDialog.city' | translate }}</label>
         <input id="edit-city" pInputText [(ngModel)]="cityModel" />
       </div>
       <div>
-        <label for="edit-phone">Telefon *</label>
+        <label for="edit-phone">{{ 'sellerEditDialog.phone' | translate }}</label>
         <input id="edit-phone" pInputText [(ngModel)]="phoneModel" />
       </div>
       <div>
-        <label for="edit-email">E-Mail (= Login) *</label>
+        <label for="edit-email">{{ 'sellerEditDialog.email' | translate }}</label>
         <input id="edit-email" pInputText type="email" [(ngModel)]="emailModel" />
       </div>
     </div>
   </div>
 
   <div class="panel-block">
-    <div class="panel-block__title">Konditionen</div>
+    <div class="panel-block__title">{{ 'sellerEditDialog.sectionConditions' | translate }}</div>
     <div class="form-grid">
       <div class="full">
-        <label for="edit-seller-type">Verkäufer-Typ *</label>
+        <label for="edit-seller-type">{{ 'sellerEditDialog.sellerType' | translate }}</label>
         <p-select
           id="edit-seller-type"
           [options]="sellerTypes()"
@@ -59,48 +59,48 @@
       </div>
     </div>
     @if (selectedType(); as type) {
-      <p>Provision: {{ type.commissionRate }} % · Gebühr: {{ type.itemFee }} € pro Stück</p>
+      <p>{{ 'sellerEditDialog.conditionsSummary' | translate: { commissionRate: type.commissionRate, itemFee: type.itemFee } }}</p>
     }
   </div>
 
   <div class="panel-block full">
-    <div class="panel-block__title">Nummernblöcke</div>
+    <div class="panel-block__title">{{ 'sellerEditDialog.sectionBlocks' | translate }}</div>
     @for (block of blocks(); track block.id) {
       <div class="block-row">
         <span class="block-row__range">{{ block.fromNumber }} – {{ block.toNumber }}</span>
-        <span class="block-row__count">{{ block.numberCount }} Nummern · {{ block.usedCount }} vergeben</span>
+        <span class="block-row__count">{{ 'sellerEditDialog.blockUsage' | translate: { count: block.numberCount, used: block.usedCount } }}</span>
         @if (isDeletable(block)) {
           <button pButton type="button" [text]="true" [outlined]="true" severity="secondary" size="small" (click)="onDeleteBlock(block)">🗑</button>
         } @else {
-          <app-badge type="warn" label="Voll — nicht löschbar" />
+          <app-badge type="warn" [label]="'sellerEditDialog.blockFull' | translate" />
         }
       </div>
     }
 
     <div class="reserve-form">
-      <label>Zusätzliche Blöcke reservieren:</label>
+      <label>{{ 'sellerEditDialog.reserveAdditional' | translate }}</label>
       <div class="form-grid">
         <div>
-          <label for="reserve-block-count">Anzahl Blöcke</label>
+          <label for="reserve-block-count">{{ 'sellerEditDialog.blockCount' | translate }}</label>
           <p-inputnumber id="reserve-block-count" [useGrouping]="false" [(ngModel)]="reserveBlockCountModel" />
         </div>
         <div>
-          <label for="reserve-start-number">Startnummer (Vorschlag)</label>
+          <label for="reserve-start-number">{{ 'sellerEditDialog.suggestedStartNumber' | translate }}</label>
           <p-inputnumber id="reserve-start-number" [useGrouping]="false" [(ngModel)]="reserveStartNumberModel" />
         </div>
       </div>
       @if (reserveError(); as error) {
         <app-info-area type="error" [message]="error" />
       }
-      <button pButton type="button" severity="primary" size="small" (click)="onReserve()">✓ Reservieren</button>
+      <button pButton type="button" severity="primary" size="small" (click)="onReserve()">{{ 'sellerEditDialog.reserve' | translate }}</button>
     </div>
   </div>
 
   <div class="panel-block full">
-    <div class="panel-block__title">Sonstiges</div>
+    <div class="panel-block__title">{{ 'sellerEditDialog.sectionOther' | translate }}</div>
     <p-checkbox [binary]="true" [(ngModel)]="isAdminModel" inputId="edit-is-admin" />
-    <label for="edit-is-admin">Dieser Verkäufer hat Admin-Rechte</label>
-    <button pButton type="button" [outlined]="true" severity="secondary" size="small" (click)="onInviteClick()">📋 Einladungs-Link generieren</button>
+    <label for="edit-is-admin">{{ 'sellerEditDialog.isAdmin' | translate }}</label>
+    <button pButton type="button" [outlined]="true" severity="secondary" size="small" (click)="onInviteClick()">{{ 'sellerEditDialog.generateInvite' | translate }}</button>
   </div>
 
   @if (formError(); as error) {
@@ -108,7 +108,7 @@
   }
 
   <div class="dialog-footer">
-    <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">Abbrechen</button>
-    <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">Speichern</button>
+    <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+    <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">{{ 'common.save' | translate }}</button>
   </div>
 </p-dialog>

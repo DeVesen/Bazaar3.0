@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -31,25 +32,6 @@ export type SellerRow = Seller & {
 
 export type DialogMode = 'create' | 'edit' | null;
 
-const COLUMNS: ColumnConfig<SellerRow>[] = [
-  { field: 'startNumber', header: 'Nr.', type: 'number' },
-  { field: 'firstName', header: 'Vorname', type: 'text' },
-  { field: 'lastName', header: 'Nachname', type: 'text' },
-  { field: 'postalCode', header: 'PLZ', type: 'text' },
-  { field: 'city', header: 'Ort', type: 'text' },
-  { field: 'sellerTypeName', header: 'Typ', type: 'text' },
-  { field: 'commissionRate', header: 'Provision', type: 'number' },
-  { field: 'itemFee', header: 'Gebühr', type: 'currency' },
-  { field: 'articleCount', header: 'Artikel', type: 'number' }
-];
-
-const ACTION_COLUMN: ActionColumnConfig = {
-  actions: [
-    { actionId: 'edit', icon: 'pi pi-pencil', ariaLabel: 'Bearbeiten' },
-    { actionId: 'delete', icon: 'pi pi-trash', ariaLabel: 'Löschen' }
-  ]
-};
-
 // The table's sort fields are the flattened view-model names; only
 // sellerTypeName needs translation to the nested API field the backend
 // sorts on. commissionRate/itemFee are already flat on the backend too, so
@@ -60,27 +42,27 @@ const SORT_FIELD_MAP: Record<string, string> = {
 
 @Component({
   selector: 'app-sellers-page',
-  imports: [AppTable, FormsModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, SellerCreateDialog, SellerEditDialog],
+  imports: [AppTable, FormsModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, SellerCreateDialog, SellerEditDialog, TranslatePipe],
   template: `
-    <h1>Verkäufer</h1>
+    <h1>{{ 'sellers.title' | translate }}</h1>
 
     <p-iconfield>
       <p-inputicon class="pi pi-search" />
-      <input pInputText placeholder="Suche Name/Ort/E-Mail..." [(ngModel)]="searchTermModel" (keydown.enter)="onSearch()" />
+      <input pInputText [placeholder]="'sellers.searchPlaceholder' | translate" [(ngModel)]="searchTermModel" (keydown.enter)="onSearch()" />
     </p-iconfield>
-    <p-button label="Suchen" icon="pi pi-search" data-testid="search-button" (onClick)="onSearch()" />
+    <p-button [label]="'sellers.searchButton' | translate" icon="pi pi-search" data-testid="search-button" (onClick)="onSearch()" />
 
     <app-table
-      [columns]="COLUMNS"
+      [columns]="columns"
       [data]="rows()"
       [totalRecords]="totalRecords()"
       [loading]="loading()"
       [rows]="pageSize()"
       [first]="(page() - 1) * pageSize()"
-      [actionColumn]="ACTION_COLUMN"
+      [actionColumn]="actionColumn"
       [canAdd]="true"
       [lazy]="true"
-      emptyText="Noch keine Verkäufer registriert."
+      [emptyText]="emptyText"
       (rowAdd)="onRowAdd()"
       (actionClick)="onTableAction($event)"
       (sortChange)="onSortChange($event)"
@@ -100,9 +82,34 @@ export class SellersPage implements OnInit {
   private readonly sellersApi = inject(SellersApiService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
 
-  protected readonly COLUMNS = COLUMNS;
-  protected readonly ACTION_COLUMN = ACTION_COLUMN;
+  get columns(): ColumnConfig<SellerRow>[] {
+    return [
+      { field: 'startNumber', header: this.translate.instant('sellers.columnStartNumber'), type: 'number' },
+      { field: 'firstName', header: this.translate.instant('sellers.columnFirstName'), type: 'text' },
+      { field: 'lastName', header: this.translate.instant('sellers.columnLastName'), type: 'text' },
+      { field: 'postalCode', header: this.translate.instant('sellers.columnPostalCode'), type: 'text' },
+      { field: 'city', header: this.translate.instant('sellers.columnCity'), type: 'text' },
+      { field: 'sellerTypeName', header: this.translate.instant('sellers.columnSellerType'), type: 'text' },
+      { field: 'commissionRate', header: this.translate.instant('sellers.columnCommissionRate'), type: 'number' },
+      { field: 'itemFee', header: this.translate.instant('sellers.columnItemFee'), type: 'currency' },
+      { field: 'articleCount', header: this.translate.instant('sellers.columnArticleCount'), type: 'number' }
+    ];
+  }
+
+  get actionColumn(): ActionColumnConfig {
+    return {
+      actions: [
+        { actionId: 'edit', icon: 'pi pi-pencil', ariaLabel: this.translate.instant('common.edit') },
+        { actionId: 'delete', icon: 'pi pi-trash', ariaLabel: this.translate.instant('common.delete') }
+      ]
+    };
+  }
+
+  get emptyText(): string {
+    return this.translate.instant('sellers.emptyText');
+  }
 
   readonly sellers = signal<Seller[]>([]);
   readonly rows = computed<SellerRow[]>(() =>
@@ -180,9 +187,9 @@ export class SellersPage implements OnInit {
 
   confirmDelete(row: SellerRow): void {
     this.confirmationService.confirm({
-      message: `Verkäufer „${row.firstName} ${row.lastName}“ wirklich löschen? Löscht auch alle Artikel und Nummernblöcke.`,
-      acceptLabel: 'Löschen',
-      rejectLabel: 'Abbrechen',
+      message: this.translate.instant('sellers.confirmDelete', { firstName: row.firstName, lastName: row.lastName }),
+      acceptLabel: this.translate.instant('common.delete'),
+      rejectLabel: this.translate.instant('common.cancel'),
       accept: () => this.deleteSeller(row)
     });
   }
@@ -190,13 +197,13 @@ export class SellersPage implements OnInit {
   deleteSeller(row: SellerRow): void {
     this.sellersApi.delete(row.id).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: '✓ Verkäufer gelöscht' });
+        this.messageService.add({ severity: 'success', summary: this.translate.instant('sellers.deleted') });
         this.load();
       },
       error: (err: { status?: number; error?: { detail?: string } }) => {
         this.messageService.add({
           severity: 'error',
-          summary: err.status === 409 ? (err.error?.detail ?? 'Löschen fehlgeschlagen') : 'Löschen fehlgeschlagen'
+          summary: err.status === 409 ? (err.error?.detail ?? this.translate.instant('sellers.deleteFailed')) : this.translate.instant('sellers.deleteFailed')
         });
       }
     });
@@ -214,7 +221,7 @@ export class SellersPage implements OnInit {
         },
         error: () => {
           this.loading.set(false);
-          this.messageService.add({ severity: 'error', summary: 'Verkäufer konnten nicht geladen werden' });
+          this.messageService.add({ severity: 'error', summary: this.translate.instant('sellers.loadError') });
         }
       });
   }

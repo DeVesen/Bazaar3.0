@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -25,7 +26,8 @@ import { InfoArea } from '../info-area/info-area';
     CheckboxModule,
     AutoFocusModule,
     Badge,
-    InfoArea
+    InfoArea,
+    TranslatePipe
   ],
   templateUrl: './seller-edit-dialog.html'
 })
@@ -34,6 +36,7 @@ export class SellerEditDialog {
   private readonly sellerTypeApi = inject(SellerTypeApiService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translate = inject(TranslateService);
 
   readonly visible = model<boolean>(false);
   readonly item = input<Seller | null>(null);
@@ -172,13 +175,15 @@ export class SellerEditDialog {
 
     this.sellersApi.update(seller.id, payload).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: '✓ Verkäufer gespeichert' });
+        this.messageService.add({ severity: 'success', summary: this.translate.instant('sellerEditDialog.saved') });
         this.saved.emit();
         this.visible.set(false);
       },
       error: (err: { status?: number; error?: { detail?: string } }) => {
         this.formError.set(
-          err.status === 409 ? (err.error?.detail ?? 'Verkäufer konnte nicht gespeichert werden') : 'Verkäufer konnte nicht gespeichert werden'
+          err.status === 409
+            ? (err.error?.detail ?? this.translate.instant('sellerEditDialog.saveFailed'))
+            : this.translate.instant('sellerEditDialog.saveFailed')
         );
       }
     });
@@ -189,9 +194,9 @@ export class SellerEditDialog {
     if (!seller) return;
 
     this.confirmationService.confirm({
-      message: 'Diesen Nummernblock wirklich löschen?',
-      acceptLabel: 'Löschen',
-      rejectLabel: 'Abbrechen',
+      message: this.translate.instant('sellerEditDialog.confirmDeleteBlock'),
+      acceptLabel: this.translate.instant('common.delete'),
+      rejectLabel: this.translate.instant('common.cancel'),
       accept: () => {
         this.sellersApi.deleteBlock(seller.id, block.id).subscribe(() => this.reloadBlocks(seller.id));
       }
@@ -210,14 +215,14 @@ export class SellerEditDialog {
       })
       .subscribe({
         next: () => {
-          this.messageService.add({ severity: 'success', summary: '✓ Block reserviert' });
+          this.messageService.add({ severity: 'success', summary: this.translate.instant('sellerEditDialog.reserved') });
           this.reloadBlocks(seller.id);
         },
         error: (err: { status?: number; error?: { detail?: string } }) => {
           this.reserveError.set(
             err.status === 409
-              ? (err.error?.detail ?? 'Nummernbereich überschneidet sich mit bestehendem Block')
-              : 'Block konnte nicht reserviert werden'
+              ? (err.error?.detail ?? this.translate.instant('sellerEditDialog.reserveConflict'))
+              : this.translate.instant('sellerEditDialog.reserveFailed')
           );
         }
       });
@@ -229,7 +234,7 @@ export class SellerEditDialog {
 
     this.sellersApi.invite(seller.id).subscribe((result) => {
       void navigator.clipboard.writeText(result.inviteUrl);
-      this.messageService.add({ severity: 'success', summary: '✓ Einladungs-Link kopiert!' });
+      this.messageService.add({ severity: 'success', summary: this.translate.instant('sellerEditDialog.inviteCopied') });
     });
   }
 }

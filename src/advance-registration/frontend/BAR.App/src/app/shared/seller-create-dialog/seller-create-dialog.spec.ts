@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { SellerCreateDialog } from './seller-create-dialog';
@@ -49,8 +50,33 @@ function create() {
   });
 
   TestBed.configureTestingModule({
-    providers: [provideHttpClient(), provideHttpClientTesting(), MessageService]
+    providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService]
   });
+  const translate = TestBed.inject(TranslateService);
+  translate.setTranslation('de', {
+    common: { cancel: 'Abbrechen', save: 'Speichern' },
+    sellerCreateDialog: {
+      header: 'Neuen Verkäufer anlegen',
+      sectionPersonal: 'Personendaten',
+      firstName: 'Vorname *',
+      lastName: 'Nachname *',
+      sectionContact: 'Kontakt',
+      address: 'Anschrift',
+      postalCode: 'PLZ *',
+      city: 'Ort *',
+      phone: 'Telefon *',
+      email: 'E-Mail (= Login) *',
+      sectionConditions: 'Konditionen',
+      sellerType: 'Verkäufer-Typ *',
+      conditionsSummary: 'Provision: {{commissionRate}} % · Gebühr: {{itemFee}} € pro Stück',
+      sectionNumberBlock: 'Nummernblock',
+      startNumber: 'Startnummer',
+      initialBlockCount: 'Anzahl initialer Blöcke',
+      saved: '✓ Verkäufer gespeichert',
+      saveFailed: 'Verkäufer konnte nicht gespeichert werden'
+    }
+  });
+  translate.use('de');
   const sellerTypeApi = TestBed.inject(SellerTypeApiService);
   vi.spyOn(sellerTypeApi, 'getAll').mockReturnValue(of(SELLER_TYPES));
   const sellersApi = TestBed.inject(SellersApiService);
@@ -208,5 +234,43 @@ describe('SellerCreateDialog', () => {
 
     expect(fixture.componentInstance.formError()).toBe('Verkäufer konnte nicht gespeichert werden');
     expect(fixture.componentInstance.visible()).toBe(true);
+  });
+
+  it('renders the English dialog header and field labels when the English translation is active', () => {
+    const { fixture } = create();
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', {
+      common: { cancel: 'Cancel', save: 'Save' },
+      sellerCreateDialog: {
+        header: 'Create new seller',
+        sectionPersonal: 'Personal details',
+        firstName: 'First name *',
+        sectionNumberBlock: 'Number block'
+      }
+    });
+    translate.use('en');
+    fixture.componentInstance.visible.set(true);
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('Create new seller');
+    expect(text).toContain('Personal details');
+    expect(text).toContain('First name *');
+    expect(text).toContain('Number block');
+  });
+
+  it('re-renders the dialog header after a post-render language switch', () => {
+    const { fixture } = create();
+    fixture.componentInstance.visible.set(true);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement.textContent as string)).toContain('Neuen Verkäufer anlegen');
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', { sellerCreateDialog: { header: 'Create new seller' } });
+    translate.use('en');
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement.textContent as string)).toContain('Create new seller');
   });
 });

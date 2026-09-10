@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { SellersPage } from './SellersPage';
@@ -26,8 +27,32 @@ const SELLER: Seller = {
 
 function create() {
   TestBed.configureTestingModule({
-    providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
+    providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService, ConfirmationService]
   });
+  const translate = TestBed.inject(TranslateService);
+  translate.setTranslation('de', {
+    common: { cancel: 'Abbrechen', save: 'Speichern', create: 'Anlegen', delete: 'Löschen', edit: 'Bearbeiten' },
+    sellers: {
+      title: 'Verkäufer',
+      columnStartNumber: 'Nr.',
+      columnFirstName: 'Vorname',
+      columnLastName: 'Nachname',
+      columnPostalCode: 'PLZ',
+      columnCity: 'Ort',
+      columnSellerType: 'Typ',
+      columnCommissionRate: 'Provision',
+      columnItemFee: 'Gebühr',
+      columnArticleCount: 'Artikel',
+      searchPlaceholder: 'Suche Name/Ort/E-Mail...',
+      searchButton: 'Suchen',
+      emptyText: 'Noch keine Verkäufer registriert.',
+      confirmDelete: 'Verkäufer „{{firstName}} {{lastName}}“ wirklich löschen? Löscht auch alle Artikel und Nummernblöcke.',
+      deleted: '✓ Verkäufer gelöscht',
+      deleteFailed: 'Löschen fehlgeschlagen',
+      loadError: 'Verkäufer konnten nicht geladen werden'
+    }
+  });
+  translate.use('de');
   const api = TestBed.inject(SellersApiService);
   vi.spyOn(api, 'list').mockReturnValue(of({ items: [SELLER], totalCount: 1, page: 1, pageSize: 25 }));
   const fixture = TestBed.createComponent(SellersPage);
@@ -123,7 +148,7 @@ describe('SellersPage', () => {
     );
   });
 
-  it('onTableAction("delete", row) confirms and, on accept, deletes the seller and reloads', () => {
+  it('onTableAction("delete", row) confirms with the interpolated name and, on accept, deletes the seller and reloads', () => {
     const { fixture, api } = create();
     const deleteSpy = vi.spyOn(api, 'delete').mockReturnValue(of(undefined));
     const confirmationService = TestBed.inject(ConfirmationService);
@@ -134,7 +159,10 @@ describe('SellersPage', () => {
     fixture.componentInstance.onTableAction({ actionId: 'delete', row });
 
     expect(confirmSpy).toHaveBeenCalled();
-    confirmSpy.mock.calls[0][0].accept!();
+    const confirmation = confirmSpy.mock.calls[0][0];
+    expect(confirmation.message).toContain('Anna');
+    expect(confirmation.message).toContain('Beispiel');
+    confirmation.accept!();
 
     expect(deleteSpy).toHaveBeenCalledWith('s1');
     expect(api.list).toHaveBeenCalledTimes(1);
@@ -156,7 +184,7 @@ describe('SellersPage', () => {
     );
   });
 
-  it('load() error path resets loading and shows an error toast', () => {
+  it('load() error path resets loading and shows the translated error toast', () => {
     const { fixture, api } = create();
     vi.mocked(api.list).mockReturnValue(throwError(() => ({ status: 500 })));
     const messageService = TestBed.inject(MessageService);
@@ -165,6 +193,40 @@ describe('SellersPage', () => {
     fixture.componentInstance.load();
 
     expect(fixture.componentInstance.loading()).toBe(false);
-    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error' }));
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', summary: 'Verkäufer konnten nicht geladen werden' }));
+  });
+
+  it('exposes the translated title, column headers, and empty-state text', () => {
+    const { fixture } = create();
+
+    expect(fixture.componentInstance.columns.map((c) => c.header)).toEqual([
+      'Nr.', 'Vorname', 'Nachname', 'PLZ', 'Ort', 'Typ', 'Provision', 'Gebühr', 'Artikel'
+    ]);
+    expect(fixture.componentInstance.emptyText).toBe('Noch keine Verkäufer registriert.');
+  });
+
+  it('renders the English title and empty-state text when the English translation is active', () => {
+    const { fixture } = create();
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', { sellers: { title: 'Sellers', emptyText: 'No sellers registered yet.' } });
+    translate.use('en');
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('Sellers');
+    expect(fixture.componentInstance.emptyText).toBe('No sellers registered yet.');
+  });
+
+  it('re-evaluates the translated empty-state text after a post-render language switch', () => {
+    const { fixture } = create();
+    const translate = TestBed.inject(TranslateService);
+
+    expect(fixture.componentInstance.emptyText).toBe('Noch keine Verkäufer registriert.');
+
+    translate.setTranslation('en', { sellers: { emptyText: 'No sellers registered yet.' } });
+    translate.use('en');
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.emptyText).toBe('No sellers registered yet.');
   });
 });

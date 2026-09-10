@@ -1,54 +1,54 @@
 <p-dialog
   [(visible)]="visibleModel"
   [modal]="true"
-  header="Neuen Verkäufer anlegen"
+  [header]="'sellerCreateDialog.header' | translate"
   [style]="{ width: '940px', maxWidth: '90vw' }"
 >
   <div class="panel-block">
-    <div class="panel-block__title">Personendaten</div>
+    <div class="panel-block__title">{{ 'sellerCreateDialog.sectionPersonal' | translate }}</div>
     <div class="form-grid">
       <div>
-        <label for="create-first-name">Vorname *</label>
+        <label for="create-first-name">{{ 'sellerCreateDialog.firstName' | translate }}</label>
         <input id="create-first-name" pInputText [pAutoFocus]="true" [(ngModel)]="firstNameModel" />
       </div>
       <div>
-        <label for="create-last-name">Nachname *</label>
+        <label for="create-last-name">{{ 'sellerCreateDialog.lastName' | translate }}</label>
         <input id="create-last-name" pInputText [(ngModel)]="lastNameModel" />
       </div>
     </div>
   </div>
 
   <div class="panel-block">
-    <div class="panel-block__title">Kontakt</div>
+    <div class="panel-block__title">{{ 'sellerCreateDialog.sectionContact' | translate }}</div>
     <div class="form-grid">
       <div class="full">
-        <label for="create-address">Anschrift</label>
+        <label for="create-address">{{ 'sellerCreateDialog.address' | translate }}</label>
         <input id="create-address" pInputText [(ngModel)]="addressModel" />
       </div>
       <div>
-        <label for="create-postal-code">PLZ *</label>
+        <label for="create-postal-code">{{ 'sellerCreateDialog.postalCode' | translate }}</label>
         <input id="create-postal-code" pInputText [(ngModel)]="postalCodeModel" />
       </div>
       <div>
-        <label for="create-city">Ort *</label>
+        <label for="create-city">{{ 'sellerCreateDialog.city' | translate }}</label>
         <input id="create-city" pInputText [(ngModel)]="cityModel" />
       </div>
       <div>
-        <label for="create-phone">Telefon *</label>
+        <label for="create-phone">{{ 'sellerCreateDialog.phone' | translate }}</label>
         <input id="create-phone" pInputText [(ngModel)]="phoneModel" />
       </div>
       <div>
-        <label for="create-email">E-Mail (= Login) *</label>
+        <label for="create-email">{{ 'sellerCreateDialog.email' | translate }}</label>
         <input id="create-email" pInputText type="email" [(ngModel)]="emailModel" />
       </div>
     </div>
   </div>
 
   <div class="panel-block">
-    <div class="panel-block__title">Konditionen</div>
+    <div class="panel-block__title">{{ 'sellerCreateDialog.sectionConditions' | translate }}</div>
     <div class="form-grid">
       <div class="full">
-        <label for="create-seller-type">Verkäufer-Typ *</label>
+        <label for="create-seller-type">{{ 'sellerCreateDialog.sellerType' | translate }}</label>
         <p-select
           id="create-seller-type"
           [options]="sellerTypes()"
@@ -59,19 +59,19 @@
       </div>
     </div>
     @if (selectedType(); as type) {
-      <p>Provision: {{ type.commissionRate }} % · Gebühr: {{ type.itemFee }} € pro Stück</p>
+      <p>{{ 'sellerCreateDialog.conditionsSummary' | translate: { commissionRate: type.commissionRate, itemFee: type.itemFee } }}</p>
     }
   </div>
 
   <div class="panel-block">
-    <div class="panel-block__title">Nummernblock</div>
+    <div class="panel-block__title">{{ 'sellerCreateDialog.sectionNumberBlock' | translate }}</div>
     <div class="form-grid">
       <div>
-        <label for="create-start-number">Startnummer</label>
+        <label for="create-start-number">{{ 'sellerCreateDialog.startNumber' | translate }}</label>
         <p-inputnumber id="create-start-number" [useGrouping]="false" [(ngModel)]="startNumberModel" />
       </div>
       <div>
-        <label for="create-block-count">Anzahl initialer Blöcke</label>
+        <label for="create-block-count">{{ 'sellerCreateDialog.initialBlockCount' | translate }}</label>
         <p-inputnumber id="create-block-count" [useGrouping]="false" [(ngModel)]="blockCountModel" />
       </div>
     </div>
@@ -82,7 +82,7 @@
   }
 
   <div class="dialog-footer">
-    <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">Abbrechen</button>
-    <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">Speichern</button>
+    <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+    <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">{{ 'common.save' | translate }}</button>
   </div>
 </p-dialog>
