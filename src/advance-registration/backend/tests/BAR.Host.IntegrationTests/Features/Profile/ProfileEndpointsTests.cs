@@ -177,6 +177,27 @@ public class ProfileEndpointsTests : IClassFixture<PostgresWebApplicationFactory
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task DeleteProfile_NonAdminSeller_DeletesAccountAndLoginFailsAfterwards()
+    {
+        var client = _factory.CreateClient();
+        var email = $"{Guid.NewGuid()}@example.com";
+        await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            email, password = "geheim123!", firstName = "Anna", lastName = "Beispiel",
+            address = "Hauptstr. 1", postalCode = "76133", city = "Karlsruhe", phone = "0721 12345"
+        }, TestContext.Current.CancellationToken);
+        var loginResponse = await client.PostAsJsonAsync("/api/auth/login", new { email, password = "geheim123!" }, TestContext.Current.CancellationToken);
+        var tokens = await loginResponse.Content.ReadFromJsonAsync<TokenPair>(TestContext.Current.CancellationToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens!.AccessToken);
+
+        var response = await client.DeleteAsync("/api/profile", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        var loginAfterDelete = await client.PostAsJsonAsync("/api/auth/login", new { email, password = "geheim123!" }, TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Unauthorized, loginAfterDelete.StatusCode);
+    }
+
     private async Task<HttpClient> RegisterAndAuthenticateAsync()
     {
         var client = _factory.CreateClient();

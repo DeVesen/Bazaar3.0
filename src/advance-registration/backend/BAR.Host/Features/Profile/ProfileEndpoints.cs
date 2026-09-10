@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using BAR.Application.Profile.ChangeEmail;
 using BAR.Application.Profile.ChangePassword;
+using BAR.Application.Profile.DeleteProfile;
 using BAR.Application.Profile.GetProfile;
 using BAR.Application.Profile.UpdateProfile;
 using BAR.Host.Validation;
@@ -36,6 +37,13 @@ public static class ProfileEndpoints
             var result = await handler.HandleAsync(sellerId, command, ct);
             return Results.Ok(result);
         }).RequireAuthorization().AddEndpointFilter<ValidationFilter<ChangePasswordCommand>>();
+
+        app.MapDelete("/api/profile", async (ClaimsPrincipal user, DeleteProfileCommandHandler handler, CancellationToken ct) =>
+        {
+            var sellerId = user.FindFirstValue("sub")!;
+            await handler.HandleAsync(sellerId, ct);
+            return Results.NoContent();
+        }).RequireAuthorization();
 
         return app;
     }
