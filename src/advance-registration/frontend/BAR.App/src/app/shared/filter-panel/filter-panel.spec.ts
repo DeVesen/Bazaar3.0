@@ -126,15 +126,52 @@ describe('FilterPanel', () => {
     expect(fixture.componentInstance.sellerSuggestions()).toEqual([{ id: 's1', label: 'Max Mustermann (#42)' }]);
   });
 
-  it('onSellerSelect() sets the sellerId used by emit()', () => {
+  it('onSellerSelect() sets the sellerId and immediately emits', () => {
     const fixture = create(true);
     const component = fixture.componentInstance;
     const emitted: unknown[] = [];
     component.search.subscribe((v: unknown) => emitted.push(v));
 
     component.onSellerSelect({ value: { id: 's1', label: 'Max Mustermann (#42)' } } as never);
-    component.emit();
 
     expect(emitted).toEqual([{ brand: undefined, category: undefined, search: undefined, sellerId: 's1' }]);
+  });
+
+  it('onSellerClear() resets the sellerId and immediately emits', () => {
+    const fixture = create(true);
+    const component = fixture.componentInstance;
+    const emitted: unknown[] = [];
+    component.onSellerSelect({ value: { id: 's1', label: 'Max Mustermann (#42)' } } as never);
+    component.search.subscribe((v: unknown) => emitted.push(v));
+
+    component.onSellerClear();
+
+    expect(emitted).toEqual([{ brand: undefined, category: undefined, search: undefined, sellerId: undefined }]);
+  });
+
+  it('renders the seller autocomplete with forceSelection to prevent a stale sellerId', () => {
+    const fixture = create(true);
+    const autocomplete = fixture.debugElement.query(By.css('[data-testid="seller-autocomplete"]'));
+
+    expect(autocomplete.componentInstance.forceSelection()).toBe(true);
+  });
+
+  it('resolves to empty suggestions when the seller search errors, and keeps working for the next search', () => {
+    const fixture = create(true);
+    const httpMock = TestBed.inject(HttpTestingController);
+
+    fixture.componentInstance.onSellerFilter('ann');
+    vi.advanceTimersByTime(400);
+    const failingReq = httpMock.expectOne((r) => r.url === '/api/sellers');
+    failingReq.flush('server error', { status: 500, statusText: 'Internal Server Error' });
+
+    expect(fixture.componentInstance.sellerSuggestions()).toEqual([]);
+
+    fixture.componentInstance.onSellerFilter('max');
+    vi.advanceTimersByTime(400);
+    const followUpReq = httpMock.expectOne((r) => r.url === '/api/sellers');
+    followUpReq.flush({ items: [{ id: 's1', startNumber: 42, firstName: 'Max', lastName: 'Mustermann' }], totalCount: 1, page: 1, pageSize: 10 });
+
+    expect(fixture.componentInstance.sellerSuggestions()).toEqual([{ id: 's1', label: 'Max Mustermann (#42)' }]);
   });
 });

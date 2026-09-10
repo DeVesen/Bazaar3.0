@@ -7,7 +7,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
-import { Subject, debounceTime, of, switchMap } from 'rxjs';
+import { Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
 import type { MasterDataItem } from '../../features/my-articles/master-data-api.service';
 import { SellersApiService } from '../../features/sellers/sellers-api.service';
 
@@ -35,6 +35,7 @@ export interface SellerOption {
           [suggestions]="sellerSuggestions()"
           optionLabel="label"
           [minQueryLength]="2"
+          [forceSelection]="true"
           placeholder="Verkäufer"
           [showClear]="true"
           (completeMethod)="onSellerFilter($event.query)"
@@ -80,7 +81,11 @@ export class FilterPanel {
     this.sellerQuery$
       .pipe(
         debounceTime(400),
-        switchMap((query) => this.sellersApi.list({ search: query, page: 1, pageSize: 10 })),
+        switchMap((query) =>
+          this.sellersApi.list({ search: query, page: 1, pageSize: 10 }).pipe(
+            catchError(() => of({ items: [], totalCount: 0, page: 1, pageSize: 10 }))
+          )
+        ),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((result) => {
@@ -110,10 +115,12 @@ export class FilterPanel {
   onSellerSelect(event: AutoCompleteSelectEvent): void {
     const option = event.value as SellerOption;
     this.sellerId.set(option.id);
+    this.emit();
   }
 
   onSellerClear(): void {
     this.sellerId.set(undefined);
+    this.emit();
   }
 
   emit(): void {
