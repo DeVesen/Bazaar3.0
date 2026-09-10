@@ -61,10 +61,10 @@ export class ProfilePage {
   readonly canChangeEmail = computed(() =>
     this.newEmail().trim() !== '' && this.emailCurrentPassword().trim() !== '');
 
-  // Stärke wird direkt aus dem Passwort berechnet statt aus newPasswordLevel gelesen:
-  // newPasswordLevel wird nur durch Change Detection auf die Kind-Komponente
-  // (app-password-strength-meter) aktualisiert, canChangePassword() muss aber auch
-  // unmittelbar nach einem signal.set() (ohne Zwischenrender) korrekt auswerten.
+  // Stärke wird direkt aus dem Passwort berechnet statt über ein Output-Event der
+  // Kind-Komponente (app-password-strength-meter), das nur durch Change Detection
+  // aktualisiert wird: canChangePassword() muss auch unmittelbar nach einem
+  // signal.set() (ohne Zwischenrender) korrekt auswerten.
   private readonly newPasswordStrength = computed(() => computePasswordStrength(this.newPassword()));
 
   readonly canChangePassword = computed(() =>
