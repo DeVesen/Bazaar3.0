@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideTranslateService } from '@ngx-translate/core';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { LoginInfoPanel } from './login-info-panel';
 import { PublicInfo } from '../../../core/public-info/public-info.service';
@@ -101,5 +101,26 @@ describe('LoginInfoPanel', () => {
     expect(fixture.nativeElement.querySelector('app-countdown')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('[data-testid="conditions-box"]')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('[data-testid="markdown-box"]')).not.toBeNull();
+  });
+
+  // Regression fuer den computed()/translate.instant()-Bug (Task 11): countdownPhases muss ein
+  // Getter sein, nicht computed() — sonst bleibt der Wert nach dem ersten Read eingefroren und
+  // ein Sprachwechsel aktualisiert die Phasen-Labels nicht mehr. Dieser Test schlaegt gegen die
+  // alte computed()-Implementierung fehl, weil computed() den Sprachwechsel nicht als
+  // Dependency-Aenderung erkennt (translate.instant() ist untracked) und den memoized Wert vom
+  // ersten Read (Deutsch) behaelt.
+  it('countdownPhases labels re-evaluate when the active language changes after render', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('de', { login: { phaseRegistrationDeadline: 'Anmeldeschluss' } });
+    translate.setTranslation('en', { login: { phaseRegistrationDeadline: 'Registration deadline' } });
+    translate.use('de');
+    setInfo({ ...emptyInfo, registrationDeadline: '2026-12-01T00:00:00Z' });
+
+    expect(fixture.componentInstance.countdownPhases[0].label).toBe('Anmeldeschluss');
+
+    translate.use('en');
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.countdownPhases[0].label).toBe('Registration deadline');
   });
 });

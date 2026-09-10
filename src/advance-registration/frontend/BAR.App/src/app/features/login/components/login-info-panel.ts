@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Countdown } from '../../../shared/countdown/countdown';
 import { CountdownPhase } from '../../../shared/countdown/select-active-phase';
@@ -14,8 +14,8 @@ import { PublicInfo } from '../../../core/public-info/public-info.service';
   selector: 'app-login-info-panel',
   imports: [Countdown, MarkdownText, TranslatePipe],
   template: `
-    @if (countdownPhases().length > 0) {
-      <app-countdown [phases]="countdownPhases()" />
+    @if (countdownPhases.length > 0) {
+      <app-countdown [phases]="countdownPhases" />
     }
     @if (info().defaultConditions; as conditions) {
       <div data-testid="conditions-box" class="login-info-panel__box">
@@ -60,7 +60,12 @@ export class LoginInfoPanel {
 
   readonly info = input.required<PublicInfo>();
 
-  readonly countdownPhases = computed<CountdownPhase[]>(() => {
+  // Plain getter statt computed(): translate.instant() ist fuer computed()'s Dependency-Tracking
+  // unsichtbar (siehe HomePage.dropOffPhases/adminPhases), daher wuerde ein computed() bei einem
+  // Sprachwechsel nicht neu ausgewertet und die Phasen-Labels blieben eingefroren. Der Getter
+  // laeuft bei jedem Change-Detection-Durchlauf neu, den die TranslatePipe-Nutzung im Template
+  // ohnehin bei jedem Sprachwechsel ausloest.
+  get countdownPhases(): CountdownPhase[] {
     const i = this.info();
     const candidates: { label: string; targetDate: string | null }[] = [
       { label: this.translate.instant('login.phaseRegistrationDeadline'), targetDate: i.registrationDeadline },
@@ -73,7 +78,7 @@ export class LoginInfoPanel {
     return candidates
       .filter((c): c is { label: string; targetDate: string } => c.targetDate !== null)
       .map((c) => ({ label: c.label, targetDate: new Date(c.targetDate) }));
-  });
+  }
 
   hasInfoText(): boolean {
     const text = this.info().infoText;
