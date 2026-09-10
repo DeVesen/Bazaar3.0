@@ -13,6 +13,7 @@ using BAR.Application.Blocks.Delete;
 using BAR.Application.Blocks.GetMine;
 using BAR.Application.Blocks.NextFree;
 using BAR.Application.Blocks.Reserve;
+using BAR.Application.Export;
 using BAR.Application.MasterData.Brands.Create;
 using BAR.Application.MasterData.Brands.Delete;
 using BAR.Application.MasterData.Brands.GetAll;
@@ -138,6 +139,7 @@ public static class DependencyInjection
         services.AddScoped<IValidator<UpdateSellerTypeCommand>, UpdateSellerTypeCommandValidator>();
         services.AddScoped<DeleteSellerTypeCommandHandler>();
         services.AddScoped<GetSellersQueryHandler>();
+        services.AddScoped<BAR.Application.Export.GetExportQueryHandler>();
         services.AddScoped<BAR.Application.Sellers.Create.CreateSellerCommandHandler>();
         services.AddScoped<IValidator<BAR.Application.Sellers.Create.CreateSellerCommand>, BAR.Application.Sellers.Create.CreateSellerCommandValidator>();
         services.AddScoped<BAR.Application.Sellers.Update.UpdateSellerCommandHandler>();
