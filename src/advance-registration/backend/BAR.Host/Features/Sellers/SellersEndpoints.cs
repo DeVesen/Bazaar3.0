@@ -2,11 +2,13 @@ using System.Security.Claims;
 using BAR.Application.Sellers;
 using BAR.Application.Sellers.Create;
 using BAR.Application.Sellers.Delete;
+using BAR.Application.Sellers.Invite;
 using BAR.Application.Sellers.List;
 using BAR.Application.Sellers.Update;
 using BAR.Domain.Ports;
 using BAR.Domain.Ports.Queries;
 using BAR.Host.Validation;
+using Microsoft.Extensions.Configuration;
 
 namespace BAR.Host.Features.Sellers;
 
@@ -64,7 +66,19 @@ public static class SellersEndpoints
             return Results.NoContent();
         });
 
+        group.MapPost("/{id}/invite", (
+            string id, InviteSellerCommandHandler handler, IConfiguration configuration, CancellationToken ct) =>
+            InviteAsync(id, handler, configuration, ct));
+
         return app;
+    }
+
+    static async Task<IResult> InviteAsync(string id, InviteSellerCommandHandler handler, IConfiguration configuration, CancellationToken ct)
+    {
+        var result = await handler.HandleAsync(new InviteSellerCommand(id), ct);
+        var baseUrl = configuration["Frontend:BaseUrl"];
+        var inviteUrl = $"{baseUrl}/set-password?token={result.Token}";
+        return Results.Ok(new { inviteUrl, expiresAt = result.ExpiresAt });
     }
 
     /// <summary>Parst `?sort=field:asc,field2:desc` (api/cross-cutting.md Abschnitt 4).</summary>

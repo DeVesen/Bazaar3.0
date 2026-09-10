@@ -21,6 +21,7 @@ using BAR.Application.MasterData.Categories.Update;
 using BAR.Application.Profile.GetProfile;
 using BAR.Application.Profile.UpdateProfile;
 using BAR.Application.Public.GetInfo;
+using BAR.Application.Sellers.Invite;
 using BAR.Application.Sellers.List;
 using BAR.Application.SellerTypes.Create;
 using BAR.Application.SellerTypes.Delete;
@@ -116,6 +117,7 @@ public static class DependencyInjection
         services.AddScoped<BAR.Application.Sellers.Update.UpdateSellerCommandHandler>();
         services.AddScoped<IValidator<BAR.Application.Sellers.Update.UpdateSellerCommand>, BAR.Application.Sellers.Update.UpdateSellerCommandValidator>();
         services.AddScoped<BAR.Application.Sellers.Delete.DeleteSellerCommandHandler>();
+        services.AddScoped<BAR.Application.Sellers.Invite.InviteSellerCommandHandler>();
 
         return services;
     }
