@@ -1,6 +1,7 @@
 using BAR.Application.Sellers;
 using BAR.Application.Sellers.Create;
 using BAR.Application.Sellers.List;
+using BAR.Application.Sellers.Update;
 using BAR.Domain.Ports;
 using BAR.Domain.Ports.Queries;
 using BAR.Host.Validation;
@@ -38,6 +39,20 @@ public static class SellersEndpoints
             var enriched = response with { SellerType = new SellerTypeSummary(type!.Id, type.Name, type.CommissionRate, type.ItemFee) };
             return Results.Created($"/api/sellers/{enriched.Id}", enriched);
         }).AddEndpointFilter<ValidationFilter<CreateSellerCommand>>();
+
+        group.MapPut("/{id}", async (
+            string id, UpdateSellerCommand body, UpdateSellerCommandHandler handler,
+            INumberBlockRepository blocks, CancellationToken ct) =>
+        {
+            var command = body with { SellerId = id };
+            var response = await handler.HandleAsync(command, ct);
+            var sellerBlocks = await blocks.GetForSellerAsync(id, ct);
+            var enriched = response with
+            {
+                StartNumber = sellerBlocks.Count > 0 ? sellerBlocks.Min(b => b.FromNumber) : null
+            };
+            return Results.Ok(enriched);
+        }).AddEndpointFilter<ValidationFilter<UpdateSellerCommand>>();
 
         return app;
     }
