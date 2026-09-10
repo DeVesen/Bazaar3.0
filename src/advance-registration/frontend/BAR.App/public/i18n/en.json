@@ -236,5 +236,28 @@
     "dialogHeaderPrefix": "New entry: ",
     "conflict": "Entry already exists",
     "createFailed": "Create failed"
+  },
+  "profile": {
+    "tabSteckbrief": "Profile",
+    "tabZugangsdaten": "Credentials",
+    "tabDelete": "Delete",
+    "sectionPersonal": "Personal details",
+    "firstName": "First name *",
+    "lastName": "Last name *",
+    "address": "Address",
+    "postalCode": "Postal code *",
+    "city": "City *",
+    "sectionContact": "Contact",
+    "phone": "Phone *",
+    "email": "Email",
+    "sectionConditions": "Conditions",
+    "sellerType": "Seller type",
+    "itemFee": "Fee per item",
+    "commissionRate": "Commission",
+    "save": "Save",
+    "comingSoon": "Available from R07.",
+    "loadError": "Profile could not be loaded",
+    "saved": "✓ Profile saved",
+    "saveFailed": "Profile could not be saved"
   }
 }

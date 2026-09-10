@@ -236,5 +236,28 @@
     "dialogHeaderPrefix": "Neuer Eintrag: ",
     "conflict": "Eintrag existiert bereits",
     "createFailed": "Anlegen fehlgeschlagen"
+  },
+  "profile": {
+    "tabSteckbrief": "Steckbrief",
+    "tabZugangsdaten": "Zugangsdaten",
+    "tabDelete": "Löschen",
+    "sectionPersonal": "Personendaten",
+    "firstName": "Vorname *",
+    "lastName": "Nachname *",
+    "address": "Anschrift",
+    "postalCode": "PLZ *",
+    "city": "Ort *",
+    "sectionContact": "Kontakt",
+    "phone": "Telefon *",
+    "email": "E-Mail",
+    "sectionConditions": "Konditionen",
+    "sellerType": "Verkäufer-Typ",
+    "itemFee": "Gebühr je Stück",
+    "commissionRate": "Provision",
+    "save": "Speichern",
+    "comingSoon": "Verfügbar ab R07.",
+    "loadError": "Profil konnte nicht geladen werden",
+    "saved": "✓ Profil gespeichert",
+    "saveFailed": "Profil konnte nicht gespeichert werden"
   }
 }

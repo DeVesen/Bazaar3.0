@@ -5,6 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TabsModule } from 'primeng/tabs';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { VerkaeuferNummer } from '../../../shared/verkaeufer-nummer/verkaeufer-nummer';
 import { InfoArea } from '../../../shared/info-area/info-area';
 import { ProfileApiService, ProfileDto, ChangeEmailPayload, ChangePasswordPayload } from '../profile-api.service';
@@ -18,7 +19,7 @@ interface ValidationProblem {
 
 @Component({
   selector: 'app-profile-page',
-  imports: [FormsModule, ButtonModule, InputTextModule, InputNumberModule, TabsModule, VerkaeuferNummer, InfoArea, PasswordStrengthMeter],
+  imports: [FormsModule, ButtonModule, InputTextModule, InputNumberModule, TabsModule, VerkaeuferNummer, InfoArea, PasswordStrengthMeter, TranslatePipe],
   templateUrl: './ProfilePage.html',
   styleUrl: './ProfilePage.scss'
 })
@@ -27,6 +28,7 @@ export class ProfilePage {
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translate = inject(TranslateService);
 
   readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
 
@@ -76,7 +78,7 @@ export class ProfilePage {
   constructor() {
     this.api.getProfile().subscribe({
       next: (profile) => this.applyProfile(profile),
-      error: () => this.loadError.set('Profil konnte nicht geladen werden')
+      error: () => this.loadError.set(this.translate.instant('profile.loadError'))
     });
   }
 
@@ -96,13 +98,13 @@ export class ProfilePage {
     }).subscribe({
       next: (profile) => {
         this.applyProfile(profile);
-        this.messageService.add({ severity: 'success', summary: '✓ Profil gespeichert' });
+        this.messageService.add({ severity: 'success', summary: this.translate.instant('profile.saved') });
       },
       error: (response: { status: number; error?: ValidationProblem }) => {
         if (response.status === 400 && response.error?.errors) {
           this.fieldErrors.set(response.error.errors);
         } else {
-          this.saveError.set('Profil konnte nicht gespeichert werden');
+          this.saveError.set(this.translate.instant('profile.saveFailed'));
         }
       }
     });

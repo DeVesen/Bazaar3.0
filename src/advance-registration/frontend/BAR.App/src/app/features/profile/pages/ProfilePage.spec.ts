@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ProfilePage } from './ProfilePage';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -11,6 +12,38 @@ const PROFILE = {
   postalCode: '76133', city: 'Karlsruhe', phone: '0721 12345', email: 'anna@example.com',
   sellerType: { id: 't1', name: 'Standard', commissionRate: 15, itemFee: 0.5 }
 };
+
+const PROFILE_TRANSLATIONS_DE = {
+  profile: {
+    tabSteckbrief: 'Steckbrief',
+    tabZugangsdaten: 'Zugangsdaten',
+    tabDelete: 'Löschen',
+    sectionPersonal: 'Personendaten',
+    firstName: 'Vorname *',
+    lastName: 'Nachname *',
+    address: 'Anschrift',
+    postalCode: 'PLZ *',
+    city: 'Ort *',
+    sectionContact: 'Kontakt',
+    phone: 'Telefon *',
+    email: 'E-Mail',
+    sectionConditions: 'Konditionen',
+    sellerType: 'Verkäufer-Typ',
+    itemFee: 'Gebühr je Stück',
+    commissionRate: 'Provision',
+    save: 'Speichern',
+    comingSoon: 'Verfügbar ab R07.',
+    loadError: 'Profil konnte nicht geladen werden',
+    saved: '✓ Profil gespeichert',
+    saveFailed: 'Profil konnte nicht gespeichert werden'
+  }
+};
+
+function setupGermanTranslations(): void {
+  const translate = TestBed.inject(TranslateService);
+  translate.setTranslation('de', PROFILE_TRANSLATIONS_DE);
+  translate.use('de');
+}
 
 describe('ProfilePage', () => {
   let httpMock: HttpTestingController;
@@ -38,9 +71,10 @@ describe('ProfilePage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ProfilePage],
-      providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService, ConfirmationService]
     }).compileComponents();
     httpMock = TestBed.inject(HttpTestingController);
+    setupGermanTranslations();
   });
 
   afterEach(() => httpMock.verify());
@@ -124,9 +158,10 @@ describe('ProfilePage - Zugangsdaten', () => {
 
     await TestBed.configureTestingModule({
       imports: [ProfilePage],
-      providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService, ConfirmationService]
     }).compileComponents();
     httpMock = TestBed.inject(HttpTestingController);
+    setupGermanTranslations();
   });
 
   afterEach(() => httpMock.verify());
@@ -278,9 +313,10 @@ describe('ProfilePage - Konto löschen', () => {
 
     await TestBed.configureTestingModule({
       imports: [ProfilePage],
-      providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService, ConfirmationService]
     }).compileComponents();
     httpMock = TestBed.inject(HttpTestingController);
+    setupGermanTranslations();
   });
 
   afterEach(() => httpMock.verify());
@@ -334,5 +370,69 @@ describe('ProfilePage - Konto löschen', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.isAdmin()).toBe(true);
+  });
+});
+
+describe('ProfilePage - i18n', () => {
+  let httpMock: HttpTestingController;
+
+  beforeEach(async () => {
+    vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
+    vi.stubGlobal('AudioContext', class {
+      createOscillator() {
+        return { type: '', frequency: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() }, connect: vi.fn(), start: vi.fn(), stop: vi.fn() };
+      }
+      destination = {}
+      currentTime = 0
+    });
+
+    await TestBed.configureTestingModule({
+      imports: [ProfilePage],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService, ConfirmationService]
+    }).compileComponents();
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpMock.verify());
+
+  it('renders English tab and section labels when the active language is en', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', {
+      profile: {
+        tabSteckbrief: 'Profile',
+        tabZugangsdaten: 'Credentials',
+        tabDelete: 'Delete',
+        sectionPersonal: 'Personal details',
+        firstName: 'First name *',
+        save: 'Save'
+      }
+    });
+    translate.use('en');
+
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Personal details');
+    expect(text).toContain('First name');
+    expect(text).toContain('Profile');
+    expect(text).toContain('Credentials');
+    expect(text).toContain('Delete');
+  });
+
+  it('shows the English load error message when the active language is en', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', { profile: { loadError: 'Profile could not be loaded' } });
+    translate.use('en');
+
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush('Server error', { status: 500, statusText: 'Internal Server Error' });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.loadError()).toBe('Profile could not be loaded');
+    expect(fixture.nativeElement.textContent).toContain('Profile could not be loaded');
   });
 });
