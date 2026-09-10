@@ -112,11 +112,11 @@ public class ArticleRepositoryExistsNumberBelowTests : IClassFixture<PostgresWeb
         var ct = TestContext.Current.CancellationToken;
 
         var article = Article.Create(
-            sellerId: Guid.NewGuid().ToString("N")[..8], number: 5, name: "Testartikel", brand: "Marke",
+            sellerId: Guid.NewGuid().ToString("N")[..8], number: 3000, name: "Testartikel", brand: "Marke",
             category: "Kategorie", price: 10m, size: null, color: null, description: null, nowUtc: DateTime.UtcNow);
         await repo.CreateAsync(article, newBlock: null, ct);
 
-        var result = await repo.ExistsNumberBelowAsync(10, ct);
+        var result = await repo.ExistsNumberBelowAsync(4000, ct);
 
         Assert.True(result);
     }
@@ -130,11 +130,11 @@ public class ArticleRepositoryExistsNumberBelowTests : IClassFixture<PostgresWeb
         var ct = TestContext.Current.CancellationToken;
 
         var article = Article.Create(
-            sellerId: Guid.NewGuid().ToString("N")[..8], number: 10, name: "Testartikel", brand: "Marke",
+            sellerId: Guid.NewGuid().ToString("N")[..8], number: 2000, name: "Testartikel", brand: "Marke",
             category: "Kategorie", price: 10m, size: null, color: null, description: null, nowUtc: DateTime.UtcNow);
         await repo.CreateAsync(article, newBlock: null, ct);
 
-        var result = await repo.ExistsNumberBelowAsync(10, ct);
+        var result = await repo.ExistsNumberBelowAsync(2000, ct);
 
         Assert.False(result);
     }
@@ -148,11 +148,11 @@ public class ArticleRepositoryExistsNumberBelowTests : IClassFixture<PostgresWeb
         var ct = TestContext.Current.CancellationToken;
 
         var article = Article.Create(
-            sellerId: Guid.NewGuid().ToString("N")[..8], number: 20, name: "Testartikel", brand: "Marke",
+            sellerId: Guid.NewGuid().ToString("N")[..8], number: 2500, name: "Testartikel", brand: "Marke",
             category: "Kategorie", price: 10m, size: null, color: null, description: null, nowUtc: DateTime.UtcNow);
         await repo.CreateAsync(article, newBlock: null, ct);
 
-        var result = await repo.ExistsNumberBelowAsync(10, ct);
+        var result = await repo.ExistsNumberBelowAsync(1000, ct);
 
         Assert.False(result);
     }
