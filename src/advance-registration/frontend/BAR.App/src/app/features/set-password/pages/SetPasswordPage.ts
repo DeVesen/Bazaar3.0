@@ -51,7 +51,18 @@ export class SetPasswordPage {
         void this.router.navigateByUrl('/home');
       },
       error: (err: HttpErrorResponse) => {
-        this.errorMessage.set(err.error?.detail ?? 'Der Link ist ungültig oder abgelaufen.');
+        // 401 (Token unbekannt/verbraucht/abgelaufen) und 400 (Passwort zu schwach)
+        // sind fachlich unterschiedliche Fehler und brauchen unterschiedliche
+        // Meldungen - siehe api/auth.md §4.
+        if (err.status === 401) {
+          this.errorMessage.set('Der Link ist ungültig oder abgelaufen.');
+        } else if (err.status === 400) {
+          this.errorMessage.set(
+            err.error?.errors?.password?.[0] ?? err.error?.detail ?? 'Passwort erfüllt die Anforderungen nicht.'
+          );
+        } else {
+          this.errorMessage.set('Passwort konnte nicht gesetzt werden.');
+        }
       }
     });
   }

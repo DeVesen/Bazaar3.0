@@ -53,13 +53,24 @@ describe('SetPasswordPage', () => {
     expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
   });
 
-  it('shows an error message when the invite token is invalid or expired', () => {
+  it('shows a password-related message when the password is too weak (400)', () => {
     const fixture = TestBed.createComponent(SetPasswordPage);
     fixture.detectChanges();
 
     fixture.componentInstance.password.set('geheim123');
     fixture.componentInstance.onSubmit();
     httpMock.expectOne('/api/auth/set-password').flush('error', { status: 400, statusText: 'Bad Request' });
+
+    expect(fixture.componentInstance.errorMessage()).toBe('Passwort erfüllt die Anforderungen nicht.');
+  });
+
+  it('shows the link-invalid message when the invite token is invalid, consumed or expired (401)', () => {
+    const fixture = TestBed.createComponent(SetPasswordPage);
+    fixture.detectChanges();
+
+    fixture.componentInstance.password.set('geheim123');
+    fixture.componentInstance.onSubmit();
+    httpMock.expectOne('/api/auth/set-password').flush('error', { status: 401, statusText: 'Unauthorized' });
 
     expect(fixture.componentInstance.errorMessage()).toBe('Der Link ist ungültig oder abgelaufen.');
   });
