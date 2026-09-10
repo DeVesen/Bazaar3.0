@@ -1,44 +1,44 @@
 <form (ngSubmit)="save()">
   <div class="panel-block">
-    <p class="panel-block__title">Basar-Konfiguration</p>
+    <p class="panel-block__title">{{ 'settings.bazaarConfigTitle' | translate }}</p>
     <div class="form-grid">
       <div>
-        <label for="registrationDeadline">Voranmeldeschluss</label>
+        <label for="registrationDeadline">{{ 'settings.registrationDeadlineLabel' | translate }}</label>
         <p-datepicker inputId="registrationDeadline" [ngModel]="registrationDeadline()" (ngModelChange)="registrationDeadline.set($event)" name="registrationDeadline" [showTime]="true" dateFormat="dd.mm.yy" />
         @if (fieldErrors()['registrationDeadline']; as errors) {
           <p class="field-error">{{ errors[0] }}</p>
         }
       </div>
       <div>
-        <label for="dropOffFrom">Abgabe von</label>
+        <label for="dropOffFrom">{{ 'settings.dropOffFromLabel' | translate }}</label>
         <p-datepicker inputId="dropOffFrom" [ngModel]="dropOffFrom()" (ngModelChange)="dropOffFrom.set($event)" name="dropOffFrom" [showTime]="true" dateFormat="dd.mm.yy" />
         @if (fieldErrors()['dropOffFrom']; as errors) {
           <p class="field-error">{{ errors[0] }}</p>
         }
       </div>
       <div>
-        <label for="dropOffUntil">Abgabe bis</label>
+        <label for="dropOffUntil">{{ 'settings.dropOffUntilLabel' | translate }}</label>
         <p-datepicker inputId="dropOffUntil" [ngModel]="dropOffUntil()" (ngModelChange)="dropOffUntil.set($event)" name="dropOffUntil" [showTime]="true" dateFormat="dd.mm.yy" />
         @if (fieldErrors()['dropOffUntil']; as errors) {
           <p class="field-error">{{ errors[0] }}</p>
         }
       </div>
       <div>
-        <label for="bazaarFrom">Basar von</label>
+        <label for="bazaarFrom">{{ 'settings.bazaarFromLabel' | translate }}</label>
         <p-datepicker inputId="bazaarFrom" [ngModel]="bazaarFrom()" (ngModelChange)="bazaarFrom.set($event)" name="bazaarFrom" [showTime]="true" dateFormat="dd.mm.yy" />
         @if (fieldErrors()['bazaarFrom']; as errors) {
           <p class="field-error">{{ errors[0] }}</p>
         }
       </div>
       <div>
-        <label for="bazaarUntil">Basar bis</label>
+        <label for="bazaarUntil">{{ 'settings.bazaarUntilLabel' | translate }}</label>
         <p-datepicker inputId="bazaarUntil" [ngModel]="bazaarUntil()" (ngModelChange)="bazaarUntil.set($event)" name="bazaarUntil" [showTime]="true" dateFormat="dd.mm.yy" />
         @if (fieldErrors()['bazaarUntil']; as errors) {
           <p class="field-error">{{ errors[0] }}</p>
         }
       </div>
       <div>
-        <label for="defaultTypeId">Standard-Verkäufer-Typ</label>
+        <label for="defaultTypeId">{{ 'settings.defaultSellerTypeLabel' | translate }}</label>
         <p-select inputId="defaultTypeId" [options]="sellerTypes()" [ngModel]="defaultTypeId()" (ngModelChange)="defaultTypeId.set($event)" name="defaultTypeId" optionLabel="name" optionValue="id" [showClear]="true" />
         @if (fieldErrors()['defaultTypeId']; as errors) {
           <p class="field-error">{{ errors[0] }}</p>
@@ -48,25 +48,25 @@
   </div>
 
   <div class="panel-block">
-    <p class="panel-block__title">Nummernblock-Parameter</p>
+    <p class="panel-block__title">{{ 'settings.numberBlockParamsTitle' | translate }}</p>
     <div class="form-grid">
       <div>
-        <label for="startNumber">Startnummer</label>
+        <label for="startNumber">{{ 'settings.startNumberLabel' | translate }}</label>
         <p-inputnumber inputId="startNumber" [ngModel]="startNumber()" (ngModelChange)="startNumber.set($event)" name="startNumber" [min]="1" />
         @if (fieldErrors()['startNumber']; as errors) {
           <p class="field-error">{{ errors[0] }}</p>
         }
       </div>
       <div>
-        <label for="blockSize">Blockgröße</label>
+        <label for="blockSize">{{ 'settings.blockSizeLabel' | translate }}</label>
         <p-inputnumber inputId="blockSize" [ngModel]="blockSize()" (ngModelChange)="blockSize.set($event)" name="blockSize" [min]="1" />
-        <small>Bestehende Blöcke behalten ihre Größe — nur künftig angelegte Blöcke bekommen die neue.</small>
+        <small>{{ 'settings.blockSizeHint' | translate }}</small>
         @if (fieldErrors()['blockSize']; as errors) {
           <p class="field-error">{{ errors[0] }}</p>
         }
       </div>
       <div>
-        <label for="defaultBlockCount">Standard-Blockanzahl</label>
+        <label for="defaultBlockCount">{{ 'settings.defaultBlockCountLabel' | translate }}</label>
         <p-inputnumber inputId="defaultBlockCount" [ngModel]="defaultBlockCount()" (ngModelChange)="defaultBlockCount.set($event)" name="defaultBlockCount" [min]="1" />
         @if (fieldErrors()['defaultBlockCount']; as errors) {
           <p class="field-error">{{ errors[0] }}</p>
@@ -77,28 +77,28 @@
 
   <div class="panel-block">
     <div class="panel-block__title-row">
-      <p class="panel-block__title">Info-Text</p>
-      <button type="button" pButton icon="pi pi-info-circle" [text]="true" [rounded]="true" (click)="syntaxHelp.toggle($event)" aria-label="Unterstützte Formatierung"></button>
+      <p class="panel-block__title">{{ 'settings.infoTextTitle' | translate }}</p>
+      <button type="button" pButton icon="pi pi-info-circle" [text]="true" [rounded]="true" (click)="syntaxHelp.toggle($event)" [attr.aria-label]="'settings.syntaxHelpAriaLabel' | translate"></button>
       <p-popover #syntaxHelp>
         <table>
           <thead>
-            <tr><th>Element</th><th>Syntax</th><th>Rendering</th></tr>
+            <tr><th>{{ 'settings.syntaxHeaderElement' | translate }}</th><th>{{ 'settings.syntaxHeaderSyntax' | translate }}</th><th>{{ 'settings.syntaxHeaderRendering' | translate }}</th></tr>
           </thead>
           <tbody>
-            <tr><td>Absatz</td><td>Leerzeile zwischen Textblöcken</td><td>&lt;p&gt;</td></tr>
-            <tr><td>Zeilenumbruch</td><td>einfacher Umbruch</td><td>&lt;br&gt;</td></tr>
-            <tr><td>Überschrift</td><td># bis ###</td><td>&lt;h1&gt;–&lt;h3&gt;</td></tr>
-            <tr><td>Fettdruck</td><td>**Text**</td><td>&lt;strong&gt;</td></tr>
-            <tr><td>Kursiv</td><td>*Text*</td><td>&lt;em&gt;</td></tr>
-            <tr><td>Aufzählung</td><td>- / *</td><td>&lt;ul&gt;&lt;li&gt;</td></tr>
-            <tr><td>Nummerierte Liste</td><td>1.</td><td>&lt;ol&gt;&lt;li&gt;</td></tr>
-            <tr><td>Trennlinie</td><td>---</td><td>&lt;hr&gt;</td></tr>
-            <tr><td>Inline-Code</td><td>`Code`</td><td>&lt;code&gt;</td></tr>
-            <tr><td>Code-Block</td><td>Fence aus drei Backticks</td><td>&lt;pre&gt;&lt;code&gt;</td></tr>
-            <tr><td>Link</td><td>[Text](url)</td><td>&lt;a&gt; — nur http/https/mailto</td></tr>
+            <tr><td>{{ 'settings.syntaxParagraphName' | translate }}</td><td>{{ 'settings.syntaxParagraphSyntax' | translate }}</td><td>&lt;p&gt;</td></tr>
+            <tr><td>{{ 'settings.syntaxLineBreakName' | translate }}</td><td>{{ 'settings.syntaxLineBreakSyntax' | translate }}</td><td>&lt;br&gt;</td></tr>
+            <tr><td>{{ 'settings.syntaxHeadingName' | translate }}</td><td>{{ 'settings.syntaxHeadingSyntax' | translate }}</td><td>&lt;h1&gt;–&lt;h3&gt;</td></tr>
+            <tr><td>{{ 'settings.syntaxBoldName' | translate }}</td><td>**Text**</td><td>&lt;strong&gt;</td></tr>
+            <tr><td>{{ 'settings.syntaxItalicName' | translate }}</td><td>*Text*</td><td>&lt;em&gt;</td></tr>
+            <tr><td>{{ 'settings.syntaxListName' | translate }}</td><td>- / *</td><td>&lt;ul&gt;&lt;li&gt;</td></tr>
+            <tr><td>{{ 'settings.syntaxNumberedListName' | translate }}</td><td>1.</td><td>&lt;ol&gt;&lt;li&gt;</td></tr>
+            <tr><td>{{ 'settings.syntaxDividerName' | translate }}</td><td>---</td><td>&lt;hr&gt;</td></tr>
+            <tr><td>{{ 'settings.syntaxInlineCodeName' | translate }}</td><td>`Code`</td><td>&lt;code&gt;</td></tr>
+            <tr><td>{{ 'settings.syntaxCodeBlockName' | translate }}</td><td>{{ 'settings.syntaxCodeBlockSyntax' | translate }}</td><td>&lt;pre&gt;&lt;code&gt;</td></tr>
+            <tr><td>{{ 'settings.syntaxLinkName' | translate }}</td><td>[Text](url)</td><td>{{ 'settings.syntaxLinkRendering' | translate }}</td></tr>
           </tbody>
         </table>
-        <p>Nicht aufgeführte Syntax bleibt als Klartext stehen.</p>
+        <p>{{ 'settings.syntaxNote' | translate }}</p>
       </p-popover>
     </div>
     <div class="info-text-grid">
@@ -113,7 +113,7 @@
         @if (infoText()) {
           <app-markdown-text [content]="infoText()" />
         } @else {
-          <p class="preview-placeholder">Keine Vorschau — Info-Text ist leer</p>
+          <p class="preview-placeholder">{{ 'settings.previewEmpty' | translate }}</p>
         }
       </div>
     </div>
@@ -123,5 +123,5 @@
     <app-info-area type="error" [message]="saveError()!" />
   }
 
-  <p-button type="submit" label="Speichern" [disabled]="!canSave()" />
+  <p-button type="submit" [label]="'common.save' | translate" [disabled]="!canSave()" />
 </form>

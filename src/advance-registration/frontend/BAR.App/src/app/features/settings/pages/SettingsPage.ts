@@ -7,6 +7,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { PopoverModule } from 'primeng/popover';
 import { MessageService } from 'primeng/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { InfoArea } from '../../../shared/info-area/info-area';
 import { MarkdownText } from '../../../shared/markdown-text/markdown-text';
 import { SettingsApiService, SettingsDto, SettingsPayload } from '../settings-api.service';
@@ -22,7 +23,7 @@ interface ValidationProblem {
 
 @Component({
   selector: 'app-settings-page',
-  imports: [FormsModule, ButtonModule, DatePickerModule, SelectModule, InputNumberModule, TextareaModule, PopoverModule, InfoArea, MarkdownText],
+  imports: [FormsModule, ButtonModule, DatePickerModule, SelectModule, InputNumberModule, TextareaModule, PopoverModule, InfoArea, MarkdownText, TranslatePipe],
   templateUrl: './SettingsPage.html',
   styleUrl: './SettingsPage.scss'
 })
@@ -30,6 +31,7 @@ export class SettingsPage {
   private readonly api = inject(SettingsApiService);
   private readonly sellerTypeApi = inject(SellerTypeApiService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
 
   readonly INFO_TEXT_MAX_LENGTH = INFO_TEXT_MAX_LENGTH;
 
@@ -83,15 +85,15 @@ export class SettingsPage {
     this.api.update(payload).subscribe({
       next: (dto) => {
         this.applySettings(dto);
-        this.messageService.add({ severity: 'success', summary: '✓ Einstellungen gespeichert' });
+        this.messageService.add({ severity: 'success', summary: this.translate.instant('settings.saveSuccess') });
       },
       error: (response: { status: number; error?: ValidationProblem }) => {
         if (response.status === 400 && response.error?.errors) {
           this.fieldErrors.set(response.error.errors);
         } else if (response.status === 409) {
-          this.saveError.set(response.error?.detail ?? 'Startnummer liegt über bereits vergebenen Artikelnummern');
+          this.saveError.set(response.error?.detail ?? this.translate.instant('settings.saveConflictDefault'));
         } else {
-          this.saveError.set('Einstellungen konnten nicht gespeichert werden');
+          this.saveError.set(this.translate.instant('settings.saveFailed'));
         }
       }
     });
