@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -28,6 +28,10 @@ function create() {
 }
 
 describe('ExportPage', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('calls ExportApiService.export with the checkbox state', () => {
     const { fixture, api } = create();
     const exportSpy = vi.spyOn(api, 'export').mockReturnValue(of({ blob: new Blob(['{"sellers":[],"brands":[],"categories":[]}']), fileName: 'basar-export-2026-09-10.json' }));
