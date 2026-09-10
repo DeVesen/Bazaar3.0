@@ -118,6 +118,8 @@ public static class DependencyInjection
         services.AddScoped<IValidator<BAR.Application.Sellers.Update.UpdateSellerCommand>, BAR.Application.Sellers.Update.UpdateSellerCommandValidator>();
         services.AddScoped<BAR.Application.Sellers.Delete.DeleteSellerCommandHandler>();
         services.AddScoped<BAR.Application.Sellers.Invite.InviteSellerCommandHandler>();
+        services.AddScoped<BAR.Application.Auth.SetPassword.SetPasswordCommandHandler>();
+        services.AddScoped<IValidator<BAR.Application.Auth.SetPassword.SetPasswordCommand>, BAR.Application.Auth.SetPassword.SetPasswordCommandValidator>();
 
         return services;
     }

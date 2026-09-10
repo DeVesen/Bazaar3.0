@@ -1,6 +1,7 @@
 using BAR.Application.Auth.Login;
 using BAR.Application.Auth.Refresh;
 using BAR.Application.Auth.Register;
+using BAR.Application.Auth.SetPassword;
 using BAR.Host.Validation;
 
 namespace BAR.Host.Features.Auth;
@@ -40,6 +41,12 @@ public static class AuthEndpoints
             var result = await handler.HandleAsync(command, ct);
             return Results.Ok(new TokenPairResponse(result.AccessToken, result.RefreshToken));
         }).AddEndpointFilter<ValidationFilter<RefreshCommand>>();
+
+        group.MapPost("/set-password", async (SetPasswordCommand command, SetPasswordCommandHandler handler, CancellationToken ct) =>
+        {
+            var result = await handler.HandleAsync(command, ct);
+            return Results.Ok(new TokenPairResponse(result.AccessToken, result.RefreshToken));
+        }).AddEndpointFilter<ValidationFilter<SetPasswordCommand>>();
 
         return app;
     }
