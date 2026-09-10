@@ -30,6 +30,22 @@ export interface UpdateProfilePayload {
   phone: string;
 }
 
+export interface ChangeEmailPayload {
+  newEmail: string;
+  currentPassword: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  newPasswordConfirmation: string;
+}
+
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProfileApiService {
   private readonly http = inject(HttpClient);
@@ -40,5 +56,17 @@ export class ProfileApiService {
 
   updateProfile(payload: UpdateProfilePayload): Observable<ProfileDto> {
     return this.http.put<ProfileDto>('/api/profile', payload);
+  }
+
+  changeEmail(payload: ChangeEmailPayload): Observable<void> {
+    return this.http.put<void>('/api/profile/email', payload);
+  }
+
+  changePassword(payload: ChangePasswordPayload): Observable<TokenPair> {
+    return this.http.put<TokenPair>('/api/profile/password', payload);
+  }
+
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>('/api/profile');
   }
 }
