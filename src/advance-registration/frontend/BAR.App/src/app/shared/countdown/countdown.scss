@@ -27,3 +27,39 @@
     margin-top: 4px;
   }
 }
+
+// Variante 'timeline' — Countdown-Embed-Widget (R11): transparenter Hintergrund, kein eigener
+// Card-Rahmen, passt sich fremdem Theme an (Epic_Countdown_Widget Abschnitt 2/4).
+.countdown-timeline {
+  background: transparent;
+
+  &__label {
+    font-weight: 600;
+  }
+
+  &__marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-muted);
+
+    &--active {
+      color: var(--color-accent);
+      font-weight: 700;
+    }
+
+    &--completed {
+      color: var(--color-accent);
+    }
+  }
+
+  &__status {
+    color: var(--color-muted);
+  }
+
+  &__countdown {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--color-accent);
+  }
+}

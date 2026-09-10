@@ -1,11 +1,12 @@
 import { Component, OnDestroy, computed, input, signal } from '@angular/core';
+import { TimelineModule } from 'primeng/timeline';
 import { selectActivePhase, CountdownPhase } from './select-active-phase';
+import { selectTimelinePhases, TimelinePhaseState } from './select-timeline-phases';
 import { computeRemainingTime, formatDateLabel, formatDaysLabel, pad2 } from './format-countdown';
 
 /**
- * Visuelle Darstellungsvariante (component.md §2). Diese Komponente implementiert aktuell nur
- * `'info-box'` (Login-Seite, R01 Zugang) — `'kpi'` und `'timeline'` gehören zu späteren
- * Roadmap-Schritten (Home-Seiten, Countdown-Embed-Widget) und sind bewusst nicht gebaut.
+ * Visuelle Darstellungsvariante (component.md §2). `'kpi'` gehört zu einem späteren
+ * Roadmap-Schritt (Home-Seiten) und ist bewusst nicht gebaut.
  */
 export type CountdownVariant = 'kpi' | 'info-box' | 'timeline';
 
@@ -18,8 +19,18 @@ interface CountdownDisplay {
   readonly dateLabel: string;
 }
 
+interface TimelinePhaseDisplay {
+  readonly label: string;
+  readonly state: TimelinePhaseState;
+  readonly daysLabel: string | null;
+  readonly hours: string | null;
+  readonly minutes: string | null;
+  readonly seconds: string | null;
+}
+
 @Component({
   selector: 'app-countdown',
+  imports: [TimelineModule],
   templateUrl: './countdown.html',
   styleUrl: './countdown.scss'
 })
@@ -51,6 +62,26 @@ export class Countdown implements OnDestroy {
       seconds: pad2(remaining.seconds),
       dateLabel: formatDateLabel(phase.targetDate)
     };
+  });
+
+  readonly timelinePhases = computed<TimelinePhaseDisplay[]>(() => {
+    this.tick();
+
+    return selectTimelinePhases(this.phases()).map((p) => {
+      if (p.countdownTarget === null) {
+        return { label: p.label, state: p.state, daysLabel: null, hours: null, minutes: null, seconds: null };
+      }
+
+      const remaining = computeRemainingTime(p.countdownTarget);
+      return {
+        label: p.label,
+        state: p.state,
+        daysLabel: formatDaysLabel(remaining.days),
+        hours: pad2(remaining.hours),
+        minutes: pad2(remaining.minutes),
+        seconds: pad2(remaining.seconds)
+      };
+    });
   });
 
   ngOnDestroy(): void {

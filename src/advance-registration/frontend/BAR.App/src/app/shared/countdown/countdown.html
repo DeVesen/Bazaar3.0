@@ -1,4 +1,26 @@
-@if (display(); as d) {
+@if (variant() === 'timeline') {
+  <p-timeline [value]="timelinePhases()" styleClass="countdown-timeline">
+    <ng-template #opposite let-p>
+      <span class="countdown-timeline__label">{{ p.label }}</span>
+    </ng-template>
+    <ng-template #marker let-p>
+      <span class="countdown-timeline__marker countdown-timeline__marker--{{ p.state }}">
+        @switch (p.state) {
+          @case ('completed') { ✓ }
+          @case ('active') { ⏱ }
+          @default { ○ }
+        }
+      </span>
+    </ng-template>
+    <ng-template #content let-p>
+      @if (p.state === 'completed') {
+        <span class="countdown-timeline__status">Abgeschlossen</span>
+      } @else {
+        <span class="countdown-timeline__countdown">{{ p.daysLabel }} {{ p.hours }}:{{ p.minutes }}:{{ p.seconds }}</span>
+      }
+    </ng-template>
+  </p-timeline>
+} @else if (display(); as d) {
   <div class="countdown countdown--{{ variant() }}">
     <div class="countdown__label">{{ d.label }}</div>
     <div class="countdown__time">
