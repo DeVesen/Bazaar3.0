@@ -1,32 +1,20 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AppTable, ColumnConfig, ActionColumnConfig, ActionClickEvent } from '../../../shared/table/table';
 import { StammdatenPopup } from '../../../shared/stammdaten-popup/stammdaten-popup';
 import { MasterDataApiService, MasterDataItem } from '../../my-articles/master-data-api.service';
 
-const COLUMNS: ColumnConfig<MasterDataItem>[] = [
-  { field: 'name', header: 'Name', type: 'text' },
-  { field: 'original', header: 'Original', type: 'badge', badge: (r) => (r.original ? { label: '✓ Original', severity: 'success' } : { label: 'Neu', severity: 'warn' }) },
-  { field: 'articleCount', header: 'Artikel', type: 'number' }
-];
-
-const ACTION_COLUMN: ActionColumnConfig = {
-  actions: [
-    { actionId: 'edit', icon: 'pi pi-pencil', ariaLabel: 'Bearbeiten' },
-    { actionId: 'delete', icon: 'pi pi-trash', ariaLabel: 'Löschen' }
-  ]
-};
-
 @Component({
   selector: 'app-brands-page',
-  imports: [AppTable, StammdatenPopup],
+  imports: [AppTable, StammdatenPopup, TranslatePipe],
   template: `
     <app-table
-      title="Marken"
-      [columns]="COLUMNS"
+      [title]="'brands.title' | translate"
+      [columns]="columns"
       [data]="brands()"
       [loading]="loading()"
-      [actionColumn]="ACTION_COLUMN"
+      [actionColumn]="actionColumn"
       [canAdd]="true"
       [lazy]="false"
       (rowAdd)="openCreate()"
@@ -36,7 +24,7 @@ const ACTION_COLUMN: ActionColumnConfig = {
     <app-stammdaten-popup
       [(visible)]="popupVisibleModel"
       [mode]="popupMode()"
-      entityLabel="Marke"
+      [entityLabel]="'brands.entityLabel' | translate"
       [item]="popupItem()"
       [saveFn]="saveFn"
       (saved)="onSaved()"
@@ -47,9 +35,32 @@ export class BrandsPage implements OnInit {
   private readonly masterDataApi = inject(MasterDataApiService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
 
-  protected readonly COLUMNS = COLUMNS;
-  protected readonly ACTION_COLUMN = ACTION_COLUMN;
+  get columns(): ColumnConfig<MasterDataItem>[] {
+    return [
+      { field: 'name', header: this.translate.instant('brands.columnName'), type: 'text' },
+      {
+        field: 'original',
+        header: this.translate.instant('brands.columnOriginal'),
+        type: 'badge',
+        badge: (r) =>
+          r.original
+            ? { label: this.translate.instant('brands.badgeOriginal'), severity: 'success' }
+            : { label: this.translate.instant('brands.badgeNew'), severity: 'warn' }
+      },
+      { field: 'articleCount', header: this.translate.instant('brands.columnArticleCount'), type: 'number' }
+    ];
+  }
+
+  get actionColumn(): ActionColumnConfig {
+    return {
+      actions: [
+        { actionId: 'edit', icon: 'pi pi-pencil', ariaLabel: this.translate.instant('common.edit') },
+        { actionId: 'delete', icon: 'pi pi-trash', ariaLabel: this.translate.instant('common.delete') }
+      ]
+    };
+  }
 
   readonly brands = signal<MasterDataItem[]>([]);
   readonly loading = signal(false);
@@ -76,7 +87,7 @@ export class BrandsPage implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Marken konnten nicht geladen werden' });
+        this.messageService.add({ severity: 'error', summary: this.translate.instant('brands.loadError') });
       }
     });
   }
@@ -99,9 +110,9 @@ export class BrandsPage implements OnInit {
 
   confirmDelete(row: MasterDataItem): void {
     this.confirmationService.confirm({
-      message: `Marke „${row.name}“ wirklich löschen?`,
-      acceptLabel: 'Löschen',
-      rejectLabel: 'Abbrechen',
+      message: this.translate.instant('brands.confirmDelete', { name: row.name }),
+      acceptLabel: this.translate.instant('common.delete'),
+      rejectLabel: this.translate.instant('common.cancel'),
       accept: () => this.deleteBrand(row)
     });
   }
@@ -109,13 +120,13 @@ export class BrandsPage implements OnInit {
   deleteBrand(row: MasterDataItem): void {
     this.masterDataApi.delete('brands', row.id).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: '✓ Marke gelöscht' });
+        this.messageService.add({ severity: 'success', summary: this.translate.instant('brands.deleted') });
         this.load();
       },
       error: (err: { status?: number; error?: { detail?: string } }) => {
         this.messageService.add({
           severity: 'error',
-          summary: err.status === 409 ? (err.error?.detail ?? 'Marke wird noch verwendet') : 'Löschen fehlgeschlagen'
+          summary: err.status === 409 ? (err.error?.detail ?? this.translate.instant('brands.inUse')) : this.translate.instant('brands.deleteFailed')
         });
       }
     });

@@ -88,5 +88,43 @@
     "saved": "✓ Seller type saved",
     "nameTaken": "Name already exists",
     "saveFailed": "Save failed"
+  },
+  "brands": {
+    "title": "Brands",
+    "entityLabel": "Brand",
+    "columnName": "Name",
+    "columnOriginal": "Original",
+    "badgeOriginal": "✓ Original",
+    "badgeNew": "New",
+    "columnArticleCount": "Articles",
+    "loadError": "Brands could not be loaded",
+    "confirmDelete": "Really delete brand \"{{name}}\"?",
+    "deleted": "✓ Brand deleted",
+    "inUse": "Brand is still in use",
+    "deleteFailed": "Delete failed"
+  },
+  "categories": {
+    "title": "Categories",
+    "entityLabel": "Category",
+    "columnName": "Name",
+    "columnOriginal": "Original",
+    "badgeOriginal": "✓ Original",
+    "badgeNew": "New",
+    "columnArticleCount": "Articles",
+    "loadError": "Categories could not be loaded",
+    "confirmDelete": "Really delete category \"{{name}}\"?",
+    "deleted": "✓ Category deleted",
+    "inUse": "Category is still in use",
+    "deleteFailed": "Delete failed"
+  },
+  "stammdatenPopup": {
+    "createTitle": "New {{entity}}",
+    "editTitle": "Edit {{entity}}",
+    "name": "Name",
+    "original": "Original",
+    "createLabel": "Create",
+    "saved": "✓ {{entity}} saved",
+    "nameTaken": "Name already exists",
+    "saveFailed": "Save failed"
   }
 }

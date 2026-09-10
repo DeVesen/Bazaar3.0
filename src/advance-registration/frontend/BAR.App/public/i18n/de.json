@@ -88,5 +88,43 @@
     "saved": "✓ Verkäufer-Typ gespeichert",
     "nameTaken": "Bezeichnung existiert bereits",
     "saveFailed": "Speichern fehlgeschlagen"
+  },
+  "brands": {
+    "title": "Marken",
+    "entityLabel": "Marke",
+    "columnName": "Name",
+    "columnOriginal": "Original",
+    "badgeOriginal": "✓ Original",
+    "badgeNew": "Neu",
+    "columnArticleCount": "Artikel",
+    "loadError": "Marken konnten nicht geladen werden",
+    "confirmDelete": "Marke „{{name}}“ wirklich löschen?",
+    "deleted": "✓ Marke gelöscht",
+    "inUse": "Marke wird noch verwendet",
+    "deleteFailed": "Löschen fehlgeschlagen"
+  },
+  "categories": {
+    "title": "Kategorien",
+    "entityLabel": "Kategorie",
+    "columnName": "Name",
+    "columnOriginal": "Original",
+    "badgeOriginal": "✓ Original",
+    "badgeNew": "Neu",
+    "columnArticleCount": "Artikel",
+    "loadError": "Kategorien konnten nicht geladen werden",
+    "confirmDelete": "Kategorie „{{name}}“ wirklich löschen?",
+    "deleted": "✓ Kategorie gelöscht",
+    "inUse": "Kategorie wird noch verwendet",
+    "deleteFailed": "Löschen fehlgeschlagen"
+  },
+  "stammdatenPopup": {
+    "createTitle": "Neue {{entity}}",
+    "editTitle": "{{entity}} bearbeiten",
+    "name": "Name",
+    "original": "Original",
+    "createLabel": "Anlegen",
+    "saved": "✓ {{entity}} gespeichert",
+    "nameTaken": "Name existiert bereits",
+    "saveFailed": "Speichern fehlgeschlagen"
   }
 }

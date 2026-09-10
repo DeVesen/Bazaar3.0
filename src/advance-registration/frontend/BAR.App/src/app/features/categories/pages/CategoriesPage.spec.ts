@@ -2,15 +2,37 @@ import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { of } from 'rxjs';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
+import { of, Observable } from 'rxjs';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CategoriesPage } from './CategoriesPage';
 import { MasterDataApiService } from '../../my-articles/master-data-api.service';
 
+const DE_TRANSLATIONS = {
+  common: { cancel: 'Abbrechen', save: 'Speichern', create: 'Anlegen', delete: 'Löschen', edit: 'Bearbeiten' },
+  categories: {
+    title: 'Kategorien',
+    entityLabel: 'Kategorie',
+    columnName: 'Name',
+    columnOriginal: 'Original',
+    badgeOriginal: '✓ Original',
+    badgeNew: 'Neu',
+    columnArticleCount: 'Artikel',
+    loadError: 'Kategorien konnten nicht geladen werden',
+    confirmDelete: 'Kategorie „{{name}}“ wirklich löschen?',
+    deleted: '✓ Kategorie gelöscht',
+    inUse: 'Kategorie wird noch verwendet',
+    deleteFailed: 'Löschen fehlgeschlagen'
+  }
+};
+
 function create() {
   TestBed.configureTestingModule({
-    providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
+    providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService, ConfirmationService]
   });
+  const translate = TestBed.inject(TranslateService);
+  translate.setTranslation('de', DE_TRANSLATIONS);
+  translate.use('de');
   const api = TestBed.inject(MasterDataApiService);
   vi.spyOn(api, 'getAll').mockReturnValue(of([
     { id: 'c1', name: 'Jacken', original: true, articleCount: 2 },
@@ -18,7 +40,7 @@ function create() {
   ]));
   const fixture = TestBed.createComponent(CategoriesPage);
   fixture.detectChanges();
-  return { fixture, api };
+  return { fixture, api, translate };
 }
 
 describe('CategoriesPage', () => {
@@ -27,6 +49,12 @@ describe('CategoriesPage', () => {
 
     expect(api.getAll).toHaveBeenCalledWith('categories');
     expect(fixture.componentInstance.categories().length).toBe(2);
+  });
+
+  it('renders the translated title', () => {
+    const { fixture } = create();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Kategorien');
   });
 
   it('openCreate() opens the popup in create mode', () => {
@@ -70,6 +98,19 @@ describe('CategoriesPage', () => {
     expect(api.getAll).toHaveBeenCalledWith('categories');
   });
 
+  it('deleteCategory(row) on 409 shows the server error as a toast, not silently', () => {
+    const { fixture, api } = create();
+    vi.spyOn(api, 'delete').mockReturnValue(
+      new Observable((subscriber) => subscriber.error({ status: 409, error: { detail: 'Kategorie wird noch verwendet' } }))
+    );
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, 'add');
+
+    fixture.componentInstance.deleteCategory({ id: 'c1', name: 'Jacken', original: true, articleCount: 2 });
+
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', summary: 'Kategorie wird noch verwendet' }));
+  });
+
   it('onTableAction("delete", row) confirms and, on accept, deletes the category', () => {
     const { fixture, api } = create();
     const deleteSpy = vi.spyOn(api, 'delete').mockReturnValue(of(undefined));
@@ -84,5 +125,15 @@ describe('CategoriesPage', () => {
     confirmation.accept!();
 
     expect(deleteSpy).toHaveBeenCalledWith('categories', 'c1');
+  });
+
+  it('renders the translated title in the active language after a post-render language switch', () => {
+    const { fixture, translate } = create();
+
+    translate.setTranslation('en', { categories: { title: 'Categories' } });
+    translate.use('en');
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Categories');
   });
 });
