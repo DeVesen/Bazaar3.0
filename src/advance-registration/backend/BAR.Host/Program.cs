@@ -2,6 +2,7 @@ using System.Text;
 using BAR.Host.Features.Articles;
 using BAR.Host.Features.Auth;
 using BAR.Host.Features.Blocks;
+using BAR.Host.Features.Export;
 using BAR.Host.Features.Home;
 using BAR.Host.Features.MasterData;
 using BAR.Host.Features.Profile;
@@ -101,6 +102,7 @@ app.MapBrandsEndpoints();
 app.MapCategoriesEndpoints();
 app.MapSellersEndpoints();
 app.MapSellerTypesEndpoints();
+app.MapExportEndpoints();
 app.MapSettingsEndpoints();
 
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
