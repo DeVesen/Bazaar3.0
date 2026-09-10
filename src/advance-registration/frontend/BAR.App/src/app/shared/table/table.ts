@@ -9,6 +9,7 @@ export interface ColumnConfig<T = unknown> {
   header: string;
   type: 'text' | 'number' | 'currency' | 'date' | 'badge';
   sortable?: boolean;
+  sortField?: string;
   badge?: (row: T) => { label: string; severity: 'success' | 'warn' | 'secondary' | 'info' | 'danger' };
 }
 
@@ -89,7 +90,7 @@ interface PrimeNgPageEvent {
             @if (col.sortable === false) {
               <th>{{ col.header }}</th>
             } @else {
-              <th [pSortableColumn]="col.field">{{ col.header }} <p-sort-icon [field]="col.field" /></th>
+              <th [pSortableColumn]="sortFieldFor(col)">{{ col.header }} <p-sort-icon [field]="sortFieldFor(col)" /></th>
             }
           }
           @if (actionColumn()) {
@@ -177,6 +178,10 @@ export class AppTable<T> {
       return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
     }
     return value;
+  }
+
+  sortFieldFor(col: ColumnConfig<T>): string {
+    return col.sortField ?? col.field;
   }
 
   onSort(event: PrimeNgSortEvent): void {

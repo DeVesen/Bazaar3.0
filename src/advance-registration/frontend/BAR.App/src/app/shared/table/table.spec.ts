@@ -159,4 +159,12 @@ describe('AppTable', () => {
     const lazyValue = pTable.componentInstance.lazy;
     expect(typeof lazyValue === 'function' ? lazyValue() : lazyValue).toBe(true);
   });
+
+  it('sortFieldFor() returns sortField when set, otherwise falls back to field', () => {
+    const fixture = create([]);
+    const component = fixture.componentInstance;
+
+    expect(component.sortFieldFor({ field: 'sellerLabel', header: 'Verkäufer', type: 'text', sortField: 'seller' })).toBe('seller');
+    expect(component.sortFieldFor({ field: 'name', header: 'Bezeichnung', type: 'text' })).toBe('name');
+  });
 });
