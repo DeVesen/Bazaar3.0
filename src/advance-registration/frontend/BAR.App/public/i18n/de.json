@@ -45,6 +45,14 @@
     "emailTaken": "Diese E-Mail ist bereits registriert.",
     "genericError": "Registrierung fehlgeschlagen. Bitte versuche es erneut."
   },
+  "setPassword": {
+    "title": "Passwort festlegen",
+    "newPassword": "Neues Passwort",
+    "submit": "Passwort setzen",
+    "invalidLink": "Der Link ist ungültig oder abgelaufen.",
+    "weakPassword": "Passwort erfüllt die Anforderungen nicht.",
+    "genericError": "Passwort konnte nicht gesetzt werden."
+  },
   "errors": {
     "auth.invalid_credentials": "Ungültige Anmeldedaten",
     "seller.email_taken": "Diese E-Mail ist bereits registriert",

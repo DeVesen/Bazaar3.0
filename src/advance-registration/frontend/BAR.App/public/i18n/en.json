@@ -45,6 +45,14 @@
     "emailTaken": "This email is already registered.",
     "genericError": "Registration failed. Please try again."
   },
+  "setPassword": {
+    "title": "Set password",
+    "newPassword": "New password",
+    "submit": "Set password",
+    "invalidLink": "The link is invalid or has expired.",
+    "weakPassword": "Password does not meet the requirements.",
+    "genericError": "Could not set the password."
+  },
   "errors": {
     "auth.invalid_credentials": "Invalid credentials",
     "seller.email_taken": "This email is already registered",

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PasswordStrengthMeter } from '../../../shared/password-strength-meter/password-strength-meter';
 import { AuthService } from '../../../core/auth/auth.service';
 import { SetPasswordApiService } from '../data/set-password-api.service';
@@ -14,10 +15,10 @@ import { SetPasswordApiService } from '../data/set-password-api.service';
 @Component({
   selector: 'app-set-password-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, InputTextModule, PasswordStrengthMeter],
+  imports: [FormsModule, InputTextModule, PasswordStrengthMeter, TranslatePipe],
   template: `
-    <h1>Passwort festlegen</h1>
-    <label for="set-password-input">Neues Passwort</label>
+    <h1>{{ 'setPassword.title' | translate }}</h1>
+    <label for="set-password-input">{{ 'setPassword.newPassword' | translate }}</label>
     <input
       id="set-password-input"
       pInputText
@@ -29,7 +30,7 @@ import { SetPasswordApiService } from '../data/set-password-api.service';
     @if (errorMessage()) {
       <p class="set-password__error">{{ errorMessage() }}</p>
     }
-    <button type="button" class="p-button p-button-primary" (click)="onSubmit()">Passwort setzen</button>
+    <button type="button" class="p-button p-button-primary" (click)="onSubmit()">{{ 'setPassword.submit' | translate }}</button>
   `
 })
 export class SetPasswordPage {
@@ -37,6 +38,7 @@ export class SetPasswordPage {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly api = inject(SetPasswordApiService);
+  private readonly translate = inject(TranslateService);
 
   private readonly token = this.route.snapshot.queryParamMap.get('token') ?? '';
 
@@ -55,13 +57,13 @@ export class SetPasswordPage {
         // sind fachlich unterschiedliche Fehler und brauchen unterschiedliche
         // Meldungen - siehe api/auth.md §4.
         if (err.status === 401) {
-          this.errorMessage.set('Der Link ist ungültig oder abgelaufen.');
+          this.errorMessage.set(this.translate.instant('setPassword.invalidLink'));
         } else if (err.status === 400) {
           this.errorMessage.set(
-            err.error?.errors?.password?.[0] ?? err.error?.detail ?? 'Passwort erfüllt die Anforderungen nicht.'
+            err.error?.errors?.password?.[0] ?? err.error?.detail ?? this.translate.instant('setPassword.weakPassword')
           );
         } else {
-          this.errorMessage.set('Passwort konnte nicht gesetzt werden.');
+          this.errorMessage.set(this.translate.instant('setPassword.genericError'));
         }
       }
     });

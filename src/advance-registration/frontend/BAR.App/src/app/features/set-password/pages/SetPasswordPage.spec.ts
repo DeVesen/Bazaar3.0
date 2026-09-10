@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { SetPasswordPage } from './SetPasswordPage';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -17,10 +18,24 @@ describe('SetPasswordPage', () => {
         // Stub-Route fuer /home - sonst endet die echte Navigation nach dem
         // Teardown in einer Unhandled Rejection (siehe LoginPage.spec.ts).
         provideRouter([{ path: 'home', children: [] }]),
-        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => 'token-abc' } } } }
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => 'token-abc' } } } },
+        provideTranslateService()
       ]
     });
     httpMock = TestBed.inject(HttpTestingController);
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('de', {
+      setPassword: {
+        title: 'Passwort festlegen',
+        newPassword: 'Neues Passwort',
+        submit: 'Passwort setzen',
+        invalidLink: 'Der Link ist ungültig oder abgelaufen.',
+        weakPassword: 'Passwort erfüllt die Anforderungen nicht.',
+        genericError: 'Passwort konnte nicht gesetzt werden.'
+      }
+    });
+    translate.use('de');
   });
 
   afterEach(() => httpMock.verify());
@@ -73,5 +88,43 @@ describe('SetPasswordPage', () => {
     httpMock.expectOne('/api/auth/set-password').flush('error', { status: 401, statusText: 'Unauthorized' });
 
     expect(fixture.componentInstance.errorMessage()).toBe('Der Link ist ungültig oder abgelaufen.');
+  });
+
+  it('renders English labels when the active language is en', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', {
+      setPassword: {
+        title: 'Set password',
+        newPassword: 'New password',
+        submit: 'Set password'
+      }
+    });
+    translate.use('en');
+
+    const fixture = TestBed.createComponent(SetPasswordPage);
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Set password');
+    expect(text).toContain('New password');
+  });
+
+  it('shows the English generic-error message when the active language is en (500)', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', {
+      setPassword: {
+        genericError: 'Could not set the password.'
+      }
+    });
+    translate.use('en');
+
+    const fixture = TestBed.createComponent(SetPasswordPage);
+    fixture.detectChanges();
+
+    fixture.componentInstance.password.set('geheim123');
+    fixture.componentInstance.onSubmit();
+    httpMock.expectOne('/api/auth/set-password').flush('error', { status: 500, statusText: 'Internal Server Error' });
+
+    expect(fixture.componentInstance.errorMessage()).toBe('Could not set the password.');
   });
 });
