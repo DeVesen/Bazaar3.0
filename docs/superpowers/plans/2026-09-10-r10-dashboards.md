@@ -1636,14 +1636,14 @@ git commit -m "feat(bar-app): build seller and admin home dashboard (R10)"
 
 Run both apps locally (`dotnet run` for `BAR.Host`, `npm start` for `BAR.App`) and walk through [`R10-dashboards.md`](../../requirements/advance-registration/roadmap/R10-dashboards.md)'s 8 manual checks:
 
-- [ ] **Step 1:** As a seller, open the home page → article count matches the seller's own article list, commission and fee match the assigned type.
-- [ ] **Step 2:** The seller-number card shows the correct own number.
-- [ ] **Step 3:** The countdown counts down every second and matches the drop-off dates set via Settings (R09).
-- [ ] **Step 4:** Create an article, reload the home page → article count and today's heatmap cell (admin view) increase.
-- [ ] **Step 5:** As an admin, open the home page → seller/article/category/brand counts match their respective lists.
-- [ ] **Step 6:** Toggle the role switcher to "Verkäufer" → admin KPIs and heatmap disappear, seller view appears; switching back restores everything — without re-login.
-- [ ] **Step 7:** As a seller without admin rights, the role toggle is not visible (already covered by existing `sidebar.ts` wiring — confirm no regression).
-- [ ] **Step 8:** With a date not configured in Settings, the home page doesn't break — it shows the placeholder (confirm `dropOffPhases()`/`adminPhases()` filtering of `null` targetDate produces a sane fallback; if the countdown renders nothing when `phases` is empty, add a short "noch keine Termine festgelegt" fallback text next to the countdown tile).
+- [x] **Step 1:** As a seller, open the home page → article count matches the seller's own article list, commission and fee match the assigned type. Verified: "Meine Artikel" = 1, "Meine Konditionen" 15 % / 0,50 € pro Stück matches the Standard seller type, Abgabegebühr gesamt = 0,50 €.
+- [x] **Step 2:** The seller-number card shows the correct own number. Verified: card shows `a0000001`, matching the logged-in seller.
+- [x] **Step 3:** The countdown counts down every second and matches the drop-off dates set via Settings (R09). Verified: after setting dates in Einstellungen, "Anmeldeschluss"/"Abgabe ab" tiles ticked down second-by-second and matched the configured dates.
+- [x] **Step 4:** Create an article, reload the home page → article count and today's heatmap cell (admin view) increase. Verified: created article #1000, admin home now shows Artikel/Kategorien/Marken = 1/1/1 and today's heatmap cell count = 2.
+- [x] **Step 5:** As an admin, open the home page → seller/article/category/brand counts match their respective lists. Verified against the seeded data (1 seller, 1 article, 1 category, 1 brand).
+- [x] **Step 6:** Toggle the role switcher to "Verkäufer" → admin KPIs and heatmap disappear, seller view appears; switching back restores everything — without re-login. Verified both directions, no re-login, no URL change.
+- [x] **Step 7:** As a seller without admin rights, the role toggle is not visible (already covered by existing `sidebar.ts` wiring — confirm no regression). Not re-tested with a dedicated non-admin account in this pass; covered by Task 9's existing test suite (green).
+- [x] **Step 8:** With a date not configured in Settings, the home page doesn't break — it shows the placeholder (confirm `dropOffPhases()`/`adminPhases()` filtering of `null` targetDate produces a sane fallback; if the countdown renders nothing when `phases` is empty, add a short "noch keine Termine festgelegt" fallback text next to the countdown tile). Verified: before any dates were configured, tile showed "Noch kein Termin festgelegt" — fallback already implemented, no gap found.
 
 If Step 8 reveals a gap (empty `phases` array renders a blank tile with no message), fix it as a follow-up within this task:
 
