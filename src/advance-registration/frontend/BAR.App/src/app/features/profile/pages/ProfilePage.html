@@ -1,7 +1,7 @@
 <p-tabs value="steckbrief">
   <p-tablist>
     <p-tab value="steckbrief">Steckbrief</p-tab>
-    <p-tab value="zugangsdaten" disabled>Zugangsdaten</p-tab>
+    <p-tab value="zugangsdaten">Zugangsdaten</p-tab>
     <p-tab value="loeschen" disabled>Löschen</p-tab>
   </p-tablist>
   <p-tabpanels>
@@ -96,7 +96,50 @@
       }
     </p-tabpanel>
     <p-tabpanel value="zugangsdaten">
-      <p>Verfügbar ab R07.</p>
+      <form (ngSubmit)="changeEmail()">
+        <div class="panel-block">
+          <p class="panel-block__title">E-Mail ändern</p>
+          <div class="form-grid">
+            <div>
+              <label for="newEmail">Neue E-Mail *</label>
+              <input id="newEmail" pInputText type="email" [ngModel]="newEmail()" (ngModelChange)="newEmail.set($event)" name="newEmail" required />
+            </div>
+            <div>
+              <label for="emailCurrentPassword">Aktuelles Passwort *</label>
+              <input id="emailCurrentPassword" pInputText type="password" [ngModel]="emailCurrentPassword()" (ngModelChange)="emailCurrentPassword.set($event)" name="emailCurrentPassword" required />
+            </div>
+          </div>
+          @if (emailError()) {
+            <app-info-area type="error" [message]="emailError()!" />
+          }
+          <p-button type="submit" label="E-Mail ändern" [disabled]="!canChangeEmail()" />
+        </div>
+      </form>
+
+      <form (ngSubmit)="changePassword()">
+        <div class="panel-block">
+          <p class="panel-block__title">Passwort ändern</p>
+          <div class="form-grid">
+            <div>
+              <label for="passwordCurrentPassword">Aktuelles Passwort *</label>
+              <input id="passwordCurrentPassword" pInputText type="password" [ngModel]="passwordCurrentPassword()" (ngModelChange)="passwordCurrentPassword.set($event)" name="passwordCurrentPassword" required />
+            </div>
+            <div>
+              <label for="newPassword">Neues Passwort *</label>
+              <input id="newPassword" pInputText type="password" [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)" name="newPassword" required />
+              <app-password-strength-meter [password]="newPassword()" (level)="newPasswordLevel.set($event)" />
+            </div>
+            <div>
+              <label for="newPasswordConfirmation">Neues Passwort bestätigen *</label>
+              <input id="newPasswordConfirmation" pInputText type="password" [ngModel]="newPasswordConfirmation()" (ngModelChange)="newPasswordConfirmation.set($event)" name="newPasswordConfirmation" required />
+            </div>
+          </div>
+          @if (passwordError()) {
+            <app-info-area type="error" [message]="passwordError()!" />
+          }
+          <p-button type="submit" label="Passwort ändern" [disabled]="!canChangePassword()" />
+        </div>
+      </form>
     </p-tabpanel>
     <p-tabpanel value="loeschen">
       <p>Verfügbar ab R07.</p>

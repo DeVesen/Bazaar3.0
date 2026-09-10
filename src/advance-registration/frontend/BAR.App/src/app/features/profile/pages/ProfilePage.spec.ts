@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ProfilePage } from './ProfilePage';
+import { AuthService } from '../../../core/auth/auth.service';
 
 const PROFILE = {
   id: 'a3f9c2d1', firstName: 'Anna', lastName: 'Beispiel', address: 'Hauptstr. 1',
@@ -105,5 +106,126 @@ describe('ProfilePage', () => {
     fixture.componentInstance.city.set('');
 
     expect(fixture.componentInstance.canSave()).toBe(false);
+  });
+});
+
+describe('ProfilePage - Zugangsdaten', () => {
+  let httpMock: HttpTestingController;
+
+  beforeEach(async () => {
+    vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
+    vi.stubGlobal('AudioContext', class {
+      createOscillator() {
+        return { type: '', frequency: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() }, connect: vi.fn(), start: vi.fn(), stop: vi.fn() };
+      }
+      destination = {}
+      currentTime = 0
+    });
+
+    await TestBed.configureTestingModule({
+      imports: [ProfilePage],
+      providers: [provideHttpClient(), provideHttpClientTesting(), MessageService]
+    }).compileComponents();
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpMock.verify());
+
+  it('changes the email with the correct current password', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+
+    fixture.componentInstance.newEmail.set('neu@example.com');
+    fixture.componentInstance.emailCurrentPassword.set('geheim123!');
+    fixture.componentInstance.changeEmail();
+
+    const req = httpMock.expectOne('/api/profile/email');
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({ newEmail: 'neu@example.com', currentPassword: 'geheim123!' });
+    req.flush(null);
+
+    expect(fixture.componentInstance.emailError()).toBeNull();
+  });
+
+  it('shows 401 as wrong-password error on email change', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+
+    fixture.componentInstance.newEmail.set('neu@example.com');
+    fixture.componentInstance.emailCurrentPassword.set('falsch');
+    fixture.componentInstance.changeEmail();
+
+    httpMock.expectOne('/api/profile/email').flush('Ungültiges Passwort', { status: 401, statusText: 'Unauthorized' });
+
+    expect(fixture.componentInstance.emailError()).toBe('Aktuelles Passwort ist falsch');
+  });
+
+  it('shows 409 as email-taken error on email change', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+
+    fixture.componentInstance.newEmail.set('vergeben@example.com');
+    fixture.componentInstance.emailCurrentPassword.set('geheim123!');
+    fixture.componentInstance.changeEmail();
+
+    httpMock.expectOne('/api/profile/email').flush('E-Mail vergeben', { status: 409, statusText: 'Conflict' });
+
+    expect(fixture.componentInstance.emailError()).toBe('Diese E-Mail ist bereits vergeben');
+  });
+
+  it('changes the password and updates the auth tokens', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+    const authService = TestBed.inject(AuthService);
+    const loginSpy = vi.spyOn(authService, 'login');
+
+    fixture.componentInstance.passwordCurrentPassword.set('geheim123!');
+    fixture.componentInstance.newPassword.set('neuGeheim456!');
+    fixture.componentInstance.newPasswordConfirmation.set('neuGeheim456!');
+    fixture.componentInstance.changePassword();
+
+    const req = httpMock.expectOne('/api/profile/password');
+    expect(req.request.method).toBe('PUT');
+    req.flush({ accessToken: 'a', refreshToken: 'r' });
+
+    expect(loginSpy).toHaveBeenCalledWith('a', 'r');
+    expect(fixture.componentInstance.passwordError()).toBeNull();
+  });
+
+  it('shows 401 as wrong-password error on password change', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+
+    fixture.componentInstance.passwordCurrentPassword.set('falsch');
+    fixture.componentInstance.newPassword.set('neuGeheim456!');
+    fixture.componentInstance.newPasswordConfirmation.set('neuGeheim456!');
+    fixture.componentInstance.changePassword();
+
+    httpMock.expectOne('/api/profile/password').flush('Ungültiges Passwort', { status: 401, statusText: 'Unauthorized' });
+
+    expect(fixture.componentInstance.passwordError()).toBe('Aktuelles Passwort ist falsch');
+  });
+
+  it('disables the password submit while confirmation does not match', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+
+    fixture.componentInstance.passwordCurrentPassword.set('geheim123!');
+    fixture.componentInstance.newPassword.set('neuGeheim456!');
+    fixture.componentInstance.newPasswordConfirmation.set('anders789!');
+
+    expect(fixture.componentInstance.canChangePassword()).toBe(false);
   });
 });
