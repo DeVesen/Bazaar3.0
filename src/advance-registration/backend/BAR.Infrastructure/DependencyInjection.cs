@@ -21,6 +21,7 @@ using BAR.Application.MasterData.Categories.Create;
 using BAR.Application.MasterData.Categories.Delete;
 using BAR.Application.MasterData.Categories.GetAll;
 using BAR.Application.MasterData.Categories.Update;
+using BAR.Application.Profile.ChangeEmail;
 using BAR.Application.Profile.GetProfile;
 using BAR.Application.Profile.UpdateProfile;
 using BAR.Application.Public.GetInfo;
@@ -99,6 +100,8 @@ public static class DependencyInjection
         services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
         services.AddScoped<IValidator<RefreshCommand>, RefreshCommandValidator>();
         services.AddScoped<IValidator<UpdateProfileCommand>, UpdateProfileCommandValidator>();
+        services.AddScoped<ChangeEmailCommandHandler>();
+        services.AddScoped<IValidator<ChangeEmailCommand>, ChangeEmailCommandValidator>();
         services.AddScoped<IValidator<CreateArticleCommand>, CreateArticleCommandValidator>();
         services.AddScoped<GetAllBrandsQueryHandler>();
         services.AddScoped<CreateBrandCommandHandler>();

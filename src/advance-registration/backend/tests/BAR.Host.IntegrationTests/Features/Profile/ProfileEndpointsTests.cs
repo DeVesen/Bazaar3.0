@@ -74,6 +74,57 @@ public class ProfileEndpointsTests : IClassFixture<PostgresWebApplicationFactory
         Assert.False(errors.TryGetProperty("FirstName", out _));
     }
 
+    [Fact]
+    public async Task PutProfileEmail_CorrectPassword_ChangesEmailAndOldEmailStopsWorking()
+    {
+        var client = _factory.CreateClient();
+        var email = $"{Guid.NewGuid()}@example.com";
+        await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            email, password = "geheim123!", firstName = "Anna", lastName = "Beispiel",
+            address = "Hauptstr. 1", postalCode = "76133", city = "Karlsruhe", phone = "0721 12345"
+        }, TestContext.Current.CancellationToken);
+        var loginResponse = await client.PostAsJsonAsync("/api/auth/login", new { email, password = "geheim123!" }, TestContext.Current.CancellationToken);
+        var tokens = await loginResponse.Content.ReadFromJsonAsync<TokenPair>(TestContext.Current.CancellationToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens!.AccessToken);
+        var newEmail = $"{Guid.NewGuid()}@example.com";
+
+        var response = await client.PutAsJsonAsync("/api/profile/email", new { newEmail, currentPassword = "geheim123!" }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        var loginWithNewEmail = await client.PostAsJsonAsync("/api/auth/login", new { email = newEmail, password = "geheim123!" }, TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.OK, loginWithNewEmail.StatusCode);
+        var loginWithOldEmail = await client.PostAsJsonAsync("/api/auth/login", new { email, password = "geheim123!" }, TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Unauthorized, loginWithOldEmail.StatusCode);
+    }
+
+    [Fact]
+    public async Task PutProfileEmail_WrongPassword_Returns401()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+
+        var response = await client.PutAsJsonAsync("/api/profile/email", new { newEmail = "neu@example.com", currentPassword = "falsch" }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PutProfileEmail_AlreadyTaken_Returns409()
+    {
+        var otherClient = _factory.CreateClient();
+        var otherEmail = $"{Guid.NewGuid()}@example.com";
+        await otherClient.PostAsJsonAsync("/api/auth/register", new
+        {
+            email = otherEmail, password = "geheim123!", firstName = "Ben", lastName = "Y",
+            address = (string?)null, postalCode = "1", city = "Berlin", phone = "0"
+        }, TestContext.Current.CancellationToken);
+        var client = await RegisterAndAuthenticateAsync();
+
+        var response = await client.PutAsJsonAsync("/api/profile/email", new { newEmail = otherEmail, currentPassword = "geheim123!" }, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
     private async Task<HttpClient> RegisterAndAuthenticateAsync()
     {
         var client = _factory.CreateClient();
