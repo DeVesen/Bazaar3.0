@@ -16,7 +16,7 @@ public sealed class SettingsConfiguration : IEntityTypeConfiguration<Settings>
         builder.Property(s => s.DropOffUntil).HasColumnName("drop_off_until");
         builder.Property(s => s.BazaarFrom).HasColumnName("bazaar_from");
         builder.Property(s => s.BazaarUntil).HasColumnName("bazaar_until");
-        builder.Property(s => s.DefaultTypeId).HasMaxLength(8).IsRequired().HasColumnName("default_type_id");
+        builder.Property(s => s.DefaultTypeId).HasMaxLength(8).HasColumnName("default_type_id");
         builder.Property(s => s.InfoText).HasMaxLength(4000).HasColumnName("info_text");
         builder.Property(s => s.StartNumber).HasColumnName("start_number");
         builder.Property(s => s.BlockSize).HasColumnName("block_size");
