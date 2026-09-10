@@ -130,6 +130,19 @@ describe('TypPopup', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Verkäufer-Typ bearbeiten');
   });
 
+  it('dialogTitle re-evaluates when the active language changes after render', () => {
+    const { fixture, translate } = create(null);
+
+    expect(fixture.componentInstance.dialogTitle).toBe('Neuer Verkäufer-Typ');
+
+    translate.setTranslation('en', { typPopup: { createTitle: 'New seller type' }, common: { cancel: 'Cancel', save: 'Save' } });
+    translate.use('en');
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.dialogTitle).toBe('New seller type');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('New seller type');
+  });
+
   it('shows the translated success toast after a successful save', () => {
     const saveFn = vi.fn(() => of({ id: 't1', name: 'Standard', commissionRate: 10, itemFee: 0.5, sellerCount: 0 }));
     const { fixture, translate } = create(null, saveFn);
