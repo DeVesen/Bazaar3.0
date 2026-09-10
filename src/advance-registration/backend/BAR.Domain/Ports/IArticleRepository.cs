@@ -9,6 +9,7 @@ public interface IArticleRepository
     Task<IReadOnlyList<int>> GetUsedNumbersForSellerAsync(string sellerId, CancellationToken cancellationToken);
     Task<int> CountInRangeForSellerAsync(string sellerId, int fromNumber, int toNumber, CancellationToken cancellationToken);
     Task<int> CountForSellerAsync(string sellerId, CancellationToken cancellationToken);
+    Task<bool> ExistsNumberBelowAsync(int number, CancellationToken cancellationToken);
     Task CreateAsync(Article article, NumberBlock? newBlock, CancellationToken cancellationToken);
     Task UpdateAsync(Article article, CancellationToken cancellationToken);
     Task DeleteAsync(Article article, CancellationToken cancellationToken);

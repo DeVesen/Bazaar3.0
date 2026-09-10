@@ -84,3 +84,40 @@ public class ArticleRepositoryTests : IClassFixture<PostgresWebApplicationFactor
         Assert.Null(await repo.GetByIdAsync(article.Id, ct));
     }
 }
+
+public class ArticleRepositoryExistsNumberBelowTests : IClassFixture<PostgresWebApplicationFactory>
+{
+    private readonly PostgresWebApplicationFactory _factory;
+
+    public ArticleRepositoryExistsNumberBelowTests(PostgresWebApplicationFactory factory) => _factory = factory;
+
+    [Fact]
+    public async Task ExistsNumberBelowAsync_NoArticles_ReturnsFalse()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
+
+        var result = await repo.ExistsNumberBelowAsync(1, TestContext.Current.CancellationToken);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task ExistsNumberBelowAsync_ArticleNumberBelowThreshold_ReturnsTrue()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        var ct = TestContext.Current.CancellationToken;
+
+        var article = Article.Create(
+            sellerId: Guid.NewGuid().ToString("N")[..8], number: 5, name: "Testartikel", brand: "Marke",
+            category: "Kategorie", price: 10m, size: null, color: null, description: null, nowUtc: DateTime.UtcNow);
+        await repo.CreateAsync(article, newBlock: null, ct);
+
+        var result = await repo.ExistsNumberBelowAsync(10, ct);
+
+        Assert.True(result);
+    }
+}

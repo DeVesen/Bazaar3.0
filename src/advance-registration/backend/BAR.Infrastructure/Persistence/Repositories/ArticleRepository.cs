@@ -19,6 +19,9 @@ public sealed class ArticleRepository(BarDbContext dbContext) : IArticleReposito
     public Task<int> CountForSellerAsync(string sellerId, CancellationToken cancellationToken) =>
         dbContext.Articles.CountAsync(a => a.SellerId == sellerId, cancellationToken);
 
+    public Task<bool> ExistsNumberBelowAsync(int number, CancellationToken cancellationToken) =>
+        dbContext.Articles.AnyAsync(a => a.Number < number, cancellationToken);
+
     public async Task CreateAsync(Article article, NumberBlock? newBlock, CancellationToken cancellationToken)
     {
         if (newBlock is not null)
