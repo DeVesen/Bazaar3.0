@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ProfilePage } from './ProfilePage';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -38,7 +38,7 @@ describe('ProfilePage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ProfilePage],
-      providers: [provideHttpClient(), provideHttpClientTesting(), MessageService]
+      providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
     }).compileComponents();
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -124,7 +124,7 @@ describe('ProfilePage - Zugangsdaten', () => {
 
     await TestBed.configureTestingModule({
       imports: [ProfilePage],
-      providers: [provideHttpClient(), provideHttpClientTesting(), MessageService]
+      providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
     }).compileComponents();
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -227,5 +227,58 @@ describe('ProfilePage - Zugangsdaten', () => {
     fixture.componentInstance.newPasswordConfirmation.set('anders789!');
 
     expect(fixture.componentInstance.canChangePassword()).toBe(false);
+  });
+});
+
+describe('ProfilePage - Konto löschen', () => {
+  let httpMock: HttpTestingController;
+
+  beforeEach(async () => {
+    vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
+    vi.stubGlobal('AudioContext', class {
+      createOscillator() {
+        return { type: '', frequency: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() }, connect: vi.fn(), start: vi.fn(), stop: vi.fn() };
+      }
+      destination = {}
+      currentTime = 0
+    });
+
+    await TestBed.configureTestingModule({
+      imports: [ProfilePage],
+      providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
+    }).compileComponents();
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpMock.verify());
+
+  it('deletes the account and logs out after confirmation', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+    const authService = TestBed.inject(AuthService);
+    const logoutSpy = vi.spyOn(authService, 'logout').mockImplementation(() => {});
+    const confirmationService = TestBed.inject(ConfirmationService);
+    vi.spyOn(confirmationService, 'confirm').mockImplementation((options) => {
+      options.accept?.();
+      return confirmationService;
+    });
+
+    fixture.componentInstance.confirmDeleteAccount();
+
+    httpMock.expectOne('/api/profile').flush(null);
+    expect(logoutSpy).toHaveBeenCalled();
+  });
+
+  it('hides the delete tab content for admins', () => {
+    const fixture = TestBed.createComponent(ProfilePage);
+    const authService = TestBed.inject(AuthService);
+    authService.currentUser.set({ sub: 'admin-1', role: 'admin', exp: Date.now() / 1000 + 3600 });
+    fixture.detectChanges();
+    httpMock.expectOne('/api/profile').flush(PROFILE);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.isAdmin()).toBe(true);
   });
 });

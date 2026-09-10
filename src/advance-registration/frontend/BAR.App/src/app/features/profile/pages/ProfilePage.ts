@@ -4,7 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TabsModule } from 'primeng/tabs';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { VerkaeuferNummer } from '../../../shared/verkaeufer-nummer/verkaeufer-nummer';
 import { InfoArea } from '../../../shared/info-area/info-area';
 import { ProfileApiService, ProfileDto, ChangeEmailPayload, ChangePasswordPayload } from '../profile-api.service';
@@ -26,6 +26,9 @@ export class ProfilePage {
   private readonly api = inject(ProfileApiService);
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
+  private readonly confirmationService = inject(ConfirmationService);
+
+  readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
 
   readonly profile = signal<ProfileDto | null>(null);
   readonly firstName = signal('');
@@ -158,6 +161,17 @@ export class ProfilePage {
         } else {
           this.passwordError.set('Passwort konnte nicht geändert werden');
         }
+      }
+    });
+  }
+
+  confirmDeleteAccount(): void {
+    this.confirmationService.confirm({
+      message: 'Konto wirklich löschen? Alle Artikel und Nummernblöcke werden ebenfalls gelöscht.',
+      acceptLabel: 'Löschen',
+      rejectLabel: 'Abbrechen',
+      accept: () => {
+        this.api.deleteAccount().subscribe(() => this.authService.logout());
       }
     });
   }

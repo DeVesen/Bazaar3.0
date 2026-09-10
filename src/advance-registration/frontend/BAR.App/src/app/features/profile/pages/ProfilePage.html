@@ -2,7 +2,7 @@
   <p-tablist>
     <p-tab value="steckbrief">Steckbrief</p-tab>
     <p-tab value="zugangsdaten">Zugangsdaten</p-tab>
-    <p-tab value="loeschen" disabled>Löschen</p-tab>
+    <p-tab value="loeschen">Löschen</p-tab>
   </p-tablist>
   <p-tabpanels>
     <p-tabpanel value="steckbrief">
@@ -142,7 +142,15 @@
       </form>
     </p-tabpanel>
     <p-tabpanel value="loeschen">
-      <p>Verfügbar ab R07.</p>
+      @if (isAdmin()) {
+        <p>Als Admin kann das eigene Konto hier nicht gelöscht werden.</p>
+      } @else {
+        <div class="panel-block">
+          <p class="panel-block__title">Account löschen</p>
+          <p>Diese Aktion kann nicht rückgängig gemacht werden. Alle Artikel und Nummernblöcke werden mitgelöscht.</p>
+          <p-button label="Account löschen" severity="danger" (onClick)="confirmDeleteAccount()" />
+        </div>
+      }
     </p-tabpanel>
   </p-tabpanels>
 </p-tabs>
