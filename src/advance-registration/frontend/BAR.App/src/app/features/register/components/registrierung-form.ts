@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output, computed, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Envelope } from '@primeicons/angular/envelope';
 import { Eye } from '@primeicons/angular/eye';
 import { EyeSlash } from '@primeicons/angular/eye-slash';
@@ -34,6 +35,7 @@ export interface RegistrierungFormValue {
   imports: [
     FormsModule,
     RouterLink,
+    TranslatePipe,
     Envelope,
     Eye,
     EyeSlash,
@@ -54,9 +56,9 @@ export interface RegistrierungFormValue {
   template: `
     <p-card>
       <form (ngSubmit)="onSubmit()">
-        <h1>Registrierung</h1>
+        <h1>{{ 'register.title' | translate }}</h1>
 
-        <label for="register-email">E-Mail</label>
+        <label for="register-email">{{ 'register.email' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="envelope"></svg>
@@ -64,10 +66,10 @@ export interface RegistrierungFormValue {
           <input id="register-email" pInputText [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" type="email" required />
         </p-iconfield>
         @if (emailTakenError()) {
-          <p class="registrierung-form__error">Diese E-Mail ist bereits registriert. <a routerLink="/login">Zum Login</a></p>
+          <p class="registrierung-form__error">{{ 'register.emailTaken' | translate }} <a routerLink="/login">{{ 'register.loginLink' | translate }}</a></p>
         }
 
-        <label for="register-first-name">Vorname</label>
+        <label for="register-first-name">{{ 'register.firstName' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="user"></svg>
@@ -75,7 +77,7 @@ export interface RegistrierungFormValue {
           <input id="register-first-name" pInputText [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" name="firstName" required />
         </p-iconfield>
 
-        <label for="register-last-name">Nachname</label>
+        <label for="register-last-name">{{ 'register.lastName' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="user"></svg>
@@ -83,7 +85,7 @@ export interface RegistrierungFormValue {
           <input id="register-last-name" pInputText [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" name="lastName" required />
         </p-iconfield>
 
-        <label for="register-address">Anschrift</label>
+        <label for="register-address">{{ 'register.address' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="home"></svg>
@@ -91,7 +93,7 @@ export interface RegistrierungFormValue {
           <input id="register-address" pInputText [ngModel]="address()" (ngModelChange)="address.set($event)" name="address" />
         </p-iconfield>
 
-        <label for="register-postal-code">PLZ</label>
+        <label for="register-postal-code">{{ 'register.postalCode' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="hashtag"></svg>
@@ -99,7 +101,7 @@ export interface RegistrierungFormValue {
           <input id="register-postal-code" pInputText [ngModel]="postalCode()" (ngModelChange)="postalCode.set($event)" name="postalCode" required />
         </p-iconfield>
 
-        <label for="register-city">Ort</label>
+        <label for="register-city">{{ 'register.city' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="map-marker"></svg>
@@ -107,7 +109,7 @@ export interface RegistrierungFormValue {
           <input id="register-city" pInputText [ngModel]="city()" (ngModelChange)="city.set($event)" name="city" required />
         </p-iconfield>
 
-        <label for="register-phone">Telefon</label>
+        <label for="register-phone">{{ 'register.phone' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="phone"></svg>
@@ -115,7 +117,7 @@ export interface RegistrierungFormValue {
           <input id="register-phone" pInputText [ngModel]="phone()" (ngModelChange)="phone.set($event)" name="phone" required />
         </p-iconfield>
 
-        <label for="register-password">Passwort</label>
+        <label for="register-password">{{ 'register.password' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="lock"></svg>
@@ -139,7 +141,7 @@ export interface RegistrierungFormValue {
         </p-iconfield>
         <app-password-strength-meter [password]="password()" (level)="onLevelChange($event)" />
 
-        <label for="register-password-confirmation">Passwort-Bestätigung</label>
+        <label for="register-password-confirmation">{{ 'register.passwordConfirmation' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
             <svg data-p-icon="lock"></svg>
@@ -162,12 +164,12 @@ export interface RegistrierungFormValue {
           </p-inputicon>
         </p-iconfield>
         @if (passwordMismatch()) {
-          <p class="registrierung-form__error">Passwörter stimmen nicht überein</p>
+          <p class="registrierung-form__error">{{ 'register.passwordMismatch' | translate }}</p>
         }
 
-        <p-button type="submit" label="Registrieren" severity="primary" [style]="{ width: '100%' }" [disabled]="!canSubmit()" />
+        <p-button type="submit" [label]="'register.submit' | translate" severity="primary" [style]="{ width: '100%' }" [disabled]="!canSubmit()" />
 
-        <p-button type="button" [text]="true" label="Schon ein Konto? Zum Login" routerLink="/login" />
+        <p-button type="button" [text]="true" label="{{ 'register.hasAccount' | translate }} {{ 'register.loginLink' | translate }}" routerLink="/login" />
       </form>
     </p-card>
   `

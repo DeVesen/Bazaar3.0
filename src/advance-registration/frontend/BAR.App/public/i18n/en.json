@@ -41,7 +41,9 @@
     "hasAccount": "Already have an account?",
     "loginLink": "Go to login",
     "passwordMismatch": "Passwords do not match",
-    "notEnabled": "Registration is not open yet."
+    "notEnabled": "Registration is not open yet.",
+    "emailTaken": "This email is already registered.",
+    "genericError": "Registration failed. Please try again."
   },
   "errors": {
     "auth.invalid_credentials": "Invalid credentials",

@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -32,9 +33,22 @@ describe('RegisterPage', () => {
       // dorthin (vi.spyOn ruft das Original mit auf). Ohne die Route wird die
       // Navigation nach dem Teardown abgelehnt und Vitest meldet eine
       // Unhandled Rejection.
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([{ path: 'home', children: [] }])]
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([{ path: 'home', children: [] }]),
+        provideTranslateService()
+      ]
     }).compileComponents();
 
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('de', {
+      register: {
+        notEnabled: 'Registrierung ist noch nicht freigeschaltet.',
+        genericError: 'Registrierung fehlgeschlagen. Bitte versuche es erneut.'
+      }
+    });
+    translate.use('de');
     fixture = TestBed.createComponent(RegisterPage);
     httpMock = TestBed.inject(HttpTestingController);
     router = TestBed.inject(Router);

@@ -1,7 +1,28 @@
 import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { RegistrierungForm, RegistrierungFormValue } from './registrierung-form';
+
+const de = {
+  register: {
+    title: 'Registrierung',
+    email: 'E-Mail',
+    firstName: 'Vorname',
+    lastName: 'Nachname',
+    address: 'Anschrift',
+    postalCode: 'PLZ',
+    city: 'Ort',
+    phone: 'Telefon',
+    password: 'Passwort',
+    passwordConfirmation: 'Passwort-Bestätigung',
+    submit: 'Registrieren',
+    hasAccount: 'Schon ein Konto?',
+    loginLink: 'Zum Login',
+    passwordMismatch: 'Passwörter stimmen nicht überein',
+    emailTaken: 'Diese E-Mail ist bereits registriert.'
+  }
+};
 
 describe('RegistrierungForm', () => {
   let fixture: ComponentFixture<RegistrierungForm>;
@@ -14,8 +35,14 @@ describe('RegistrierungForm', () => {
       // abgelehnt - und zwar erst nach dem Teardown des Fixtures, was Vitest
       // als "Unhandled Rejection - NG0205: Injector has already been destroyed"
       // meldet. Mit registrierter Route laeuft die Navigation sauber durch.
-      providers: [provideRouter([{ path: 'login', children: [] }, { path: 'register', children: [] }])]
+      providers: [
+        provideRouter([{ path: 'login', children: [] }, { path: 'register', children: [] }]),
+        provideTranslateService()
+      ]
     }).compileComponents();
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('de', de);
+    translate.use('de');
     fixture = TestBed.createComponent(RegistrierungForm);
     fixture.detectChanges();
   });
@@ -157,5 +184,52 @@ describe('RegistrierungForm', () => {
     fixture.detectChanges();
 
     expect(submitEmitted).toBe(false);
+  });
+
+  it('renders translated labels', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Registrierung');
+    expect(text).toContain('Vorname');
+    expect(text).toContain('Zum Login');
+  });
+});
+
+describe('RegistrierungForm (English translation)', () => {
+  it('renders English labels when the active language is en', () => {
+    TestBed.configureTestingModule({
+      imports: [RegistrierungForm],
+      providers: [
+        provideRouter([{ path: 'login', children: [] }, { path: 'register', children: [] }]),
+        provideTranslateService()
+      ]
+    });
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', {
+      register: {
+        title: 'Registration',
+        email: 'Email',
+        firstName: 'First name',
+        lastName: 'Last name',
+        address: 'Address',
+        postalCode: 'Postal code',
+        city: 'City',
+        phone: 'Phone',
+        password: 'Password',
+        passwordConfirmation: 'Confirm password',
+        submit: 'Register',
+        hasAccount: 'Already have an account?',
+        loginLink: 'Go to login',
+        passwordMismatch: 'Passwords do not match',
+        emailTaken: 'This email is already registered.'
+      }
+    });
+    translate.use('en');
+    const fixture = TestBed.createComponent(RegistrierungForm);
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Registration');
+    expect(text).toContain('First name');
+    expect(text).toContain('Register');
   });
 });

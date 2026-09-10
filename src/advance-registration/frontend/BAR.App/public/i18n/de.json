@@ -41,7 +41,9 @@
     "hasAccount": "Schon ein Konto?",
     "loginLink": "Zum Login",
     "passwordMismatch": "Passwörter stimmen nicht überein",
-    "notEnabled": "Registrierung ist noch nicht freigeschaltet."
+    "notEnabled": "Registrierung ist noch nicht freigeschaltet.",
+    "emailTaken": "Diese E-Mail ist bereits registriert.",
+    "genericError": "Registrierung fehlgeschlagen. Bitte versuche es erneut."
   },
   "errors": {
     "auth.invalid_credentials": "Ungültige Anmeldedaten",

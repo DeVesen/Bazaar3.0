@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { RegistrierungForm, RegistrierungFormValue } from '../components/registrierung-form';
@@ -10,10 +11,10 @@ import { RegistrierungForm, RegistrierungFormValue } from '../components/registr
 // Registrierung loggt sofort ein (kein zweiter Login-Schritt, AC-9).
 @Component({
   selector: 'app-register-page',
-  imports: [RegistrierungForm],
+  imports: [RegistrierungForm, TranslatePipe],
   template: `
     @if (registrationNotEnabled()) {
-      <p class="register-page__error">Registrierung ist noch nicht freigeschaltet.</p>
+      <p class="register-page__error">{{ 'register.notEnabled' | translate }}</p>
     } @else {
       @if (genericError(); as message) {
         <p class="register-page__error" data-testid="register-generic-error">{{ message }}</p>
@@ -26,6 +27,7 @@ export class RegisterPage {
   private readonly authApi = inject(AuthApiService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly emailTakenError = signal(false);
   readonly registrationNotEnabled = signal(false);
@@ -50,7 +52,7 @@ export class RegisterPage {
         } else if (err.error?.errorCode === 'registration.not_enabled') {
           this.registrationNotEnabled.set(true);
         } else {
-          this.genericError.set(err.error?.detail ?? 'Registrierung fehlgeschlagen. Bitte versuche es erneut.');
+          this.genericError.set(err.error?.detail ?? this.translate.instant('register.genericError'));
         }
       }
     });
