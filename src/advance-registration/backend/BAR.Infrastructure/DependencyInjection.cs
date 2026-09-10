@@ -78,6 +78,7 @@ public static class DependencyInjection
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IArticleQueries, ArticleQueries>();
         services.AddScoped<ISellerListQuery, SellerListQuery>();
+        services.AddScoped<IExportQuery, ExportQuery>();
         services.AddScoped<IHomeQueries, HomeQueries>();
 
         services.Configure<Security.JwtOptions>(configuration.GetSection(Security.JwtOptions.SectionName));
