@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints';
+
 :host {
   display: flex;
   min-height: 100vh;
@@ -16,7 +18,7 @@
   padding: 26px 22px;
 }
 
-@media (max-width: 768px) {
+@include breakpoints.mobile {
   .content-body {
     padding: 14px 12px;
   }

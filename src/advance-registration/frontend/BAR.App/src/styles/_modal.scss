@@ -1,3 +1,5 @@
+@use 'breakpoints';
+
 .p-dialog-mask {
   background: rgba(0, 0, 0, 0.52);
 }
@@ -21,7 +23,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@include breakpoints.mobile {
   .p-dialog {
     border-radius: 0;
   }
