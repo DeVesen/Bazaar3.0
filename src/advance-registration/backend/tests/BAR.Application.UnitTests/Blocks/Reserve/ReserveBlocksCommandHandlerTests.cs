@@ -15,7 +15,7 @@ public class ReserveBlocksCommandHandlerTests
         var settings = new Mock<ISettingsRepository>();
         blocks.Setup(b => b.GetAllOrderedByFromNumberAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
         settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, "t1", null, 101, 10, 1));
+            Domain.Settings.Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, "t1", null, 101, 10, 1));
         var handler = new ReserveBlocksCommandHandler(blocks.Object, settings.Object);
 
         var result = await handler.HandleAsync(new ReserveBlocksCommand("seller-1", 101, 1), TestContext.Current.CancellationToken);
@@ -32,7 +32,7 @@ public class ReserveBlocksCommandHandlerTests
         var settings = new Mock<ISettingsRepository>();
         blocks.Setup(b => b.GetAllOrderedByFromNumberAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
         settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, "t1", null, 101, 10, 1));
+            Domain.Settings.Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, "t1", null, 101, 10, 1));
         var handler = new ReserveBlocksCommandHandler(blocks.Object, settings.Object);
 
         var result = await handler.HandleAsync(new ReserveBlocksCommand("seller-1", null, 1), TestContext.Current.CancellationToken);
@@ -49,7 +49,7 @@ public class ReserveBlocksCommandHandlerTests
         var settings = new Mock<ISettingsRepository>();
         blocks.Setup(b => b.GetAllOrderedByFromNumberAsync(It.IsAny<CancellationToken>())).ReturnsAsync([existingBlock]);
         settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, "t1", null, 101, 10, 1));
+            Domain.Settings.Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, "t1", null, 101, 10, 1));
         var handler = new ReserveBlocksCommandHandler(blocks.Object, settings.Object);
 
         var expectedStart = NumberBlockAllocator.Allocate([existingBlock], "seller-1", 1, 101, 10, DateTime.UtcNow)[0].FromNumber;
@@ -68,7 +68,7 @@ public class ReserveBlocksCommandHandlerTests
         var settings = new Mock<ISettingsRepository>();
         blocks.Setup(b => b.GetAllOrderedByFromNumberAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
         settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, "t1", null, 101, 10, 1));
+            Domain.Settings.Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, "t1", null, 101, 10, 1));
         var handler = new ReserveBlocksCommandHandler(blocks.Object, settings.Object);
 
         var ex = await Assert.ThrowsAsync<BAR.Domain.Exceptions.ConflictException>(

@@ -22,7 +22,7 @@ public class CreateArticleCommandHandlerTests
     private void SetUpCommonMocks(string sellerId, IReadOnlyList<NumberBlock> sellerBlocks, IReadOnlyList<int> usedNumbers, IReadOnlyList<NumberBlock> allBlocks)
     {
         _settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow,
+            Domain.Settings.Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow,
                 "t0000001", null, startNumber: 1, blockSize: 10, defaultBlockCount: 1));
         _blocks.Setup(b => b.GetForSellerAsync(sellerId, It.IsAny<CancellationToken>())).ReturnsAsync(sellerBlocks);
         _blocks.Setup(b => b.GetAllOrderedByFromNumberAsync(It.IsAny<CancellationToken>())).ReturnsAsync(allBlocks);

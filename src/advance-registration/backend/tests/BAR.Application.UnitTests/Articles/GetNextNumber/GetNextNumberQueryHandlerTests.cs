@@ -22,7 +22,7 @@ public class GetNextNumberQueryHandlerTests
         var sellerId = "s1234567";
         var block = NumberBlock.Assign(sellerId, 101, 10, Now);
         _settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow,
+            Domain.Settings.Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow,
                 "t0000001", null, startNumber: 1, blockSize: 10, defaultBlockCount: 1));
         _blocks.Setup(b => b.GetForSellerAsync(sellerId, It.IsAny<CancellationToken>())).ReturnsAsync([block]);
         _blocks.Setup(b => b.GetAllOrderedByFromNumberAsync(It.IsAny<CancellationToken>())).ReturnsAsync([block]);
@@ -41,7 +41,7 @@ public class GetNextNumberQueryHandlerTests
         var sellerId = "s1234567";
         var wallToWall = NumberBlock.Assign("other", 1, int.MaxValue - 1, Now);
         _settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow,
+            Domain.Settings.Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow,
                 "t0000001", null, startNumber: 1, blockSize: 10, defaultBlockCount: 1));
         _blocks.Setup(b => b.GetForSellerAsync(sellerId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         _blocks.Setup(b => b.GetAllOrderedByFromNumberAsync(It.IsAny<CancellationToken>())).ReturnsAsync([wallToWall]);

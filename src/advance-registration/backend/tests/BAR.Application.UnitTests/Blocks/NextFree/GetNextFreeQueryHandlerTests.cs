@@ -14,7 +14,7 @@ public class GetNextFreeQueryHandlerTests
         var settings = new Mock<ISettingsRepository>();
         blocks.Setup(b => b.GetAllOrderedByFromNumberAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
         settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
-            Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, "t1", null, 101, 10, 1));
+            Domain.Settings.Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, "t1", null, 101, 10, 1));
         var handler = new GetNextFreeQueryHandler(blocks.Object, settings.Object);
 
         var result = await handler.HandleAsync(new GetNextFreeQuery(2), TestContext.Current.CancellationToken);

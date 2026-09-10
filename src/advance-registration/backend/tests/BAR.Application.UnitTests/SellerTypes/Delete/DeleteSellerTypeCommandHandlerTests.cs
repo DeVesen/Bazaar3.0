@@ -18,7 +18,7 @@ public class DeleteSellerTypeCommandHandlerTests
         var type = SellerType.Create("Frei", 10m, 0.20m);
         _types.Setup(t => t.GetByIdAsync(type.Id, It.IsAny<CancellationToken>())).ReturnsAsync(type);
         _types.Setup(t => t.CountSellersAsync(type.Id, It.IsAny<CancellationToken>())).ReturnsAsync(0);
-        _settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync((Settings?)null);
+        _settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync((Domain.Settings.Settings?)null);
         var handler = new DeleteSellerTypeCommandHandler(_types.Object, _settings.Object);
 
         await handler.HandleAsync(type.Id, TestContext.Current.CancellationToken);
@@ -47,7 +47,7 @@ public class DeleteSellerTypeCommandHandlerTests
         var type = SellerType.Create("Default", 10m, 0.20m);
         _types.Setup(t => t.GetByIdAsync(type.Id, It.IsAny<CancellationToken>())).ReturnsAsync(type);
         _types.Setup(t => t.CountSellersAsync(type.Id, It.IsAny<CancellationToken>())).ReturnsAsync(0);
-        var settings = Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, type.Id, null, 1, 100, 1);
+        var settings = Domain.Settings.Settings.Create(DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, type.Id, null, 1, 100, 1);
         _settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(settings);
         var handler = new DeleteSellerTypeCommandHandler(_types.Object, _settings.Object);
 
