@@ -14,6 +14,9 @@ public sealed class NumberBlockRepository(BarDbContext dbContext) : INumberBlock
     public async Task<IReadOnlyList<NumberBlock>> GetForSellerAsync(string sellerId, CancellationToken cancellationToken) =>
         await dbContext.NumberBlocks.Where(b => b.SellerId == sellerId).OrderBy(b => b.FromNumber).ToListAsync(cancellationToken);
 
+    public Task<NumberBlock?> GetByIdAsync(string id, CancellationToken cancellationToken) =>
+        dbContext.NumberBlocks.SingleOrDefaultAsync(b => b.Id == id, cancellationToken);
+
     public async Task AddAsync(NumberBlock block, CancellationToken cancellationToken)
     {
         dbContext.NumberBlocks.Add(block);
@@ -69,4 +72,15 @@ public sealed class NumberBlockRepository(BarDbContext dbContext) : INumberBlock
     /// </summary>
     private static bool IsExclusionViolation(DbUpdateException exception) =>
         exception.InnerException is PostgresException { SqlState: "23P01" };
+
+    public async Task DeleteAsync(NumberBlock block, CancellationToken cancellationToken)
+    {
+        dbContext.NumberBlocks.Remove(block);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteAllForSellerAsync(string sellerId, CancellationToken cancellationToken)
+    {
+        await dbContext.NumberBlocks.Where(b => b.SellerId == sellerId).ExecuteDeleteAsync(cancellationToken);
+    }
 }

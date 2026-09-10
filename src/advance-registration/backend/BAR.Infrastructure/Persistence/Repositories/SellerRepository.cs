@@ -14,6 +14,9 @@ public sealed class SellerRepository(BarDbContext dbContext) : ISellerRepository
     public Task<Seller?> GetByIdAsync(string id, CancellationToken cancellationToken) =>
         dbContext.Sellers.SingleOrDefaultAsync(s => s.Id == id, cancellationToken);
 
+    public Task<Seller?> GetByInviteTokenAsync(string inviteToken, CancellationToken cancellationToken) =>
+        dbContext.Sellers.SingleOrDefaultAsync(s => s.InviteToken == inviteToken, cancellationToken);
+
     public async Task AddAsync(Seller seller, CancellationToken cancellationToken)
     {
         dbContext.Sellers.Add(seller);
@@ -31,6 +34,21 @@ public sealed class SellerRepository(BarDbContext dbContext) : ISellerRepository
         }
     }
 
-    public Task UpdateAsync(Seller seller, CancellationToken cancellationToken) =>
-        dbContext.SaveChangesAsync(cancellationToken);
+    public async Task UpdateAsync(Seller seller, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
+        {
+            throw new ConflictException("seller.email_taken", "Diese E-Mail ist bereits registriert");
+        }
+    }
+
+    public async Task DeleteAsync(Seller seller, CancellationToken cancellationToken)
+    {
+        dbContext.Sellers.Remove(seller);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

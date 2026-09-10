@@ -65,6 +65,7 @@ public static class DependencyInjection
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IArticleQueries, ArticleQueries>();
+        services.AddScoped<ISellerListQuery, SellerListQuery>();
 
         services.Configure<Security.JwtOptions>(configuration.GetSection(Security.JwtOptions.SectionName));
         services.AddSingleton<IPasswordHasher, Security.BCryptPasswordHasher>();
