@@ -30,6 +30,11 @@ public sealed class RegisterCommandHandler(
             var settings = await settingsRepository.GetAsync(ct)
                 ?? throw new ConflictException("registration.not_enabled", "Registrierung ist noch nicht freigeschaltet");
 
+            if (settings.DefaultTypeId is null)
+            {
+                throw new ConflictException("registration.not_enabled", "Registrierung ist noch nicht freigeschaltet");
+            }
+
             if (await sellers.GetByEmailAsync(command.Email, ct) is not null)
             {
                 throw new ConflictException("seller.email_taken", "Diese E-Mail ist bereits registriert");

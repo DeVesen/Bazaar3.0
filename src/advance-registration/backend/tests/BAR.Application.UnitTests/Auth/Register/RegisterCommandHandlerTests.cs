@@ -146,4 +146,19 @@ public class RegisterCommandHandlerTests
 
         Assert.Equal("registration.not_enabled", ex.ErrorCode);
     }
+
+    [Fact]
+    public async Task HandleAsync_SettingsExistButDefaultTypeIdIsNull_ThrowsRegistrationNotEnabled()
+    {
+        var settings = Domain.Settings.Settings.Create(
+            DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow,
+            defaultTypeId: null, null, startNumber: 1, blockSize: 10, defaultBlockCount: 1);
+        _settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(settings);
+        var handler = CreateHandler();
+
+        var ex = await Assert.ThrowsAsync<BAR.Domain.Exceptions.ConflictException>(
+            () => handler.HandleAsync(ValidCommand(), TestContext.Current.CancellationToken));
+
+        Assert.Equal("registration.not_enabled", ex.ErrorCode);
+    }
 }

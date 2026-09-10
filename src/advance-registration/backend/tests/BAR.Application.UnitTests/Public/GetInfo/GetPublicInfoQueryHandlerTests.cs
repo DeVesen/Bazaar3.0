@@ -39,4 +39,18 @@ public class GetPublicInfoQueryHandlerTests
         Assert.Null(result.DefaultConditions);
         Assert.Null(result.InfoText);
     }
+
+    [Fact]
+    public async Task HandleAsync_SettingsRowWithNullDefaultTypeId_ReturnsNullConditionsWithoutLookup()
+    {
+        var deadline = DateTime.UtcNow;
+        var settings = Domain.Settings.Settings.Create(
+            deadline, deadline, deadline, deadline, deadline, null, "Hinweis", 1, 10, 1);
+        _settings.Setup(s => s.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(settings);
+
+        var result = await CreateHandler().HandleAsync(TestContext.Current.CancellationToken);
+
+        Assert.Null(result.DefaultConditions);
+        _sellerTypes.Verify(t => t.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

@@ -12,7 +12,9 @@ public sealed class GetPublicInfoQueryHandler(ISettingsRepository settingsReposi
             return new PublicInfoResult(null, null, null, null, null, null, null);
         }
 
-        var defaultType = await sellerTypes.GetByIdAsync(settings.DefaultTypeId, cancellationToken);
+        var defaultType = settings.DefaultTypeId is null
+            ? null
+            : await sellerTypes.GetByIdAsync(settings.DefaultTypeId, cancellationToken);
         var conditions = defaultType is null ? null : new ConditionsResult(defaultType.CommissionRate, defaultType.ItemFee);
 
         return new PublicInfoResult(
