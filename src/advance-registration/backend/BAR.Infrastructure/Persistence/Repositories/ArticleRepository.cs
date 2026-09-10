@@ -32,4 +32,9 @@ public sealed class ArticleRepository(BarDbContext dbContext) : IArticleReposito
         dbContext.Articles.Remove(article);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task DeleteAllForSellerAsync(string sellerId, CancellationToken cancellationToken)
+    {
+        await dbContext.Articles.Where(a => a.SellerId == sellerId).ExecuteDeleteAsync(cancellationToken);
+    }
 }

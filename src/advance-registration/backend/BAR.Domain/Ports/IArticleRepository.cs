@@ -10,4 +10,5 @@ public interface IArticleRepository
     Task CreateAsync(Article article, NumberBlock? newBlock, CancellationToken cancellationToken);
     Task UpdateAsync(Article article, CancellationToken cancellationToken);
     Task DeleteAsync(Article article, CancellationToken cancellationToken);
+    Task DeleteAllForSellerAsync(string sellerId, CancellationToken cancellationToken);
 }

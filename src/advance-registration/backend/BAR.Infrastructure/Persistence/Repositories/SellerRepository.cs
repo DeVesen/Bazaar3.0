@@ -51,4 +51,7 @@ public sealed class SellerRepository(BarDbContext dbContext) : ISellerRepository
         dbContext.Sellers.Remove(seller);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public Task<int> CountAdminsAsync(CancellationToken cancellationToken) =>
+        dbContext.Sellers.CountAsync(s => s.IsAdmin, cancellationToken);
 }

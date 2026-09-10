@@ -8,4 +8,5 @@ public interface ISellerRepository
     Task AddAsync(BAR.Domain.Sellers.Seller seller, CancellationToken cancellationToken);
     Task UpdateAsync(BAR.Domain.Sellers.Seller seller, CancellationToken cancellationToken);
     Task DeleteAsync(BAR.Domain.Sellers.Seller seller, CancellationToken cancellationToken);
+    Task<int> CountAdminsAsync(CancellationToken cancellationToken);
 }

@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using BAR.Application.Sellers;
 using BAR.Application.Sellers.Create;
+using BAR.Application.Sellers.Delete;
 using BAR.Application.Sellers.List;
 using BAR.Application.Sellers.Update;
 using BAR.Domain.Ports;
@@ -53,6 +55,14 @@ public static class SellersEndpoints
             };
             return Results.Ok(enriched);
         }).AddEndpointFilter<ValidationFilter<UpdateSellerCommand>>();
+
+        group.MapDelete("/{id}", async (
+            string id, ClaimsPrincipal user, DeleteSellerCommandHandler handler, CancellationToken ct) =>
+        {
+            var requestingSellerId = user.FindFirstValue("sub")!;
+            await handler.HandleAsync(new DeleteSellerCommand(id, requestingSellerId), ct);
+            return Results.NoContent();
+        });
 
         return app;
     }
