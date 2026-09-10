@@ -1,10 +1,18 @@
+@use '../../../../styles/breakpoints';
+
 :host {
   display: block;
 }
 
 // p-sidebar-panel ist das Host-Element der PrimeNG-Panel-Komponente und
-// steht in diesem Template — die Flaeche der Sidebar selbst.
+// steht in diesem Template — die Flaeche der Sidebar selbst. PrimeNG setzt
+// den Hintergrund selbst ueber die Design-Token-Variable
+// --p-sidebar-panel-background (per .p-sidebar[data-variant="sidebar"]
+// .p-sidebar-panel, hoehere Spezifitaet als diese Komponenten-Regel) —
+// daher hier die Token-Variable selbst ueberschreiben, nicht nur
+// `background` direkt setzen.
 p-sidebar-panel {
+  --p-sidebar-panel-background: var(--color-surface);
   background: var(--color-surface);
   border-right: 1px solid var(--color-divider);
 }
@@ -23,4 +31,12 @@ hr {
 
 hr:last-of-type {
   display: none;
+}
+
+// Tablet/Mobile (<= 1024px): Sidebar slide-in beginnt unter der Titelleiste
+// (56px hoch), statt sie zu ueberdecken — spec.md §10.1.
+@include breakpoints.tablet {
+  p-sidebar-aside {
+    top: 56px;
+  }
 }

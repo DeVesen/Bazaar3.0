@@ -5,9 +5,10 @@
   min-height: 100vh;
 }
 
+// Desktop (> 1024px): Titelleiste ist gemaess spec.md §10.1 nicht vorhanden.
 .content-header {
+  display: none;
   height: 56px;
-  display: flex;
   align-items: center;
   padding: 0 var(--space-4);
   background: var(--color-surface, #e9e9ea);
@@ -16,6 +17,18 @@
 .content-body {
   background: var(--color-bg);
   padding: 26px 22px;
+}
+
+// Tablet (<= 1024px): Titelleiste wird sichtbar, Sidebar-Slide-in beginnt
+// darunter bei top: 56px (Hoehe der Titelleiste).
+@include breakpoints.tablet {
+  .content-header {
+    display: flex;
+  }
+
+  :host ::ng-deep .p-sidebar-backdrop {
+    top: 56px;
+  }
 }
 
 @include breakpoints.mobile {
