@@ -64,11 +64,16 @@ describe('SettingsPage', () => {
     const updateSpy = vi.spyOn(api, 'update').mockReturnValue(of({ ...EMPTY_SETTINGS, startNumber: 1, blockSize: 10, defaultBlockCount: 1 }));
     const messageService = TestBed.inject(MessageService);
     const addSpy = vi.spyOn(messageService, 'add');
+    const registrationDeadline = new Date('2026-09-30T21:59:00.000Z');
     fixture.componentInstance.infoText.set('Hallo');
+    fixture.componentInstance.registrationDeadline.set(registrationDeadline);
 
     fixture.componentInstance.save();
 
-    expect(updateSpy).toHaveBeenCalledWith(expect.objectContaining({ infoText: 'Hallo', startNumber: 1, blockSize: 10, defaultBlockCount: 1 }));
+    expect(updateSpy).toHaveBeenCalledWith(expect.objectContaining({
+      infoText: 'Hallo', startNumber: 1, blockSize: 10, defaultBlockCount: 1,
+      registrationDeadline: registrationDeadline.toISOString()
+    }));
     expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
   });
 
