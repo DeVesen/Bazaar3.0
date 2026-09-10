@@ -4,10 +4,19 @@
   background: rgba(0, 0, 0, 0.52);
 }
 
+// PrimeNG registriert seine eigenen .p-dialog-Regeln (border-radius/max-height
+// ueber Design-Token-Variablen bzw. feste Werte) mit derselben Selektor-
+// Spezifitaet und i.d.R. spaeter im Cascade als diese globale Datei — ohne
+// !important gewinnt PrimeNG. Einzelne Dialoge setzen zudem eine feste Pixel-
+// Breite + eigenes max-width per [style]-Binding (z. B. seller-create-dialog),
+// das per se schon staerker ist als jede Klassenregel — auch dafuer ist
+// !important noetig, um den 80%/90vh- bzw. 100%/100vh-Cap aus spec.md §10.1
+// zuverlaessig durchzusetzen.
 .p-dialog {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-  max-height: 90vh;
+  border-radius: 10px !important;
+  max-width: 80vw !important;
+  max-height: 90vh !important;
 
   .p-dialog-header {
     padding: 17px 20px;
@@ -25,6 +34,10 @@
 
 @include breakpoints.mobile {
   .p-dialog {
-    border-radius: 0;
+    border-radius: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
   }
 }
