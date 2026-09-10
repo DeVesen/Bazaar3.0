@@ -1,3 +1,4 @@
+using BAR.Domain.Exceptions;
 using BAR.Domain.Sellers;
 
 namespace BAR.Domain.UnitTests.Sellers;
@@ -57,5 +58,108 @@ public class SellerTests
 
         Assert.Throws<ArgumentException>(() =>
             seller.UpdateProfile(firstName, lastName, null, "76133", "Karlsruhe", "0721 12345"));
+    }
+
+    private static Seller CreateAdminSeller() =>
+        Seller.CreateByAdmin("Anna", "Beispiel", null, "76133", "Karlsruhe", "0721 1", "anna@example.com", "t0000001", isAdmin: false);
+
+    [Fact]
+    public void CreateByAdmin_HasNoPasswordAndNoInviteYet()
+    {
+        var seller = CreateAdminSeller();
+
+        Assert.Null(seller.PasswordHash);
+        Assert.Null(seller.InviteToken);
+        Assert.Null(seller.InviteTokenExpiresAt);
+    }
+
+    [Theory]
+    [InlineData("", "Beispiel")]
+    [InlineData("Anna", "")]
+    public void CreateByAdmin_MissingRequiredField_Throws(string firstName, string lastName)
+    {
+        Assert.Throws<ArgumentException>(() => Seller.CreateByAdmin(
+            firstName, lastName, null, "76133", "Karlsruhe", "0721 1", "anna@example.com", "t0000001", isAdmin: false));
+    }
+
+    [Fact]
+    public void UpdateAsAdmin_ChangesFieldsIncludingIsAdmin()
+    {
+        var seller = CreateAdminSeller();
+
+        seller.UpdateAsAdmin("Anna", "Neu", "Adresse 1", "76133", "Karlsruhe", "0721 1", "anna@example.com", "t0000001", isAdmin: true);
+
+        Assert.Equal("Neu", seller.LastName);
+        Assert.Equal("Adresse 1", seller.Address);
+        Assert.True(seller.IsAdmin);
+    }
+
+    [Theory]
+    [InlineData("", "Beispiel")]
+    [InlineData("Anna", "")]
+    public void UpdateAsAdmin_MissingRequiredField_Throws(string firstName, string lastName)
+    {
+        var seller = CreateAdminSeller();
+
+        Assert.Throws<ArgumentException>(() =>
+            seller.UpdateAsAdmin(firstName, lastName, null, "76133", "Karlsruhe", "0721 1", "anna@example.com", "t0000001", isAdmin: false));
+    }
+
+    [Fact]
+    public void GenerateInviteToken_SetsTokenValidForSevenDays()
+    {
+        var seller = CreateAdminSeller();
+        var now = new DateTime(2026, 8, 17, 12, 0, 0, DateTimeKind.Utc);
+
+        var token = seller.GenerateInviteToken(now);
+
+        Assert.False(string.IsNullOrWhiteSpace(token));
+        Assert.Equal(token, seller.InviteToken);
+        Assert.Equal(now.AddDays(7), seller.InviteTokenExpiresAt);
+    }
+
+    [Fact]
+    public void GenerateInviteToken_CalledTwice_InvalidatesThePreviousToken()
+    {
+        var seller = CreateAdminSeller();
+        var first = seller.GenerateInviteToken(DateTime.UtcNow);
+        var second = seller.GenerateInviteToken(DateTime.UtcNow);
+
+        Assert.NotEqual(first, second);
+        Assert.Equal(second, seller.InviteToken);
+    }
+
+    [Fact]
+    public void ConsumePassword_ValidToken_SetsPasswordAndClearsInvite()
+    {
+        var seller = CreateAdminSeller();
+        var now = DateTime.UtcNow;
+        seller.GenerateInviteToken(now);
+
+        seller.ConsumePassword("hashed", now);
+
+        Assert.Equal("hashed", seller.PasswordHash);
+        Assert.Null(seller.InviteToken);
+        Assert.Null(seller.InviteTokenExpiresAt);
+    }
+
+    [Fact]
+    public void ConsumePassword_ExpiredToken_ThrowsUnauthorized()
+    {
+        var seller = CreateAdminSeller();
+        var issuedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        seller.GenerateInviteToken(issuedAt);
+
+        var ex = Assert.Throws<UnauthorizedException>(() => seller.ConsumePassword("hashed", issuedAt.AddDays(8)));
+
+        Assert.Equal("auth.invalid_invite_token", ex.ErrorCode);
+    }
+
+    [Fact]
+    public void ConsumePassword_NoInvitePending_ThrowsUnauthorized()
+    {
+        var seller = CreateAdminSeller();
+
+        Assert.Throws<UnauthorizedException>(() => seller.ConsumePassword("hashed", DateTime.UtcNow));
     }
 }
