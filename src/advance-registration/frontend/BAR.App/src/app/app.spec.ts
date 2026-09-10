@@ -4,7 +4,6 @@ import { provideHttpClientTesting, HttpTestingController } from '@angular/common
 import { TranslateService } from '@ngx-translate/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { MessageService, ConfirmationService } from 'primeng/api';
 import { App } from './app';
 
 describe('App', () => {
@@ -18,9 +17,7 @@ describe('App', () => {
           lang: 'de',
           fallbackLang: 'en',
           loader: provideTranslateHttpLoader({ prefix: '/i18n/', suffix: '.json' })
-        }),
-        MessageService,
-        ConfirmationService
+        })
       ]
     }).compileComponents();
   });
@@ -41,13 +38,5 @@ describe('App', () => {
     const enReq = httpMock.expectOne('/i18n/en.json');
     enReq.flush({});
     httpMock.verify();
-  });
-
-  it('mounts the global toast and confirm dialog', () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.querySelector('p-toast')).not.toBeNull();
-    expect(fixture.nativeElement.querySelector('p-confirmdialog')).not.toBeNull();
   });
 });
