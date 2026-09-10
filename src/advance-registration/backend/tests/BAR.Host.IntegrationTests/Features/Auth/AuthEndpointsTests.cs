@@ -23,6 +23,7 @@ public class AuthEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
     [Fact]
     public async Task Register_NewEmail_Returns201WithTokenPair()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
         var email = $"{Guid.NewGuid()}@example.com";
 
@@ -38,6 +39,7 @@ public class AuthEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
     [Fact]
     public async Task Register_DuplicateEmail_Returns409WithSellerEmailTaken()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
         var email = $"{Guid.NewGuid()}@example.com";
         await client.PostAsJsonAsync("/api/auth/register", ValidRegisterPayload(email), TestContext.Current.CancellationToken);
@@ -100,6 +102,7 @@ public class AuthEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
     [Fact]
     public async Task Refresh_SecondCallWithSameToken_Returns401()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
         var email = $"{Guid.NewGuid()}@example.com";
         var registerResponse = await client.PostAsJsonAsync("/api/auth/register", ValidRegisterPayload(email), TestContext.Current.CancellationToken);

@@ -24,6 +24,7 @@ public class BlocksEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
     [Fact]
     public async Task GetMine_AfterRegistration_ReturnsOwnBlock()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
         var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
         {
@@ -124,6 +125,7 @@ public class BlocksEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
 
     private async Task<(HttpClient Client, string SellerId)> RegisterAndAuthenticateAsync()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
         var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
         {

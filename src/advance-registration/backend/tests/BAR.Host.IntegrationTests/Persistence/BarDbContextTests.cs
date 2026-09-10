@@ -22,7 +22,7 @@ public class BarDbContextTests : IClassFixture<PostgresWebApplicationFactory>
         Assert.Single(await db.Sellers.ToListAsync(TestContext.Current.CancellationToken)); // Seed: Admin
         Assert.Empty(await db.RefreshTokens.ToListAsync(TestContext.Current.CancellationToken));
         Assert.Single(await db.SellerTypes.ToListAsync(TestContext.Current.CancellationToken)); // Seed
-        Assert.Single(await db.Settings.ToListAsync(TestContext.Current.CancellationToken)); // Seed
+        Assert.Empty(await db.Settings.ToListAsync(TestContext.Current.CancellationToken)); // R09: kein Settings-Seed mehr
         Assert.Empty(await db.NumberBlocks.ToListAsync(TestContext.Current.CancellationToken));
         Assert.Empty(await db.Articles.ToListAsync(TestContext.Current.CancellationToken));
         Assert.Empty(await db.Brands.ToListAsync(TestContext.Current.CancellationToken));

@@ -66,6 +66,7 @@ public class CategoriesEndpointsTests : IClassFixture<PostgresWebApplicationFact
 
     private async Task<HttpClient> RegisterAndAuthenticateAsync()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
         var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
         {

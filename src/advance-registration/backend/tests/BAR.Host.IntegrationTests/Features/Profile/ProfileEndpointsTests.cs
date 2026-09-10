@@ -77,6 +77,7 @@ public class ProfileEndpointsTests : IClassFixture<PostgresWebApplicationFactory
     [Fact]
     public async Task PutProfileEmail_CorrectPassword_ChangesEmailAndOldEmailStopsWorking()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
         var email = $"{Guid.NewGuid()}@example.com";
         await client.PostAsJsonAsync("/api/auth/register", new
@@ -111,6 +112,7 @@ public class ProfileEndpointsTests : IClassFixture<PostgresWebApplicationFactory
     [Fact]
     public async Task PutProfileEmail_AlreadyTaken_Returns409()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var otherClient = _factory.CreateClient();
         var otherEmail = $"{Guid.NewGuid()}@example.com";
         await otherClient.PostAsJsonAsync("/api/auth/register", new
@@ -128,6 +130,7 @@ public class ProfileEndpointsTests : IClassFixture<PostgresWebApplicationFactory
     [Fact]
     public async Task PutProfilePassword_CorrectCurrentPassword_ReturnsNewTokenPairAndInvalidatesOldRefreshToken()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
         var email = $"{Guid.NewGuid()}@example.com";
         var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
@@ -180,6 +183,7 @@ public class ProfileEndpointsTests : IClassFixture<PostgresWebApplicationFactory
     [Fact]
     public async Task DeleteProfile_NonAdminSeller_DeletesAccountAndLoginFailsAfterwards()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
         var email = $"{Guid.NewGuid()}@example.com";
         await client.PostAsJsonAsync("/api/auth/register", new
@@ -200,6 +204,7 @@ public class ProfileEndpointsTests : IClassFixture<PostgresWebApplicationFactory
 
     private async Task<HttpClient> RegisterAndAuthenticateAsync()
     {
+        await RegistrationTestSeed.EnableRegistrationAsync(_factory.Services, TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
         var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
         {
