@@ -1,0 +1,28 @@
+.p-dialog-mask {
+  background: rgba(0, 0, 0, 0.52);
+}
+
+.p-dialog {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  max-height: 90vh;
+
+  .p-dialog-header {
+    padding: 17px 20px;
+  }
+
+  .p-dialog-content {
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .p-dialog-footer {
+    padding: 13px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .p-dialog {
+    border-radius: 0;
+  }
+}
