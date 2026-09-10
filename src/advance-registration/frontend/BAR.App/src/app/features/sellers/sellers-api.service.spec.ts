@@ -112,4 +112,12 @@ describe('SellersApiService', () => {
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });
+
+  it('getBlocks() gets the blocks for one seller', () => {
+    service.getBlocks('s1').subscribe();
+
+    const req = httpMock.expectOne('/api/sellers/s1/blocks');
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
 });

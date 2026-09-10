@@ -76,6 +76,28 @@ describe('SellersPage', () => {
     expect(fixture.componentInstance.selectedSeller()).toBe(row);
   });
 
+  it('editDialogVisibleModel reflects and clears the edit dialog mode', () => {
+    const { fixture } = create();
+    const row = { ...SELLER, sellerTypeName: 'Standard', commissionRate: 15, itemFee: 0.5 };
+
+    fixture.componentInstance.onTableAction({ actionId: 'edit', row });
+    expect(fixture.componentInstance.editDialogVisibleModel).toBe(true);
+
+    fixture.componentInstance.editDialogVisibleModel = false;
+    expect(fixture.componentInstance.dialogMode()).toBeNull();
+  });
+
+  it('onEditSaved() closes the dialog and reloads the list', () => {
+    const { fixture, api } = create();
+    fixture.componentInstance.dialogMode.set('edit');
+    vi.mocked(api.list).mockClear();
+
+    fixture.componentInstance.onEditSaved();
+
+    expect(fixture.componentInstance.dialogMode()).toBeNull();
+    expect(api.list).toHaveBeenCalledTimes(1);
+  });
+
   it('onPageChange() derives the page from first/rows and reloads', () => {
     const { fixture, api } = create();
     vi.mocked(api.list).mockClear();

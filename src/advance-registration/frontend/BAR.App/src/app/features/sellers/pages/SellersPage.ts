@@ -14,6 +14,7 @@ import {
   TablePageEvent
 } from '../../../shared/table/table';
 import { SellerCreateDialog } from '../../../shared/seller-create-dialog/seller-create-dialog';
+import { SellerEditDialog } from '../../../shared/seller-edit-dialog/seller-edit-dialog';
 import { SellersApiService, Seller } from '../sellers-api.service';
 
 /**
@@ -59,7 +60,7 @@ const SORT_FIELD_MAP: Record<string, string> = {
 
 @Component({
   selector: 'app-sellers-page',
-  imports: [AppTable, FormsModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, SellerCreateDialog],
+  imports: [AppTable, FormsModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, SellerCreateDialog, SellerEditDialog],
   template: `
     <h1>Verkäufer</h1>
 
@@ -88,6 +89,10 @@ const SORT_FIELD_MAP: Record<string, string> = {
 
     @if (dialogMode() === 'create') {
       <app-seller-create-dialog [(visible)]="createDialogVisibleModel" (saved)="onCreateSaved()" />
+    }
+
+    @if (dialogMode() === 'edit') {
+      <app-seller-edit-dialog [(visible)]="editDialogVisibleModel" [item]="selectedSeller()" (saved)="onEditSaved()" />
     }
   `
 })
@@ -124,6 +129,9 @@ export class SellersPage implements OnInit {
   get createDialogVisibleModel() { return this.dialogMode() === 'create'; }
   set createDialogVisibleModel(v: boolean) { if (!v) this.dialogMode.set(null); }
 
+  get editDialogVisibleModel() { return this.dialogMode() === 'edit'; }
+  set editDialogVisibleModel(v: boolean) { if (!v) this.dialogMode.set(null); }
+
   ngOnInit(): void {
     this.load();
   }
@@ -139,6 +147,11 @@ export class SellersPage implements OnInit {
   }
 
   onCreateSaved(): void {
+    this.dialogMode.set(null);
+    this.load();
+  }
+
+  onEditSaved(): void {
     this.dialogMode.set(null);
     this.load();
   }

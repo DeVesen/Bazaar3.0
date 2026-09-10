@@ -97,6 +97,10 @@ export class SellersApiService {
     return this.http.post<{ inviteUrl: string; expiresAt: string }>(`/api/sellers/${id}/invite`, {});
   }
 
+  getBlocks(sellerId: string): Observable<NumberBlock[]> {
+    return this.http.get<NumberBlock[]>(`/api/sellers/${sellerId}/blocks`);
+  }
+
   nextFreeStartNumber(blockCount: number): Observable<{ startNumber: number }> {
     return this.http.get<{ startNumber: number }>('/api/blocks/next-free', { params: { blockCount } });
   }
