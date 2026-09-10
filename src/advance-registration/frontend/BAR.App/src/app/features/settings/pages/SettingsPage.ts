@@ -23,7 +23,8 @@ interface ValidationProblem {
 @Component({
   selector: 'app-settings-page',
   imports: [FormsModule, ButtonModule, DatePickerModule, SelectModule, InputNumberModule, TextareaModule, PopoverModule, InfoArea, MarkdownText],
-  templateUrl: './SettingsPage.html'
+  templateUrl: './SettingsPage.html',
+  styleUrl: './SettingsPage.scss'
 })
 export class SettingsPage {
   private readonly api = inject(SettingsApiService);
@@ -50,12 +51,19 @@ export class SettingsPage {
   readonly infoTextLength = computed(() => this.infoText().length);
   readonly infoTextNearLimit = computed(() => this.infoTextLength() >= INFO_TEXT_WARN_THRESHOLD);
 
+  readonly canSave = computed(() =>
+    (this.startNumber() ?? 0) > 0 &&
+    (this.blockSize() ?? 0) > 0 &&
+    (this.defaultBlockCount() ?? 0) > 0);
+
   constructor() {
     this.sellerTypeApi.getAll().subscribe((types) => this.sellerTypes.set(types));
     this.api.get().subscribe((dto) => this.applySettings(dto));
   }
 
   save(): void {
+    if (!this.canSave()) return;
+
     this.fieldErrors.set({});
     this.saveError.set(null);
 

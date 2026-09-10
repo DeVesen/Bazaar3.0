@@ -123,5 +123,5 @@
     <app-info-area type="error" [message]="saveError()!" />
   }
 
-  <p-button type="submit" label="Speichern" />
+  <p-button type="submit" label="Speichern" [disabled]="!canSave()" />
 </form>

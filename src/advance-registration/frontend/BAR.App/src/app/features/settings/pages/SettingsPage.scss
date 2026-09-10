@@ -1,0 +1,38 @@
+.field-error {
+  color: #c0392b;
+  font-size: 12px;
+  margin: var(--space-1) 0 0;
+}
+
+.field-warn {
+  color: #b26a00;
+}
+
+.info-text-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 768px) {
+  .info-text-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.preview-placeholder {
+  color: color-mix(in srgb, #1d1f20 55%, transparent);
+  font-size: 12px;
+  margin: 0;
+}
+
+.panel-block__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+
+  .panel-block__title {
+    margin-bottom: 0;
+  }
+}

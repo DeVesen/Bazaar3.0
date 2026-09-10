@@ -98,4 +98,29 @@ describe('SettingsPage', () => {
 
     expect(fixture.componentInstance.saveError()).toBe('Startnummer liegt über bereits vergebenen Artikelnummern');
   });
+
+  it('canSave is false when startNumber is missing', () => {
+    const { fixture } = create({ ...EMPTY_SETTINGS, startNumber: null, blockSize: 10, defaultBlockCount: 1 });
+
+    expect(fixture.componentInstance.canSave()).toBe(false);
+  });
+
+  it('canSave is true once startNumber, blockSize and defaultBlockCount are all positive', () => {
+    const { fixture } = create({ ...EMPTY_SETTINGS, startNumber: 0, blockSize: 10, defaultBlockCount: 1 });
+
+    expect(fixture.componentInstance.canSave()).toBe(false);
+
+    fixture.componentInstance.startNumber.set(1);
+
+    expect(fixture.componentInstance.canSave()).toBe(true);
+  });
+
+  it('save() does not call the API when canSave is false', () => {
+    const { fixture, api } = create({ ...EMPTY_SETTINGS, startNumber: null, blockSize: 10, defaultBlockCount: 1 });
+    const updateSpy = vi.spyOn(api, 'update');
+
+    fixture.componentInstance.save();
+
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
 });
