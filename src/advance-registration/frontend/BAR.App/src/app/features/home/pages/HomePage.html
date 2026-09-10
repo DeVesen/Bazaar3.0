@@ -1,0 +1,48 @@
+@if (isAdminView()) {
+  <app-kpi-grid [columns]="5">
+    <app-kpi-tile label="Bis zum Basar" [value]="null">
+      @if (adminPhases().length > 0) {
+        <app-countdown variant="kpi" [phases]="adminPhases()" />
+      } @else {
+        <p class="kpi-tile__sub-label">Noch kein Termin festgelegt</p>
+      }
+    </app-kpi-tile>
+    <a routerLink="/sellers">
+      <app-kpi-tile label="Verkäufer" [value]="adminSellerCount()" subLabel="Registriert" />
+    </a>
+    <a routerLink="/articles">
+      <app-kpi-tile label="Artikel gesamt" [value]="adminArticleCount()" subLabel="Artikel" />
+    </a>
+    <a routerLink="/categories">
+      <app-kpi-tile label="Kategorien" [value]="adminCategoryCount()" />
+    </a>
+    <a routerLink="/brands">
+      <app-kpi-tile label="Marken" [value]="adminBrandCount()" />
+    </a>
+  </app-kpi-grid>
+
+  <app-activity-heatmap [events]="heatmapEvents()" />
+} @else {
+  <app-kpi-grid [columns]="4">
+    <app-kpi-tile label="Bis zur Abgabe" [value]="null">
+      @if (dropOffPhases().length > 0) {
+        <app-countdown variant="kpi" [phases]="dropOffPhases()" />
+      } @else {
+        <p class="kpi-tile__sub-label">Noch kein Termin festgelegt</p>
+      }
+    </app-kpi-tile>
+    <app-kpi-tile label="Meine Artikel" [value]="articleCount()" subLabel="Stück" />
+    <app-kpi-tile label="Meine Konditionen" [value]="commissionRate() !== null ? commissionRate() + ' %' : null" [subLabel]="itemFee() !== null ? itemFee() + ' € / Stück' : null" />
+    <app-kpi-tile label="Abgabegebühr gesamt" [value]="totalFee()" subLabel="€" />
+  </app-kpi-grid>
+
+  @if (articleCount() === 0) {
+    <p>Noch keine Artikel erfasst. <a routerLink="/my-articles">Jetzt Artikel erfassen</a></p>
+  }
+
+  <app-verkaeufer-nummer [sellerId]="sellerId()" />
+}
+
+@if (showInfoPanel()) {
+  <app-markdown-text [content]="info()?.infoText ?? null" />
+}

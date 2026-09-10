@@ -15,6 +15,7 @@ export type KpiSeverity = 'success' | 'warning' | 'danger' | 'info' | null;
       @if (subLabel()) {
         <p class="kpi-tile__sub-label">{{ subLabel() }}</p>
       }
+      <ng-content />
     </div>
   `,
   styles: [`
