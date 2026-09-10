@@ -93,15 +93,29 @@ Folgt 1:1 dem bestehenden Query-Port-Muster (`ISellerListQuery` / `SellerListQue
 
 ## 2. i18n-Vervollständigung
 
-- `en.json` ist aktuell `{}`. Alle 26 bestehenden DE-Keys aus `de.json` vollständig ins
-  Englische übersetzen, gleiche flache Key-Struktur.
-- Neue Export-Feature-Texte (Checkbox-Labels, Button, info-area-Meldung mit Platzhaltern für
-  die Zähler) werden in `de.json` und `en.json` gleichzeitig angelegt, nicht erst Deutsch
-  fertigstellen und Englisch nachziehen.
+**Scope-Korrektur (2026-09-10, während der Implementierungsplanung entdeckt):** Nur
+Login/Register/Errors sind aktuell an ngx-translate angeschlossen (26 Keys in `de.json`,
+`en.json` = `{}`). Alle anderen ~14 Features (Sellers, Seller-Types, Articles, Profile,
+Home, Settings, Number-Blocks, Countdown-Embed, Export, shared Components wie Table/Modal/
+Dialogs) haben harten deutschen Text direkt im Template — keine Keys, keine Pipe. Fertig-
+Kriterium 5 aus der Roadmap („in allen Seiten stehen englische Texte, kein Schlüssel und
+kein deutscher Rest bleibt stehen") verlangt aber wörtlich **alle** Seiten. Teil 2 ist damit
+kein Übersetzungsabgleich, sondern ein **vollständiger i18n-Retrofit der App**:
+
+- Für jedes Feature: sichtbare Strings (Labels, Button-Texte, Spaltenüberschriften,
+  Confirm-Dialoge, Toast-Meldungen, Empty-States, aria-labels, Platzhalter) werden als Keys
+  in `de.json`/`en.json` angelegt und im Template/der Komponentenklasse durch
+  `| translate` bzw. `TranslateService` ersetzt.
+- Bestehende 26 Keys (Login/Register/Errors) bleiben unverändert in Struktur, werden nur um
+  die fehlende EN-Übersetzung ergänzt (`en.json` von `{}` auf Parität mit `de.json`).
+- Neue Keys (alle übrigen Features + Export) werden in `de.json` und `en.json` gleichzeitig
+  angelegt, nicht erst Deutsch fertigstellen und Englisch nachziehen.
+- PrimeNG-eigene Übersetzung (`providePrimeNG({ translation: {...} })` in `app.config.ts`,
+  bisher nur `accept`/`reject`) wird um die von PrimeNG selbst gerenderten Strings ergänzt,
+  die im Component-Scope nicht abfangbar sind (z. B. Paginator-Texte, falls verwendet).
 - Kein Tooling für Key-Diff/Vollständigkeitsprüfung wird eingeführt (YAGNI, aktuell auch
   keine CI-Pipeline im Repo vorhanden, die das ausführen könnte). Vollständigkeit wird von
-  Hand geprüft: Sprache umstellen, jede Seite durchklicken — deckt sich mit
-  Fertig-Kriterium 5 aus `roadmap/R12-export-und-auslieferung.md`.
+  Hand geprüft: Sprache umstellen, jede Seite durchklicken.
 
 ---
 
