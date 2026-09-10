@@ -3,14 +3,24 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { FilterPanel } from './filter-panel';
 import type { MasterDataItem } from '../../features/my-articles/master-data-api.service';
+
+const EN_TRANSLATIONS = {
+  filterPanel: {
+    brandPlaceholder: 'Brand',
+    categoryPlaceholder: 'Category',
+    searchPlaceholder: 'Search...',
+    searchButton: 'Search'
+  }
+};
 
 const BRANDS: MasterDataItem[] = [{ id: 'b1', name: 'Nike', original: true }];
 const CATEGORIES: MasterDataItem[] = [{ id: 'c1', name: 'Jacken', original: true }];
 
 function create(sellerAutocomplete = false) {
-  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService()] });
   const fixture = TestBed.createComponent(FilterPanel);
   fixture.componentRef.setInput('brands', BRANDS);
   fixture.componentRef.setInput('categories', CATEGORIES);
@@ -173,5 +183,18 @@ describe('FilterPanel', () => {
     followUpReq.flush({ items: [{ id: 's1', startNumber: 42, firstName: 'Max', lastName: 'Mustermann' }], totalCount: 1, page: 1, pageSize: 10 });
 
     expect(fixture.componentInstance.sellerSuggestions()).toEqual([{ id: 's1', label: 'Max Mustermann (#42)' }]);
+  });
+
+  it('shows English placeholders and the search button label when the active language is English', () => {
+    const fixture = create();
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', EN_TRANSLATIONS);
+    translate.use('en');
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Search');
+    const searchInput = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
+    expect(searchInput.placeholder).toBe('Search...');
   });
 });

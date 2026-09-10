@@ -1,9 +1,22 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { Countdown } from './countdown';
 import { CountdownPhase } from './select-active-phase';
 
+const DE_TRANSLATIONS = {
+  countdown: { completed: 'Abgeschlossen', dayLabelSingular: 'Tag', dayLabelPlural: 'Tage' }
+};
+
+const EN_TRANSLATIONS = {
+  countdown: { completed: 'Completed', dayLabelSingular: 'day', dayLabelPlural: 'days' }
+};
+
 function create(phases: CountdownPhase[]) {
+  TestBed.configureTestingModule({ providers: [provideTranslateService()] });
+  const translate = TestBed.inject(TranslateService);
+  translate.setTranslation('de', DE_TRANSLATIONS);
+  translate.use('de');
   const fixture = TestBed.createComponent(Countdown);
   fixture.componentRef.setInput('variant', 'timeline');
   fixture.componentRef.setInput('phases', phases);
@@ -57,6 +70,16 @@ describe('Countdown - timeline variant', () => {
     expect(text).toContain('Voranmeldeschluss');
     expect(text).toContain('Abgabe-Start');
   });
+
+  it('shows English day and "Completed" labels when the active language is English', () => {
+    const fixture = create([{ label: 'Basar-Ende', targetDate: new Date('2026-09-01T00:00:00Z') }]);
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', EN_TRANSLATIONS);
+    translate.use('en');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Completed');
+  });
 });
 
 describe('Countdown - kpi variant', () => {
@@ -72,7 +95,7 @@ describe('Countdown - kpi variant', () => {
   });
 
   it('renders the kpi variant with the kpi host class', async () => {
-    await TestBed.configureTestingModule({ imports: [Countdown] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [Countdown], providers: [provideTranslateService()] }).compileComponents();
     fixture = TestBed.createComponent(Countdown);
     fixture.componentRef.setInput('variant', 'kpi');
     fixture.componentRef.setInput('phases', [{ label: 'BIS ZUM BASAR', targetDate: new Date('2026-09-13T10:00:00Z') }]);

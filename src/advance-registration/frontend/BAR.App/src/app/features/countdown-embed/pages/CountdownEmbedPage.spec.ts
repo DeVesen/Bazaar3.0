@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { By } from '@angular/platform-browser';
 import { CountdownEmbedPage } from './CountdownEmbedPage';
@@ -27,7 +28,7 @@ describe('CountdownEmbedPage', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [CountdownEmbedPage],
-      providers: [provideHttpClient(), provideHttpClientTesting()]
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService()]
     });
   });
 

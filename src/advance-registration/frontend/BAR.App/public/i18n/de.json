@@ -273,5 +273,23 @@
     "copy": "Kopieren",
     "hint": "Am Basar-Tag vorzeigen — das Kassenpersonal scannt den Code.",
     "copied": "✓ Nummer kopiert"
-  }
+  },
+  "filterPanel": {
+    "brandPlaceholder": "Marke",
+    "categoryPlaceholder": "Kategorie",
+    "searchPlaceholder": "Suche...",
+    "searchButton": "Suchen"
+  },
+  "passwordStrength": {
+    "weak": "Schwach",
+    "medium": "Mittel",
+    "strong": "Stark"
+  },
+  "countdown": {
+    "completed": "Abgeschlossen",
+    "dayLabelSingular": "Tag",
+    "dayLabelPlural": "Tage"
+  },
+  "notFound": { "title": "Seite nicht gefunden" },
+  "articles": { "title": "Artikel" }
 }

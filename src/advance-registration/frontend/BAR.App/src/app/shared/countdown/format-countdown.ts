@@ -28,14 +28,22 @@ export function pad2(value: number): string {
   return value.toString().padStart(2, '0');
 }
 
-/** Tage ohne führende Null, Singular/Plural-bewusst: `1 Tag` vs. `X Tage` (component.md §4, AC-6). */
-export function formatDaysLabel(days: number): string {
-  return `${days} ${days === 1 ? 'Tag' : 'Tage'}`;
+/**
+ * Tage ohne führende Null, Singular/Plural-bewusst: `1 Tag` vs. `X Tage` (component.md §4, AC-6).
+ * Reine Funktion ohne DI-Zugriff — die übersetzten Label-Strings werden vom Aufrufer
+ * (`countdown.ts`, hat Zugriff auf `TranslateService`) übergeben.
+ */
+export function formatDaysLabel(days: number, singular: string, plural: string): string {
+  return `${days} ${days === 1 ? singular : plural}`;
 }
 
-/** Datum im deutschen Format `EEEE, dd.MM.yyyy`, z. B. „Samstag, 05.09.2026" (component.md §4). */
-export function formatDateLabel(date: Date): string {
-  return new Intl.DateTimeFormat('de-DE', {
+/**
+ * Datum im lokalisierten Format `EEEE, dd.MM.yyyy` (de) bzw. äquivalent (en), z. B.
+ * „Samstag, 05.09.2026" (component.md §4). Reine Funktion ohne DI-Zugriff — das Locale wird
+ * vom Aufrufer (`countdown.ts`, hat Zugriff auf `TranslateService`) übergeben.
+ */
+export function formatDateLabel(date: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
     weekday: 'long',
     day: '2-digit',
     month: '2-digit',

@@ -1,5 +1,6 @@
-import { Component, OnDestroy, computed, input, signal } from '@angular/core';
+import { Component, OnDestroy, computed, inject, input, signal } from '@angular/core';
 import { TimelineModule } from 'primeng/timeline';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { selectActivePhase, CountdownPhase } from './select-active-phase';
 import { selectTimelinePhases, TimelinePhaseState } from './select-timeline-phases';
 import { computeRemainingTime, formatDateLabel, formatDaysLabel, pad2 } from './format-countdown';
@@ -30,11 +31,13 @@ interface TimelinePhaseDisplay {
 
 @Component({
   selector: 'app-countdown',
-  imports: [TimelineModule],
+  imports: [TimelineModule, TranslatePipe],
   templateUrl: './countdown.html',
   styleUrl: './countdown.scss'
 })
 export class Countdown implements OnDestroy {
+  private readonly translate = inject(TranslateService);
+
   /** Geordnete Phasen-Liste im Sequence-Mode (component.md §2). */
   readonly phases = input<CountdownPhase[]>([]);
   /** Default `'info-box'` — einzige hier implementierte Variante. */
@@ -56,11 +59,11 @@ export class Countdown implements OnDestroy {
 
     return {
       label: phase.label,
-      daysLabel: formatDaysLabel(remaining.days),
+      daysLabel: formatDaysLabel(remaining.days, this.translate.instant('countdown.dayLabelSingular'), this.translate.instant('countdown.dayLabelPlural')),
       hours: pad2(remaining.hours),
       minutes: pad2(remaining.minutes),
       seconds: pad2(remaining.seconds),
-      dateLabel: formatDateLabel(phase.targetDate)
+      dateLabel: formatDateLabel(phase.targetDate, this.locale())
     };
   });
 
@@ -76,13 +79,17 @@ export class Countdown implements OnDestroy {
       return {
         label: p.label,
         state: p.state,
-        daysLabel: formatDaysLabel(remaining.days),
+        daysLabel: formatDaysLabel(remaining.days, this.translate.instant('countdown.dayLabelSingular'), this.translate.instant('countdown.dayLabelPlural')),
         hours: pad2(remaining.hours),
         minutes: pad2(remaining.minutes),
         seconds: pad2(remaining.seconds)
       };
     });
   });
+
+  private locale(): string {
+    return this.translate.currentLang() === 'en' ? 'en-US' : 'de-DE';
+  }
 
   ngOnDestroy(): void {
     clearInterval(this.intervalId);

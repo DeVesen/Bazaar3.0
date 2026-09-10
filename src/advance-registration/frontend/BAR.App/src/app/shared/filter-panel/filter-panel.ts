@@ -7,6 +7,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
 import type { MasterDataItem } from '../../features/my-articles/master-data-api.service';
 import { SellersApiService } from '../../features/sellers/sellers-api.service';
@@ -25,7 +26,7 @@ export interface SellerOption {
 
 @Component({
   selector: 'app-filter-panel',
-  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, AutoCompleteModule],
+  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, AutoCompleteModule, TranslatePipe],
   template: `
     <div class="filter-panel">
       @if (sellerAutocomplete()) {
@@ -44,18 +45,18 @@ export interface SellerOption {
         />
       }
       <p-select
-        [options]="brands()" optionLabel="name" optionValue="name" placeholder="Marke"
+        [options]="brands()" optionLabel="name" optionValue="name" [placeholder]="'filterPanel.brandPlaceholder' | translate"
         [(ngModel)]="brandValueModel" [showClear]="true"
       />
       <p-select
-        [options]="categories()" optionLabel="name" optionValue="name" placeholder="Kategorie"
+        [options]="categories()" optionLabel="name" optionValue="name" [placeholder]="'filterPanel.categoryPlaceholder' | translate"
         [(ngModel)]="categoryValueModel" [showClear]="true"
       />
       <p-iconfield>
         <p-inputicon class="pi pi-search" />
-        <input pInputText placeholder="Suche..." [(ngModel)]="searchTextModel" (keydown.enter)="emit()" />
+        <input pInputText [placeholder]="'filterPanel.searchPlaceholder' | translate" [(ngModel)]="searchTextModel" (keydown.enter)="emit()" />
       </p-iconfield>
-      <p-button label="Suchen" icon="pi pi-search" data-testid="search-button" (onClick)="emit()" />
+      <p-button [label]="'filterPanel.searchButton' | translate" icon="pi pi-search" data-testid="search-button" (onClick)="emit()" />
     </div>
   `
 })

@@ -36,26 +36,37 @@ describe('pad2', () => {
 });
 
 describe('formatDaysLabel', () => {
-  it('uses singular "Tag" for exactly 1 day', () => {
-    expect(formatDaysLabel(1)).toBe('1 Tag');
+  it('uses the singular label for exactly 1 day', () => {
+    expect(formatDaysLabel(1, 'Tag', 'Tage')).toBe('1 Tag');
   });
 
-  it('uses plural "Tage" for 0 and for values other than 1', () => {
-    expect(formatDaysLabel(0)).toBe('0 Tage');
-    expect(formatDaysLabel(3)).toBe('3 Tage');
-    expect(formatDaysLabel(21)).toBe('21 Tage');
+  it('uses the plural label for 0 and for values other than 1', () => {
+    expect(formatDaysLabel(0, 'Tag', 'Tage')).toBe('0 Tage');
+    expect(formatDaysLabel(3, 'Tag', 'Tage')).toBe('3 Tage');
+    expect(formatDaysLabel(21, 'Tag', 'Tage')).toBe('21 Tage');
   });
 
   it('renders days without a leading zero', () => {
-    expect(formatDaysLabel(3)).not.toMatch(/^0/);
+    expect(formatDaysLabel(3, 'Tag', 'Tage')).not.toMatch(/^0/);
+  });
+
+  it('uses the given labels as-is, independent of language (caller resolves translation)', () => {
+    expect(formatDaysLabel(1, 'day', 'days')).toBe('1 day');
+    expect(formatDaysLabel(3, 'day', 'days')).toBe('3 days');
   });
 });
 
 describe('formatDateLabel', () => {
-  it('formats the date as German "EEEE, dd.MM.yyyy"', () => {
+  it('formats the date as German "EEEE, dd.MM.yyyy" for locale de-DE', () => {
     // 2026-09-05 ist ein Samstag
     const date = new Date('2026-09-05T10:00:00Z');
 
-    expect(formatDateLabel(date)).toBe('Samstag, 05.09.2026');
+    expect(formatDateLabel(date, 'de-DE')).toBe('Samstag, 05.09.2026');
+  });
+
+  it('formats the date in English for locale en-US', () => {
+    const date = new Date('2026-09-05T10:00:00Z');
+
+    expect(formatDateLabel(date, 'en-US')).toBe('Saturday, 09/05/2026');
   });
 });

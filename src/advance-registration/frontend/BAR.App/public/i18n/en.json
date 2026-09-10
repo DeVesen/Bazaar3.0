@@ -273,5 +273,23 @@
     "copy": "Copy",
     "hint": "Show this at the bazaar — staff will scan the code.",
     "copied": "✓ Number copied"
-  }
+  },
+  "filterPanel": {
+    "brandPlaceholder": "Brand",
+    "categoryPlaceholder": "Category",
+    "searchPlaceholder": "Search...",
+    "searchButton": "Search"
+  },
+  "passwordStrength": {
+    "weak": "Weak",
+    "medium": "Medium",
+    "strong": "Strong"
+  },
+  "countdown": {
+    "completed": "Completed",
+    "dayLabelSingular": "day",
+    "dayLabelPlural": "days"
+  },
+  "notFound": { "title": "Page not found" },
+  "articles": { "title": "Articles" }
 }

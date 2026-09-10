@@ -14,7 +14,7 @@
     </ng-template>
     <ng-template #content let-p>
       @if (p.state === 'completed') {
-        <span class="countdown-timeline__status">Abgeschlossen</span>
+        <span class="countdown-timeline__status">{{ 'countdown.completed' | translate }}</span>
       } @else {
         <span class="countdown-timeline__countdown">{{ p.daysLabel }} {{ p.hours }}:{{ p.minutes }}:{{ p.seconds }}</span>
       }

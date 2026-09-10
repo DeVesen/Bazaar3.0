@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { ArticlesPage } from './ArticlesPage';
@@ -16,7 +17,7 @@ const ARTICLE: AdminArticleResponse = {
 };
 
 function create() {
-  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), MessageService] });
+  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService] });
   const articlesApi = TestBed.inject(AdminArticlesApiService);
   const masterDataApi = TestBed.inject(MasterDataApiService);
   vi.spyOn(articlesApi, 'list').mockReturnValue(of({ items: [ARTICLE], totalCount: 1, page: 1, pageSize: 25 }));
@@ -83,5 +84,15 @@ describe('ArticlesPage', () => {
 
     expect(fixture.componentInstance.loading()).toBe(false);
     expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error' }));
+  });
+
+  it('renders the translated title when the active language is English', () => {
+    const { fixture } = create();
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', { articles: { title: 'Articles' } });
+    translate.use('en');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('h1').textContent).toContain('Articles');
   });
 });
