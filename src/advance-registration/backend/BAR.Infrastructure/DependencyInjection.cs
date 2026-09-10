@@ -21,6 +21,8 @@ using BAR.Application.MasterData.Categories.Create;
 using BAR.Application.MasterData.Categories.Delete;
 using BAR.Application.MasterData.Categories.GetAll;
 using BAR.Application.MasterData.Categories.Update;
+using BAR.Application.Home.GetAdminHome;
+using BAR.Application.Home.GetSellerHome;
 using BAR.Application.Profile.ChangeEmail;
 using BAR.Application.Profile.ChangePassword;
 using BAR.Application.Profile.DeleteProfile;
@@ -92,6 +94,8 @@ public static class DependencyInjection
         services.AddScoped<IValidator<ReserveBlocksCommand>, ReserveBlocksCommandValidator>();
         services.AddScoped<DeleteBlockCommandHandler>();
         services.AddScoped<GetProfileQueryHandler>();
+        services.AddScoped<GetSellerHomeQueryHandler>();
+        services.AddScoped<GetAdminHomeQueryHandler>();
         services.AddScoped<UpdateProfileCommandHandler>();
         services.AddScoped<CreateArticleCommandHandler>();
         services.AddScoped<GetNextNumberQueryHandler>();
