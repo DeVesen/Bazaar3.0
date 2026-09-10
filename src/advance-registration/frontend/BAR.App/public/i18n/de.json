@@ -65,5 +65,28 @@
     "submit": "Exportieren",
     "success": "{{sellerCount}} Verkäufer und {{articleCount}} Artikel exportiert.",
     "error": "Export fehlgeschlagen"
+  },
+  "sellerTypes": {
+    "title": "Verkäufer-Typen",
+    "columnName": "Bezeichnung",
+    "columnCommissionRate": "Provision %",
+    "columnItemFee": "Gebühr €",
+    "columnSellerCount": "Verkäufer",
+    "emptyText": "Noch keine Verkäufer-Typen. Ohne Typ ist keine Registrierung möglich — mit + Neu beginnen.",
+    "loadError": "Verkäufer-Typen konnten nicht geladen werden",
+    "confirmDelete": "Verkäufer-Typ „{{name}}“ wirklich löschen? Betrifft {{sellerCount}} Verkäufer.",
+    "deleted": "✓ Verkäufer-Typ gelöscht",
+    "inUse": "Verkäufer-Typ wird noch verwendet",
+    "deleteFailed": "Löschen fehlgeschlagen"
+  },
+  "typPopup": {
+    "editTitle": "Verkäufer-Typ bearbeiten",
+    "createTitle": "Neuer Verkäufer-Typ",
+    "name": "Name",
+    "commissionRate": "Provision (%)",
+    "itemFee": "Gebühr (€)",
+    "saved": "✓ Verkäufer-Typ gespeichert",
+    "nameTaken": "Bezeichnung existiert bereits",
+    "saveFailed": "Speichern fehlgeschlagen"
   }
 }

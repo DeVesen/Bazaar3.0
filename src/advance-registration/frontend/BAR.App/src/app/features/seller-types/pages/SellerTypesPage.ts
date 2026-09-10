@@ -1,33 +1,20 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AppTable, ColumnConfig, ActionColumnConfig, ActionClickEvent } from '../../../shared/table/table';
 import { TypPopup } from '../../../shared/typ-popup/typ-popup';
 import { SellerTypeApiService, SellerType, SellerTypePayload } from '../seller-type-api.service';
 
-const COLUMNS: ColumnConfig[] = [
-  { field: 'name', header: 'Bezeichnung', type: 'text' },
-  { field: 'commissionRate', header: 'Provision %', type: 'number' },
-  { field: 'itemFee', header: 'Gebühr €', type: 'currency' },
-  { field: 'sellerCount', header: 'Verkäufer', type: 'number' }
-];
-
-const ACTION_COLUMN: ActionColumnConfig = {
-  actions: [
-    { actionId: 'edit', icon: 'pi pi-pencil', ariaLabel: 'Bearbeiten' },
-    { actionId: 'delete', icon: 'pi pi-trash', ariaLabel: 'Löschen' }
-  ]
-};
-
 @Component({
   selector: 'app-seller-types-page',
-  imports: [AppTable, TypPopup],
+  imports: [AppTable, TypPopup, TranslatePipe],
   template: `
     <app-table
-      title="Verkäufer-Typen"
-      [columns]="COLUMNS"
+      [title]="'sellerTypes.title' | translate"
+      [columns]="columns"
       [data]="sellerTypes()"
       [loading]="loading()"
-      [actionColumn]="ACTION_COLUMN"
+      [actionColumn]="actionColumn"
       [canAdd]="true"
       [lazy]="false"
       [emptyText]="emptyText"
@@ -47,10 +34,29 @@ export class SellerTypesPage implements OnInit {
   private readonly sellerTypeApi = inject(SellerTypeApiService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
 
-  protected readonly COLUMNS = COLUMNS;
-  protected readonly ACTION_COLUMN = ACTION_COLUMN;
-  readonly emptyText = 'Noch keine Verkäufer-Typen. Ohne Typ ist keine Registrierung möglich — mit + Neu beginnen.';
+  get columns(): ColumnConfig[] {
+    return [
+      { field: 'name', header: this.translate.instant('sellerTypes.columnName'), type: 'text' },
+      { field: 'commissionRate', header: this.translate.instant('sellerTypes.columnCommissionRate'), type: 'number' },
+      { field: 'itemFee', header: this.translate.instant('sellerTypes.columnItemFee'), type: 'currency' },
+      { field: 'sellerCount', header: this.translate.instant('sellerTypes.columnSellerCount'), type: 'number' }
+    ];
+  }
+
+  get actionColumn(): ActionColumnConfig {
+    return {
+      actions: [
+        { actionId: 'edit', icon: 'pi pi-pencil', ariaLabel: this.translate.instant('common.edit') },
+        { actionId: 'delete', icon: 'pi pi-trash', ariaLabel: this.translate.instant('common.delete') }
+      ]
+    };
+  }
+
+  get emptyText(): string {
+    return this.translate.instant('sellerTypes.emptyText');
+  }
 
   readonly sellerTypes = signal<SellerType[]>([]);
   readonly loading = signal(false);
@@ -76,7 +82,7 @@ export class SellerTypesPage implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Verkäufer-Typen konnten nicht geladen werden' });
+        this.messageService.add({ severity: 'error', summary: this.translate.instant('sellerTypes.loadError') });
       }
     });
   }
@@ -97,9 +103,9 @@ export class SellerTypesPage implements OnInit {
 
   confirmDelete(row: SellerType): void {
     this.confirmationService.confirm({
-      message: `Verkäufer-Typ „${row.name}“ wirklich löschen? Betrifft ${row.sellerCount} Verkäufer.`,
-      acceptLabel: 'Löschen',
-      rejectLabel: 'Abbrechen',
+      message: this.translate.instant('sellerTypes.confirmDelete', { name: row.name, sellerCount: row.sellerCount }),
+      acceptLabel: this.translate.instant('common.delete'),
+      rejectLabel: this.translate.instant('common.cancel'),
       accept: () => this.deleteType(row)
     });
   }
@@ -107,13 +113,13 @@ export class SellerTypesPage implements OnInit {
   deleteType(row: SellerType): void {
     this.sellerTypeApi.delete(row.id).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: '✓ Verkäufer-Typ gelöscht' });
+        this.messageService.add({ severity: 'success', summary: this.translate.instant('sellerTypes.deleted') });
         this.load();
       },
       error: (err: { status?: number; error?: { detail?: string } }) => {
         this.messageService.add({
           severity: 'error',
-          summary: err.status === 409 ? (err.error?.detail ?? 'Verkäufer-Typ wird noch verwendet') : 'Löschen fehlgeschlagen'
+          summary: err.status === 409 ? (err.error?.detail ?? this.translate.instant('sellerTypes.inUse')) : this.translate.instant('sellerTypes.deleteFailed')
         });
       }
     });

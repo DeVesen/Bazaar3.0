@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { of, Observable } from 'rxjs';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { SellerTypesPage } from './SellerTypesPage';
@@ -9,8 +10,26 @@ import { SellerTypeApiService } from '../seller-type-api.service';
 
 function create() {
   TestBed.configureTestingModule({
-    providers: [provideHttpClient(), provideHttpClientTesting(), MessageService, ConfirmationService]
+    providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService, ConfirmationService]
   });
+  const translate = TestBed.inject(TranslateService);
+  translate.setTranslation('de', {
+    common: { cancel: 'Abbrechen', save: 'Speichern', create: 'Anlegen', delete: 'Löschen', edit: 'Bearbeiten' },
+    sellerTypes: {
+      title: 'Verkäufer-Typen',
+      columnName: 'Bezeichnung',
+      columnCommissionRate: 'Provision %',
+      columnItemFee: 'Gebühr €',
+      columnSellerCount: 'Verkäufer',
+      emptyText: 'Noch keine Verkäufer-Typen. Ohne Typ ist keine Registrierung möglich — mit + Neu beginnen.',
+      loadError: 'Verkäufer-Typen konnten nicht geladen werden',
+      confirmDelete: 'Verkäufer-Typ „{{name}}“ wirklich löschen? Betrifft {{sellerCount}} Verkäufer.',
+      deleted: '✓ Verkäufer-Typ gelöscht',
+      inUse: 'Verkäufer-Typ wird noch verwendet',
+      deleteFailed: 'Löschen fehlgeschlagen'
+    }
+  });
+  translate.use('de');
   const api = TestBed.inject(SellerTypeApiService);
   vi.spyOn(api, 'getAll').mockReturnValue(of([{ id: 't1', name: 'Standard', commissionRate: 12.5, itemFee: 0.5, sellerCount: 3 }]));
   const fixture = TestBed.createComponent(SellerTypesPage);
@@ -30,6 +49,15 @@ describe('SellerTypesPage', () => {
     const { fixture } = create();
 
     expect(fixture.componentInstance.emptyText).toContain('Ohne Typ ist keine Registrierung möglich');
+  });
+
+  it('exposes the translated empty-state text', () => {
+    const { fixture } = create();
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', { sellerTypes: { emptyText: "No seller types yet. Registration isn't possible without one — start with + New." } });
+    translate.use('en');
+
+    expect(fixture.componentInstance.emptyText).toContain("isn't possible");
   });
 
   it('deleteType(row) calls SellerTypeApiService.delete and reloads on success', () => {

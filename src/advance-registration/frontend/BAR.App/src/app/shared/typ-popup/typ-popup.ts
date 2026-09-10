@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,11 +11,11 @@ import type { SellerType, SellerTypePayload } from '../../features/seller-types/
 
 @Component({
   selector: 'app-typ-popup',
-  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule],
+  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, TranslatePipe],
   template: `
-    <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="item() ? 'Verkäufer-Typ bearbeiten' : 'Neuer Verkäufer-Typ'">
+    <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="dialogTitle()">
       <div class="field">
-        <label for="typ-name">Name</label>
+        <label for="typ-name">{{ 'typPopup.name' | translate }}</label>
         <input id="typ-name" pInputText [(ngModel)]="nameModel" autofocus />
         @if (nameError()) {
           <small class="field-error">{{ nameError() }}</small>
@@ -22,24 +23,25 @@ import type { SellerType, SellerTypePayload } from '../../features/seller-types/
       </div>
 
       <div class="field">
-        <label for="typ-commission">Provision (%)</label>
+        <label for="typ-commission">{{ 'typPopup.commissionRate' | translate }}</label>
         <p-inputnumber id="typ-commission" [(ngModel)]="commissionRateModel" mode="decimal" [minFractionDigits]="2" suffix="%" [min]="0" [max]="100" />
       </div>
 
       <div class="field">
-        <label for="typ-fee">Gebühr (€)</label>
+        <label for="typ-fee">{{ 'typPopup.itemFee' | translate }}</label>
         <p-inputnumber id="typ-fee" [(ngModel)]="itemFeeModel" mode="currency" currency="EUR" locale="de-DE" [min]="0" />
       </div>
 
       <div class="dialog-footer">
-        <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">Abbrechen</button>
-        <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">Speichern</button>
+        <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+        <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">{{ 'common.save' | translate }}</button>
       </div>
     </p-dialog>
   `
 })
 export class TypPopup {
   private readonly messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
 
   readonly visible = model<boolean>(false);
   readonly item = input<SellerType | null>(null);
@@ -50,6 +52,10 @@ export class TypPopup {
   readonly commissionRate = signal(0);
   readonly itemFee = signal(0);
   readonly nameError = signal<string | null>(null);
+
+  readonly dialogTitle = computed(() =>
+    this.translate.instant(this.item() ? 'typPopup.editTitle' : 'typPopup.createTitle')
+  );
 
   get nameModel() { return this.name(); }
   set nameModel(v: string) { this.name.set(v); this.nameError.set(null); }
@@ -91,13 +97,13 @@ export class TypPopup {
     const payload: SellerTypePayload = { name: this.name().trim(), commissionRate: this.commissionRate(), itemFee: this.itemFee() };
     this.saveFn()(payload, this.item()?.id).subscribe({
       next: (result) => {
-        this.messageService.add({ severity: 'success', summary: '✓ Verkäufer-Typ gespeichert' });
+        this.messageService.add({ severity: 'success', summary: this.translate.instant('typPopup.saved') });
         this.saved.emit(result);
         this.visible.set(false);
       },
       error: (err: { status?: number; error?: { detail?: string } }) => {
         this.nameError.set(
-          err.status === 409 ? (err.error?.detail ?? 'Bezeichnung existiert bereits') : 'Speichern fehlgeschlagen'
+          err.status === 409 ? (err.error?.detail ?? this.translate.instant('typPopup.nameTaken')) : this.translate.instant('typPopup.saveFailed')
         );
       }
     });

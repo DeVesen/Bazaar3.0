@@ -65,5 +65,28 @@
     "submit": "Export",
     "success": "{{sellerCount}} sellers and {{articleCount}} articles exported.",
     "error": "Export failed"
+  },
+  "sellerTypes": {
+    "title": "Seller types",
+    "columnName": "Name",
+    "columnCommissionRate": "Commission %",
+    "columnItemFee": "Fee €",
+    "columnSellerCount": "Sellers",
+    "emptyText": "No seller types yet. Registration isn't possible without one — start with + New.",
+    "loadError": "Seller types could not be loaded",
+    "confirmDelete": "Really delete seller type \"{{name}}\"? Affects {{sellerCount}} sellers.",
+    "deleted": "✓ Seller type deleted",
+    "inUse": "Seller type is still in use",
+    "deleteFailed": "Delete failed"
+  },
+  "typPopup": {
+    "editTitle": "Edit seller type",
+    "createTitle": "New seller type",
+    "name": "Name",
+    "commissionRate": "Commission (%)",
+    "itemFee": "Fee (€)",
+    "saved": "✓ Seller type saved",
+    "nameTaken": "Name already exists",
+    "saveFailed": "Save failed"
   }
 }
