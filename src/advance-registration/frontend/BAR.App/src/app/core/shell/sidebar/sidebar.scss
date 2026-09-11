@@ -1,9 +1,5 @@
 @use '../../../../styles/breakpoints';
 
-:host {
-  display: block;
-}
-
 // p-sidebar-panel ist das Host-Element der PrimeNG-Panel-Komponente und
 // steht in diesem Template — die Flaeche der Sidebar selbst. PrimeNG setzt
 // den Hintergrund selbst ueber die Design-Token-Variable
