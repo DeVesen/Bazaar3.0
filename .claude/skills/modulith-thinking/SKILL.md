@@ -8,8 +8,9 @@ description: >
   a cross-department interface that belongs neither to a department nor to the transport
   (REST, tRPC, SignalR). Theory-only, technology-agnostic — framework bridges (Angular,
   .NET) are separate, not-yet-existing companion skills.
-  Triggers: @modulith-thinking, Unternehmen und Abteilungen, Fachabteilung, Modulith
-  denken, Abteilung auslagern, "wie strukturieren wir das grundsätzlich", Context Mapping.
+  Triggers: @modulith-thinking, Unternehmen und Abteilungen, Fachabteilung, Fachgruppe,
+  Akte, Modulith denken, Abteilung auslagern, "wie strukturieren wir das grundsätzlich",
+  Context Mapping.
   Background: baut auf `architecture-styles` (Deployment-Achse) und
   `software-design-principles` (DDD) auf. Opt-out: ohne modulith-thinking.
 ---
@@ -78,6 +79,48 @@ Abschnitt „Modularer Monolith".
 
 ---
 
+## Innerhalb der Abteilung: die Fachgruppe
+
+Eine Abteilung bearbeitet nicht „irgendwas", sondern klar abgegrenzte **Vorgänge** — bei
+„Einkauf" z. B. Bestellvorgänge, bei „Rechnungswesen" Zahlungsvorgänge. Ein Vorgang ist die
+**Akte**: eine Sammlung zusammengehöriger Unterlagen, immer als Ganzes behandelt, nach außen
+genau ein Ansprechpartner — der **Aktenverantwortliche**. Niemand greift an ihm vorbei direkt
+in die Akte; wer etwas will, wendet sich an ihn, und der sorgt dafür, dass die Akte danach
+noch stimmig ist (Bestellsumme passt zu den Positionen, ein stornierter Auftrag hat keine
+offene Lieferung mehr).
+
+Innerhalb der Akte:
+- **Belege ohne eigene Bedeutung außerhalb der Akte** — eine Bestellposition existiert nicht
+  für sich, nur als Teil genau dieser Bestellung.
+- **Reine Angaben** — ein Betrag, eine Adresse. Zwei Akten können denselben Betrag „42 €"
+  enthalten, ohne dass das irgendwas verbindet — kopierbar, ohne die Bedeutung zu verlieren.
+- **Logbucheinträge** — „Bestellung Nr. 123 wurde storniert am ...". Feststehende Tatsachen
+  in der Vergangenheit, die die Abteilung nach außen weitergeben kann, ohne dass jemand in
+  die Akte selbst schauen muss.
+
+### Wie eine Fachgruppe arbeitet
+
+Drei Rollen, die in jeder Fachgruppe getrennt sind, ob bewusst oder nicht:
+
+- **Das Vorzimmer** nimmt eine Anfrage entgegen, stellt fest, welche Akte gemeint ist,
+  reicht weiter, meldet zurück. Entscheidet nicht fachlich — vermittelt nur.
+- **Der Sachbearbeiter** — der Aktenverantwortliche selbst — kennt die Regeln des Fachs und
+  trifft die Entscheidungen. Weiß nichts von Aktenschränken oder EDV.
+- **Die Registratur** legt Akten ab und holt sie raus — immer vollständig, nie in Teilen.
+  Kennt keine einzige Fachregel, nur wie man ablegt und findet.
+
+Braucht eine Berechnung mehrere Akten gleichzeitig, gehört aber zu keiner einzelnen — z. B.
+eine Rabattstaffel über mehrere Bestellungen hinweg — übernimmt das ein **Fachreferent ohne
+eigene Akte**: kennt die Regel, führt sie aus, verwaltet selbst nichts.
+
+**Wann diese Tiefe nötig ist:** Nicht jede Fachgruppe braucht die volle Aufteilung. Bei einer
+Akte mit einem Feld und einer Regel ist der Sachbearbeiter schon die ganze Antwort — Vorzimmer
+und Registratur als eigene Rollen wären Zeremonie ohne Gegenwert. Lohnt sich erst, sobald
+mehrere Akten koordiniert werden müssen oder die Fachregeln unabhängig von Ablage und
+Vermittlung testbar sein sollen.
+
+---
+
 ## Rückübersetzung — Unternehmensbild ↔ Fachbegriff
 
 | Unternehmensbild | Fachbegriff | Vertiefung |
@@ -90,14 +133,20 @@ Abschnitt „Modularer Monolith".
 | zentrale Koordination vs. eigenständige Reaktion | Orchestrierung vs. Choreografie (In-Process Domain Events) | `architecture-styles/references/data-flow.md` |
 | Telefon / E-Mail / Kundenportal | Transport-Adapter (REST, tRPC, SignalR) | — kein Bestandteil der Abteilung |
 | Abteilung zieht aus | Modul-Extraktion zu Microservice | `architecture-styles/references/deployment.md` |
+| Akte | Aggregate | `software-design-principles/references/ddd.md` |
+| Aktenverantwortlicher | Aggregate Root | `software-design-principles/references/ddd.md` |
+| Beleg innerhalb der Akte | Entity (nicht-Root) | `software-design-principles/references/ddd.md` |
+| reine Angabe | Value Object | `software-design-principles/references/ddd.md` |
+| Logbucheintrag | Domain Event | `software-design-principles/references/ddd.md` |
+| Vorzimmer | Application-Schicht | `software-design-principles/references/ddd.md` |
+| Sachbearbeiter | Domain | `software-design-principles/references/ddd.md` |
+| Registratur | Repository / Infrastructure | `software-design-principles/references/ddd.md` |
+| Fachreferent ohne eigene Akte | Domain Service | `software-design-principles/references/ddd.md` |
 
 ---
 
 ## Noch nicht Teil dieses Bildes
 
-- **Innerhalb einer Fachabteilung** — Fachgruppen/Fachbereiche einer Abteilung (Aggregates,
-  Domain Services, Module innerhalb eines Bounded Context). Eigene Vertiefung, bewusst noch
-  offen.
 - **Framework-/sprachspezifische Übersetzung** — wie eine Fachabteilung konkret in Angular
   oder .NET gebaut wird. Geplante eigene Brücken-Skills, noch nicht vorhanden.
 
