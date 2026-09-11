@@ -52,6 +52,11 @@ Ein Projekt, referenziert alle Module — DI, Konfiguration, Middleware *und* di
 Minimal-API-Endpoints in einem. Der Name trägt beide Rollen (`Host`) oder betont die
 HTTP-Fläche (`Api`) — projektspezifisch, keine feste Vorgabe dieses Skills.
 
+`Features/<Modulname>/` im Host hält die Endpoints — die rufen **ausschließlich** das
+`.Contracts`-Projekt des jeweiligen Moduls auf, nie dessen Domain/Application/Infrastructure
+direkt. Jedes Modul bringt dafür eine eigene DI-Erweiterung mit (z. B. `AddAnmeldungModule(...)`),
+die `Program.cs` aufruft — das Modul verdrahtet sich selbst, der Host kennt nur den Aufruf.
+
 ---
 
 ## Wie viele Zimmer je Abteilung
@@ -75,6 +80,46 @@ auffällt, nicht ob er auffällt.
 Ports allgemein. Ein Modul, das nur der Host aufruft und das sonst niemand referenziert (ein
 reiner Export- oder Auswertungsdienst ohne Publikum innerhalb der Solution), braucht kein
 eigenes `.Contracts`-Projekt.
+
+---
+
+## Innerhalb eines Zimmers
+
+Wie die Ordner in einem Modul-Projekt liegen, unabhängig davon, ob es ein oder vier
+`.csproj` sind (dann gilt dasselbe je Projekt statt je Ordner):
+
+```
+<Prefix>.Modules.<Name>/
+├── Domain/
+├── Application/
+│     └── <ein Ordner je Anwendungsfall>
+└── Infrastructure/
+      ├── DependencyInjection.cs     ← registriert das Modul beim Host
+      └── Persistence/
+            ├── Repositories/
+            ├── Configurations/      (EF Core Fluent API)
+            ├── Queries/             (Read-Models, CQRS-Stufe 1/2)
+            ├── Migrations/
+            └── ErrorTranslation/    (DB-Fehler → Domain-Exceptions)
+```
+
+**Fachgruppen-Zwischenordner nur, wenn ein Modul mehrere klar getrennte Fachgruppen hat** —
+dann je einer in `Domain/` und `Application/`, mit den Anwendungsfällen darunter statt direkt
+darin. Ein Modul mit nur einer Fachgruppe bleibt flach. Dieselbe gestufte Entscheidung wie
+die Zimmertiefe selbst — keine feste Regel, sondern „lohnt sich das hier wirklich".
+
+```
+<Prefix>.Modules.Anmeldung/
+├── Domain/
+│     ├── Registrierung/
+│     └── Artikelpflege/
+├── Application/
+│     ├── Registrierung/
+│     │     └── <Anwendungsfälle>
+│     └── Artikelpflege/
+│           └── <Anwendungsfälle>
+└── Infrastructure/   (Aufbau wie oben)
+```
 
 ---
 
