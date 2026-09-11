@@ -89,10 +89,11 @@ Nach 1–4 ist das System faktisch hexagonal, ohne dass ein Umbauprojekt stattge
 
 ---
 
-## Verhältnis zu `software-design-principles`
+## Verhältnis zu `software-design-principles` und `modulith-thinking`
 
 | Frage | Zuständig |
 |-------|-----------|
+| Ist das ein System oder Konzern/Tochterunternehmen — mehrere? | `modulith-thinking` |
 | Wo verläuft die Kontextgrenze? | DDD — `software-design-principles` |
 | Wird aus der Kontextgrenze eine Prozessgrenze? | Deployment-Achse hier |
 | Wie sieht eine Methode innen aus? | IODA/IOSP — `software-design-principles` |

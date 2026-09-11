@@ -16,6 +16,12 @@ description: >
 
 > **Mantra:** Software soll *sauber*, *funktional*, *getestet*, *wartbar* und *nachhaltig* sein.
 
+**Zwei getrennte Fragen.** `modulith-thinking`, `architecture-styles` und die zwei
+Framework-Brücken (`dotnet-modulith-bridge`, `angular-modulith-bridge`) beantworten die
+**Struktur-Frage**: wie ist geschnitten — Abteilung, Zimmer, Deploy-Einheit. Dieser Skill
+beantwortet die **Code-Frage**: was passiert *innerhalb* einer Einheit — Methode, Klasse,
+Komponente. Ein sauberer Struktur-Schnitt ersetzt keinen sauberen Code, und umgekehrt.
+
 ---
 
 ## Prinzipien-Hierarchie

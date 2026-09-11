@@ -7,6 +7,22 @@ Was ist eine Deploy-Einheit? Diese Achse kostet am meisten und ist am schwersten
 
 ---
 
+## Vorfrage: ein System oder mehrere?
+
+Monolith, Modulith und Microservices beantworten alle dieselbe Frage: wie schneide ich
+**ein** System. Sie setzen voraus, dass es dieses eine System überhaupt gibt.
+
+Manchmal ist die eigentliche Antwort: es gibt zwei Systeme, die nie eins waren — ein
+Konzern mit eigenständigen Tochterunternehmen, nicht eine Firma mit Abteilungen. Getrennte
+Verantwortliche, getrennte Deploy-Kadenz, kein gemeinsamer fachlicher Kern, der eine
+gemeinsame Deploy-Einheit rechtfertigen würde. Zwischen ihnen steht dann kein
+In-Process-Event, sondern eine echte Systemgrenze (HTTP, Message Queue).
+
+Diese Vorfrage klärt der Skill `modulith-thinking` (Geschäftssprache, Konzern/Tochterunternehmen
+als Bild). Erst wenn sie mit „ein System" beantwortet ist, gilt die Wahl unten.
+
+---
+
 ## Monolith
 
 Eine Deploy-Einheit, keine erzwungenen Modulgrenzen im Inneren.
