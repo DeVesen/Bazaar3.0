@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Referenziert ausser dem DI-Abstraktionspaket nichts. Reines Plumbing
+       (IDs, Zeit, Exception-Vokabular, In-Process-Event-Dispatch) - keine
+       Fachlichkeit, keine EF-Core-/ASP.NET-Abhaengigkeit. Jedes Modul darf
+       dieses Projekt referenzieren (dotnet-modulith-bridge: SharedKernel). -->
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+</Project>

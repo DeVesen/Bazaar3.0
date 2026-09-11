@@ -5,9 +5,19 @@
     <PackageReference Include="Microsoft.Testing.Platform.MSBuild" />
   </ItemGroup>
 
-  <!-- Aggregate und Domain-Services werden ohne Mocks getestet. -->
+  <!-- Aggregate und Domain-Services werden ohne Mocks getestet. Referenziert
+       jedes Modul, dessen Domain hier abgedeckt wird, plus dessen Contracts
+       (Domain-Events wie BrandRenamed/CategoryRenamed liegen dort). -->
   <ItemGroup>
-    <ProjectReference Include="..\..\BAR.Domain\BAR.Domain.csproj" />
+    <ProjectReference Include="..\..\BAR.SharedKernel\BAR.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Anmeldung\BAR.Modules.Anmeldung.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Anmeldung.Contracts\BAR.Modules.Anmeldung.Contracts.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Verkaeuferverwaltung\BAR.Modules.Verkaeuferverwaltung.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Verkaeuferverwaltung.Contracts\BAR.Modules.Verkaeuferverwaltung.Contracts.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Stammdaten\BAR.Modules.Stammdaten.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Stammdaten.Contracts\BAR.Modules.Stammdaten.Contracts.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Betrieb\BAR.Modules.Betrieb.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Betrieb.Contracts\BAR.Modules.Betrieb.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

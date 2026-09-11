@@ -1,0 +1,108 @@
+using BAR.Modules.Anmeldung.Contracts;
+using BAR.Modules.Stammdaten.Contracts;
+using BAR.Modules.Stammdaten.Contracts.SellerTypes;
+using BAR.Modules.Verkaeuferverwaltung.Contracts;
+using BAR.Modules.Verkaeuferverwaltung.Contracts.Sellers;
+using BAR.Modules.Verkaeuferverwaltung.Domain.Ports;
+using BAR.Modules.Verkaeuferverwaltung.Domain.Sellers;
+
+namespace BAR.Modules.Verkaeuferverwaltung.Application.Sellers.List;
+
+/// <summary>
+/// Ersetzt den frueheren SQL-Join gegen Seller/SellerType/NumberBlock/Article
+/// (ein Dynamic-LINQ-Sort auf einer gemeinsamen Projektion): die vier
+/// Aggregate liegen seit dem Modulith-Schnitt in drei verschiedenen Schemata.
+/// Bei realistischer Basar-Groesse (Dutzende bis wenige hundert Verkaeufer)
+/// ist "alle laden, ueber Contracts anreichern, in-memory sortieren/paginieren"
+/// die CRUD-gemaesse Loesung (architecture-styles: kein Aufruesten auf
+/// Verdacht) - Batch-Anreicherung pro Modul statt eines Aufrufs je Verkaeufer.
+/// </summary>
+public sealed class GetSellersQueryHandler(ISellerRepository sellers, IStammdatenModuleApi stammdaten, IAnmeldungModuleApi anmeldung)
+{
+    private sealed record SellerRow(Seller Seller, SellerTypeConditionsDto Conditions, int? StartNumber, int ArticleCount);
+
+    public async Task<PagedResultDto<SellerDto>> HandleAsync(GetSellersQuery request, CancellationToken cancellationToken)
+    {
+        var all = await sellers.GetAllAsync(cancellationToken);
+
+        IEnumerable<Seller> filtered = all;
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var term = request.Search.Trim();
+            filtered = filtered.Where(s =>
+                s.FirstName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                s.LastName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                s.City.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                s.Email.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var sellerList = filtered.ToList();
+
+        var conditionsByType = new Dictionary<string, SellerTypeConditionsDto>();
+        foreach (var typeId in sellerList.Select(s => s.SellerTypeId).Distinct())
+        {
+            var conditions = await stammdaten.GetSellerTypeConditionsAsync(typeId, cancellationToken);
+            if (conditions is not null) conditionsByType[typeId] = conditions;
+        }
+
+        var blockSummaries = await anmeldung.GetBlockSummariesForSellersAsync(
+            sellerList.Select(s => s.Id).ToList(), cancellationToken);
+
+        var rows = sellerList
+            .Where(s => conditionsByType.ContainsKey(s.SellerTypeId))
+            .Select(s =>
+            {
+                var summary = blockSummaries.GetValueOrDefault(s.Id, new SellerBlockSummaryDto(null, 0));
+                return new SellerRow(s, conditionsByType[s.SellerTypeId], summary.StartNumber, summary.ArticleCount);
+            })
+            .ToList();
+
+        var sorted = ApplySort(rows, request.Sort);
+        var totalCount = sorted.Count;
+
+        var page = sorted
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .Select(r => new SellerDto(
+                r.Seller.Id, r.StartNumber, r.Seller.FirstName, r.Seller.LastName, r.Seller.Address,
+                r.Seller.PostalCode, r.Seller.City, r.Seller.Phone, r.Seller.Email, r.Seller.SellerTypeId,
+                new SellerTypeSummaryDto(r.Conditions.SellerTypeId, r.Conditions.Name, r.Conditions.CommissionRate, r.Conditions.ItemFee),
+                r.Seller.IsAdmin, r.ArticleCount,
+                r.Seller.InviteToken != null && r.Seller.InviteTokenExpiresAt > DateTime.UtcNow))
+            .ToList();
+
+        return new PagedResultDto<SellerDto>(page, totalCount, request.Page, request.PageSize);
+    }
+
+    private static List<SellerRow> ApplySort(List<SellerRow> rows, IReadOnlyList<SellerSortDto> sort)
+    {
+        if (sort.Count == 0)
+        {
+            return rows.OrderBy(r => r.Seller.LastName, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        IOrderedEnumerable<SellerRow>? ordered = null;
+        foreach (var s in sort)
+        {
+            Func<SellerRow, IComparable> selector = s.Field switch
+            {
+                "startNumber" => r => r.StartNumber ?? int.MinValue,
+                "firstName" => r => r.Seller.FirstName,
+                "lastName" => r => r.Seller.LastName,
+                "postalCode" => r => r.Seller.PostalCode,
+                "city" => r => r.Seller.City,
+                "sellerType.name" => r => r.Conditions.Name,
+                "commissionRate" => r => r.Conditions.CommissionRate,
+                "itemFee" => r => r.Conditions.ItemFee,
+                "articleCount" => r => r.ArticleCount,
+                _ => r => r.Seller.LastName
+            };
+
+            ordered = ordered is null
+                ? (s.Descending ? rows.OrderByDescending(selector) : rows.OrderBy(selector))
+                : (s.Descending ? ordered.ThenByDescending(selector) : ordered.ThenBy(selector));
+        }
+
+        return ordered!.ToList();
+    }
+}

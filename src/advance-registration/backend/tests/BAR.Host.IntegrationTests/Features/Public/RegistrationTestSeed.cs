@@ -1,5 +1,6 @@
-using BAR.Domain.Ports;
-using BAR.Domain.SellerTypes;
+using BAR.Modules.Betrieb.Domain.Ports;
+using BAR.Modules.Stammdaten.Domain.Ports;
+using BAR.Modules.Stammdaten.Domain.SellerTypes;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Features.Public;
@@ -10,7 +11,9 @@ namespace BAR.Host.IntegrationTests.Features.Public;
 /// <c>409 registration.not_enabled</c> gesperrt (api/auth.md). Bestehende Integrationstests
 /// fuer andere Features nutzen die Registrierung nur als Setup, um an einen authentifizierten
 /// Verkaeufer zu kommen; sie muessen dafuer jetzt selbst einen minimalen, gueltigen
-/// Settings-Datensatz anlegen.
+/// Settings-Datensatz anlegen. SellerType (Stammdaten) und Settings (Betrieb) liegen seit dem
+/// Modulith-Schnitt in getrennten Schemata/DbContexts - beide werden hier ueber ihre jeweilige
+/// Facade angelegt, aus demselben DI-Scope.
 /// </summary>
 public static class RegistrationTestSeed
 {
@@ -28,7 +31,7 @@ public static class RegistrationTestSeed
         var sellerType = SellerType.Create($"Seed-{Guid.NewGuid():N}", 15m, 0.5m);
         await sellerTypes.AddAsync(sellerType, cancellationToken);
 
-        var settings = BAR.Domain.Settings.Settings.Create(
+        var settings = BAR.Modules.Betrieb.Domain.Settings.Create(
             registrationDeadline: null, dropOffFrom: null, dropOffUntil: null,
             bazaarFrom: null, bazaarUntil: null, defaultTypeId: sellerType.Id, infoText: null,
             startNumber: 1, blockSize: 10, defaultBlockCount: 1);

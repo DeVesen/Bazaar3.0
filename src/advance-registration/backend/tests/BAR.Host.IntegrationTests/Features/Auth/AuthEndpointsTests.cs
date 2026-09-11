@@ -80,6 +80,7 @@ public class AuthEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
     [Fact]
     public async Task Login_SeededAdmin_Returns200WithTokenPair()
     {
+        await AdminTestSeed.EnsureAdminAsync(_factory.Services, "admin@bazaar.local", "Admin123!", TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
 
         var response = await client.PostAsJsonAsync("/api/auth/login",
@@ -91,6 +92,7 @@ public class AuthEndpointsTests : IClassFixture<PostgresWebApplicationFactory>
     [Fact]
     public async Task Login_WrongPassword_Returns401()
     {
+        await AdminTestSeed.EnsureAdminAsync(_factory.Services, "admin@bazaar.local", "Admin123!", TestContext.Current.CancellationToken);
         var client = _factory.CreateClient();
 
         var response = await client.PostAsJsonAsync("/api/auth/login",

@@ -6,9 +6,9 @@ import { of } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { HomePage } from './HomePage';
 import { HomeApiService } from '../home-api.service';
-import { PublicInfoService } from '../../../core/public-info/public-info.service';
-import { RoleService } from '../../../core/auth/role.service';
-import { AuthService } from '../../../core/auth/auth.service';
+import { PublicInfoService } from '@core/public-info/public-info.service';
+import { RoleService } from '@core/auth/role.service';
+import { AuthService } from '@core/auth/auth.service';
 
 const DE_TRANSLATIONS = {
   home: {

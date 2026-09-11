@@ -1,9 +1,9 @@
 import { Component, inject, input } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Countdown } from '../../../shared/countdown/countdown';
-import { CountdownPhase } from '../../../shared/countdown/select-active-phase';
-import { MarkdownText } from '../../../shared/markdown-text/markdown-text';
-import { PublicInfo } from '../../../core/public-info/public-info.service';
+import { Countdown } from '@shared/countdown/countdown';
+import { CountdownPhase } from '@shared/countdown/select-active-phase';
+import { MarkdownText } from '@shared/markdown-text/markdown-text';
+import { PublicInfo } from '@core/public-info/public-info.service';
 
 // Orchestriert drei unabhaengige Anzeige-Boxen (Countdown/Konditionen/Markdown) ueber
 // `GET /api/public/info` (docs/requirements/advance-registration/components/login-info-panel.md).

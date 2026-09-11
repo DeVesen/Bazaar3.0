@@ -1,9 +1,6 @@
 using System.Security.Claims;
-using BAR.Application.Blocks.Delete;
-using BAR.Application.Blocks.GetMine;
-using BAR.Application.Blocks.NextFree;
-using BAR.Application.Blocks.Reserve;
-using BAR.Domain.Ports;
+using BAR.Modules.Anmeldung.Contracts;
+using BAR.Modules.Anmeldung.Contracts.Blocks;
 using BAR.Host.Validation;
 
 namespace BAR.Host.Features.Blocks;
@@ -11,23 +8,21 @@ namespace BAR.Host.Features.Blocks;
 /// <summary>
 /// Eigene Nummernbloecke des angemeldeten Verkaeufers (api/blocks.md
 /// Abschnitt 1, Epic_Login AC-13). <c>RequireAuthorization()</c> ohne
-/// Policy-Name greift die Default-Policy aus Program.cs ("authenticated",
-/// Task 13) - jedes gueltige Token reicht, keine Rolle noetig. Die
-/// Seller-Id kommt aus dem <c>sub</c>-Claim, der wegen <c>NameClaimType =
-/// "sub"</c> (Program.cs) zugleich <see cref="ClaimsPrincipal.Identity"/>'s
-/// Name ist.
+/// Policy-Name greift die Default-Policy aus Program.cs ("authenticated") -
+/// jedes gueltige Token reicht, keine Rolle noetig. Die Seller-Id kommt aus
+/// dem <c>sub</c>-Claim.
 /// </summary>
 public static class BlocksEndpoints
 {
     public static IEndpointRouteBuilder MapBlocksEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/blocks/mine", async (ClaimsPrincipal user, GetMyBlocksQueryHandler handler, CancellationToken ct) =>
+        app.MapGet("/api/blocks/mine", async (ClaimsPrincipal user, IAnmeldungModuleApi anmeldung, CancellationToken ct) =>
         {
             var sellerId = user.FindFirstValue("sub")!;
-            return Results.Ok(await handler.HandleAsync(sellerId, ct));
+            return Results.Ok(await anmeldung.GetMyBlocksAsync(sellerId, ct));
         }).RequireAuthorization();
 
-        app.MapGet("/api/blocks/next-free", async (int blockCount, GetNextFreeQueryHandler handler, CancellationToken ct) =>
+        app.MapGet("/api/blocks/next-free", async (int blockCount, IAnmeldungModuleApi anmeldung, CancellationToken ct) =>
         {
             if (blockCount < 1)
             {
@@ -37,34 +32,25 @@ public static class BlocksEndpoints
                 });
             }
 
-            return Results.Ok(await handler.HandleAsync(new GetNextFreeQuery(blockCount), ct));
+            return Results.Ok(await anmeldung.GetNextFreeBlockAsync(blockCount, ct));
         }).RequireAuthorization("admin");
 
-        app.MapGet("/api/sellers/{id}/blocks", async (
-            string id, INumberBlockRepository blocks, IArticleRepository articles, CancellationToken ct) =>
-        {
-            var sellerBlocks = await blocks.GetForSellerAsync(id, ct);
-            var responses = new List<BlockResponse>();
-            foreach (var block in sellerBlocks)
-            {
-                var usedCount = await articles.CountInRangeForSellerAsync(block.SellerId, block.FromNumber, block.ToNumber, ct);
-                responses.Add(new BlockResponse(block.Id, block.SellerId, block.FromNumber, block.ToNumber, block.ToNumber - block.FromNumber + 1, usedCount, block.AssignedAt));
-            }
-            return Results.Ok(responses);
-        }).RequireAuthorization("admin");
+        app.MapGet("/api/sellers/{id}/blocks", async (string id, IAnmeldungModuleApi anmeldung, CancellationToken ct) =>
+            Results.Ok(await anmeldung.GetBlocksForSellerAsync(id, ct))
+        ).RequireAuthorization("admin");
 
         app.MapPost("/api/sellers/{id}/blocks", async (
-            string id, ReserveBlocksCommand body, ReserveBlocksCommandHandler handler, CancellationToken ct) =>
+            string id, ReserveBlocksCommand body, IAnmeldungModuleApi anmeldung, CancellationToken ct) =>
         {
             var command = body with { SellerId = id };
-            var result = await handler.HandleAsync(command, ct);
+            var result = await anmeldung.ReserveBlocksAsync(command, ct);
             return Results.Created($"/api/sellers/{id}/blocks", result);
         }).RequireAuthorization("admin").AddEndpointFilter<ValidationFilter<ReserveBlocksCommand>>();
 
         app.MapDelete("/api/sellers/{id}/blocks/{blockId}", async (
-            string id, string blockId, DeleteBlockCommandHandler handler, CancellationToken ct) =>
+            string id, string blockId, IAnmeldungModuleApi anmeldung, CancellationToken ct) =>
         {
-            await handler.HandleAsync(new DeleteBlockCommand(id, blockId), ct);
+            await anmeldung.DeleteBlockAsync(new DeleteBlockCommand(id, blockId), ct);
             return Results.NoContent();
         }).RequireAuthorization("admin");
 

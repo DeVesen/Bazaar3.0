@@ -1,7 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
-using BAR.Domain.Ports;
-using BAR.Domain.SellerTypes;
+using BAR.Modules.Betrieb.Domain.Ports;
+using BAR.Modules.Stammdaten.Domain.Ports;
+using BAR.Modules.Stammdaten.Domain.SellerTypes;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Features.Public;
@@ -57,7 +58,7 @@ public class PublicInfoEndpointWithConfiguredSettingsTests : IClassFixture<Postg
             await sellerTypes.AddAsync(sellerType, cancellationToken);
 
             var settingsRepository = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
-            var settings = BAR.Domain.Settings.Settings.Create(
+            var settings = BAR.Modules.Betrieb.Domain.Settings.Create(
                 registrationDeadline: null, dropOffFrom: null, dropOffUntil: null,
                 bazaarFrom: null, bazaarUntil: null, defaultTypeId: sellerType.Id, infoText: null,
                 startNumber: 1, blockSize: 10, defaultBlockCount: 1);

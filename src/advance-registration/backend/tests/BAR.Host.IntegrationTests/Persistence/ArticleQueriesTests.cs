@@ -1,6 +1,7 @@
-using BAR.Domain.Articles;
-using BAR.Domain.Ports.Queries;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Anmeldung.Domain.Articles;
+using BAR.Modules.Anmeldung.Domain.Ports;
+using BAR.Modules.Anmeldung.Domain.Ports.Queries;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -18,7 +19,7 @@ public class ArticleQueriesTests : IClassFixture<PostgresWebApplicationFactory>
     {
         _ = _factory.Server;
         using var scope = _factory.Services.CreateScope();
-        var articles = scope.ServiceProvider.GetRequiredService<Domain.Ports.IArticleRepository>();
+        var articles = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
         var queries = scope.ServiceProvider.GetRequiredService<IArticleQueries>();
         var ct = TestContext.Current.CancellationToken;
         var sellerId = Guid.NewGuid().ToString("N")[..8];
@@ -37,7 +38,7 @@ public class ArticleQueriesTests : IClassFixture<PostgresWebApplicationFactory>
     {
         _ = _factory.Server;
         using var scope = _factory.Services.CreateScope();
-        var articles = scope.ServiceProvider.GetRequiredService<Domain.Ports.IArticleRepository>();
+        var articles = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
         var queries = scope.ServiceProvider.GetRequiredService<IArticleQueries>();
         var ct = TestContext.Current.CancellationToken;
         var sellerId = Guid.NewGuid().ToString("N")[..8];
@@ -51,52 +52,67 @@ public class ArticleQueriesTests : IClassFixture<PostgresWebApplicationFactory>
     }
 
     [Fact]
-    public async Task SearchAllAsync_ReturnsSellerInfoPerItem()
+    public async Task SearchAllAsync_FiltersBySellerIdWhenGiven()
     {
         _ = _factory.Server;
         using var scope = _factory.Services.CreateScope();
-        var sellers = scope.ServiceProvider.GetRequiredService<Domain.Ports.ISellerRepository>();
-        var blocks = scope.ServiceProvider.GetRequiredService<Domain.Ports.INumberBlockRepository>();
-        var articles = scope.ServiceProvider.GetRequiredService<Domain.Ports.IArticleRepository>();
+        var articles = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
         var queries = scope.ServiceProvider.GetRequiredService<IArticleQueries>();
         var ct = TestContext.Current.CancellationToken;
+        var sellerId = Guid.NewGuid().ToString("N")[..8];
+        var otherSellerId = Guid.NewGuid().ToString("N")[..8];
+        await articles.CreateAsync(Article.Create(sellerId, 3001, "X", "M", "K", 1m, null, null, null, Now), null, ct);
+        await articles.CreateAsync(Article.Create(otherSellerId, 3002, "Y", "M", "K", 1m, null, null, null, Now), null, ct);
 
-        var seller = Domain.Sellers.Seller.Register("Anna", "Beispiel", null, "12345", "Ort", "000",
-            $"{Guid.NewGuid()}@example.com", "t0000001", "hash");
-        await sellers.AddAsync(seller, ct);
-        await blocks.AddAsync(Domain.NumberBlocks.NumberBlock.Assign(seller.Id, 3001, 10, Now), ct);
-        await articles.CreateAsync(Article.Create(seller.Id, 3001, "X", "M", "K", 1m, null, null, null, Now), null, ct);
-
-        var page = await queries.SearchAllAsync(null, null, search: "3001", sellerId: null, 1, 25, null, ct);
+        // searchMatchingSellerIds: null, weil dieser Test kein Namens-Suchergebnis
+        // simuliert - der Aufrufer (GetAllArticlesQueryHandler) loest das vorab
+        // ueber Verkaeuferverwaltung.Contracts auf, nicht die Query selbst.
+        var page = await queries.SearchAllAsync(null, null, search: null, sellerId: sellerId, searchMatchingSellerIds: null, 1, 25, null, ct);
 
         Assert.Single(page.Items);
-        Assert.Equal("Anna", page.Items[0].SellerFirstName);
-        Assert.Equal(3001, page.Items[0].SellerStartNumber);
+        Assert.Equal(3001, page.Items[0].Number);
     }
 
     [Fact]
-    public async Task SearchAllAsync_SortBySellerDescending_OrdersByLastName()
+    public async Task SearchAllAsync_SearchMatchingSellerIdsGiven_IncludesArticlesFromThoseSellers()
     {
         _ = _factory.Server;
         using var scope = _factory.Services.CreateScope();
-        var sellers = scope.ServiceProvider.GetRequiredService<Domain.Ports.ISellerRepository>();
-        var articles = scope.ServiceProvider.GetRequiredService<Domain.Ports.IArticleRepository>();
+        var articles = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
         var queries = scope.ServiceProvider.GetRequiredService<IArticleQueries>();
         var ct = TestContext.Current.CancellationToken;
+        var matchingSellerId = Guid.NewGuid().ToString("N")[..8];
+        var otherSellerId = Guid.NewGuid().ToString("N")[..8];
+        // Weder Name, Kategorie noch Marke passen auf "Anna" - nur der vorab
+        // aufgeloeste searchMatchingSellerIds-Treffer darf den Artikel einschliessen.
+        await articles.CreateAsync(Article.Create(matchingSellerId, 4001, "Jacke", "M", "K", 1m, null, null, null, Now), null, ct);
+        await articles.CreateAsync(Article.Create(otherSellerId, 4002, "Hose", "M", "K", 1m, null, null, null, Now), null, ct);
 
-        var sellerA = Domain.Sellers.Seller.Register("Anna", "Ackermann", null, "12345", "Ort", "000",
-            $"{Guid.NewGuid()}@example.com", "t0000001", "hash");
-        var sellerZ = Domain.Sellers.Seller.Register("Zora", "Zimmermann", null, "12345", "Ort", "000",
-            $"{Guid.NewGuid()}@example.com", "t0000001", "hash");
-        await sellers.AddAsync(sellerA, ct);
-        await sellers.AddAsync(sellerZ, ct);
-        await articles.CreateAsync(Article.Create(sellerA.Id, 4001, "X1", "M", "K", 1m, null, null, null, Now), null, ct);
-        await articles.CreateAsync(Article.Create(sellerZ.Id, 4002, "X2", "M", "K", 1m, null, null, null, Now), null, ct);
+        var page = await queries.SearchAllAsync(
+            null, null, search: "Anna", sellerId: null, searchMatchingSellerIds: [matchingSellerId], 1, 25, null, ct);
 
-        var page = await queries.SearchAllAsync(null, null, search: null, sellerId: null, 1, 25, sort: "seller:desc", ct);
+        var matched = page.Items.Where(a => a.Number is 4001 or 4002).ToList();
+        Assert.Single(matched);
+        Assert.Equal(4001, matched[0].Number);
+    }
 
-        var ordered = page.Items.Where(i => i.Article.Number is 4001 or 4002).ToList();
-        Assert.Equal("Zimmermann", ordered[0].SellerLastName);
-        Assert.Equal("Ackermann", ordered[1].SellerLastName);
+    [Fact]
+    public async Task SearchAllAsync_SortBySeller_FallsBackToNumberSortSinceNoSellerNameInThisSchema()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var articles = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        var queries = scope.ServiceProvider.GetRequiredService<IArticleQueries>();
+        var ct = TestContext.Current.CancellationToken;
+        var sellerId = Guid.NewGuid().ToString("N")[..8];
+        await articles.CreateAsync(Article.Create(sellerId, 5002, "X2", "M", "K", 1m, null, null, null, Now), null, ct);
+        await articles.CreateAsync(Article.Create(sellerId, 5001, "X1", "M", "K", 1m, null, null, null, Now), null, ct);
+
+        // "seller" ist wie jeder unbekannte Sortierwert zu behandeln (kein
+        // Namensfeld mehr in diesem Schema) - Fallback auf Nummer aufsteigend.
+        var page = await queries.SearchAllAsync(null, null, search: null, sellerId: sellerId, searchMatchingSellerIds: null, 1, 25, sort: "seller:desc", ct);
+
+        Assert.Equal(5001, page.Items[0].Number);
+        Assert.Equal(5002, page.Items[1].Number);
     }
 }

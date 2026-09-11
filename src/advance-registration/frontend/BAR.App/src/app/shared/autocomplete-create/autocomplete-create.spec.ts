@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AutocompleteCreate } from './autocomplete-create';
-import type { MasterDataItem } from '../../features/my-articles/master-data-api.service';
+import type { MasterDataItem } from '@shared/models/master-data-item';
 
 const ITEMS: MasterDataItem[] = [
   { id: 'b1', name: 'Nike', original: true },

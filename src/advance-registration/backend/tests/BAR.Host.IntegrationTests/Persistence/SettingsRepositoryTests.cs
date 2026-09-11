@@ -1,5 +1,6 @@
-using BAR.Domain.Ports;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Betrieb.Domain;
+using BAR.Modules.Betrieb.Domain.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -18,7 +19,7 @@ public class SettingsRepositoryTests : IClassFixture<PostgresWebApplicationFacto
         var repo = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
         var ct = TestContext.Current.CancellationToken;
 
-        var settings = Domain.Settings.Settings.Create(null, null, null, null, null, null, null, 1, 10, 1);
+        var settings = Settings.Create(null, null, null, null, null, null, null, 1, 10, 1);
         await repo.SaveAsync(settings, ct);
 
         var reloaded = await repo.GetAsync(ct);
@@ -35,7 +36,7 @@ public class SettingsRepositoryTests : IClassFixture<PostgresWebApplicationFacto
         var repo = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
         var ct = TestContext.Current.CancellationToken;
 
-        var settings = Domain.Settings.Settings.Create(null, null, null, null, null, null, null, 1, 10, 1);
+        var settings = Settings.Create(null, null, null, null, null, null, null, 1, 10, 1);
         await repo.SaveAsync(settings, ct);
 
         var reloaded = await repo.GetAsync(ct);

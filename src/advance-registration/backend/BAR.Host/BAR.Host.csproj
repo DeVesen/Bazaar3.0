@@ -18,10 +18,28 @@
     <InternalsVisibleTo Include="BAR.Host.IntegrationTests" />
   </ItemGroup>
 
+  <!-- Host referenziert die Modul-Implementierungen NUR fuer die
+       Add<Modul>Module()-DI-Erweiterung (Composition Root) - Feature-Endpoints
+       rufen ausschliesslich die jeweiligen .Contracts-Interfaces auf, nie
+       Domain/Application/Infrastructure eines Moduls direkt
+       (dotnet-modulith-bridge). Export hat kein eigenes Contracts-Projekt
+       (einziger Referenzierer ist der Host). -->
   <ItemGroup>
-    <ProjectReference Include="..\BAR.Domain\BAR.Domain.csproj" />
-    <ProjectReference Include="..\BAR.Application\BAR.Application.csproj" />
-    <ProjectReference Include="..\BAR.Infrastructure\BAR.Infrastructure.csproj" />
+    <ProjectReference Include="..\BAR.SharedKernel\BAR.SharedKernel.csproj" />
+
+    <ProjectReference Include="..\BAR.Modules.Anmeldung\BAR.Modules.Anmeldung.csproj" />
+    <ProjectReference Include="..\BAR.Modules.Anmeldung.Contracts\BAR.Modules.Anmeldung.Contracts.csproj" />
+
+    <ProjectReference Include="..\BAR.Modules.Verkaeuferverwaltung\BAR.Modules.Verkaeuferverwaltung.csproj" />
+    <ProjectReference Include="..\BAR.Modules.Verkaeuferverwaltung.Contracts\BAR.Modules.Verkaeuferverwaltung.Contracts.csproj" />
+
+    <ProjectReference Include="..\BAR.Modules.Stammdaten\BAR.Modules.Stammdaten.csproj" />
+    <ProjectReference Include="..\BAR.Modules.Stammdaten.Contracts\BAR.Modules.Stammdaten.Contracts.csproj" />
+
+    <ProjectReference Include="..\BAR.Modules.Betrieb\BAR.Modules.Betrieb.csproj" />
+    <ProjectReference Include="..\BAR.Modules.Betrieb.Contracts\BAR.Modules.Betrieb.Contracts.csproj" />
+
+    <ProjectReference Include="..\BAR.Modules.Export\BAR.Modules.Export.csproj" />
   </ItemGroup>
 
   <ItemGroup>

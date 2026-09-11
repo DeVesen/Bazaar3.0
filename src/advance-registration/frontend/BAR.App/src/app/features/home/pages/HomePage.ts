@@ -3,16 +3,16 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { of, switchMap } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { KpiTile } from '../../../shared/kpi-tile/kpi-tile';
-import { KpiGrid } from '../../../shared/kpi-tile/kpi-grid';
-import { ActivityHeatmap } from '../../../shared/activity-heatmap/activity-heatmap';
-import { Countdown } from '../../../shared/countdown/countdown';
-import { VerkaeuferNummer } from '../../../shared/verkaeufer-nummer/verkaeufer-nummer';
-import { MarkdownText } from '../../../shared/markdown-text/markdown-text';
+import { KpiTile } from '@shared/kpi-tile/kpi-tile';
+import { KpiGrid } from '@shared/kpi-tile/kpi-grid';
+import { ActivityHeatmap } from '@shared/activity-heatmap/activity-heatmap';
+import { Countdown } from '@shared/countdown/countdown';
+import { VerkaeuferNummer } from '@shared/verkaeufer-nummer/verkaeufer-nummer';
+import { MarkdownText } from '@shared/markdown-text/markdown-text';
 import { HomeApiService, SellerHomeResponse, AdminHomeResponse } from '../home-api.service';
-import { PublicInfoService } from '../../../core/public-info/public-info.service';
-import { RoleService } from '../../../core/auth/role.service';
-import { AuthService } from '../../../core/auth/auth.service';
+import { PublicInfoService } from '@core/public-info/public-info.service';
+import { RoleService } from '@core/auth/role.service';
+import { AuthService } from '@core/auth/auth.service';
 
 @Component({
   selector: 'app-home-page',

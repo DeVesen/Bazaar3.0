@@ -1,7 +1,6 @@
-using BAR.Domain.Ports;
-using BAR.Domain.Sellers;
-using BAR.Domain.SellerTypes;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Stammdaten.Domain.Ports;
+using BAR.Modules.Stammdaten.Domain.SellerTypes;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -75,27 +74,13 @@ public class SellerTypeRepositoryTests : IClassFixture<PostgresWebApplicationFac
         Assert.Equal(15m, reloaded.CommissionRate);
     }
 
-    [Fact]
-    public async Task CountSellersAsync_CountsOnlyMatchingType()
-    {
-        _ = _factory.Server;
-        using var scope = _factory.Services.CreateScope();
-        var types = scope.ServiceProvider.GetRequiredService<ISellerTypeRepository>();
-        var sellers = scope.ServiceProvider.GetRequiredService<ISellerRepository>();
-        var ct = TestContext.Current.CancellationToken;
-        var type = SellerType.Create($"Zaehl-{Guid.NewGuid():N}", 10m, 0.20m);
-        await types.AddAsync(type, ct);
-        var otherType = SellerType.Create($"Andere-{Guid.NewGuid():N}", 10m, 0.20m);
-        await types.AddAsync(otherType, ct);
-        await sellers.AddAsync(Seller.Register("A", "B", null, "76133", "Karlsruhe", "0721", $"{Guid.NewGuid()}@example.com", type.Id, "hash"), ct);
-        await sellers.AddAsync(Seller.Register("C", "D", null, "76133", "Karlsruhe", "0721", $"{Guid.NewGuid()}@example.com", type.Id, "hash"), ct);
-        await sellers.AddAsync(Seller.Register("E", "F", null, "76133", "Karlsruhe", "0721", $"{Guid.NewGuid()}@example.com", otherType.Id, "hash"), ct);
-
-        var count = await types.CountSellersAsync(type.Id, ct);
-
-        Assert.Equal(2, count);
-    }
-
+    // CountSellersAsync ist von ISellerTypeRepository nach
+    // IVerkaeuferverwaltungModuleApi.CountSellersByTypeAsync gewandert - Seller
+    // liegt seit dem Modulith-Schnitt in einem anderen Schema/Modul und ist von
+    // hier aus nicht mehr direkt abfragbar. Die Zaehl-Logik selbst (dort ein
+    // simpler Pass-Through auf ISellerRepository.CountByTypeAsync) ist bereits
+    // in SellerRepositoryTests.CountByTypeAsync_CountsOnlySellersOfThatType
+    // abgedeckt.
     [Fact]
     public async Task DeleteAsync_RemovesType()
     {

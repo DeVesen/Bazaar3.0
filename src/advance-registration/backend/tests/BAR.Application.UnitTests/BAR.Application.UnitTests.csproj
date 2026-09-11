@@ -6,8 +6,26 @@
     <PackageReference Include="Moq" />
   </ItemGroup>
 
+  <!-- Ein Testprojekt je Modul waere reiner Overhead ohne Mehrwert (dieselben
+       fuenf Module wie ueberall) - stattdessen ein Ordner je Modul, siehe
+       unit-integration-testing-Skill: Trennung nach Modul/Feature statt nach
+       .csproj, solange die Namensraeume eindeutig bleiben. -->
   <ItemGroup>
-    <ProjectReference Include="..\..\BAR.Application\BAR.Application.csproj" />
+    <ProjectReference Include="..\..\BAR.SharedKernel\BAR.SharedKernel.csproj" />
+
+    <ProjectReference Include="..\..\BAR.Modules.Anmeldung\BAR.Modules.Anmeldung.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Anmeldung.Contracts\BAR.Modules.Anmeldung.Contracts.csproj" />
+
+    <ProjectReference Include="..\..\BAR.Modules.Verkaeuferverwaltung\BAR.Modules.Verkaeuferverwaltung.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Verkaeuferverwaltung.Contracts\BAR.Modules.Verkaeuferverwaltung.Contracts.csproj" />
+
+    <ProjectReference Include="..\..\BAR.Modules.Stammdaten\BAR.Modules.Stammdaten.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Stammdaten.Contracts\BAR.Modules.Stammdaten.Contracts.csproj" />
+
+    <ProjectReference Include="..\..\BAR.Modules.Betrieb\BAR.Modules.Betrieb.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Betrieb.Contracts\BAR.Modules.Betrieb.Contracts.csproj" />
+
+    <ProjectReference Include="..\..\BAR.Modules.Export\BAR.Modules.Export.csproj" />
   </ItemGroup>
 
   <ItemGroup>

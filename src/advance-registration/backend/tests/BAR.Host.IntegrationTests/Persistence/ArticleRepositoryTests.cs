@@ -1,7 +1,7 @@
-using BAR.Domain.Articles;
-using BAR.Domain.NumberBlocks;
-using BAR.Domain.Ports;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Anmeldung.Domain.Articles;
+using BAR.Modules.Anmeldung.Domain.NumberBlocks;
+using BAR.Modules.Anmeldung.Domain.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -82,6 +82,98 @@ public class ArticleRepositoryTests : IClassFixture<PostgresWebApplicationFactor
         await repo.DeleteAsync(article, ct);
 
         Assert.Null(await repo.GetByIdAsync(article.Id, ct));
+    }
+
+    // Neu seit dem Modulith-Schnitt: Brand/Category leben in Stammdaten (eigenes
+    // Schema) - Anmeldung haelt fuer bestehende Artikel eine eigene Namenskopie
+    // und muss sie selbst zaehlen/umbenennen koennen (siehe IArticleRepository).
+    [Fact]
+    public async Task CountWithBrandNameAsync_CountsOnlyMatchingBrand()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        var ct = TestContext.Current.CancellationToken;
+        var brand = $"Marke-{Guid.NewGuid():N}";
+        var sellerId = Guid.NewGuid().ToString("N")[..8];
+        await repo.CreateAsync(Article.Create(sellerId, 601, "A", brand, "C", 1m, null, null, null, Now), null, ct);
+        await repo.CreateAsync(Article.Create(sellerId, 602, "A", brand, "C", 1m, null, null, null, Now), null, ct);
+        await repo.CreateAsync(Article.Create(sellerId, 603, "A", "Andere Marke", "C", 1m, null, null, null, Now), null, ct);
+
+        var count = await repo.CountWithBrandNameAsync(brand, ct);
+
+        Assert.Equal(2, count);
+    }
+
+    [Fact]
+    public async Task CountWithCategoryNameAsync_CountsOnlyMatchingCategory()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        var ct = TestContext.Current.CancellationToken;
+        var category = $"Kategorie-{Guid.NewGuid():N}";
+        var sellerId = Guid.NewGuid().ToString("N")[..8];
+        await repo.CreateAsync(Article.Create(sellerId, 701, "A", "B", category, 1m, null, null, null, Now), null, ct);
+        await repo.CreateAsync(Article.Create(sellerId, 702, "A", "B", "Andere Kategorie", 1m, null, null, null, Now), null, ct);
+
+        var count = await repo.CountWithCategoryNameAsync(category, ct);
+
+        Assert.Equal(1, count);
+    }
+
+    [Fact]
+    public async Task RenameBrandAsync_UpdatesBrandOnAllMatchingArticles()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        var ct = TestContext.Current.CancellationToken;
+        var oldName = $"Alt-{Guid.NewGuid():N}";
+        var newName = $"Neu-{Guid.NewGuid():N}";
+        var sellerId = Guid.NewGuid().ToString("N")[..8];
+        var article = Article.Create(sellerId, 801, "A", oldName, "C", 1m, null, null, null, Now);
+        await repo.CreateAsync(article, null, ct);
+
+        await repo.RenameBrandAsync(oldName, newName, ct);
+
+        var reloaded = await repo.GetByIdAsync(article.Id, ct);
+        Assert.Equal(newName, reloaded!.Brand);
+    }
+
+    [Fact]
+    public async Task RenameCategoryAsync_UpdatesCategoryOnAllMatchingArticles()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        var ct = TestContext.Current.CancellationToken;
+        var oldName = $"Alt-{Guid.NewGuid():N}";
+        var newName = $"Neu-{Guid.NewGuid():N}";
+        var sellerId = Guid.NewGuid().ToString("N")[..8];
+        var article = Article.Create(sellerId, 901, "A", "B", oldName, 1m, null, null, null, Now);
+        await repo.CreateAsync(article, null, ct);
+
+        await repo.RenameCategoryAsync(oldName, newName, ct);
+
+        var reloaded = await repo.GetByIdAsync(article.Id, ct);
+        Assert.Equal(newName, reloaded!.Category);
+    }
+
+    [Fact]
+    public async Task GetAllForExportAsync_ReturnsAllPersistedArticles()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        var ct = TestContext.Current.CancellationToken;
+        var sellerId = Guid.NewGuid().ToString("N")[..8];
+        var article = Article.Create(sellerId, 1001, "Exportartikel", "B", "C", 1m, null, null, null, Now);
+        await repo.CreateAsync(article, null, ct);
+
+        var all = await repo.GetAllForExportAsync(ct);
+
+        Assert.Contains(all, a => a.Id == article.Id);
     }
 }
 

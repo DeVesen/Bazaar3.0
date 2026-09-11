@@ -6,8 +6,8 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
 import { SidebarModule } from 'primeng/sidebar';
 import { LucideLogOut } from '@lucide/angular';
-import { AuthService } from '../../auth/auth.service';
-import { RoleService, Role } from '../../auth/role.service';
+import { AuthService } from '@core/auth/auth.service';
+import { RoleService, Role } from '@core/auth/role.service';
 import { SidebarTitle } from './sidebar-title';
 
 interface NavItem {

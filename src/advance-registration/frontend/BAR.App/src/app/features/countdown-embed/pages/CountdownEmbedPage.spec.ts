@@ -5,7 +5,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { By } from '@angular/platform-browser';
 import { CountdownEmbedPage } from './CountdownEmbedPage';
-import { Countdown } from '../../../shared/countdown/countdown';
+import { Countdown } from '@shared/countdown/countdown';
 
 const FULL_INFO = {
   registrationDeadline: '2026-09-30T23:59:00+02:00',

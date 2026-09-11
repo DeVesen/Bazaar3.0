@@ -1,6 +1,6 @@
-using BAR.Domain.MasterData;
-using BAR.Domain.Ports;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Stammdaten.Domain.MasterData;
+using BAR.Modules.Stammdaten.Domain.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -57,38 +57,24 @@ public class CategoryRepositoryTests : IClassFixture<PostgresWebApplicationFacto
         Assert.False(exists);
     }
 
+    // UpdateAsync hat kein renameArticlesFrom mehr - siehe BrandRepositoryTests
+    // fuer die Begruendung; identisches Muster fuer Kategorien.
     [Fact]
-    public async Task UpdateAsync_RenameWithCascade_UpdatesArticleCategoryField()
+    public async Task UpdateAsync_PersistsNewNameAndOriginalFlag()
     {
         _ = _factory.Server;
         using var scope = _factory.Services.CreateScope();
         var categories = scope.ServiceProvider.GetRequiredService<ICategoryRepository>();
-        var articles = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
         var ct = TestContext.Current.CancellationToken;
-        var sellerId = Guid.NewGuid().ToString("N")[..8];
-        var oldName = $"Alt-{Guid.NewGuid():N}";
-        var category = Category.Create(oldName, original: false);
+        var category = Category.Create($"Alt-{Guid.NewGuid():N}", original: false);
         await categories.AddAsync(category, ct);
-        var article = BAR.Domain.Articles.Article.Create(sellerId, 501, "Jacke", "Marke", oldName, 5m, null, null, null, DateTime.UtcNow);
-        await articles.CreateAsync(article, null, ct);
 
         category.Rename("Neu", original: true);
-        await categories.UpdateAsync(category, renameArticlesFrom: oldName, ct);
+        await categories.UpdateAsync(category, ct);
 
-        var updatedArticle = await articles.GetByIdAsync(article.Id, ct);
-        Assert.Equal("Neu", updatedArticle!.Category);
-    }
-
-    [Fact]
-    public async Task CountArticlesWithNameAsync_NoMatches_ReturnsZero()
-    {
-        _ = _factory.Server;
-        using var scope = _factory.Services.CreateScope();
-        var repo = scope.ServiceProvider.GetRequiredService<ICategoryRepository>();
-
-        var count = await repo.CountArticlesWithNameAsync($"unbenutzt-{Guid.NewGuid():N}", TestContext.Current.CancellationToken);
-
-        Assert.Equal(0, count);
+        var reloaded = await categories.GetByIdAsync(category.Id, ct);
+        Assert.Equal("Neu", reloaded!.Name);
+        Assert.True(reloaded.Original);
     }
 
     [Fact]

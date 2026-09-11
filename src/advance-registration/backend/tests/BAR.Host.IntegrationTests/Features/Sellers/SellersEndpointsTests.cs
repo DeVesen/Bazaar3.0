@@ -1,8 +1,9 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using BAR.Domain.Ports;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Anmeldung.Domain.Ports;
+using BAR.Modules.Verkaeuferverwaltung.Domain.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Features.Sellers;
@@ -84,6 +85,7 @@ public class SellersEndpointsTests : IClassFixture<PostgresWebApplicationFactory
     private async Task<HttpClient> AuthenticateAsAdminAsync()
     {
         var client = _factory.CreateClient();
+        await AdminTestSeed.EnsureAdminAsync(_factory.Services, "admin@bazaar.local", "Admin123!", TestContext.Current.CancellationToken);
         var loginResponse = await client.PostAsJsonAsync("/api/auth/login", new
         {
             email = "admin@bazaar.local", password = "Admin123!"

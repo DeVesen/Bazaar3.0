@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using BAR.Application.Home.GetAdminHome;
-using BAR.Application.Home.GetSellerHome;
 
 namespace BAR.Host.Features.Home;
 
@@ -8,14 +6,14 @@ public static class HomeEndpoints
 {
     public static IEndpointRouteBuilder MapHomeEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/home/seller", async (ClaimsPrincipal user, GetSellerHomeQueryHandler handler, CancellationToken ct) =>
+        app.MapGet("/api/home/seller", async (ClaimsPrincipal user, HomeCompositionService composer, CancellationToken ct) =>
         {
             var sellerId = user.FindFirstValue("sub")!;
-            return Results.Ok(await handler.HandleAsync(sellerId, ct));
+            return Results.Ok(await composer.GetSellerHomeAsync(sellerId, ct));
         }).RequireAuthorization();
 
-        app.MapGet("/api/home/admin", async (GetAdminHomeQueryHandler handler, CancellationToken ct) =>
-            Results.Ok(await handler.HandleAsync(ct)))
+        app.MapGet("/api/home/admin", async (HomeCompositionService composer, CancellationToken ct) =>
+            Results.Ok(await composer.GetAdminHomeAsync(ct)))
             .RequireAuthorization("admin");
 
         return app;

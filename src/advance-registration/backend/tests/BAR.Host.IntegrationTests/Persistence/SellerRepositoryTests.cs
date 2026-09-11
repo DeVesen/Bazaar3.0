@@ -1,6 +1,6 @@
-using BAR.Domain.Ports;
-using BAR.Domain.Sellers;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Verkaeuferverwaltung.Domain.Ports;
+using BAR.Modules.Verkaeuferverwaltung.Domain.Sellers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -39,5 +39,41 @@ public class SellerRepositoryTests : IClassFixture<PostgresWebApplicationFactory
         var found = await repo.GetByEmailAsync("nobody@example.com", TestContext.Current.CancellationToken);
 
         Assert.Null(found);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ReturnsPersistedSellers()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<ISellerRepository>();
+        var ct = TestContext.Current.CancellationToken;
+        var seller = Seller.Register("All", "Getter", null, "12345", "Ort", "000",
+            $"{Guid.NewGuid()}@example.com", "t0000001", "hash");
+        await repo.AddAsync(seller, ct);
+
+        var all = await repo.GetAllAsync(ct);
+
+        Assert.Contains(all, s => s.Id == seller.Id);
+    }
+
+    [Fact]
+    public async Task CountByTypeAsync_CountsOnlySellersOfThatType()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<ISellerRepository>();
+        var ct = TestContext.Current.CancellationToken;
+        var sellerTypeId = $"t{Guid.NewGuid():N}"[..8];
+        var seller1 = Seller.Register("A", "B", null, "1", "C", "0", $"{Guid.NewGuid()}@example.com", sellerTypeId, "hash");
+        var seller2 = Seller.Register("D", "E", null, "1", "C", "0", $"{Guid.NewGuid()}@example.com", sellerTypeId, "hash");
+        var otherTypeSeller = Seller.Register("F", "G", null, "1", "C", "0", $"{Guid.NewGuid()}@example.com", "t0000001", "hash");
+        await repo.AddAsync(seller1, ct);
+        await repo.AddAsync(seller2, ct);
+        await repo.AddAsync(otherTypeSeller, ct);
+
+        var count = await repo.CountByTypeAsync(sellerTypeId, ct);
+
+        Assert.Equal(2, count);
     }
 }

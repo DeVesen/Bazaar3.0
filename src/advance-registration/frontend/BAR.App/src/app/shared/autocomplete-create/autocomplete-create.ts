@@ -6,7 +6,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { Observable } from 'rxjs';
-import type { MasterDataItem } from '../../features/my-articles/master-data-api.service';
+import type { MasterDataItem } from '@shared/models/master-data-item';
 
 @Component({
   selector: 'app-autocomplete-create',

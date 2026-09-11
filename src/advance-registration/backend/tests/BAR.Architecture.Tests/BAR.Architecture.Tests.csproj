@@ -7,11 +7,14 @@
   </ItemGroup>
 
   <!-- Prueft die Luecke, die der Compiler offen laesst: Attribute und Typen
-       innerhalb eines Projekts (spec.md 10.0.1, VPROJ-S05 AC-5). -->
+       innerhalb eines Projekts (spec.md 10.0.1, VPROJ-S05 AC-5) und die
+       Modulgrenze (nur .Contracts ist von aussen ansprechbar). -->
   <ItemGroup>
-    <ProjectReference Include="..\..\BAR.Domain\BAR.Domain.csproj" />
-    <ProjectReference Include="..\..\BAR.Application\BAR.Application.csproj" />
-    <ProjectReference Include="..\..\BAR.Infrastructure\BAR.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Anmeldung\BAR.Modules.Anmeldung.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Verkaeuferverwaltung\BAR.Modules.Verkaeuferverwaltung.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Stammdaten\BAR.Modules.Stammdaten.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Betrieb\BAR.Modules.Betrieb.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Export\BAR.Modules.Export.csproj" />
     <ProjectReference Include="..\..\BAR.Host\BAR.Host.csproj" />
   </ItemGroup>
 

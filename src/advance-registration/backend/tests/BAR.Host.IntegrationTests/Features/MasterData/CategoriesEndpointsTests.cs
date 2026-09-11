@@ -82,6 +82,7 @@ public class CategoriesEndpointsTests : IClassFixture<PostgresWebApplicationFact
     private async Task<HttpClient> AuthenticateAsAdminAsync()
     {
         var client = _factory.CreateClient();
+        await AdminTestSeed.EnsureAdminAsync(_factory.Services, "admin@bazaar.local", "Admin123!", TestContext.Current.CancellationToken);
         var loginResponse = await client.PostAsJsonAsync("/api/auth/login", new
         {
             email = "admin@bazaar.local", password = "Admin123!"

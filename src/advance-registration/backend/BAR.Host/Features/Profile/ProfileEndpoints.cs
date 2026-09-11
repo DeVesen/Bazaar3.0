@@ -1,9 +1,6 @@
 using System.Security.Claims;
-using BAR.Application.Profile.ChangeEmail;
-using BAR.Application.Profile.ChangePassword;
-using BAR.Application.Profile.DeleteProfile;
-using BAR.Application.Profile.GetProfile;
-using BAR.Application.Profile.UpdateProfile;
+using BAR.Modules.Verkaeuferverwaltung.Contracts;
+using BAR.Modules.Verkaeuferverwaltung.Contracts.Profile;
 using BAR.Host.Validation;
 
 namespace BAR.Host.Features.Profile;
@@ -12,36 +9,36 @@ public static class ProfileEndpoints
 {
     public static IEndpointRouteBuilder MapProfileEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/profile", async (ClaimsPrincipal user, GetProfileQueryHandler handler, CancellationToken ct) =>
+        app.MapGet("/api/profile", async (ClaimsPrincipal user, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
         {
             var sellerId = user.FindFirstValue("sub")!;
-            return Results.Ok(await handler.HandleAsync(sellerId, ct));
+            return Results.Ok(await verkaeuferverwaltung.GetProfileAsync(sellerId, ct));
         }).RequireAuthorization();
 
-        app.MapPut("/api/profile", async (ClaimsPrincipal user, UpdateProfileCommand command, UpdateProfileCommandHandler handler, CancellationToken ct) =>
+        app.MapPut("/api/profile", async (ClaimsPrincipal user, UpdateProfileCommand command, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
         {
             var sellerId = user.FindFirstValue("sub")!;
-            return Results.Ok(await handler.HandleAsync(sellerId, command, ct));
+            return Results.Ok(await verkaeuferverwaltung.UpdateProfileAsync(sellerId, command, ct));
         }).RequireAuthorization().AddEndpointFilter<ValidationFilter<UpdateProfileCommand>>();
 
-        app.MapPut("/api/profile/email", async (ClaimsPrincipal user, ChangeEmailCommand command, ChangeEmailCommandHandler handler, CancellationToken ct) =>
+        app.MapPut("/api/profile/email", async (ClaimsPrincipal user, ChangeEmailCommand command, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
         {
             var sellerId = user.FindFirstValue("sub")!;
-            await handler.HandleAsync(sellerId, command, ct);
+            await verkaeuferverwaltung.ChangeEmailAsync(sellerId, command, ct);
             return Results.NoContent();
         }).RequireAuthorization().AddEndpointFilter<ValidationFilter<ChangeEmailCommand>>();
 
-        app.MapPut("/api/profile/password", async (ClaimsPrincipal user, ChangePasswordCommand command, ChangePasswordCommandHandler handler, CancellationToken ct) =>
+        app.MapPut("/api/profile/password", async (ClaimsPrincipal user, ChangePasswordCommand command, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
         {
             var sellerId = user.FindFirstValue("sub")!;
-            var result = await handler.HandleAsync(sellerId, command, ct);
+            var result = await verkaeuferverwaltung.ChangePasswordAsync(sellerId, command, ct);
             return Results.Ok(result);
         }).RequireAuthorization().AddEndpointFilter<ValidationFilter<ChangePasswordCommand>>();
 
-        app.MapDelete("/api/profile", async (ClaimsPrincipal user, DeleteProfileCommandHandler handler, CancellationToken ct) =>
+        app.MapDelete("/api/profile", async (ClaimsPrincipal user, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
         {
             var sellerId = user.FindFirstValue("sub")!;
-            await handler.HandleAsync(sellerId, ct);
+            await verkaeuferverwaltung.DeleteProfileAsync(sellerId, ct);
             return Results.NoContent();
         }).RequireAuthorization();
 

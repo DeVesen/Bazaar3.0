@@ -39,7 +39,7 @@ Doku-Verzeichnisname und Code-Verzeichnisname sind identisch.
 ```
 src/advance-registration/
 ├── frontend/                  ← Angular-Frontend
-└── backend/                   ← alle Backend-Projekte (Domain/Application/Infrastructure/Api)
+└── backend/                   ← BAR.SharedKernel, BAR.Modules.<Abteilung>[.Contracts], BAR.Host
 ```
 
 **Haupt-App** (`docs/requirements/bazaar-app/`):
@@ -78,14 +78,24 @@ Graph aus dem jeweiligen App-Verzeichnis heraus starten (`src/advance-registrati
 
 | App | Verbindlicher Abschnitt |
 |-----|------------------------|
-| Voranmelde-App | [`advance-registration/spec.md`](docs/requirements/advance-registration/spec.md) §10.0.1 Architektur · §10.0.2 Durchstich · §10.0.3 UI-Bibliothek |
+| Voranmelde-App | [`advance-registration/spec.md`](docs/requirements/advance-registration/spec.md) §10.0.1 Architektur · §10.0.2 Durchstich · §10.0.4 UI-Bibliothek |
 | Haupt-App | [`bazaar-app/spec.md`](docs/requirements/bazaar-app/spec.md) §7.0.1 Architektur · §7.0.2 Durchstich · §7.0.3 UI-Bibliothek |
 
-Kurzorientierung (Details ausschließlich dort): Backend **hexagonal** in vier Projekten
-(`Domain` / `Application` / `Infrastructure` + Host-Projekt), Frontend **Feature-First**
-(`src/app/features/<feature>/` + `core/` + `shared/`), Deployment **Monolith**, Data-Flow
-**CRUD** mit eigenen Query-Ports für Read-Models. Code, Routen und JSON-Contract englisch,
-Doku deutsch.
+Kurzorientierung (Details ausschließlich dort) — die beiden Apps sind seit dem
+Modulith-Umbau der Voranmelde-App **keine Kopien mehr voneinander**, jede App-Spec ist die
+alleinige Wahrheit für ihre App:
+
+- **Voranmelde-App:** Backend **modularer Monolith**, ein Hexagon je Abteilung
+  (`BAR.Modules.<Abteilung>` + `.Contracts`, `BAR.SharedKernel`, `BAR.Host` als Composition
+  Root). Frontend **Feature-First mit Abteilungs-Gruppierung**
+  (`src/app/features/<abteilung>/<feature>/` + `core/` + `shared/`), Cross-Feature-Imports
+  per `eslint-plugin-boundaries` erzwungen, nicht nur dokumentiert.
+- **Haupt-App:** Backend **hexagonal**, ein Hexagon pro App (`Domain` / `Application` /
+  `Infrastructure` + Host-Projekt). Frontend **Feature-First**
+  (`src/app/features/<feature>/` + `core/` + `shared/`).
+
+Beide Apps: Deployment **Monolith** (ein Container je App), Data-Flow **CRUD** mit eigenen
+Query-Ports für Read-Models. Code, Routen und JSON-Contract englisch, Doku deutsch.
 
 Die Assembly-Präfixe unterscheiden sich je App, damit die Namen nicht kollidieren:
 

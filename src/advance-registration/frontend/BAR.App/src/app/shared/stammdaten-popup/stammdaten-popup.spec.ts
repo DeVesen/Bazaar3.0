@@ -4,7 +4,7 @@ import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { StammdatenPopup } from './stammdaten-popup';
 import { MessageService } from 'primeng/api';
-import type { MasterDataItem } from '../../features/my-articles/master-data-api.service';
+import type { MasterDataItem } from '@shared/models/master-data-item';
 
 const DE_TRANSLATIONS = {
   common: { cancel: 'Abbrechen', save: 'Speichern' },

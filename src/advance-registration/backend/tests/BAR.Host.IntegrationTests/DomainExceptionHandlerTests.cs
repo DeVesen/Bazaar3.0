@@ -23,7 +23,7 @@ public class DomainExceptionHandlerTests : IClassFixture<Features.Public.Postgre
                 app.UseExceptionHandler();
                 app.UseRouting();
                 app.UseEndpoints(endpoints => endpoints.MapGet("/__test/conflict", (HttpContext _) =>
-                    throw new BAR.Domain.Exceptions.ConflictException("seller.email_taken", "Diese E-Mail ist bereits registriert")));
+                    throw new BAR.SharedKernel.Exceptions.ConflictException("seller.email_taken", "Diese E-Mail ist bereits registriert")));
             })).CreateClient();
 
         var response = await client.GetAsync("/__test/conflict", TestContext.Current.CancellationToken);
@@ -43,7 +43,7 @@ public class DomainExceptionHandlerTests : IClassFixture<Features.Public.Postgre
                 app.UseExceptionHandler();
                 app.UseRouting();
                 app.UseEndpoints(endpoints => endpoints.MapGet("/__test/article-number-conflict", (HttpContext _) =>
-                    throw new BAR.Domain.Exceptions.ArticleNumberConflictException(
+                    throw new BAR.Modules.Anmeldung.Contracts.ArticleNumberConflictException(
                         "Artikelnummer 104 ist inzwischen vergeben — neue Nummer: 105", 105)));
             })).CreateClient();
 

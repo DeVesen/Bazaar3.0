@@ -10,9 +10,16 @@ using BAR.Host.Features.Public;
 using BAR.Host.Features.Sellers;
 using BAR.Host.Features.SellerTypes;
 using BAR.Host.Features.Settings;
-using BAR.Infrastructure;
-using BAR.Infrastructure.Persistence;
-using BAR.Infrastructure.Security;
+using BAR.Modules.Anmeldung.Infrastructure;
+using BAR.Modules.Betrieb.Infrastructure;
+using BAR.Modules.Export.Infrastructure;
+using BAR.Modules.Stammdaten.Infrastructure;
+using BAR.Modules.Verkaeuferverwaltung.Contracts.Security;
+using BAR.Modules.Verkaeuferverwaltung.Infrastructure;
+using BAR.Modules.Verkaeuferverwaltung.Infrastructure.Persistence;
+using BAR.Modules.Anmeldung.Infrastructure.Persistence;
+using BAR.Modules.Stammdaten.Infrastructure.Persistence;
+using BAR.Modules.Betrieb.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -23,7 +30,16 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
-builder.Services.AddInfrastructure(builder.Configuration);
+
+// Jedes Modul verdrahtet sich selbst - der Host kennt nur den Aufruf
+// (dotnet-modulith-bridge). Eigenes Schema/DbContext je Modul.
+builder.Services.AddAnmeldungModule(builder.Configuration);
+builder.Services.AddVerkaeuferverwaltungModule(builder.Configuration);
+builder.Services.AddStammdatenModule(builder.Configuration);
+builder.Services.AddBetriebModule(builder.Configuration);
+builder.Services.AddExportModule();
+builder.Services.AddScoped<HomeCompositionService>();
+
 builder.Services.AddExceptionHandler<BAR.Host.DomainExceptionHandler>();
 builder.Services.AddProblemDetails();
 
@@ -38,7 +54,9 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // JWT-Bearer-Auth + Autorisierungs-Policies (api/cross-cutting.md Abschnitt 2):
 // "authenticated" (jedes gueltige Token) ist Default-Policy, "admin" verlangt
 // role == admin. Literale Claim-Typen "sub"/"role" statt ASP.NET-Standard-URIs,
-// passend zu JwtTokenIssuer.
+// passend zu JwtTokenIssuer (Modul Verkaeuferverwaltung). JwtOptions liegt in
+// dessen Contracts-Projekt - Host liest dieselbe Konfiguration fuer die
+// Token-VALIDIERUNG, das Modul selbst signiert bei der AUSSTELLUNG.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -118,35 +136,51 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 
 app.Run();
 
+/// <summary>
+/// Jedes Modul bringt seine eigene Migrationshistorie mit (eigenes Schema) -
+/// die Reihenfolge zwischen den vier Modulen spielt darum keine Rolle, jedes
+/// migriert nur seine eigenen Tabellen.
+/// </summary>
 static async Task ApplyMigrationsAsync(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<BarDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    if (!await WaitForDatabaseAsync(dbContext, logger))
+    if (!await WaitForDatabaseAsync(scope.ServiceProvider.GetRequiredService<AnmeldungDbContext>(), logger))
     {
         Environment.Exit(1);
         return;
     }
 
-    // Vorab ermittelt: nach einem Verbindungsabbruch in MigrateAsync wuerde
-    // dieselbe Abfrage im catch-Block selbst werfen und die Logzeile schlucken.
+    var migrated = await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<AnmeldungDbContext>(), logger)
+        && await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<VerkaeuferverwaltungDbContext>(), logger)
+        && await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<StammdatenDbContext>(), logger)
+        && await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<BetriebDbContext>(), logger);
+
+    if (!migrated)
+    {
+        Environment.Exit(1);
+    }
+}
+
+static async Task<bool> TryMigrateAsync(DbContext dbContext, ILogger logger)
+{
     var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
     var pending = pendingMigrations.FirstOrDefault() ?? "unbekannt";
 
     try
     {
         await dbContext.Database.MigrateAsync();
+        return true;
     }
     catch (Exception ex)
     {
-        logger.LogCritical(ex, "Migration {Migration} fehlgeschlagen: {Message}", pending, ex.Message);
-        Environment.Exit(1);
+        logger.LogCritical(ex, "Migration {Migration} fehlgeschlagen fuer {Context}: {Message}", pending, dbContext.GetType().Name, ex.Message);
+        return false;
     }
 }
 
-static async Task<bool> WaitForDatabaseAsync(BarDbContext dbContext, ILogger logger)
+static async Task<bool> WaitForDatabaseAsync(DbContext dbContext, ILogger logger)
 {
     const int maxAttempts = 10;
     var maxTotalWait = TimeSpan.FromSeconds(60);

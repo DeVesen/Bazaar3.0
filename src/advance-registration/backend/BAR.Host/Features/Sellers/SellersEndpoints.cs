@@ -1,12 +1,6 @@
 using System.Security.Claims;
-using BAR.Application.Sellers;
-using BAR.Application.Sellers.Create;
-using BAR.Application.Sellers.Delete;
-using BAR.Application.Sellers.Invite;
-using BAR.Application.Sellers.List;
-using BAR.Application.Sellers.Update;
-using BAR.Domain.Ports;
-using BAR.Domain.Ports.Queries;
+using BAR.Modules.Verkaeuferverwaltung.Contracts;
+using BAR.Modules.Verkaeuferverwaltung.Contracts.Sellers;
 using BAR.Host.Validation;
 using Microsoft.Extensions.Configuration;
 
@@ -27,64 +21,54 @@ public static class SellersEndpoints
 
         group.MapGet("/", async (
             string? search, int? page, int? pageSize, string? sort,
-            GetSellersQueryHandler handler, CancellationToken ct) =>
+            IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
         {
             var sortMeta = ParseSort(sort);
             var effectivePage = Math.Max(page ?? 1, 1);
             var effectivePageSize = Math.Clamp(pageSize ?? 25, 1, 100);
             var query = new GetSellersQuery(search, effectivePage, effectivePageSize, sortMeta);
-            return Results.Ok(await handler.HandleAsync(query, ct));
+            return Results.Ok(await verkaeuferverwaltung.GetSellersAsync(query, ct));
         });
 
         group.MapPost("/", async (
-            CreateSellerCommand command, CreateSellerCommandHandler handler,
-            ISellerTypeRepository sellerTypes, CancellationToken ct) =>
+            CreateSellerCommand command, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
         {
-            var response = await handler.HandleAsync(command, ct);
-            var type = await sellerTypes.GetByIdAsync(response.SellerTypeId, ct);
-            var enriched = response with { SellerType = new SellerTypeSummary(type!.Id, type.Name, type.CommissionRate, type.ItemFee) };
-            return Results.Created($"/api/sellers/{enriched.Id}", enriched);
+            var result = await verkaeuferverwaltung.CreateSellerAsync(command, ct);
+            return Results.Created($"/api/sellers/{result.Id}", result);
         }).AddEndpointFilter<ValidationFilter<CreateSellerCommand>>();
 
         group.MapPut("/{id}", async (
-            string id, UpdateSellerCommand body, UpdateSellerCommandHandler handler,
-            INumberBlockRepository blocks, CancellationToken ct) =>
+            string id, UpdateSellerCommand body, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
         {
             var command = body with { SellerId = id };
-            var response = await handler.HandleAsync(command, ct);
-            var sellerBlocks = await blocks.GetForSellerAsync(id, ct);
-            var enriched = response with
-            {
-                StartNumber = sellerBlocks.Count > 0 ? sellerBlocks.Min(b => b.FromNumber) : null
-            };
-            return Results.Ok(enriched);
+            return Results.Ok(await verkaeuferverwaltung.UpdateSellerAsync(command, ct));
         }).AddEndpointFilter<ValidationFilter<UpdateSellerCommand>>();
 
         group.MapDelete("/{id}", async (
-            string id, ClaimsPrincipal user, DeleteSellerCommandHandler handler, CancellationToken ct) =>
+            string id, ClaimsPrincipal user, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
         {
             var requestingSellerId = user.FindFirstValue("sub")!;
-            await handler.HandleAsync(new DeleteSellerCommand(id, requestingSellerId), ct);
+            await verkaeuferverwaltung.DeleteSellerAsync(new DeleteSellerCommand(id, requestingSellerId), ct);
             return Results.NoContent();
         });
 
         group.MapPost("/{id}/invite", (
-            string id, InviteSellerCommandHandler handler, IConfiguration configuration, CancellationToken ct) =>
-            InviteAsync(id, handler, configuration, ct));
+            string id, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, IConfiguration configuration, CancellationToken ct) =>
+            InviteAsync(id, verkaeuferverwaltung, configuration, ct));
 
         return app;
     }
 
-    static async Task<IResult> InviteAsync(string id, InviteSellerCommandHandler handler, IConfiguration configuration, CancellationToken ct)
+    static async Task<IResult> InviteAsync(string id, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, IConfiguration configuration, CancellationToken ct)
     {
-        var result = await handler.HandleAsync(new InviteSellerCommand(id), ct);
+        var result = await verkaeuferverwaltung.InviteSellerAsync(id, ct);
         var baseUrl = configuration["Frontend:BaseUrl"];
         var inviteUrl = $"{baseUrl}/set-password?token={result.Token}";
         return Results.Ok(new { inviteUrl, expiresAt = result.ExpiresAt });
     }
 
     /// <summary>Parst `?sort=field:asc,field2:desc` (api/cross-cutting.md Abschnitt 4).</summary>
-    private static IReadOnlyList<SellerSort> ParseSort(string? sort)
+    private static IReadOnlyList<SellerSortDto> ParseSort(string? sort)
     {
         if (string.IsNullOrWhiteSpace(sort))
         {
@@ -95,7 +79,7 @@ public static class SellersEndpoints
             .Select(part => part.Split(':'))
             .Where(parts => parts.Length == 2)
             .Where(parts => ValidSortFields.Contains(parts[0]))
-            .Select(parts => new SellerSort(parts[0], parts[1].Equals("desc", StringComparison.OrdinalIgnoreCase)))
+            .Select(parts => new SellerSortDto(parts[0], parts[1].Equals("desc", StringComparison.OrdinalIgnoreCase)))
             .ToList();
     }
 }

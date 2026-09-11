@@ -9,10 +9,12 @@ Verbindliche Konventionen für **alle** Endpoints der Voranmelde-App. Die
 ressourcenspezifischen Dateien in diesem Verzeichnis verweisen hierher statt
 diese Regeln zu wiederholen.
 
-**Backend:** .NET 10 Minimal API, **hexagonal** in vier Projekten
-(`BAR.Domain` / `.Application` / `.Infrastructure` / `.Api`) — Feature-Ordner nur
-innerhalb von `Application` und `Api`, ein Handler pro Use Case
-(siehe [VPROJ-S02](../epics/Epic_Projektanlage/stories/VPROJ-S02-dotnet-api-anlegen.md)).
+**Backend:** .NET 10 Minimal API, **modularer Monolith** — ein Hexagon je Abteilung
+(`BAR.Modules.<Abteilung>` + `.Contracts`, siehe [§10.0.1](../spec.md#1001-architektur)),
+`BAR.Host` als Composition Root und einzige HTTP-Fläche. Feature-Ordner innerhalb von
+`Application` je Modul und innerhalb von `Host/Features/`, ein Handler pro Use Case
+(siehe [VPROJ-S02](../epics/Epic_Projektanlage/stories/VPROJ-S02-dotnet-api-anlegen.md) —
+Stand der Setup-Epic vor dem Modulith-Umbau).
 
 **Sprache des Contracts:** Alle Feldnamen in Request und Response sind **englisch**
 (`fromNumber`, `sellerTypeId`, `price`) — ebenso die Schlüssel im `errors`-Dictionary.
@@ -322,16 +324,22 @@ bewusster Kaskade sind einzeln dokumentiert
 
 ### Persistenz-Zugriff
 
-Alle Listen- und Detail-Zugriffe laufen über **Repositories pro Aggregate**
-(`ISellerRepository`, `IArticleRepository`, `INumberBlockRepository`,
-`IMasterDataRepository`, `ISettingsRepository`) — Interfaces in `BAR.Domain/Ports/`,
-Implementierung in `BAR.Infrastructure`. Kein generisches `IRepository<T>`, kein
-`IQueryable` über die Port-Grenze.
+Alle Listen- und Detail-Zugriffe laufen über **Repositories pro Aggregate**, je im
+eigenen Modul (`ISellerRepository` in Verkaeuferverwaltung, `IArticleRepository` und
+`INumberBlockRepository` in Anmeldung, Brand-/Category-/SellerType-Repositories in
+Stammdaten, `ISettingsRepository` in Betrieb) — Interfaces in
+`BAR.Modules.<Abteilung>/Domain/Ports/`, Implementierung in
+`BAR.Modules.<Abteilung>/Infrastructure/`. Kein generisches `IRepository<T>`, kein
+`IQueryable` über die Port-Grenze, und kein Repository greift auf das Schema eines
+anderen Moduls zu — schemaübergreifende Zusammenstellungen laufen ausschließlich über die
+`.Contracts`-Facade des jeweils anderen Moduls.
 
-**Ausnahme Read-Models:** `GET /api/home/seller`, `GET /api/home/admin` und
-`GET /api/export` lesen über eigene Query-Ports (`IHomeQueries`, `IExportQuery`) mit
-direktem EF-/SQL-Zugriff im Adapter. Kennzahlen und Export-Sichten laden keine
-Aggregate.
+**Ausnahme Read-Models:** `GET /api/home/seller` und `GET /api/home/admin` komponieren im
+Host (`HomeCompositionService`, kein eigenes Modul — Home gehört zu keiner Abteilung) über
+die Facaden der betroffenen Module. `GET /api/export` komponiert im Modul `Export`
+(`GetExportQueryHandler`) ebenso über die Facaden von Verkaeuferverwaltung, Anmeldung und
+Stammdaten, statt über einen schemaübergreifenden SQL-Join. Kennzahlen und Export-Sichten
+laden keine Aggregate.
 
 ## 6. Ownership-Prüfung
 

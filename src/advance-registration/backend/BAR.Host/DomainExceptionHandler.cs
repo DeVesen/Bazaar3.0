@@ -1,4 +1,5 @@
-using BAR.Domain.Exceptions;
+using BAR.Modules.Anmeldung.Contracts;
+using BAR.SharedKernel.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +8,11 @@ namespace BAR.Host;
 /// <summary>
 /// Einziger Ort, der DomainException auf ProblemDetails abbildet
 /// (api/cross-cutting.md Abschnitt 3). Handler und Domaene werfen Exceptions,
-/// sie bauen keine HTTP-Antworten.
+/// sie bauen keine HTTP-Antworten. Kennt aus den Modulen nur
+/// <see cref="ArticleNumberConflictException"/> (Anmeldung.Contracts) fuer
+/// das zusaetzliche <c>nextNumber</c>-Feld - alles andere laeuft generisch
+/// ueber die SharedKernel-Hierarchie, ohne dass Host ein Modul-internes
+/// Detail kennen muesste.
 /// </summary>
 public sealed class DomainExceptionHandler : IExceptionHandler
 {

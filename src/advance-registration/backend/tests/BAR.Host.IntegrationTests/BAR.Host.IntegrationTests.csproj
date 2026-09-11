@@ -5,6 +5,9 @@
     <PackageReference Include="Microsoft.Testing.Platform.MSBuild" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Testcontainers.PostgreSql" />
+    <!-- Nur fuer die schnellen, DB-losen Tests (z. B. Features/Home/HomeCompositionServiceTests.cs) -
+         die eigentlichen Endpoint-/Repository-Tests dieses Projekts mocken nichts. -->
+    <PackageReference Include="Moq" />
   </ItemGroup>
 
   <!-- WebApplicationFactory gegen die echte Endpoint-Registrierung; Datenbank

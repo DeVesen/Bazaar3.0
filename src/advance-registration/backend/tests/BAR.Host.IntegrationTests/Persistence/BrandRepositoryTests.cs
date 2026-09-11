@@ -1,6 +1,6 @@
-using BAR.Domain.MasterData;
-using BAR.Domain.Ports;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Stammdaten.Domain.MasterData;
+using BAR.Modules.Stammdaten.Domain.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -57,38 +57,30 @@ public class BrandRepositoryTests : IClassFixture<PostgresWebApplicationFactory>
         Assert.False(exists);
     }
 
+    // UpdateAsync hat kein renameArticlesFrom mehr - Brand liegt seit dem
+    // Modulith-Schnitt in einem anderen Schema als Article, ein direkter
+    // Cascade-Write ist nicht mehr moeglich. Rename loest stattdessen
+    // BrandRenamed aus (StammdatenDbContext.SaveChangesAsync dispatcht es);
+    // Coverage fuer den Cascade-Effekt selbst liegt in
+    // BAR.Application.UnitTests.Anmeldung.EventHandlers.BrandRenamedHandlerTests
+    // (mockt IArticleRepository - guenstiger als ein Test ueber zwei echte
+    // DbContexts + Dispatcher hinweg) und in ArticleRepositoryTests.RenameBrandAsync*.
     [Fact]
-    public async Task UpdateAsync_RenameWithCascade_UpdatesArticleBrandField()
+    public async Task UpdateAsync_PersistsNewNameAndOriginalFlag()
     {
         _ = _factory.Server;
         using var scope = _factory.Services.CreateScope();
         var brands = scope.ServiceProvider.GetRequiredService<IBrandRepository>();
-        var articles = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
         var ct = TestContext.Current.CancellationToken;
-        var sellerId = Guid.NewGuid().ToString("N")[..8];
-        var oldName = $"Alt-{Guid.NewGuid():N}";
-        var brand = Brand.Create(oldName, original: false);
+        var brand = Brand.Create($"Alt-{Guid.NewGuid():N}", original: false);
         await brands.AddAsync(brand, ct);
-        var article = BAR.Domain.Articles.Article.Create(sellerId, 501, "Jacke", oldName, "Jacken", 5m, null, null, null, DateTime.UtcNow);
-        await articles.CreateAsync(article, null, ct);
 
         brand.Rename("Neu", original: true);
-        await brands.UpdateAsync(brand, renameArticlesFrom: oldName, ct);
+        await brands.UpdateAsync(brand, ct);
 
-        var updatedArticle = await articles.GetByIdAsync(article.Id, ct);
-        Assert.Equal("Neu", updatedArticle!.Brand);
-    }
-
-    [Fact]
-    public async Task CountArticlesWithNameAsync_NoMatches_ReturnsZero()
-    {
-        _ = _factory.Server;
-        using var scope = _factory.Services.CreateScope();
-        var repo = scope.ServiceProvider.GetRequiredService<IBrandRepository>();
-
-        var count = await repo.CountArticlesWithNameAsync($"unbenutzt-{Guid.NewGuid():N}", TestContext.Current.CancellationToken);
-
-        Assert.Equal(0, count);
+        var reloaded = await brands.GetByIdAsync(brand.Id, ct);
+        Assert.Equal("Neu", reloaded!.Name);
+        Assert.True(reloaded.Original);
     }
 
     [Fact]

@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { Countdown } from '../../../shared/countdown/countdown';
-import { CountdownPhase } from '../../../shared/countdown/select-active-phase';
-import { PublicInfoService, PublicInfo } from '../../../core/public-info/public-info.service';
+import { Countdown } from '@shared/countdown/countdown';
+import { CountdownPhase } from '@shared/countdown/select-active-phase';
+import { PublicInfoService, PublicInfo } from '@core/public-info/public-info.service';
 
 // Oeffentliche, unauthentifizierte Route /embed/countdown, ausserhalb der AppShell
 // (Epic_Countdown_Widget Abschnitt 1). Rendert die 5 Basar-Termine aus

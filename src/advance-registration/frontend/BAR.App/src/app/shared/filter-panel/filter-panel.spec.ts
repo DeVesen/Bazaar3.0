@@ -1,11 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateService, provideTranslateService } from '@ngx-translate/core';
-import { FilterPanel } from './filter-panel';
-import type { MasterDataItem } from '../../features/my-articles/master-data-api.service';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
+import { Observable, of, throwError } from 'rxjs';
+import { FilterPanel, SellerOption } from './filter-panel';
+import type { MasterDataItem } from '@shared/models/master-data-item';
 
 const EN_TRANSLATIONS = {
   filterPanel: {
@@ -19,12 +18,15 @@ const EN_TRANSLATIONS = {
 const BRANDS: MasterDataItem[] = [{ id: 'b1', name: 'Nike', original: true }];
 const CATEGORIES: MasterDataItem[] = [{ id: 'c1', name: 'Jacken', original: true }];
 
-function create(sellerAutocomplete = false) {
-  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService()] });
+function create(sellerAutocomplete = false, sellerSearchFn?: (query: string) => Observable<SellerOption[]>) {
+  TestBed.configureTestingModule({ providers: [provideTranslateService()] });
   const fixture = TestBed.createComponent(FilterPanel);
   fixture.componentRef.setInput('brands', BRANDS);
   fixture.componentRef.setInput('categories', CATEGORIES);
   fixture.componentRef.setInput('sellerAutocomplete', sellerAutocomplete);
+  if (sellerSearchFn) {
+    fixture.componentRef.setInput('sellerSearchFn', sellerSearchFn);
+  }
   fixture.detectChanges();
   return fixture;
 }
@@ -108,31 +110,27 @@ describe('FilterPanel', () => {
     expect(fixture.debugElement.query(By.css('[data-testid="seller-autocomplete"]'))).not.toBeNull();
   });
 
-  it('does not request suggestions before 2 characters are typed', () => {
-    const fixture = create(true);
-    const httpMock = TestBed.inject(HttpTestingController);
+  it('does not call sellerSearchFn before 2 characters are typed', () => {
+    const searchFn = vi.fn(() => of<SellerOption[]>([]));
+    const fixture = create(true, searchFn);
 
     fixture.componentInstance.onSellerFilter('a');
     vi.advanceTimersByTime(400);
 
-    httpMock.expectNone((r) => r.url === '/api/sellers');
+    expect(searchFn).not.toHaveBeenCalled();
   });
 
-  it('requests suggestions 400ms after typing 2+ characters, debounced', () => {
-    const fixture = create(true);
-    const httpMock = TestBed.inject(HttpTestingController);
+  it('calls sellerSearchFn 400ms after typing 2+ characters, debounced', () => {
+    const searchFn = vi.fn((_query: string) => of<SellerOption[]>([{ id: 's1', label: 'Max Mustermann (#42)' }]));
+    const fixture = create(true, searchFn);
 
     fixture.componentInstance.onSellerFilter('an');
     fixture.componentInstance.onSellerFilter('ann');
     vi.advanceTimersByTime(399);
-    httpMock.expectNone((r) => r.url === '/api/sellers');
+    expect(searchFn).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1);
 
-    const req = httpMock.expectOne((r) => r.url === '/api/sellers');
-    expect(req.request.params.get('search')).toBe('ann');
-    expect(req.request.params.get('pageSize')).toBe('10');
-    req.flush({ items: [{ id: 's1', startNumber: 42, firstName: 'Max', lastName: 'Mustermann' }], totalCount: 1, page: 1, pageSize: 10 });
-
+    expect(searchFn).toHaveBeenCalledExactlyOnceWith('ann');
     expect(fixture.componentInstance.sellerSuggestions()).toEqual([{ id: 's1', label: 'Max Mustermann (#42)' }]);
   });
 
@@ -166,22 +164,18 @@ describe('FilterPanel', () => {
     expect(autocomplete.componentInstance.forceSelection()).toBe(true);
   });
 
-  it('resolves to empty suggestions when the seller search errors, and keeps working for the next search', () => {
-    const fixture = create(true);
-    const httpMock = TestBed.inject(HttpTestingController);
+  it('resolves to empty suggestions when sellerSearchFn errors, and keeps working for the next search', () => {
+    const searchFn = vi.fn((query: string) =>
+      query === 'ann' ? throwError(() => new Error('boom')) : of<SellerOption[]>([{ id: 's1', label: 'Max Mustermann (#42)' }])
+    );
+    const fixture = create(true, searchFn);
 
     fixture.componentInstance.onSellerFilter('ann');
     vi.advanceTimersByTime(400);
-    const failingReq = httpMock.expectOne((r) => r.url === '/api/sellers');
-    failingReq.flush('server error', { status: 500, statusText: 'Internal Server Error' });
-
     expect(fixture.componentInstance.sellerSuggestions()).toEqual([]);
 
     fixture.componentInstance.onSellerFilter('max');
     vi.advanceTimersByTime(400);
-    const followUpReq = httpMock.expectOne((r) => r.url === '/api/sellers');
-    followUpReq.flush({ items: [{ id: 's1', startNumber: 42, firstName: 'Max', lastName: 'Mustermann' }], totalCount: 1, page: 1, pageSize: 10 });
-
     expect(fixture.componentInstance.sellerSuggestions()).toEqual([{ id: 's1', label: 'Max Mustermann (#42)' }]);
   });
 

@@ -10,10 +10,13 @@ aktivem Role-Toggle völlig andere Kacheln zeigt — dieselbe Route, dieselbe
 Component.
 
 **Backend-Verortung:** Beide Endpoints sind **Read-Models** und laufen nicht über
-Repositories, sondern über einen eigenen Query-Port `IHomeQueries`
-(Implementierung mit direktem EF-/SQL-Zugriff in `BAR.Infrastructure`). Für
-Kennzahlen und Heatmap-Aggregate Aggregate zu laden wäre pure Verschwendung —
-siehe [`cross-cutting.md`](cross-cutting.md), Abschnitt „Persistenz-Zugriff".
+Repositories, sondern über eine reine Lese-Komposition im Host
+(`HomeCompositionService`, `BAR.Host/Features/Home/`) — Home gehört zu keiner
+Abteilung, die Verbindungsstelle sitzt daher im Host, nicht in einem Modul. Die
+Composition ruft die `.Contracts`-Facaden der betroffenen Module auf (u. a.
+Verkaeuferverwaltung, Anmeldung), statt Aggregate zu laden oder schemaübergreifend
+SQL zu joinen — siehe [`cross-cutting.md`](cross-cutting.md), Abschnitt
+„Persistenz-Zugriff".
 
 Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md).
 

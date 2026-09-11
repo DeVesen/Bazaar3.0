@@ -1,8 +1,28 @@
 <Solution>
-  <Project Path="BAR.Domain/BAR.Domain.csproj" />
-  <Project Path="BAR.Application/BAR.Application.csproj" />
-  <Project Path="BAR.Infrastructure/BAR.Infrastructure.csproj" />
+  <Project Path="BAR.SharedKernel/BAR.SharedKernel.csproj" />
+
+  <Folder Name="/Anmeldung/">
+    <Project Path="BAR.Modules.Anmeldung/BAR.Modules.Anmeldung.csproj" />
+    <Project Path="BAR.Modules.Anmeldung.Contracts/BAR.Modules.Anmeldung.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/Verkaeuferverwaltung/">
+    <Project Path="BAR.Modules.Verkaeuferverwaltung/BAR.Modules.Verkaeuferverwaltung.csproj" />
+    <Project Path="BAR.Modules.Verkaeuferverwaltung.Contracts/BAR.Modules.Verkaeuferverwaltung.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/Stammdaten/">
+    <Project Path="BAR.Modules.Stammdaten/BAR.Modules.Stammdaten.csproj" />
+    <Project Path="BAR.Modules.Stammdaten.Contracts/BAR.Modules.Stammdaten.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/Betrieb/">
+    <Project Path="BAR.Modules.Betrieb/BAR.Modules.Betrieb.csproj" />
+    <Project Path="BAR.Modules.Betrieb.Contracts/BAR.Modules.Betrieb.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/Export/">
+    <Project Path="BAR.Modules.Export/BAR.Modules.Export.csproj" />
+  </Folder>
+
   <Project Path="BAR.Host/BAR.Host.csproj" />
+
   <Folder Name="/tests/">
     <Project Path="tests/BAR.Domain.UnitTests/BAR.Domain.UnitTests.csproj" />
     <Project Path="tests/BAR.Application.UnitTests/BAR.Application.UnitTests.csproj" />

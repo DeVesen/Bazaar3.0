@@ -271,23 +271,70 @@ App.** Umsetzungsdetails stehen in
 [VPROJ-S01](epics/Epic_Projektanlage/stories/VPROJ-S01-angular-projekt-anlegen.md),
 [VPROJ-S02](epics/Epic_Projektanlage/stories/VPROJ-S02-dotnet-api-anlegen.md) und
 [VPROJ-S05](epics/Epic_Projektanlage/stories/VPROJ-S05-test-und-architektur-setup.md) —
-alle innerhalb dieses Verzeichnisses.
+alle innerhalb dieses Verzeichnisses. Begriffe (Abteilung, Anlaufstelle, Zimmer,
+Verbindungsstelle) sind im Skill `modulith-thinking` erklärt; die technische Übersetzung
+nach .NET bzw. Angular steht in `dotnet-modulith-bridge` und `angular-modulith-bridge`.
 
 | Achse | Entscheidung |
 |---|---|
-| Backend-Layering | **Hexagonal** (Ports and Adapters), ein Hexagon pro App |
-| Frontend-Struktur | **Feature-First** (`src/app/features/<feature>/`) |
-| Deployment | **Monolith** — ein Backend- und ein Frontend-Container, Azure Container Apps. **Keine Microservices** |
-| Data-Flow | **CRUD**; Read-Models (`/api/home/*`, `/api/export`) über eigene Query-Ports |
+| Backend-Layering | **Hexagonal**, aber **ein Hexagon je Modul** (nicht mehr ein Hexagon pro App) |
+| Deployment | **Modularer Monolith** — ein Backend- und ein Frontend-Container, Azure Container Apps. **Keine Microservices** |
+| Frontend-Struktur | **Feature-First mit Abteilungs-Gruppierung** (`src/app/features/<abteilung>/<feature>/`) |
+| Data-Flow | **CRUD**; Read-Models (`/api/home/*`, `/api/export`) über eigene Query-Ports; Modul-übergreifende Fakten-Weitergabe (z. B. Marken-/Kategorie-Umbenennung) über In-Process Domain Events + Outbox |
 
-**Backend — vier Projekte**, Abhängigkeitsrichtung compiler-erzwungen:
+**Abteilungen dieser App** (Bounded Contexts, je eine eigene Fachsprache und eigene
+Aktenablage):
+
+| Abteilung | Verantwortung |
+|---|---|
+| **Anmeldung** | Artikel, Nummernblöcke |
+| **Verkaeuferverwaltung** | Verkäufer, Profil, Auth (Login/Register/Refresh/SetPassword) |
+| **Stammdaten** | Marken, Kategorien, Verkäufer-Typen |
+| **Betrieb** | Basar-Einstellungen, öffentliche Basar-Infos |
+| **Export** | Export-Zusammenstellung (reine Lese-Komposition, keine eigene Aktenablage) |
+
+**Backend — ein Projekt + `.Contracts` je Abteilung**, `SharedKernel` und `Host` dazu:
 
 ```
-BAR.Domain          ← referenziert nichts (Entities, Value Objects, Domain-Services, Ports)
-BAR.Application     ← Domain (ein Handler pro Use Case)
-BAR.Infrastructure  ← Domain, Application (EF Core, Repositories, Query-Ports)
-BAR.Host            ← alle (Minimal-API-Endpoints, Filter, ExceptionHandler, Composition Root)
+BAR.SharedKernel                          ← referenziert nichts; nur Plumbing (IClock, IDomainEvent(Dispatcher), OutboxMessage) — keine Fachlichkeit
+BAR.Modules.<Abteilung>                   ← Domain/ Application/ Infrastructure/ als Ordner; referenziert nur SharedKernel + fremde .Contracts
+BAR.Modules.<Abteilung>.Contracts         ← einzige Anlaufstelle nach außen: I<Abteilung>ModuleApi, DTOs, Events
+BAR.Modules.Export                        ← ohne eigenes .Contracts (kein zweiter Referenzierer außer Host)
+BAR.Host                                  ← referenziert alle .Contracts-Projekte + jede Modul-Implementierung nur für die DI-Erweiterung (Add<Abteilung>Module), NIE für Business-Logik
 ```
+
+Jedes Modul bringt seine eigene `AddAnmeldungModule(...)`/`AddVerkaeuferverwaltungModule(...)`/
+`AddStammdatenModule(...)`/`AddBetriebModule(...)`/`AddExportModule()`-Erweiterung mit, die
+`Program.cs` aufruft — das Modul verdrahtet sich selbst, der Host kennt nur den Aufruf.
+`Host/Features/<Bereich>/*Endpoints.cs` ruft ausschließlich die `I<Abteilung>ModuleApi`-Facade
+auf, nie Domain/Application/Infrastructure eines Moduls direkt.
+
+**Persistenz je Modul:** eine Datenbank, ein Schema je Abteilung (`anmeldung`,
+`verkaeuferverwaltung`, `stammdaten`, `betrieb`), ein eigener `DbContext` je Modul. Export hat
+keinen eigenen `DbContext` — reine Komposition der anderen Module zur Laufzeit.
+
+**Cross-Modul-Kommunikation** — zwei Kanäle, nie ein direkter Zugriff auf die Aktenablage
+eines fremden Moduls:
+
+1. **Aktive Nachfrage**, synchron über die `.Contracts`-Facade des anderen Moduls (z. B.
+   Verkaeuferverwaltung fragt bei Stammdaten die Konditionen eines Verkäufer-Typs an).
+2. **Reaktion auf Ereignis** über `BAR.SharedKernel.Events.IDomainEventDispatcher` +
+   Outbox-Tabelle im Schema des meldenden Moduls — z. B. `BrandRenamed`/`CategoryRenamed`
+   (Stammdaten → Anmeldung), damit Anmeldung seine Artikel-Zeilen ohne schemaübergreifenden
+   SQL-Join aktuell hält.
+
+**Modul-Fassaden lösen ihre Abhängigkeiten lazy** (`IServiceProvider.GetRequiredService<T>`
+zum Zeitpunkt des Aufrufs, nicht im Konstruktor): mehrere Abteilungen hängen berechtigt in
+beide Richtungen voneinander ab (Anmeldung ↔ Betrieb, Verkaeuferverwaltung ↔ Stammdaten), was
+bei eifriger Konstruktor-Injektion einen DI-Konstruktionszyklus erzeugt, obwohl kein Aufruf
+zur Laufzeit tatsächlich rekursiv ist.
+
+Die Domäne jedes Moduls kennt weder EF Core noch ASP.NET; das Entity-Mapping läuft per
+Fluent API in `Infrastructure`. Ein Architektur-Testprojekt (NetArchTest,
+`DependencyDirectionTests`) prüft je Modul die Domain-Reinheit **und** die Modulgrenze
+selbst — kein Modul referenziert Domain/Application/Infrastructure eines anderen Moduls,
+nur dessen `.Contracts`
+([VPROJ-S05](epics/Epic_Projektanlage/stories/VPROJ-S05-test-und-architektur-setup.md)).
 
 **Namens-Präfix `BAR.`** (Bazaar Advance Registration): Assembly-Namen müssen sich von
 denen der Haupt-App unterscheiden, sonst kollidieren sie, sobald ein Suite-weites
@@ -296,35 +343,37 @@ später jede Migration und jeder Namespace.
 
 **`BAR.Host` statt `BAR.Api`:** Das Projekt hält die HTTP-Fläche *und* ist Composition
 Root — `Program.cs` verdrahtet DI, Konfiguration und Middleware und startet Kestrel.
-„Host" benennt beide Rollen und beansprucht weder Logik noch Storage; die liegen in
-`Application` bzw. `Infrastructure`. Der frühere Arbeitsname `BAR.GatewayService`
-entfällt: „Gateway" verspricht bei einem Monolithen eine Netzgrenze, die es nicht gibt.
+„Host" benennt beide Rollen und beansprucht weder Logik noch Storage; die liegen in den
+Modulen. Der frühere Arbeitsname `BAR.GatewayService` entfällt: „Gateway" verspricht bei
+einem Monolithen eine Netzgrenze, die es nicht gibt.
 
-Feature-Ordner existieren **innerhalb** von `Application` und `Host` — kein Hexagon je
-Feature. Die Domäne kennt weder EF Core noch ASP.NET; das Entity-Mapping läuft per
-Fluent API in `Infrastructure`. Ein Architektur-Testprojekt (NetArchTest) prüft die
-Richtung dort, wo der Compiler es nicht kann
-([VPROJ-S05](epics/Epic_Projektanlage/stories/VPROJ-S05-test-und-architektur-setup.md)).
-
-**`BAR.Infrastructure` → `BAR.Application` ist beabsichtigt**, aber ausschließlich wegen
-`BAR.Application/Abstractions/` (`IClock`, `IPasswordHasher`, `ITokenIssuer`). Diese Ports
-liegen dort und nicht in `BAR.Domain/Ports/`, weil JWT-Signatur und Hash-Verfahren keine
-Begriffe der Voranmeldung sind. Repository- und Query-Ports liegen unverändert in
-`BAR.Domain/Ports/`. Damit die Referenz nicht zum Einfallstor wird, prüft ein
-Architektur-Test, dass in `BAR.Infrastructure` kein Typ auf `Handler` endet.
-
-**Frontend — Feature-First:**
+**Frontend — Feature-First mit Abteilungs-Gruppierung:**
 
 ```
-src/app/features/<feature>/   ← <feature>.routes.ts, pages/, components/, data/, model/
-src/app/core/                 ← app-weite Singletons (auth, interceptor, config)
-src/app/shared/               ← wiederverwendbare, dumme UI
+src/app/features/<abteilung>/<feature>/   ← <feature>.routes.ts, pages/, components/
+src/app/features/<abteilung>/*.ts         ← Abteilungs-weites, aber fachbereichs-internes Gemeingut (z. B. eine Anlaufstelle, die zwei Features derselben Abteilung teilen)
+src/app/features/{login,home,countdown-embed,not-found}/   ← Features ohne Abteilung, direkt unter features/
+src/app/core/                             ← app-weite Singletons (auth, interceptor, config)
+src/app/shared/                           ← wiederverwendbare, dumme UI — nie Fachwissen, nie ein Import aus features/
 ```
 
-Cross-Feature-Imports sind per ESLint verboten; `shared/` und `core/` importieren nie
-aus `features/`. Pro Seite gilt Integration vs. Leaf: `pages/*.page.ts` orchestriert,
-`components/**` rendert nur
-([components/overview.md](components/overview.md)).
+Anders als im Backend gibt es im Frontend **keine Verbindungsstelle**: Ein Feature ist immer
+ein dünner Client genau einer Backend-Anlaufstelle. Braucht eine Seite Daten aus mehreren
+Abteilungen, komponiert das **backendseitig** ein Endpoint über die jeweiligen
+`.Contracts`-Facaden — nie das Frontend über mehrere Api-Services gleichzeitig. Wo zwei
+Abteilungen denselben, bereits bestehenden Lese-Endpoint brauchen (z. B. eine
+Marken-/Kategorie- oder Verkäufer-Typ-Liste für ein Auswahlfeld), bekommt jede
+konsumierende Abteilung ihre **eigene**, schlanke Api-Service-Datei, die diesen Endpoint
+direkt aufruft — geteilt wird höchstens die Datenform (`shared/models/`), nie die
+Service-Klasse einer fremden Abteilung.
+
+Cross-Feature-Imports sind **grundsätzlich verboten** — unabhängig davon, ob zwei Features
+derselben Abteilung angehören oder nicht; die Abteilungsebene ist reine Navigationshilfe,
+keine technische Grenze mit eigenen Rechten. `shared/` und `core/` importieren nie aus
+`features/`. Durchgesetzt über `eslint-plugin-boundaries`
+(`frontend/BAR.App/eslint.config.js`) statt nur per Konvention — die Grenze wird beim Linten
+geprüft, nicht nur dokumentiert. Pro Seite gilt Integration vs. Leaf: `pages/*.ts`
+orchestriert, `components/**` rendert nur ([components/overview.md](components/overview.md)).
 
 **Sprachregel:** Code, Routen-Pfade, JSON-Contract und Feldnamen **englisch**;
 Doku-Prosa, Doku-Dateinamen und Epic-Ordner **deutsch**; sichtbare UI-Texte über

@@ -1,11 +1,14 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using BAR.Application.Abstractions;
-using BAR.Domain.Sellers;
-using BAR.Domain.SellerTypes;
-using BAR.Domain.Ports;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Anmeldung.Domain.Articles;
+using BAR.Modules.Anmeldung.Domain.Ports;
+using BAR.Modules.Stammdaten.Domain.Ports;
+using BAR.Modules.Stammdaten.Domain.SellerTypes;
+using BAR.Modules.Verkaeuferverwaltung.Application.Abstractions;
+using BAR.Modules.Verkaeuferverwaltung.Domain.Ports;
+using BAR.Modules.Verkaeuferverwaltung.Domain.Sellers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Features.Settings;
@@ -165,7 +168,7 @@ public class SettingsEndpointsTests : IClassFixture<PostgresWebApplicationFactor
         using var scope = _factory.Services.CreateScope();
         var articles = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
         var ct = TestContext.Current.CancellationToken;
-        var article = Domain.Articles.Article.Create(
+        var article = Article.Create(
             sellerId: Guid.NewGuid().ToString("N")[..8], number: 50, name: "Testartikel", brand: "Marke",
             category: "Kategorie", price: 10m, size: null, color: null, description: null, nowUtc: DateTime.UtcNow);
         await articles.CreateAsync(article, newBlock: null, ct);

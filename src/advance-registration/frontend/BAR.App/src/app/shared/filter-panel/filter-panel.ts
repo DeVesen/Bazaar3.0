@@ -8,9 +8,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
-import type { MasterDataItem } from '../../features/my-articles/master-data-api.service';
-import { SellersApiService } from '../../features/sellers/sellers-api.service';
+import { Observable, Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
+import type { MasterDataItem } from '@shared/models/master-data-item';
 
 export interface FilterPanelSearch {
   brand?: string;
@@ -61,12 +60,18 @@ export interface SellerOption {
   `
 })
 export class FilterPanel {
-  private readonly sellersApi = inject(SellersApiService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly brands = input.required<MasterDataItem[]>();
   readonly categories = input.required<MasterDataItem[]>();
   readonly sellerAutocomplete = input<boolean>(false);
+  /**
+   * Dumme Komponente: die eigentliche Verkaeufer-Suche liefert der Aufrufer -
+   * welcher Fachbereich hinter "Verkaeufer" steckt, geht shared/ nichts an
+   * (angular-modulith-bridge: shared/ importiert nie aus features/). Pflicht
+   * nur, wenn sellerAutocomplete() true ist.
+   */
+  readonly sellerSearchFn = input<(query: string) => Observable<SellerOption[]>>();
   readonly search = output<FilterPanelSearch>();
 
   readonly brandValue = signal<string | null>(null);
@@ -82,18 +87,13 @@ export class FilterPanel {
     this.sellerQuery$
       .pipe(
         debounceTime(400),
-        switchMap((query) =>
-          this.sellersApi.list({ search: query, page: 1, pageSize: 10 }).pipe(
-            catchError(() => of({ items: [], totalCount: 0, page: 1, pageSize: 10 }))
-          )
-        ),
+        switchMap((query) => {
+          const searchFn = this.sellerSearchFn();
+          return searchFn ? searchFn(query).pipe(catchError(() => of([]))) : of([]);
+        }),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe((result) => {
-        this.sellerSuggestions.set(
-          result.items.map((s) => ({ id: s.id, label: `${s.firstName} ${s.lastName} (#${s.startNumber ?? '–'})` }))
-        );
-      });
+      .subscribe((options) => this.sellerSuggestions.set(options));
   }
 
   get brandValueModel() { return this.brandValue(); }

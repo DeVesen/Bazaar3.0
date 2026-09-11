@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { Sidebar } from './sidebar';
-import { AuthService } from '../../auth/auth.service';
-import { RoleService } from '../../auth/role.service';
+import { AuthService } from '@core/auth/auth.service';
+import { RoleService } from '@core/auth/role.service';
 
 describe('Sidebar', () => {
   function setup(role: 'admin' | 'seller') {

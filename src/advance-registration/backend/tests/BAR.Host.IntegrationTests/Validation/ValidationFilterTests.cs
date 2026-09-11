@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using BAR.Application.Abstractions;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Verkaeuferverwaltung.Application.Abstractions;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

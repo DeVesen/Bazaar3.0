@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { LoginInfoPanel } from './login-info-panel';
-import { PublicInfo } from '../../../core/public-info/public-info.service';
+import { PublicInfo } from '@core/public-info/public-info.service';
 
 describe('LoginInfoPanel', () => {
   let fixture: ComponentFixture<LoginInfoPanel>;

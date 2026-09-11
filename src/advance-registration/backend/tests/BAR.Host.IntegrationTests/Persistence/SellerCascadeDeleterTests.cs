@@ -1,118 +1,86 @@
-using BAR.Application.Sellers;
-using BAR.Domain.Articles;
-using BAR.Domain.Exceptions;
-using BAR.Domain.NumberBlocks;
-using BAR.Domain.Ports;
-using BAR.Domain.Sellers;
 using BAR.Host.IntegrationTests.Features.Public;
+using BAR.Modules.Anmeldung.Contracts;
+using BAR.Modules.Verkaeuferverwaltung.Application.Sellers;
+using BAR.Modules.Verkaeuferverwaltung.Domain.Ports;
+using BAR.Modules.Verkaeuferverwaltung.Domain.Sellers;
+using BAR.SharedKernel;
+using BAR.SharedKernel.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace BAR.Host.IntegrationTests.Persistence;
 
 /// <summary>
-/// Integration test gegen echte Postgres-DB (statt Mock-IUnitOfWork wie in
-/// BAR.Application.UnitTests.Sellers.SellerCascadeDeleterTests): belegt, dass
-/// die Kaskade transaktional ist - schlaegt der Guard fehl, bleibt der
-/// Datenbestand (Seller, Artikel, Nummernblock) unveraendert. Design-Spec
-/// 2026-09-10-r07-konto-sicherheit-design.md, Abschnitt "Integration (Backend)".
+/// Real VerkaeuferverwaltungDbContext (ueber die Factory-DI) + gemockte
+/// IAnmeldungModuleApi statt frueher IArticleRepository/INumberBlockRepository -
+/// Artikel/Nummernbloecke liegen seit dem Modulith-Schnitt in einem anderen
+/// Schema und werden best-effort NACH der Transaktion ueber Anmeldung.Contracts
+/// geloescht (siehe SellerCascadeDeleter-Kommentar), nicht mehr innerhalb
+/// derselben DB-Transaktion.
 /// </summary>
 public class SellerCascadeDeleterTests : IClassFixture<PostgresWebApplicationFactory>
 {
     private readonly PostgresWebApplicationFactory _factory;
-    private static readonly DateTime Now = new(2026, 9, 10, 10, 0, 0, DateTimeKind.Utc);
 
     public SellerCascadeDeleterTests(PostgresWebApplicationFactory factory) => _factory = factory;
 
+    private static SellerCascadeDeleter CreateDeleter(IServiceProvider services, Mock<IAnmeldungModuleApi> anmeldung) => new(
+        services.GetRequiredService<ISellerRepository>(),
+        services.GetRequiredService<IRefreshTokenRepository>(),
+        anmeldung.Object,
+        services.GetRequiredService<IUnitOfWork>());
+
     [Fact]
-    public async Task DeleteAsync_GuardThrows_RollsBackAndLeavesSellerArticlesAndBlocksIntact()
+    public async Task DeleteAsync_GuardPasses_DeletesSellerAndCallsAnmeldungAfterCommit()
     {
         _ = _factory.Server;
         var ct = TestContext.Current.CancellationToken;
-        string sellerId;
+        using var scope = _factory.Services.CreateScope();
+        var sellers = scope.ServiceProvider.GetRequiredService<ISellerRepository>();
+        var seller = Seller.Register("Anna", "Beispiel", null, "76133", "Karlsruhe",
+            "0721 12345", $"{Guid.NewGuid()}@example.com", "t0000001", "hashed");
+        await sellers.AddAsync(seller, ct);
+        var anmeldung = new Mock<IAnmeldungModuleApi>();
+        var deleter = CreateDeleter(scope.ServiceProvider, anmeldung);
 
-        using (var setupScope = _factory.Services.CreateScope())
-        {
-            var sellers = setupScope.ServiceProvider.GetRequiredService<ISellerRepository>();
-            var blocks = setupScope.ServiceProvider.GetRequiredService<INumberBlockRepository>();
-            var articles = setupScope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        await deleter.DeleteAsync(seller.Id, (_, _) => Task.CompletedTask, ct);
 
-            var seller = Seller.Register("Anna", "Beispiel", null, "76133", "Karlsruhe",
-                "0721 12345", $"{Guid.NewGuid()}@example.com", "t0000001", "hashed");
-            await sellers.AddAsync(seller, ct);
-            sellerId = seller.Id;
-
-            var block = NumberBlock.Assign(sellerId, 9001, 10, Now);
-            await blocks.AddAsync(block, ct);
-
-            var article = Article.Create(sellerId, 9001, "Winterjacke", "Jako-O", "Jacken", 12.50m, null, null, null, Now);
-            await articles.CreateAsync(article, newBlock: null, ct);
-        }
-
-        using (var deleteScope = _factory.Services.CreateScope())
-        {
-            var cascadeDeleter = deleteScope.ServiceProvider.GetRequiredService<ISellerCascadeDeleter>();
-
-            var ex = await Assert.ThrowsAsync<ConflictException>(() => cascadeDeleter.DeleteAsync(
-                sellerId,
-                (_, _) => throw new ConflictException("test.guard", "Guard-Fehler"),
-                ct));
-
-            Assert.Equal("test.guard", ex.ErrorCode);
-        }
-
-        using (var verifyScope = _factory.Services.CreateScope())
-        {
-            var sellers = verifyScope.ServiceProvider.GetRequiredService<ISellerRepository>();
-            var blocks = verifyScope.ServiceProvider.GetRequiredService<INumberBlockRepository>();
-            var articles = verifyScope.ServiceProvider.GetRequiredService<IArticleRepository>();
-
-            Assert.NotNull(await sellers.GetByIdAsync(sellerId, ct));
-            Assert.Equal(1, await articles.CountForSellerAsync(sellerId, ct));
-            Assert.Single(await blocks.GetForSellerAsync(sellerId, ct));
-        }
+        Assert.Null(await sellers.GetByIdAsync(seller.Id, ct));
+        anmeldung.Verify(a => a.DeleteAllForSellerAsync(seller.Id, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task DeleteAsync_GuardPasses_CommitsCascadeAcrossArticlesBlocksAndSeller()
+    public async Task DeleteAsync_GuardThrows_RollsBackAndDoesNotCallAnmeldung()
     {
         _ = _factory.Server;
         var ct = TestContext.Current.CancellationToken;
-        string sellerId;
+        using var scope = _factory.Services.CreateScope();
+        var sellers = scope.ServiceProvider.GetRequiredService<ISellerRepository>();
+        var seller = Seller.Register("Ben", "Beispiel", null, "76133", "Karlsruhe",
+            "0721 12345", $"{Guid.NewGuid()}@example.com", "t0000001", "hashed");
+        await sellers.AddAsync(seller, ct);
+        var anmeldung = new Mock<IAnmeldungModuleApi>();
+        var deleter = CreateDeleter(scope.ServiceProvider, anmeldung);
 
-        using (var setupScope = _factory.Services.CreateScope())
-        {
-            var sellers = setupScope.ServiceProvider.GetRequiredService<ISellerRepository>();
-            var blocks = setupScope.ServiceProvider.GetRequiredService<INumberBlockRepository>();
-            var articles = setupScope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        await Assert.ThrowsAsync<ConflictException>(() => deleter.DeleteAsync(
+            seller.Id, (_, _) => throw new ConflictException("test.guard", "Guard-Fehler"), ct));
 
-            var seller = Seller.Register("Ben", "Beispiel", null, "76133", "Karlsruhe",
-                "0721 12345", $"{Guid.NewGuid()}@example.com", "t0000001", "hashed");
-            await sellers.AddAsync(seller, ct);
-            sellerId = seller.Id;
+        Assert.NotNull(await sellers.GetByIdAsync(seller.Id, ct));
+        anmeldung.Verify(a => a.DeleteAllForSellerAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 
-            var block = NumberBlock.Assign(sellerId, 9101, 10, Now);
-            await blocks.AddAsync(block, ct);
+    [Fact]
+    public async Task DeleteAsync_UnknownSellerId_ThrowsNotFoundAndDoesNotCallAnmeldung()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var anmeldung = new Mock<IAnmeldungModuleApi>();
+        var deleter = CreateDeleter(scope.ServiceProvider, anmeldung);
 
-            var article = Article.Create(sellerId, 9101, "Body", "H&M", "Bodys", 3.00m, null, null, null, Now);
-            await articles.CreateAsync(article, newBlock: null, ct);
-        }
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() => deleter.DeleteAsync(
+            "unknown1", (_, _) => Task.CompletedTask, TestContext.Current.CancellationToken));
 
-        using (var deleteScope = _factory.Services.CreateScope())
-        {
-            var cascadeDeleter = deleteScope.ServiceProvider.GetRequiredService<ISellerCascadeDeleter>();
-
-            await cascadeDeleter.DeleteAsync(sellerId, (_, _) => Task.CompletedTask, ct);
-        }
-
-        using (var verifyScope = _factory.Services.CreateScope())
-        {
-            var sellers = verifyScope.ServiceProvider.GetRequiredService<ISellerRepository>();
-            var blocks = verifyScope.ServiceProvider.GetRequiredService<INumberBlockRepository>();
-            var articles = verifyScope.ServiceProvider.GetRequiredService<IArticleRepository>();
-
-            Assert.Null(await sellers.GetByIdAsync(sellerId, ct));
-            Assert.Equal(0, await articles.CountForSellerAsync(sellerId, ct));
-            Assert.Empty(await blocks.GetForSellerAsync(sellerId, ct));
-        }
+        Assert.Equal("seller.not_found", ex.ErrorCode);
+        anmeldung.Verify(a => a.DeleteAllForSellerAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageService } from 'primeng/api';
 import { Observable } from 'rxjs';
-import type { MasterDataItem } from '../../features/my-articles/master-data-api.service';
+import type { MasterDataItem } from '@shared/models/master-data-item';
 
 @Component({
   selector: 'app-stammdaten-popup',

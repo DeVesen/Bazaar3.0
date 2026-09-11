@@ -1,6 +1,0 @@
-namespace BAR.Application.Articles.Create;
-
-public sealed record CreateArticleResult(
-    string Id, int Number, string SellerId, string Name, string Brand, string Category,
-    decimal Price, string? Size, string? Color, string? Description,
-    DateTime CreatedAt, DateTime UpdatedAt, int? NextNumber);
