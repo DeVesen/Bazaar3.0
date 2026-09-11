@@ -9,6 +9,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { routes } from './app.routes';
 import { IndustryPreset } from './core/theme/industry-preset';
 import { jwtInterceptor } from './core/auth/jwt.interceptor';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,7 +26,8 @@ export const appConfig: ApplicationConfig = {
         preset: IndustryPreset,
         options: { darkModeSelector: false }
       },
-      translation: { accept: 'Ja', reject: 'Nein' }
+      translation: { accept: 'Ja', reject: 'Nein' },
+      license: environment.primeUiLicenseKey
     }),
     provideLucideConfig({ strokeWidth: 1.5 }),
     MessageService,
