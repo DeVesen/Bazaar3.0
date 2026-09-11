@@ -45,6 +45,24 @@ sobald mehrere Bereiche mit eigener Sprache und eigenen Daten erkennbar sind.
 
 ---
 
+## Konzern und Tochterunternehmen
+
+Nicht jedes große Ganze ist automatisch ein Unternehmen mit Abteilungen. Zwei Systeme, die
+bereits getrennt laufen — eigene Datenbank, eigener Prozess, kein Rückkanal — sind keine
+Abteilungen eines gemeinsamen Unternehmens, sondern **zwei eigenständige Unternehmen unter
+einem gemeinsamen Konzerndach**. Die Frage ist nicht „könnte man sie trennen", sondern „sind
+sie es bereits" — und wenn ja, gilt das Abteilungsbild jeweils *innerhalb* jeder Firma, nie
+über beide hinweg.
+
+**Die eine Ausnahme:** Tauschen zwei getrennte Firmen Daten aus — und sei es nur per Datei,
+ohne jede Laufzeitverbindung —, kennen sie sich trotzdem an genau dieser Stelle. Das
+Austauschformat ist eine **Published Language**: ändert die eine Firma ihr Format, bricht
+die andere, ohne dass zur Laufzeit ein Fehler auftritt — der Bruch zeigt sich erst beim
+nächsten Austausch. Diese eine Schnittstelle verdient Versionierungssorgfalt; sie macht die
+beiden Firmen aber nicht zu Abteilungen eines Unternehmens.
+
+---
+
 ## Die Verbindungsstelle über den Abteilungen
 
 Abteilungen sprechen nicht direkt in die Aktenablage der anderen — sie brauchen eine
@@ -142,6 +160,9 @@ Vermittlung testbar sein sollen.
 | Sachbearbeiter | Domain | `software-design-principles/references/ddd.md` |
 | Registratur | Repository / Infrastructure | `software-design-principles/references/ddd.md` |
 | Fachreferent ohne eigene Akte | Domain Service | `software-design-principles/references/ddd.md` |
+| Konzern | Verbund mehrerer eigenständiger Moduliths/Systeme | — kein einzelner Fachbegriff |
+| Tochterunternehmen | eigenständiges System mit eigenem Deployment | `architecture-styles/references/deployment.md` |
+| Austauschformat zwischen zwei Firmen | Published Language (Context Mapping) | `software-design-principles/references/ddd.md` |
 
 ---
 
