@@ -20,6 +20,10 @@ description: >
 **Setzt den anderen Skill voraus** — hier steht nur noch die Technik hinter den Begriffen,
 nicht mehr, was sie bedeuten.
 
+Beantwortet wie `modulith-thinking` und `architecture-styles` die **Struktur-Frage** (Projekt-
+/Ordner-Zuschnitt). Was innerhalb einer Klasse oder Methode passiert, regelt
+`software-design-principles` — unabhängig davon, wie viele `.csproj` ein Modul hat.
+
 ---
 
 ## Grundriss
@@ -130,6 +134,10 @@ ausschließlich Plumbing — `IDomainEvent`, das Dispatcher-Interface, `IClock` 
 technische Ports, keine Fachlichkeit. Sobald ein Typ hier Domänensprache trägt, gehört er in
 ein Modul, nicht hierher.
 
+**Namenskollision mit DDD, kein Widerspruch:** Das gleichnamige DDD-Strategiemuster „Shared
+Kernel" (`software-design-principles/references/ddd.md`) meint gemeinsam gepflegten
+*Domänen*-Code zwischen zwei Contexts — das Gegenteil dessen, was hier reingehört.
+
 ---
 
 ## Grenzen prüfen statt dokumentieren
@@ -164,23 +172,6 @@ Zwei Kanäle, wie bei der Verbindungsstelle im Unternehmensbild:
 
 ---
 
-## Durchgerechnetes Beispiel: BAR
-
-| Modul | Projekte | Zimmertiefe-Begründung |
-|---|---|---|
-| `Anmeldung` | `.Contracts` + 1 | Default — dichtes Fachmodell (Nummernvergabe-Kaskade), aber Konsistenz mit den anderen Modulen wog schwerer als der IDE-vs-Testlauf-Vorteil |
-| `Verkaeuferverwaltung` | `.Contracts` + 1 | Default — moderates Modell |
-| `Stammdaten` | `.Contracts` + 1 | Default — dünnes CRUD-Modell |
-| `Betrieb` | `.Contracts` + 1 | Default — dünnes CRUD-Modell |
-| `Export` | nur 1 | kein zweiter Referenzierer — kein `.Contracts` |
-| `Host`, `SharedKernel` | je 1 | — |
-
-**Summe: 11 Projekte.** Vier davon `.Contracts`-Projekte, fünf Module, `Host` und
-`SharedKernel`. Keines der Module bekam die volle Vier-Projekte-Tiefe — Konsistenz über alle
-Module war der Ausschlag, nicht ein hartes Kriterium.
-
----
-
 ## Verweise
 
 | Bereich | Datei/Skill |
@@ -189,6 +180,7 @@ Module war der Ausschlag, nicht ein hartes Kriterium.
 | Modulith-Regeln, Deployment-Achse | `architecture-styles/references/deployment.md` |
 | Event-Driven Integration, Outbox | `architecture-styles/references/data-flow.md` |
 | Bounded Context, Repository, Context Mapping | `software-design-principles/references/ddd.md` |
+| Durchgerechnetes Beispiel (BAR, 11 Projekte) | [references/bar-example.md](references/bar-example.md) |
 
 ---
 

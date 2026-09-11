@@ -6,8 +6,8 @@ description: >
   in code. Also for explaining Modulith, Bounded Context or microservice-extraction to
   non-technical stakeholders, scoping what could later become its own service, or placing
   a cross-department interface that belongs neither to a department nor to the transport
-  (REST, tRPC, SignalR). Theory-only, technology-agnostic — framework bridges (Angular,
-  .NET) are separate, not-yet-existing companion skills.
+  (REST, tRPC, SignalR). Theory-only, technology-agnostic — framework bridges live in
+  `dotnet-modulith-bridge` and `angular-modulith-bridge`.
   Triggers: @modulith-thinking, Unternehmen und Abteilungen, Fachabteilung, Fachgruppe,
   Akte, Zimmer, Modulith denken, Abteilung auslagern, "wie strukturieren wir das
   grundsätzlich", Context Mapping.
@@ -22,6 +22,14 @@ dem Grundsatz nach? Dieser Skill beschreibt das **rein in Unternehmenssprache** 
 ohne Code, ohne Projektnamen, ohne Technologie. Er ist die Brücke zwischen „wie denke ich
 darüber nach" und den zwei technischen Nachschlagewerken `architecture-styles` und
 `software-design-principles`, die dasselbe in Fachbegriffen ausbuchstabieren.
+
+**Diese Familie beantwortet zwei getrennte Fragen.** Dieser Skill, `architecture-styles`
+und die zwei Framework-Brücken (`dotnet-modulith-bridge`, `angular-modulith-bridge`)
+beantworten die **Struktur-Frage**: wie ist geschnitten — Abteilungen, Zimmer, Deploy-Einheiten.
+`software-design-principles` beantwortet die **Code-Frage**: was passiert *innerhalb* einer
+Einheit — Methode, Klasse, Komponente. Eine Abteilung kann strukturell perfekt geschnitten
+sein und trotzdem innen aus verschachtelten `if`-Ketten bestehen; beide Fragen sind
+unabhängig zu beantworten.
 
 ---
 
@@ -116,26 +124,9 @@ Innerhalb der Akte:
   in der Vergangenheit, die die Abteilung nach außen weitergeben kann, ohne dass jemand in
   die Akte selbst schauen muss.
 
-### Wie eine Fachgruppe arbeitet
-
-Drei Rollen, die in jeder Fachgruppe getrennt sind, ob bewusst oder nicht:
-
-- **Das Vorzimmer** nimmt eine Anfrage entgegen, stellt fest, welche Akte gemeint ist,
-  reicht weiter, meldet zurück. Entscheidet nicht fachlich — vermittelt nur.
-- **Der Sachbearbeiter** — der Aktenverantwortliche selbst — kennt die Regeln des Fachs und
-  trifft die Entscheidungen. Weiß nichts von Aktenschränken oder EDV.
-- **Die Registratur** legt Akten ab und holt sie raus — immer vollständig, nie in Teilen.
-  Kennt keine einzige Fachregel, nur wie man ablegt und findet.
-
-Braucht eine Berechnung mehrere Akten gleichzeitig, gehört aber zu keiner einzelnen — z. B.
-eine Rabattstaffel über mehrere Bestellungen hinweg — übernimmt das ein **Fachreferent ohne
-eigene Akte**: kennt die Regel, führt sie aus, verwaltet selbst nichts.
-
-**Wann diese Tiefe nötig ist:** Nicht jede Fachgruppe braucht die volle Aufteilung. Bei einer
-Akte mit einem Feld und einer Regel ist der Sachbearbeiter schon die ganze Antwort — Vorzimmer
-und Registratur als eigene Rollen wären Zeremonie ohne Gegenwert. Lohnt sich erst, sobald
-mehrere Akten koordiniert werden müssen oder die Fachregeln unabhängig von Ablage und
-Vermittlung testbar sein sollen.
+Wie die Fachgruppe intern arbeitet (Vorzimmer/Sachbearbeiter/Registratur, wann diese Tiefe
+sich lohnt) und wie viele Zimmer eine Abteilung braucht:
+[references/fachgruppe-rollen.md](references/fachgruppe-rollen.md).
 
 ---
 
@@ -147,57 +138,23 @@ Tür hineinkommt, nie durch die Wand. Nur ein Zimmer hat eine Tür nach draußen
 Anlaufstelle. Die übrigen Zimmer (wo der Sachbearbeiter sitzt, wo die Registratur ist, wo das
 Vorzimmer arbeitet) sind nur von innerhalb der Abteilung erreichbar.
 
-**Wie viele Zimmer eine Abteilung braucht, ist dieselbe gestufte Frage wie bei den
-Fachgruppen** — keine feste Regel:
-
-- Ein einziges, offenes Zimmer für die ganze Abteilung reicht, wenn das Fachmodell dünn ist
-  und ein versehentlicher Griff durch die falsche Wand kaum vorkommt oder wenig kostet.
-- Eigene, fest verriegelte Zimmer je Rolle lohnen sich, wenn die Sachbearbeitung kompliziert
-  genug ist, dass ein versehentlicher Griff in die Registratur teuer würde — dann soll das
-  schon beim Betreten des falschen Zimmers auffallen, nicht erst bei der nächsten Inventur.
-
-Die Anlaufstelle ist **immer** ein eigenes Zimmer, unabhängig von dieser Entscheidung — das
-ist keine gestufte Frage, sondern die einzige Tür nach draußen, und die muss von jedem
-anderen Zimmer der Abteilung getrennt bleiben.
+Wie viele Zimmer sich lohnen, ist dieselbe gestufte Frage wie bei den Fachgruppen — siehe
+[references/fachgruppe-rollen.md](references/fachgruppe-rollen.md).
 
 Wie ein Zimmer technisch aussieht — ein eigenes kompilierbares Stück Code mit eigener
-Referenzgrenze — übersetzt erst die jeweilige Framework-Brücke. Dieser Skill kennt nur das
-Bild, nicht die Technik dahinter.
+Referenzgrenze — übersetzt erst die jeweilige Framework-Brücke (`dotnet-modulith-bridge`,
+`angular-modulith-bridge`). Dieser Skill kennt nur das Bild, nicht die Technik dahinter.
 
 ---
 
-## Rückübersetzung — Unternehmensbild ↔ Fachbegriff
+## Referenzen
 
-| Unternehmensbild | Fachbegriff | Vertiefung |
-|---|---|---|
-| Unternehmen | Modulith | `architecture-styles` — Deployment-Achse |
-| Fachabteilung | Bounded Context | `software-design-principles` → `references/ddd.md` |
-| Aktenablage der Abteilung | eigenes Schema / eigener DbContext | `architecture-styles/references/deployment.md` |
-| Anlaufstelle der Abteilung | Port / Contracts-Projekt | `software-design-principles/references/ddd.md` (Repository) |
-| Verbindungsstelle über den Abteilungen | Context-Mapping-Schicht (ACL, Open Host Service, Published Language) | `software-design-principles/references/ddd.md` |
-| zentrale Koordination vs. eigenständige Reaktion | Orchestrierung vs. Choreografie (In-Process Domain Events) | `architecture-styles/references/data-flow.md` |
-| Telefon / E-Mail / Kundenportal | Transport-Adapter (REST, tRPC, SignalR) | — kein Bestandteil der Abteilung |
-| Abteilung zieht aus | Modul-Extraktion zu Microservice | `architecture-styles/references/deployment.md` |
-| Akte | Aggregate | `software-design-principles/references/ddd.md` |
-| Aktenverantwortlicher | Aggregate Root | `software-design-principles/references/ddd.md` |
-| Beleg innerhalb der Akte | Entity (nicht-Root) | `software-design-principles/references/ddd.md` |
-| reine Angabe | Value Object | `software-design-principles/references/ddd.md` |
-| Logbucheintrag | Domain Event | `software-design-principles/references/ddd.md` |
-| Vorzimmer | Application-Schicht | `software-design-principles/references/ddd.md` |
-| Sachbearbeiter | Domain | `software-design-principles/references/ddd.md` |
-| Registratur | Repository / Infrastructure | `software-design-principles/references/ddd.md` |
-| Fachreferent ohne eigene Akte | Domain Service | `software-design-principles/references/ddd.md` |
-| Konzern | Verbund mehrerer eigenständiger Moduliths/Systeme | — kein einzelner Fachbegriff |
-| Tochterunternehmen | eigenständiges System mit eigenem Deployment | `architecture-styles/references/deployment.md` |
-| Austauschformat zwischen zwei Firmen | Published Language (Context Mapping) | `software-design-principles/references/ddd.md` |
-| Zimmer innerhalb der Abteilung | kompilierbare Einheit mit eigener Referenzgrenze (z. B. .NET: `.csproj`) | Framework-Brücke (geplant) |
+| Thema | Datei |
+|-------|-------|
+| Die drei Rollen einer Fachgruppe, gestufte Zimmertiefe | [references/fachgruppe-rollen.md](references/fachgruppe-rollen.md) |
+| Vollständige Rückübersetzung Unternehmensbild ↔ Fachbegriff | [references/translation-table.md](references/translation-table.md) |
 
----
-
-## Noch nicht Teil dieses Bildes
-
-- **Framework-/sprachspezifische Übersetzung** — wie eine Fachabteilung konkret in Angular
-  oder .NET gebaut wird. Geplante eigene Brücken-Skills, noch nicht vorhanden.
+Technische Übersetzung: `dotnet-modulith-bridge` (.NET), `angular-modulith-bridge` (Angular).
 
 ---
 

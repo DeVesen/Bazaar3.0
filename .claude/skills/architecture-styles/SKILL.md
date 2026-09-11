@@ -22,6 +22,12 @@ Design-Prinzipien (DDD, IODA/IOSP, SOLID, Flow Design) bleiben im Skill
 `software-design-principles`: der ist normativ, dieser deskriptiv.
 Ein DDD-Schnitt hat Vorrang vor jedem Stil-Etikett.
 
+**Zwei getrennte Fragen.** Dieser Skill, `modulith-thinking` und die zwei Framework-Brücken
+(`dotnet-modulith-bridge`, `angular-modulith-bridge`) beantworten die **Struktur-Frage**: wie
+ist geschnitten. `software-design-principles` beantwortet die **Code-Frage**: was passiert
+innerhalb einer Einheit. Eine sauber geschnittene Deploy-Einheit kann innen trotzdem
+schlecht geschriebenen Code enthalten — beide Fragen unabhängig prüfen.
+
 ---
 
 ## Drei orthogonale Achsen
@@ -76,6 +82,19 @@ in derselben Antwort.
 Eine plausible Vermutung ist kein Fall 1. Eine geratene Zeile ist schlechter als eine offene:
 sie sieht entschieden aus und wird nie wieder hinterfragt.
 
+**Layering darf pro Fachabteilung (Bounded Context) verschieden ausfallen** — anders als
+Deployment und Data-Flow, die für die ganze Deploy-Einheit gelten. Eine Abteilung mit viel
+Fachlogik hexagonal, eine dünne Stammdaten-Abteilung layered: beides in derselben Zeile
+„Layering" abzubilden ist dann falsch. Statt einer Zeile eine je Abteilung:
+
+```markdown
+| Layering | Anmeldung: Hexagonal | Viel Fachlogik, mehrere Adapter |
+| Layering | Stammdaten: Layered | Reines CRUD, keine Regeln |
+```
+
+Nur aufsplitten, wenn die Abteilungen tatsächlich unterschiedlich beantwortet werden —
+eine Zeile für alle bleibt der Normalfall.
+
 ```markdown
 ## Architektur
 
@@ -100,6 +119,11 @@ Nur die benötigte Datei laden.
 | Monolith, Modularer Monolith, Microservices | [references/deployment.md](references/deployment.md) |
 | CRUD, CQRS-Stufen, Event Sourcing, Event-Driven | [references/data-flow.md](references/data-flow.md) |
 | Fragenkatalog, Trade-off-Matrix, Anti-Pattern | [references/decision-guide.md](references/decision-guide.md) |
+
+Für die Frage *„ein System oder mehrere, die nie eins waren"* (Konzern/Tochterunternehmen)
+und für Geschäftssprache vor jeder Stil-Wahl: Skill `modulith-thinking`. Für die
+technische Übersetzung des Modulith-Schnitts: `dotnet-modulith-bridge` (.NET) bzw.
+`angular-modulith-bridge` (Angular).
 
 ---
 
