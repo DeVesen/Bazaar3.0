@@ -129,6 +129,63 @@ Entscheidung wie bei den Zimmern in .NET, nicht anders nur weil die Technik wech
 
 ---
 
+## Durchgerechnetes Beispiel: BAR
+
+| Abteilung | Bestehende Features |
+|---|---|
+| `anmeldung` | `number-blocks`, `my-articles` (Selbstverwaltung), `articles` (Admin-Übersicht) |
+| `verkaeuferverwaltung` | `sellers` (Verwaltung), `profile`, `register`, `set-password` (Selbstverwaltung) |
+| `stammdaten` | `brands`, `categories`, `seller-types` |
+| `betrieb` | `settings` |
+| `export` | `export` — Abteilung und Feature fallen hier zusammen |
+| außerhalb | `login` (Zugang), `home` / `countdown-embed` (Sichtkomposition), `not-found` (technisch) |
+
+`register` und `set-password` bei `verkaeuferverwaltung` statt bei „Zugang" ist eine Lesart,
+keine feststehende Tatsache — beide legen den Verkäufer-Datensatz selbst an/aktivieren, statt
+nur einen bestehenden zu prüfen wie `login`.
+
+**Die Abteilungsebene ist reine Navigationshilfe, keine technische Notwendigkeit** — die
+ESLint-Grenze verbietet Cross-Feature-Imports unabhängig von der Ordnertiefe. Bei wenigen
+Features lohnt sie sich nicht; bei BARs 16 Features schon:
+
+```
+src/app/
+├── core/                              ← auth, theme, shell
+├── shared/                            ← dumme UI, kein Abteilungsbezug
+│
+├── features/
+│     ├── anmeldung/
+│     │     ├── number-blocks/
+│     │     ├── my-articles/
+│     │     └── articles/
+│     │
+│     ├── verkaeuferverwaltung/
+│     │     ├── sellers/
+│     │     ├── profile/
+│     │     ├── register/
+│     │     └── set-password/
+│     │
+│     ├── stammdaten/
+│     │     ├── brands/
+│     │     ├── categories/
+│     │     └── seller-types/
+│     │
+│     ├── betrieb/
+│     │     └── settings/
+│     │
+│     └── export/
+│           └── export/
+│
+├── login/
+├── home/
+└── countdown-embed/
+```
+
+Jedes Feature bleibt innen wie im Abschnitt oben (`<name>.routes.ts`, `<name>-api.service.ts`,
+`pages/`) — die Abteilungsebene ändert nur, wo der Ordner liegt, nicht was drin ist.
+
+---
+
 ## Verweise
 
 | Bereich | Datei/Skill |
