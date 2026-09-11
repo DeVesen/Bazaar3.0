@@ -9,8 +9,8 @@ description: >
   (REST, tRPC, SignalR). Theory-only, technology-agnostic — framework bridges (Angular,
   .NET) are separate, not-yet-existing companion skills.
   Triggers: @modulith-thinking, Unternehmen und Abteilungen, Fachabteilung, Fachgruppe,
-  Akte, Modulith denken, Abteilung auslagern, "wie strukturieren wir das grundsätzlich",
-  Context Mapping.
+  Akte, Zimmer, Modulith denken, Abteilung auslagern, "wie strukturieren wir das
+  grundsätzlich", Context Mapping.
   Background: baut auf `architecture-styles` (Deployment-Achse) und
   `software-design-principles` (DDD) auf. Opt-out: ohne modulith-thinking.
 ---
@@ -139,6 +139,33 @@ Vermittlung testbar sein sollen.
 
 ---
 
+## Zimmer innerhalb der Abteilung
+
+Eine Abteilung kann als ein einziger, offener Arbeitsbereich bestehen — oder intern in
+**Zimmer mit eigener Tür** unterteilt sein: abgeschlossene Bereiche, in die man nur durch die
+Tür hineinkommt, nie durch die Wand. Nur ein Zimmer hat eine Tür nach draußen — das der
+Anlaufstelle. Die übrigen Zimmer (wo der Sachbearbeiter sitzt, wo die Registratur ist, wo das
+Vorzimmer arbeitet) sind nur von innerhalb der Abteilung erreichbar.
+
+**Wie viele Zimmer eine Abteilung braucht, ist dieselbe gestufte Frage wie bei den
+Fachgruppen** — keine feste Regel:
+
+- Ein einziges, offenes Zimmer für die ganze Abteilung reicht, wenn das Fachmodell dünn ist
+  und ein versehentlicher Griff durch die falsche Wand kaum vorkommt oder wenig kostet.
+- Eigene, fest verriegelte Zimmer je Rolle lohnen sich, wenn die Sachbearbeitung kompliziert
+  genug ist, dass ein versehentlicher Griff in die Registratur teuer würde — dann soll das
+  schon beim Betreten des falschen Zimmers auffallen, nicht erst bei der nächsten Inventur.
+
+Die Anlaufstelle ist **immer** ein eigenes Zimmer, unabhängig von dieser Entscheidung — das
+ist keine gestufte Frage, sondern die einzige Tür nach draußen, und die muss von jedem
+anderen Zimmer der Abteilung getrennt bleiben.
+
+Wie ein Zimmer technisch aussieht — ein eigenes kompilierbares Stück Code mit eigener
+Referenzgrenze — übersetzt erst die jeweilige Framework-Brücke. Dieser Skill kennt nur das
+Bild, nicht die Technik dahinter.
+
+---
+
 ## Rückübersetzung — Unternehmensbild ↔ Fachbegriff
 
 | Unternehmensbild | Fachbegriff | Vertiefung |
@@ -163,6 +190,7 @@ Vermittlung testbar sein sollen.
 | Konzern | Verbund mehrerer eigenständiger Moduliths/Systeme | — kein einzelner Fachbegriff |
 | Tochterunternehmen | eigenständiges System mit eigenem Deployment | `architecture-styles/references/deployment.md` |
 | Austauschformat zwischen zwei Firmen | Published Language (Context Mapping) | `software-design-principles/references/ddd.md` |
+| Zimmer innerhalb der Abteilung | kompilierbare Einheit mit eigener Referenzgrenze (z. B. .NET: `.csproj`) | Framework-Brücke (geplant) |
 
 ---
 
