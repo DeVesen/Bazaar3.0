@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using BAR.Modules.Verkaeuferverwaltung.Contracts;
-using BAR.Modules.Verkaeuferverwaltung.Contracts.Sellers;
+using BAR.Modules.SellerManagement.Contracts;
+using BAR.Modules.SellerManagement.Contracts.Sellers;
 using BAR.Host.Validation;
 using Microsoft.Extensions.Configuration;
 
@@ -21,47 +21,47 @@ public static class SellersEndpoints
 
         group.MapGet("/", async (
             string? search, int? page, int? pageSize, string? sort,
-            IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
+            ISellerManagementModuleApi sellerManagement, CancellationToken ct) =>
         {
             var sortMeta = ParseSort(sort);
             var effectivePage = Math.Max(page ?? 1, 1);
             var effectivePageSize = Math.Clamp(pageSize ?? 25, 1, 100);
             var query = new GetSellersQuery(search, effectivePage, effectivePageSize, sortMeta);
-            return Results.Ok(await verkaeuferverwaltung.GetSellersAsync(query, ct));
+            return Results.Ok(await sellerManagement.GetSellersAsync(query, ct));
         });
 
         group.MapPost("/", async (
-            CreateSellerCommand command, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
+            CreateSellerCommand command, ISellerManagementModuleApi sellerManagement, CancellationToken ct) =>
         {
-            var result = await verkaeuferverwaltung.CreateSellerAsync(command, ct);
+            var result = await sellerManagement.CreateSellerAsync(command, ct);
             return Results.Created($"/api/sellers/{result.Id}", result);
         }).AddEndpointFilter<ValidationFilter<CreateSellerCommand>>();
 
         group.MapPut("/{id}", async (
-            string id, UpdateSellerCommand body, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
+            string id, UpdateSellerCommand body, ISellerManagementModuleApi sellerManagement, CancellationToken ct) =>
         {
             var command = body with { SellerId = id };
-            return Results.Ok(await verkaeuferverwaltung.UpdateSellerAsync(command, ct));
+            return Results.Ok(await sellerManagement.UpdateSellerAsync(command, ct));
         }).AddEndpointFilter<ValidationFilter<UpdateSellerCommand>>();
 
         group.MapDelete("/{id}", async (
-            string id, ClaimsPrincipal user, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, CancellationToken ct) =>
+            string id, ClaimsPrincipal user, ISellerManagementModuleApi sellerManagement, CancellationToken ct) =>
         {
             var requestingSellerId = user.FindFirstValue("sub")!;
-            await verkaeuferverwaltung.DeleteSellerAsync(new DeleteSellerCommand(id, requestingSellerId), ct);
+            await sellerManagement.DeleteSellerAsync(new DeleteSellerCommand(id, requestingSellerId), ct);
             return Results.NoContent();
         });
 
         group.MapPost("/{id}/invite", (
-            string id, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, IConfiguration configuration, CancellationToken ct) =>
-            InviteAsync(id, verkaeuferverwaltung, configuration, ct));
+            string id, ISellerManagementModuleApi sellerManagement, IConfiguration configuration, CancellationToken ct) =>
+            InviteAsync(id, sellerManagement, configuration, ct));
 
         return app;
     }
 
-    static async Task<IResult> InviteAsync(string id, IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, IConfiguration configuration, CancellationToken ct)
+    static async Task<IResult> InviteAsync(string id, ISellerManagementModuleApi sellerManagement, IConfiguration configuration, CancellationToken ct)
     {
-        var result = await verkaeuferverwaltung.InviteSellerAsync(id, ct);
+        var result = await sellerManagement.InviteSellerAsync(id, ct);
         var baseUrl = configuration["Frontend:BaseUrl"];
         var inviteUrl = $"{baseUrl}/set-password?token={result.Token}";
         return Results.Ok(new { inviteUrl, expiresAt = result.ExpiresAt });

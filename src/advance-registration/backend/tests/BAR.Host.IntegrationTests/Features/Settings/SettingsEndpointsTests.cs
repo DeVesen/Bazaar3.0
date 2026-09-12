@@ -2,13 +2,13 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Anmeldung.Domain.Articles;
-using BAR.Modules.Anmeldung.Domain.Ports;
-using BAR.Modules.Stammdaten.Domain.Ports;
-using BAR.Modules.Stammdaten.Domain.SellerTypes;
-using BAR.Modules.Verkaeuferverwaltung.Application.Abstractions;
-using BAR.Modules.Verkaeuferverwaltung.Domain.Ports;
-using BAR.Modules.Verkaeuferverwaltung.Domain.Sellers;
+using BAR.Modules.Registration.Domain.Articles;
+using BAR.Modules.Registration.Domain.Ports;
+using BAR.Modules.MasterData.Domain.Ports;
+using BAR.Modules.MasterData.Domain.SellerTypes;
+using BAR.Modules.SellerManagement.Application.Abstractions;
+using BAR.Modules.SellerManagement.Domain.Ports;
+using BAR.Modules.SellerManagement.Domain.Sellers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Features.Settings;
@@ -40,9 +40,10 @@ public class SettingsEndpointsTests : IClassFixture<PostgresWebApplicationFactor
     }
 
     /// <summary>
-    /// Vergleicht zwei Zeitstempel mit Toleranz statt exakter Gleichheit, weil Postgres
-    /// (timestamptz, Mikrosekunden-Aufloesung) und .NET DateTime (100ns-Ticks) leicht
-    /// unterschiedliche Praezision haben und das JSON-Roundtrip zusaetzlich rundet.
+    /// Compares two timestamps with tolerance instead of exact equality,
+    /// because Postgres (timestamptz, microsecond resolution) and .NET
+    /// DateTime (100ns ticks) have slightly different precision, and the JSON
+    /// roundtrip rounds further on top of that.
     /// </summary>
     private static void AssertCloseTo(DateTime expected, DateTime actual)
     {

@@ -49,7 +49,7 @@ describe('CountdownEmbedPage', () => {
 
     const countdown = fixture.debugElement.query(By.directive(Countdown));
     const labels = countdown.componentInstance.phases().map((p: { label: string }) => p.label);
-    expect(labels).toEqual(['Voranmeldung endet', 'Abgabe beginnt', 'Abgabe endet', 'Basar beginnt', 'Basar endet']);
+    expect(labels).toEqual(['Vorregistration endet', 'Abgabe beginnt', 'Abgabe endet', 'Basar beginnt', 'Basar endet']);
   });
 
   it('skips a phase whose date is not maintained (null) — AC-7', () => {

@@ -10,9 +10,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BAR.SharedKernel\BAR.SharedKernel.csproj" />
-    <ProjectReference Include="..\BAR.Modules.Verkaeuferverwaltung.Contracts\BAR.Modules.Verkaeuferverwaltung.Contracts.csproj" />
-    <ProjectReference Include="..\BAR.Modules.Anmeldung.Contracts\BAR.Modules.Anmeldung.Contracts.csproj" />
-    <ProjectReference Include="..\BAR.Modules.Stammdaten.Contracts\BAR.Modules.Stammdaten.Contracts.csproj" />
+    <ProjectReference Include="..\BAR.Modules.SellerManagement.Contracts\BAR.Modules.SellerManagement.Contracts.csproj" />
+    <ProjectReference Include="..\BAR.Modules.Registration.Contracts\BAR.Modules.Registration.Contracts.csproj" />
+    <ProjectReference Include="..\BAR.Modules.MasterData.Contracts\BAR.Modules.MasterData.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

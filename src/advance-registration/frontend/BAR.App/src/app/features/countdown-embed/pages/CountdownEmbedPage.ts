@@ -3,10 +3,10 @@ import { Countdown } from '@shared/countdown/countdown';
 import { CountdownPhase } from '@shared/countdown/select-active-phase';
 import { PublicInfoService, PublicInfo } from '@core/public-info/public-info.service';
 
-// Oeffentliche, unauthentifizierte Route /embed/countdown, ausserhalb der AppShell
-// (Epic_Countdown_Widget Abschnitt 1). Rendert die 5 Basar-Termine aus
-// `GET /api/public/info` als Countdown-Variante 'timeline'; ein nicht gepflegter
-// Termin (null) wird vor der Uebergabe herausgefiltert (AC-6/AC-7).
+// Public, unauthenticated route /embed/countdown, outside the AppShell
+// (Epic_Countdown_Widget section 1). Renders the 5 bazaar dates from
+// `GET /api/public/info` as the countdown 'timeline' variant; an unmaintained
+// date (null) is filtered out before being passed on (AC-6/AC-7).
 @Component({
   selector: 'app-countdown-embed-page',
   imports: [Countdown],
@@ -32,7 +32,7 @@ export class CountdownEmbedPage {
     }
 
     const candidates: { label: string; targetDate: string | null }[] = [
-      { label: 'Voranmeldung endet', targetDate: i.registrationDeadline },
+      { label: 'Vorregistration endet', targetDate: i.registrationDeadline },
       { label: 'Abgabe beginnt', targetDate: i.dropOffFrom },
       { label: 'Abgabe endet', targetDate: i.dropOffUntil },
       { label: 'Basar beginnt', targetDate: i.bazaarFrom },

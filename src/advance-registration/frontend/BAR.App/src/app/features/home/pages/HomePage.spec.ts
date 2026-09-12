@@ -141,7 +141,7 @@ describe('HomePage', () => {
   });
 
   it('shows the seller number card in seller mode', () => {
-    expect(fixture.nativeElement.querySelector('app-verkaeufer-nummer')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('app-seller-number')).not.toBeNull();
   });
 
   it('computes total drop-off fee as articleCount × itemFee', () => {
@@ -156,7 +156,7 @@ describe('HomePage', () => {
     expect(homeApi.getAdminHome).toHaveBeenCalled();
     expect(fixture.nativeElement.querySelector('.kpi-grid--c5')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('app-activity-heatmap')).not.toBeNull();
-    expect(fixture.nativeElement.querySelector('app-verkaeufer-nummer')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-seller-number')).toBeNull();
   });
 
   it('shows the info panel when infoText is set', () => {

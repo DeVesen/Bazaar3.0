@@ -1,7 +1,7 @@
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Anmeldung.Domain.Articles;
-using BAR.Modules.Anmeldung.Domain.NumberBlocks;
-using BAR.Modules.Anmeldung.Domain.Ports;
+using BAR.Modules.Registration.Domain.Articles;
+using BAR.Modules.Registration.Domain.NumberBlocks;
+using BAR.Modules.Registration.Domain.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -84,9 +84,9 @@ public class ArticleRepositoryTests : IClassFixture<PostgresWebApplicationFactor
         Assert.Null(await repo.GetByIdAsync(article.Id, ct));
     }
 
-    // Neu seit dem Modulith-Schnitt: Brand/Category leben in Stammdaten (eigenes
-    // Schema) - Anmeldung haelt fuer bestehende Artikel eine eigene Namenskopie
-    // und muss sie selbst zaehlen/umbenennen koennen (siehe IArticleRepository).
+    // New since the modulith cut: Brand/Category live in MasterData (their
+    // own schema) - Registration keeps its own copy of the name on existing
+    // articles and must be able to count/rename it itself (see IArticleRepository).
     [Fact]
     public async Task CountWithBrandNameAsync_CountsOnlyMatchingBrand()
     {

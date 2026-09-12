@@ -10,10 +10,10 @@
        innerhalb eines Projekts (spec.md 10.0.1, VPROJ-S05 AC-5) und die
        Modulgrenze (nur .Contracts ist von aussen ansprechbar). -->
   <ItemGroup>
-    <ProjectReference Include="..\..\BAR.Modules.Anmeldung\BAR.Modules.Anmeldung.csproj" />
-    <ProjectReference Include="..\..\BAR.Modules.Verkaeuferverwaltung\BAR.Modules.Verkaeuferverwaltung.csproj" />
-    <ProjectReference Include="..\..\BAR.Modules.Stammdaten\BAR.Modules.Stammdaten.csproj" />
-    <ProjectReference Include="..\..\BAR.Modules.Betrieb\BAR.Modules.Betrieb.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Registration\BAR.Modules.Registration.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.SellerManagement\BAR.Modules.SellerManagement.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.MasterData\BAR.Modules.MasterData.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Operations\BAR.Modules.Operations.csproj" />
     <ProjectReference Include="..\..\BAR.Modules.Export\BAR.Modules.Export.csproj" />
     <ProjectReference Include="..\..\BAR.Host\BAR.Host.csproj" />
   </ItemGroup>

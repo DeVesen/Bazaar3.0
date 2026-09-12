@@ -15,9 +15,9 @@ interface RefreshResponse {
 
 let refreshInFlight: Observable<string> | null = null;
 
-// Allowlist statt Blocklist: der Header geht nur an eigene API-Aufrufe.
-// Alles andere — Fremd-Hosts und statische Assets wie /i18n/de.json —
-// bekommt niemals ein Bearer-Token zu sehen.
+// Allowlist instead of blocklist: the header only goes to our own API calls.
+// Everything else — third-party hosts and static assets like /i18n/de.json —
+// never gets to see a bearer token.
 function shouldAttachToken(url: string): boolean {
   let path: string;
   try {
@@ -36,12 +36,12 @@ function shouldAttachToken(url: string): boolean {
   return !EXCLUDED_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
 
-// Manche 401 sind kein abgelaufenes Access-Token, sondern ein fachlicher Fehler
-// (z. B. "aktuelles Passwort falsch" auf PUT /api/profile/email|password). Ein
-// Refresh+Retry aendert daran nichts (die Session ist ja gueltig) und der zweite
-// 401 wuerde ueber den catchError unten zum stillen Logout fuehren. Der Backend-
-// Handler (DomainExceptionHandler) liefert den fachlichen ErrorCode im Body mit,
-// darueber lassen sich beide Faelle unterscheiden.
+// Some 401s aren't an expired access token but a business error (e.g.
+// "current password wrong" on PUT /api/profile/email|password). A
+// refresh+retry changes nothing there (the session is still valid), and the
+// second 401 would lead to a silent logout via the catchError below. The
+// backend handler (DomainExceptionHandler) includes the business error code
+// in the body, which lets both cases be told apart.
 function isBusinessLogicUnauthorized(error: HttpErrorResponse): boolean {
   const body = error.error as { errorCode?: string } | null;
   return body?.errorCode === 'auth.invalid_credentials';

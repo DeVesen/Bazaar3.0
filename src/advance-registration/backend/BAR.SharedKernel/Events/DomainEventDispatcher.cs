@@ -3,12 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace BAR.SharedKernel.Events;
 
 /// <summary>
-/// Loest zur Laufzeit alle <see cref="IIntegrationEventHandler{TEvent}"/> auf,
-/// die ein anderes Modul fuer genau diesen Event-Typ registriert hat, und ruft
-/// sie nacheinander auf. Fehlschlaege einzelner Handler werden geloggt statt
-/// den aufrufenden (SaveChanges-)Vorgang scheitern zu lassen - die Outbox-Zeile
-/// im meldenden Modul bleibt in diesem Fall die Vorleistung fuer eine spaetere,
-/// bewusst nicht in diesem Zuschnitt gebaute Nachbearbeitung.
+/// Resolves, at runtime, every <see cref="IIntegrationEventHandler{TEvent}"/>
+/// that another module has registered for exactly this event type, and calls
+/// them one after another. Failures of individual handlers are logged rather
+/// than failing the calling (SaveChanges) operation - in that case the outbox
+/// row in the reporting module remains the groundwork for a later
+/// reprocessing step that is deliberately not built in this cut.
 /// </summary>
 public sealed class DomainEventDispatcher(IServiceProvider serviceProvider) : IDomainEventDispatcher
 {

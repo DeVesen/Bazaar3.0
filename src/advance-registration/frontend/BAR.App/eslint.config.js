@@ -40,21 +40,21 @@ module.exports = defineConfig([
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
     rules: {},
   },
-  // Modulith-Grenzen (angular-modulith-bridge): core/ und shared/ importieren
-  // nie aus features/; Cross-Feature-Imports sind verboten, unabhaengig davon,
-  // ob zwei Features derselben Abteilung angehoeren oder nicht (die
-  // Abteilungsebene ist reine Navigationshilfe, keine technische Grenze).
-  // eslint-plugin-boundaries statt no-restricted-imports, weil es tatsaechliche
-  // Dateipfade aufloest - no-restricted-imports erkannte relative Importe
-  // (statt @alias/...) bisher gar nicht.
+  // Modulith boundaries (angular-modulith-bridge): core/ and shared/ never
+  // import from features/; cross-feature imports are forbidden, regardless
+  // of whether two features belong to the same department or not (the
+  // department level is pure navigation aid, not a technical boundary).
+  // eslint-plugin-boundaries instead of no-restricted-imports, because it
+  // resolves actual file paths - no-restricted-imports never recognized
+  // relative imports (as opposed to @alias/...) at all.
   {
     files: ['src/app/**/*.ts'],
     plugins: { boundaries },
     settings: {
-      // eslint-plugin-boundaries loest Importe ueber 'import/resolver' auf -
-      // ohne den TypeScript-Resolver bleiben die @core/@shared/@features-
-      // Alias-Importe fuer boundaries unbekannte externe Module, und keine
-      // Grenzregel greift jemals (stiller False-Negative, siehe Commit-Historie).
+      // eslint-plugin-boundaries resolves imports via 'import/resolver' -
+      // without the TypeScript resolver, the @core/@shared/@features alias
+      // imports remain unknown external modules to boundaries, and no
+      // boundary rule ever fires (a silent false negative, see commit history).
       'import/resolver': {
         typescript: { project: path.join(__dirname, 'tsconfig.json') },
       },
@@ -62,19 +62,18 @@ module.exports = defineConfig([
       'boundaries/elements': [
         { type: 'core', pattern: 'src/app/core/**' },
         { type: 'shared', pattern: 'src/app/shared/**' },
-        // login/home/countdown-embed/not-found liegen direkt unter features/,
-        // ohne Abteilungs-Unterordner (siehe angular-modulith-bridge, BAR-Beispiel) -
-        // jede davon zaehlt als ein eigenstaendiges "Feature ohne Abteilung".
+        // login/home/countdown-embed/not-found live directly under features/,
+        // without a department subfolder (see angular-modulith-bridge, BAR
+        // example) - each counts as its own "feature without a department".
         {
           type: 'standalone-feature',
           pattern: 'src/app/features/{login,home,countdown-embed,not-found}/**',
           capture: ['feature'],
         },
-        // Eine Datei direkt unter features/<Abteilung>/ (kein weiterer
-        // Unterordner) ist Abteilungs-weites, aber fachbereichs-internes
-        // Gemeingut - z.B. features/anmeldung/master-data-api.service.ts,
-        // geteilt von my-articles/ und articles/, ohne dass die beiden
-        // sich gegenseitig importieren.
+        // A file directly under features/<department>/ (no further
+        // subfolder) is department-wide but internal common ground - e.g.
+        // features/registration/master-data-api.service.ts, shared by
+        // my-articles/ and articles/ without the two importing each other.
         {
           type: 'department-shared',
           pattern: 'src/app/features/*/*.ts',
@@ -91,7 +90,7 @@ module.exports = defineConfig([
     rules: {
       'boundaries/dependencies': ['error', {
         default: 'disallow',
-        message: '{{from.type}} darf nicht aus {{to.type}} importieren (Modulith-Grenze, siehe angular-modulith-bridge).',
+        message: '{{from.type}} must not import from {{to.type}} (modulith boundary, see angular-modulith-bridge).',
         policies: [
           { from: { element: { type: 'core' } }, allow: { to: { element: { type: 'core' } } } },
           { from: { element: { type: 'shared' } }, allow: { to: { element: { type: 'shared' } } } },

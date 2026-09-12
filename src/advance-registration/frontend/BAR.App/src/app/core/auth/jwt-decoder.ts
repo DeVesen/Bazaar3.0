@@ -4,8 +4,8 @@ export interface DecodedToken {
   exp: number;
 }
 
-// JWT-Payloads sind base64url (RFC 7519) und dürfen UTF-8 enthalten:
-// atob() allein scheitert an '-'/'_', fehlendem Padding und Umlauten.
+// JWT payloads are base64url (RFC 7519) and may contain UTF-8: atob() alone
+// fails on '-'/'_', missing padding, and non-ASCII characters.
 function decodeBase64UrlToUtf8(segment: string): string {
   const base64 = segment.replace(/-/g, '+').replace(/_/g, '/');
   const paddingLength = (4 - (base64.length % 4)) % 4;

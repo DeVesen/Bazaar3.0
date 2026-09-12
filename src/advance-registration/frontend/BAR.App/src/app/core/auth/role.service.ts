@@ -14,8 +14,8 @@ export class RoleService {
   readonly activeRole = signal<Role>(this.initialRole());
 
   constructor() {
-    // TokenStore.clear() loescht bazaar_active_role — ohne diesen Reset
-    // bliebe das Signal auf der Rolle des abgemeldeten Nutzers stehen.
+    // TokenStore.clear() removes bazaar_active_role — without this reset the
+    // signal would stay stuck on the logged-out user's role.
     this.authService.registerLogoutReset(() => this.activeRole.set(DEFAULT_ROLE));
   }
 

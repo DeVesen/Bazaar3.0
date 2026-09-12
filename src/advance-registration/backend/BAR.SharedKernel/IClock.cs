@@ -1,10 +1,10 @@
 namespace BAR.SharedKernel;
 
 /// <summary>
-/// Zeitquelle der Handler in jedem Modul. Liefert ausschliesslich UTC - die
-/// Datenbank speichert <c>timestamptz</c>, und Npgsql wirft bei
-/// <c>DateTimeKind.Local</c> (entities/overview.md, Abschnitt Zeitstempel und
-/// Zeitzone).
+/// Time source for the handlers in every module. Returns UTC only - the
+/// database stores <c>timestamptz</c>, and Npgsql throws on
+/// <c>DateTimeKind.Local</c> (entities/overview.md, timestamps and timezone
+/// section).
 /// </summary>
 public interface IClock
 {

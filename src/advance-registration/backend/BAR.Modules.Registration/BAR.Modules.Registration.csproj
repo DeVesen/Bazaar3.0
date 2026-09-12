@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BAR.SharedKernel\BAR.SharedKernel.csproj" />
+    <ProjectReference Include="..\BAR.Modules.Registration.Contracts\BAR.Modules.Registration.Contracts.csproj" />
+    <ProjectReference Include="..\BAR.Modules.Operations.Contracts\BAR.Modules.Operations.Contracts.csproj" />
+    <ProjectReference Include="..\BAR.Modules.MasterData.Contracts\BAR.Modules.MasterData.Contracts.csproj" />
+    <ProjectReference Include="..\BAR.Modules.SellerManagement.Contracts\BAR.Modules.SellerManagement.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

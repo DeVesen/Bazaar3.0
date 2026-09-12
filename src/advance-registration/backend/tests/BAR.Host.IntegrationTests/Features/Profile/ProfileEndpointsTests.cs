@@ -65,9 +65,9 @@ public class ProfileEndpointsTests : IClassFixture<PostgresWebApplicationFactory
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-        // Regression: FluentValidation liefert PropertyName als Dictionary-Key
-        // (PascalCase); ohne globale DictionaryKeyPolicy matcht das Frontend
-        // (camelCase-Feldnamen) nie einen Fehler-Key.
+        // Regression: FluentValidation returns PropertyName as the dictionary
+        // key (PascalCase); without a global DictionaryKeyPolicy the frontend
+        // (camelCase field names) would never match an error key.
         var body = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
         var errors = body.GetProperty("errors");
         Assert.True(errors.TryGetProperty("firstName", out _));

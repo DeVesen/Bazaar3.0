@@ -1,6 +1,6 @@
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Stammdaten.Domain.MasterData;
-using BAR.Modules.Stammdaten.Domain.Ports;
+using BAR.Modules.MasterData.Domain.Catalog;
+using BAR.Modules.MasterData.Domain.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -57,8 +57,8 @@ public class CategoryRepositoryTests : IClassFixture<PostgresWebApplicationFacto
         Assert.False(exists);
     }
 
-    // UpdateAsync hat kein renameArticlesFrom mehr - siehe BrandRepositoryTests
-    // fuer die Begruendung; identisches Muster fuer Kategorien.
+    // UpdateAsync no longer has a renameArticlesFrom parameter - see
+    // BrandRepositoryTests for the rationale; the identical pattern for categories.
     [Fact]
     public async Task UpdateAsync_PersistsNewNameAndOriginalFlag()
     {

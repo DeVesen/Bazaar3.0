@@ -7,7 +7,7 @@ import { KpiTile } from '@shared/kpi-tile/kpi-tile';
 import { KpiGrid } from '@shared/kpi-tile/kpi-grid';
 import { ActivityHeatmap } from '@shared/activity-heatmap/activity-heatmap';
 import { Countdown } from '@shared/countdown/countdown';
-import { VerkaeuferNummer } from '@shared/verkaeufer-nummer/verkaeufer-nummer';
+import { SellerNumber } from '@shared/seller-number/seller-number';
 import { MarkdownText } from '@shared/markdown-text/markdown-text';
 import { HomeApiService, SellerHomeResponse, AdminHomeResponse } from '../home-api.service';
 import { PublicInfoService } from '@core/public-info/public-info.service';
@@ -17,7 +17,7 @@ import { AuthService } from '@core/auth/auth.service';
 @Component({
   selector: 'app-home-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [KpiTile, KpiGrid, ActivityHeatmap, Countdown, VerkaeuferNummer, MarkdownText, RouterLink, TranslatePipe],
+  imports: [KpiTile, KpiGrid, ActivityHeatmap, Countdown, SellerNumber, MarkdownText, RouterLink, TranslatePipe],
   templateUrl: './HomePage.html',
   styleUrl: './HomePage.scss'
 })

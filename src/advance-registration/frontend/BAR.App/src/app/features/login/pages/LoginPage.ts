@@ -10,9 +10,9 @@ import { LoginLayout } from '../components/login-layout';
 import { LoginInfoPanel } from '../components/login-info-panel';
 import { LoginForm } from '../components/login-form';
 
-// Verdrahtet Layout, Info-Panel und Login-Form zum Ende-zu-Ende-Login-Flow
-// (Epic_Login Abschnitt 4, AC-1/AC-2/AC-3). Das Info-Panel wird erst gerendert,
-// sobald PublicInfo geladen ist, weil sein `info`-Input required ist.
+// Wires up layout, info panel and login form into the end-to-end login flow
+// (Epic_Login section 4, AC-1/AC-2/AC-3). The info panel is only rendered
+// once PublicInfo has loaded, because its `info` input is required.
 @Component({
   selector: 'app-login-page',
   imports: [LoginLayout, LoginInfoPanel, LoginForm, TranslatePipe],
@@ -51,9 +51,9 @@ export class LoginPage {
     this.authApi.login(credentials.email, credentials.password).subscribe({
       next: (tokens) => {
         this.authService.login(tokens.accessToken, tokens.refreshToken);
-        // authGuard haengt die urspruenglich angesteuerte Route als returnUrl an
-        // (core/auth/auth.guard.ts). Ohne diese Auswertung landet jeder
-        // abgefangene Deep-Link nach dem Login stumm auf /home.
+        // authGuard appends the originally targeted route as returnUrl
+        // (core/auth/auth.guard.ts). Without evaluating this, every
+        // intercepted deep link silently lands on /home after login.
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         void this.router.navigateByUrl(returnUrl ?? '/home');
       },

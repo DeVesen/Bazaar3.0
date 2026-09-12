@@ -1,7 +1,7 @@
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Anmeldung.Domain.Articles;
-using BAR.Modules.Anmeldung.Domain.Ports;
-using BAR.Modules.Anmeldung.Domain.Ports.Queries;
+using BAR.Modules.Registration.Domain.Articles;
+using BAR.Modules.Registration.Domain.Ports;
+using BAR.Modules.Registration.Domain.Ports.Queries;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -64,9 +64,9 @@ public class ArticleQueriesTests : IClassFixture<PostgresWebApplicationFactory>
         await articles.CreateAsync(Article.Create(sellerId, 3001, "X", "M", "K", 1m, null, null, null, Now), null, ct);
         await articles.CreateAsync(Article.Create(otherSellerId, 3002, "Y", "M", "K", 1m, null, null, null, Now), null, ct);
 
-        // searchMatchingSellerIds: null, weil dieser Test kein Namens-Suchergebnis
-        // simuliert - der Aufrufer (GetAllArticlesQueryHandler) loest das vorab
-        // ueber Verkaeuferverwaltung.Contracts auf, nicht die Query selbst.
+        // searchMatchingSellerIds: null, because this test does not simulate a
+        // name search result - the caller (GetAllArticlesQueryHandler) resolves
+        // that upfront via SellerManagement.Contracts, not the query itself.
         var page = await queries.SearchAllAsync(null, null, search: null, sellerId: sellerId, searchMatchingSellerIds: null, 1, 25, null, ct);
 
         Assert.Single(page.Items);
@@ -83,8 +83,8 @@ public class ArticleQueriesTests : IClassFixture<PostgresWebApplicationFactory>
         var ct = TestContext.Current.CancellationToken;
         var matchingSellerId = Guid.NewGuid().ToString("N")[..8];
         var otherSellerId = Guid.NewGuid().ToString("N")[..8];
-        // Weder Name, Kategorie noch Marke passen auf "Anna" - nur der vorab
-        // aufgeloeste searchMatchingSellerIds-Treffer darf den Artikel einschliessen.
+        // Neither name, category nor brand match "Anna" - only the
+        // pre-resolved searchMatchingSellerIds hit may include the article.
         await articles.CreateAsync(Article.Create(matchingSellerId, 4001, "Jacke", "M", "K", 1m, null, null, null, Now), null, ct);
         await articles.CreateAsync(Article.Create(otherSellerId, 4002, "Hose", "M", "K", 1m, null, null, null, Now), null, ct);
 
@@ -108,8 +108,8 @@ public class ArticleQueriesTests : IClassFixture<PostgresWebApplicationFactory>
         await articles.CreateAsync(Article.Create(sellerId, 5002, "X2", "M", "K", 1m, null, null, null, Now), null, ct);
         await articles.CreateAsync(Article.Create(sellerId, 5001, "X1", "M", "K", 1m, null, null, null, Now), null, ct);
 
-        // "seller" ist wie jeder unbekannte Sortierwert zu behandeln (kein
-        // Namensfeld mehr in diesem Schema) - Fallback auf Nummer aufsteigend.
+        // "seller" is to be treated like any unknown sort value (no more name
+        // field in this schema) - falls back to ascending number.
         var page = await queries.SearchAllAsync(null, null, search: null, sellerId: sellerId, searchMatchingSellerIds: null, 1, 25, sort: "seller:desc", ct);
 
         Assert.Equal(5001, page.Items[0].Number);

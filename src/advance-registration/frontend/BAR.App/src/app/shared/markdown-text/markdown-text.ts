@@ -2,11 +2,11 @@ import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { renderMarkdownSubset } from './render-markdown-subset';
 
-// Leaf-Komponente (component.md Abschnitt 3): liest nur `content`, injiziert
-// keinen Service ausser dem Sanitizer, entscheidet nichts ueber die umgebende
-// Box. renderMarkdownSubset escaped die Eingabe vollstaendig vor jeder
-// Markdown-Umsetzung — bypassSecurityTrustHtml ist hier sicher, weil das HTML
-// bereits aus escaptem Text plus festen literalen Tags besteht.
+// Leaf component (component.md section 3): only reads `content`, injects no
+// service other than the sanitizer, decides nothing about the surrounding
+// box. renderMarkdownSubset fully escapes the input before any markdown
+// conversion — bypassSecurityTrustHtml is safe here because the HTML already
+// consists of escaped text plus fixed literal tags.
 @Component({
   selector: 'app-markdown-text',
   template: `<div [innerHTML]="html()"></div>`

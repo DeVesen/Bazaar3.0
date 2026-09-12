@@ -43,7 +43,7 @@
     <p>{{ 'home.noArticlesYet' | translate }} <a routerLink="/my-articles">{{ 'home.registerArticlesNow' | translate }}</a></p>
   }
 
-  <app-verkaeufer-nummer [sellerId]="sellerId()" />
+  <app-seller-number [sellerId]="sellerId()" />
 }
 
 @if (showInfoPanel()) {

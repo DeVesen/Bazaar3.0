@@ -1,11 +1,11 @@
 namespace BAR.SharedKernel.Exceptions;
 
 /// <summary>
-/// Basis aller fachlichen Fehler in jedem Modul. Der <see cref="ErrorCode"/>
-/// haengt am Exception-Objekt, nicht an einem Switch im ExceptionHandler - ein
-/// neuer Fehlercode aendert damit keine zentrale Abbildungstabelle
-/// (api/cross-cutting.md Abschnitt 3). Liegt im SharedKernel, damit
-/// BAR.Host einen einzigen, modulunabhaengigen ExceptionHandler betreiben kann.
+/// The base of every domain-level error in every module. The
+/// <see cref="ErrorCode"/> hangs off the exception object, not off a switch
+/// in the ExceptionHandler - so a new error code never changes a central
+/// mapping table (api/cross-cutting.md section 3). Lives in the SharedKernel
+/// so BAR.Host can run a single, module-independent ExceptionHandler.
 /// </summary>
 public abstract class DomainException : Exception
 {
@@ -14,22 +14,22 @@ public abstract class DomainException : Exception
         ErrorCode = errorCode;
     }
 
-    /// <summary>Punktgetrennter Code, z. B. <c>block.overlap</c>.</summary>
+    /// <summary>A dot-separated code, e.g. <c>block.overlap</c>.</summary>
     public string ErrorCode { get; }
 }
 
-/// <summary>Ressource existiert nicht oder gehoert einem anderen Verkaeufer -> 404.</summary>
+/// <summary>The resource does not exist or belongs to a different seller -> 404.</summary>
 public sealed class NotFoundException(string errorCode, string detail)
     : DomainException(errorCode, detail);
 
-/// <summary>Fachliche Invariante verletzt -> 409.</summary>
+/// <summary>A domain invariant was violated -> 409.</summary>
 public class ConflictException(string errorCode, string detail)
     : DomainException(errorCode, detail);
 
-/// <summary>Anmeldedaten oder Token ungueltig -> 401.</summary>
+/// <summary>Credentials or token are invalid -> 401.</summary>
 public sealed class UnauthorizedException(string errorCode, string detail)
     : DomainException(errorCode, detail);
 
-/// <summary>Rolle reicht fuer diese Aktion nicht -> 403.</summary>
+/// <summary>The role is not sufficient for this action -> 403.</summary>
 public sealed class ForbiddenException(string errorCode, string detail)
     : DomainException(errorCode, detail);

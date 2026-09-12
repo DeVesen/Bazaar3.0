@@ -1,29 +1,29 @@
-using BAR.Modules.Anmeldung.Contracts;
-using BAR.Modules.Stammdaten.Contracts;
-using BAR.Modules.Verkaeuferverwaltung.Contracts;
+using BAR.Modules.Registration.Contracts;
+using BAR.Modules.MasterData.Contracts;
+using BAR.Modules.SellerManagement.Contracts;
 
 namespace BAR.Modules.Export.Application;
 
 /// <summary>
-/// Reine Lesekomposition ueber drei Module (modulith-thinking: kein eigenes
-/// Schema, keine eigene Akte) - ersetzt den frueheren SQL-Join gegen
-/// Sellers/SellerTypes/Articles in einem gemeinsamen DbContext. §11.7: der
-/// Export traegt nur den Namen des Verkaeufer-Typs, keine Konditionszahlen -
-/// die Haupt-App loest Provision/Gebuehr ueber den Namen selbst auf.
+/// A pure read composition across three modules (modulith-thinking: no
+/// schema of its own, no record of its own) - replaces the former SQL join
+/// against Sellers/SellerTypes/Articles in a shared DbContext. §11.7: the
+/// export carries only the seller type's name, not its condition figures -
+/// the main app resolves commission/fee from the name itself.
 /// </summary>
 public sealed class GetExportQueryHandler(
-    IVerkaeuferverwaltungModuleApi verkaeuferverwaltung, IAnmeldungModuleApi anmeldung, IStammdatenModuleApi stammdaten)
+    ISellerManagementModuleApi sellerManagement, IRegistrationModuleApi registration, IMasterDataModuleApi masterData)
 {
     public async Task<ExportResponse> HandleAsync(GetExportQuery request, CancellationToken cancellationToken)
     {
-        var sellers = await verkaeuferverwaltung.GetAllSellersForExportAsync(cancellationToken);
-        var articles = await anmeldung.GetArticlesForExportAsync(cancellationToken);
+        var sellers = await sellerManagement.GetAllSellersForExportAsync(cancellationToken);
+        var articles = await registration.GetArticlesForExportAsync(cancellationToken);
 
         var articlesBySeller = articles.ToLookup(a => a.SellerId);
 
-        // §11.7: nur Verkaeufer mit mindestens einem Artikel werden exportiert -
-        // wer sich zwar angemeldet, aber noch nichts erfasst hat, ist fuer die
-        // Haupt-App am Basar-Morgen nicht relevant.
+        // §11.7: only sellers with at least one article are exported - someone
+        // who registered but hasn't captured anything yet is not relevant to
+        // the main app on bazaar morning.
         var sellerResponses = sellers
             .Where(s => articlesBySeller.Contains(s.Id))
             .Select(s => new ExportSellerResponse(
@@ -33,10 +33,10 @@ public sealed class GetExportQueryHandler(
             .ToList();
 
         var brands = request.IncludeBrands
-            ? await stammdaten.GetAllBrandNamesAsync(cancellationToken)
+            ? await masterData.GetAllBrandNamesAsync(cancellationToken)
             : [];
         var categories = request.IncludeCategories
-            ? await stammdaten.GetAllCategoryNamesAsync(cancellationToken)
+            ? await masterData.GetAllCategoryNamesAsync(cancellationToken)
             : [];
 
         return new ExportResponse(DateTime.UtcNow, sellerResponses, brands, categories);

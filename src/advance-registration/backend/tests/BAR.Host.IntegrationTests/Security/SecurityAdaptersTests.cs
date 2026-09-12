@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Verkaeuferverwaltung.Application.Abstractions;
+using BAR.Modules.SellerManagement.Application.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Security;

@@ -7,11 +7,11 @@ using Testcontainers.PostgreSql;
 namespace BAR.Host.IntegrationTests.Features.Public;
 
 /// <summary>
-/// Startet die App gegen einen echten PostgreSQL-Container (VPROJ-S05
-/// Testcontainers-Vorgabe), damit der Migrations-Startup (Program.cs,
-/// <c>ApplyMigrationsAsync</c>/<c>WaitForDatabaseAsync</c>) durchlaeuft, bevor
-/// die Endpoints erreichbar sind. Wird auch von Task 20's
-/// <c>/health/ready</c>-Test wiederverwendet.
+/// Starts the app against a real PostgreSQL container (VPROJ-S05
+/// Testcontainers requirement) so the migration startup (Program.cs,
+/// <c>ApplyMigrationsAsync</c>/<c>WaitForDatabaseAsync</c>) runs through
+/// before the endpoints become reachable. Also reused by task 20's
+/// <c>/health/ready</c> test.
 /// </summary>
 public sealed class PostgresWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
@@ -36,10 +36,10 @@ public sealed class PostgresWebApplicationFactory : WebApplicationFactory<Progra
 }
 
 /// <summary>
-/// Nachweis, dass die Testinfrastruktur gegen die echte Endpoint-Registrierung
-/// laeuft (VPROJ-S05 AC-7). <c>/health</c> ist Liveness und prueft bewusst
-/// keine Datenbank (VPROJ-S02 AC-4) - die Postgres-Fixture ist trotzdem noetig,
-/// weil der Migrations-Startup jetzt vor jedem Request steht.
+/// Proof that the test infrastructure runs against the real endpoint
+/// registration (VPROJ-S05 AC-7). <c>/health</c> is liveness and deliberately
+/// checks no database (VPROJ-S02 AC-4) - the Postgres fixture is still needed
+/// because the migration startup now runs before every request.
 /// </summary>
 public class HealthEndpointTests : IClassFixture<PostgresWebApplicationFactory>
 {

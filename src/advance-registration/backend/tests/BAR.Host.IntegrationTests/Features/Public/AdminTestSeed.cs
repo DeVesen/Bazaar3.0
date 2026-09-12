@@ -1,19 +1,19 @@
-using BAR.Modules.Verkaeuferverwaltung.Application.Abstractions;
-using BAR.Modules.Verkaeuferverwaltung.Domain.Ports;
-using BAR.Modules.Verkaeuferverwaltung.Domain.Sellers;
+using BAR.Modules.SellerManagement.Application.Abstractions;
+using BAR.Modules.SellerManagement.Domain.Ports;
+using BAR.Modules.SellerManagement.Domain.Sellers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Features.Public;
 
 /// <summary>
-/// Es gibt seit dem Wegfall des rohen SQL-Datenseeds (dieselbe Aenderung, die
-/// RegistrationTestSeed fuer Settings dokumentiert - der alte, migrationsseitig
-/// fest eingebettete Admin-Account "admin@bazaar.local" existiert nicht mehr)
-/// keinen vorbelegten Admin-Account mehr. Bestehende Endpoint-Tests nutzen
-/// diesen Account nur als Setup, um an ein Admin-Token zu kommen; sie legen ihn
-/// jetzt selbst an, bevor sie sich einloggen. SellerTypeId ist ein reiner
-/// String ohne Cross-Schema-FK (Stammdaten liegt in einem anderen Schema) -
-/// jeder 8-stellige Platzhalter ist gueltig.
+/// Since the raw SQL data seed was removed (the same change that
+/// RegistrationTestSeed documents for settings - the old admin account
+/// "admin@bazaar.local", hardcoded in the migration, no longer exists), there
+/// is no longer a pre-seeded admin account. Existing endpoint tests use this
+/// account only as setup to obtain an admin token; they now create it
+/// themselves before logging in. SellerTypeId is a plain string with no
+/// cross-schema FK (MasterData lives in a different schema) - any 8-character
+/// placeholder is valid.
 /// </summary>
 public static class AdminTestSeed
 {

@@ -1,6 +1,6 @@
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Stammdaten.Domain.MasterData;
-using BAR.Modules.Stammdaten.Domain.Ports;
+using BAR.Modules.MasterData.Domain.Catalog;
+using BAR.Modules.MasterData.Domain.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -57,14 +57,14 @@ public class BrandRepositoryTests : IClassFixture<PostgresWebApplicationFactory>
         Assert.False(exists);
     }
 
-    // UpdateAsync hat kein renameArticlesFrom mehr - Brand liegt seit dem
-    // Modulith-Schnitt in einem anderen Schema als Article, ein direkter
-    // Cascade-Write ist nicht mehr moeglich. Rename loest stattdessen
-    // BrandRenamed aus (StammdatenDbContext.SaveChangesAsync dispatcht es);
-    // Coverage fuer den Cascade-Effekt selbst liegt in
-    // BAR.Application.UnitTests.Anmeldung.EventHandlers.BrandRenamedHandlerTests
-    // (mockt IArticleRepository - guenstiger als ein Test ueber zwei echte
-    // DbContexts + Dispatcher hinweg) und in ArticleRepositoryTests.RenameBrandAsync*.
+    // UpdateAsync no longer has renameArticlesFrom - since the modulith split,
+    // Brand lives in a different schema than Article, so a direct cascade
+    // write is no longer possible. Rename instead raises BrandRenamed
+    // (MasterDataDbContext.SaveChangesAsync dispatches it); coverage for the
+    // cascade effect itself lives in
+    // BAR.Application.UnitTests.Registration.EventHandlers.BrandRenamedHandlerTests
+    // (mocks IArticleRepository - cheaper than a test spanning two real
+    // DbContexts + dispatcher) and in ArticleRepositoryTests.RenameBrandAsync*.
     [Fact]
     public async Task UpdateAsync_PersistsNewNameAndOriginalFlag()
     {

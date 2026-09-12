@@ -283,49 +283,52 @@ nach .NET bzw. Angular steht in `dotnet-modulith-bridge` und `angular-modulith-b
 | Data-Flow | **CRUD**; Read-Models (`/api/home/*`, `/api/export`) über eigene Query-Ports; Modul-übergreifende Fakten-Weitergabe (z. B. Marken-/Kategorie-Umbenennung) über In-Process Domain Events + Outbox |
 
 **Abteilungen dieser App** (Bounded Contexts, je eine eigene Fachsprache und eigene
-Aktenablage):
+Aktenablage). Die Abteilungsnamen sind hier zur Orientierung deutsch, der Code selbst ist
+durchgehend englisch (Sprachregel) — die rechte Spalte nennt den tatsächlichen Modulnamen:
 
-| Abteilung | Verantwortung |
-|---|---|
-| **Anmeldung** | Artikel, Nummernblöcke |
-| **Verkaeuferverwaltung** | Verkäufer, Profil, Auth (Login/Register/Refresh/SetPassword) |
-| **Stammdaten** | Marken, Kategorien, Verkäufer-Typen |
-| **Betrieb** | Basar-Einstellungen, öffentliche Basar-Infos |
-| **Export** | Export-Zusammenstellung (reine Lese-Komposition, keine eigene Aktenablage) |
+| Abteilung | Modul (Code) | Verantwortung |
+|---|---|---|
+| **Anmeldung** | `Registration` | Artikel, Nummernblöcke |
+| **Verkäuferverwaltung** | `SellerManagement` | Verkäufer, Profil, Auth (Login/Register/Refresh/SetPassword) |
+| **Stammdaten** | `MasterData` | Marken, Kategorien, Verkäufer-Typen |
+| **Betrieb** | `Operations` | Basar-Einstellungen, öffentliche Basar-Infos |
+| **Export** | `Export` | Export-Zusammenstellung (reine Lese-Komposition, keine eigene Aktenablage) |
 
 **Backend — ein Projekt + `.Contracts` je Abteilung**, `SharedKernel` und `Host` dazu:
 
 ```
 BAR.SharedKernel                          ← referenziert nichts; nur Plumbing (IClock, IDomainEvent(Dispatcher), OutboxMessage) — keine Fachlichkeit
-BAR.Modules.<Abteilung>                   ← Domain/ Application/ Infrastructure/ als Ordner; referenziert nur SharedKernel + fremde .Contracts
-BAR.Modules.<Abteilung>.Contracts         ← einzige Anlaufstelle nach außen: I<Abteilung>ModuleApi, DTOs, Events
+BAR.Modules.<Modul>                       ← Domain/ Application/ Infrastructure/ als Ordner; referenziert nur SharedKernel + fremde .Contracts
+BAR.Modules.<Modul>.Contracts             ← einzige Anlaufstelle nach außen: I<Modul>ModuleApi, DTOs, Events
 BAR.Modules.Export                        ← ohne eigenes .Contracts (kein zweiter Referenzierer außer Host)
-BAR.Host                                  ← referenziert alle .Contracts-Projekte + jede Modul-Implementierung nur für die DI-Erweiterung (Add<Abteilung>Module), NIE für Business-Logik
+BAR.Host                                  ← referenziert alle .Contracts-Projekte + jede Modul-Implementierung nur für die DI-Erweiterung (Add<Modul>Module), NIE für Business-Logik
 ```
 
-Jedes Modul bringt seine eigene `AddAnmeldungModule(...)`/`AddVerkaeuferverwaltungModule(...)`/
-`AddStammdatenModule(...)`/`AddBetriebModule(...)`/`AddExportModule()`-Erweiterung mit, die
+(`<Modul>` steht für `Registration` / `SellerManagement` / `MasterData` / `Operations`.)
+
+Jedes Modul bringt seine eigene `AddRegistrationModule(...)`/`AddSellerManagementModule(...)`/
+`AddMasterDataModule(...)`/`AddOperationsModule(...)`/`AddExportModule()`-Erweiterung mit, die
 `Program.cs` aufruft — das Modul verdrahtet sich selbst, der Host kennt nur den Aufruf.
-`Host/Features/<Bereich>/*Endpoints.cs` ruft ausschließlich die `I<Abteilung>ModuleApi`-Facade
+`Host/Features/<Bereich>/*Endpoints.cs` ruft ausschließlich die `I<Modul>ModuleApi`-Facade
 auf, nie Domain/Application/Infrastructure eines Moduls direkt.
 
-**Persistenz je Modul:** eine Datenbank, ein Schema je Abteilung (`anmeldung`,
-`verkaeuferverwaltung`, `stammdaten`, `betrieb`), ein eigener `DbContext` je Modul. Export hat
+**Persistenz je Modul:** eine Datenbank, ein Schema je Abteilung (`registration`,
+`seller_management`, `master_data`, `operations`), ein eigener `DbContext` je Modul. Export hat
 keinen eigenen `DbContext` — reine Komposition der anderen Module zur Laufzeit.
 
 **Cross-Modul-Kommunikation** — zwei Kanäle, nie ein direkter Zugriff auf die Aktenablage
 eines fremden Moduls:
 
 1. **Aktive Nachfrage**, synchron über die `.Contracts`-Facade des anderen Moduls (z. B.
-   Verkaeuferverwaltung fragt bei Stammdaten die Konditionen eines Verkäufer-Typs an).
+   fragt SellerManagement bei MasterData die Konditionen eines Verkäufer-Typs an).
 2. **Reaktion auf Ereignis** über `BAR.SharedKernel.Events.IDomainEventDispatcher` +
    Outbox-Tabelle im Schema des meldenden Moduls — z. B. `BrandRenamed`/`CategoryRenamed`
-   (Stammdaten → Anmeldung), damit Anmeldung seine Artikel-Zeilen ohne schemaübergreifenden
+   (MasterData → Registration), damit Registration seine Artikel-Zeilen ohne schemaübergreifenden
    SQL-Join aktuell hält.
 
 **Modul-Fassaden lösen ihre Abhängigkeiten lazy** (`IServiceProvider.GetRequiredService<T>`
 zum Zeitpunkt des Aufrufs, nicht im Konstruktor): mehrere Abteilungen hängen berechtigt in
-beide Richtungen voneinander ab (Anmeldung ↔ Betrieb, Verkaeuferverwaltung ↔ Stammdaten), was
+beide Richtungen voneinander ab (Registration ↔ Operations, SellerManagement ↔ MasterData), was
 bei eifriger Konstruktor-Injektion einen DI-Konstruktionszyklus erzeugt, obwohl kein Aufruf
 zur Laufzeit tatsächlich rekursiv ist.
 
@@ -356,6 +359,9 @@ src/app/features/{login,home,countdown-embed,not-found}/   ← Features ohne Abt
 src/app/core/                             ← app-weite Singletons (auth, interceptor, config)
 src/app/shared/                           ← wiederverwendbare, dumme UI — nie Fachwissen, nie ein Import aus features/
 ```
+
+(`<abteilung>` steht für den Ordnernamen in kebab-case: `registration` / `seller-management` /
+`master-data` / `operations` — englisch wie das zugehörige Backend-Modul.)
 
 Anders als im Backend gibt es im Frontend **keine Verbindungsstelle**: Ein Feature ist immer
 ein dünner Client genau einer Backend-Anlaufstelle. Braucht eine Seite Daten aus mehreren

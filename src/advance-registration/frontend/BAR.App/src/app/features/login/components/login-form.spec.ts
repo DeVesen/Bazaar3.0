@@ -23,11 +23,12 @@ describe('LoginForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LoginForm],
-      // Stub-Routen statt provideRouter([]): der Klick-Test unten loest eine
-      // echte Router-Navigation aus. Ohne passende Route wird deren Promise
-      // abgelehnt - und zwar erst nach dem Teardown des Fixtures, was Vitest
-      // als "Unhandled Rejection - NG0205: Injector has already been destroyed"
-      // meldet. Mit registrierter Route laeuft die Navigation sauber durch.
+      // Stub routes instead of provideRouter([]): the click test below
+      // triggers a real router navigation. Without a matching route its
+      // promise gets rejected - and only after the fixture's teardown, which
+      // Vitest reports as an "Unhandled Rejection - NG0205: Injector has
+      // already been destroyed". With a registered route the navigation
+      // completes cleanly.
       providers: [
         provideRouter([{ path: 'register', children: [] }, { path: 'login', children: [] }]),
         provideTranslateService()

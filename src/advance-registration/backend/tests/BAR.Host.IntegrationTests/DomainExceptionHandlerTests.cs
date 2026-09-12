@@ -43,7 +43,7 @@ public class DomainExceptionHandlerTests : IClassFixture<Features.Public.Postgre
                 app.UseExceptionHandler();
                 app.UseRouting();
                 app.UseEndpoints(endpoints => endpoints.MapGet("/__test/article-number-conflict", (HttpContext _) =>
-                    throw new BAR.Modules.Anmeldung.Contracts.ArticleNumberConflictException(
+                    throw new BAR.Modules.Registration.Contracts.ArticleNumberConflictException(
                         "Artikelnummer 104 ist inzwischen vergeben — neue Nummer: 105", 105)));
             })).CreateClient();
 

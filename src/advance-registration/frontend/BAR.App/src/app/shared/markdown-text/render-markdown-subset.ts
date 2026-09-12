@@ -15,32 +15,36 @@ const NUMBERED_RE = /^\d+\.\s+(.*)$/;
 const NUMBERED_START_RE = /^\d+\.\s+/;
 const FENCE_RE = /^```/;
 const CODE_SPAN_RE = /`([^`\n]+)`/g;
-// Negatives Lookbehind (?<!!) verhindert, dass Bild-Syntax (![alt](url)) faelschlich als
-// Link erkannt wird - Bilder sind laut component.md 3.2 explizit nicht unterstuetzt und
-// muessen als sichtbarer Klartext stehen bleiben statt zu <a> verlinkt zu werden.
+// Negative lookbehind (?<!!) prevents image syntax (![alt](url)) from being
+// mistakenly recognized as a link - images are explicitly unsupported per
+// component.md 3.2 and must remain visible plain text instead of being
+// linked as <a>.
 const LINK_RE = /(?<!!)\[([^\]\n]+)\]\(([^)\s]+)\)/g;
 const LINK_SCHEME_RE = /^([a-zA-Z][a-zA-Z0-9+.-]*):/;
 
-// Steuerzeichen (U+0001) als Platzhalter-Delimiter statt Leerzeichen: escapeHtml kann
-// dieses Zeichen nicht erzeugen, Textarea-Eingabe enthaelt es praktisch nie - verhindert
-// eine Kollision des Platzhalter-Patterns mit echtem Nutzertext.
+// Control character (U+0001) as the placeholder delimiter instead of a space:
+// escapeHtml can't produce this character, and textarea input practically
+// never contains it - this prevents the placeholder pattern from colliding
+// with real user text.
 const CODE_PLACEHOLDER_DELIM = '\u0001';
 // eslint-disable-next-line no-control-regex
 const CODE_PLACEHOLDER_RE = /\u0001(\d+)\u0001/g;
 
-// Inline-Ebene (component.md 3.1): Inline-Code, Links (mit Schema-Filter), Fett, Kursiv.
-// Reihenfolge ist sicherheitsrelevant:
-// 1. Inline-Code-Spans werden zuerst durch Platzhalter ersetzt, damit ihr Inhalt NICHT
-//    von Link-/Bold-/Italic-Regex weiterverarbeitet wird (Inhalt bleibt woertlich stehen).
-// 2. Links: nur http/https/mailto werden zu <a>, alles andere bleibt unveraendert als
-//    Klartext stehen (3.2/AC-4). Die URL wird zusaetzlich fuer das href-Attribut
-//    Anfuehrungszeichen-escaped, damit sie nicht aus dem Attribut ausbrechen kann.
-// 3. Bold vor Italic (** vor *), wie im urspruenglichen Renderer.
-// 4. Code-Platzhalter werden am Ende durch das fertige <code>...</code> ersetzt.
+// Inline level (component.md 3.1): inline code, links (with scheme filter),
+// bold, italic. Order matters for security:
+// 1. Inline code spans are replaced by placeholders first, so their content
+//    is NOT further processed by the link/bold/italic regexes (content stays
+//    verbatim).
+// 2. Links: only http/https/mailto become <a>, everything else stays
+//    unchanged as plain text (3.2/AC-4). The URL is additionally
+//    quote-escaped for the href attribute so it can't break out of it.
+// 3. Bold before italic (** before *), as in the original renderer.
+// 4. Code placeholders are replaced at the end with the finished
+//    <code>...</code>.
 //
-// Der Text, auf dem all das laeuft, ist zu diesem Zeitpunkt bereits vollstaendig
-// HTML-escaped (siehe renderMarkdownSubset) - kein Schritt hier liest oder erzeugt
-// rohes '<'/'>' aus der Nutzereingabe.
+// The text all of this runs on is already fully HTML-escaped at this point
+// (see renderMarkdownSubset) - no step here reads or produces raw '<'/'>'
+// from user input.
 function renderInline(text: string): string {
   const codeSpans: string[] = [];
   let working = text.replace(CODE_SPAN_RE, (_match, code: string) => {
@@ -55,8 +59,8 @@ function renderInline(text: string): string {
       const safeHref = url.replace(/"/g, '&quot;');
       return `<a href="${safeHref}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
     }
-    // Unbekanntes/fehlendes Schema (insbesondere javascript:) -> unveraendert als
-    // Klartext stehen lassen (3.2, AC-4). Text ist bereits escaped.
+    // Unknown/missing scheme (in particular javascript:) -> leave unchanged
+    // as plain text (3.2, AC-4). Text is already escaped.
     return match;
   });
 
@@ -69,21 +73,21 @@ function renderInline(text: string): string {
   return working;
 }
 
-// Unterstuetztes Subset (markdown-text component.md 3.1, abschliessende Liste):
-// Absaetze, Zeilenumbrueche, # bis ### Ueberschriften, **fett**, *kursiv*,
-// Aufzaehlungs-/Nummerierte Listen, Trennlinie (---), Inline-Code, Code-Bloecke,
-// Links mit Schema-Filter (http/https/mailto). Alles andere bleibt als escapter
-// Klartext stehen (3.2) - kein Verschlucken, kein Entfernen.
+// Supported subset (markdown-text component.md 3.1, exhaustive list):
+// paragraphs, line breaks, # through ### headings, **bold**, *italic*,
+// bulleted/numbered lists, horizontal rule (---), inline code, code blocks,
+// links with scheme filter (http/https/mailto). Everything else stays as
+// escaped plain text (3.2) - nothing is swallowed, nothing is removed.
 //
-// XSS-Sicherheit: escapeHtml laeuft als ALLERERSTER Schritt ueber den GESAMTEN
-// Rohtext, bevor irgendeine Block- oder Inline-Verarbeitung beginnt. Ab hier
-// enthaelt der Zwischenstand kein rohes '<'/'>' mehr. Jede nachfolgende Stufe
-// (Block-Parsing hier, Inline-Parsing in renderInline) arbeitet ausschliesslich
-// auf diesem bereits escapten Text und fuegt nur feste literale Tags
-// (<h1>-<h3>, <p>, <ul>/<ol>/<li>, <hr>, <pre>/<code>, <a>, <strong>, <em>, <br>)
-// um erfasste Gruppen ein. Code-Block- und Inline-Code-Inhalte werden NICHT erneut
-// durch renderInline geschickt, sodass darin enthaltene Markdown-aehnliche Zeichen
-// woertlich sichtbar bleiben statt interpretiert zu werden.
+// XSS security: escapeHtml runs as the VERY FIRST step over the ENTIRE raw
+// text, before any block or inline processing begins. From here on, the
+// intermediate state no longer contains raw '<'/'>'. Every subsequent stage
+// (block parsing here, inline parsing in renderInline) works exclusively on
+// this already-escaped text and only wraps captured groups in fixed literal
+// tags (<h1>-<h3>, <p>, <ul>/<ol>/<li>, <hr>, <pre>/<code>, <a>, <strong>,
+// <em>, <br>). Code block and inline code content is NOT sent through
+// renderInline again, so markdown-like characters inside them stay visible
+// verbatim instead of being interpreted.
 export function renderMarkdownSubset(content: string): string {
   if (!content.trim()) {
     return '';

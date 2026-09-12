@@ -1,18 +1,18 @@
-using BAR.Modules.Betrieb.Contracts;
+using BAR.Modules.Operations.Contracts;
 
 namespace BAR.Host.Features.Public;
 
 /// <summary>
-/// Oeffentliche Basar-Infos ohne Token (api/public.md Abschnitt 1, Epic_Login
-/// AC-12). Der Handler ist null-sicher fuer ein fehlendes Settings-Row, der
-/// Endpoint liefert daher immer <c>200</c>.
+/// Public bazaar info without a token (api/public.md section 1, Epic_Login
+/// AC-12). The handler is null-safe for a missing settings row, so the
+/// endpoint always returns <c>200</c>.
 /// </summary>
 public static class PublicInfoEndpoints
 {
     public static IEndpointRouteBuilder MapPublicInfoEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/public/info", async (IBetriebModuleApi betrieb, CancellationToken ct) =>
-            Results.Ok(await betrieb.GetPublicInfoAsync(ct)))
+        app.MapGet("/api/public/info", async (IOperationsModuleApi operations, CancellationToken ct) =>
+            Results.Ok(await operations.GetPublicInfoAsync(ct)))
             .AllowAnonymous();
 
         return app;

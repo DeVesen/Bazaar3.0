@@ -8,8 +8,8 @@ export class AuthService {
   private readonly tokenStore = inject(TokenStore);
   private readonly router = inject(Router);
 
-  // Reset-Hooks statt einer Abhaengigkeit auf RoleService: AuthService darf
-  // nichts kennen, was selbst AuthService injiziert (RoleService tut das).
+  // Reset hooks instead of a dependency on RoleService: AuthService must not
+  // know anything that itself injects AuthService (RoleService does that).
   private readonly logoutResets = new Set<() => void>();
 
   readonly currentUser = signal<DecodedToken | null>(this.decodeStoredToken());
@@ -25,7 +25,7 @@ export class AuthService {
     this.currentUser.set(decodeJwt(accessToken));
   }
 
-  // Wird beim Logout aufgerufen, damit abgeleiteter Zustand nicht stehen bleibt.
+  // Called on logout so derived state doesn't linger.
   registerLogoutReset(reset: () => void): void {
     this.logoutResets.add(reset);
   }

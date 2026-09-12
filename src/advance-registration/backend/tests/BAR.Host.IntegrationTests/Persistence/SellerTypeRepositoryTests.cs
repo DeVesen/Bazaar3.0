@@ -1,6 +1,6 @@
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Stammdaten.Domain.Ports;
-using BAR.Modules.Stammdaten.Domain.SellerTypes;
+using BAR.Modules.MasterData.Domain.Ports;
+using BAR.Modules.MasterData.Domain.SellerTypes;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;
@@ -74,13 +74,12 @@ public class SellerTypeRepositoryTests : IClassFixture<PostgresWebApplicationFac
         Assert.Equal(15m, reloaded.CommissionRate);
     }
 
-    // CountSellersAsync ist von ISellerTypeRepository nach
-    // IVerkaeuferverwaltungModuleApi.CountSellersByTypeAsync gewandert - Seller
-    // liegt seit dem Modulith-Schnitt in einem anderen Schema/Modul und ist von
-    // hier aus nicht mehr direkt abfragbar. Die Zaehl-Logik selbst (dort ein
-    // simpler Pass-Through auf ISellerRepository.CountByTypeAsync) ist bereits
-    // in SellerRepositoryTests.CountByTypeAsync_CountsOnlySellersOfThatType
-    // abgedeckt.
+    // CountSellersAsync has moved from ISellerTypeRepository to
+    // ISellerManagementModuleApi.CountSellersByTypeAsync - since the modulith
+    // cut, Seller lives in a different schema/module and can no longer be
+    // queried directly from here. The counting logic itself (there a simple
+    // pass-through to ISellerRepository.CountByTypeAsync) is already covered
+    // by SellerRepositoryTests.CountByTypeAsync_CountsOnlySellersOfThatType.
     [Fact]
     public async Task DeleteAsync_RemovesType()
     {

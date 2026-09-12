@@ -30,7 +30,7 @@ const NAV_GROUPS: NavGroup[] = [
     { label: 'Verkäufer', route: '/sellers' },
     { label: 'Artikel', route: '/articles' }
   ]},
-  { label: 'Stammdaten', roles: ['admin'], items: [
+  { label: 'MasterData', roles: ['admin'], items: [
     { label: 'Marken', route: '/brands' },
     { label: 'Kategorien', route: '/categories' },
     { label: 'Verkäufer-Typen', route: '/seller-types' }

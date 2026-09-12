@@ -12,7 +12,7 @@ describe('LoginPage', () => {
   let httpMock: HttpTestingController;
   let router: Router;
   let authService: AuthService;
-  // Wird vor dem Submit gesetzt; die Komponente liest den Snapshot erst dort.
+  // Set before the submit; the component only reads the snapshot there.
   let queryParams: Record<string, string>;
 
   beforeEach(async () => {
@@ -23,9 +23,9 @@ describe('LoginPage', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideTranslateService(),
-        // Stub-Routen fuer die beiden Ziele, die der Login wirklich ansteuert -
-        // sonst endet die echte Navigation nach dem Teardown in einer
-        // Unhandled Rejection.
+        // Stub routes for the two destinations login actually navigates to -
+        // otherwise the real navigation ends up as an Unhandled Rejection
+        // after teardown.
         provideRouter([{ path: 'home', children: [] }, { path: 'profil', children: [] }]),
         {
           provide: ActivatedRoute,
@@ -71,7 +71,7 @@ describe('LoginPage', () => {
   });
 
   it('on successful login navigates to the returnUrl from the query params', () => {
-    // authGuard schickt abgefangene Deep-Links als ?returnUrl=... hierher.
+    // authGuard sends intercepted deep links here as ?returnUrl=...
     queryParams = { returnUrl: '/profil' };
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');
 
@@ -94,7 +94,7 @@ describe('LoginPage', () => {
   });
 
   it('shows the demo hint outside production builds', () => {
-    // environment.production ist im Test-Build false (Standard-Vitest-Config aus R00)
+    // environment.production is false in the test build (default Vitest config from R00)
     expect(fixture.nativeElement.querySelector('[data-testid="demo-hint"]')).not.toBeNull();
   });
 

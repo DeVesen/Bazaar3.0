@@ -5,11 +5,12 @@ import { CountdownPhase } from '@shared/countdown/select-active-phase';
 import { MarkdownText } from '@shared/markdown-text/markdown-text';
 import { PublicInfo } from '@core/public-info/public-info.service';
 
-// Orchestriert drei unabhaengige Anzeige-Boxen (Countdown/Konditionen/Markdown) ueber
-// `GET /api/public/info` (docs/requirements/advance-registration/components/login-info-panel.md).
-// Das Ausblenden-pro-Box entscheidet dieses Panel, nicht die Kind-Komponenten — der Panel-Root
-// selbst bleibt immer sichtbar (dunkler Hintergrund, volle Flaeche), auch wenn alle drei Boxen
-// leer sind (Epic_Login AC-13).
+// Orchestrates three independent display boxes (countdown/conditions/markdown)
+// via `GET /api/public/info`
+// (docs/requirements/advance-registration/components/login-info-panel.md).
+// This panel decides the per-box hiding, not the child components — the
+// panel root itself always stays visible (dark background, full area), even
+// when all three boxes are empty (Epic_Login AC-13).
 @Component({
   selector: 'app-login-info-panel',
   imports: [Countdown, MarkdownText, TranslatePipe],
@@ -60,11 +61,12 @@ export class LoginInfoPanel {
 
   readonly info = input.required<PublicInfo>();
 
-  // Plain getter statt computed(): translate.instant() ist fuer computed()'s Dependency-Tracking
-  // unsichtbar (siehe HomePage.dropOffPhases/adminPhases), daher wuerde ein computed() bei einem
-  // Sprachwechsel nicht neu ausgewertet und die Phasen-Labels blieben eingefroren. Der Getter
-  // laeuft bei jedem Change-Detection-Durchlauf neu, den die TranslatePipe-Nutzung im Template
-  // ohnehin bei jedem Sprachwechsel ausloest.
+  // Plain getter instead of computed(): translate.instant() is invisible to
+  // computed()'s dependency tracking (see HomePage.dropOffPhases/adminPhases),
+  // so a computed() would not be re-evaluated on a language switch and the
+  // phase labels would stay frozen. The getter re-runs on every change
+  // detection cycle, which the TranslatePipe usage in the template triggers
+  // on every language switch anyway.
   get countdownPhases(): CountdownPhase[] {
     const i = this.info();
     const candidates: { label: string; targetDate: string | null }[] = [

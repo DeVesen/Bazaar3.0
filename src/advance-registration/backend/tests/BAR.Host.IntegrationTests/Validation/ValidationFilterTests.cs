@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Verkaeuferverwaltung.Application.Abstractions;
+using BAR.Modules.SellerManagement.Application.Abstractions;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -67,6 +67,6 @@ public class ValidationFilterTests : IClassFixture<PostgresWebApplicationFactory
 
         var response = await client.GetAsync("/api/blocks/__test-admin-only", TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode); // Route existiert erst in Task 20 - hier nur Auth-Pipeline-Smoke, siehe Hinweis
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode); // The route only exists starting in Task 20 - this is just an auth-pipeline smoke test, see note
     }
 }

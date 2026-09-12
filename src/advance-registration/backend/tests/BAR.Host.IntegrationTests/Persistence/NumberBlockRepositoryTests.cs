@@ -1,6 +1,6 @@
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Anmeldung.Domain.NumberBlocks;
-using BAR.Modules.Anmeldung.Domain.Ports;
+using BAR.Modules.Registration.Domain.NumberBlocks;
+using BAR.Modules.Registration.Domain.Ports;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

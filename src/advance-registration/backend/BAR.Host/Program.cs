@@ -10,16 +10,16 @@ using BAR.Host.Features.Public;
 using BAR.Host.Features.Sellers;
 using BAR.Host.Features.SellerTypes;
 using BAR.Host.Features.Settings;
-using BAR.Modules.Anmeldung.Infrastructure;
-using BAR.Modules.Betrieb.Infrastructure;
+using BAR.Modules.Registration.Infrastructure;
+using BAR.Modules.Operations.Infrastructure;
 using BAR.Modules.Export.Infrastructure;
-using BAR.Modules.Stammdaten.Infrastructure;
-using BAR.Modules.Verkaeuferverwaltung.Contracts.Security;
-using BAR.Modules.Verkaeuferverwaltung.Infrastructure;
-using BAR.Modules.Verkaeuferverwaltung.Infrastructure.Persistence;
-using BAR.Modules.Anmeldung.Infrastructure.Persistence;
-using BAR.Modules.Stammdaten.Infrastructure.Persistence;
-using BAR.Modules.Betrieb.Infrastructure.Persistence;
+using BAR.Modules.MasterData.Infrastructure;
+using BAR.Modules.SellerManagement.Contracts.Security;
+using BAR.Modules.SellerManagement.Infrastructure;
+using BAR.Modules.SellerManagement.Infrastructure.Persistence;
+using BAR.Modules.Registration.Infrastructure.Persistence;
+using BAR.Modules.MasterData.Infrastructure.Persistence;
+using BAR.Modules.Operations.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -31,38 +31,38 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-// Jedes Modul verdrahtet sich selbst - der Host kennt nur den Aufruf
-// (dotnet-modulith-bridge). Eigenes Schema/DbContext je Modul.
-builder.Services.AddAnmeldungModule(builder.Configuration);
-builder.Services.AddVerkaeuferverwaltungModule(builder.Configuration);
-builder.Services.AddStammdatenModule(builder.Configuration);
-builder.Services.AddBetriebModule(builder.Configuration);
+// Each module wires itself up - the host only knows the call
+// (dotnet-modulith-bridge). Own schema/DbContext per module.
+builder.Services.AddRegistrationModule(builder.Configuration);
+builder.Services.AddSellerManagementModule(builder.Configuration);
+builder.Services.AddMasterDataModule(builder.Configuration);
+builder.Services.AddOperationsModule(builder.Configuration);
 builder.Services.AddExportModule();
 builder.Services.AddScoped<HomeCompositionService>();
 
 builder.Services.AddExceptionHandler<BAR.Host.DomainExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-// Dictionary-Keys (z.B. Feld-Namen in ValidationProblem.errors) folgen sonst
-// nicht der globalen CamelCase-Policy fuer Objekt-Properties - explizit
-// gleichziehen, damit das Frontend (camelCase) die Keys ueberhaupt matchen kann.
+// Dictionary keys (e.g. field names in ValidationProblem.errors) otherwise
+// don't follow the global CamelCase policy for object properties - align
+// them explicitly so the frontend (camelCase) can match the keys at all.
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
 });
 
-// JWT-Bearer-Auth + Autorisierungs-Policies (api/cross-cutting.md Abschnitt 2):
-// "authenticated" (jedes gueltige Token) ist Default-Policy, "admin" verlangt
-// role == admin. Literale Claim-Typen "sub"/"role" statt ASP.NET-Standard-URIs,
-// passend zu JwtTokenIssuer (Modul Verkaeuferverwaltung). JwtOptions liegt in
-// dessen Contracts-Projekt - Host liest dieselbe Konfiguration fuer die
-// Token-VALIDIERUNG, das Modul selbst signiert bei der AUSSTELLUNG.
+// JWT bearer auth + authorization policies (api/cross-cutting.md section 2):
+// "authenticated" (any valid token) is the default policy, "admin" requires
+// role == admin. Literal claim types "sub"/"role" instead of ASP.NET standard
+// URIs, matching JwtTokenIssuer (SellerManagement module). JwtOptions lives in
+// its Contracts project - the host reads the same configuration for token
+// VALIDATION, the module itself signs on ISSUANCE.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.MapInboundClaims = false;
         var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
-            ?? throw new InvalidOperationException("Jwt-Konfiguration fehlt.");
+            ?? throw new InvalidOperationException("Jwt configuration is missing.");
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -80,8 +80,8 @@ builder.Services.AddAuthorizationBuilder()
     .SetDefaultPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
     .AddPolicy("admin", policy => policy.RequireRole("admin"));
 
-// CORS: Angular Dev fest, Production-Origin ueber Environment-Variable
-// (VPROJ-S02 AC-3, api/cross-cutting.md Abschnitt 8).
+// CORS: Angular dev origin fixed, production origin via environment variable
+// (VPROJ-S02 AC-3, api/cross-cutting.md section 8).
 const string corsPolicy = "bar-frontend";
 var productionOrigin = builder.Configuration["CORS_ALLOWED_ORIGIN"];
 builder.Services.AddCors(options => options.AddPolicy(corsPolicy, policy =>
@@ -137,25 +137,25 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 app.Run();
 
 /// <summary>
-/// Jedes Modul bringt seine eigene Migrationshistorie mit (eigenes Schema) -
-/// die Reihenfolge zwischen den vier Modulen spielt darum keine Rolle, jedes
-/// migriert nur seine eigenen Tabellen.
+/// Each module brings its own migration history (own schema) - the order
+/// between the four modules therefore doesn't matter, each one migrates only
+/// its own tables.
 /// </summary>
 static async Task ApplyMigrationsAsync(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    if (!await WaitForDatabaseAsync(scope.ServiceProvider.GetRequiredService<AnmeldungDbContext>(), logger))
+    if (!await WaitForDatabaseAsync(scope.ServiceProvider.GetRequiredService<RegistrationDbContext>(), logger))
     {
         Environment.Exit(1);
         return;
     }
 
-    var migrated = await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<AnmeldungDbContext>(), logger)
-        && await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<VerkaeuferverwaltungDbContext>(), logger)
-        && await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<StammdatenDbContext>(), logger)
-        && await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<BetriebDbContext>(), logger);
+    var migrated = await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<RegistrationDbContext>(), logger)
+        && await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<SellerManagementDbContext>(), logger)
+        && await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<MasterDataDbContext>(), logger)
+        && await TryMigrateAsync(scope.ServiceProvider.GetRequiredService<OperationsDbContext>(), logger);
 
     if (!migrated)
     {
@@ -175,7 +175,7 @@ static async Task<bool> TryMigrateAsync(DbContext dbContext, ILogger logger)
     }
     catch (Exception ex)
     {
-        logger.LogCritical(ex, "Migration {Migration} fehlgeschlagen fuer {Context}: {Message}", pending, dbContext.GetType().Name, ex.Message);
+        logger.LogCritical(ex, "Migration {Migration} failed for {Context}: {Message}", pending, dbContext.GetType().Name, ex.Message);
         return false;
     }
 }
@@ -204,12 +204,12 @@ static async Task<bool> WaitForDatabaseAsync(DbContext dbContext, ILogger logger
         delay = TimeSpan.FromSeconds(Math.Min(delay.TotalSeconds * 2, 15));
     }
 
-    // Generische ADO.NET-Member statt Npgsql-Typen: BAR.Host darf den
-    // Provider nicht kennen (R-14), und weder DataSource noch Database
-    // enthalten das Passwort (R-15).
+    // Generic ADO.NET members instead of Npgsql types: BAR.Host must not know
+    // the provider (R-14), and neither DataSource nor Database contain the
+    // password (R-15).
     var connection = dbContext.Database.GetDbConnection();
     logger.LogCritical(
-        "Datenbank nicht erreichbar: DataSource={DataSource}, Database={Database}",
+        "Database unreachable: DataSource={DataSource}, Database={Database}",
         connection.DataSource, connection.Database);
     return false;
 }

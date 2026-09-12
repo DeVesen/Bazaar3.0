@@ -1,18 +1,18 @@
 namespace BAR.SharedKernel;
 
 /// <summary>
-/// Transaktionsklammer um mehrere Repository-Aufrufe innerhalb eines Moduls.
-/// Jede Repository-Methode ruft intern <c>SaveChanges</c> - ohne diese Klammer
-/// waeren mehrere Aufrufe eines Handlers mehrere unabhaengige Commits, und ein
-/// Fehler im zweiten Schritt liesse den ersten dauerhaft in der Datenbank
-/// zurueck.
+/// A transaction wrapper around several repository calls within one module.
+/// Every repository method calls <c>SaveChanges</c> internally - without this
+/// wrapper, multiple calls from one handler would be multiple independent
+/// commits, and a failure in the second step would leave the first
+/// permanently in the database.
 /// </summary>
 /// <remarks>
-/// Das Interface ist modulunabhaengig und liegt darum im SharedKernel; jedes
-/// Modul bringt seine eigene Implementierung mit (an seinen eigenen
-/// DbContext gebunden, siehe dotnet-modulith-bridge - eigenes Schema je Modul).
-/// Eine Transaktion spannt sich nie ueber zwei Module: schreibt ein Vorgang in
-/// zwei Modulen, ist das ein Aufruf + Kompensation, keine gemeinsame DB-Transaktion.
+/// The interface is module-independent and therefore lives in the
+/// SharedKernel; every module brings its own implementation (bound to its
+/// own DbContext, see dotnet-modulith-bridge - its own schema per module). A
+/// transaction never spans two modules: if an operation writes to two
+/// modules, that is a call plus a compensation, never a shared DB transaction.
 /// </remarks>
 public interface IUnitOfWork
 {

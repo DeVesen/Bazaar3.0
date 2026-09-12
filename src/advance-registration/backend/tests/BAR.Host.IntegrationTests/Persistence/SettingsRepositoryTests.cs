@@ -1,6 +1,6 @@
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Betrieb.Domain;
-using BAR.Modules.Betrieb.Domain.Ports;
+using BAR.Modules.Operations.Domain;
+using BAR.Modules.Operations.Domain.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;

@@ -13,17 +13,17 @@
   <ItemGroup>
     <ProjectReference Include="..\..\BAR.SharedKernel\BAR.SharedKernel.csproj" />
 
-    <ProjectReference Include="..\..\BAR.Modules.Anmeldung\BAR.Modules.Anmeldung.csproj" />
-    <ProjectReference Include="..\..\BAR.Modules.Anmeldung.Contracts\BAR.Modules.Anmeldung.Contracts.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Registration\BAR.Modules.Registration.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Registration.Contracts\BAR.Modules.Registration.Contracts.csproj" />
 
-    <ProjectReference Include="..\..\BAR.Modules.Verkaeuferverwaltung\BAR.Modules.Verkaeuferverwaltung.csproj" />
-    <ProjectReference Include="..\..\BAR.Modules.Verkaeuferverwaltung.Contracts\BAR.Modules.Verkaeuferverwaltung.Contracts.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.SellerManagement\BAR.Modules.SellerManagement.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.SellerManagement.Contracts\BAR.Modules.SellerManagement.Contracts.csproj" />
 
-    <ProjectReference Include="..\..\BAR.Modules.Stammdaten\BAR.Modules.Stammdaten.csproj" />
-    <ProjectReference Include="..\..\BAR.Modules.Stammdaten.Contracts\BAR.Modules.Stammdaten.Contracts.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.MasterData\BAR.Modules.MasterData.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.MasterData.Contracts\BAR.Modules.MasterData.Contracts.csproj" />
 
-    <ProjectReference Include="..\..\BAR.Modules.Betrieb\BAR.Modules.Betrieb.csproj" />
-    <ProjectReference Include="..\..\BAR.Modules.Betrieb.Contracts\BAR.Modules.Betrieb.Contracts.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Operations\BAR.Modules.Operations.csproj" />
+    <ProjectReference Include="..\..\BAR.Modules.Operations.Contracts\BAR.Modules.Operations.Contracts.csproj" />
 
     <ProjectReference Include="..\..\BAR.Modules.Export\BAR.Modules.Export.csproj" />
   </ItemGroup>

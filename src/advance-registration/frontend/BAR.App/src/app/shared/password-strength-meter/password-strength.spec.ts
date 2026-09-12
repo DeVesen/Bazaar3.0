@@ -4,7 +4,7 @@ import { computePasswordStrength } from './password-strength';
 describe('computePasswordStrength', () => {
   it('returns weak for short or single-type passwords', () => {
     expect(computePasswordStrength('abc')).toBe('weak');
-    expect(computePasswordStrength('abcdefgh')).toBe('weak'); // nur Kleinbuchstaben
+    expect(computePasswordStrength('abcdefgh')).toBe('weak'); // lowercase only
   });
 
   it('returns medium for 8+ chars with 2 character types', () => {

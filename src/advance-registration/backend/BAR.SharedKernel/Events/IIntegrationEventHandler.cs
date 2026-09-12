@@ -1,10 +1,10 @@
 namespace BAR.SharedKernel.Events;
 
 /// <summary>
-/// Ein anderes Modul reagiert auf ein <see cref="IDomainEvent"/> eines fremden
-/// Moduls. Implementierungen leben im konsumierenden Modul (Application-Ebene)
-/// und werden per DI registriert; <see cref="IDomainEventDispatcher"/> loest
-/// sie zur Laufzeit anhand des Event-Typs auf.
+/// Another module reacts to an <see cref="IDomainEvent"/> raised by a
+/// different module. Implementations live in the consuming module
+/// (Application layer) and are registered via DI;
+/// <see cref="IDomainEventDispatcher"/> resolves them at runtime by event type.
 /// </summary>
 public interface IIntegrationEventHandler<in TEvent> where TEvent : IDomainEvent
 {

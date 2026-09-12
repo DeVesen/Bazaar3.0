@@ -1,8 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
-using BAR.Modules.Betrieb.Domain.Ports;
-using BAR.Modules.Stammdaten.Domain.Ports;
-using BAR.Modules.Stammdaten.Domain.SellerTypes;
+using BAR.Modules.Operations.Domain.Ports;
+using BAR.Modules.MasterData.Domain.Ports;
+using BAR.Modules.MasterData.Domain.SellerTypes;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Features.Public;
@@ -13,12 +13,12 @@ public class PublicInfoEndpointTests : IClassFixture<PostgresWebApplicationFacto
     public PublicInfoEndpointTests(PostgresWebApplicationFactory factory) => _factory = factory;
 
     /// <summary>
-    /// R09: nach dem Deployment existiert noch keine settings-Zeile (Normalzustand,
-    /// siehe api/settings.md); die alte, fest verdrahtete Seed-Zeile wurde per Migration
-    /// entfernt. Dieser Test laeuft bewusst als einziger in dieser Klasse gegen die frische,
-    /// ungeseedete DB der IClassFixture-Factory - siehe eigene Klasse
-    /// <see cref="PublicInfoEndpointWithConfiguredSettingsTests"/> fuer den Fall mit
-    /// konfigurierten Settings, damit sich beide Zustaende nicht die gleiche DB teilen.
+    /// R09: after deployment, no settings row exists yet (the normal state,
+    /// see api/settings.md); the old, hardcoded seed row was removed via
+    /// migration. This test deliberately runs as the only one in this class
+    /// against the IClassFixture factory's fresh, unseeded DB - see the
+    /// separate class <see cref="PublicInfoEndpointWithConfiguredSettingsTests"/>
+    /// for the case with configured settings, so the two states don't share the same DB.
     /// </summary>
     [Fact]
     public async Task GetInfo_NoSettingsConfigured_ReturnsNullConditions()
@@ -37,10 +37,11 @@ public class PublicInfoEndpointTests : IClassFixture<PostgresWebApplicationFacto
 }
 
 /// <summary>
-/// Eigene Testklasse (eigene <see cref="PostgresWebApplicationFactory"/>-Instanz, eigener
-/// Postgres-Container) fuer den Fall mit konfigurierten Settings, damit diese Seed-Schreibung
-/// nicht mit dem "noch keine Settings"-Test in <see cref="PublicInfoEndpointTests"/> um dieselbe
-/// DB konkurriert (Ausfuehrungsreihenfolge innerhalb einer xUnit-Testklasse ist nicht garantiert).
+/// A separate test class (its own <see cref="PostgresWebApplicationFactory"/>
+/// instance, its own Postgres container) for the case with configured
+/// settings, so this seed write does not race against the "no settings yet"
+/// test in <see cref="PublicInfoEndpointTests"/> over the same DB (execution
+/// order within an xUnit test class is not guaranteed).
 /// </summary>
 public class PublicInfoEndpointWithConfiguredSettingsTests : IClassFixture<PostgresWebApplicationFactory>
 {
@@ -58,7 +59,7 @@ public class PublicInfoEndpointWithConfiguredSettingsTests : IClassFixture<Postg
             await sellerTypes.AddAsync(sellerType, cancellationToken);
 
             var settingsRepository = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
-            var settings = BAR.Modules.Betrieb.Domain.Settings.Create(
+            var settings = BAR.Modules.Operations.Domain.Settings.Create(
                 registrationDeadline: null, dropOffFrom: null, dropOffUntil: null,
                 bazaarFrom: null, bazaarUntil: null, defaultTypeId: sellerType.Id, infoText: null,
                 startNumber: 1, blockSize: 10, defaultBlockCount: 1);

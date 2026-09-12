@@ -1,8 +1,8 @@
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Anmeldung.Contracts;
-using BAR.Modules.Verkaeuferverwaltung.Application.Sellers;
-using BAR.Modules.Verkaeuferverwaltung.Domain.Ports;
-using BAR.Modules.Verkaeuferverwaltung.Domain.Sellers;
+using BAR.Modules.Registration.Contracts;
+using BAR.Modules.SellerManagement.Application.Sellers;
+using BAR.Modules.SellerManagement.Domain.Ports;
+using BAR.Modules.SellerManagement.Domain.Sellers;
 using BAR.SharedKernel;
 using BAR.SharedKernel.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,12 +11,12 @@ using Moq;
 namespace BAR.Host.IntegrationTests.Persistence;
 
 /// <summary>
-/// Real VerkaeuferverwaltungDbContext (ueber die Factory-DI) + gemockte
-/// IAnmeldungModuleApi statt frueher IArticleRepository/INumberBlockRepository -
-/// Artikel/Nummernbloecke liegen seit dem Modulith-Schnitt in einem anderen
-/// Schema und werden best-effort NACH der Transaktion ueber Anmeldung.Contracts
-/// geloescht (siehe SellerCascadeDeleter-Kommentar), nicht mehr innerhalb
-/// derselben DB-Transaktion.
+/// Real SellerManagementDbContext (via factory DI) + mocked
+/// IRegistrationModuleApi instead of the former
+/// IArticleRepository/INumberBlockRepository - since the modulith split,
+/// articles/number blocks live in a different schema and are deleted
+/// best-effort AFTER the transaction via Registration.Contracts (see the
+/// SellerCascadeDeleter comment), no longer within the same DB transaction.
 /// </summary>
 public class SellerCascadeDeleterTests : IClassFixture<PostgresWebApplicationFactory>
 {
@@ -24,14 +24,14 @@ public class SellerCascadeDeleterTests : IClassFixture<PostgresWebApplicationFac
 
     public SellerCascadeDeleterTests(PostgresWebApplicationFactory factory) => _factory = factory;
 
-    private static SellerCascadeDeleter CreateDeleter(IServiceProvider services, Mock<IAnmeldungModuleApi> anmeldung) => new(
+    private static SellerCascadeDeleter CreateDeleter(IServiceProvider services, Mock<IRegistrationModuleApi> registration) => new(
         services.GetRequiredService<ISellerRepository>(),
         services.GetRequiredService<IRefreshTokenRepository>(),
-        anmeldung.Object,
+        registration.Object,
         services.GetRequiredService<IUnitOfWork>());
 
     [Fact]
-    public async Task DeleteAsync_GuardPasses_DeletesSellerAndCallsAnmeldungAfterCommit()
+    public async Task DeleteAsync_GuardPasses_DeletesSellerAndCallsRegistrationAfterCommit()
     {
         _ = _factory.Server;
         var ct = TestContext.Current.CancellationToken;
@@ -40,17 +40,17 @@ public class SellerCascadeDeleterTests : IClassFixture<PostgresWebApplicationFac
         var seller = Seller.Register("Anna", "Beispiel", null, "76133", "Karlsruhe",
             "0721 12345", $"{Guid.NewGuid()}@example.com", "t0000001", "hashed");
         await sellers.AddAsync(seller, ct);
-        var anmeldung = new Mock<IAnmeldungModuleApi>();
-        var deleter = CreateDeleter(scope.ServiceProvider, anmeldung);
+        var registration = new Mock<IRegistrationModuleApi>();
+        var deleter = CreateDeleter(scope.ServiceProvider, registration);
 
         await deleter.DeleteAsync(seller.Id, (_, _) => Task.CompletedTask, ct);
 
         Assert.Null(await sellers.GetByIdAsync(seller.Id, ct));
-        anmeldung.Verify(a => a.DeleteAllForSellerAsync(seller.Id, It.IsAny<CancellationToken>()), Times.Once);
+        registration.Verify(a => a.DeleteAllForSellerAsync(seller.Id, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task DeleteAsync_GuardThrows_RollsBackAndDoesNotCallAnmeldung()
+    public async Task DeleteAsync_GuardThrows_RollsBackAndDoesNotCallRegistration()
     {
         _ = _factory.Server;
         var ct = TestContext.Current.CancellationToken;
@@ -59,28 +59,28 @@ public class SellerCascadeDeleterTests : IClassFixture<PostgresWebApplicationFac
         var seller = Seller.Register("Ben", "Beispiel", null, "76133", "Karlsruhe",
             "0721 12345", $"{Guid.NewGuid()}@example.com", "t0000001", "hashed");
         await sellers.AddAsync(seller, ct);
-        var anmeldung = new Mock<IAnmeldungModuleApi>();
-        var deleter = CreateDeleter(scope.ServiceProvider, anmeldung);
+        var registration = new Mock<IRegistrationModuleApi>();
+        var deleter = CreateDeleter(scope.ServiceProvider, registration);
 
         await Assert.ThrowsAsync<ConflictException>(() => deleter.DeleteAsync(
             seller.Id, (_, _) => throw new ConflictException("test.guard", "Guard-Fehler"), ct));
 
         Assert.NotNull(await sellers.GetByIdAsync(seller.Id, ct));
-        anmeldung.Verify(a => a.DeleteAllForSellerAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        registration.Verify(a => a.DeleteAllForSellerAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task DeleteAsync_UnknownSellerId_ThrowsNotFoundAndDoesNotCallAnmeldung()
+    public async Task DeleteAsync_UnknownSellerId_ThrowsNotFoundAndDoesNotCallRegistration()
     {
         _ = _factory.Server;
         using var scope = _factory.Services.CreateScope();
-        var anmeldung = new Mock<IAnmeldungModuleApi>();
-        var deleter = CreateDeleter(scope.ServiceProvider, anmeldung);
+        var registration = new Mock<IRegistrationModuleApi>();
+        var deleter = CreateDeleter(scope.ServiceProvider, registration);
 
         var ex = await Assert.ThrowsAsync<NotFoundException>(() => deleter.DeleteAsync(
             "unknown1", (_, _) => Task.CompletedTask, TestContext.Current.CancellationToken));
 
         Assert.Equal("seller.not_found", ex.ErrorCode);
-        anmeldung.Verify(a => a.DeleteAllForSellerAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        registration.Verify(a => a.DeleteAllForSellerAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

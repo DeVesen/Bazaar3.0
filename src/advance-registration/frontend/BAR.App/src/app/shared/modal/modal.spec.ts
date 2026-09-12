@@ -3,9 +3,10 @@ import { TestBed } from '@angular/core/testing';
 import { describe, it, expect } from 'vitest';
 import { Modal } from './modal';
 
-// Host-Komponenten fuer die Projektions-Tests: Modal's eigenes Template darf nicht mit
-// `TestBed.overrideComponent(Modal, ...)` auf `<app-modal>` ueberschrieben werden, da das
-// (der Selektor ist app-modal) zu einer rekursiven Selbst-Instanziierung fuehren wuerde.
+// Host components for the projection tests: Modal's own template must not be
+// overridden to `<app-modal>` with `TestBed.overrideComponent(Modal, ...)`,
+// since that (the selector is app-modal) would lead to recursive
+// self-instantiation.
 @Component({
   imports: [Modal],
   template: `<app-modal [visible]="true" header="Verkäufer anlegen"></app-modal>`

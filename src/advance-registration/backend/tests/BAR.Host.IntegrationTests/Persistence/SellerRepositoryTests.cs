@@ -1,6 +1,6 @@
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Verkaeuferverwaltung.Domain.Ports;
-using BAR.Modules.Verkaeuferverwaltung.Domain.Sellers;
+using BAR.Modules.SellerManagement.Domain.Ports;
+using BAR.Modules.SellerManagement.Domain.Sellers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Persistence;

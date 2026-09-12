@@ -2,8 +2,8 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BAR.Host.IntegrationTests.Features.Public;
-using BAR.Modules.Anmeldung.Domain.Ports;
-using BAR.Modules.Verkaeuferverwaltung.Domain.Ports;
+using BAR.Modules.Registration.Domain.Ports;
+using BAR.Modules.SellerManagement.Domain.Ports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BAR.Host.IntegrationTests.Features.Sellers;

@@ -1,9 +1,9 @@
 namespace BAR.Host.Features.Public;
 
 /// <summary>
-/// Liveness ohne Datenbankpruefung (VPROJ-S02 AC-4). Der Readiness-Endpoint
-/// <c>GET /health/ready</c> mit Datenbankpruefung wird in <c>Program.cs</c>
-/// ueber <c>MapHealthChecks</c> registriert.
+/// Liveness check without a database check (VPROJ-S02 AC-4). The readiness
+/// endpoint <c>GET /health/ready</c>, which does check the database, is
+/// registered in <c>Program.cs</c> via <c>MapHealthChecks</c>.
 /// </summary>
 public static class HealthEndpoints
 {

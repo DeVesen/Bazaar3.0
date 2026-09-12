@@ -1,14 +1,14 @@
 namespace BAR.SharedKernel;
 
 /// <summary>
-/// Erzeugt die 8-stellige alphanumerische ID aller Entitaeten in jedem Modul
-/// (spec.md Abschnitt 11.5, entities/overview.md).
+/// Generates the 8-character alphanumeric ID of all entities in every module
+/// (spec.md section 11.5, entities/overview.md).
 /// </summary>
 /// <remarks>
-/// Kein Vorab-Unique-Check gegen die Datenbank: Check-dann-Insert ist eine Race
-/// Condition. Die Wahrheit ist der Unique-Index - der aufrufende Handler faengt
-/// den Unique-Verstoss ab und wuerfelt erneut. Bei 62^8 Kombinationen tritt das
-/// praktisch nie ein.
+/// No upfront uniqueness check against the database: check-then-insert is a
+/// race condition. The unique index is the source of truth - the calling
+/// handler catches the uniqueness violation and rolls again. With 62^8
+/// combinations this practically never happens.
 /// </remarks>
 public static class EntityId
 {

@@ -33,8 +33,8 @@ describe('LoginInfoPanel', () => {
     expect(fixture.nativeElement.querySelector('app-countdown')).toBeNull();
     expect(fixture.nativeElement.querySelector('[data-testid="conditions-box"]')).toBeNull();
     expect(fixture.nativeElement.querySelector('[data-testid="markdown-box"]')).toBeNull();
-    // Panel-Root selbst bleibt im DOM (AC-13) — der Host wird nicht entfernt,
-    // auch wenn alle drei Boxen ausgeblendet sind.
+    // The panel root itself stays in the DOM (AC-13) — the host is not
+    // removed even when all three boxes are hidden.
     expect(fixture.nativeElement.isConnected).toBe(true);
     expect(fixture.componentInstance).toBeTruthy();
   });
@@ -103,12 +103,13 @@ describe('LoginInfoPanel', () => {
     expect(fixture.nativeElement.querySelector('[data-testid="markdown-box"]')).not.toBeNull();
   });
 
-  // Regression fuer den computed()/translate.instant()-Bug (Task 11): countdownPhases muss ein
-  // Getter sein, nicht computed() — sonst bleibt der Wert nach dem ersten Read eingefroren und
-  // ein Sprachwechsel aktualisiert die Phasen-Labels nicht mehr. Dieser Test schlaegt gegen die
-  // alte computed()-Implementierung fehl, weil computed() den Sprachwechsel nicht als
-  // Dependency-Aenderung erkennt (translate.instant() ist untracked) und den memoized Wert vom
-  // ersten Read (Deutsch) behaelt.
+  // Regression test for the computed()/translate.instant() bug (task 11):
+  // countdownPhases must be a getter, not computed() — otherwise the value
+  // freezes after the first read and a language switch no longer updates the
+  // phase labels. This test fails against the old computed() implementation
+  // because computed() doesn't recognize the language switch as a dependency
+  // change (translate.instant() is untracked) and keeps the memoized value
+  // from the first read (German).
   it('countdownPhases labels re-evaluate when the active language changes after render', () => {
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('de', { login: { phaseRegistrationDeadline: 'Anmeldeschluss' } });

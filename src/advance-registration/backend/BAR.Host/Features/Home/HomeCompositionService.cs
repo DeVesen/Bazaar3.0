@@ -1,7 +1,7 @@
-using BAR.Modules.Anmeldung.Contracts;
-using BAR.Modules.Betrieb.Contracts;
-using BAR.Modules.Stammdaten.Contracts;
-using BAR.Modules.Verkaeuferverwaltung.Contracts;
+using BAR.Modules.Registration.Contracts;
+using BAR.Modules.Operations.Contracts;
+using BAR.Modules.MasterData.Contracts;
+using BAR.Modules.SellerManagement.Contracts;
 using BAR.SharedKernel;
 using BAR.SharedKernel.Exceptions;
 
@@ -13,14 +13,14 @@ public sealed record TypeConditionsResponse(decimal CommissionRate, decimal Item
 public sealed record SellerHomeResponse(int ArticleCount, TypeConditionsResponse TypeConditions);
 
 /// <summary>
-/// Reine Sichtkomposition ohne eigene Akte (modulith-thinking: "Home" gehoert
-/// zu keiner Abteilung) - liegt darum im Host, nicht in einem Modul, und ruft
-/// ausschliesslich Contracts der drei betroffenen Module auf.
+/// A pure view composition with no record of its own (modulith-thinking:
+/// "Home" belongs to no department) - it therefore lives in the Host, not in
+/// a module, and calls only the contracts of the three modules involved.
 /// </summary>
 public sealed class HomeCompositionService(
-    IVerkaeuferverwaltungModuleApi verkaeuferverwaltung,
-    IAnmeldungModuleApi anmeldung,
-    IStammdatenModuleApi stammdaten,
+    ISellerManagementModuleApi sellerManagement,
+    IRegistrationModuleApi registration,
+    IMasterDataModuleApi masterData,
     IClock clock)
 {
     private const int HeatmapWeeks = 12;
@@ -29,10 +29,10 @@ public sealed class HomeCompositionService(
     {
         var since = clock.UtcNow.Date.AddDays(-(HeatmapWeeks * 7));
 
-        var sellerCount = await verkaeuferverwaltung.GetSellerCountAsync(cancellationToken);
-        var stats = await anmeldung.GetDashboardStatsAsync(since, cancellationToken);
-        var brandNames = await stammdaten.GetAllBrandNamesAsync(cancellationToken);
-        var categoryNames = await stammdaten.GetAllCategoryNamesAsync(cancellationToken);
+        var sellerCount = await sellerManagement.GetSellerCountAsync(cancellationToken);
+        var stats = await registration.GetDashboardStatsAsync(since, cancellationToken);
+        var brandNames = await masterData.GetAllBrandNamesAsync(cancellationToken);
+        var categoryNames = await masterData.GetAllCategoryNamesAsync(cancellationToken);
 
         return new AdminHomeResponse(
             sellerCount, stats.ArticleCount, categoryNames.Count, brandNames.Count,
@@ -41,9 +41,9 @@ public sealed class HomeCompositionService(
 
     public async Task<SellerHomeResponse> GetSellerHomeAsync(string sellerId, CancellationToken cancellationToken)
     {
-        var conditions = await verkaeuferverwaltung.GetSellerConditionsAsync(sellerId, cancellationToken)
+        var conditions = await sellerManagement.GetSellerConditionsAsync(sellerId, cancellationToken)
             ?? throw new NotFoundException("seller.not_found", "Verkaeufer nicht gefunden");
-        var articleCount = await anmeldung.CountArticlesForSellerAsync(sellerId, cancellationToken);
+        var articleCount = await registration.CountArticlesForSellerAsync(sellerId, cancellationToken);
 
         return new SellerHomeResponse(articleCount, new TypeConditionsResponse(conditions.CommissionRate, conditions.ItemFee));
     }

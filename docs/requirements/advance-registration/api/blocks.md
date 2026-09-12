@@ -57,7 +57,7 @@ keinem Block irgendeines Verkäufers überschneiden.
 **Verortung im Backend:** `NumberBlock` ist ein **eigenes Aggregate** — `sellerId` ist
 eine reine ID-Referenz, kein Navigations-Property zurück auf den Verkäufer. Die globale
 Invariante kann kein Seller-Aggregate schützen (es sieht nur seine eigenen Blöcke),
-darum liegt sie in einem Domain-Service `NumberBlockAllocator` (`BAR.Modules.Anmeldung/Domain`), den
+darum liegt sie in einem Domain-Service `NumberBlockAllocator` (`BAR.Modules.Registration/Domain`), den
 alle Vergabewege gemeinsam nutzen: Selbstregistrierung, Admin-Anlage, Reservierung und
 automatische Erweiterung. Als letzte Verteidigungslinie gegen zwei parallele Vorgänge
 kommt ein PostgreSQL-Exclusion-Constraint auf `int4range(fromNumber, toNumber + 1)`

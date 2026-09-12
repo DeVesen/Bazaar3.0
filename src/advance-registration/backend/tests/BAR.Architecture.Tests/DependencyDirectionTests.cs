@@ -4,28 +4,28 @@ using NetArchTest.Rules;
 namespace BAR.Architecture.Tests;
 
 /// <summary>
-/// Schliesst die Luecke, die Projektreferenzen offen lassen: sie verhindern eine
-/// falsche Richtung zwischen Projekten, aber nicht, dass eine Domain-Klasse
-/// Web- oder Serialisierungs-Annotationen traegt, und (seit dem Modulith-Schnitt)
-/// nicht, dass ein Modul direkt in die Domain/Application/Infrastructure eines
-/// anderen Moduls greift statt ueber dessen .Contracts (dotnet-modulith-bridge).
+/// Closes the gap that project references leave open: they prevent a wrong
+/// direction between projects, but not a domain class carrying web or
+/// serialization annotations, and (since the modulith split) not a module
+/// reaching directly into another module's Domain/Application/Infrastructure
+/// instead of going through its .Contracts (dotnet-modulith-bridge).
 /// </summary>
 public class DependencyDirectionTests
 {
     private sealed record Module(string Name, Assembly Assembly);
 
-    private static readonly Module Anmeldung = new("Anmeldung", typeof(Modules.Anmeldung.Domain.Articles.Article).Assembly);
-    private static readonly Module Verkaeuferverwaltung = new("Verkaeuferverwaltung", typeof(Modules.Verkaeuferverwaltung.Domain.Sellers.Seller).Assembly);
-    private static readonly Module Stammdaten = new("Stammdaten", typeof(Modules.Stammdaten.Domain.MasterData.Brand).Assembly);
-    private static readonly Module Betrieb = new("Betrieb", typeof(Modules.Betrieb.Domain.Settings).Assembly);
+    private static readonly Module Registration = new("Registration", typeof(Modules.Registration.Domain.Articles.Article).Assembly);
+    private static readonly Module SellerManagement = new("SellerManagement", typeof(Modules.SellerManagement.Domain.Sellers.Seller).Assembly);
+    private static readonly Module MasterData = new("MasterData", typeof(Modules.MasterData.Domain.Catalog.Brand).Assembly);
+    private static readonly Module Operations = new("Operations", typeof(Modules.Operations.Domain.Settings).Assembly);
 
-    private static readonly Module[] AllModules = [Anmeldung, Verkaeuferverwaltung, Stammdaten, Betrieb];
+    private static readonly Module[] AllModules = [Registration, SellerManagement, MasterData, Operations];
 
     private static readonly Assembly Export = typeof(Modules.Export.Application.GetExportQueryHandler).Assembly;
 
-    // Die implizite Program-Klasse der Top-Level-Statements ist internal und
-    // nur fuer BAR.Host.IntegrationTests sichtbar — daher ein oeffentlicher
-    // Host-Typ als Anker.
+    // The implicit Program class of the top-level statements is internal and
+    // only visible to BAR.Host.IntegrationTests — hence a public host type
+    // as an anchor.
     private static readonly Assembly Host = typeof(Host.Features.Public.HealthEndpoints).Assembly;
 
     public static IEnumerable<object[]> AllModuleNames() => AllModules.Select(m => new object[] { m.Name, m.Assembly });
@@ -85,8 +85,8 @@ public class DependencyDirectionTests
     [MemberData(nameof(AllModuleNames))]
     public void Infrastructure_Always_ContainsNoHandlers(string moduleName, Assembly assembly)
     {
-        // Arrange & Act — Infrastructure darf Application referenzieren (fuer die
-        // eigenen Ports/Abstractions), aber keine eigene Anwendungslogik tragen.
+        // Arrange & Act — Infrastructure may reference Application (for its own
+        // ports/abstractions), but must not carry its own application logic.
         var result = Types.InAssembly(assembly)
             .That().ResideInNamespaceStartingWith($"BAR.Modules.{moduleName}.Infrastructure")
             .Should()
@@ -116,9 +116,9 @@ public class DependencyDirectionTests
     }
 
     /// <summary>
-    /// Der Kern des Modulith-Schnitts: ein Modul darf ein anderes ausschliesslich
-    /// ueber dessen .Contracts-Projekt ansprechen (eigener Namespace, von dieser
-    /// Regel nicht erfasst), nie dessen Domain/Application/Infrastructure direkt.
+    /// The core of the modulith split: a module may address another only
+    /// through its .Contracts project (its own namespace is not covered by
+    /// this rule), never its Domain/Application/Infrastructure directly.
     /// </summary>
     [Theory]
     [MemberData(nameof(ModulePairs))]
@@ -140,9 +140,9 @@ public class DependencyDirectionTests
     [Fact]
     public void Export_Always_OnlyReferencesOtherModulesContracts()
     {
-        // Arrange & Act — Export hat kein eigenes .Contracts (einziger
-        // Referenzierer ist der Host), darf aber wie jedes andere Modul nur die
-        // Contracts der Module ansprechen, deren Daten es fuer den Export braucht.
+        // Arrange & Act — Export has no .Contracts of its own (its only
+        // referencer is the host), but like every other module may only
+        // address the Contracts of the modules whose data it needs for export.
         var result = Types.InAssembly(Export)
             .Should()
             .NotHaveDependencyOnAny(AllModules
@@ -163,18 +163,18 @@ public class DependencyDirectionTests
             .NotHaveDependencyOnAny("Npgsql")
             .GetResult();
 
-        // Assert — nur die Module kennen den Provider (R-14).
+        // Assert — only the modules know the provider (R-14).
         Assert.True(result.IsSuccessful, FailureMessage(result));
     }
 
     [Fact]
     public void Host_Always_OnlyReferencesModulesContracts()
     {
-        // Arrange & Act — Ausnahme: die Add<Modul>Module()-DI-Erweiterung im
-        // Composition Root (Program.cs) referenziert zwangslaeufig auch die
-        // Implementierungs-Assembly, siehe dotnet-modulith-bridge. Diese Regel
-        // haelt darum die Feature-Endpoints separat gegen, nicht die ganze
-        // Host-Assembly.
+        // Arrange & Act — exception: the Add<Module>Module() DI extension in
+        // the composition root (Program.cs) inevitably references the
+        // implementation assembly too, see dotnet-modulith-bridge. This rule
+        // therefore checks the feature endpoints separately, not the whole
+        // host assembly.
         var result = Types.InAssembly(Host)
             .That().ResideInNamespaceStartingWith("BAR.Host.Features")
             .Should()

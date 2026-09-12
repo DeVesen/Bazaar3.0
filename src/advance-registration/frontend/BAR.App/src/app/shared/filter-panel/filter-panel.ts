@@ -66,10 +66,10 @@ export class FilterPanel {
   readonly categories = input.required<MasterDataItem[]>();
   readonly sellerAutocomplete = input<boolean>(false);
   /**
-   * Dumme Komponente: die eigentliche Verkaeufer-Suche liefert der Aufrufer -
-   * welcher Fachbereich hinter "Verkaeufer" steckt, geht shared/ nichts an
-   * (angular-modulith-bridge: shared/ importiert nie aus features/). Pflicht
-   * nur, wenn sellerAutocomplete() true ist.
+   * Dumb component: the actual seller search is supplied by the caller -
+   * which department stands behind "seller" is none of shared/'s business
+   * (angular-modulith-bridge: shared/ never imports from features/). Required
+   * only when sellerAutocomplete() is true.
    */
   readonly sellerSearchFn = input<(query: string) => Observable<SellerOption[]>>();
   readonly search = output<FilterPanelSearch>();

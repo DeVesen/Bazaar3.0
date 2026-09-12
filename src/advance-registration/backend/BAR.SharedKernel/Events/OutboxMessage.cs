@@ -1,12 +1,12 @@
 namespace BAR.SharedKernel.Events;
 
 /// <summary>
-/// Eine Vorleistung je meldendem Modul: von Anfang an billig, nachtraeglich
-/// teuer (architecture-styles/references/data-flow.md). Jedes Modul, das
-/// Events veroeffentlicht, persistiert sie zusaetzlich zum synchronen
-/// In-Process-Dispatch als Zeile in seiner eigenen Outbox-Tabelle (eigenes
-/// Schema) - ein Beleg, der spaeter eine asynchrone Zustellung ueber einen
-/// Broker nachruesten liesse, ohne die Domaene anzufassen.
+/// A piece of groundwork laid by each reporting module: cheap up front,
+/// expensive to add later (architecture-styles/references/data-flow.md).
+/// Every module that publishes events persists them, in addition to the
+/// synchronous in-process dispatch, as a row in its own outbox table (its
+/// own schema) - a record that would later let asynchronous delivery via a
+/// broker be retrofitted without touching the domain.
 /// </summary>
 public sealed class OutboxMessage
 {

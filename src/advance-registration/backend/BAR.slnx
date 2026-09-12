@@ -1,21 +1,21 @@
 <Solution>
   <Project Path="BAR.SharedKernel/BAR.SharedKernel.csproj" />
 
-  <Folder Name="/Anmeldung/">
-    <Project Path="BAR.Modules.Anmeldung/BAR.Modules.Anmeldung.csproj" />
-    <Project Path="BAR.Modules.Anmeldung.Contracts/BAR.Modules.Anmeldung.Contracts.csproj" />
+  <Folder Name="/Registration/">
+    <Project Path="BAR.Modules.Registration/BAR.Modules.Registration.csproj" />
+    <Project Path="BAR.Modules.Registration.Contracts/BAR.Modules.Registration.Contracts.csproj" />
   </Folder>
-  <Folder Name="/Verkaeuferverwaltung/">
-    <Project Path="BAR.Modules.Verkaeuferverwaltung/BAR.Modules.Verkaeuferverwaltung.csproj" />
-    <Project Path="BAR.Modules.Verkaeuferverwaltung.Contracts/BAR.Modules.Verkaeuferverwaltung.Contracts.csproj" />
+  <Folder Name="/SellerManagement/">
+    <Project Path="BAR.Modules.SellerManagement/BAR.Modules.SellerManagement.csproj" />
+    <Project Path="BAR.Modules.SellerManagement.Contracts/BAR.Modules.SellerManagement.Contracts.csproj" />
   </Folder>
-  <Folder Name="/Stammdaten/">
-    <Project Path="BAR.Modules.Stammdaten/BAR.Modules.Stammdaten.csproj" />
-    <Project Path="BAR.Modules.Stammdaten.Contracts/BAR.Modules.Stammdaten.Contracts.csproj" />
+  <Folder Name="/MasterData/">
+    <Project Path="BAR.Modules.MasterData/BAR.Modules.MasterData.csproj" />
+    <Project Path="BAR.Modules.MasterData.Contracts/BAR.Modules.MasterData.Contracts.csproj" />
   </Folder>
-  <Folder Name="/Betrieb/">
-    <Project Path="BAR.Modules.Betrieb/BAR.Modules.Betrieb.csproj" />
-    <Project Path="BAR.Modules.Betrieb.Contracts/BAR.Modules.Betrieb.Contracts.csproj" />
+  <Folder Name="/Operations/">
+    <Project Path="BAR.Modules.Operations/BAR.Modules.Operations.csproj" />
+    <Project Path="BAR.Modules.Operations.Contracts/BAR.Modules.Operations.Contracts.csproj" />
   </Folder>
   <Folder Name="/Export/">
     <Project Path="BAR.Modules.Export/BAR.Modules.Export.csproj" />
