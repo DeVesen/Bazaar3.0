@@ -11,6 +11,19 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { InfoArea } from '@shared/info-area/info-area';
 import { MarkdownText } from '@shared/markdown-text/markdown-text';
 import { SettingsApiService, SettingsDto, SettingsPayload } from '../settings-api.service';
+
+const EMPTY_SETTINGS: SettingsDto = {
+  registrationDeadline: null,
+  dropOffFrom: null,
+  dropOffUntil: null,
+  bazaarFrom: null,
+  bazaarUntil: null,
+  defaultTypeId: null,
+  infoText: null,
+  startNumber: null,
+  blockSize: null,
+  defaultBlockCount: null
+};
 import { SellerTypeOptionsApiService, SellerTypeOption } from '@features/operations/seller-type-options-api.service';
 
 const INFO_TEXT_MAX_LENGTH = 4000;
@@ -99,7 +112,9 @@ export class SettingsPage {
     });
   }
 
-  private applySettings(dto: SettingsDto): void {
+  private applySettings(dto: SettingsDto | null): void {
+    dto ??= EMPTY_SETTINGS;
+
     this.registrationDeadline.set(this.toDate(dto.registrationDeadline));
     this.dropOffFrom.set(this.toDate(dto.dropOffFrom));
     this.dropOffUntil.set(this.toDate(dto.dropOffUntil));

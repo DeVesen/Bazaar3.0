@@ -32,8 +32,8 @@ export interface SettingsPayload {
 export class SettingsApiService {
   private readonly http = inject(HttpClient);
 
-  get(): Observable<SettingsDto> {
-    return this.http.get<SettingsDto>('/api/settings');
+  get(): Observable<SettingsDto | null> {
+    return this.http.get<SettingsDto | null>('/api/settings');
   }
 
   update(payload: SettingsPayload): Observable<SettingsDto> {
