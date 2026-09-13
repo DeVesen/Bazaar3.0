@@ -17,7 +17,7 @@ public static class DependencyInjection
     public static IServiceCollection AddOperationsModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<OperationsDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("Default"), npgsql => npgsql.EnableRetryOnFailure(3)));
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), npgsql => npgsql.EnableRetryOnFailure(3)));
 
         services.AddScoped<ISettingsRepository, SettingsRepository>();
 

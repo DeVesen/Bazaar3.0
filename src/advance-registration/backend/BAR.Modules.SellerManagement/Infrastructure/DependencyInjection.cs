@@ -37,7 +37,7 @@ public static class DependencyInjection
         services.TryAddSingleton<IClock, SystemClock>();
 
         services.AddDbContext<SellerManagementDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("Default"), npgsql => npgsql.EnableRetryOnFailure(3)));
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), npgsql => npgsql.EnableRetryOnFailure(3)));
 
         services.AddScoped<ISellerRepository, SellerRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

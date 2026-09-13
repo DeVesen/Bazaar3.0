@@ -39,7 +39,7 @@ public static class DependencyInjection
         services.TryAddSingleton<IClock, SystemClock>();
 
         services.AddDbContext<RegistrationDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("Default"), npgsql => npgsql.EnableRetryOnFailure(3)));
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), npgsql => npgsql.EnableRetryOnFailure(3)));
 
         services.AddScoped<IArticleRepository, ArticleRepository>();
         services.AddScoped<INumberBlockRepository, NumberBlockRepository>();

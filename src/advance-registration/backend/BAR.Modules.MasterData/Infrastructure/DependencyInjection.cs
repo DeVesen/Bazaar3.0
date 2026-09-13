@@ -35,7 +35,7 @@ public static class DependencyInjection
         services.TryAddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         services.AddDbContext<MasterDataDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("Default"), npgsql => npgsql.EnableRetryOnFailure(3)));
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), npgsql => npgsql.EnableRetryOnFailure(3)));
 
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
