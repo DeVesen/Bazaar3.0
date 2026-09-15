@@ -70,6 +70,11 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 | Passwort ändern | 3× [Input](../../../components/input/component.md) Variante Password (aktuell/neu/Bestätigung) + [password-strength-meter.md](password-strength-meter.md) |
 | Account löschen | [Button](../../../components/button/component.md) danger → [Confirmdialog](../../../components/confirmdialog/component.md) |
 
+Tab „Zugangsdaten" — die beiden Panel-Blöcke „E-Mail ändern" und „Passwort ändern" stehen
+nebeneinander (2-Spalten-Grid) und werden auf gleiche Höhe gestreckt; der jeweilige
+Speichern-Button sitzt per `margin-top: auto` am Panel-Ende mit Gap zum Inhalt darüber, unabhängig
+davon, welches Panel mehr Felder zeigt.
+
 ## Akzeptanzkriterien
 
 Siehe [Epic_Profil](../epics/Epic_Profil/epic.md) — **alle** dortigen Akzeptanzkriterien; diese Datei ist die Struktur-Referenz, keine eigenen zusätzlichen AC.
