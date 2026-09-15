@@ -31,6 +31,19 @@
   }
 }
 
+::ng-deep p-tabs {
+  display: block;
+  width: 66.666%;
+  margin: 0 auto;
+}
+
+@include breakpoints.mobile {
+  ::ng-deep p-tabs {
+    width: 100%;
+    margin: 0;
+  }
+}
+
 .field-error {
   color: #c0392b;
   font-size: 12px;
