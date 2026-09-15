@@ -3,11 +3,14 @@ import { Shell } from './core/shell/shell';
 import { PageLayout } from './core/shell/page-layout/page-layout';
 import { authGuard } from './core/auth/auth.guard';
 import { adminGuard } from './core/auth/admin.guard';
+import { noAdminGuard } from './core/bootstrap/no-admin.guard';
+import { adminExistsGuard } from './core/bootstrap/admin-exists.guard';
 
 export const routes: Routes = [
   { path: 'embed/countdown', loadChildren: () => import('./features/countdown-embed/countdown-embed.routes').then((m) => m.COUNTDOWN_EMBED_ROUTES) },
-  { path: 'login', loadChildren: () => import('./features/login/login.routes').then((m) => m.LOGIN_ROUTES) },
-  { path: 'register', loadChildren: () => import('./features/seller-management/register/register.routes').then((m) => m.REGISTER_ROUTES) },
+  { path: 'bootstrap-admin', canActivate: [adminExistsGuard], loadChildren: () => import('./features/bootstrap-admin/bootstrap-admin.routes').then((m) => m.BOOTSTRAP_ADMIN_ROUTES) },
+  { path: 'login', canActivate: [noAdminGuard], loadChildren: () => import('./features/login/login.routes').then((m) => m.LOGIN_ROUTES) },
+  { path: 'register', canActivate: [noAdminGuard], loadChildren: () => import('./features/seller-management/register/register.routes').then((m) => m.REGISTER_ROUTES) },
   { path: 'set-password', loadChildren: () => import('./features/seller-management/set-password/set-password.routes').then((m) => m.SET_PASSWORD_ROUTES) },
   {
     path: '',
