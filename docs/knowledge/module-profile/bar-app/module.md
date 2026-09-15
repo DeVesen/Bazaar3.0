@@ -7,6 +7,8 @@
 **Maturity:** sketch
 **Last updated:** 2026-09-15
 
+**Container-Image:** wird per `.github/workflows/advance-registration-docker.yml` gebaut (Nginx-Image, siehe `Dockerfile`) und als `devesen/bazaar-advance-registration-frontend` auf Docker Hub veröffentlicht (Trigger: Push auf `master` mit Änderung in `src/advance-registration/**`, oder manuell).
+
 ## Responsibilities
 - Gesamtes UI der Voranmelde-App: Login, Home, Master-Data-Verwaltung (Brands/Categories/SellerTypes), Registration (Articles/Number-Blocks/My-Articles), Seller-Management (Profile/Register/Sellers/Set-Password), Export, Countdown-Embed, Operations/Settings
 - `core/`: `auth/`, `public-info/`, `shell/` (inkl. `page-layout/`, `sidebar/`), `theme/`
