@@ -115,6 +115,7 @@ app.UseAuthorization();
 app.MapHealthEndpoints();
 app.MapAuthEndpoints();
 app.MapPublicInfoEndpoints();
+app.MapBootstrapStatusEndpoints();
 app.MapBlocksEndpoints();
 app.MapProfileEndpoints();
 app.MapHomeEndpoints();

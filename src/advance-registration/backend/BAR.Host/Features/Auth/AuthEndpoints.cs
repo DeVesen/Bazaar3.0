@@ -16,6 +16,12 @@ public static class AuthEndpoints
             return Results.Created("/api/auth/register", new TokenPairResponse(result.AccessToken, result.RefreshToken));
         }).AddEndpointFilter<ValidationFilter<RegisterCommand>>();
 
+        group.MapPost("/bootstrap-admin", async (RegisterCommand command, ISellerManagementModuleApi sellerManagement, CancellationToken ct) =>
+        {
+            var result = await sellerManagement.BootstrapAdminAsync(command, ct);
+            return Results.Created("/api/auth/bootstrap-admin", new TokenPairResponse(result.AccessToken, result.RefreshToken));
+        }).AddEndpointFilter<ValidationFilter<RegisterCommand>>();
+
         group.MapPost("/login", async (LoginCommand command, ISellerManagementModuleApi sellerManagement, CancellationToken ct) =>
         {
             var result = await sellerManagement.LoginAsync(command, ct);

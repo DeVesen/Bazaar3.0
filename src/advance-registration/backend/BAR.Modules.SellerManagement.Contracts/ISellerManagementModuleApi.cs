@@ -14,6 +14,10 @@ public interface ISellerManagementModuleApi
     Task<TokenPairDto> LoginAsync(LoginCommand command, CancellationToken cancellationToken);
     Task<TokenPairDto> RefreshAsync(RefreshCommand command, CancellationToken cancellationToken);
     Task<TokenPairDto> SetPasswordAsync(SetPasswordCommand command, CancellationToken cancellationToken);
+    Task<TokenPairDto> BootstrapAdminAsync(RegisterCommand command, CancellationToken cancellationToken);
+
+    /// <summary>For the public "has an admin been created yet" check (Host BootstrapStatusEndpoints).</summary>
+    Task<bool> HasAdminAsync(CancellationToken cancellationToken);
 
     Task<PagedResultDto<SellerDto>> GetSellersAsync(GetSellersQuery query, CancellationToken cancellationToken);
     Task<SellerDto> CreateSellerAsync(CreateSellerCommand command, CancellationToken cancellationToken);

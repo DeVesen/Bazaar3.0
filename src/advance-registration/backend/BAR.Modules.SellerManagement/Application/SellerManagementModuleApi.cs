@@ -1,4 +1,5 @@
 using BAR.Modules.MasterData.Contracts;
+using BAR.Modules.SellerManagement.Application.Auth.BootstrapAdmin;
 using BAR.Modules.SellerManagement.Application.Auth.Login;
 using BAR.Modules.SellerManagement.Application.Auth.Refresh;
 using BAR.Modules.SellerManagement.Application.Auth.Register;
@@ -46,6 +47,12 @@ public sealed class SellerManagementModuleApi(
 
     public Task<TokenPairDto> SetPasswordAsync(SetPasswordCommand command, CancellationToken cancellationToken) =>
         Resolve<SetPasswordCommandHandler>().HandleAsync(command, cancellationToken);
+
+    public Task<TokenPairDto> BootstrapAdminAsync(RegisterCommand command, CancellationToken cancellationToken) =>
+        Resolve<BootstrapAdminCommandHandler>().HandleAsync(command, cancellationToken);
+
+    public Task<bool> HasAdminAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Resolve<AdminBootstrapState>().HasAdmin);
 
     public Task<PagedResultDto<SellerDto>> GetSellersAsync(GetSellersQuery query, CancellationToken cancellationToken) =>
         Resolve<GetSellersQueryHandler>().HandleAsync(query, cancellationToken);
