@@ -74,7 +74,17 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
-  align-items: start;
+
+  .panel-block {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    p-button {
+      margin-top: auto;
+      padding-top: var(--space-4);
+    }
+  }
 }
 
 @include breakpoints.tablet {
