@@ -5,6 +5,9 @@ import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
 import { FilterPanel, SellerOption, StatusOption } from './filter-panel';
 import type { MasterDataItem } from '@shared/models/master-data-item';
+import type { SellerTypeOption } from '@shared/models/seller-type-option';
+
+const SELLER_TYPES: SellerTypeOption[] = [{ id: 't1', name: 'Standard', commissionRate: 15, itemFee: 0.5 }];
 
 const EN_TRANSLATIONS = {
   filterPanel: {
@@ -56,6 +59,7 @@ function createCustom(opts: {
   brands?: MasterDataItem[];
   categories?: MasterDataItem[];
   statusOptions?: StatusOption[];
+  sellerTypeOptions?: SellerTypeOption[];
   liveFilter?: boolean;
   mobile?: boolean;
 }) {
@@ -70,6 +74,9 @@ function createCustom(opts: {
   }
   if (opts.statusOptions) {
     fixture.componentRef.setInput('statusOptions', opts.statusOptions);
+  }
+  if (opts.sellerTypeOptions) {
+    fixture.componentRef.setInput('sellerTypeOptions', opts.sellerTypeOptions);
   }
   if (opts.liveFilter !== undefined) {
     fixture.componentRef.setInput('liveFilter', opts.liveFilter);
@@ -318,6 +325,20 @@ describe('FilterPanel', () => {
     component.emit();
 
     expect(emitted).toEqual([{ brand: undefined, category: undefined, status: 'original', search: undefined, sellerId: undefined }]);
+  });
+
+  it('renders the seller-type select and includes it in emit() when sellerTypeOptions is set', () => {
+    const { fixture } = createCustom({ sellerTypeOptions: SELLER_TYPES });
+    const component = fixture.componentInstance;
+    const emitted: unknown[] = [];
+    component.search.subscribe((v: unknown) => emitted.push(v));
+
+    expect(fixture.debugElement.query(By.css('[data-testid="seller-type-select"]'))).not.toBeNull();
+
+    component.sellerTypeValue.set('t1');
+    component.emit();
+
+    expect(emitted).toEqual([{ brand: undefined, category: undefined, sellerTypeId: 't1', search: undefined, sellerId: undefined }]);
   });
 
   it('live filter mode: hides the Suchen button', () => {

@@ -49,7 +49,7 @@ Verwaltung der Marken-Stammdaten. Exportierbar und importierbar für Synchronisi
 
 ## 2. Aktionen
 
-**„+ Neu"-Button** (Master-Data-Filter-Toolbar, ganz rechts) → öffnet Popup mit:
+**„+ Neu"-Button** (Filter-Panel, ganz rechts) → öffnet Popup mit:
 - „Name"
 
 Admin-erstellte Marke ist per Definition kuratiert → `original` wird automatisch auf `true` gesetzt, kein Toggle im Create-Popup.
@@ -70,13 +70,27 @@ Zweck: Erkennen, welche Marken während der Voranmeldephase von Verkäufern hinz
 
 ---
 
-## 4. Filter
+## 4. Filter-Panel
 
-→ Komponente: [Master-Data-Filter-Toolbar](../../../../components/master-data-filter-toolbar/component.md)
+→ Komponente: [Filter-Panel](../../../../components/filter-panel/component.md), Verwendungsstelle „Marken-Tabelle"
 
-Freitext-Filter auf Name (live, 300 ms Debounce) + Original/Neu-Select — beide clientseitig auf
-der bereits geladenen Liste (`[lazy]="false"`). „+ Neu"-Button sitzt in der Toolbar, nicht in der
-Tabelle.
+| Filter | Vorhanden |
+|---|---|
+| Original/Neu-Status | ✅ (`p-select`) |
+| Freitext (Name) | ✅ (`p-iconfield` mit Such-Icon) |
+| Marke / Kategorie / Verkäufer | ❌ (nicht anwendbar) |
+
+**Suche auslösen:** live, ohne Absenden-Button — Freitext debounced 400 ms nach der letzten
+Eingabe, Auswahl im Original/Neu-Filter löst sofort aus. Abweichung von der sonst in dieser App
+üblichen expliziten Auslösung, siehe Ausnahme in
+[`cross-cutting.md`](../../api/cross-cutting.md) Abschnitt 4. `GET /api/brands` bleibt dabei
+**nicht paginiert**, Parameter `status`/`search` optional → [`api/master-data.md`](../../api/master-data.md).
+
+**Responsive:** ≥ Tablet zeigt das Panel Status-Filter, Freitext und „+ Neu" nebeneinander. < Tablet
+kollabiert das Panel zu einem „Filter"-Button, „+ Neu" bleibt sichtbar. Details →
+[`filter-panel`](../../../../components/filter-panel/component.md) Abschnitt „Responsive".
+
+**„+ Neu"-Button sitzt im Filter-Panel**, nicht in der Tabelle.
 
 ---
 
@@ -107,8 +121,8 @@ API-Details → [`api/master-data.md`](../../api/master-data.md) (gemeinsam mit 
 2. **AC-2** — WHEN eine neue Marke gespeichert wird, THEN SHALL das System sie in der Datenbank anlegen und in der Tabelle anzeigen.
 3. **AC-3** — IF eine Marke gelöscht werden soll, die noch Artikeln zugewiesen ist, THEN SHALL das System eine Fehlermeldung „Marke wird noch verwendet" anzeigen und nicht löschen.
 4. **AC-4** — WHEN Admin im Edit-Popup das „Original"-Flag umschaltet und speichert, THEN SHALL das System den neuen Wert übernehmen und das Badge in der Tabelle entsprechend aktualisieren.
-5. **AC-5** — WHEN der Nutzer im Freitext-Filter tippt, THEN SHALL das System die Tabelle 300 ms nach der letzten Eingabe auf Marken filtern, deren Name die Eingabe (case-insensitiv) enthält.
-6. **AC-6** — WHEN der Nutzer im Original/Neu-Filter eine Option wählt, THEN SHALL das System die Tabelle sofort auf Marken mit passendem `original`-Wert filtern.
+5. **AC-5** — WHEN der Nutzer im Freitext-Filter tippt, THEN SHALL das System 400 ms nach der letzten Eingabe `GET /api/brands` mit dem aktuellen `search`-Wert neu laden und die Tabelle auf Marken filtern, deren Name die Eingabe (case-insensitiv) enthält.
+6. **AC-6** — WHEN der Nutzer im Original/Neu-Filter eine Option wählt, THEN SHALL das System sofort ohne Debounce `GET /api/brands` mit dem passenden `status`-Wert neu laden.
 
 ## Tags & Piles
 
