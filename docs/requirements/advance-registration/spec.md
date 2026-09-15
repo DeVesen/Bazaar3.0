@@ -538,9 +538,13 @@ Erste Zeile: Tage. Zweite Zeile: HH:MM:SS. Aktualisierung jede Sekunde.
 - Aktivitäts-Heatmap nur sichtbar wenn Toggle auf „Admin"
 - Nur für Admins sichtbar
 
-### 12.5 Login-Seite Demo-Hinweis
+### 12.5 Bootstrap-Admin statt Demo-Hinweis
 
-In der Entwicklungsversion: kleiner Hinweis auf Demo-Accounts. In Produktion entfällt dieser Hinweis.
+Kein Demo-Account mehr, weder in Entwicklung noch in Produktion. Solange kein
+Administrator-Konto existiert, führt die App statt zur Login-Seite auf
+`/bootstrap-admin`, wo sich die erste Administratorin bzw. der erste Administrator
+selbst mit eigenem Namen und eigener E-Mail anlegt. Details → [`Epic_Login`](epics/Epic_Login/epic.md)
+Abschnitt 5, [`api/auth.md`](api/auth.md) Abschnitt 3+6.
 
 ---
 

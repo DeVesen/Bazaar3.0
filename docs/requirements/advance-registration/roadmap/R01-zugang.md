@@ -19,7 +19,7 @@ Das ist der erste Schritt mit sichtbarem Nutzen: ab hier gibt es Konten.
 ## Umfang
 
 - [Epic_Login](../epics/Epic_Login/epic.md) vollständig — Login-Layout mit Info-Panel,
-  Login-Formular, Selbstregistrierung, Demo-Hinweis nur in der Entwicklungsversion
+  Login-Formular, Selbstregistrierung
 - Endpoints `POST /api/auth/login`, `/register`, `/refresh` samt Token-Hülle und
   Refresh-Token-Rotation → [`api/auth.md`](../api/auth.md)
 - Entitäten [`verkaeufer`](../entities/verkaeufer.md), [`refresh-token`](../entities/refresh-token.md),
@@ -28,7 +28,10 @@ Das ist der erste Schritt mit sichtbarem Nutzen: ab hier gibt es Konten.
 - **Seed-Daten in der Migration**, damit die Registrierung ohne Einstellungsseite funktioniert:
   ein Verkäufer-Typ als Default-Typ sowie eine Einstellungszeile mit `startNumber`, `blockSize`
   und `defaultBlockCount`. Diese Seeds werden in R09 durch die pflegbare Einstellungsseite ersetzt.
-- Ein Admin-Konto als Seed, damit die Admin-Rolle überhaupt erreichbar ist
+- Bootstrap-Admin-Flow, damit die Admin-Rolle überhaupt erreichbar ist: solange kein
+  Admin existiert, führt die App statt zum Login auf `/bootstrap-admin`, wo sich der
+  erste Admin mit eigenem Namen und eigener E-Mail selbst anlegt (kein fest verdrahteter
+  Seed-Account mehr) → [`api/auth.md`](../api/auth.md) Abschnitt 3+6
 - Guards greifen: nicht angemeldet → Weiterleitung auf die Login-Seite; Logout im
   Sidebar-Footer beendet die Sitzung
 
@@ -53,8 +56,9 @@ Das ist der erste Schritt mit sichtbarem Nutzen: ab hier gibt es Konten.
 5. Seite neu laden, während man angemeldet ist → man bleibt angemeldet.
 6. Eine geschützte Route direkt in die Adressleiste tippen, ohne angemeldet zu sein →
    Weiterleitung auf die Login-Seite.
-7. Mit dem Admin-Seed anmelden → die Admin-Einträge der Sidebar sind sichtbar,
-   als Verkäufer nicht.
+7. Auf einem System ohne Admin-Konto die App aufrufen → statt der Login-Seite erscheint
+   `/bootstrap-admin`; nach dem Anlegen sind die Admin-Einträge der Sidebar sichtbar,
+   als Verkäufer nicht, und `/bootstrap-admin` ist danach dauerhaft gesperrt.
 
 ## Quellen
 

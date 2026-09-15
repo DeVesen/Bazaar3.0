@@ -145,7 +145,10 @@ korrigiert Tippfehler, ohne das Passwort des Verkäufers zu kennen.
 
 **Response `200`** — aktualisierter Verkäufer
 
-**Fehler:** `400` Validierung · `404` unbekannte ID · `409` E-Mail vergeben
+**Fehler:** `400` Validierung · `404` unbekannte ID · `409` E-Mail vergeben ·
+`409` `errorCode: seller.last_admin` — „Der letzte Admin kann nicht degradiert werden",
+wenn der letzte Account mit Admin-Rechten per `isAdmin: false` degradiert werden soll
+(gleicher Fehlercode wie bei `DELETE`, Abschnitt 4, gleicher Schutzzweck)
 
 ---
 

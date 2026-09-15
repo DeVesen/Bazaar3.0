@@ -13,7 +13,7 @@ updated: 2026-08-17
 - 2. `login-info-panel` (links) — Info-Boxen
 - 3. Login-Form (rechts) — Formular
 - 4. Redirect nach Login — Weiterleitung
-- 5. Demo-Hinweis (nur Entwicklung) — Demo-Modus
+- 5. Bootstrap-Admin — Erstanlage auf einem leeren System
 - 6. Registrierung — Selbstregistrierung
 - 7. Backend & API — Endpoints, Token-Handling
 - 8. Out-of-Scope (MVP) — bewusst verschobene Themen
@@ -104,10 +104,16 @@ Nach erfolgreichem Login → **Home-Seite** (unabhängig von Admin oder Verkäuf
 
 ---
 
-## 5. Demo-Hinweis (nur Entwicklung)
+## 5. Bootstrap-Admin — Erstanlage auf einem leeren System
 
-In der Entwicklungsversion: kleiner Hinweis auf verfügbare Demo-Accounts. Reines `<small>`/`<p>`, kein PrimeNG-Bezug.
-In der Produktionsversion entfällt dieser Hinweis vollständig.
+Solange kein Administrator-Konto existiert, ersetzt die App die Login-Seite durch
+`/bootstrap-admin`: eine eigene Willkommens-Seite, die dieselbe Registrierungsform
+wiederverwendet (Abschnitt 6) wie die Selbstregistrierung, aber mit eigenem Begrüßungstext
+und ohne die `defaultTypeId`-Prüfung — die erste Administratorin bzw. der erste
+Administrator legt sich hier mit eigenem Namen und eigener E-Mail an. Sobald ein
+Administrator-Konto existiert, ist `/bootstrap-admin` dauerhaft gesperrt (Redirect auf
+`/login`) — kein fest verdrahteter Demo- oder Seed-Account mehr, weder in Entwicklung
+noch in Produktion. Details → [`api/auth.md`](../../api/auth.md) Abschnitt 3+6.
 
 ---
 

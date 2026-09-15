@@ -151,8 +151,9 @@ wird wiederverwendet, nicht variiert.
 | `seller_type.name_taken` | 409 | Ein Verkäufer-Typ mit dieser Bezeichnung existiert bereits | [`seller-types.md`](seller-types.md) |
 | `seller_type.in_use` | 409 | Verkäufer-Typ wird noch verwendet | [`seller-types.md`](seller-types.md) |
 | `seller_type.is_default` | 409 | Kann nicht gelöscht werden — ist aktuell Standard-Typ in den Einstellungen | [`seller-types.md`](seller-types.md) |
-| `seller.last_admin` | 409 | Der letzte Admin kann nicht gelöscht werden | [`sellers.md`](sellers.md) |
+| `seller.last_admin` | 409 | Der letzte Admin kann nicht gelöscht bzw. degradiert werden | [`sellers.md`](sellers.md) — `DELETE` und `PUT` |
 | `seller.self_delete_via_profile` | 409 | Zum Löschen des eigenen Accounts das Profil verwenden | [`sellers.md`](sellers.md) |
+| `bootstrap.already_done` | 409 | Es existiert bereits ein Administrator-Konto | [`auth.md`](auth.md) |
 | `profile.admin_self_delete` | **403** | Admin-Accounts können nur von einem anderen Admin gelöscht werden | [`profile.md`](profile.md) |
 | `settings.start_number_conflict` | 409 | Startnummer liegt über bereits vergebenen Artikelnummern | [`settings.md`](settings.md) |
 

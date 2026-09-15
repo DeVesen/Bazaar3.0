@@ -207,6 +207,7 @@ API-Details → [`api/sellers.md`](../../api/sellers.md) · Nummernblock-Routen 
 12. **AC-12** — WHEN Admin den Löschen-Button einer Verkäufer-Zeile bestätigt, THEN SHALL das System den Verkäufer samt seinen Artikeln löschen, anschließend seine Nummernblöcke freigeben und seine Refresh-Token-Zeilen löschen (der Zugang ist damit sofort tot).
 13. **AC-13** — IF der zu löschende Verkäufer der letzte Account mit Admin-Rechten ist, THEN SHALL das System die Meldung „Der letzte Admin kann nicht gelöscht werden" anzeigen und nicht löschen.
 14. **AC-14** — IF Admin den eigenen Account über die Verkäufer-Tabelle löschen möchte, THEN SHALL das System die Aktion ablehnen und auf die Profil-Seite verweisen.
+15. **AC-15** — IF der zu bearbeitende Verkäufer der letzte Account mit Admin-Rechten ist und im Bearbeiten-Dialog das Admin-Recht entzogen wird, THEN SHALL das System die Meldung „Der letzte Admin kann nicht degradiert werden" anzeigen und nicht speichern.
 
 ## Tags & Piles
 
