@@ -16,4 +16,5 @@
 
 ## Notes
 - **Teilt sich eine Komponente (`HomePage.ts`) mit `home-verkaeufer`** — Rollenumschaltung über `RoleService.activeRole()`. Als zwei Feature-Profile erfasst, weil es zwei separate Epics sind (`Epic_Home_Admin`, `Epic_Home_Verkaeufer`), auch wenn der Code sie nicht trennt.
+- User sees eine große Countdown-Kachel über 2 Zeilen neben einem 2×2-KPI-Kachel-Grid (≥ 768 px); < 768 px stapelt sich alles einspaltig — `HomePage.html` + `HomePage.scss` (`.admin-dashboard`, `.admin-dashboard__kpis`). Eigenes CSS-Grid, nicht die shared `KpiGrid`-Component.
 - Coverage `partial`: nur `HomePage.ts` gelesen, nicht `HomePage.html` im Detail (Template kann weitere sichtbare Zustände enthalten, z.B. Ladezustände/Leerzustände).

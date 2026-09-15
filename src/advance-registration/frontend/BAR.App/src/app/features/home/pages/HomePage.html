@@ -1,25 +1,27 @@
 @if (isAdminView()) {
-  <app-kpi-grid [columns]="5">
-    <app-kpi-tile [label]="'home.untilBazaarLabel' | translate" [value]="null">
+  <div class="admin-dashboard">
+    <app-kpi-tile class="admin-dashboard__countdown" [label]="'home.untilBazaarLabel' | translate" [value]="null">
       @if (adminPhases.length > 0) {
         <app-countdown variant="kpi" [phases]="adminPhases" />
       } @else {
         <p class="kpi-tile__sub-label">{{ 'home.noDeadlineSet' | translate }}</p>
       }
     </app-kpi-tile>
-    <a routerLink="/sellers">
-      <app-kpi-tile [label]="'home.sellersLabel' | translate" [value]="adminSellerCount()" [subLabel]="'home.sellersSubLabel' | translate" />
-    </a>
-    <a routerLink="/articles">
-      <app-kpi-tile [label]="'home.totalArticlesLabel' | translate" [value]="adminArticleCount()" [subLabel]="'home.articlesSubLabel' | translate" />
-    </a>
-    <a routerLink="/categories">
-      <app-kpi-tile [label]="'home.categoriesLabel' | translate" [value]="adminCategoryCount()" />
-    </a>
-    <a routerLink="/brands">
-      <app-kpi-tile [label]="'home.brandsLabel' | translate" [value]="adminBrandCount()" />
-    </a>
-  </app-kpi-grid>
+    <div class="admin-dashboard__kpis">
+      <a routerLink="/sellers">
+        <app-kpi-tile [label]="'home.sellersLabel' | translate" [value]="adminSellerCount()" [subLabel]="'home.sellersSubLabel' | translate" />
+      </a>
+      <a routerLink="/articles">
+        <app-kpi-tile [label]="'home.totalArticlesLabel' | translate" [value]="adminArticleCount()" [subLabel]="'home.articlesSubLabel' | translate" />
+      </a>
+      <a routerLink="/categories">
+        <app-kpi-tile [label]="'home.categoriesLabel' | translate" [value]="adminCategoryCount()" />
+      </a>
+      <a routerLink="/brands">
+        <app-kpi-tile [label]="'home.brandsLabel' | translate" [value]="adminBrandCount()" />
+      </a>
+    </div>
+  </div>
 
   <app-activity-heatmap [events]="heatmapEvents()" />
 } @else {

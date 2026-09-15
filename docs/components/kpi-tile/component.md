@@ -138,7 +138,7 @@ Der KPI-Grid-Wrapper ist ein reines Layout-Element (`display: grid; grid-templat
 | Klasse | Spalten | Einsatz |
 |---|---|---|
 | `c6` | 6 gleichbreit | Statistik Zeile 1 |
-| `c5` | 5 gleichbreit | Statistik Zeile 3 · Admin-Home (Voranmelde) |
+| `c5` | 5 gleichbreit | Statistik Zeile 3 |
 | `c4` | 4 gleichbreit | Home (Voranmelde) |
 | `c3` | 3 gleichbreit | Statistik Zeile 2 · Abrechnung |
 
@@ -153,7 +153,7 @@ Der KPI-Grid-Wrapper ist ein reines Layout-Element (`display: grid; grid-templat
 | Statistik (Finanz) | Bazaar | `c5` | Einnahmen, Provision, Gebühren, Gesamt, Auszahlung |
 | Abrechnung | Bazaar | `c3` | Offene Artikel, Verkaufte Artikel, Umsatz |
 | Home — Verkäufer | Voranmelde | `c4` | Countdown, Meine Artikel, Konditionen, Gebühr gesamt |
-| Home — Admin | Voranmelde | `c5` | Countdown, Verkäufer, Artikel gesamt, Kategorien, Marken |
+| Home — Admin | Voranmelde | eigenes Grid (kein `c`-Preset) | Countdown (groß, 2 Zeilen) + Verkäufer, Artikel gesamt, Kategorien, Marken (2×2) — siehe [home-dashboard.md](../../requirements/advance-registration/components/home-dashboard.md) |
 
 ---
 

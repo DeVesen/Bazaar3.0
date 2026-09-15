@@ -11,7 +11,7 @@ Reine Instanziierung bereits entschiedener Shared-Components — keine neuen Pri
 | Variante | Verwendung | Kacheln |
 |---|---|---|
 | Verkäufer | [Epic_Home_Verkaeufer](../epics/Epic_Home_Verkaeufer/epic.md) | 4 (`columns="4"`) |
-| Admin | [Epic_Home_Admin](../epics/Epic_Home_Admin/epic.md) | 5 (`columns="5"`) + Activity-Heatmap |
+| Admin | [Epic_Home_Admin](../epics/Epic_Home_Admin/epic.md) | 5 — **kein** einzelnes Shared-Grid mehr: große Countdown-Kachel + eigenes 2×2-CSS-Grid (siehe unten) + Activity-Heatmap |
 
 ## Kontext (volle Seite)
 
@@ -26,11 +26,22 @@ Verkäufer:
 
 📄 Markdown-Info-Panel
 
-Admin:
-┌────────────┬────────────┬────────────┬────────────┬────────────┐
-│ Countdown  │ Verkäufer  │ Artikel    │ Kategorien │ Marken     │
-│            │            │ gesamt     │            │            │
-└────────────┴────────────┴────────────┴────────────┴────────────┘
+Admin (≥ 768 px):
+┌────────────────────┬────────────┬────────────┐
+│                    │ Verkäufer  │ Artikel    │
+│  Countdown (2 Zln) │            │ gesamt     │
+│                    ├────────────┼────────────┤
+│                    │ Kategorien │ Marken     │
+└────────────────────┴────────────┴────────────┘
+
+Admin (< 768 px, gestapelt):
+┌─────────────────────┐
+│ Countdown            │
+├────────────┬─────────┤
+│ Verkäufer  │ Artikel │
+├────────────┼─────────┤
+│ Kategorien │ Marken  │
+└────────────┴─────────┘
 
 Aktivität — letzte 12 Wochen
 [Heatmap-Grid, 7×12 Zellen]
@@ -42,8 +53,8 @@ Aktivität — letzte 12 Wochen
 
 | Element | Component | Verkäufer | Admin |
 |---|---|---|---|
-| Äußerer Grid-Wrapper | Shared `kpi-tile`-Grid | `columns="4"` (Klasse `c4`) | `columns="5"` (Klasse `c5`) |
-| Kachel — Countdown | Shared `kpi-tile` + Shared `countdown` (`variant="kpi"`) | Phasen `dropOffFrom` → `dropOffUntil` | volle 5-Phasen-Sequence |
+| Äußerer Grid-Wrapper | Verkäufer: Shared `kpi-tile`-Grid — Admin: eigenes CSS-Grid (`.admin-dashboard` in `HomePage.scss`), **nicht** die Shared-`kpi-tile`-Grid-Component | `columns="4"` (Klasse `c4`) | `.admin-dashboard`: Countdown-Kachel `grid-row: 1 / span 2` neben `.admin-dashboard__kpis` (eigenes 2-Spalten-CSS-Grid für die 4 übrigen Kacheln); < 768 px gestapelt — Details → [Epic_Home_Admin Abschnitt 1](../epics/Epic_Home_Admin/epic.md) |
+| Kachel — Countdown | Shared `kpi-tile` + Shared `countdown` (`variant="kpi"`) | Phasen `dropOffFrom` → `dropOffUntil` | volle 5-Phasen-Sequence; Kachel füllt die volle Höhe der 2-Zeilen-Spanne (`::ng-deep .kpi-tile { height:100% }` in `HomePage.scss`) |
 | Kachel — Meine Artikel | Shared `kpi-tile`, `value` = Artikel-Anzahl aus `GET /api/home/seller` | ✅ | — |
 | Kachel — Meine Konditionen | Shared `kpi-tile`, `value`/`subLabel` = Provision/Gebühr (typ-abgeleitet, siehe `entities/verkaeufer-typ.md`) | ✅ | — |
 | Kachel — Abgabegebühr gesamt | Shared `kpi-tile`, `value` = `Artikel-Anzahl × Gebühr` (Frontend-Berechnung) | ✅ | — |

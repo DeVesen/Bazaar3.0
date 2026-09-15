@@ -9,10 +9,11 @@ updated: 2026-08-17
 
 ## Index
 - Überblick — Konzept
-- 1. KPI-Kacheln — Kennzahlen
-- 2. Aktivitäts-Heatmap — Aktivitätsverlauf
-- 3. Info-Panel — Freitext
-- 4. Backend & API — Endpoint
+- 1. Layout — Anordnung & Responsive
+- 2. KPI-Kacheln — Kennzahlen
+- 3. Aktivitäts-Heatmap — Aktivitätsverlauf
+- 4. Info-Panel — Freitext
+- 5. Backend & API — Endpoint
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
@@ -34,7 +35,41 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 
 ---
 
-## 1. KPI-Kacheln (5 Stück, Grid `c5`)
+## 1. Layout
+
+**≥ Tablet (≥ 768 px):** links große Countdown-Kachel (2 Zeilen hoch), rechts daneben die
+4 übrigen KPI-Kacheln als 2×2-Grid. Darunter, volle Breite, die Aktivitäts-Heatmap.
+
+```
+┌────────────────────┬──────────┬──────────┐
+│                    │Verkäufer │Artikel Ges│
+│  Bis zum Basar     ├──────────┼──────────┤
+│                    │Kategorien│  Marken  │
+├────────────────────┴──────────┴──────────┤
+│              Aktivität                    │
+└────────────────────────────────────────────┘
+```
+
+**< Tablet (< 768 px):** einspaltig gestapelt — Countdown-Kachel volle Breite oben,
+darunter die 4 KPI-Kacheln 2-spaltig, darunter die Aktivitäts-Heatmap volle Breite.
+
+```
+┌──────────────────┐
+│  Bis zum Basar    │
+├─────────┬─────────┤
+│Verkäufer│Artikel G│
+├─────────┼─────────┤
+│Kategorie│ Marken  │
+├─────────┴─────────┤
+│    Aktivität       │
+└────────────────────┘
+```
+
+Breakpoint 768 px entspricht der Projekt-Konvention Tablet ([kpi-tile Responsive](../../../../components/kpi-tile/component.md)).
+
+---
+
+## 2. KPI-Kacheln (5 Stück, Grid `c5`)
 
 → Komponente: [KPI-Tile](../../../../components/kpi-tile/component.md) im Grid `c5`
 → Countdown-Kachel: [Countdown](../../../../components/countdown/component.md) — `variant="kpi"`
@@ -49,7 +84,7 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 
 ---
 
-## 2. Aktivitäts-Heatmap
+## 3. Aktivitäts-Heatmap
 
 → Komponente: [Activity-Heatmap](../../../../components/activity-heatmap/component.md)
 
@@ -79,7 +114,7 @@ Das Admin-Dashboard zeigt einen schnellen Überblick über den aktuellen Stand d
 
 ---
 
-## 3. Info-Panel
+## 4. Info-Panel
 
 Identisch mit der Verkäufer-Ansicht — dieselbe Custom-Component
 [markdown-text](../../components/markdown-text.md), derselbe `infoText`.
@@ -89,7 +124,7 @@ unverändert auch für diese Ansicht.
 
 ---
 
-## 4. Backend & API
+## 5. Backend & API
 
 API-Details → [`api/home.md`](../../api/home.md)
 

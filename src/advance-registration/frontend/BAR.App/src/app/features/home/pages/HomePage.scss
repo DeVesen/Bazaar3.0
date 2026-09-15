@@ -6,3 +6,49 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+.admin-dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.admin-dashboard__countdown {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+
+  ::ng-deep .kpi-tile {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
+.admin-dashboard__kpis {
+  grid-column: 2 / span 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 767px) {
+  .admin-dashboard {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .admin-dashboard__countdown {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .admin-dashboard__kpis {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
