@@ -277,8 +277,18 @@
   "filterPanel": {
     "brandPlaceholder": "Brand",
     "categoryPlaceholder": "Category",
+    "statusPlaceholder": "Original/New",
+    "sellerTypePlaceholder": "Type",
     "searchPlaceholder": "Search...",
-    "searchButton": "Search"
+    "searchButton": "Search",
+    "filterButton": "Filter"
+  },
+  "masterDataFilterToolbar": {
+    "originalPlaceholder": "Original/New",
+    "originalOption": "✓ Original",
+    "newOption": "New",
+    "searchPlaceholder": "Search...",
+    "filterButton": "Filter"
   },
   "passwordStrength": {
     "weak": "Weak",

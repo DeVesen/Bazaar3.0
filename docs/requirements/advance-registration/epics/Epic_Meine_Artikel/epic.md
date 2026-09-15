@@ -2,7 +2,7 @@
 id: F-AR-004
 status: draft
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-09-14
 ---
 
 # Epic: Meine Artikel
@@ -49,6 +49,8 @@ Details → [`filter-panel`](../../../../components/filter-panel/component.md).
 
 **Suche auslösen:** explizites Absenden, kein Live-Filter beim Tippen — Enter im Freitext- oder Select-Feld, oder Klick auf den „Suchen"-Button (`p-button` mit `pi-search` links + Text „Suchen") ganz rechts im Filter-Panel.
 
+**Responsive:** ≥ Tablet zeigt das Panel alle Filterfelder nebeneinander, „+ Neu" ganz rechts. < Tablet kollabiert das Panel zu einem „Filter"-Button, „+ Neu" bleibt sichtbar. Details → [`filter-panel`](../../../../components/filter-panel/component.md) Abschnitt „Responsive".
+
 **Vergleichsregeln** (case-insensitiv, Teilwort, Token-Zerlegung, keine Mindestlänge) gelten für alle Suchfelder der App und stehen verbindlich in [`cross-cutting.md`](../../api/cross-cutting.md) Abschnitt 4.
 
 ---
@@ -61,7 +63,7 @@ Details → [`filter-panel`](../../../../components/filter-panel/component.md).
 
 **Leerzustand:** „Noch keine Artikel angemeldet. Mit **+ Neu** den ersten anlegen." (`emptyText`) — die leere Liste ist hier der erwartbare Anfangszustand jedes neuen Verkäufers, also gehört der nächste Schritt hin statt einer Feststellung. Der Filterfall bleibt beim generischen Text der [`table`](../../../../components/table/component.md).
 
-**„+ Neu"-Button** (Seitentitel) → öffnet Artikelanlage-Dialog.
+**„+ Neu"-Button** (Filter-Panel, ganz rechts) → öffnet Artikelanlage-Dialog.
 
 **Edit-Button** pro Zeile → öffnet Artikel-Bearbeiten-Dialog.
 - Artikelnummer: oben, read-only

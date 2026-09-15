@@ -1,0 +1,25 @@
+@use '../../../../styles/breakpoints';
+
+// Shell.content-body padded 26px 22px (14px 12px on mobile) — negative
+// margins pull the title bar back out to the edge of the content area,
+// matching the full-bleed hamburger header above it.
+.page-title-bar {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  margin: -26px -22px 22px;
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+}
+
+.page-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 20px;
+}
+
+@include breakpoints.mobile {
+  .page-title-bar {
+    margin: -14px -12px 12px;
+  }
+}

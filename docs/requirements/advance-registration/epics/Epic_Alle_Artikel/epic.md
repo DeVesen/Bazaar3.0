@@ -49,6 +49,8 @@ Suche auslösen: gleiches Muster wie Epic_Meine_Artikel (Enter oder „Suchen"-B
 
 **Ausnahme Verkäufer-AutoComplete:** Sie tippt live — 400 ms Debounce, ab 2 Zeichen, max. 10 Vorschläge über `GET /api/sellers?search=…&pageSize=10`. Regeln und Begründung → [`cross-cutting.md`](../../api/cross-cutting.md) Abschnitt 4.
 
+**Responsive:** ≥ Tablet zeigt das Panel alle Filterfelder (inkl. Verkäufer-Autocomplete) nebeneinander. < Tablet kollabiert das Panel zu einem „Filter"-Button — hier ohne „+ Neu" daneben, da diese Ansicht keinen „+ Neu"-Button hat (Abschnitt 2). Details → [`filter-panel`](../../../../components/filter-panel/component.md) Abschnitt „Responsive".
+
 ---
 
 ## 2. Tabelle (`table-admin-artikel`)

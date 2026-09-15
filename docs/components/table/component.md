@@ -73,6 +73,7 @@ Das Parent entscheidet, ob Sortierung und Filterung lokal in Memory oder als Bac
 | `pageChange` | `PageEvent` | `@Output` | Emittiert bei Seitenwechsel oder Seitengrößenänderung |
 | `actionClick` | `ActionClickEvent` | `@Output` | Emittiert `{ actionId, row }` bei Klick auf einen Action-Button |
 | `rowAdd` | `void` | `@Output` | Emittiert bei Klick auf „+ Neu"-Button in der Toolbar |
+| `hasActiveFilter` | `boolean` | `@Input` | Steuert den Leerzustand-Text (Abschnitt 8), wenn die Filterung **außerhalb** der Tabelle passiert (z. B. [Master-Data-Filter-Toolbar](../master-data-filter-toolbar/component.md)) — die Tabelle kennt in diesem Fall keinen eigenen Filter-Zustand und muss ihn vom Parent mitgeteilt bekommen. Standard `false`. Bei Tabellen mit eigenem Spalten-Filter (`p-columnFilter`) unnötig — dort erkennt die Tabelle den aktiven Filter selbst. |
 
 Das Parent ist verantwortlich für:
 - Datenladen und Aktualisierung von `data` und `totalRecords`
@@ -283,6 +284,10 @@ Kein Icon, kein Button — nur Text, zentriert.
 
 Der Text für „keine Datensätze, kein Filter" ist über einen **Input überschreibbar**
 (`emptyText`); der Filter-Text bleibt fest.
+
+Bei Tabellen mit externer Filterung (z. B. über [Master-Data-Filter-Toolbar](../master-data-filter-toolbar/component.md)
+statt Spalten-Filter) kennt die Tabelle den Filter-Zustand nicht selbst — das Parent
+meldet ihn über `hasActiveFilter`, damit zwischen Erstfall- und Filter-Text unterschieden wird.
 
 Grund für die Unterscheidung: Der Filterfall ist überall derselbe — der Nutzer hat gerade
 gefiltert und weiß es. Der Erstfall ist dagegen je Liste unterschiedlich aussagekräftig. Wo

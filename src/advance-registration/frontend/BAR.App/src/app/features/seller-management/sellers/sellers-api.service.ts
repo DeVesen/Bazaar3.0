@@ -60,6 +60,7 @@ export interface PagedResult<T> {
 }
 
 export interface ListSellersParams {
+  sellerTypeId?: string;
   search?: string;
   page: number;
   pageSize: number;
@@ -72,6 +73,9 @@ export class SellersApiService {
 
   list(params: ListSellersParams): Observable<PagedResult<Seller>> {
     let httpParams = new HttpParams().set('page', params.page).set('pageSize', params.pageSize);
+    if (params.sellerTypeId) {
+      httpParams = httpParams.set('sellerTypeId', params.sellerTypeId);
+    }
     if (params.search) {
       httpParams = httpParams.set('search', params.search);
     }

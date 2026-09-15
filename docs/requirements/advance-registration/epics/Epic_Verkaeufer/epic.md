@@ -39,14 +39,17 @@ Admin-Übersicht aller Verkäufer mit Anlage-, Bearbeitungs- und Einladungs-Funk
 
 ## 1. Filter-Panel
 
-Details → [`verkaeufer-dialog`](../../components/verkaeufer-dialog.md) (deckt Filter-Panel + Dialoge in einer Datei ab).
+Details → [`filter-panel`](../../../../components/filter-panel/component.md) (Verwendungsstelle „Verkäufer-Verwaltung") und [`verkaeufer-dialog`](../../components/verkaeufer-dialog.md) (deckt Filter-Panel + Dialoge in einer Datei ab).
 
-**„+ Neu"-Button** befindet sich ausschließlich im Seitentitel (Page-Header) — nicht in der Filter-Toolbar.
+**„+ Neu"-Button** sitzt in der Filter-Toolbar, ganz rechts (Standard-Muster des Filter-Panels) — nicht mehr im Seitentitel.
 
 Filterbereich:
+- Verkäufer-Typ-Filter — [Select](../../../../components/select/component.md), Variante Dropdown, Liste aller Verkäufer-Typen (Quelle: Epic_Verkaeufer_Typen)
 - Freitext-Suche (Name, Ort, E-Mail) — `p-iconfield` mit Such-Icon
 
 Auslösung wie in [Epic_Meine_Artikel](../Epic_Meine_Artikel/epic.md): Enter oder „Suchen"-Button, kein Live-Filter. Vergleichsregeln → [`cross-cutting.md`](../../api/cross-cutting.md) Abschnitt 4.
+
+**Responsive:** ≥ Tablet zeigt das Panel Typ-Filter und Freitext nebeneinander, „+ Neu" ganz rechts. < Tablet kollabiert das Panel zu einem „Filter"-Button, „+ Neu" bleibt daneben sichtbar. Details → [`filter-panel`](../../../../components/filter-panel/component.md) Abschnitt „Responsive".
 
 ---
 
@@ -62,7 +65,7 @@ Auslösung wie in [Epic_Meine_Artikel](../Epic_Meine_Artikel/epic.md): Enter ode
 
 **Spalte „Nr."** zeigt die `fromNumber` des **ersten** Nummernblocks des Verkäufers — kein eigenes Entity-Feld. Eine zweite fortlaufende Nummernwelt neben den Artikelnummern wäre nur verwechslungsanfällig, und am Basar-Tag wird ohnehin nach „Verkäufer 101" gesucht. Leer, solange kein Block zugewiesen ist.
 
-**„+ Neu"-Button** (Seitentitel) → öffnet Dialog „Neuen Verkäufer anlegen".
+**„+ Neu"-Button** (Filter-Toolbar) → öffnet Dialog „Neuen Verkäufer anlegen".
 **Edit-Button** pro Zeile → öffnet Dialog „Verkäufer bearbeiten".
 **Löschen-Button** pro Zeile → `p-confirmdialog`, danach `DELETE /api/sellers/{id}` (löscht Verkäufer samt Artikeln und Nummernblöcken). Nicht verfügbar für den eigenen Account und für den letzten verbliebenen Admin.
 

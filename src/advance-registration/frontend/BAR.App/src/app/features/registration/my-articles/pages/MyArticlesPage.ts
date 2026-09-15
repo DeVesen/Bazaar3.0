@@ -1,7 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
 import { ArticlesApiService, ArticleListQuery, ArticleResponse } from '../articles-api.service';
 import { MasterDataApiService, MasterDataItem } from '../../master-data-api.service';
 import { ArticleDialog } from '../components/article-dialog';
@@ -10,17 +9,20 @@ import { FilterPanel, FilterPanelSearch } from '@shared/filter-panel/filter-pane
 
 @Component({
   selector: 'app-my-articles-page',
-  imports: [FilterPanel, AppTable, ArticleDialog, ButtonModule, TranslatePipe],
+  imports: [FilterPanel, AppTable, ArticleDialog, TranslatePipe],
   template: `
-    <h1>{{ 'myArticles.title' | translate }}</h1>
-
-    <app-filter-panel [brands]="brands()" [categories]="categories()" (search)="onFilterSearch($event)" />
+    <app-filter-panel
+      [brands]="brands()"
+      [categories]="categories()"
+      [canAdd]="true"
+      [createLabel]="'myArticles.createButton' | translate"
+      (search)="onFilterSearch($event)"
+      (create)="openCreateDialog()"
+    />
 
     @if (isEmpty() && !hasActiveFilter() && !loading()) {
       <p>{{ 'myArticles.emptyTextPrefix' | translate }}<strong>{{ 'myArticles.createButton' | translate }}</strong>{{ 'myArticles.emptyTextSuffix' | translate }}</p>
-      <button pButton type="button" (click)="openCreateDialog()">{{ 'myArticles.createButton' | translate }}</button>
     } @else {
-      <button pButton type="button" (click)="openCreateDialog()">{{ 'myArticles.createButton' | translate }}</button>
       <app-table
         [columns]="columns"
         [data]="articles()"

@@ -10,7 +10,7 @@ updated: 2026-08-17
 ## Index
 - Überblick — Konzept
 - 1. Tabelle — Typen-Liste
-- 2. Aktionen — CRUD
+- 2. Filter & Aktionen — Suche, CRUD, Responsive
 - 3. Default-Type — Standardtyp
 - 4. Verhalten beim Zuweisen — Konditionsübernahme
 - 5. Backend & API — Endpoints
@@ -54,14 +54,24 @@ Die Spalte **Verkäufer** (`sellerCount`) macht vor einer Änderung sichtbar, wi
 
 ---
 
-## 2. Aktionen
+## 2. Filter & Aktionen
 
-**„+ Neu"-Button** (Seitentitel) → öffnet Popup mit:
+→ Komponente: [Master-Data-Filter-Toolbar](../../../../components/master-data-filter-toolbar/component.md)
+
+**Freitext-Filter** über der Tabelle filtert live (300 ms Debounce) auf **Bezeichnung**, clientseitig
+über die bereits geladene Liste — kein „Suchen"-Button, kein zusätzlicher Server-Request.
+
+**„+ Neu"-Button** steht in derselben Zeile wie der Freitext-Filter (nicht mehr im Tabellen-Header)
+→ öffnet Popup mit:
 - „Name"
 - „Provision (%)"
 - „Gebühr (€)"
 
 **„Edit"-Button** pro Zeile → öffnet Popup mit denselben Feldern vorausgefüllt.
+
+**Responsive:** ≥ Tablet (≥ 768 px) Freitext-Feld und „+ Neu"-Button nebeneinander sichtbar.
+< Tablet (< 768 px) kollabiert das Freitext-Feld zu einem „Filter"-Button (öffnet Drawer-Overlay von
+unten mit demselben Feld), „+ Neu"-Button bleibt daneben sichtbar. Details → Komponenten-Doku.
 
 ---
 
@@ -101,6 +111,8 @@ API-Details → [`api/seller-types.md`](../../api/seller-types.md)
 2. **AC-2** — WHEN ein neuer Typ gespeichert wird, THEN SHALL das System ihn in der Datenbank anlegen und in der Tabelle anzeigen.
 3. **AC-3** — IF ein Verkäufer-Typ gelöscht werden soll, der noch Verkäufern zugewiesen ist, THEN SHALL das System eine Fehlermeldung anzeigen und nicht löschen.
 4. **AC-4** — IF ein Verkäufer-Typ gelöscht werden soll, der aktuell der `defaultTypeId` in den Einstellungen ist, THEN SHALL das System die Fehlermeldung „Kann nicht gelöscht werden — ist aktuell Standard-Typ in den Einstellungen" anzeigen und nicht löschen.
+5. **AC-5** — WHEN im Freitext-Filter getippt wird, THEN SHALL das System die Tabelle 300 ms nach der letzten Eingabe auf Verkäufer-Typen filtern, deren Bezeichnung den eingegebenen Text enthält (case-insensitive).
+6. **AC-6** — WHILE der Viewport < 768 px breit ist, SHALL das System das Freitext-Feld zu einem „Filter"-Button kollabieren; ein Klick öffnet ein Overlay mit demselben Feld. Der „+ Neu"-Button bleibt außerhalb des Overlays sichtbar.
 
 ## Tags & Piles
 

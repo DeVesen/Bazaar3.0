@@ -21,6 +21,7 @@ Grundgerüst der Angular-App: Sidebar-Navigation (rollenabhängig), responsives 
 - Sidebar mit rollenabhängigen Navigationsgruppen + Sidebar-Footer (Avatar, Role-Toggle, Logout)
 - Responsives Layout: Desktop (>1024 px) / Tablet (≤1024 px) / Mobile (≤768 px)
 - Angular Routing Skeleton (Lazy Loading je Feature über `<feature>.routes.ts`, englische Routen-Pfade, funktionale `authGuard`/`adminGuard`)
+- Page-Layout mit Page-Titel-Leiste für jede Seite außer Dashboard (Titel aus Routen-`data`)
 - JWT-Auth-Infrastruktur in `core/auth/` (`TokenStore`, `JwtDecoder`, `AuthService` mit Signals, funktionaler `jwtInterceptor` inkl. Token-Refresh, `RoleService`)
 - PrimeNG 22 Theme & globale CSS Custom Properties
 - ngx-translate initialisieren (DE Default, EN Fallback)
@@ -38,6 +39,7 @@ Setzt `Epic_Projektanlage` (VPROJ) voraus — das Angular-Projekt muss existiere
 - [VSHELL-S03 — Angular Routing Skeleton](stories/VSHELL-S03-routing-skeleton.md)
 - [VSHELL-S04 — Auth-Infrastruktur](stories/VSHELL-S04-auth-infrastruktur.md)
 - [VSHELL-S05 — PrimeNG Theme & Global Styles](stories/VSHELL-S05-primeng-theme-setup.md)
+- [VSHELL-S06 — Page-Layout & Page-Titel-Leiste](stories/VSHELL-S06-page-layout.md)
 
 ## Tags & Piles
 

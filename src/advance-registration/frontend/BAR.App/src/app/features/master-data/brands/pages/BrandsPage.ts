@@ -1,23 +1,23 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AppTable, ColumnConfig, ActionColumnConfig, ActionClickEvent } from '@shared/table/table';
 import { MasterDataPopup } from '@shared/master-data-popup/master-data-popup';
+import { MasterDataFilterToolbar, MasterDataFilter } from '@shared/master-data-filter-toolbar/master-data-filter-toolbar';
 import { MasterDataApiService, MasterDataItem } from '@features/master-data/master-data-api.service';
 
 @Component({
   selector: 'app-brands-page',
-  imports: [AppTable, MasterDataPopup, TranslatePipe],
+  imports: [AppTable, MasterDataPopup, MasterDataFilterToolbar, TranslatePipe],
   template: `
+    <app-master-data-filter-toolbar [showOriginalFilter]="true" [canAdd]="true" (filterChange)="onFilterChange($event)" (create)="openCreate()" />
+
     <app-table
-      [title]="'brands.title' | translate"
       [columns]="columns"
-      [data]="brands()"
+      [data]="filteredBrands()"
       [loading]="loading()"
       [actionColumn]="actionColumn"
-      [canAdd]="true"
       [lazy]="false"
-      (rowAdd)="openCreate()"
       (actionClick)="onTableAction($event)"
     />
 
@@ -67,6 +67,16 @@ export class BrandsPage implements OnInit {
   readonly popupVisible = signal(false);
   readonly popupMode = signal<'create' | 'edit'>('create');
   readonly popupItem = signal<MasterDataItem | null>(null);
+  readonly filter = signal<MasterDataFilter>({});
+
+  readonly filteredBrands = computed(() => {
+    const { search, original } = this.filter();
+    return this.brands().filter(
+      (b) =>
+        (search === undefined || b.name.toLowerCase().includes(search.toLowerCase())) &&
+        (original === undefined || b.original === original)
+    );
+  });
 
   readonly saveFn = (name: string, original: boolean | undefined, id: string | undefined) =>
     id ? this.masterDataApi.update('brands', id, { name, original: original ?? false }) : this.masterDataApi.create('brands', name);
@@ -134,5 +144,9 @@ export class BrandsPage implements OnInit {
 
   onSaved(): void {
     this.load();
+  }
+
+  onFilterChange(filter: MasterDataFilter): void {
+    this.filter.set(filter);
   }
 }

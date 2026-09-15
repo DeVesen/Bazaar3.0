@@ -76,7 +76,9 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Card** | Standard-Card und Panel-Block-Container für Formular- und Listeninhalte | [card/](card/component.md) |
 | **Sidebar** | App-weite Navigations-Sidebar auf Basis der `p-sidebar`-Compound-Familie; Gruppen, Trennlinien, Active-Highlight, Footer-Slot | [sidebar/](sidebar/component.md) |
 | **Sidebar-Footer** | Footer-Bereich der Sidebar mit Avatar, Rollenangabe, optionalem Role-Toggle und Abmelden-Button | [sidebar-footer/](sidebar-footer/component.md) |
+| **Page-Layout** | Shell-Chrome: zentrale Seitentitel-Leiste über jeder Feature-Route (aus Route-Daten), Feature-Seiten setzen keinen eigenen Titel mehr | [page-layout/](page-layout/component.md) |
 | **Filter-Panel** | Mehrzeiliges Filter-Panel über Listen: Freitextsuche, Dropdowns, aktive Filter als Chips | [filter-panel/](filter-panel/component.md) |
+| **Master-Data-Filter-Toolbar** | Schlanke Live-Filter-Leiste für clientseitig gefilterte Master-Data-Listen (Freitext, optional Original/Neu) inkl. „+ Neu"-Button | [master-data-filter-toolbar/](master-data-filter-toolbar/component.md) |
 | **Stammdaten-Popup** | Anlege-/Bearbeiten-Popup für einfache Stammdaten (Name + optionales Original-Flag) | [stammdaten-popup/](stammdaten-popup/component.md) |
 | **Typ-Popup** | Anlege-/Bearbeiten-Popup für Verkäufer-Typen (Name, Provision, Gebühr) | [typ-popup/](typ-popup/component.md) |
 
@@ -107,7 +109,7 @@ Einzelne Formular- und Feedback-Elemente. Sie beschreiben PrimeNG-Verhalten **pl
 
 ## PrimeNG-Komponenten-Mapping
 
-Konsolidiertes Mapping aus beiden Apps (Haupt-App § 11.1, Voranmelde-App § 13.1). App-spezifische Abweichungen sind in der Spalte „Hinweis" vermerkt.
+Konsolidiertes Mapping aus beiden Apps — die App-Specs führen dieses Mapping nicht mehr eigenständig. App-spezifische Abweichungen sind in der Spalte „Hinweis" vermerkt.
 
 ### Form & Eingaben
 
@@ -148,7 +150,7 @@ Konsolidiertes Mapping aus beiden Apps (Haupt-App § 11.1, Voranmelde-App § 13.
 
 ## Globale Layout-Abstände
 
-Gilt app-übergreifend; App-spezifische Abweichungen sind in Klammern vermerkt (Haupt-App § 11.2, Voranmelde-App § 13.2).
+Gilt app-übergreifend — die App-Specs führen diese Abstände nicht mehr eigenständig. App-spezifische Abweichungen sind in Klammern vermerkt.
 
 ### Content-Bereich
 
@@ -159,6 +161,8 @@ Gilt app-übergreifend; App-spezifische Abweichungen sind in Klammern vermerkt (
 | Content-Hintergrund | `#f0f2f5` (Haupt-App) / `#f0f4f7` (Voranmelde-App) | — |
 
 ### Page-Header-Format
+
+Gerendert von [Page-Layout](page-layout/component.md); Feature-Seiten selbst tragen keinen eigenen Titel mehr.
 
 ```css
 display: flex;
@@ -190,7 +194,7 @@ margin-bottom: 20px;
 
 ## PrimeNG MISC-Komponenten
 
-Konsolidierte Liste aller MISC-Direktiven und -Widgets aus beiden Apps (Haupt-App § 11.7, Voranmelde-App § 13.8).
+Konsolidierte Liste aller MISC-Direktiven und -Widgets aus beiden Apps — die App-Specs führen diese Liste nicht mehr eigenständig.
 
 | Komponente | Einsatz | App |
 |---|---|---|

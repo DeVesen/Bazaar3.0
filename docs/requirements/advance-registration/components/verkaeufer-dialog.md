@@ -11,12 +11,19 @@ Deckt Filter-Panel, Anlege-Dialog und Bearbeiten-Dialog in einer Datei ab — gr
 
 ```
 ┌─────────────────────────────────────────────────┐
-│ Verkäufer                            [+ Neu]    │
+│ Verkäufer                                        │
 ├─────────────────────────────────────────────────┤
-│ [🔍 Suche Name/Ort/E-Mail...]                    │  ← Filter-Panel
+│ [Typ ▾] [🔍 Suche Name/Ort/E-Mail...] [+ Neu]    │  ← Filter-Panel
 ├─────────────────────────────────────────────────┤
 │ Nr. │ Vorname │ Nachname │ ... │ Typ │ Prov. │✎│  ← Table (shared)
 └─────────────────────────────────────────────────┘
+
+< Tablet:
+┌─────────────────────────────┐
+│ [🔍 Filter]         [+ Neu] │  ← Filter-Panel (kollabiert)
+├─────────────────────────────┤
+│ Nr. │ Vorname │ ... │✎│      ← Table (shared)
+└─────────────────────────────┘
 
 Anlege-/Bearbeiten-Dialog (Modal lg, 80/90% resp. 100/100%):
 ┌─────────────────────────────────────────┐
@@ -58,7 +65,9 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 
 | Element | PrimeNG |
 |---|---|
-| Filter-Panel (Freitext) | [Input](../../../components/input/component.md), Variante Icon |
+| Filter-Panel: Typ-Filter | [Select](../../../components/select/component.md), Variante Dropdown — Liste aller Verkäufer-Typen |
+| Filter-Panel: Freitext | [Input](../../../components/input/component.md), Variante Icon |
+| Filter-Panel: „+ Neu"-Button | [Button](../../../components/button/component.md), ganz rechts in der Toolbar |
 | Table | Shared `table` |
 | Panel-Container (alle 5 Panels) | `card` Panel-Block-Variante (`background: #f5f9f6`, siehe `docs/components/card/`) |
 | Personendaten-/Kontakt-Felder | [Input](../../../components/input/component.md), Variante Text (Vorname mit Autofokus) |

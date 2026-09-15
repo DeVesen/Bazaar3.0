@@ -6,6 +6,7 @@
 
 ## Capabilities
 - Admin can search/filter all articles by brand, category, free text, seller (autocomplete) — `src/advance-registration/frontend/BAR.App/src/app/features/registration/articles/pages/ArticlesPage.ts`
+- Below the Tablet breakpoint (< 768px) the filter fields collapse into a "Filter" button that opens a bottom drawer with the same fields — no "+ Neu" button here since this view has none — `shared/filter-panel/filter-panel.ts`
 - Admin can sort all articles, server-side — `ArticlesPage.ts`
 - Admin can paginate, server-side — `ArticlesPage.ts`
 - Admin can view a single article read-only in a modal — `ArticlesPage.ts`, `components/article-readonly-modal.ts`

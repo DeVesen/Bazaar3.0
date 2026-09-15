@@ -51,12 +51,6 @@ describe('CategoriesPage', () => {
     expect(fixture.componentInstance.categories().length).toBe(2);
   });
 
-  it('renders the translated title', () => {
-    const { fixture } = create();
-
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Kategorien');
-  });
-
   it('openCreate() opens the popup in create mode', () => {
     const { fixture } = create();
 
@@ -127,13 +121,28 @@ describe('CategoriesPage', () => {
     expect(deleteSpy).toHaveBeenCalledWith('categories', 'c1');
   });
 
-  it('renders the translated title in the active language after a post-render language switch', () => {
-    const { fixture, translate } = create();
 
-    translate.setTranslation('en', { categories: { title: 'Categories' } });
-    translate.use('en');
-    fixture.detectChanges();
+  it('filters the visible categories by free-text search on the name, case-insensitively', () => {
+    const { fixture } = create();
 
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Categories');
+    fixture.componentInstance.onFilterChange({ search: 'jack' });
+
+    expect(fixture.componentInstance.filteredCategories().map((c) => c.name)).toEqual(['Jacken']);
+  });
+
+  it('filters the visible categories by original/new status', () => {
+    const { fixture } = create();
+
+    fixture.componentInstance.onFilterChange({ original: false });
+
+    expect(fixture.componentInstance.filteredCategories().map((c) => c.name)).toEqual(['Hosen']);
+  });
+
+  it('shows all categories when no filter is set', () => {
+    const { fixture } = create();
+
+    fixture.componentInstance.onFilterChange({});
+
+    expect(fixture.componentInstance.filteredCategories().length).toBe(2);
   });
 });

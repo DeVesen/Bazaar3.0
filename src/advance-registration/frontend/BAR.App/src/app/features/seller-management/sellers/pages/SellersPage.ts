@@ -1,11 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { ButtonModule } from 'primeng/button';
 import {
   AppTable,
   ColumnConfig,
@@ -14,9 +9,11 @@ import {
   SortMeta,
   TablePageEvent
 } from '@shared/table/table';
+import { FilterPanel, FilterPanelSearch } from '@shared/filter-panel/filter-panel';
 import { SellerCreateDialog } from '../components/seller-create-dialog';
 import { SellerEditDialog } from '../components/seller-edit-dialog';
 import { SellersApiService, Seller } from '../sellers-api.service';
+import { SellerTypeOptionsApiService, SellerTypeOption } from '../../seller-type-options-api.service';
 
 /**
  * Flattened view-model for the table: AppTable.formatCell only does a plain
@@ -42,15 +39,15 @@ const SORT_FIELD_MAP: Record<string, string> = {
 
 @Component({
   selector: 'app-sellers-page',
-  imports: [AppTable, FormsModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, SellerCreateDialog, SellerEditDialog, TranslatePipe],
+  imports: [AppTable, FilterPanel, SellerCreateDialog, SellerEditDialog, TranslatePipe],
+  styleUrl: './SellersPage.scss',
   template: `
-    <h1>{{ 'sellers.title' | translate }}</h1>
-
-    <p-iconfield>
-      <p-inputicon class="pi pi-search" />
-      <input pInputText [placeholder]="'sellers.searchPlaceholder' | translate" [(ngModel)]="searchTermModel" (keydown.enter)="onSearch()" />
-    </p-iconfield>
-    <p-button [label]="'sellers.searchButton' | translate" icon="pi pi-search" data-testid="search-button" (onClick)="onSearch()" />
+    <app-filter-panel
+      [sellerTypeOptions]="sellerTypeOptions()"
+      [canAdd]="true"
+      (search)="onFilterSearch($event)"
+      (create)="onRowAdd()"
+    />
 
     <app-table
       [columns]="columns"
@@ -60,10 +57,8 @@ const SORT_FIELD_MAP: Record<string, string> = {
       [rows]="pageSize()"
       [first]="(page() - 1) * pageSize()"
       [actionColumn]="actionColumn"
-      [canAdd]="true"
       [lazy]="true"
       [emptyText]="emptyText"
-      (rowAdd)="onRowAdd()"
       (actionClick)="onTableAction($event)"
       (sortChange)="onSortChange($event)"
       (pageChange)="onPageChange($event)"
@@ -80,6 +75,7 @@ const SORT_FIELD_MAP: Record<string, string> = {
 })
 export class SellersPage implements OnInit {
   private readonly sellersApi = inject(SellersApiService);
+  private readonly sellerTypeOptionsApi = inject(SellerTypeOptionsApiService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
@@ -123,15 +119,14 @@ export class SellersPage implements OnInit {
   readonly totalRecords = signal(0);
   readonly loading = signal(false);
   readonly searchTerm = signal('');
+  readonly sellerTypeId = signal<string | undefined>(undefined);
+  readonly sellerTypeOptions = signal<SellerTypeOption[]>([]);
   readonly dialogMode = signal<DialogMode>(null);
   readonly selectedSeller = signal<Seller | null>(null);
 
   readonly page = signal(1);
   readonly pageSize = signal(25);
   readonly sort = signal<string | undefined>(undefined);
-
-  get searchTermModel() { return this.searchTerm(); }
-  set searchTermModel(v: string) { this.searchTerm.set(v); }
 
   get createDialogVisibleModel() { return this.dialogMode() === 'create'; }
   set createDialogVisibleModel(v: boolean) { if (!v) this.dialogMode.set(null); }
@@ -140,10 +135,13 @@ export class SellersPage implements OnInit {
   set editDialogVisibleModel(v: boolean) { if (!v) this.dialogMode.set(null); }
 
   ngOnInit(): void {
+    this.sellerTypeOptionsApi.getAll().subscribe((options) => this.sellerTypeOptions.set(options));
     this.load();
   }
 
-  onSearch(): void {
+  onFilterSearch(event: FilterPanelSearch): void {
+    this.searchTerm.set(event.search ?? '');
+    this.sellerTypeId.set(event.sellerTypeId);
     this.page.set(1);
     this.load();
   }
@@ -212,7 +210,13 @@ export class SellersPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.sellersApi
-      .list({ search: this.searchTerm().trim() || undefined, page: this.page(), pageSize: this.pageSize(), sort: this.sort() })
+      .list({
+        sellerTypeId: this.sellerTypeId(),
+        search: this.searchTerm().trim() || undefined,
+        page: this.page(),
+        pageSize: this.pageSize(),
+        sort: this.sort()
+      })
       .subscribe({
         next: (result) => {
           this.loading.set(false);

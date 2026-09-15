@@ -54,3 +54,8 @@
 - **Maps to:** `src/advance-registration/frontend/BAR.App/src/app/features/seller-management/register/` — Self-Service-Registrierung eines neuen Verkäufers (Teil von Epic_Login, Sektion 6), Code-Ordner heißt `register`
 - **Confidence:** inferred
 - **First seen:** 2026-09-15
+
+### Seitentitel
+- **Maps to:** `src/advance-registration/frontend/BAR.App/src/app/core/shell/page-layout/` — zentrale Titel-Leiste über jeder eingeloggten Route (`<h1 class="page-title">`, aus `route.data['title']`); ersetzt die früher pro Feature-Seite gepflegte eigene `<h1>`. In den Epics durchgängig als „(Seitentitel)" referenziert, wenn ein Button/Element dort statt in der Feature-Toolbar sitzt.
+- **Confidence:** confirmed
+- **First seen:** 2026-09-15

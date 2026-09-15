@@ -51,12 +51,6 @@ describe('BrandsPage', () => {
     expect(fixture.componentInstance.brands().length).toBe(2);
   });
 
-  it('renders the translated title', () => {
-    const { fixture } = create();
-
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Marken');
-  });
-
   it('openCreate() opens the popup in create mode', () => {
     const { fixture } = create();
 
@@ -127,13 +121,27 @@ describe('BrandsPage', () => {
     expect(deleteSpy).toHaveBeenCalledWith('brands', 'b2');
   });
 
-  it('renders the translated title in the active language after a post-render language switch', () => {
-    const { fixture, translate } = create();
+  it('filters the visible brands by free-text search on the name, case-insensitively', () => {
+    const { fixture } = create();
 
-    translate.setTranslation('en', { brands: { title: 'Brands' } });
-    translate.use('en');
-    fixture.detectChanges();
+    fixture.componentInstance.onFilterChange({ search: 'nik' });
 
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Brands');
+    expect(fixture.componentInstance.filteredBrands().map((b) => b.name)).toEqual(['Nike']);
+  });
+
+  it('filters the visible brands by original/new status', () => {
+    const { fixture } = create();
+
+    fixture.componentInstance.onFilterChange({ original: false });
+
+    expect(fixture.componentInstance.filteredBrands().map((b) => b.name)).toEqual(['Adidas']);
+  });
+
+  it('shows all brands when no filter is set', () => {
+    const { fixture } = create();
+
+    fixture.componentInstance.onFilterChange({});
+
+    expect(fixture.componentInstance.filteredBrands().length).toBe(2);
   });
 });

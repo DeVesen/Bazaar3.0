@@ -114,6 +114,16 @@ Passwortstärke) laufen über FluentValidation im `ValidationFilter<TRequest>` �
 Benutzung) gehören in Domäne bzw. Handler und werden als Domain-Exception geworfen →
 `409`. Kein Handler prüft Feldformate, kein Validator kennt die Datenbank.
 
+**Dritter Fall — domaininterne Guard-Clauses ohne DB-Zugriff** (z. B.
+Termin-Reihenfolge oder Textlängen-Grenzen, die mehrere Felder gemeinsam
+betreffen und deshalb keine reine FluentValidation-Formatregel sind, siehe
+[`settings.md`](settings.md)): Die Domäne wirft dafür eine einfache
+`ArgumentException`, **nicht** Teil der `DomainException`-Hierarchie. Der
+globale `IExceptionHandler` (`DomainExceptionHandler` in `BAR.Host`) mappt
+auch diesen Fall → `400`, mit `detail` = Exception-Message, aber **ohne**
+`errorCode` (die Domäne kennt hier keinen). Ohne diesen Zweig läuft die
+Exception unbehandelt bis zum generischen 500-Handler durch.
+
 **Fachliche Konfliktmeldungen** transportieren ihren Klartext in `detail` — der
 Text ist der, den das jeweilige Akzeptanzkriterium vorschreibt.
 
@@ -233,8 +243,9 @@ Datenmenge zweistellig): `GET /api/brands`, `GET /api/categories`,
 ### Suchverhalten
 
 Gilt für **jeden** `search`-Parameter der App — `GET /api/sellers`,
-`GET /api/articles`, `GET /api/articles/mine`. Welche Felder je Endpoint durchsucht
-werden, steht in der jeweiligen Datei; **wie** verglichen wird, steht nur hier.
+`GET /api/articles`, `GET /api/articles/mine`, `GET /api/brands` (nur Marken-Tabelle,
+siehe Ausnahme unten). Welche Felder je Endpoint durchsucht werden, steht in der
+jeweiligen Datei; **wie** verglichen wird, steht nur hier.
 
 | Regel | Festlegung |
 |---|---|
@@ -244,7 +255,7 @@ werden, steht in der jeweiligen Datei; **wie** verglichen wird, steht nur hier.
 | Mehrere Wörter | Eingabe an Leerzeichen zerlegt; **jedes** Token muss in **irgendeinem** der Suchfelder vorkommen |
 | Mindestlänge | **keine** — leer zeigt alles, ein Zeichen filtert |
 | Trimmen | ja; nur Leerzeichen gilt als leer |
-| Auslösung | **explizites Absenden** — Enter oder „Suchen"-Button, kein Debounce |
+| Auslösung | **explizites Absenden** — Enter oder „Suchen"-Button, kein Debounce. Ausnahme: `GET /api/brands` (Marken-Tabelle), siehe unten |
 
 **Case-insensitiv ist zwingend:** PostgreSQL vergleicht mit `LIKE` case-sensitiv,
 und auf dem Handy tippt niemand Großbuchstaben.
@@ -263,15 +274,35 @@ wird: Die Suche feuert erst beim Absenden (siehe
 [Epic_Meine_Artikel](../epics/Epic_Meine_Artikel/epic.md) Abschnitt 1). Das ist die
 richtige Wahl für eine Cloud-App mit mehreren Filterfeldern — sonst löst jeder
 Tastendruck einen Request über eine Internetverbindung aus, und drei Filter zusammen
-zu setzen erzeugte drei Zwischenabfragen.
+zu setzen erzeugte drei Zwischenabfragen. Die Marken-Tabelle (Ausnahme unten) hat nur
+zwei Filterfelder und keine Formularsituation — dort überwiegt die sofort mitlaufende
+Liste die zusätzlichen Requests.
 
-**Nicht paginierte Tabellen filtern clientseitig** — Marken, Kategorien,
-Verkäufer-Typen und `GET /api/blocks/mine` liegen vollständig im Frontend, gefiltert
-wird über das Filter-Menü der [Table](../../../components/table/component.md)-Komponente
-ohne Request. Es gelten dieselben Vergleichsregeln, nur lokal. Dasselbe gilt für die
+**Nicht paginierte Tabellen filtern clientseitig** — Kategorien, Verkäufer-Typen und
+`GET /api/blocks/mine` liegen vollständig im Frontend, gefiltert wird über das
+Filter-Menü der [Table](../../../components/table/component.md)-Komponente ohne
+Request. Es gelten dieselben Vergleichsregeln, nur lokal. Dasselbe gilt für die
 [AutoComplete-Create](../../../components/autocomplete-create/component.md)-Felder für
 Marke und Kategorie im Artikel-Dialog; ihre **Duplikatprüfung beim Anlegen bleibt
 serverseitig** (`master_data.name_taken`), weil der lokale Stand veraltet sein kann.
+
+**Ausnahme Marken-Tabelle** ([Epic_Marken](../epics/Epic_Marken/epic.md), Filter-Panel
+Abschnitt 1): Anders als Kategorien und Verkäufer-Typen filtert die Marken-Tabelle über
+ein [Filter-Panel](../../../components/filter-panel/component.md) mit Server-Request,
+live und debounced — kein Absenden-Button, kein Table-eigenes Spalten-Filter-Menü.
+Bewusste Ausnahme von der obigen Regel, keine Vereinheitlichung mit Kategorien geplant.
+Regeln:
+
+| Regel | Festlegung |
+|---|---|
+| Quelle | `GET /api/brands?status=…&search=…` — dieselbe Vergleichssemantik wie oben, weiterhin **nicht paginiert** (Datenmenge bleibt zweistellig) |
+| Debounce Freitext | **400 ms** |
+| Status-Filter (Original/Neu) | löst **sofort** aus, kein Debounce |
+| Mindestlänge | keine |
+
+Ohne `status`/`search`-Parameter liefert der Endpoint weiterhin die vollständige Liste
+— unverändert für die übrigen Konsumenten (AutoComplete im Artikel-Dialog, Marke-Filter
+in anderen Filter-Panel-Verwendungsstellen).
 
 **Ausnahme Verkäufer-AutoComplete** (Filter-Panel in
 [Epic_Alle_Artikel](../epics/Epic_Alle_Artikel/epic.md)): Sie tippt als einziges Feld

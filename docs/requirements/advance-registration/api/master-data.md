@@ -76,6 +76,24 @@ Dropdown-Quelle und ist zweistellig
 [ { "id": "m4k2p8q1", "name": "Jako-O", "original": true, "articleCount": 37 } ]
 ```
 
+### Optionale Filter — nur `/api/brands` (Marken-Tabelle)
+
+**Ausnahme innerhalb dieser gemeinsamen Datei:** `/api/categories` bleibt reine
+Vollliste ohne Query-Parameter (Kategorien-Tabelle filtert clientseitig, siehe
+[`cross-cutting.md`](cross-cutting.md) Abschnitt 4). Nur `/api/brands` akzeptiert
+zusätzlich:
+
+| Query-Parameter | Bedeutung |
+|---|---|
+| `status` | `original` \| `new` — filtert auf das `original`-Flag |
+| `search` | Freitext auf `name`, Vergleichsregeln → [`cross-cutting.md`](cross-cutting.md) Abschnitt 4 |
+
+Beide optional und kombinierbar; ohne Parameter identisch zur unveränderten
+Vollliste (AutoComplete im Artikel-Dialog, Marke-Filter in anderen
+Filter-Panel-Verwendungsstellen). Auslösung, Debounce und UI →
+[Epic_Marken](../epics/Epic_Marken/epic.md) Abschnitt 1,
+[`filter-panel`](../../../components/filter-panel/component.md).
+
 ### `articleCount` und die Denormalisierung
 
 `brand`/`category` sind im Artikel **denormalisierte Strings, keine FKs**

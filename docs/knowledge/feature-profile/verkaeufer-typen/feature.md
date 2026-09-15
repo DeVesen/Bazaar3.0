@@ -13,7 +13,7 @@
 - Admin sees "in use" delete-conflict including the affected seller count in the message — `SellerTypesPage.ts`
 
 ## Spans
-- **Frontend:** `master-data/seller-types/pages/SellerTypesPage.ts`, `master-data/seller-types/components/seller-type-popup.ts`, `master-data/seller-types/seller-type-api.service.ts`
+- **Frontend:** `master-data/seller-types/pages/SellerTypesPage.ts`, `master-data/seller-types/components/seller-type-popup.ts`, `master-data/seller-types/seller-type-api.service.ts`, shared `@shared/master-data-filter-toolbar`
 - **Backend:** `BAR.Modules.MasterData.Contracts.IMasterDataModuleApi` (`*SellerTypeAsync`, `GetSellerTypeConditionsAsync`) — Konditionen fließen in Home, SellerManagement, Export
 
 ## Notes

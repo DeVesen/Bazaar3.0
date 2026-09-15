@@ -55,6 +55,24 @@ Services:
 
 Stand der Prüfung: PostgreSQL 18 ist die aktuelle stabile Major (Docker Hub, 2026-08-18; 19 existiert nur als `19beta3`).
 
+## Lokale Entwicklung ohne Docker Compose
+
+Im Devcontainer läuft der Backend-Prozess teils direkt per `dotnet run` (Profil `http`,
+`http://localhost:5001`) gegen eine bereits laufende Devcontainer-PostgreSQL statt gegen den
+`db`-Service dieser Story. Diese Verbindung weicht bewusst von den Festlegungen oben ab:
+
+| Festlegung | Docker-Compose (`db`-Service) | Devcontainer-Verbindung (`appsettings.Development.json`) |
+|---|---|---|
+| Port | `5432` | `5433` |
+| Datenbank | `bazaar` | `bar` |
+| Benutzer | `bazaar` | `bar` |
+
+Grund: Der Devcontainer bringt eine eigene, bereits belegte PostgreSQL-Instanz mit
+(Port `5433`, um Kollisionen mit einer host-seitigen PostgreSQL auf `5432` zu vermeiden) und
+nutzt deren vorhandene Datenbank/Nutzer `bar` statt eine zweite per `docker compose up`
+hochzufahren. Beide Wege sind gültig — welcher lokal verwendet wird, ist Entwickler-Wahl,
+solange der jeweils andere Connection-String nicht versehentlich eincheckt wird.
+
 ## Akzeptanzkriterien
 
 - [ ] **AC-1** — THE SYSTEM SHALL eine `compose.yaml` unter `src/advance-registration/` bereitstellen, die die Services `frontend`, `api` und `db` definiert; `db` SHALL das Image `postgres:18-alpine` verwenden.

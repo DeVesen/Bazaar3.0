@@ -1,0 +1,19 @@
+.master-data-filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.master-data-filter-toolbar-fields {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.master-data-filter-toolbar-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

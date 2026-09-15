@@ -58,7 +58,7 @@ Offcanvas offen (Mobile/Tablet):
 └──────────────┴──────────────────────────────┘
 ```
 
-Die Titelleiste (Content-Header) trägt den Hintergrund `--color-surface` (`#e9e9ea`) — bislang ohne festgelegten Wert.
+Die Titelleiste (Content-Header) trägt den Hintergrund `--color-surface` (`#e9e9ea`).
 
 ## Akzeptanzkriterien
 

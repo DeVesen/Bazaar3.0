@@ -12,8 +12,9 @@ updated: 2026-08-17
 - 1. Tabelle — Markenliste
 - 2. Aktionen — CRUD
 - 3. `original`-Flag — Herkunftskennzeichen
-- 4. Export / Import — Datenschnittstelle
-- 5. Backend & API — Endpoints
+- 4. Filter-Panel — Freitext + Original/Neu
+- 5. Export / Import — Datenschnittstelle
+- 6. Backend & API — Endpoints
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
@@ -48,7 +49,7 @@ Verwaltung der Marken-Stammdaten. Exportierbar und importierbar für Synchronisi
 
 ## 2. Aktionen
 
-**„+ Neu"-Button** (Seitentitel) → öffnet Popup mit:
+**„+ Neu"-Button** (Master-Data-Filter-Toolbar, ganz rechts) → öffnet Popup mit:
 - „Name"
 
 Admin-erstellte Marke ist per Definition kuratiert → `original` wird automatisch auf `true` gesetzt, kein Toggle im Create-Popup.
@@ -69,13 +70,23 @@ Zweck: Erkennen, welche Marken während der Voranmeldephase von Verkäufern hinz
 
 ---
 
-## 4. Export / Import
+## 4. Filter
+
+→ Komponente: [Master-Data-Filter-Toolbar](../../../../components/master-data-filter-toolbar/component.md)
+
+Freitext-Filter auf Name (live, 300 ms Debounce) + Original/Neu-Select — beide clientseitig auf
+der bereits geladenen Liste (`[lazy]="false"`). „+ Neu"-Button sitzt in der Toolbar, nicht in der
+Tabelle.
+
+---
+
+## 5. Export / Import
 
 Marken können in der Export-Seite in den JSON-Export eingeschlossen und in die Haupt-App importiert werden. Der Weg ist **einseitig** — die Haupt-App exportiert nicht zurück.
 
 ---
 
-## 5. Backend & API
+## 6. Backend & API
 
 API-Details → [`api/master-data.md`](../../api/master-data.md) (gemeinsam mit Kategorien — endpoint-seitig identisch)
 
@@ -96,6 +107,8 @@ API-Details → [`api/master-data.md`](../../api/master-data.md) (gemeinsam mit 
 2. **AC-2** — WHEN eine neue Marke gespeichert wird, THEN SHALL das System sie in der Datenbank anlegen und in der Tabelle anzeigen.
 3. **AC-3** — IF eine Marke gelöscht werden soll, die noch Artikeln zugewiesen ist, THEN SHALL das System eine Fehlermeldung „Marke wird noch verwendet" anzeigen und nicht löschen.
 4. **AC-4** — WHEN Admin im Edit-Popup das „Original"-Flag umschaltet und speichert, THEN SHALL das System den neuen Wert übernehmen und das Badge in der Tabelle entsprechend aktualisieren.
+5. **AC-5** — WHEN der Nutzer im Freitext-Filter tippt, THEN SHALL das System die Tabelle 300 ms nach der letzten Eingabe auf Marken filtern, deren Name die Eingabe (case-insensitiv) enthält.
+6. **AC-6** — WHEN der Nutzer im Original/Neu-Filter eine Option wählt, THEN SHALL das System die Tabelle sofort auf Marken mit passendem `original`-Wert filtern.
 
 ## Tags & Piles
 

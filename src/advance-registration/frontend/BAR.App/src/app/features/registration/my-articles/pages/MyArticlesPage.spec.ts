@@ -191,12 +191,11 @@ describe('MyArticlesPage', () => {
     expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error' }));
   });
 
-  it('renders the translated title and empty-state text with the bolded create-button fragment', () => {
+  it('renders the empty-state text with the bolded create-button fragment', () => {
     const { fixture } = create();
 
     const html = (fixture.nativeElement as HTMLElement).innerHTML;
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Meine Artikel');
     expect(text).toContain('Noch keine Artikel angemeldet. Mit + Neu den ersten anlegen.');
     expect(html).toContain('<strong>+ Neu</strong>');
   });
@@ -208,7 +207,6 @@ describe('MyArticlesPage', () => {
 
     const html = (fixture.nativeElement as HTMLElement).innerHTML;
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('My articles');
     expect(text).toContain('No articles registered yet. Use + New to create the first one.');
     expect(html).toContain('<strong>+ New</strong>');
   });
@@ -216,12 +214,12 @@ describe('MyArticlesPage', () => {
   it('translated text re-evaluates when the active language changes after render', () => {
     const { fixture, translate } = create();
 
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Meine Artikel');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Noch keine Artikel angemeldet');
 
     translate.use('en');
     fixture.detectChanges();
 
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('My articles');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('No articles registered yet');
   });
 
   it('columns getter returns translated column headers', () => {

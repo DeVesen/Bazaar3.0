@@ -27,8 +27,10 @@ HTTP-API der Voranmelde-App — Endpoints siehe `Features/*Endpoints.cs`. OpenAP
 - `BAR.SharedKernel`
 
 ## Structure
-`Program.cs` als Composition Root, `Features/<Bereich>/<Bereich>Endpoints.cs` als Minimal-API-Mapping, `Auth/`, `ExceptionHandling/` (`DomainExceptionHandler`), `Filters/`, `Security/`, `Validation/` (`ValidationFilter`) für Cross-Cutting.
+`Program.cs` als Composition Root, `Features/<Bereich>/<Bereich>Endpoints.cs` als Minimal-API-Mapping, `Auth/`, `DomainExceptionHandler.cs` (direkt im Root, kein eigener Unterordner), `Filters/`, `Security/`, `Validation/` (`ValidationFilter`) für Cross-Cutting.
 
 ## Notes
 - Jedes Modul migriert nur sein eigenes Schema — Reihenfolge der vier Migrationsaufrufe in `Program.cs` ist deshalb irrelevant (Kommentar im Code).
 - `DomainExceptionHandler` liegt in `bar-host`, ist also aktuell nicht Bestandteil dieses Profils als eigenes Modul — Teil der Host-Struktur.
+- `DomainExceptionHandler` mappt seit 2026-09-15 zusätzlich nackte `ArgumentException` (nicht Teil der `DomainException`-Hierarchie) auf `400 Bad Request`. Grund: Domain-Guard-Clauses wie `Settings.Validate` (Termin-Reihenfolge, `infoText`-Länge) werfen bewusst `ArgumentException` statt eines `DomainException`-Subtyps — ohne diesen Zweig liefen sie unbehandelt durch bis zum generischen 500-Handler.
+- Lokaler Dev-Start: `launchSettings.json` Profil `http` → `http://localhost:5001`. Postgres lokal auf Port `5433` (Devcontainer), Connection String in `appsettings.Development.json` (`Host=localhost;Port=5433;Database=bar;Username=bar;Password=dev`).

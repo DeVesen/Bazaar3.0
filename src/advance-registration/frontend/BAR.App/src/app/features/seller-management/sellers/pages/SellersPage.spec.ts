@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { SellersPage } from './SellersPage';
 import { SellersApiService, Seller } from '../sellers-api.service';
+import { SellerTypeOptionsApiService } from '../../seller-type-options-api.service';
 
 const SELLER: Seller = {
   id: 's1',
@@ -55,30 +56,31 @@ function create() {
   translate.use('de');
   const api = TestBed.inject(SellersApiService);
   vi.spyOn(api, 'list').mockReturnValue(of({ items: [SELLER], totalCount: 1, page: 1, pageSize: 25 }));
+  const sellerTypeOptionsApi = TestBed.inject(SellerTypeOptionsApiService);
+  vi.spyOn(sellerTypeOptionsApi, 'getAll').mockReturnValue(of([SELLER.sellerType]));
   const fixture = TestBed.createComponent(SellersPage);
   fixture.detectChanges();
-  return { fixture, api };
+  return { fixture, api, sellerTypeOptionsApi };
 }
 
 describe('SellersPage', () => {
   it('loads sellers on init and exposes a flattened view-model to the table', () => {
     const { fixture, api } = create();
 
-    expect(api.list).toHaveBeenCalledWith({ search: undefined, page: 1, pageSize: 25, sort: undefined });
+    expect(api.list).toHaveBeenCalledWith({ sellerTypeId: undefined, search: undefined, page: 1, pageSize: 25, sort: undefined });
     expect(fixture.componentInstance.totalRecords()).toBe(1);
     expect(fixture.componentInstance.rows()).toEqual([
       { ...SELLER, sellerTypeName: 'Standard', commissionRate: 15, itemFee: 0.5 }
     ]);
   });
 
-  it('onSearch() reloads with the trimmed search term and resets to page 1', () => {
+  it('onFilterSearch() reloads with the trimmed search term, the seller-type filter and resets to page 1', () => {
     const { fixture, api } = create();
     vi.mocked(api.list).mockClear();
 
-    fixture.componentInstance.searchTerm.set('  anna  ');
-    fixture.componentInstance.onSearch();
+    fixture.componentInstance.onFilterSearch({ search: '  anna  ', sellerTypeId: 't1' });
 
-    expect(api.list).toHaveBeenCalledWith(expect.objectContaining({ search: 'anna', page: 1 }));
+    expect(api.list).toHaveBeenCalledWith(expect.objectContaining({ search: 'anna', sellerTypeId: 't1', page: 1 }));
   });
 
   it('onRowAdd() opens the dialog in create mode with no selected seller', () => {
@@ -196,7 +198,7 @@ describe('SellersPage', () => {
     expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', summary: 'Verkäufer konnten nicht geladen werden' }));
   });
 
-  it('exposes the translated title, column headers, and empty-state text', () => {
+  it('exposes the translated column headers and empty-state text', () => {
     const { fixture } = create();
 
     expect(fixture.componentInstance.columns.map((c) => c.header)).toEqual([
@@ -205,15 +207,13 @@ describe('SellersPage', () => {
     expect(fixture.componentInstance.emptyText).toBe('Noch keine Verkäufer registriert.');
   });
 
-  it('renders the English title and empty-state text when the English translation is active', () => {
+  it('exposes the translated empty-state text when the English translation is active', () => {
     const { fixture } = create();
     const translate = TestBed.inject(TranslateService);
-    translate.setTranslation('en', { sellers: { title: 'Sellers', emptyText: 'No sellers registered yet.' } });
+    translate.setTranslation('en', { sellers: { emptyText: 'No sellers registered yet.' } });
     translate.use('en');
     fixture.detectChanges();
 
-    const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Sellers');
     expect(fixture.componentInstance.emptyText).toBe('No sellers registered yet.');
   });
 

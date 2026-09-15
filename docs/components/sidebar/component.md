@@ -64,6 +64,7 @@ p-sidebar-layout
             [collapsible]="isMobile() ? 'offcanvas' : 'icon'"
             [overlay]="isMobile()"
             [(open)]="open"
+    p-sidebar-spacer                       (siehe Warnung unten — direktes Kind von p-sidebar!)
     p-sidebar-aside
       p-sidebar-panel
         p-sidebar-header
@@ -94,6 +95,12 @@ Die Liste der `p-sidebar-group`-Blöcke wird clientseitig nach aktiver Rolle gef
 | Verkäufer (auch Admin im Verkäufer-Modus) | Mein Bereich, Konto |
 
 „Mein Bereich" ist für Admin immer sichtbar (siehe VSHELL-S01 Kontext — Admin ist strukturell auch Verkäufer).
+
+## ⚠️ `p-sidebar-spacer` muss direktes Kind von `p-sidebar` sein
+
+PrimeNG reserviert die Sidebar-Breite im Layout über den Selektor `.p-sidebar:not([data-overlay]) > .p-sidebar-spacer` (Child-Combinator, kein Nachfahren-Selektor). Landet `p-sidebar-spacer` — z. B. durch eine eigene Wrapper-Komponente wie `app-sidebar` — eine DOM-Ebene tiefer, greift die Regel nicht: die Breite kollabiert auf 0, und die absolut positionierte `p-sidebar-aside` überlappt ab Desktop-Breite (> 1024 px) den Content, ohne dass Backdrop/Mobile-Overlay-Regeln greifen (Bug beobachtet und gefixt 2026-09-11).
+
+**Deshalb:** `p-sidebar-spacer` gehört direkt unter `p-sidebar` im Template (aktuell in `shell.html`), **nicht** in die eigene `app-sidebar`-Komponente hinein — die liefert nur noch den Inhalt von `p-sidebar-aside`. Nachfahren-Selektoren (z. B. für `p-sidebar-aside` selbst) sind von dieser Einschränkung nicht betroffen.
 
 ## Bewusst nicht verwendet
 

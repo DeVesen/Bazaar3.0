@@ -7,6 +7,7 @@
 ## Capabilities
 - Seller can list own articles, server-side paginated — `src/advance-registration/frontend/BAR.App/src/app/features/registration/my-articles/pages/MyArticlesPage.ts`
 - Seller can filter own articles by brand, category, free text — `MyArticlesPage.ts`
+- Below the Tablet breakpoint (< 768px) the filter fields collapse into a "Filter" button that opens a bottom drawer with the same fields — `shared/filter-panel/filter-panel.ts`
 - Seller can sort own articles — `MyArticlesPage.ts`
 - Seller can create an article, system suggests the next free article number — `MyArticlesPage.ts` (`getNextNumber`)
 - Seller can edit an own article — `MyArticlesPage.ts`

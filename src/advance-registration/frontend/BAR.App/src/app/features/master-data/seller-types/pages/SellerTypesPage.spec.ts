@@ -15,6 +15,7 @@ function create() {
   const translate = TestBed.inject(TranslateService);
   translate.setTranslation('de', {
     common: { cancel: 'Abbrechen', save: 'Speichern', create: 'Anlegen', delete: 'Löschen', edit: 'Bearbeiten' },
+    masterDataFilterToolbar: { searchPlaceholder: 'Suche...', filterButton: 'Filter' },
     sellerTypes: {
       title: 'Verkäufer-Typen',
       columnName: 'Bezeichnung',
@@ -98,5 +99,40 @@ describe('SellerTypesPage', () => {
     confirmation.accept!();
 
     expect(deleteSpy).toHaveBeenCalledWith('t1');
+  });
+
+  it('onFilterChange filters the table data by name, case-insensitively', () => {
+    const { fixture, api } = create();
+    vi.mocked(api.getAll).mockReturnValue(
+      of([
+        { id: 't1', name: 'Standard', commissionRate: 12.5, itemFee: 0.5, sellerCount: 3 },
+        { id: 't2', name: 'Premium', commissionRate: 8, itemFee: 1, sellerCount: 1 }
+      ])
+    );
+    fixture.componentInstance.load();
+
+    fixture.componentInstance.onFilterChange({ search: 'prem' });
+
+    expect(fixture.componentInstance.filteredSellerTypes().map((t) => t.id)).toEqual(['t2']);
+    expect(fixture.componentInstance.hasActiveFilter()).toBe(true);
+  });
+
+  it('onFilterChange with an empty search shows all loaded seller types again', () => {
+    const { fixture } = create();
+
+    fixture.componentInstance.onFilterChange({ search: 'sta' });
+    fixture.componentInstance.onFilterChange({});
+
+    expect(fixture.componentInstance.filteredSellerTypes().length).toBe(1);
+    expect(fixture.componentInstance.hasActiveFilter()).toBe(false);
+  });
+
+  it('openCreate is wired to the toolbar\'s create output', () => {
+    const { fixture } = create();
+
+    fixture.componentInstance.openCreate();
+
+    expect(fixture.componentInstance.popupVisible()).toBe(true);
+    expect(fixture.componentInstance.popupItem()).toBeNull();
   });
 });

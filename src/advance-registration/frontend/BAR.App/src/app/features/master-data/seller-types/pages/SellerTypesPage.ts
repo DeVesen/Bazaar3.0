@@ -1,24 +1,25 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AppTable, ColumnConfig, ActionColumnConfig, ActionClickEvent } from '@shared/table/table';
+import { MasterDataFilterToolbar, MasterDataFilter } from '@shared/master-data-filter-toolbar/master-data-filter-toolbar';
 import { SellerTypePopup } from '../components/seller-type-popup';
 import { SellerTypeApiService, SellerType, SellerTypePayload } from '../seller-type-api.service';
 
 @Component({
   selector: 'app-seller-types-page',
-  imports: [AppTable, SellerTypePopup, TranslatePipe],
+  imports: [AppTable, MasterDataFilterToolbar, SellerTypePopup],
   template: `
+    <app-master-data-filter-toolbar [canAdd]="true" (filterChange)="onFilterChange($event)" (create)="openCreate()" />
+
     <app-table
-      [title]="'sellerTypes.title' | translate"
       [columns]="columns"
-      [data]="sellerTypes()"
+      [data]="filteredSellerTypes()"
       [loading]="loading()"
       [actionColumn]="actionColumn"
-      [canAdd]="true"
       [lazy]="false"
+      [hasActiveFilter]="hasActiveFilter()"
       [emptyText]="emptyText"
-      (rowAdd)="openCreate()"
       (actionClick)="onTableAction($event)"
     />
 
@@ -63,6 +64,13 @@ export class SellerTypesPage implements OnInit {
   readonly popupVisible = signal(false);
   readonly popupItem = signal<SellerType | null>(null);
 
+  readonly searchText = signal('');
+  readonly hasActiveFilter = computed(() => !!this.searchText());
+  readonly filteredSellerTypes = computed(() => {
+    const search = this.searchText().toLowerCase();
+    return search ? this.sellerTypes().filter((t) => t.name.toLowerCase().includes(search)) : this.sellerTypes();
+  });
+
   readonly saveFn = (payload: SellerTypePayload, id: string | undefined) =>
     id ? this.sellerTypeApi.update(id, payload) : this.sellerTypeApi.create(payload);
 
@@ -85,6 +93,10 @@ export class SellerTypesPage implements OnInit {
         this.messageService.add({ severity: 'error', summary: this.translate.instant('sellerTypes.loadError') });
       }
     });
+  }
+
+  onFilterChange(filter: MasterDataFilter): void {
+    this.searchText.set(filter.search ?? '');
   }
 
   openCreate(): void {

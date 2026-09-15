@@ -33,27 +33,31 @@ Route-Tabelle:
 /register            → öffentlich, RegisterPage
 /set-password        → öffentlich, SetPasswordPage (Ziel des Invite-Links, Query-Parameter `token`)
 /embed/countdown     → öffentlich, kein AppShell (kein Sidebar/Topbar), CountdownEmbedPage
-/home                → authGuard, HomePage (Verkäufer-/Admin-Ansicht)
-/my-articles         → authGuard, MyArticlesPage
-/profile             → authGuard, ProfilePage
-/number-blocks       → authGuard, NumberBlocksPage
-/sellers             → authGuard + adminGuard, SellersPage
-/articles             → authGuard + adminGuard, ArticlesPage
-/brands              → authGuard + adminGuard, BrandsPage
-/categories          → authGuard + adminGuard, CategoriesPage
-/seller-types        → authGuard + adminGuard, SellerTypesPage
-/settings            → authGuard + adminGuard, SettingsPage
-/export              → authGuard + adminGuard, ExportPage
-**                   → NotFoundPage
+/home                → authGuard, HomePage (Verkäufer-/Admin-Ansicht) — OHNE PageLayout, direkt unter Shell
+/my-articles         → authGuard, PageLayout(data.title) → MyArticlesPage
+/profile             → authGuard, PageLayout(data.title) → ProfilePage
+/number-blocks       → authGuard, PageLayout(data.title) → NumberBlocksPage
+/sellers             → authGuard + adminGuard, PageLayout(data.title) → SellersPage
+/articles             → authGuard + adminGuard, PageLayout(data.title) → ArticlesPage
+/brands              → authGuard + adminGuard, PageLayout(data.title) → BrandsPage
+/categories          → authGuard + adminGuard, PageLayout(data.title) → CategoriesPage
+/seller-types        → authGuard + adminGuard, PageLayout(data.title) → SellerTypesPage
+/settings            → authGuard + adminGuard, PageLayout(data.title) → SettingsPage
+/export              → authGuard + adminGuard, PageLayout(data.title) → ExportPage
+**                   → NotFoundPage — OHNE PageLayout, direkt unter Shell
 
 Guard-Verhalten:
 authGuard:  kein Token → redirect /login?returnUrl=…
 adminGuard: Token vorhanden, aber nicht Admin → redirect /home
+
+PageLayout-Zwischenebene (Details → Epic_App_Shell/VSHELL-S06):
+{ path: '<pfad>', component: PageLayout, data: { title: '<Titel>' }, canActivate: [...],
+  children: [{ path: '', loadChildren: () => import('./features/<feature>/<feature>.routes') }] }
 ```
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL alle Feature-Routen als Lazy-Loaded-Routes in `app.routes.ts` definieren, jeweils per `loadChildren` auf die feature-eigene Routen-Datei `features/<feature>/<feature>.routes.ts` — `app.routes.ts` kennt keine Seiten-Komponente direkt.
+- [ ] **AC-1** — THE SYSTEM SHALL alle Feature-Routen als Lazy-Loaded-Routes in `app.routes.ts` definieren, jeweils per `loadChildren` auf die feature-eigene Routen-Datei `features/<feature>/<feature>.routes.ts` — `app.routes.ts` kennt keine Seiten-Komponente direkt. Jede Route außer `/home` und der Wildcard hängt zusätzlich über `component: PageLayout` (VSHELL-S06), das selbst keine Seiten-Komponente ist, sondern die Titel-Leiste um die lazy-geladene Feature-Route legt.
 - [ ] **AC-1b** — THE SYSTEM SHALL Routen-Pfade und Komponenten-Klassennamen englisch benennen (Tabelle oben); die Menü-Labels der Sidebar kommen aus ngx-translate, nicht aus dem Pfad.
 - [ ] **AC-2** — WHEN ein nicht eingeloggter Nutzer eine geschützte Route aufruft, THEN SHALL `authGuard` zur Route `/login` weiterleiten und die ursprüngliche URL als `returnUrl`-Query-Parameter mitgeben.
 - [ ] **AC-3** — WHEN ein eingeloggter Verkäufer eine Admin-Only-Route aufruft, THEN SHALL `adminGuard` zur Route `/home` weiterleiten.

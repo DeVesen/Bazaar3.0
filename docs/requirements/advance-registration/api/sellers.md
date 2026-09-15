@@ -21,7 +21,7 @@ Component → [`verkaeufer-dialog.md`](../components/verkaeufer-dialog.md)
 
 | Endpoint | Auth | Zweck |
 |---|---|---|
-| `GET /api/sellers` | `admin` | Liste aller Verkäufer, paginiert + Freitext |
+| `GET /api/sellers` | `admin` | Liste aller Verkäufer, paginiert + Typ-Filter + Freitext |
 | `POST /api/sellers` | `admin` | Verkäufer anlegen (ohne Passwort) + Initialblöcke |
 | `PUT /api/sellers/{id}` | `admin` | Stammdaten, Typ und Admin-Recht ändern |
 | `DELETE /api/sellers/{id}` | `admin` | Verkäufer samt Artikeln und Blöcken löschen |
@@ -79,6 +79,7 @@ liegen in einer eigenen Tabelle und erscheinen in keinem Verkäufer-DTO.
 
 | Parameter | Bedeutung |
 |---|---|
+| `sellerTypeId` | Filtert auf einen Verkäufer-Typ (Select im Filter-Panel); leer = alle Typen |
 | `search` | Freitext über Vorname, Nachname, Ort, E-Mail; Vergleichsregeln → [`cross-cutting.md`](cross-cutting.md) Abschnitt 4 |
 | `page`, `pageSize`, `sort` | [`cross-cutting.md`](cross-cutting.md) Abschnitt 4 |
 

@@ -432,13 +432,13 @@ in `app.config.ts`. `@primeicons/angular` wird nicht installiert.
 
 ### 10.1 Responsive Design
 
-| Breakpoint | Sidebar | Titelleiste | Modals |
-|---|---|---|---|
-| **Desktop** (> 1024 px) | fest sichtbar | keine | 80 % / 90 vh |
-| **Tablet** (≤ 1024 px) | Burger-Menü, slide-in | sichtbar | 80 % / 90 vh |
-| **Mobile** (≤ 768 px) | Burger-Menü, slide-in | sichtbar | 100 % / 100 vh, kein radius |
+| Breakpoint | Sidebar | Hamburger-Titelleiste | Page-Titel-Leiste | Modals |
+|---|---|---|---|---|
+| **Desktop** (> 1024 px) | fest sichtbar | keine | sichtbar (außer Dashboard) | 80 % / 90 vh |
+| **Tablet** (≤ 1024 px) | Burger-Menü, slide-in | sichtbar | sichtbar (außer Dashboard) | 80 % / 90 vh |
+| **Mobile** (≤ 768 px) | Burger-Menü, slide-in | sichtbar | sichtbar (außer Dashboard) | 100 % / 100 vh, kein radius |
 
-Titelleiste: Hintergrundfarbe = Sidebar-Farbe. Sidebar bei `top: 56px` unter der Titelleiste.
+**Zwei getrennte Leisten:** Die Hamburger-Titelleiste (nur Menü-Trigger, Tablet/Mobile) ist Teil der Shell — siehe [Epic_App_Shell/VSHELL-S02](epics/Epic_App_Shell/stories/VSHELL-S02-responsives-layout.md). Die Page-Titel-Leiste (Seitentitel, alle Breakpoints, außer Dashboard) gehört zum Page-Layout — siehe [Epic_App_Shell/VSHELL-S06](epics/Epic_App_Shell/stories/VSHELL-S06-page-layout.md). Beide: Hintergrundfarbe = Sidebar-Farbe (`--color-surface`), Höhe 56 px. Sidebar bei `top: 56px` unter der Hamburger-Titelleiste.
 
 ---
 

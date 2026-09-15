@@ -26,3 +26,4 @@ HTTP-Client-Aufrufe gegen `BAR.Host`s Endpoints — kein eigener Vertrag, den an
 ## Notes
 - Maturity `sketch`: nur Verzeichnisstruktur gelistet, kein Signature-Level-Walk durch Components/Services/Routing durchgeführt. Für `reviewed` fehlt noch ein echter Review-Mode-Durchgang (Routing-Tabelle, Guards, HTTP-Interceptors, State-Management).
 - Die 10 Feature-Ordner werden separat als Feature-Profile erfasst (siehe `docs/knowledge/feature-profile/`), nicht hier als Unterstruktur dieses Moduls im Detail wiederholt.
+- Dev-Server-Proxy (`proxy.conf.json`): `/api` und `/health` → `http://localhost:5001` (muss mit `BAR.Host`s `launchSettings.json`-Port übereinstimmen, siehe `bar-host` Modul-Profil — Mismatch verursacht 502 Bad Gateway auf jedem Backend-Call).

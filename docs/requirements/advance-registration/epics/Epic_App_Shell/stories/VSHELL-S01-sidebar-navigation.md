@@ -31,6 +31,7 @@ Die Voranmelde-App unterscheidet zwei Rollen. Die Sidebar zeigt nur Einträge, a
 | Äußerer Rahmen | `p-sidebar-layout` |
 | Sidebar selbst | `p-sidebar [collapsible]="isMobile() ? 'offcanvas' : 'icon'" [overlay]="isMobile()" [(open)]="open"` |
 | Innerer Aufbau | `p-sidebar-aside` → `p-sidebar-panel` → `p-sidebar-header` / `p-sidebar-content` / `p-sidebar-footer` |
+| Breiten-Reservierung | `p-sidebar-spacer` — **muss direktes Kind von `p-sidebar`** sein (Template `shell.html`, nicht innerhalb der `app-sidebar`-Komponente), sonst kollabiert die reservierte Breite auf 0 und die Sidebar überlappt ab Desktop-Breite (> 1024 px) den Content — siehe [`sidebar/component.md`](../../../../../components/sidebar/component.md) |
 | Logo (Header) | neue Komponente `sidebar-title` (siehe [`components/sidebar-title.md`](../../../components/sidebar-title.md)) — **kein** Collapse-Toggle mehr daneben (vereinheitlichter Trigger lebt im Content-Header, siehe VSHELL-S02) |
 | Navigationsgruppe | `p-sidebar-group` (eine Instanz pro Gruppe „MEIN BEREICH" etc.) |
 | Gruppen-Label | `p-sidebar-group-label` (nativ) |

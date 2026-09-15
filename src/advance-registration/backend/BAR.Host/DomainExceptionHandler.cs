@@ -18,6 +18,20 @@ public sealed class DomainExceptionHandler : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
+        if (exception is ArgumentException argumentException)
+        {
+            var badRequest = new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "One or more validation errors occurred.",
+                Detail = argumentException.Message
+            };
+
+            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await httpContext.Response.WriteAsJsonAsync(badRequest, options: null, contentType: "application/problem+json", cancellationToken);
+            return true;
+        }
+
         if (exception is not DomainException domainException)
         {
             return false;

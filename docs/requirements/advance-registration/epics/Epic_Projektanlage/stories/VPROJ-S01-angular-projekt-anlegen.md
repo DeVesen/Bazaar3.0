@@ -31,7 +31,7 @@ braucht ein Node-Update, bevor diese Story beginnen kann.
 
 ## Scope
 
-**In Scope:** `ng new`, Standalone Components, OnPush, Signals, PrimeNG 22.1.0 (verwendet für die neue `Sidebar`-Compound-Komponentenfamilie, siehe Epic_App_Shell VSHELL-S01), `@lucide/angular` (npm), `ngx-translate` installieren und initialisieren (DE/EN JSON-Dateien anlegen), App-Verzeichnisstruktur anlegen, kein SSR (Angular-App bleibt reine Browser-App, siehe R00-Restumfang R-1).
+**In Scope:** `ng new`, Standalone Components, OnPush, Signals, PrimeNG 22.1.0 (verwendet für die neue `Sidebar`-Compound-Komponentenfamilie, siehe Epic_App_Shell VSHELL-S01), `@lucide/angular` (npm), `ngx-translate` installieren und initialisieren (DE/EN JSON-Dateien anlegen), App-Verzeichnisstruktur anlegen, Dev-Server-Proxy (`proxy.conf.json`) auf das Backend, kein SSR (Angular-App bleibt reine Browser-App, siehe R00-Restumfang R-1).
 
 **Out of Scope:** Routing, Sidebar, Theme-CSS, Übersetzungs-Keys für Epics (folgen in den jeweiligen Epics).
 
@@ -45,6 +45,7 @@ braucht ein Node-Update, bevor diese Story beginnen kann.
 - [ ] **AC-7** — WHEN `ng serve` ausgeführt wird, THEN SHALL die App unter `http://localhost:4200` erreichbar sein und keine Browser-Konsolenfehler zeigen.
 - [ ] **AC-8** — THE SYSTEM SHALL in `tsconfig.json` die Path-Aliases `@core/*`, `@shared/*` und `@features/*` auf die entsprechenden Verzeichnisse konfigurieren.
 - [ ] **AC-9** — THE SYSTEM SHALL per ESLint-Regel `no-restricted-imports` folgende Import-Grenzen erzwingen: kein Import zwischen zwei Features (`features/a` → `features/b`), kein Import aus `shared/` nach `features/` oder `core/`, kein Import aus `core/` nach `features/`. Ein Verstoß SHALL den Lint-Lauf mit Fehler beenden.
+- [ ] **AC-10** — THE SYSTEM SHALL eine `proxy.conf.json` bereitstellen, die `/api` und `/health` auf den Backend-Port aus VPROJ-S02 AC-6 verweist (aktuell `http://localhost:5001`), und diese im `serve`-Target der `angular.json` referenzieren. Weicht der Backend-Port ab (z. B. lokal geändertes `launchSettings.json`), SHALL beides synchron gehalten werden — sonst schlägt jeder Backend-Call im Dev-Server mit `502 Bad Gateway` fehl.
 
 ## Sprach- und Struktur-Konvention
 
