@@ -1,5 +1,67 @@
 @use '../../../../../styles/breakpoints';
 
+// Host fuellt die von .page-content zugewiesene Hoehe, damit der Steckbrief-Tab
+// sein Speichern-Panel unten fixieren und den Inhalt darueber selbst scrollen kann.
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+::ng-deep .p-tabs {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  width: 66.666%;
+  margin: 0 auto;
+}
+
+@include breakpoints.mobile {
+  ::ng-deep .p-tabs {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+::ng-deep .p-tablist {
+  flex-shrink: 0;
+}
+
+::ng-deep .p-tabpanels {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+::ng-deep .p-tabpanel:not([hidden]) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.steckbrief-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.steckbrief-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.steckbrief-footer {
+  flex-shrink: 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-divider);
+}
+
 .panel-block {
   background: var(--color-surface);
   border: 1px solid var(--color-divider);
@@ -28,19 +90,6 @@
 @include breakpoints.mobile {
   .form-grid {
     grid-template-columns: 1fr;
-  }
-}
-
-::ng-deep p-tabs {
-  display: block;
-  width: 66.666%;
-  margin: 0 auto;
-}
-
-@include breakpoints.mobile {
-  ::ng-deep p-tabs {
-    width: 100%;
-    margin: 0;
   }
 }
 
