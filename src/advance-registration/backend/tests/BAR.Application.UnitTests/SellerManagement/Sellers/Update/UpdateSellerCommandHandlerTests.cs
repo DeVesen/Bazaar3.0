@@ -133,6 +133,42 @@ public class UpdateSellerCommandHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_LastAdminDegradedToNonAdmin_ThrowsConflictAndDoesNotUpdateSeller()
+    {
+        var seller = Seller.CreateByAdmin("Anna", "Alt", null, "1", "Karlsruhe", "0", "anna@example.com", "t1", true);
+        _sellers.Setup(s => s.GetByIdAsync(seller.Id, It.IsAny<CancellationToken>())).ReturnsAsync(seller);
+        _sellers.Setup(s => s.GetByEmailAsync("anna@example.com", It.IsAny<CancellationToken>())).ReturnsAsync(seller);
+        SetUpSellerType();
+        _sellers.Setup(s => s.CountAdminsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        var handler = CreateHandler();
+
+        var command = new UpdateSellerCommand(seller.Id, "Anna", "Alt", null, "1", "Karlsruhe", "0", "anna@example.com", "t1", false);
+        var ex = await Assert.ThrowsAsync<ConflictException>(
+            () => handler.HandleAsync(command, TestContext.Current.CancellationToken));
+
+        Assert.Equal("seller.last_admin", ex.ErrorCode);
+        _sellers.Verify(s => s.UpdateAsync(It.IsAny<Seller>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleAsync_NonLastAdminDegradedToNonAdmin_UpdatesSeller()
+    {
+        var seller = Seller.CreateByAdmin("Anna", "Alt", null, "1", "Karlsruhe", "0", "anna@example.com", "t1", true);
+        _sellers.Setup(s => s.GetByIdAsync(seller.Id, It.IsAny<CancellationToken>())).ReturnsAsync(seller);
+        _sellers.Setup(s => s.GetByEmailAsync("anna@example.com", It.IsAny<CancellationToken>())).ReturnsAsync(seller);
+        SetUpSellerType();
+        SetUpBlockSummary(seller.Id);
+        _sellers.Setup(s => s.CountAdminsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(2);
+        var handler = CreateHandler();
+
+        var command = new UpdateSellerCommand(seller.Id, "Anna", "Alt", null, "1", "Karlsruhe", "0", "anna@example.com", "t1", false);
+        var response = await handler.HandleAsync(command, TestContext.Current.CancellationToken);
+
+        Assert.False(response.IsAdmin);
+        _sellers.Verify(s => s.UpdateAsync(seller, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task HandleAsync_UnknownSellerTypeId_ThrowsNotFoundAndDoesNotUpdateSeller()
     {
         var seller = Seller.CreateByAdmin("Anna", "Alt", null, "1", "Karlsruhe", "0", "anna@example.com", "t1", false);

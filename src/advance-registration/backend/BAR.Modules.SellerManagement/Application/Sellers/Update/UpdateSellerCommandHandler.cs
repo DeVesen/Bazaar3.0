@@ -24,6 +24,11 @@ public sealed class UpdateSellerCommandHandler(
         var conditions = await masterData.GetSellerTypeConditionsAsync(command.SellerTypeId, cancellationToken)
             ?? throw new NotFoundException("seller_type.not_found", "Unbekannter Verkäufer-Typ");
 
+        if (seller.IsAdmin && !command.IsAdmin && await sellers.CountAdminsAsync(cancellationToken) <= 1)
+        {
+            throw new ConflictException("seller.last_admin", "Der letzte Admin kann nicht degradiert werden");
+        }
+
         seller.UpdateAsAdmin(
             command.FirstName, command.LastName, command.Address, command.PostalCode,
             command.City, command.Phone, command.Email, command.SellerTypeId, command.IsAdmin);
