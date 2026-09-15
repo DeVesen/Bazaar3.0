@@ -62,12 +62,13 @@ module.exports = defineConfig([
       'boundaries/elements': [
         { type: 'core', pattern: 'src/app/core/**' },
         { type: 'shared', pattern: 'src/app/shared/**' },
-        // login/home/countdown-embed/not-found live directly under features/,
-        // without a department subfolder (see angular-modulith-bridge, BAR
-        // example) - each counts as its own "feature without a department".
+        // login/home/countdown-embed/not-found/bootstrap-admin live directly
+        // under features/, without a department subfolder (see
+        // angular-modulith-bridge, BAR example) - each counts as its own
+        // "feature without a department".
         {
           type: 'standalone-feature',
-          pattern: 'src/app/features/{login,home,countdown-embed,not-found}/**',
+          pattern: 'src/app/features/{login,home,countdown-embed,not-found,bootstrap-admin}/**',
           capture: ['feature'],
         },
         // A file directly under features/<department>/ (no further

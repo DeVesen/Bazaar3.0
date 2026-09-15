@@ -1,10 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthApiService } from '@core/auth/auth-api.service';
 import { AuthService } from '@core/auth/auth.service';
-import { RegistrationForm, RegistrationFormValue } from '../../seller-management/register/components/registration-form';
+import { RegistrationForm, RegistrationFormValue } from '@shared/registration-form/registration-form';
 
 /**
  * V3/V4: shown instead of login when AdminBootstrapState (backend) reports
@@ -28,6 +28,7 @@ export class BootstrapAdminPage {
   private readonly authApi = inject(AuthApiService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly emailTakenError = signal(false);
   readonly genericError = signal<string | null>(null);
@@ -44,7 +45,7 @@ export class BootstrapAdminPage {
         if (err.error?.errorCode === 'seller.email_taken') {
           this.emailTakenError.set(true);
         } else {
-          this.genericError.set(err.error?.detail ?? 'Anlage fehlgeschlagen. Bitte erneut versuchen.');
+          this.genericError.set(err.error?.detail ?? this.translate.instant('bootstrapAdmin.genericError'));
         }
       }
     });

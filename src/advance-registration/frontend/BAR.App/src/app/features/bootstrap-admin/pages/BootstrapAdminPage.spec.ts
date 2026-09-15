@@ -58,4 +58,17 @@ describe('BootstrapAdminPage', () => {
 
     expect(fixture.componentInstance.emailTakenError()).toBe(true);
   });
+
+  it('on a generic (non email-taken) error shows the backend detail message', () => {
+    fixture.componentInstance.onSubmitted({
+      email: 'chef@example.com', password: 'geheim123!', firstName: 'Chef', lastName: 'Basar',
+      address: '', postalCode: '76133', city: 'Karlsruhe', phone: '0721 1'
+    });
+
+    const req = httpMock.expectOne('/api/auth/bootstrap-admin');
+    req.flush({ detail: 'some backend detail message' }, { status: 500, statusText: 'Internal Server Error' });
+
+    expect(fixture.componentInstance.genericError()).toBe('some backend detail message');
+    expect(fixture.componentInstance.emailTakenError()).toBe(false);
+  });
 });

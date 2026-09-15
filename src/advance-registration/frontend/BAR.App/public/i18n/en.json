@@ -27,7 +27,8 @@
   },
   "bootstrapAdmin": {
     "title": "Welcome to the bazaar",
-    "welcomeText": "No administrator account exists yet. Create yourself as the first administrator here."
+    "welcomeText": "No administrator account exists yet. Create yourself as the first administrator here.",
+    "genericError": "Creation failed. Please try again."
   },
   "register": {
     "title": "Registration",

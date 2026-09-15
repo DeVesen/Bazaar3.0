@@ -123,6 +123,17 @@ Anders als `/register` gibt es hier **keine** `registration.not_enabled`-Prüfun
 das erste Administrator-Konto muss unabhängig vom `defaultTypeId` in den
 Einstellungen anlegbar sein.
 
+### Migrationshinweis: lokale Datenbank neu anlegen
+
+Mit diesem Endpoint entfällt der frühere fest verdrahtete Migrations-Seed für
+das Administrator-Konto. Dafür wurde die `InitialCreate`-Migration des
+SellerManagement-Schemas mit neuem Zeitstempel **neu erzeugt** — EF Core kann
+die alte und die neue Migrationshistorie nicht miteinander vereinbaren. Wer
+noch eine lokale Datenbank aus der Zeit vor dieser Änderung hat, muss sie
+**droppen und neu anlegen** (die Migrationen laufen danach von vorn durch);
+ein `dotnet ef database update` auf dem alten Stand schlägt fehl bzw. hinterlässt
+ein inkonsistentes Schema.
+
 ---
 
 ## 4. `POST /api/auth/refresh`

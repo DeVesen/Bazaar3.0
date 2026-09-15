@@ -33,6 +33,7 @@ public class BootstrapAdminCommandHandlerTests
     private void SetUpHappyPath()
     {
         _sellers.Setup(s => s.GetByEmailAsync("anna@example.com", It.IsAny<CancellationToken>())).ReturnsAsync((Seller?)null);
+        _sellers.Setup(s => s.CountAdminsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(0);
         _hasher.Setup(h => h.Hash("geheim123")).Returns("hashed");
         _tokenIssuer.Setup(t => t.IssueAccessToken(It.IsAny<string>(), "admin", It.IsAny<DateTime>())).Returns("access-token");
         _tokenIssuer.Setup(t => t.GenerateRefreshTokenPlainText()).Returns("refresh-plain");
@@ -79,6 +80,25 @@ public class BootstrapAdminCommandHandlerTests
             () => handler.HandleAsync(ValidCommand(), TestContext.Current.CancellationToken));
 
         Assert.Equal("bootstrap.already_done", ex.ErrorCode);
+        _sellers.Verify(s => s.AddAsync(It.IsAny<Seller>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleAsync_ConcurrentAdminCreationRace_DbRecheckThrowsConflictAndDoesNotTouchRepository()
+    {
+        // Simulates two concurrent requests (or two replicas): the in-memory
+        // AdminBootstrapState.HasAdmin is still false (this process hasn't
+        // seen the other request's commit yet), but the database already has
+        // an admin - the in-transaction recheck must catch this race.
+        SetUpHappyPath();
+        _sellers.Setup(s => s.CountAdminsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        var handler = CreateHandler();
+
+        var ex = await Assert.ThrowsAsync<ConflictException>(
+            () => handler.HandleAsync(ValidCommand(), TestContext.Current.CancellationToken));
+
+        Assert.Equal("bootstrap.already_done", ex.ErrorCode);
+        Assert.False(_bootstrapState.HasAdmin);
         _sellers.Verify(s => s.AddAsync(It.IsAny<Seller>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 

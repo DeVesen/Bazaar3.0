@@ -27,7 +27,8 @@
   },
   "bootstrapAdmin": {
     "title": "Willkommen beim Bazaar",
-    "welcomeText": "Es existiert noch kein Administrator-Konto. Legen Sie sich hier als erste Administratorin bzw. erster Administrator an."
+    "welcomeText": "Es existiert noch kein Administrator-Konto. Legen Sie sich hier als erste Administratorin bzw. erster Administrator an.",
+    "genericError": "Anlage fehlgeschlagen. Bitte erneut versuchen."
   },
   "register": {
     "title": "Registrierung",

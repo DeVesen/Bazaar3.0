@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthApiService } from '@core/auth/auth-api.service';
 import { AuthService } from '@core/auth/auth.service';
-import { RegistrationForm, RegistrationFormValue } from '../components/registration-form';
+import { RegistrationForm, RegistrationFormValue } from '@shared/registration-form/registration-form';
 
 // Wires up the registration form into the end-to-end registration flow
 // (Epic_Login section 6 flow 1-4, AC-8/AC-9/AC-10/AC-11). Successful

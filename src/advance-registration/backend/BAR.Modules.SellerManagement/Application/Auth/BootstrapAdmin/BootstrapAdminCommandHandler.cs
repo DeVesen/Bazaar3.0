@@ -42,6 +42,18 @@ public sealed class BootstrapAdminCommandHandler(
             throw new ConflictException("seller.email_taken", "Diese E-Mail ist bereits registriert");
         }
 
+        // Belt-and-suspenders: the in-memory bootstrapState.HasAdmin check
+        // above is a cheap fast-path, but only protects a single process
+        // against a second request after the first one has completed. It
+        // does not stop two concurrent requests (or two replicas in a
+        // multi-instance deployment) that both pass it before either has
+        // committed. This re-check against the real database closes that
+        // window right before the insert.
+        if (await sellers.CountAdminsAsync(cancellationToken) > 0)
+        {
+            throw new ConflictException("bootstrap.already_done", "Es existiert bereits ein Administrator-Konto");
+        }
+
         var passwordHash = passwordHasher.Hash(command.Password);
         var seller = Seller.Register(
             firstName: command.FirstName, lastName: command.LastName, address: command.Address,
