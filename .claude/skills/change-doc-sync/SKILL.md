@@ -1,17 +1,20 @@
 ---
 name: change-doc-sync
-description: Use when a stretch of Bazaar-Suite work should be checked against the docs before a session ends — explicit range given ("letzte X Tage", "Branch X gegen Y") or implicit (current session/uncommitted diff). Combines dv-working-capturing's update and actual-knowledge with UI-, FE/BE-composition- and Code-Styling-Abgleich into one bundled ask, replacing the manual back-to-back call of both skills.
+description: Use when a stretch of Bazaar-Suite work should be checked against the docs before a session ends — explicit range given ("letzte X Tage", "Branch X gegen Y") or implicit (current session/uncommitted diff). First resolves doc-vs-code gaps and drift (UI, FE/BE-composition, requirements) with the owner, then runs dv-working-capturing's update and actual-knowledge on the settled state so they protocol the true state — replacing the manual back-to-back call of both skills.
 ---
 
 # Change-Doc-Sync
 
 ## Overview
 
-One combined sweep over a change range: what `update` (git diff → glossary/module/feature candidates) and `actual-knowledge` (session sweep) already find, **plus** three more dimensions this repo cares about — UI (Styling/Positionierung/Größe/Art/Verhalten), Frontend↔Backend-Komposition, Code-Styling. One bundled ask at the end, not five separate ones.
+Two phases, in order:
 
-This skill is an **orchestrator, not a replacement** — it dispatches to `update` / `actual-knowledge` for their targets and only adds logic for the three dimensions they don't cover.
+1. **Spec-Abgleich** (this skill's own logic) — for the touched area, check the docs against the code in **both directions**: something documented but not built (Gap), and something built differently than documented (Drift). Bundle these as decisions for the owner — never write anything yet.
+2. **dv-working-capturing** (`update` + `actual-knowledge`, dispatched as-is) — runs only **after** the owner's decisions from Phase 1 are applied, so it protocols the *true, settled* state instead of a state that's still mid-mismatch.
 
-**REQUIRED SUB-SKILLS:** `dv-working-capturing:update`, `dv-working-capturing:actual-knowledge` — read both before running Step 2/3, don't improvise their ask format.
+Running dv-working-capturing before Phase 1 is resolved is the one thing this skill exists to prevent — a glossary/feature/module entry written against code that's about to be changed back is a wasted write.
+
+**REQUIRED SUB-SKILLS:** `dv-working-capturing:update`, `dv-working-capturing:actual-knowledge` — read both before Phase 2, don't improvise their ask format.
 
 ## When to Use
 
@@ -22,7 +25,7 @@ This skill is an **orchestrator, not a replacement** — it dispatches to `updat
 ## When NOT to Use
 
 - Only a glossary term / one module / one feature, already obvious, nobody asked for a sweep → call that single target skill directly
-- Pure git-diff-to-knowledge-capture, no UI/composition/style angle at all → plain `update` is enough
+- Pure git-diff-to-knowledge-capture, no doc-drift angle at all → plain `update` is enough
 - Mid-task → offer at a seam, same rule as `actual-knowledge`
 
 ## Procedure
@@ -38,53 +41,68 @@ This skill is an **orchestrator, not a replacement** — it dispatches to `updat
 Map every changed file to its app by path, per project `CLAUDE.md`:
 `src/advance-registration/** → docs/requirements/advance-registration/`, `src/bazaar-app/** → docs/requirements/bazaar-app/`. A range can span both apps — handle each separately, don't merge their candidates.
 
-State the coverage plan (full read vs. sampled, and why) before diving in — same rule as `update` Step 3. **Guard:** if the range's diff touches more than ~150 files or spans what looks like a whole epic/module rewrite, don't silently pick a sampling strategy — ask the user how to narrow or sample it before reading on.
+State the coverage plan (full read vs. sampled, and why) before diving in. **Guard:** if the range's diff touches more than ~150 files or spans what looks like a whole epic/module rewrite, don't silently pick a sampling strategy — ask the user how to narrow or sample it before reading on.
 
-### 2. Run the two existing sweeps
+### 2. Phase 1 — Spec-Abgleich (Gap + Drift)
+
+For every touched area, read the doc side that governs it — `docs/requirements/<app>/...` for behavior, `docs/components/<name>/component.md` + the epic's story doc for UI, the relevant contract/DTO description for FE/BE-composition — and compare it against the current code. Two directions, never conflated:
+
+| Richtung | Bedeutung | Beispiel |
+|---|---|---|
+| **Gap** — Doku voraus | Doku beschreibt etwas, das im Code (noch) nicht existiert | Spec verlangt Feld/Verhalten X, Code hat es nicht |
+| **Drift** — Code weicht ab | Code tut etwas anderes als die Doku sagt | Doku: `rows="8"`, Code: `rows="5"` |
+
+Additionally, run **Code-Styling** as a report-only side note (against `dv-craft:*`, `dv-angular:*`, `dv-dotnet:*`, `architecture-styles`, `software-design-principles`) — no decision needed for these, they're informational only, never a Gap or Drift item.
+
+Check existing docs first — a Gap/Drift candidate that's already tracked (even worded differently, e.g. already flagged as "geplant") is not a new candidate. A file checked with **no mismatch found** is not silence — list it under "geprüft, keine Abweichung" so the reader can tell "checked and clean" apart from "not checked".
+
+### 3. Phase 1 — Bundled decision ask
+
+One message, before anything is written or Phase 2 runs. Per item, ask exactly the decision that item needs:
+
+| Kategorie | Frage an den Owner |
+|---|---|
+| Gap (Doku voraus) | Jetzt umsetzen, oder bewusst später geplant (→ Doku bekommt Backlog-/Planned-Vermerk)? |
+| Drift (Code weicht ab) | Code an Doku anpassen, oder Doku an den neuen Code-Stand anpassen? |
+| Code-Styling-Notiz | Nur FYI, keine Entscheidung nötig |
+
+Same bundling rules as `actual-knowledge`: never one question per item, an empty result ("alles deckt sich") is valid — name what was checked and why nothing surfaced.
+
+Code-Styling-Zeilen sind FYI, keine Entscheidungsfrage — sie enden nie auf „?" und stehen sichtbar getrennt von den Gap-/Drift-Fragen, nicht als dritte Option in derselben Frage.
+
+### 4. Apply Phase 1 decisions
+
+- "später geplant" → doc gets a planned/backlog note (the answer itself is the approval to write that note)
+- "jetzt umsetzen" → out of this skill's scope — report it as an open implementation item, don't silently build the feature here
+- "Code an Doku anpassen" → make the code edit
+- "Doku an Code anpassen" → edit the doc to reflect the current code, keeping that doc's own frontmatter/status conventions
+- Code-Styling notes → stay report-only regardless, never auto-fixed
+
+### 5. Phase 2 — dv-working-capturing on the settled state
+
+Only now, after Step 4 is applied:
 
 - Git-based scope (range given) → run `update` on that exact range.
 - Session-context scope (nothing given) → run `actual-knowledge` on the session.
-- Both apply when a range was given but the session also touched uncommitted work — run both, keep their candidates separate per source.
+- Both apply when a range was given but the session also touched uncommitted work — run both, keep candidates separate per source.
 
-Collect their candidates (glossary / module-profile / feature-profile) but **do not let them submit their ask yet** — hold everything for the one combined bundle in Step 4.
+Their candidates (glossary / module-profile / feature-profile) now reflect the state Phase 1 settled on, not the pre-decision mismatch — that's the whole point of running them last.
 
-### 3. Run the three extra dimensions
-
-Only on files touched in scope from Step 1.
-
-| Dimension | Compare against | Candidate shape |
-|---|---|---|
-| **UI** — Styling, Positionierung, Größe, Art, Verhalten | `docs/components/<name>/component.md` (suite-wide) + the touched epic's story doc (app-specific ausprägung) | "Komponente X: Doku sagt A, Code macht B" |
-| **FE/BE-Komposition** | DTO/Contract-Shape zwischen `frontend` und `backend` desselben Moduls gegen `docs/requirements/<app>/...` | "Contract Y: Backend liefert Feld Z, Frontend-Modell/Doku kennt es nicht (oder umgekehrt)" |
-| **Code-Styling** | Projekt-Konventionen aus den craft-/style-Skills (`dv-craft:*`, `dv-angular:*`, `dv-dotnet:*`, `architecture-styles`, `software-design-principles`) | Abweichungsnotiz — **kein Fix**, nur Fund |
-
-Check existing docs first, same as `update` Step 4 — a UI/composition candidate that's already documented (even worded differently) is not a candidate.
-
-Code-Styling findings never get written anywhere automatically — they are report-only notes in the bundle, for the owner to act on or wave off.
-
-### 4. One bundled ask
-
-Group everything from Step 2 and Step 3 into a single message, by category:
-
-`Glossar | Modul-Profil | Feature-Profil | Komponenten-Doku (UI) | Anforderungs-Doku (Komposition) | Code-Styling-Notizen`
-
-Same rules as `actual-knowledge`: mark solid vs. guess, never one question per candidate, an empty sweep is a valid result — name what was considered and why it was dropped. A file checked against its doc with **no drift found** is not silence — list it under "geprüft, keine Abweichung" so the reader can tell "checked and clean" apart from "not checked".
-
-### 5. Write only what comes back approved
+### 6. Write only what comes back approved
 
 - Glossar/Modul/Feature → hand off to the owning capture skill, its format, its rules (never write freehand).
-- Komponenten-Doku / Anforderungs-Doku → propose the concrete edit to `docs/components/<name>/component.md` or `docs/requirements/<app>/...`, keeping that doc's own frontmatter/status conventions; write only the approved parts.
-- Code-Styling-Notizen → report only, no file touched.
+- Everything from Phase 1 is already applied per Step 4 — nothing left pending there.
 
-Report what was written and what was dropped — nothing disappears silently.
+Report what was written and what was dropped, across both phases — nothing disappears silently.
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---|---|
-| Reimplementing `update`'s git-diff logic instead of calling it | Dispatch to `update`/`actual-knowledge`, add only the 3 extra dimensions |
-| Five separate asks (one per dimension) | One bundled ask across all categories |
-| "Fixing" a code-styling finding directly | Report-only — no write for this category |
-| Treating a UI wording difference as new without checking `component.md` first | Check existing component/epic docs before proposing |
+| Running `update`/`actual-knowledge` before Phase 1 decisions are in | Always Spec-Abgleich first — dv-working-capturing must see the settled state |
+| Conflating Gap and Drift into one generic "difference" | Keep them separate — they need different decisions from the owner |
+| Silently implementing a "jetzt umsetzen" Gap item | Report as open item, don't build the feature inside this skill |
+| Reimplementing `update`'s git-diff logic instead of calling it | Dispatch to `update`/`actual-knowledge`, don't duplicate |
+| "Fixing" a code-styling finding directly | Report-only — no write for this category, ever |
 | Merging candidates from two apps in one range | Handle advance-registration and bazaar-app separately |
 | Assuming range = "since main" without checking what the user actually gave | Use exactly the range given; only fall back to session context when none was given |
