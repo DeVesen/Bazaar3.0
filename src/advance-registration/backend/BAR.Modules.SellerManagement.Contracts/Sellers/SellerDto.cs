@@ -9,7 +9,7 @@ public sealed record SellerDto(
 
 public sealed record SellerSortDto(string Field, bool Descending);
 
-public sealed record GetSellersQuery(string? Search, int Page, int PageSize, IReadOnlyList<SellerSortDto> Sort);
+public sealed record GetSellersQuery(string? SellerTypeId, string? Search, int Page, int PageSize, IReadOnlyList<SellerSortDto> Sort);
 
 public sealed record CreateSellerCommand(
     string FirstName, string LastName, string? Address, string PostalCode, string City,

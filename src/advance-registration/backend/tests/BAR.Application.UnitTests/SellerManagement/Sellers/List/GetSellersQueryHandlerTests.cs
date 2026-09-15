@@ -39,8 +39,8 @@ public class GetSellersQueryHandlerTests
             .ReturnsAsync(summaries ?? new Dictionary<string, SellerBlockSummaryDto>());
     }
 
-    private static GetSellersQuery Query(string? search = null, int page = 1, int pageSize = 25, params SellerSortDto[] sort) =>
-        new(search, page, pageSize, sort);
+    private static GetSellersQuery Query(string? search = null, string? sellerTypeId = null, int page = 1, int pageSize = 25, params SellerSortDto[] sort) =>
+        new(sellerTypeId, search, page, pageSize, sort);
 
     [Fact]
     public async Task HandleAsync_SearchTermMatchesLastName_FiltersOutNonMatches()
@@ -53,6 +53,19 @@ public class GetSellersQueryHandlerTests
 
         Assert.Equal(1, result.TotalCount);
         Assert.Equal("Anna", result.Items[0].FirstName);
+    }
+
+    [Fact]
+    public async Task HandleAsync_SellerTypeIdGiven_FiltersOutOtherTypes()
+    {
+        var anna = MakeSeller("Anna", "Beispiel", sellerTypeId: "t1");
+        var ben = MakeSeller("Ben", "Muster", sellerTypeId: "t2");
+        SetUpDefaults([anna, ben]);
+
+        var result = await CreateHandler().HandleAsync(Query(sellerTypeId: "t2"), TestContext.Current.CancellationToken);
+
+        Assert.Equal(1, result.TotalCount);
+        Assert.Equal("Ben", result.Items[0].FirstName);
     }
 
     [Fact]

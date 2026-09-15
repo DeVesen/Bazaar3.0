@@ -26,6 +26,10 @@ public sealed class GetSellersQueryHandler(ISellerRepository sellers, IMasterDat
         var all = await sellers.GetAllAsync(cancellationToken);
 
         IEnumerable<Seller> filtered = all;
+        if (!string.IsNullOrWhiteSpace(request.SellerTypeId))
+        {
+            filtered = filtered.Where(s => s.SellerTypeId == request.SellerTypeId);
+        }
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var term = request.Search.Trim();
