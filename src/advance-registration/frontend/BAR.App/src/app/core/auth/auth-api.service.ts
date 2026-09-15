@@ -29,4 +29,8 @@ export class AuthApiService {
   register(payload: RegisterPayload): Observable<TokenPair> {
     return this.http.post<TokenPair>('/api/auth/register', payload);
   }
+
+  bootstrapAdmin(payload: RegisterPayload): Observable<TokenPair> {
+    return this.http.post<TokenPair>('/api/auth/bootstrap-admin', payload);
+  }
 }
