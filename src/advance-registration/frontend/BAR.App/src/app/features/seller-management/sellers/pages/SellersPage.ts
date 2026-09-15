@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import {
   AppTable,
@@ -39,7 +39,7 @@ const SORT_FIELD_MAP: Record<string, string> = {
 
 @Component({
   selector: 'app-sellers-page',
-  imports: [AppTable, FilterPanel, SellerCreateDialog, SellerEditDialog, TranslatePipe],
+  imports: [AppTable, FilterPanel, SellerCreateDialog, SellerEditDialog],
   template: `
     <app-filter-panel
       [sellerTypeOptions]="sellerTypeOptions()"

@@ -148,13 +148,14 @@ describe('HomePage', () => {
     expect(fixture.nativeElement.textContent).toContain('1.50');
   });
 
-  it('switches to the 5-column admin grid with heatmap when role is admin', () => {
+  it('switches to the admin dashboard layout (countdown + 2x2 KPI grid) with heatmap when role is admin', () => {
     roleService.activeRole.mockReturnValue('admin');
     fixture = TestBed.createComponent(HomePage);
     fixture.detectChanges();
 
     expect(homeApi.getAdminHome).toHaveBeenCalled();
-    expect(fixture.nativeElement.querySelector('.kpi-grid--c5')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.admin-dashboard')).not.toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('.admin-dashboard__kpis app-kpi-tile').length).toBe(4);
     expect(fixture.nativeElement.querySelector('app-activity-heatmap')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('app-seller-number')).toBeNull();
   });
