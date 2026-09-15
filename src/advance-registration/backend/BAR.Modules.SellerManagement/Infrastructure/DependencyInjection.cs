@@ -1,5 +1,6 @@
 using BAR.Modules.SellerManagement.Application;
 using BAR.Modules.SellerManagement.Application.Abstractions;
+using BAR.Modules.SellerManagement.Application.Auth.BootstrapAdmin;
 using BAR.Modules.SellerManagement.Application.Auth.Login;
 using BAR.Modules.SellerManagement.Application.Auth.Refresh;
 using BAR.Modules.SellerManagement.Application.Auth.Register;
@@ -49,6 +50,9 @@ public static class DependencyInjection
 
         services.AddScoped<ISellerCascadeDeleter, SellerCascadeDeleter>();
         services.AddScoped<SellerBlockAllocationCoordinator>();
+
+        services.AddSingleton<AdminBootstrapState>();
+        services.AddScoped<BootstrapAdminCommandHandler>();
 
         services.AddScoped<RegisterCommandHandler>();
         services.AddScoped<LoginCommandHandler>();

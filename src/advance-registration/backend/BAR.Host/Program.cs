@@ -14,7 +14,9 @@ using BAR.Modules.Registration.Infrastructure;
 using BAR.Modules.Operations.Infrastructure;
 using BAR.Modules.Export.Infrastructure;
 using BAR.Modules.MasterData.Infrastructure;
+using BAR.Modules.SellerManagement.Application.Auth.BootstrapAdmin;
 using BAR.Modules.SellerManagement.Contracts.Security;
+using BAR.Modules.SellerManagement.Domain.Ports;
 using BAR.Modules.SellerManagement.Infrastructure;
 using BAR.Modules.SellerManagement.Infrastructure.Persistence;
 using BAR.Modules.Registration.Infrastructure.Persistence;
@@ -96,6 +98,7 @@ builder.Services.AddCors(options => options.AddPolicy(corsPolicy, policy =>
 var app = builder.Build();
 
 await ApplyMigrationsAsync(app);
+await InitializeAdminBootstrapStateAsync(app);
 
 if (app.Environment.IsDevelopment())
 {
@@ -161,6 +164,21 @@ static async Task ApplyMigrationsAsync(WebApplication app)
     {
         Environment.Exit(1);
     }
+}
+
+/// <summary>
+/// Computes AdminBootstrapState.HasAdmin exactly once, right after migrations
+/// run and before the first request is served (F1 decision - no per-request
+/// re-check afterwards).
+/// </summary>
+static async Task InitializeAdminBootstrapStateAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var sellers = scope.ServiceProvider.GetRequiredService<ISellerRepository>();
+    var state = scope.ServiceProvider.GetRequiredService<AdminBootstrapState>();
+
+    var adminCount = await sellers.CountAdminsAsync(CancellationToken.None);
+    state.Initialize(adminCount > 0);
 }
 
 static async Task<bool> TryMigrateAsync(DbContext dbContext, ILogger logger)
