@@ -74,25 +74,6 @@ namespace BAR.Modules.SellerManagement.Infrastructure.Persistence.Migrations
                 table: "seller",
                 column: "email",
                 unique: true);
-
-            // Seed from R01 ("An admin account as a seed, so the admin role is
-            // reachable at all") - unchanged by R09 (which only removed the
-            // settings seed in BAR.Modules.Operations). seller_type_id references
-            // the type 't0000001' seeded in MasterData.InitialCreate - no more DB
-            // FK across the module boundary, so this is ensured purely by the seed
-            // ordering documented in the app docs (R01-zugang.md), not by the database.
-            migrationBuilder.Sql("""
-                -- Passwort "Admin123!" mit BCrypt.Net-Next work factor 12 vorab gehasht
-                -- (deterministisch pro Erzeugung, hier fix eingebettet, damit die Migration
-                -- ohne Programmlauf reproduzierbar bleibt).
-                INSERT INTO seller_management.seller (
-                    id, first_name, last_name, address, postal_code, city, phone,
-                    email, seller_type_id, is_admin, password_hash)
-                VALUES (
-                    'a0000001', 'Admin', 'Bazaar', NULL, '00000', 'Musterstadt', '00000 000000',
-                    'admin@bazaar.local', 't0000001', TRUE,
-                    '$2a$12$1eqwqVnhll7UwRcLAUH03.97hpi.j4480eCTDLuoPA9361IAYNpeu');
-                """);
         }
 
         /// <inheritdoc />
