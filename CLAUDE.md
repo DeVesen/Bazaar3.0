@@ -106,6 +106,17 @@ Die Assembly-Präfixe unterscheiden sich je App, damit die Namen nicht kollidier
 
 Stil-Nachschlagewerk (nicht projektverbindlich): Skill `architecture-styles`
 
+## Anwendungswissen (module-profile / feature-profile / glossary)
+
+Ablage für die `dv-working-capturing`-Skills (module-profile, feature-profile, glossary,
+update) — Code-Ist-Zustand, nicht Anforderung:
+
+| Skill | Root |
+|-------|------|
+| `module-profile` | `docs/knowledge/module-profile/<modul-name>/module.md` |
+| `feature-profile` | `docs/knowledge/feature-profile/<feature-name>/feature.md` |
+| `glossary` | `docs/glossary/<area>.md` |
+
 ## Epics
 
 Jedes Epic ist ein **Verzeichnis** (Name des Epics), nicht eine einzelne Datei.
