@@ -14,23 +14,42 @@ interface ExportJson {
   selector: 'app-export-page',
   imports: [FormsModule, TranslatePipe, ButtonModule, CheckboxModule, InfoArea],
   template: `
-    <h1>{{ 'export.title' | translate }}</h1>
+    <div class="export-content">
+      <h1>{{ 'export.title' | translate }}</h1>
 
-    <p-checkbox [binary]="true" [ngModel]="includeBrands()" (ngModelChange)="includeBrands.set($event)" inputId="export-include-brands" />
-    <label for="export-include-brands">{{ 'export.includeBrands' | translate }}</label>
+      <p-checkbox [binary]="true" [ngModel]="includeBrands()" (ngModelChange)="includeBrands.set($event)" inputId="export-include-brands" />
+      <label for="export-include-brands">{{ 'export.includeBrands' | translate }}</label>
 
-    <p-checkbox [binary]="true" [ngModel]="includeCategories()" (ngModelChange)="includeCategories.set($event)" inputId="export-include-categories" />
-    <label for="export-include-categories">{{ 'export.includeCategories' | translate }}</label>
+      <p-checkbox [binary]="true" [ngModel]="includeCategories()" (ngModelChange)="includeCategories.set($event)" inputId="export-include-categories" />
+      <label for="export-include-categories">{{ 'export.includeCategories' | translate }}</label>
 
-    <button pButton type="button" (click)="onExport()">{{ 'export.submit' | translate }}</button>
+      <button pButton type="button" (click)="onExport()">{{ 'export.submit' | translate }}</button>
 
-    @if (resultMessage(); as message) {
-      <app-info-area type="info" [message]="message" />
+      @if (resultMessage(); as message) {
+        <app-info-area type="info" [message]="message" />
+      }
+      @if (errorMessage(); as error) {
+        <app-info-area type="error" [message]="error" />
+      }
+    </div>
+  `,
+  styles: [`
+    :host {
+      display: block;
     }
-    @if (errorMessage(); as error) {
-      <app-info-area type="error" [message]="error" />
+
+    .export-content {
+      width: 66.666%;
+      margin: 0 auto;
     }
-  `
+
+    @media (max-width: 768px) {
+      .export-content {
+        width: 100%;
+        margin: 0;
+      }
+    }
+  `]
 })
 export class ExportPage {
   private readonly exportApi = inject(ExportApiService);
