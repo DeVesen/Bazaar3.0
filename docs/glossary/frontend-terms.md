@@ -55,6 +55,11 @@
 - **Confidence:** inferred
 - **First seen:** 2026-09-15
 
+### Full-Width
+- **Maps to:** PrimeNG `<p-fluid>`-Wrapper-Konvention — Eingabefelder/Selects/InputNumber/Buttons füllen ihre zugewiesene Spaltenbreite (1/2, 2/3, 100%) statt intrinsischer Breite. Umgesetzt via `<p-fluid>` um die betroffenen Form-Controls (nicht global per CSS, da sonst auch Icon-/Toolbar-Buttons betroffen wären). Beispiele: `src/advance-registration/frontend/BAR.App/src/app/features/seller-management/profile/pages/ProfilePage.html`, `sellers/components/seller-edit-dialog.html`, `operations/settings/pages/SettingsPage.html`, `login/components/login-form.ts`, `shared/filter-panel/filter-panel.ts`.
+- **Confidence:** confirmed
+- **First seen:** 2026-09-15
+
 ### Seitentitel
 - **Maps to:** `src/advance-registration/frontend/BAR.App/src/app/core/shell/page-layout/` — zentrale Titel-Leiste über jeder eingeloggten Route (`<h1 class="page-title">`, aus `route.data['title']`); ersetzt die früher pro Feature-Seite gepflegte eigene `<h1>`. In den Epics durchgängig als „(Seitentitel)" referenziert, wenn ein Button/Element dort statt in der Feature-Toolbar sitzt.
 - **Confidence:** confirmed

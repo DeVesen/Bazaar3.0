@@ -12,6 +12,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputPasswordModule } from 'primeng/inputpassword';
 import { InputTextModule } from 'primeng/inputtext';
+import { FluidModule } from 'primeng/fluid';
 import { PopoverModule } from 'primeng/popover';
 
 @Component({
@@ -30,6 +31,7 @@ import { PopoverModule } from 'primeng/popover';
     InputIconModule,
     InputPasswordModule,
     InputTextModule,
+    FluidModule,
     PopoverModule
   ],
   template: `
@@ -37,6 +39,7 @@ import { PopoverModule } from 'primeng/popover';
       <form (ngSubmit)="onSubmit()">
         <h1>{{ 'login.title' | translate }}</h1>
 
+        <p-fluid>
         <label for="login-email">{{ 'login.email' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
@@ -67,12 +70,13 @@ import { PopoverModule } from 'primeng/popover';
             }
           </p-inputicon>
         </p-iconfield>
+        </p-fluid>
 
         @if (errorMessage()) {
           <p class="login-form__error">{{ errorMessage() }}</p>
         }
 
-        <p-button type="submit" [label]="'login.submit' | translate" severity="primary" [style]="{ width: '100%' }" />
+        <p-button type="submit" [label]="'login.submit' | translate" severity="primary" [fluid]="true" />
 
         <button type="button" class="login-form__forgot" (click)="forgotPopover.toggle($event)">{{ 'login.forgotPassword' | translate }}</button>
         <p-popover #forgotPopover>

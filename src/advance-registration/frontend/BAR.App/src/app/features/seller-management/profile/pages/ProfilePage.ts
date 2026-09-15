@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { FluidModule } from 'primeng/fluid';
 import { TabsModule } from 'primeng/tabs';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -19,7 +20,7 @@ interface ValidationProblem {
 
 @Component({
   selector: 'app-profile-page',
-  imports: [FormsModule, ButtonModule, InputTextModule, InputNumberModule, TabsModule, SellerNumber, InfoArea, PasswordStrengthMeter, TranslatePipe],
+  imports: [FormsModule, ButtonModule, InputTextModule, InputNumberModule, FluidModule, TabsModule, SellerNumber, InfoArea, PasswordStrengthMeter, TranslatePipe],
   templateUrl: './ProfilePage.html',
   styleUrl: './ProfilePage.scss'
 })

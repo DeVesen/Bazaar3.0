@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
+import { FluidModule } from 'primeng/fluid';
 import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { DrawerModule } from 'primeng/drawer';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -37,10 +38,11 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
 
 @Component({
   selector: 'app-filter-panel',
-  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, AutoCompleteModule, DrawerModule, TranslatePipe, NgTemplateOutlet],
+  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, FluidModule, AutoCompleteModule, DrawerModule, TranslatePipe, NgTemplateOutlet],
   styleUrl: './filter-panel.scss',
   template: `
     <ng-template #fields>
+      <p-fluid>
       @if (sellerAutocomplete()) {
         <p-autocomplete
           data-testid="seller-autocomplete"
@@ -89,6 +91,7 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
       @if (!liveFilter()) {
         <p-button [label]="'filterPanel.searchButton' | translate" icon="pi pi-search" data-testid="search-button" (onClick)="emit()" />
       }
+      </p-fluid>
     </ng-template>
 
     <div class="filter-panel">

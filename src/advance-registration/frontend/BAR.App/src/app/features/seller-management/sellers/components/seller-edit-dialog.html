@@ -6,6 +6,7 @@
 >
   <div class="panel-block">
     <div class="panel-block__title">{{ 'sellerEditDialog.sectionPersonal' | translate }}</div>
+    <p-fluid>
     <div class="form-grid">
       <div>
         <label for="edit-first-name">{{ 'sellerEditDialog.firstName' | translate }}</label>
@@ -16,10 +17,12 @@
         <input id="edit-last-name" pInputText [(ngModel)]="lastNameModel" />
       </div>
     </div>
+    </p-fluid>
   </div>
 
   <div class="panel-block">
     <div class="panel-block__title">{{ 'sellerEditDialog.sectionContact' | translate }}</div>
+    <p-fluid>
     <div class="form-grid">
       <div class="full">
         <label for="edit-address">{{ 'sellerEditDialog.address' | translate }}</label>
@@ -42,10 +45,12 @@
         <input id="edit-email" pInputText type="email" [(ngModel)]="emailModel" />
       </div>
     </div>
+    </p-fluid>
   </div>
 
   <div class="panel-block">
     <div class="panel-block__title">{{ 'sellerEditDialog.sectionConditions' | translate }}</div>
+    <p-fluid>
     <div class="form-grid">
       <div class="full">
         <label for="edit-seller-type">{{ 'sellerEditDialog.sellerType' | translate }}</label>
@@ -58,6 +63,7 @@
         />
       </div>
     </div>
+    </p-fluid>
     @if (selectedType(); as type) {
       <p>{{ 'sellerEditDialog.conditionsSummary' | translate: { commissionRate: type.commissionRate, itemFee: type.itemFee } }}</p>
     }
@@ -79,6 +85,7 @@
 
     <div class="reserve-form">
       <label>{{ 'sellerEditDialog.reserveAdditional' | translate }}</label>
+      <p-fluid>
       <div class="form-grid">
         <div>
           <label for="reserve-block-count">{{ 'sellerEditDialog.blockCount' | translate }}</label>
@@ -89,6 +96,7 @@
           <p-inputnumber id="reserve-start-number" [useGrouping]="false" [(ngModel)]="reserveStartNumberModel" />
         </div>
       </div>
+      </p-fluid>
       @if (reserveError(); as error) {
         <app-info-area type="error" [message]="error" />
       }

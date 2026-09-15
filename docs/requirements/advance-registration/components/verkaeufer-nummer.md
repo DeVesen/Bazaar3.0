@@ -36,16 +36,30 @@ merken oder kopieren genügt. Es gibt daher **nur eine** Darstellung, kein
 `variant`-Input.
 
 ```
+≥ Tablet (> 1024 px) — linke Spalte Nummer+Hinweis gestapelt, QR rechts, gleiche Höhe:
 ┌─────────────────────────────────────┐
 │ MEINE VERKÄUFERNUMMER               │  ← Panel-Titel, 11 px, 700, uppercase
 │                                     │
-│   a3f9c2d1        ┌──────────┐      │  ← Wert: 24 px, 800, monospace
-│   [⧉ Kopieren]    │ ▀▄▀ █▀▄  │      │
-│                   │ █ ▄▀▀▄ █ │      │  ← Shared qr-code, size 128
-│                   └──────────┘      │
-│ Am Basar-Tag vorzeigen — das         │  ← Hinweistext, 12 px, muted
-│ Kassenpersonal scannt den Code.      │
+│  a3f9c2d1          ┌──────────┐     │  ← Wert: 24 px, 800, monospace
+│  [⧉ Kopieren]      │ ▀▄▀ █▀▄  │     │
+│                     │ █ ▄▀▀▄ █ │     │  ← Shared qr-code, size 128
+│  Am Basar-Tag vor-  └──────────┘     │  ← Hinweistext, 12 px, muted
+│  zeigen — das Kas-                   │
+│  senpersonal scannt                  │
+│  den Code.                           │
 └─────────────────────────────────────┘
+
+≤ Tablet (≤ 1024 px) — gestapelt, QR-Code als eigene Zeile unten:
+┌─────────────────────────┐
+│ MEINE VERKÄUFERNUMMER   │
+│ a3f9c2d1  [⧉ Kopieren]  │
+│ Am Basar-Tag vorzeigen — │
+│ das Kassenpersonal ...   │
+│      ┌──────────┐        │
+│      │ ▀▄▀ █▀▄  │        │
+│      │ █ ▄▀▀▄ █ │        │
+│      └──────────┘        │
+└─────────────────────────┘
 ```
 
 ## Aufbau
@@ -58,6 +72,7 @@ merken oder kopieren genügt. Es gibt daher **nur eine** Darstellung, kein
 | QR-Code | Shared [qr-code](../../../components/qr-code/component.md), `value` = `id`, `size="128"` |
 | Kopieren-Button | [Button](../../../components/button/component.md) `secondary outlined small`, Icon ⧉ → Clipboard + [Toast](../../../components/toast/component.md) „✓ Nummer kopiert" |
 | Hinweistext | 12 px, muted |
+| Breakpoint (Spalten → gestapelt) | ≤ 1024 px (Tablet) — Nummer+Hinweis und QR wechseln von Zeile (nebeneinander) auf Spalte (übereinander) |
 
 Die Caption des QR-Codes bleibt leer — die Nummer steht daneben schon im
 Klartext, zweimal derselbe String wäre Rauschen.

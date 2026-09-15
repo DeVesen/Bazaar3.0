@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
+import { FluidModule } from 'primeng/fluid';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { MessageService } from 'primeng/api';
 import { SellersApiService, CreateSellerPayload } from '../sellers-api.service';
@@ -14,7 +15,7 @@ import { InfoArea } from '@shared/info-area/info-area';
 
 @Component({
   selector: 'app-seller-create-dialog',
-  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, SelectModule, AutoFocusModule, InfoArea, TranslatePipe],
+  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, SelectModule, FluidModule, AutoFocusModule, InfoArea, TranslatePipe],
   templateUrl: './seller-create-dialog.html'
 })
 export class SellerCreateDialog {

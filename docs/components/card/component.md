@@ -99,6 +99,8 @@ Innerhalb von Panel-Blöcken und Dialogen.
 | Spalten | 2 |
 | Gap | 12 px |
 | `.full` | volle Breite (beide Spalten) |
+| Breakpoint (1 Spalte) | ≤ 1024 px (Tablet) |
+| Feld-Breite | Jedes Formular-Element (Input, Select, InputNumber, Datepicker, Button) füllt seine Spaltenbreite vollständig aus — PrimeNG `<p-fluid>`-Wrapper um den Form-Grid-Inhalt, kein intrinsisch schmales Feld |
 
 **Label-Stil:**
 
@@ -141,7 +143,7 @@ Panel-Blöcke und Form-Grid: reines CSS — kein PrimeNG-Element.
 3. **AC-3** — THE SYSTEM SHALL das Filter-Panel als Standard-Card mit Padding 13 px 15 px rendern, wobei Zeile 1 Suchfeld (`flex: 1`) und Dropdowns (180 px / 200 px) enthält.
 4. **AC-4** — WHERE die Artikel-Seite das Filter-Panel anzeigt, SHALL Zeile 2 ein 4-Spalten-Grid (je 25 %, gap 10 px) enthalten.
 5. **AC-5** — THE SYSTEM SHALL Panel-Blöcke mit Radius 8 px, Padding 15 px 16 px und Margin-bottom 12 px rendern; Hintergrund, Border und Titel-Farbe folgen der jeweiligen App-Theming-Variante.
-6. **AC-6** — THE SYSTEM SHALL das Form-Grid als 2-Spalten-Layout mit Gap 12 px rendern; Elemente mit Klasse `.full` nehmen die volle Breite ein.
+6. **AC-6** — THE SYSTEM SHALL das Form-Grid als 2-Spalten-Layout mit Gap 12 px rendern; Elemente mit Klasse `.full` nehmen die volle Breite ein; bei Viewport ≤ 1024 px kollabiert das Grid auf 1 Spalte. Jedes Formular-Element füllt seine Spaltenbreite vollständig aus (`<p-fluid>`).
 7. **AC-7** — THE SYSTEM SHALL Form-Labels in 11.5 px, 700, uppercase, 0.4 px letter-spacing und `--muted` darstellen; Pflichtmarker `*` erscheinen in Danger-Farbe.
 
 ## Tags & Piles

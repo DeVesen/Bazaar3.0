@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
+import { FluidModule } from 'primeng/fluid';
 import { DrawerModule } from 'primeng/drawer';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Subject, debounceTime } from 'rxjs';
@@ -20,9 +21,10 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
 
 @Component({
   selector: 'app-master-data-filter-toolbar',
-  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, DrawerModule, TranslatePipe, NgTemplateOutlet],
+  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, FluidModule, DrawerModule, TranslatePipe, NgTemplateOutlet],
   template: `
     <ng-template #fields>
+      <p-fluid>
       @if (showOriginalFilter()) {
         <p-select
           [options]="originalOptions" optionLabel="label" optionValue="value"
@@ -37,6 +39,7 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
         <p-inputicon class="pi pi-search" />
         <input pInputText [placeholder]="'masterDataFilterToolbar.searchPlaceholder' | translate" [(ngModel)]="searchTextModel" />
       </p-iconfield>
+      </p-fluid>
     </ng-template>
 
     <div class="master-data-filter-toolbar">

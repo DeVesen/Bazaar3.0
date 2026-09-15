@@ -6,6 +6,7 @@
 >
   <div class="panel-block">
     <div class="panel-block__title">{{ 'sellerCreateDialog.sectionPersonal' | translate }}</div>
+    <p-fluid>
     <div class="form-grid">
       <div>
         <label for="create-first-name">{{ 'sellerCreateDialog.firstName' | translate }}</label>
@@ -16,10 +17,12 @@
         <input id="create-last-name" pInputText [(ngModel)]="lastNameModel" />
       </div>
     </div>
+    </p-fluid>
   </div>
 
   <div class="panel-block">
     <div class="panel-block__title">{{ 'sellerCreateDialog.sectionContact' | translate }}</div>
+    <p-fluid>
     <div class="form-grid">
       <div class="full">
         <label for="create-address">{{ 'sellerCreateDialog.address' | translate }}</label>
@@ -42,10 +45,12 @@
         <input id="create-email" pInputText type="email" [(ngModel)]="emailModel" />
       </div>
     </div>
+    </p-fluid>
   </div>
 
   <div class="panel-block">
     <div class="panel-block__title">{{ 'sellerCreateDialog.sectionConditions' | translate }}</div>
+    <p-fluid>
     <div class="form-grid">
       <div class="full">
         <label for="create-seller-type">{{ 'sellerCreateDialog.sellerType' | translate }}</label>
@@ -58,6 +63,7 @@
         />
       </div>
     </div>
+    </p-fluid>
     @if (selectedType(); as type) {
       <p>{{ 'sellerCreateDialog.conditionsSummary' | translate: { commissionRate: type.commissionRate, itemFee: type.itemFee } }}</p>
     }
@@ -65,6 +71,7 @@
 
   <div class="panel-block">
     <div class="panel-block__title">{{ 'sellerCreateDialog.sectionNumberBlock' | translate }}</div>
+    <p-fluid>
     <div class="form-grid">
       <div>
         <label for="create-start-number">{{ 'sellerCreateDialog.startNumber' | translate }}</label>
@@ -75,6 +82,7 @@
         <p-inputnumber id="create-block-count" [useGrouping]="false" [(ngModel)]="blockCountModel" />
       </div>
     </div>
+    </p-fluid>
   </div>
 
   @if (formError(); as error) {

@@ -17,6 +17,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputPasswordModule } from 'primeng/inputpassword';
 import { InputTextModule } from 'primeng/inputtext';
+import { FluidModule } from 'primeng/fluid';
 import { PasswordStrengthLevel, PasswordStrengthMeter } from '@shared/password-strength-meter/password-strength-meter';
 
 export interface RegistrationFormValue {
@@ -51,6 +52,7 @@ export interface RegistrationFormValue {
     InputIconModule,
     InputPasswordModule,
     InputTextModule,
+    FluidModule,
     PasswordStrengthMeter
   ],
   template: `
@@ -58,6 +60,7 @@ export interface RegistrationFormValue {
       <form (ngSubmit)="onSubmit()">
         <h1>{{ 'register.title' | translate }}</h1>
 
+        <p-fluid>
         <label for="register-email">{{ 'register.email' | translate }}</label>
         <p-iconfield>
           <p-inputicon>
@@ -166,8 +169,9 @@ export interface RegistrationFormValue {
         @if (passwordMismatch()) {
           <p class="registration-form__error">{{ 'register.passwordMismatch' | translate }}</p>
         }
+        </p-fluid>
 
-        <p-button type="submit" [label]="'register.submit' | translate" severity="primary" [style]="{ width: '100%' }" [disabled]="!canSubmit()" />
+        <p-button type="submit" [label]="'register.submit' | translate" severity="primary" [fluid]="true" [disabled]="!canSubmit()" />
 
         <p-button type="button" [text]="true" label="{{ 'register.hasAccount' | translate }} {{ 'register.loginLink' | translate }}" routerLink="/login" />
       </form>

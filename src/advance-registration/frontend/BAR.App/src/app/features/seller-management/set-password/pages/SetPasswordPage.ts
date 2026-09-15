@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { FluidModule } from 'primeng/fluid';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PasswordStrengthMeter } from '@shared/password-strength-meter/password-strength-meter';
 import { AuthService } from '@core/auth/auth.service';
@@ -15,9 +16,10 @@ import { SetPasswordApiService } from '../data/set-password-api.service';
 @Component({
   selector: 'app-set-password-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, InputTextModule, PasswordStrengthMeter, TranslatePipe],
+  imports: [FormsModule, InputTextModule, FluidModule, PasswordStrengthMeter, TranslatePipe],
   template: `
     <h1>{{ 'setPassword.title' | translate }}</h1>
+    <p-fluid>
     <label for="set-password-input">{{ 'setPassword.newPassword' | translate }}</label>
     <input
       id="set-password-input"
@@ -26,6 +28,7 @@ import { SetPasswordApiService } from '../data/set-password-api.service';
       [ngModel]="password()"
       (ngModelChange)="password.set($event)"
     />
+    </p-fluid>
     <app-password-strength-meter [password]="password()" />
     @if (errorMessage()) {
       <p class="set-password__error">{{ errorMessage() }}</p>

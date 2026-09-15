@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { FluidModule } from 'primeng/fluid';
 import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
@@ -19,10 +20,11 @@ import { MasterDataApiService, MasterDataItem } from '../../master-data-api.serv
   selector: 'app-article-dialog',
   imports: [
     FormsModule, DialogModule, InputTextModule, InputGroupModule, InputGroupAddonModule,
-    InputNumberModule, ButtonModule, TextareaModule, TooltipModule, AutocompleteCreate, TranslatePipe
+    InputNumberModule, FluidModule, ButtonModule, TextareaModule, TooltipModule, AutocompleteCreate, TranslatePipe
   ],
   template: `
     <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="header">
+      <p-fluid>
       <label>{{ 'articleDialog.number' | translate }}</label>
       <input pInputText [value]="number()" [readonly]="true" />
       @if (mode() === 'create') {
@@ -52,6 +54,7 @@ import { MasterDataApiService, MasterDataItem } from '../../master-data-api.serv
 
       <label>{{ 'articleDialog.description' | translate }}</label>
       <textarea pTextarea [(ngModel)]="descriptionModel"></textarea>
+      </p-fluid>
 
       @if (errorMessage()) {
         <p class="error">{{ errorMessage() }}</p>

@@ -5,15 +5,17 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { FluidModule } from 'primeng/fluid';
 import { MessageService } from 'primeng/api';
 import { Observable } from 'rxjs';
 import type { SellerType, SellerTypePayload } from '../seller-type-api.service';
 
 @Component({
   selector: 'app-seller-type-popup',
-  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, TranslatePipe],
+  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, InputNumberModule, FluidModule, TranslatePipe],
   template: `
     <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="dialogTitle">
+      <p-fluid>
       <div class="field">
         <label for="typ-name">{{ 'typPopup.name' | translate }}</label>
         <input id="typ-name" pInputText [(ngModel)]="nameModel" autofocus />
@@ -31,6 +33,7 @@ import type { SellerType, SellerTypePayload } from '../seller-type-api.service';
         <label for="typ-fee">{{ 'typPopup.itemFee' | translate }}</label>
         <p-inputnumber id="typ-fee" [(ngModel)]="itemFeeModel" mode="currency" currency="EUR" locale="de-DE" [min]="0" />
       </div>
+      </p-fluid>
 
       <div class="dialog-footer">
         <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>

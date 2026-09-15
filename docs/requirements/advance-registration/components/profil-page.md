@@ -12,10 +12,12 @@ Größtenteils Wiederverwendung bereits etablierter Bausteine (Panel-Muster aus 
 ```
 [ Steckbrief | Zugangsdaten | Löschen ]   ← p-tabs
 
-Tab „Steckbrief":
+Tab „Steckbrief" (≥ Tablet, Details → [verkaeufer-nummer.md](verkaeufer-nummer.md)):
 ┌─────────────────────────────────────────┐
 │ MEINE VERKÄUFERNUMMER (readonly)         │
-│  a3f9c2d1  [⧉ Kopieren]      [QR-Code]   │
+│  a3f9c2d1              ┌──────────┐      │
+│  [⧉ Kopieren]          │ QR-Code  │      │
+│  Hinweistext            └──────────┘      │
 ├─────────────────────────────────────────┤
 │ PERSONENDATEN                            │
 │  [Vorname 50%] [Nachname 50%]            │
@@ -26,11 +28,16 @@ Tab „Steckbrief":
 │  [Telefon 50%] [E-Mail 50%, readonly]    │
 ├─────────────────────────────────────────┤
 │ KONDITIONEN (alles readonly)             │
-│  Verkäufer-Typ [p-select disabled]       │
-│  Gebühr/Provision (readonly)             │
+│  [Verkäufer-Typ 50%, p-select disabled]  │  ← rechte Spalte bewusst leer
+│  [Gebühr 50%] [Provision 50%] (readonly) │
 ├─────────────────────────────────────────┤
 │                            [Speichern]   │
 └─────────────────────────────────────────┘
+
+Alle Felder füllen ihre Spaltenbreite (50%/100%) tatsächlich aus — `<p-fluid>`,
+siehe [card.md](../../../components/card/component.md) Abschnitt 4. Grid kollabiert
+auf 1 Spalte ≤ 1024 px (Tablet), Verkäufernummer-Panel stapelt dann zusätzlich
+Nummer/Hinweis und QR-Code übereinander.
 
 Tab „Zugangsdaten":
 ┌─────────────────────────────────────────┐

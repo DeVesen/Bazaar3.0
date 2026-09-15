@@ -4,6 +4,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { FluidModule } from 'primeng/fluid';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageService } from 'primeng/api';
 import { Observable } from 'rxjs';
@@ -11,9 +12,10 @@ import type { MasterDataItem } from '@shared/models/master-data-item';
 
 @Component({
   selector: 'app-master-data-popup',
-  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, ToggleSwitchModule, TranslatePipe],
+  imports: [FormsModule, DialogModule, ButtonModule, InputTextModule, FluidModule, ToggleSwitchModule, TranslatePipe],
   template: `
     <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="dialogTitle">
+      <p-fluid>
       <div class="field">
         <label for="masterData-name">{{ 'masterDataPopup.name' | translate }}</label>
         <input id="masterData-name" pInputText [(ngModel)]="nameModel" autofocus />
@@ -28,6 +30,7 @@ import type { MasterDataItem } from '@shared/models/master-data-item';
           <p-toggleswitch id="masterData-original" [(ngModel)]="originalModel" />
         </div>
       }
+      </p-fluid>
 
       <div class="dialog-footer">
         <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>

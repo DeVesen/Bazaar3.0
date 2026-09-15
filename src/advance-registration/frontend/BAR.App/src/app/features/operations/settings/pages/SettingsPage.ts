@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { FluidModule } from 'primeng/fluid';
 import { TextareaModule } from 'primeng/textarea';
 import { PopoverModule } from 'primeng/popover';
 import { MessageService } from 'primeng/api';
@@ -36,7 +37,7 @@ interface ValidationProblem {
 
 @Component({
   selector: 'app-settings-page',
-  imports: [FormsModule, ButtonModule, DatePickerModule, SelectModule, InputNumberModule, TextareaModule, PopoverModule, InfoArea, MarkdownText, TranslatePipe],
+  imports: [FormsModule, ButtonModule, DatePickerModule, SelectModule, InputNumberModule, FluidModule, TextareaModule, PopoverModule, InfoArea, MarkdownText, TranslatePipe],
   templateUrl: './SettingsPage.html',
   styleUrl: './SettingsPage.scss'
 })

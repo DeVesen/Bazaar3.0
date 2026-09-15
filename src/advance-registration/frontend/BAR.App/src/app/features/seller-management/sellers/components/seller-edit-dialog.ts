@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
+import { FluidModule } from 'primeng/fluid';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { MessageService, ConfirmationService } from 'primeng/api';
@@ -23,6 +24,7 @@ import { InfoArea } from '@shared/info-area/info-area';
     InputTextModule,
     InputNumberModule,
     SelectModule,
+    FluidModule,
     CheckboxModule,
     AutoFocusModule,
     Badge,

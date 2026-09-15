@@ -15,6 +15,7 @@
 
             <div class="panel-block">
               <p class="panel-block__title">{{ 'profile.sectionPersonal' | translate }}</p>
+              <p-fluid>
               <div class="form-grid">
                 <div>
                   <label for="firstName">{{ 'profile.firstName' | translate }}</label>
@@ -49,10 +50,12 @@
                   }
                 </div>
               </div>
+              </p-fluid>
             </div>
 
             <div class="panel-block">
               <p class="panel-block__title">{{ 'profile.sectionContact' | translate }}</p>
+              <p-fluid>
               <div class="form-grid">
                 <div>
                   <label for="phone">{{ 'profile.phone' | translate }}</label>
@@ -66,10 +69,12 @@
                   <input id="email" pInputText [ngModel]="p.email" name="email" [readonly]="true" />
                 </div>
               </div>
+              </p-fluid>
             </div>
 
             <div class="panel-block">
               <p class="panel-block__title">{{ 'profile.sectionConditions' | translate }}</p>
+              <p-fluid>
               <div class="form-grid">
                 <div>
                   <label for="sellerType">{{ 'profile.sellerType' | translate }}</label>
@@ -84,6 +89,7 @@
                   <p-inputnumber [ngModel]="p.sellerType.commissionRate" name="commissionRate" mode="decimal" locale="de-DE" [minFractionDigits]="2" [readonly]="true" />
                 </div>
               </div>
+              </p-fluid>
             </div>
 
             @if (saveError()) {
@@ -104,6 +110,7 @@
         <form (ngSubmit)="changeEmail()">
           <div class="panel-block">
             <p class="panel-block__title">E-Mail ändern</p>
+            <p-fluid>
             <div class="form-grid">
               <div>
                 <label for="newEmail">Neue E-Mail *</label>
@@ -114,6 +121,7 @@
                 <input id="emailCurrentPassword" pInputText type="password" [ngModel]="emailCurrentPassword()" (ngModelChange)="emailCurrentPassword.set($event)" name="emailCurrentPassword" required />
               </div>
             </div>
+            </p-fluid>
             @if (emailError()) {
               <app-info-area type="error" [message]="emailError()!" />
             }
@@ -124,6 +132,7 @@
         <form (ngSubmit)="changePassword()">
           <div class="panel-block">
             <p class="panel-block__title">Passwort ändern</p>
+            <p-fluid>
             <div class="form-grid">
               <div>
                 <label for="passwordCurrentPassword">Aktuelles Passwort *</label>
@@ -139,6 +148,7 @@
                 <input id="newPasswordConfirmation" pInputText type="password" [ngModel]="newPasswordConfirmation()" (ngModelChange)="newPasswordConfirmation.set($event)" name="newPasswordConfirmation" required />
               </div>
             </div>
+            </p-fluid>
             @if (passwordError()) {
               <app-info-area type="error" [message]="passwordError()!" />
             }
