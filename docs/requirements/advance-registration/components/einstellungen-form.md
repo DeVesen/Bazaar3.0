@@ -53,7 +53,7 @@ entsprechend von `dropOffFrom`, `bazaarUntil` von `bazaarFrom`. Details → [`en
 | Die 5 Basar-Termine | [Datepicker](../../../components/datepicker/component.md) |
 | `defaultTypeId` | [Select](../../../components/select/component.md), Variante Dropdown — Liste aller Verkäufer-Typen |
 | `startNumber` / `blockSize` / `defaultBlockCount` | [Input](../../../components/input/component.md), Variante Number |
-| `infoText` | `pTextarea` (min. 8 Zeilen, vertikal resizable), `maxlength="4000"` + Zeichenzähler |
+| `infoText` | `pTextarea` (fix 140 px Höhe, nicht resizable), `maxlength="4000"` + Zeichenzähler |
 | Info-Text-Vorschau | [`markdown-text`](markdown-text.md) — **dieselbe** Komponente, die den Text später auf Login-Seite und Home rendert |
 | Syntax-Hilfe | `p-popover`, geöffnet über ein ⓘ-Icon (`p-button [text]="true" [rounded]="true"`) rechts neben dem Abschnittstitel |
 | Speichern-Button | [Button](../../../components/button/component.md) primary |
