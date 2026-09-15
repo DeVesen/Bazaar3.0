@@ -6,14 +6,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace BAR.Host.IntegrationTests.Features.Public;
 
 /// <summary>
-/// Since the raw SQL data seed was removed (the same change that
-/// RegistrationTestSeed documents for settings - the old admin account
-/// "admin@bazaar.local", hardcoded in the migration, no longer exists), there
-/// is no longer a pre-seeded admin account. Existing endpoint tests use this
-/// account only as setup to obtain an admin token; they now create it
-/// themselves before logging in. SellerTypeId is a plain string with no
-/// cross-schema FK (MasterData lives in a different schema) - any 8-character
-/// placeholder is valid.
+/// No admin is pre-seeded in the database (the hardcoded migration seed was
+/// removed in favor of the runtime bootstrap-admin flow, BootstrapAdminCommandHandler).
+/// Endpoint tests that need an admin token create one directly through this
+/// helper rather than going through /api/auth/bootstrap-admin, since most of
+/// them share a database with other tests where an admin already exists.
+/// SellerTypeId is a plain string with no cross-schema FK (MasterData lives
+/// in a different schema) - any 8-character placeholder is valid.
 /// </summary>
 public static class AdminTestSeed
 {
