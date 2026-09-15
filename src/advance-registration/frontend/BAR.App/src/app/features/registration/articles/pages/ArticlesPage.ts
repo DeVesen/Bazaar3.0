@@ -6,7 +6,6 @@ import { SellerSearchApiService } from '@features/registration/seller-search-api
 import { ArticleReadonlyModal } from '../components/article-readonly-modal';
 import { AppTable, ActionClickEvent, ActionColumnConfig, ColumnConfig, SortMeta, TablePageEvent } from '@shared/table/table';
 import { FilterPanel, FilterPanelSearch } from '@shared/filter-panel/filter-panel';
-import { TranslatePipe } from '@ngx-translate/core';
 
 export interface AdminArticleRow extends AdminArticleResponse {
   sellerLabel: string;
@@ -31,10 +30,8 @@ function toRow(a: AdminArticleResponse): AdminArticleRow {
 
 @Component({
   selector: 'app-articles-page',
-  imports: [FilterPanel, AppTable, ArticleReadonlyModal, TranslatePipe],
+  imports: [FilterPanel, AppTable, ArticleReadonlyModal],
   template: `
-    <h1>{{ 'articles.title' | translate }}</h1>
-
     <app-filter-panel [brands]="brands()" [categories]="categories()" [sellerAutocomplete]="true" [sellerSearchFn]="sellerSearchFn" (search)="onFilterSearch($event)" />
 
     <app-table
