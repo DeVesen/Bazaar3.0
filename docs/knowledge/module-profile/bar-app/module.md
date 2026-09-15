@@ -23,7 +23,16 @@ HTTP-Client-Aufrufe gegen `BAR.Host`s Endpoints — kein eigener Vertrag, den an
 ## Structure
 `src/app/features/<feature>/`, `src/app/core/{auth,public-info,shell,theme}/`, `public/i18n/{de,en}.json` (Übersetzungen).
 
+## Layout & Routing
+Kein `MainLayout` im Code — zwei Layouts:
+- `PageLayout` (`core/shell/page-layout/`) — Titelleiste + `router-outlet`, für alle authentifizierten Routen außer `/home`.
+- `LoginLayout` (`features/login/components/login-layout.ts`) — nur für `/login`.
+
+Routing (`app.routes.ts`): `/home` läuft direkt unter `Shell` (`HomePage`, kein `PageLayout`). Alle anderen geschützten Routen (`my-articles`, `profile`, `number-blocks`, `sellers`, `articles`, `brands`, `categories`, `seller-types`, `settings`, `export`) laufen `Shell` → `PageLayout`.
+
+Height-Capping-Konvention (Flexbox, kein `calc()`/vh-Zahlen): `Shell` `:host` fix `height:100vh; overflow:hidden`; `.content-body` Flex-Column mit `overflow-y:auto` als Fallback für Routen ohne `PageLayout` (z. B. `/home`). `PageLayout` selbst Flex-Column `height:100%`; Titelleiste `flex-shrink:0` bleibt fix; `.page-content` `flex:1; min-height:0; overflow-y:auto` scrollt intern — Gesamthöhe wächst nie über den Viewport hinaus.
+
 ## Notes
-- Maturity `sketch`: nur Verzeichnisstruktur gelistet, kein Signature-Level-Walk durch Components/Services/Routing durchgeführt. Für `reviewed` fehlt noch ein echter Review-Mode-Durchgang (Routing-Tabelle, Guards, HTTP-Interceptors, State-Management).
+- Maturity `sketch`: nur Verzeichnisstruktur gelistet, kein vollständiger Signature-Level-Walk durch Components/Services/Routing durchgeführt. Für `reviewed` fehlt noch ein echter Review-Mode-Durchgang (Guards, HTTP-Interceptors, State-Management) — Routing/Layout-Grundstruktur ist oben bereits erfasst.
 - Die 10 Feature-Ordner werden separat als Feature-Profile erfasst (siehe `docs/knowledge/feature-profile/`), nicht hier als Unterstruktur dieses Moduls im Detail wiederholt.
 - Dev-Server-Proxy (`proxy.conf.json`): `/api` und `/health` → `http://localhost:5001` (muss mit `BAR.Host`s `launchSettings.json`-Port übereinstimmen, siehe `bar-host` Modul-Profil — Mismatch verursacht 502 Bad Gateway auf jedem Backend-Call).

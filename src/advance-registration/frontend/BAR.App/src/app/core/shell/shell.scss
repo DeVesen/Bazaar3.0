@@ -2,21 +2,44 @@
 
 :host {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+p-sidebar-layout {
+  height: 100%;
+  min-height: 0;
+}
+
+p-sidebar-main {
+  min-height: 0;
 }
 
 // Desktop (> 1024px): Titelleiste ist gemaess spec.md §10.1 nicht vorhanden.
 .content-header {
   display: none;
   height: 56px;
+  flex-shrink: 0;
   align-items: center;
   padding: 0 var(--space-4);
   background: var(--color-surface, #e9e9ea);
 }
 
 .content-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
   background: var(--color-bg);
   padding: 26px 22px;
+  overflow-y: auto;
+}
+
+// Gerouteter Seiteninhalt fuellt die verbleibende Hoehe, damit Layouts wie
+// PageLayout ihren eigenen internen Scroll (statt Seiten-Scroll) aufbauen koennen.
+.content-body > :not(router-outlet) {
+  flex: 1;
+  min-height: 0;
 }
 
 // Tablet (<= 1024px): Titelleiste wird sichtbar, Sidebar-Slide-in beginnt

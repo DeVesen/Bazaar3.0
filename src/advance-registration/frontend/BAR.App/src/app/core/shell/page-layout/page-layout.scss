@@ -1,5 +1,15 @@
 @use '../../../../styles/breakpoints';
 
+// Flex-column ueber die volle von Shell.content-body zugewiesene Hoehe:
+// Titelleiste bleibt fix, .page-content traegt den Rest und scrollt selbst,
+// damit die Gesamthoehe nie ueber die Viewport-Hoehe hinauswaechst.
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
 // Shell.content-body padded 26px 22px (14px 12px on mobile) — negative
 // margins pull the title bar back out to the edge of the content area,
 // matching the full-bleed hamburger header above it.
@@ -7,6 +17,7 @@
   display: flex;
   align-items: center;
   height: 56px;
+  flex-shrink: 0;
   margin: -26px -22px 22px;
   padding: 0 var(--space-4);
   background: var(--color-surface);
@@ -16,6 +27,12 @@
   margin: 0;
   font-family: var(--font-heading);
   font-size: 20px;
+}
+
+.page-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 @include breakpoints.mobile {
