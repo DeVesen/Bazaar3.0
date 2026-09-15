@@ -40,7 +40,6 @@ const SORT_FIELD_MAP: Record<string, string> = {
 @Component({
   selector: 'app-sellers-page',
   imports: [AppTable, FilterPanel, SellerCreateDialog, SellerEditDialog, TranslatePipe],
-  styleUrl: './SellersPage.scss',
   template: `
     <app-filter-panel
       [sellerTypeOptions]="sellerTypeOptions()"
