@@ -34,7 +34,7 @@ public sealed class ArticleRepository(RegistrationDbContext dbContext) : IArticl
             .Where(a => a.Brand == oldName)
             .ExecuteUpdateAsync(setters => setters.SetProperty(a => a.Brand, newName), cancellationToken);
 
-        DetachTracked(a => a.Brand == newName);
+        DetachTracked(a => a.Brand == oldName);
     }
 
     public async Task RenameCategoryAsync(string oldName, string newName, CancellationToken cancellationToken)
@@ -43,7 +43,7 @@ public sealed class ArticleRepository(RegistrationDbContext dbContext) : IArticl
             .Where(a => a.Category == oldName)
             .ExecuteUpdateAsync(setters => setters.SetProperty(a => a.Category, newName), cancellationToken);
 
-        DetachTracked(a => a.Category == newName);
+        DetachTracked(a => a.Category == oldName);
     }
 
     // ExecuteUpdateAsync writes directly to the DB without updating the

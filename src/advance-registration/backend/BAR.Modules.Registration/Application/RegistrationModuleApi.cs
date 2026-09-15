@@ -128,8 +128,12 @@ public sealed class RegistrationModuleApi(
         return new RegistrationDashboardStatsDto(all.Count, counts);
     }
 
-    public Task DeleteAllForSellerAsync(string sellerId, CancellationToken cancellationToken) =>
-        Task.WhenAll(
-            articles.DeleteAllForSellerAsync(sellerId, cancellationToken),
-            blocks.DeleteAllForSellerAsync(sellerId, cancellationToken));
+    public async Task DeleteAllForSellerAsync(string sellerId, CancellationToken cancellationToken)
+    {
+        // Sequential, not Task.WhenAll: both repositories share the same
+        // RegistrationDbContext/connection, which isn't thread-safe - running
+        // both deletes concurrently throws NpgsqlOperationInProgressException.
+        await articles.DeleteAllForSellerAsync(sellerId, cancellationToken);
+        await blocks.DeleteAllForSellerAsync(sellerId, cancellationToken);
+    }
 }
