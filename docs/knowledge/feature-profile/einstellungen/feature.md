@@ -2,7 +2,7 @@
 
 **Intent:** Admin konfiguriert die Basar-weiten Parameter zentral an einer Stelle — Termine, Nummernkreis, Standard-Verkäufertyp, öffentlicher Info-Text.
 **Coverage:** inventoried
-**Last reviewed:** 2026-09-15
+**Last reviewed:** 2026-09-15 (updated)
 
 ## Capabilities
 - Admin can view/edit the registration deadline, drop-off window, bazaar window — `src/advance-registration/frontend/BAR.App/src/app/features/operations/settings/pages/SettingsPage.ts`
@@ -10,6 +10,8 @@
 - Admin can edit the public info text (Markdown), up to 4000 characters — `SettingsPage.ts`
 - User sees a warning as the info text nears the 4000-char limit (from 3800) — `SettingsPage.ts`
 - Admin can configure numbering (start number, block size, default block count) — `SettingsPage.ts`
+- Form pre-fills `startNumber`/`blockSize`/`defaultBlockCount` with `2001`/`25`/`1` when no settings exist yet — `SettingsPage.ts`
+- `dropOffFrom`/`bazaarFrom` suggest `registrationDeadline` while still empty; `dropOffUntil`/`bazaarUntil` suggest `dropOffFrom`/`bazaarFrom` the same way — `SettingsPage.ts`
 - User sees a save conflict (HTTP 409) distinctly from a generic save failure — `SettingsPage.ts`
 
 ## Spans

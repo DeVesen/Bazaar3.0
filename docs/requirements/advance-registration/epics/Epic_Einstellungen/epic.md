@@ -2,7 +2,7 @@
 id: F-AR-012
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-09-15
 ---
 
 # Epic: Einstellungen
@@ -51,15 +51,30 @@ Basar-Konfiguration, Info-Text und Nummernblock-Parameter.
 
 **Datumsfelder:** `p-datepicker` (Datum + Uhrzeit) für alle 5 Termine.
 
+**Vorschlagskette:** `dropOffFrom` und `bazaarFrom` übernehmen beim ersten Setzen von
+`registrationDeadline` dessen Wert als Vorschlag, solange sie noch leer sind; `dropOffUntil`
+übernimmt entsprechend `dropOffFrom`, `bazaarUntil` entsprechend `bazaarFrom`. Reine
+Formular-Vorbelegung, jederzeit überschreibbar — Details → [`entities/einstellungen.md`](../../entities/einstellungen.md).
+
+**Layout (Basar-Konfiguration-Panel):** ab Tablet-Breite zweispaltig — `registrationDeadline`
+allein in Zeile 1 (rechte Spalte leer), `dropOffFrom`/`dropOffUntil` und `bazaarFrom`/`bazaarUntil`
+je paarweise nebeneinander, `defaultTypeId` allein in der letzten Zeile. Unterhalb Tablet-Breite
+einspaltig untereinander. Das Basar-Konfiguration-Panel und das Nummernblock-Parameter-Panel
+stehen ab Tablet-Breite nebeneinander, darunter einspaltig gestapelt.
+
 ---
 
 ## 2. Nummernblock-Parameter
 
 | Parameter | Beschreibung |
 |---|---|
-| `startNumber` | Erste Artikelnummer überhaupt |
-| `blockSize` | Anzahl Nummern pro Block |
-| `defaultBlockCount` | Standard-Anzahl Blöcke für neue Verkäufer |
+| `startNumber` | Erste Artikelnummer überhaupt — Formular-Default `2001` |
+| `blockSize` | Anzahl Nummern pro Block — Formular-Default `25` |
+| `defaultBlockCount` | Standard-Anzahl Blöcke für neue Verkäufer — Formular-Default `1` |
+
+**Layout:** ab Tablet-Breite zweispaltig — `startNumber` allein in Zeile 1 (rechte Spalte leer),
+`defaultBlockCount`/`blockSize` paarweise nebeneinander in Zeile 2. Unterhalb Tablet-Breite
+einspaltig untereinander.
 
 ---
 
@@ -114,6 +129,8 @@ API-Details → [`api/settings.md`](../../api/settings.md)
 7. **AC-7** — WHILE der Admin den `infoText` bearbeitet, SHALL das System eine live aktualisierte Vorschau des gerenderten Textes anzeigen, gerendert von derselben Komponente wie auf Login-Seite und Home.
 8. **AC-8** — THE SYSTEM SHALL im Einstellungsformular eine abrufbare Übersicht der unterstützten Markdown-Elemente anzeigen, einschließlich des Hinweises, dass nicht unterstützte Syntax als Klartext stehen bleibt.
 9. **AC-9** — IF ein `infoText` mit mehr als 4000 Zeichen gespeichert werden soll, THEN SHALL das System das Speichern mit `400` ablehnen und die Meldung „Info-Text darf maximal 4000 Zeichen lang sein" am Feld anzeigen.
+10. **AC-10** — WHEN noch keine Einstellungen existieren, THEN SHALL das Formular `startNumber` mit `2001`, `blockSize` mit `25` und `defaultBlockCount` mit `1` vorbelegen.
+11. **AC-11** — WHEN `registrationDeadline` gesetzt wird UND `dropOffFrom` bzw. `bazaarFrom` noch leer sind, THEN SHALL das System diese mit dem Wert von `registrationDeadline` vorbelegen; entsprechend übernimmt `dropOffUntil` von `dropOffFrom` und `bazaarUntil` von `bazaarFrom`, sofern noch leer. Die Vorbelegung bleibt jederzeit überschreibbar.
 
 ## Tags & Piles
 

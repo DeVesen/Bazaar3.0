@@ -1,7 +1,7 @@
 ---
 status: reviewed
 reviewed-date: 2026-08-14
-updated: 2026-08-17
+updated: 2026-09-15
 ---
 
 # Component: einstellungen-form
@@ -11,18 +11,12 @@ Reine Formulare — keine neuen PrimeNG-Entscheidungen.
 ## Kontext
 
 ```
-BASAR-KONFIGURATION
-  Voranmeldeschluss    [📅 Datum + Uhrzeit]
-  Abgabe von           [📅 Datum + Uhrzeit]
-  Abgabe bis           [📅 Datum + Uhrzeit]
-  Basar von            [📅 Datum + Uhrzeit]
-  Basar bis            [📅 Datum + Uhrzeit]
+BASAR-KONFIGURATION                NUMMERNBLOCK-PARAMETER
+  Voranmeldeschluss    [📅 …]        Startnummer          [_____]  (Default 2001)
+                                    Standard-Blockanzahl [_____]  (Default 1)
+  Abgabe von  [📅 …] Abgabe bis [📅 …] Blockgröße           [_____]  (Default 25)
+  Basar von   [📅 …] Basar bis  [📅 …]
   Standard-Verkäufer-Typ [p-select]
-
-NUMMERNBLOCK-PARAMETER
-  Startnummer          [_____]
-  Blockgröße           [_____]
-  Standard-Blockanzahl [_____]
 
 INFO-TEXT                          Unterstützte Formatierung ⓘ
 ┌─────────────────────────┬─────────────────────────┐
@@ -40,6 +34,19 @@ INFO-TEXT                          Unterstützte Formatierung ⓘ
 ## Aufbau
 
 Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](../../../components/form/component.md).
+
+**Layout ab Tablet-Breite:** Basar-Konfiguration- und Nummernblock-Parameter-Panel stehen
+nebeneinander, darunter volle Breite das Info-Text-Panel. Innerhalb Basar-Konfiguration:
+`registrationDeadline` allein in Zeile 1 (rechte Spalte leer), `dropOffFrom`/`dropOffUntil`
+und `bazaarFrom`/`bazaarUntil` je paarweise nebeneinander, `defaultTypeId` allein am Ende.
+Innerhalb Nummernblock-Parameter: `startNumber` allein in Zeile 1 (rechte Spalte leer),
+`defaultBlockCount`/`blockSize` paarweise nebeneinander. Unterhalb Tablet-Breite alle Felder
+einspaltig untereinander, Panels gestapelt.
+
+**Vorbelegung:** `startNumber`/`blockSize`/`defaultBlockCount` sind bei erstmaliger
+Konfiguration mit `2001`/`25`/`1` vorbelegt. `dropOffFrom` und `bazaarFrom` übernehmen —
+solange noch leer — den Wert von `registrationDeadline` als Vorschlag; `dropOffUntil`
+entsprechend von `dropOffFrom`, `bazaarUntil` von `bazaarFrom`. Details → [`entities/einstellungen.md`](../entities/einstellungen.md).
 
 | Feld | PrimeNG |
 |---|---|

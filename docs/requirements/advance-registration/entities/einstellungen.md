@@ -21,9 +21,15 @@ Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) 
 | `bazaarUntil` | DateTime | ✅ | Ende Basar |
 | `defaultTypeId` | string (8 Zeichen) | ✅ | Referenz auf Verkäufer-Typ — Standard für Selbstregistrierung/Login |
 | `infoText` | string (max. 4000 Zeichen) | ❌ | Markdown-Freitext, Anzeige auf Verkäufer-Home + Login-Seite |
-| `startNumber` | int | ✅ | Erste Artikelnummer überhaupt |
-| `blockSize` | int | ✅ | Anzahl Nummern pro Nummernblock |
-| `defaultBlockCount` | int | ✅ | Standard-Anzahl Blöcke für neue Verkäufer |
+| `startNumber` | int | ✅ | Erste Artikelnummer überhaupt — Formular-Default bei erstmaliger Konfiguration: `2001` |
+| `blockSize` | int | ✅ | Anzahl Nummern pro Nummernblock — Formular-Default bei erstmaliger Konfiguration: `25` |
+| `defaultBlockCount` | int | ✅ | Standard-Anzahl Blöcke für neue Verkäufer — Formular-Default bei erstmaliger Konfiguration: `1` |
+
+**Termin-Vorschlagskette im Formular:** `dropOffFrom` und `bazaarFrom` übernehmen — solange
+noch kein eigener Wert gesetzt ist — den Wert von `registrationDeadline` als Vorschlag;
+`dropOffUntil` übernimmt entsprechend `dropOffFrom`, `bazaarUntil` entsprechend `bazaarFrom`.
+Reine Formular-Vorbelegung (kein Server-Default), jederzeit überschreibbar; greift nur,
+solange das jeweilige Zielfeld noch leer ist.
 
 **Längengrenze `infoText`:** 4000 Zeichen, als Spaltenlänge in der Datenbank **und** als
 Backend-Validierung (`400`, siehe [`api/settings.md`](../api/settings.md)). Gezählt werden

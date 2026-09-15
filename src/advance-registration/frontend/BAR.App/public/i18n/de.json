@@ -346,6 +346,8 @@
     "blockSizeHint": "Bestehende Blöcke behalten ihre Größe — nur künftig angelegte Blöcke bekommen die neue.",
     "defaultBlockCountLabel": "Standard-Blockanzahl",
     "infoTextTitle": "Info-Text",
+    "infoTextLabel": "Info-Text",
+    "previewLabel": "Vorschau",
     "syntaxHelpAriaLabel": "Unterstützte Formatierung",
     "syntaxHeaderElement": "Element",
     "syntaxHeaderSyntax": "Syntax",

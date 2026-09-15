@@ -346,6 +346,8 @@
     "blockSizeHint": "Existing blocks keep their size — only newly created blocks get the new one.",
     "defaultBlockCountLabel": "Default block count",
     "infoTextTitle": "Info text",
+    "infoTextLabel": "Info text",
+    "previewLabel": "Preview",
     "syntaxHelpAriaLabel": "Supported formatting",
     "syntaxHeaderElement": "Element",
     "syntaxHeaderSyntax": "Syntax",

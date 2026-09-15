@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -21,9 +21,9 @@ const EMPTY_SETTINGS: SettingsDto = {
   bazaarUntil: null,
   defaultTypeId: null,
   infoText: null,
-  startNumber: null,
-  blockSize: null,
-  defaultBlockCount: null
+  startNumber: 2001,
+  blockSize: 25,
+  defaultBlockCount: 1
 };
 import { SellerTypeOptionsApiService, SellerTypeOption } from '@features/operations/seller-type-options-api.service';
 
@@ -75,6 +75,21 @@ export class SettingsPage {
   constructor() {
     this.sellerTypeApi.getAll().subscribe((types) => this.sellerTypes.set(types));
     this.api.get().subscribe((dto) => this.applySettings(dto));
+
+    effect(() => {
+      const deadline = this.registrationDeadline();
+      if (!deadline) return;
+      if (!this.dropOffFrom()) this.dropOffFrom.set(deadline);
+      if (!this.bazaarFrom()) this.bazaarFrom.set(deadline);
+    });
+    effect(() => {
+      const dropOffFrom = this.dropOffFrom();
+      if (dropOffFrom && !this.dropOffUntil()) this.dropOffUntil.set(dropOffFrom);
+    });
+    effect(() => {
+      const bazaarFrom = this.bazaarFrom();
+      if (bazaarFrom && !this.bazaarUntil()) this.bazaarUntil.set(bazaarFrom);
+    });
   }
 
   save(): void {
