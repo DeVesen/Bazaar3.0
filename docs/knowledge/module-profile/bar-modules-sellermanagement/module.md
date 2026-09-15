@@ -8,7 +8,8 @@
 **Last updated:** 2026-09-15
 
 ## Responsibilities
-- Auth: Register, Login, Refresh, SetPassword (JWT-Ausstellung via `JwtTokenIssuer`, Hashing via `BCryptPasswordHasher`)
+- Auth: Register, Login, Refresh, SetPassword, BootstrapAdmin (JWT-Ausstellung via `JwtTokenIssuer`, Hashing via `BCryptPasswordHasher`)
+- Bootstrap: erster Admin ohne fest verdrahteten Seed — `AdminBootstrapState` (einmal pro Prozessstart berechnet) + `BootstrapAdminCommandHandler`, siehe `bootstrap-admin` Feature-Profil
 - Seller-CRUD, Invite, `SellerCascadeDeleter` (kaskadiertes Löschen über Registration hinweg), `SellerBlockAllocationCoordinator`
 - Profil: GetProfile, UpdateProfile, ChangeEmail, ChangePassword, DeleteProfile
 - Nicht zuständig: kennt Verkäufertyp-Konditionen nicht selbst (fragt MasterData), kennt Artikel/Blöcke nicht selbst (fragt Registration)
@@ -28,7 +29,7 @@ Kein eigener Vertrag über die Modulgrenze — Vertrag ist `ISellerManagementMod
 - JWT-Ausstellung liest `JwtOptions` aus `BAR.Modules.SellerManagement.Contracts.Security` — Host validiert dieselbe Konfiguration
 
 ## Structure
-`Application/Auth/{Login,Refresh,Register,SetPassword}/`, `Application/Profile/{ChangeEmail,ChangePassword,DeleteProfile,GetProfile,UpdateProfile}/`, `Application/Sellers/{Create,Delete,Invite,List,Update}/`, `Application/Sellers/{SellerBlockAllocationCoordinator,SellerCascadeDeleter}.cs`, `Domain/Auth/RefreshToken.cs`, `Domain/Sellers/Seller.cs`, `Infrastructure/Security/{BCryptPasswordHasher,JwtTokenIssuer}.cs`, `Infrastructure/Persistence/EfUnitOfWork.cs`.
+`Application/Auth/{BootstrapAdmin,Login,Refresh,Register,SetPassword}/`, `Application/Profile/{ChangeEmail,ChangePassword,DeleteProfile,GetProfile,UpdateProfile}/`, `Application/Sellers/{Create,Delete,Invite,List,Update}/`, `Application/Sellers/{SellerBlockAllocationCoordinator,SellerCascadeDeleter}.cs`, `Domain/Auth/RefreshToken.cs`, `Domain/Sellers/Seller.cs`, `Infrastructure/Security/{BCryptPasswordHasher,JwtTokenIssuer}.cs`, `Infrastructure/Persistence/EfUnitOfWork.cs`.
 
 ## Notes
 - `SellerManagementModuleApi` injiziert `IMasterDataModuleApi` direkt im Konstruktor statt lazy — laut Code-Kommentar unproblematisch, weil diese Abhängigkeit einseitig ist (MasterData ruft nicht zurück in SellerManagement in dieser Konstellation).
