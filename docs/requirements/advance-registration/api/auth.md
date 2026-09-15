@@ -23,14 +23,17 @@ Frontend-Infrastruktur → [VSHELL-S04](../epics/Epic_App_Shell/stories/VSHELL-S
 |---|---|---|
 | `POST /api/auth/login` | `public` | Anmeldung mit E-Mail + Passwort |
 | `POST /api/auth/register` | `public` | Selbstregistrierung eines neuen Verkäufers |
+| `POST /api/auth/bootstrap-admin` | `public` | Anlegen des allerersten Administrator-Kontos |
 | `POST /api/auth/refresh` | `public` | Neues Access-Token gegen gültiges Refresh-Token |
 | `POST /api/auth/set-password` | `public` | Erstpasswort über Admin-Invite-Token setzen |
+| `GET /api/public/bootstrap-status` | `public` | Existiert bereits ein Administrator-Konto? |
 
 ---
 
 ## Einheitliche Token-Response
 
-Alle vier Endpoints antworten im Erfolgsfall mit **derselben** Hülle:
+Login, Register, Bootstrap-Admin, Refresh und Set-Password antworten im
+Erfolgsfall mit **derselben** Hülle:
 
 ```json
 {
@@ -93,7 +96,36 @@ Kein Verkäufer-Typ im Request — die Zuordnung passiert serverseitig über
 
 ---
 
-## 3. `POST /api/auth/refresh`
+## 3. `POST /api/auth/bootstrap-admin`
+
+Legt das allererste Administrator-Konto auf einem sonst leeren System an und
+meldet es sofort an — der Ersatz für den früheren fest verdrahteten
+Migrations-Seed. Gleiche Request-/Response-Form wie `/register`; abweichend
+sind nur die serverseitigen Nebenwirkungen (Rolle `admin` statt
+`defaultTypeId`-Verkäufer) und die Fehlerlage.
+
+**Request**
+```json
+{ "email": "anna@example.com", "password": "geheim123" }
+```
+
+**Response `201`** — Token-Hülle
+
+**Fehler**
+
+| Code | `detail` |
+|---|---|
+| `400` | Validierung — Passwortstärke mindestens „Mittel" (Epic_Login §6) |
+| `409` | `errorCode: seller.email_taken` — „Diese E-Mail ist bereits registriert" |
+| `409` | `errorCode: bootstrap.already_done` — „Es existiert bereits ein Administrator-Konto", wenn bereits ein Administrator existiert |
+
+Anders als `/register` gibt es hier **keine** `registration.not_enabled`-Prüfung —
+das erste Administrator-Konto muss unabhängig vom `defaultTypeId` in den
+Einstellungen anlegbar sein.
+
+---
+
+## 4. `POST /api/auth/refresh`
 
 **Request**
 ```json
@@ -110,8 +142,8 @@ Die Ablage ist eine **eigene Tabelle** — eine Zeile pro aktiver Sitzung, siehe
 [`entities/refresh-token.md`](../entities/refresh-token.md). Gespeichert wird
 ausschließlich der SHA-256-Hash, nie das Token selbst.
 
-1. `/login`, `/register` und `/set-password` legen eine neue Zeile an und löschen
-   dabei die abgelaufenen Zeilen desselben Verkäufers.
+1. `/login`, `/register`, `/bootstrap-admin` und `/set-password` legen eine neue
+   Zeile an und löschen dabei die abgelaufenen Zeilen desselben Verkäufers.
 2. `/refresh` sucht die Zeile zum Hash des eingereichten Tokens, löscht sie und legt
    in derselben Transaktion eine neue an. Ein zweiter Aufruf mit demselben Token
    findet keine Zeile mehr → `401`.
@@ -138,7 +170,7 @@ nachrüstbar (`lastUsedAt` liegt dafür bereits vor), aber kein MVP-Bedarf.
 
 ---
 
-## 4. `POST /api/auth/set-password`
+## 5. `POST /api/auth/set-password`
 
 Abschluss des Admin-Invite-Flows: Der Admin legt den Verkäufer ohne Passwort an
 und übergibt einen Einladungs-Link (siehe [`sellers.md`](sellers.md),
@@ -164,6 +196,23 @@ gesetzt — das Token ist einmalig verwendbar
 
 ---
 
+## 6. `GET /api/public/bootstrap-status`
+
+Sagt dem Frontend, ob es beim Laden statt `/login` nach `/bootstrap-admin`
+routen muss (kein Administrator-Konto vorhanden). `public`, kein Token nötig
+— die Route existiert genau deshalb, weil es noch keinen Administrator gibt,
+gegen den man sich authentifizieren könnte.
+
+**Response `200`**
+```json
+{ "hasAdmin": true }
+```
+
+Kein Request-Body. Keine Fehlerfälle außerhalb der allgemeinen Fehlerform
+([`cross-cutting.md`](cross-cutting.md)).
+
+---
+
 ## Token-Eigenschaften
 
 | Thema | Wert |
@@ -173,7 +222,7 @@ gesetzt — das Token ist einmalig verwendbar
 | Access-Token-Lebensdauer | 5 Tage |
 | Refresh-Token-Lebensdauer | 30 Tage |
 | Passwort-Hashing | bcrypt oder Argon2 — kein Klartext; Ablage im Feld `passwordHash` des Verkäufers (`null`, solange nur eingeladen) |
-| Refresh-Token-Ablage | Eigene Tabelle `refresh_token`, eine Zeile pro Sitzung, max. 5 je Verkäufer (siehe Abschnitt 3) |
+| Refresh-Token-Ablage | Eigene Tabelle `refresh_token`, eine Zeile pro Sitzung, max. 5 je Verkäufer (siehe Abschnitt 4) |
 | Storage (Frontend) | `localStorage`: `bazaar_token` (Access), `bazaar_refresh_token` (Refresh) |
 
 ---

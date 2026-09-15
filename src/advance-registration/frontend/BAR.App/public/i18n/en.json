@@ -16,7 +16,6 @@
     "forgotPasswordHint": "Please contact the admin to reset your password.",
     "noAccount": "Don't have an account?",
     "registerLink": "Register now",
-    "demoHint": "Demo access: admin@bazaar.local / Admin123!",
     "invalidCredentials": "Invalid credentials",
     "phaseRegistrationDeadline": "Registration deadline",
     "phaseDropOffFrom": "Drop-off from",
@@ -25,6 +24,10 @@
     "phaseBazaarUntil": "Bazaar until",
     "commissionSuffix": "% commission",
     "itemFeeSuffix": "fee per item"
+  },
+  "bootstrapAdmin": {
+    "title": "Welcome to the bazaar",
+    "welcomeText": "No administrator account exists yet. Create yourself as the first administrator here."
   },
   "register": {
     "title": "Registration",

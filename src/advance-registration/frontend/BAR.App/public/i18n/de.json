@@ -16,7 +16,6 @@
     "forgotPasswordHint": "Bitte wende dich an den Admin, um dein Passwort zurückzusetzen.",
     "noAccount": "Noch kein Konto?",
     "registerLink": "Jetzt registrieren",
-    "demoHint": "Demo-Zugang: admin@bazaar.local / Admin123!",
     "invalidCredentials": "Ungültige Anmeldedaten",
     "phaseRegistrationDeadline": "Anmeldeschluss",
     "phaseDropOffFrom": "Abgabe ab",
@@ -25,6 +24,10 @@
     "phaseBazaarUntil": "Basar bis",
     "commissionSuffix": "% Provision",
     "itemFeeSuffix": "Gebühr pro Artikel"
+  },
+  "bootstrapAdmin": {
+    "title": "Willkommen beim Bazaar",
+    "welcomeText": "Es existiert noch kein Administrator-Konto. Legen Sie sich hier als erste Administratorin bzw. erster Administrator an."
   },
   "register": {
     "title": "Registrierung",

@@ -1,8 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { environment } from '../../../../environments/environment';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthApiService } from '@core/auth/auth-api.service';
 import { AuthService } from '@core/auth/auth.service';
 import { PublicInfoService, PublicInfo } from '@core/public-info/public-info.service';
@@ -15,7 +14,7 @@ import { LoginForm } from '../components/login-form';
 // once PublicInfo has loaded, because its `info` input is required.
 @Component({
   selector: 'app-login-page',
-  imports: [LoginLayout, LoginInfoPanel, LoginForm, TranslatePipe],
+  imports: [LoginLayout, LoginInfoPanel, LoginForm],
   template: `
     <app-login-layout>
       @if (info(); as loadedInfo) {
@@ -23,11 +22,6 @@ import { LoginForm } from '../components/login-form';
       }
       <app-login-form form [errorMessage]="errorMessage()" (submitted)="onLoginSubmitted($event)" />
     </app-login-layout>
-    @if (!isProduction) {
-      <small data-testid="demo-hint" class="login-page__demo-hint">
-        {{ 'login.demoHint' | translate }}
-      </small>
-    }
   `
 })
 export class LoginPage {
@@ -38,7 +32,6 @@ export class LoginPage {
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
 
-  readonly isProduction = environment.production;
   readonly info = signal<PublicInfo | null>(null);
   readonly errorMessage = signal<string | null>(null);
 
