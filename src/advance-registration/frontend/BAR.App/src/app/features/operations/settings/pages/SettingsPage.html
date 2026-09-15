@@ -112,8 +112,7 @@
     </div>
     <div class="info-text-grid">
       <div>
-        <label for="infoText">{{ 'settings.infoTextLabel' | translate }}</label>
-        <textarea pTextarea rows="8" [ngModel]="infoText()" (ngModelChange)="infoText.set($event)" name="infoText" [maxlength]="INFO_TEXT_MAX_LENGTH"></textarea>
+        <textarea pTextarea [ngModel]="infoText()" (ngModelChange)="infoText.set($event)" name="infoText" [maxlength]="INFO_TEXT_MAX_LENGTH"></textarea>
         <small [class.field-warn]="infoTextNearLimit()">{{ infoTextLength() }} / {{ INFO_TEXT_MAX_LENGTH }}</small>
         @if (fieldErrors()['infoText']; as errors) {
           <p class="field-error">{{ errors[0] }}</p>
