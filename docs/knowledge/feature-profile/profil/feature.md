@@ -11,11 +11,9 @@
 - Seller can change own password (requires current password + confirmation + minimum strength "medium") — `ProfilePage.ts`
 - Seller is re-authenticated (new tokens) immediately after a successful password change — `ProfilePage.ts`
 - Seller can delete own account, with a confirmation naming the cascade (articles + number blocks also deleted) — `ProfilePage.ts`
+- Admin cannot delete own account — Delete tab shows a hint text instead of the delete action — `ProfilePage.html`
 - User sees own seller number — `ProfilePage.ts` (`SellerNumber` component)
 
 ## Spans
 - **Frontend:** `seller-management/profile/pages/ProfilePage.ts` + `.html`, `seller-management/profile/profile-api.service.ts`, shared `@shared/password-strength-meter`
 - **Backend:** `BAR.Modules.SellerManagement.Contracts.ISellerManagementModuleApi` (`GetProfileAsync`, `UpdateProfileAsync`, `ChangeEmailAsync`, `ChangePasswordAsync`, `DeleteProfileAsync`)
-
-## Notes
-- `isAdmin`-Computed vorhanden (`AuthService.currentUser()?.role`), aber nicht klar aus `ProfilePage.ts` allein, wofür genau — `ProfilePage.html` nicht gelesen, daher nicht als eigene Capability aufgenommen.
