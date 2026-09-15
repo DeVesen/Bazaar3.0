@@ -70,6 +70,19 @@
   margin-bottom: var(--space-4);
 }
 
+.credentials-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@include breakpoints.tablet {
+  .credentials-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .panel-block__title {
   font: 700 11px var(--font-body);
   text-transform: uppercase;
@@ -87,7 +100,7 @@
   }
 }
 
-@include breakpoints.mobile {
+@include breakpoints.tablet {
   .form-grid {
     grid-template-columns: 1fr;
   }
