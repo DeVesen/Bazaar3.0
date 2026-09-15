@@ -2,10 +2,10 @@
 
 | Modul | Projekte | Zimmertiefe-Begründung |
 |---|---|---|
-| `Anmeldung` | `.Contracts` + 1 | Default — dichtes Fachmodell (Nummernvergabe-Kaskade), aber Konsistenz mit den anderen Modulen wog schwerer als der IDE-vs-Testlauf-Vorteil |
-| `Verkaeuferverwaltung` | `.Contracts` + 1 | Default — moderates Modell |
-| `Stammdaten` | `.Contracts` + 1 | Default — dünnes CRUD-Modell |
-| `Betrieb` | `.Contracts` + 1 | Default — dünnes CRUD-Modell |
+| `Registration` | `.Contracts` + 1 | Default — dichtes Fachmodell (Nummernvergabe-Kaskade), aber Konsistenz mit den anderen Modulen wog schwerer als der IDE-vs-Testlauf-Vorteil |
+| `SellerManagement` | `.Contracts` + 1 | Default — moderates Modell |
+| `MasterData` | `.Contracts` + 1 | Default — dünnes CRUD-Modell |
+| `Operations` | `.Contracts` + 1 | Default — dünnes CRUD-Modell |
 | `Export` | nur 1 | kein zweiter Referenzierer — kein `.Contracts` |
 | `Host`, `SharedKernel` | je 1 | — |
 
