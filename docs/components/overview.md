@@ -133,9 +133,10 @@ Konsolidiertes Mapping aus beiden Apps — die App-Specs führen dieses Mapping 
 | Primär | `p-button severity="primary"` | Hauptaktion |
 | Erfolg | `p-button severity="success"` | Buchen, Abrechnen, Speichern |
 | Gefahr | `p-button severity="danger"` | Löschen |
-| Sekundär / Outline | `p-button severity="secondary" [outlined]="true"` | Abbrechen, Zurück, Drucken |
+| Sekundär / Outline | `p-button severity="secondary" [outlined]="true"` | Zurück, Drucken |
 | Klein | `p-button size="small"` | Karten-Aktionen |
 | Icon-Button (Text-Stil) | `p-button [text]="true" [rounded]="true"` | Status Löschen/Setzen |
+| Text (secondary) | `p-button [text]="true" severity="secondary"` | Abbrechen |
 
 ### Tabellen & Feedback
 

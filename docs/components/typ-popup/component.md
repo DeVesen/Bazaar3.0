@@ -44,7 +44,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 | Name | [Input](../input/component.md), Variante Text |
 | Provision (%) | [InputNumber](../inputnumber/component.md), Variante Prozent |
 | Gebühr (€) | [InputNumber](../inputnumber/component.md), Variante Geld |
-| Footer | [Button](../button/component.md) secondary outlined (Abbrechen) / primary (Speichern) |
+| Footer | [Button](../button/component.md) `[text]="true" secondary` (Abbrechen) / primary (Speichern) |
 | Save-Feedback | [Toast](../toast/component.md) „✓ Verkäufer-Typ gespeichert" |
 
 ## Akzeptanzkriterien
