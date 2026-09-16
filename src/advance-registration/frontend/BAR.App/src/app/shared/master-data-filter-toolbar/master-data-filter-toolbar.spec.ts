@@ -91,23 +91,31 @@ describe('MasterDataFilterToolbar', () => {
     expect(fixture.debugElement.query(By.css('p-select'))).toBeNull();
   });
 
-  it('opens an overlay with the same filter fields when the filter button is clicked', () => {
+  it('opens a popover dropdown with the same filter fields when the filter button is clicked', () => {
     const { fixture } = create(true, true);
 
-    fixture.debugElement.query(By.css('[data-testid="filter-button"] button')).nativeElement.click();
+    fixture.debugElement.query(By.css('[data-testid="filter-button"]')).nativeElement.click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.overlayVisible()).toBe(true);
+    expect(fixture.componentInstance.filterPopover().overlayVisible()).toBe(true);
+    expect(fixture.debugElement.query(By.css('[data-testid="filter-popover"]'))).not.toBeNull();
     expect(fixture.debugElement.query(By.css('p-select'))).not.toBeNull();
   });
 
-  it('opens the overlay as a bottom sheet (p-drawer, position bottom)', () => {
+  it('closes the popover after a filter is triggered from within it on mobile', () => {
     const { fixture } = create(true, true);
+    fixture.debugElement.query(By.css('[data-testid="filter-button"]')).nativeElement.click();
+    fixture.detectChanges();
 
-    const drawer = fixture.debugElement.query(By.css('p-drawer'));
+    fixture.componentInstance.originalValueModel = true;
 
-    expect(drawer).not.toBeNull();
-    expect(drawer.componentInstance.position()).toBe('bottom');
+    expect(fixture.componentInstance.filterPopover().overlayVisible()).toBe(false);
+  });
+
+  it('does not render a popover when the viewport is desktop-width', () => {
+    const { fixture } = create(true, false);
+
+    expect(fixture.debugElement.query(By.css('[data-testid="filter-popover"]'))).toBeNull();
   });
 
   it('does not render the add button when canAdd is false', () => {

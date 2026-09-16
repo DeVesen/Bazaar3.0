@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -8,7 +8,8 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { FluidModule } from 'primeng/fluid';
-import { DrawerModule } from 'primeng/drawer';
+import { ToolbarModule } from 'primeng/toolbar';
+import { Popover, PopoverModule } from 'primeng/popover';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Subject, debounceTime } from 'rxjs';
 
@@ -21,7 +22,7 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
 
 @Component({
   selector: 'app-master-data-filter-toolbar',
-  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, FluidModule, DrawerModule, TranslatePipe, NgTemplateOutlet],
+  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, FluidModule, ToolbarModule, PopoverModule, TranslatePipe, NgTemplateOutlet],
   template: `
     <ng-template #fields>
       <p-fluid>
@@ -42,29 +43,28 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
       </p-fluid>
     </ng-template>
 
-    <div class="master-data-filter-toolbar">
-      <div class="master-data-filter-toolbar-fields">
+    <p-toolbar>
+      <ng-template #start>
         @if (isMobile()) {
-          <p-button
-            [label]="'masterDataFilterToolbar.filterButton' | translate" icon="pi pi-filter" data-testid="filter-button"
-            (onClick)="overlayVisible.set(true)"
-          />
-          <p-drawer
-            [visible]="overlayVisible()" (visibleChange)="overlayVisible.set($event)"
-            position="bottom" [header]="'masterDataFilterToolbar.filterButton' | translate"
-          >
+          <button
+            pButton type="button" icon="pi pi-filter" data-testid="filter-button"
+            (click)="filterPopover.toggle($event)"
+          >{{ 'masterDataFilterToolbar.filterButton' | translate }}</button>
+          <p-popover #filterPopover [appendTo]="'self'" data-testid="filter-popover">
             <div class="master-data-filter-toolbar-overlay">
               <ng-container *ngTemplateOutlet="fields" />
             </div>
-          </p-drawer>
+          </p-popover>
         } @else {
           <ng-container *ngTemplateOutlet="fields" />
         }
-      </div>
-      @if (canAdd()) {
-        <button pButton type="button" data-testid="add-button" (click)="create.emit()">+ Neu</button>
-      }
-    </div>
+      </ng-template>
+      <ng-template #end>
+        @if (canAdd()) {
+          <button pButton type="button" data-testid="add-button" (click)="create.emit()">+ Neu</button>
+        }
+      </ng-template>
+    </p-toolbar>
   `,
   styleUrl: './master-data-filter-toolbar.scss'
 })
@@ -84,7 +84,7 @@ export class MasterDataFilterToolbar {
   readonly searchText = signal('');
   readonly originalValue = signal<boolean | null>(null);
   readonly isMobile = signal(false);
-  readonly overlayVisible = signal(false);
+  readonly filterPopover = viewChild.required<Popover>('filterPopover');
 
   private readonly searchText$ = new Subject<string>();
   private mediaQuery?: MediaQueryList;
@@ -123,5 +123,8 @@ export class MasterDataFilterToolbar {
       search: this.searchText().trim() || undefined,
       original: this.originalValue() ?? undefined
     });
+    if (this.isMobile()) {
+      this.filterPopover().hide();
+    }
   }
 }
