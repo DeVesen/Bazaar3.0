@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -99,9 +99,9 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
       <ng-template #start>
         @if (isMobile()) {
           <button
-            pButton type="button" icon="pi pi-filter" data-testid="filter-button"
+            pButton type="button" data-testid="filter-button"
             (click)="filterPopover.toggle($event)"
-          >{{ 'filterPanel.filterButton' | translate }}</button>
+          ><i class="pi pi-filter"></i>{{ 'filterPanel.filterButton' | translate }}</button>
           <p-popover #filterPopover [appendTo]="'self'" data-testid="filter-popover">
             <div class="filter-panel-overlay">
               <ng-container *ngTemplateOutlet="fields" />

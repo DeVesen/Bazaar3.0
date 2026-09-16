@@ -47,9 +47,9 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
       <ng-template #start>
         @if (isMobile()) {
           <button
-            pButton type="button" icon="pi pi-filter" data-testid="filter-button"
+            pButton type="button" data-testid="filter-button"
             (click)="filterPopover.toggle($event)"
-          >{{ 'masterDataFilterToolbar.filterButton' | translate }}</button>
+          ><i class="pi pi-filter"></i>{{ 'masterDataFilterToolbar.filterButton' | translate }}</button>
           <p-popover #filterPopover [appendTo]="'self'" data-testid="filter-popover">
             <div class="master-data-filter-toolbar-overlay">
               <ng-container *ngTemplateOutlet="fields" />
