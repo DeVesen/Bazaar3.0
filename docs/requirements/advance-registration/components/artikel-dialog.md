@@ -16,20 +16,20 @@ Modus "Anlegen" (Modal, Standard-Größe), ≥ Tablet (≥ 768 px):
 ┌─────────────────────────────────────────┐
 │  Artikel anlegen                     [✕] │
 ├─────────────────────────────────────────┤
-│ ╭─ Card ─────────╮                       │
-│ │ Artikelnummer  │ (33 %, readonly)      │
-│ │ [104]          │                       │
+│ ╭─ Card (100 %) ──────────────────╮      │
+│ │ Artikelnummer (Feld 33 %)        │      │
+│ │ [104]                            │      │
 │ │ wird beim Speichern endgültig vergeben │ ← Hinweistext (12 px, muted)
-│ ╰────────────────╯                       │
+│ ╰───────────────────────────────────╯    │
 │ ╭─ Card ─────────────────────────╮       │
 │ │ Bezeichnung (100 %)             │       │
 │ ╰─────────────────────────────────╯      │
 │ ╭─ Card ─────────────────────────╮       │
 │ │ Kategorie▾+ │ Marke▾+ │ Größe │ Farbe│ │ (je 25 %, gap 12 px)
 │ ╰─────────────────────────────────╯      │
-│ ╭─ Card ─────────╮                       │
-│ │ Preis [___] €  │ (33 %)                │
-│ ╰────────────────╯                       │
+│ ╭─ Card (100 %) ──────────────────╮      │
+│ │ Preis (Feld 33 %) [___] €        │      │
+│ ╰───────────────────────────────────╯    │
 │ ╭─ Card ─────────────────────────╮       │
 │ │ Beschreibung [textarea] (100 %) │       │
 │ ╰─────────────────────────────────╯      │
@@ -46,19 +46,19 @@ gleiches Card-Layout wie „Anlegen", ohne Hinweistext unter Artikelnummer.
 ┌─────────────────────────────────────────┐
 │  Artikel bearbeiten                  [✕] │
 ├─────────────────────────────────────────┤
-│ ╭─ Card ─────────╮                       │
-│ │ Artikelnummer  │ (33 %, readonly)      │
-│ │ [104]          │                       │
-│ ╰────────────────╯                       │
+│ ╭─ Card (100 %) ──────────────────╮      │
+│ │ Artikelnummer (Feld 33 %)        │      │
+│ │ [104]                            │      │
+│ ╰───────────────────────────────────╯    │
 │ ╭─ Card ─────────────────────────╮       │
 │ │ Bezeichnung (100 %)             │       │
 │ ╰─────────────────────────────────╯      │
 │ ╭─ Card ─────────────────────────╮       │
 │ │ Kategorie▾+ │ Marke▾+ │ Größe │ Farbe│ │ (je 25 %, gap 12 px)
 │ ╰─────────────────────────────────╯      │
-│ ╭─ Card ─────────╮                       │
-│ │ Preis [___] €  │ (33 %)                │
-│ ╰────────────────╯                       │
+│ ╭─ Card (100 %) ──────────────────╮      │
+│ │ Preis (Feld 33 %) [___] €        │      │
+│ ╰───────────────────────────────────╯    │
 │ ╭─ Card ─────────────────────────╮       │
 │ │ Beschreibung [textarea] (100 %) │       │
 │ ╰─────────────────────────────────╯      │
@@ -111,15 +111,16 @@ Footer „Standard + Zweitaktion" im Modus Anlegen (siehe
 
 Fünf Cards je Modus, jede Card [Panel-Block](../../../components/card/component.md#3-panel-blöcke-formulare)
 ohne Titel (nur Werte aus §3 — kein Titeltext). Abstand zwischen den Cards:
-margin-bottom 12 px.
+margin-bottom 12 px. **Die Card selbst ist immer 100 % breit** — schmaler
+werden nur einzelne Felder *innerhalb* einer Card (Artikelnummer, Preis).
 
-| Card | Feld(er) | Breite ≥ Tablet | Breite < Tablet |
-|---|---|---|---|
-| 1 | Artikelnummer | 33 % | 100 % |
-| 2 | Bezeichnung | 100 % | 100 % |
-| 3 | Kategorie, Marke, Größe, Farbe | je 25 %, gap 12 px | je 100 %, gestapelt, gap 8 px |
-| 4 | Preis | 33 % | 100 % |
-| 5 | Beschreibung | 100 % | 100 % |
+| Card | Feld(er) | Breite Card | Breite Feld ≥ Tablet | Breite Feld < Tablet |
+|---|---|---|---|---|
+| 1 | Artikelnummer | 100 % | 33 % | 100 % |
+| 2 | Bezeichnung | 100 % | 100 % | 100 % |
+| 3 | Kategorie, Marke, Größe, Farbe | 100 % | je 25 %, gap 12 px | je 100 %, gestapelt, gap 8 px |
+| 4 | Preis | 100 % | 33 % | 100 % |
+| 5 | Beschreibung | 100 % | 100 % | 100 % |
 
 Breakpoint identisch zu [Table](../../../components/table/component.md) Abschnitt 10 / [filter-panel](../../../components/filter-panel/component.md): ≥ 768 px / < 768 px —
 **nicht** der Form-Grid-Breakpoint aus `card.md` §4 (1024 px), da dieser Dialog

@@ -1,11 +1,13 @@
 <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="header">
-  <div class="panel-block article-dialog__third">
+  <div class="panel-block">
     <p-fluid>
+    <div class="article-dialog__third">
       <label>{{ 'articleDialog.number' | translate }}</label>
       <input pInputText [value]="number()" [readonly]="true" />
       @if (mode() === 'create') {
         <p class="hint">{{ 'articleDialog.numberHint' | translate }}</p>
       }
+    </div>
     </p-fluid>
   </div>
 
@@ -17,6 +19,7 @@
   </div>
 
   <div class="panel-block">
+    <p-fluid>
     <div class="article-dialog__fields-4">
       <div>
         <label>{{ 'articleDialog.category' | translate }}</label>
@@ -35,15 +38,18 @@
         <input pInputText [(ngModel)]="colorModel" />
       </div>
     </div>
+    </p-fluid>
   </div>
 
-  <div class="panel-block article-dialog__third">
+  <div class="panel-block">
     <p-fluid>
+    <div class="article-dialog__third">
       <label>{{ 'articleDialog.price' | translate }}</label>
       <p-inputgroup>
         <p-inputnumber [(ngModel)]="priceModel" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" />
         <p-inputgroup-addon>€</p-inputgroup-addon>
       </p-inputgroup>
+    </div>
     </p-fluid>
   </div>
 
