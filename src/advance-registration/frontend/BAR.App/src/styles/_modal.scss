@@ -46,17 +46,12 @@
   }
 }
 
-// article-dialog: Artikelnummer- und Preis-Card auf ein Drittel verschmälert,
+// article-dialog: Artikelnummer- und Preis-Feld auf ein Drittel verschmälert,
 // Kategorie/Marke/Größe/Farbe als 4-Spalten-Reihe innerhalb einer Card.
-.article-dialog__third {
-  width: 33%;
-}
-
-.article-dialog__fields-4 {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-
+// Label-Stil einheitlich für alle drei Feld-Wrapper (card.md §4-Werte).
+.article-dialog__third,
+.article-dialog__fields-4,
+.article-dialog__field {
   label {
     display: block;
     font-size: 11.5px;
@@ -66,6 +61,16 @@
     color: var(--color-muted);
     margin-bottom: 4px;
   }
+}
+
+.article-dialog__third {
+  width: 33%;
+}
+
+.article-dialog__fields-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 
 @include breakpoints.mobile {

@@ -13,8 +13,10 @@
 
   <div class="panel-block">
     <p-fluid>
+    <div class="article-dialog__field">
       <label>{{ 'articleDialog.name' | translate }}</label>
       <input pInputText [(ngModel)]="nameModel" #nameInput />
+    </div>
     </p-fluid>
   </div>
 
@@ -55,8 +57,10 @@
 
   <div class="panel-block">
     <p-fluid>
+    <div class="article-dialog__field">
       <label>{{ 'articleDialog.description' | translate }}</label>
       <textarea pTextarea [(ngModel)]="descriptionModel"></textarea>
+    </div>
     </p-fluid>
   </div>
 
