@@ -52,6 +52,10 @@ public sealed class GetSellersQueryHandler(ISellerRepository sellers, IMasterDat
         var blockSummaries = await registration.GetBlockSummariesForSellersAsync(
             sellerList.Select(s => s.Id).ToList(), cancellationToken);
 
+        // Counted over ALL sellers (not just this page/filter) - the
+        // last-admin protection must hold regardless of pagination.
+        var totalAdmins = await sellers.CountAdminsAsync(cancellationToken);
+
         var rows = sellerList
             .Where(s => conditionsByType.ContainsKey(s.SellerTypeId))
             .Select(s =>
@@ -72,7 +76,8 @@ public sealed class GetSellersQueryHandler(ISellerRepository sellers, IMasterDat
                 r.Seller.PostalCode, r.Seller.City, r.Seller.Phone, r.Seller.Email, r.Seller.SellerTypeId,
                 new SellerTypeSummaryDto(r.Conditions.SellerTypeId, r.Conditions.Name, r.Conditions.CommissionRate, r.Conditions.ItemFee),
                 r.Seller.IsAdmin, r.ArticleCount,
-                r.Seller.InviteToken != null && r.Seller.InviteTokenExpiresAt > DateTime.UtcNow))
+                r.Seller.InviteToken != null && r.Seller.InviteTokenExpiresAt > DateTime.UtcNow,
+                r.Seller.Id != request.RequestingSellerId && !(r.Seller.IsAdmin && totalAdmins <= 1)))
             .ToList();
 
         return new PagedResultDto<SellerDto>(page, totalCount, request.Page, request.PageSize);

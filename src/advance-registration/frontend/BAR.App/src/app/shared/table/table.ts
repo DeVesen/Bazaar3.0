@@ -13,14 +13,15 @@ export interface ColumnConfig<T = unknown> {
   badge?: (row: T) => { label: string; severity: 'success' | 'warn' | 'secondary' | 'info' | 'danger' };
 }
 
-export interface ActionButtonConfig {
+export interface ActionButtonConfig<T = unknown> {
   actionId: string;
   icon: string;
   ariaLabel: string;
+  hidden?: (row: T) => boolean;
 }
 
-export interface ActionColumnConfig {
-  actions: ActionButtonConfig[];
+export interface ActionColumnConfig<T = unknown> {
+  actions: ActionButtonConfig<T>[];
 }
 
 export interface SortMeta {
@@ -112,6 +113,7 @@ interface PrimeNgPageEvent {
           @if (actionColumn()) {
             <td class="actions">
               @for (action of actionColumn()!.actions; track action.actionId) {
+                @if (!action.hidden || !action.hidden(row)) {
                 <button
                   pButton [text]="true" [rounded]="true"
                   [attr.aria-label]="action.ariaLabel" [attr.data-action-id]="action.actionId"
@@ -120,6 +122,7 @@ interface PrimeNgPageEvent {
                 >
                   <i [class]="action.icon"></i>
                 </button>
+                }
               }
             </td>
           }
@@ -154,7 +157,7 @@ export class AppTable<T> {
   readonly loading = input<boolean>(false);
   readonly rows = input<number>(25);
   readonly first = input<number>(0);
-  readonly actionColumn = input<ActionColumnConfig | null>(null);
+  readonly actionColumn = input<ActionColumnConfig<T> | null>(null);
   readonly emptyText = input<string>('Keine Einträge gefunden.');
   readonly hasActiveFilter = input<boolean>(false);
   readonly canAdd = input<boolean>(false);

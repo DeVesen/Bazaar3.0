@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: bar
       POSTGRES_PASSWORD: bar
     ports:
-      - "5432:5432"
+      - "6543:5432"
     volumes:
       - bar-db-data:/var/lib/postgresql
     healthcheck:

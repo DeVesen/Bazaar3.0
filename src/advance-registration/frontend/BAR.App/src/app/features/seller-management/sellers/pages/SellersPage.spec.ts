@@ -23,7 +23,8 @@ const SELLER: Seller = {
   sellerType: { id: 't1', name: 'Standard', commissionRate: 15, itemFee: 0.5 },
   isAdmin: false,
   articleCount: 3,
-  hasPendingInvite: false
+  hasPendingInvite: false,
+  canDelete: true
 };
 
 function create() {
@@ -148,6 +149,14 @@ describe('SellersPage', () => {
     expect(api.list).toHaveBeenCalledWith(
       expect.objectContaining({ sort: 'sellerType.name:asc,commissionRate:desc,itemFee:desc,lastName:asc' })
     );
+  });
+
+  it('actionColumn hides the delete action for a row where canDelete is false (self / last admin)', () => {
+    const { fixture } = create();
+    const deleteAction = fixture.componentInstance.actionColumn.actions.find((a) => a.actionId === 'delete')!;
+
+    expect(deleteAction.hidden!({ ...SELLER, sellerTypeName: 'Standard', commissionRate: 15, itemFee: 0.5, canDelete: false })).toBe(true);
+    expect(deleteAction.hidden!({ ...SELLER, sellerTypeName: 'Standard', commissionRate: 15, itemFee: 0.5, canDelete: true })).toBe(false);
   });
 
   it('onTableAction("delete", row) confirms with the interpolated name and, on accept, deletes the seller and reloads', () => {

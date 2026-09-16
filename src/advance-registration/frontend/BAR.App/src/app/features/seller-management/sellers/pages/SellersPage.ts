@@ -93,11 +93,16 @@ export class SellersPage implements OnInit {
     ];
   }
 
-  get actionColumn(): ActionColumnConfig {
+  get actionColumn(): ActionColumnConfig<SellerRow> {
     return {
       actions: [
         { actionId: 'edit', icon: 'pi pi-pencil', ariaLabel: this.translate.instant('common.edit') },
-        { actionId: 'delete', icon: 'pi pi-trash', ariaLabel: this.translate.instant('common.delete') }
+        {
+          actionId: 'delete',
+          icon: 'pi pi-trash',
+          ariaLabel: this.translate.instant('common.delete'),
+          hidden: (row: SellerRow) => !row.canDelete
+        }
       ]
     };
   }

@@ -42,10 +42,14 @@ public sealed class UpdateSellerCommandHandler(
         var summary = summaries.GetValueOrDefault(seller.Id);
         var hasPendingInvite = seller.InviteToken != null && seller.InviteTokenExpiresAt > clock.UtcNow;
 
+        // CanDelete here ignores the self-check (this response isn't rendered
+        // in the sellers table, which re-fetches via GET /api/sellers instead).
+        var canDelete = !seller.IsAdmin || await sellers.CountAdminsAsync(cancellationToken) > 1;
+
         return new SellerDto(
             seller.Id, summary?.StartNumber, seller.FirstName, seller.LastName, seller.Address, seller.PostalCode,
             seller.City, seller.Phone, seller.Email, seller.SellerTypeId,
             new SellerTypeSummaryDto(conditions.SellerTypeId, conditions.Name, conditions.CommissionRate, conditions.ItemFee),
-            seller.IsAdmin, summary?.ArticleCount ?? 0, hasPendingInvite);
+            seller.IsAdmin, summary?.ArticleCount ?? 0, hasPendingInvite, canDelete);
     }
 }

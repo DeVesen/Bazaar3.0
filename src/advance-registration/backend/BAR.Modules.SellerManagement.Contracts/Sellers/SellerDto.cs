@@ -5,11 +5,12 @@ public sealed record SellerTypeSummaryDto(string Id, string Name, decimal Commis
 public sealed record SellerDto(
     string Id, int? StartNumber, string FirstName, string LastName, string? Address,
     string PostalCode, string City, string Phone, string Email, string SellerTypeId,
-    SellerTypeSummaryDto SellerType, bool IsAdmin, int ArticleCount, bool HasPendingInvite);
+    SellerTypeSummaryDto SellerType, bool IsAdmin, int ArticleCount, bool HasPendingInvite,
+    bool CanDelete);
 
 public sealed record SellerSortDto(string Field, bool Descending);
 
-public sealed record GetSellersQuery(string? SellerTypeId, string? Search, int Page, int PageSize, IReadOnlyList<SellerSortDto> Sort);
+public sealed record GetSellersQuery(string? SellerTypeId, string? Search, int Page, int PageSize, IReadOnlyList<SellerSortDto> Sort, string RequestingSellerId);
 
 public sealed record CreateSellerCommand(
     string FirstName, string LastName, string? Address, string PostalCode, string City,

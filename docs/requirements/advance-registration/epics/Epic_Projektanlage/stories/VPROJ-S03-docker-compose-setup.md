@@ -16,7 +16,7 @@ Die Voranmelde-App wird in der Cloud betrieben. Das Docker-Compose-Setup spiegel
 
 ## Scope
 
-**In Scope:** `compose.yaml` mit drei Services (frontend, api, db) auf Basis der Docker-Hub-Images, Environment-Variablen für Ports, Connection String und JWT-Secret, Volume für PostgreSQL-Daten, Health-Check-Abhängigkeit (backend wartet auf db). Zusätzlich `compose.db-only.yaml` für den Fall, dass nur PostgreSQL gebraucht wird (z. B. Backend läuft per `dotnet run` gegen eine separate DB) — Standard-Port `5432`, sonst identische `db`-Definition.
+**In Scope:** `compose.yaml` mit drei Services (frontend, api, db) auf Basis der Docker-Hub-Images, Environment-Variablen für Ports, Connection String und JWT-Secret, Volume für PostgreSQL-Daten, Health-Check-Abhängigkeit (backend wartet auf db). Zusätzlich `compose.db-only.yaml` für den Fall, dass nur PostgreSQL gebraucht wird (z. B. Backend läuft per `dotnet run` gegen eine separate DB) — Port `6543`, sonst identische `db`-Definition.
 
 **Out of Scope:** Azure Container Apps-Deployment-Konfiguration (bicep/yaml), SSL-Terminierung. Der Build- und Publish-Teil der CI/CD-Pipeline (Docker-Images bauen + auf Docker Hub veröffentlichen) ist mittlerweile per `.github/workflows/advance-registration-docker.yml` umgesetzt; das eigentliche Deployment/Ausrollen auf die Zielumgebung bleibt Out of Scope.
 
@@ -47,7 +47,7 @@ direkten Zugriff von außen (Postman o. ä.).
 | Datenbank | `bar` | |
 | Benutzer | `bar` | |
 | Volume | `bar-db-data` | benannt, nicht anonym — sonst nach `docker compose down` nicht wiederzufinden |
-| Port | `6892:5432` (in `compose.db-only.yaml`: `5432:5432`) | frei gewählt in `compose.yaml`, um Kollision mit einer parallel laufenden lokalen Postgres zu vermeiden; `compose.db-only.yaml` nutzt den Standard-Port, weil sie gezielt als einzige lokale DB-Instanz gedacht ist |
+| Port | `6892:5432` (in `compose.db-only.yaml`: `6543:5432`) | frei gewählt in `compose.yaml`, um Kollision mit einer parallel laufenden lokalen Postgres zu vermeiden; `compose.db-only.yaml` weicht ebenfalls auf einen freien Port aus, statt des ursprünglich vorgesehenen Standard-Ports `5432`, aus demselben Kollisionsgrund |
 
 **Health-Check:**
 
@@ -69,12 +69,13 @@ Im Devcontainer läuft der Backend-Prozess teils direkt per `dotnet run` (Profil
 `http://localhost:5001`) gegen eine eigene, bereits laufende Devcontainer-PostgreSQL statt gegen
 den `db`-Service dieser Story. Datenbank und Benutzer sind identisch (`bar`/`bar`).
 
-Der Port ist mittlerweile ebenfalls identisch (`5432`): `compose.yaml` mappt `db` seit dem
-Umstieg auf freie Ports (siehe UI-Spezifikation oben) auf Host-Port `6892` statt `5432` —
-die ursprüngliche Kollision mit einer host-seitigen PostgreSQL auf `5432`, die den
+Der Devcontainer-Port ist `5432` geblieben: `compose.yaml` mappt `db` seit dem
+Umstieg auf freie Ports (siehe UI-Spezifikation oben) auf Host-Port `6892` statt `5432`,
+und auch `compose.db-only.yaml` ist inzwischen auf `6543:5432` ausgewichen — die
+ursprüngliche Kollision mit einer host-seitigen PostgreSQL auf `5432`, die den
 Devcontainer früher auf Port `5433` ausweichen ließ, besteht dadurch nicht mehr. Wer die
-reine `compose.db-only.yaml` nutzt (Standard-Port `5432`), muss weiterhin darauf achten,
-nicht gleichzeitig eine andere lokale Postgres auf `5432` laufen zu haben.
+reine `compose.db-only.yaml` nutzt, muss den Connection String entsprechend auf Port
+`6543` zeigen lassen (siehe `appsettings.Development.json`).
 
 ## Akzeptanzkriterien
 

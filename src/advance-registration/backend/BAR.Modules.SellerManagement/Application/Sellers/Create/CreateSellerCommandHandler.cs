@@ -37,6 +37,6 @@ public sealed class CreateSellerCommandHandler(
             seller.Id, newBlocks.Count > 0 ? newBlocks[0].FromNumber : null, seller.FirstName, seller.LastName,
             seller.Address, seller.PostalCode, seller.City, seller.Phone, seller.Email, seller.SellerTypeId,
             new SellerTypeSummaryDto(conditions.SellerTypeId, conditions.Name, conditions.CommissionRate, conditions.ItemFee),
-            seller.IsAdmin, 0, false);
+            seller.IsAdmin, 0, false, true); // CanDelete: freshly created, never self
     }
 }

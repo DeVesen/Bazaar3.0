@@ -33,3 +33,4 @@ Kein eigener Vertrag über die Modulgrenze — Vertrag ist `ISellerManagementMod
 
 ## Notes
 - `SellerManagementModuleApi` injiziert `IMasterDataModuleApi` direkt im Konstruktor statt lazy — laut Code-Kommentar unproblematisch, weil diese Abhängigkeit einseitig ist (MasterData ruft nicht zurück in SellerManagement in dieser Konstellation).
+- Last-Admin-Schutz (`ISellerRepository.CountAdminsAsync`) sitzt nicht mehr nur im Delete-Handler: `GetSellersQueryHandler` berechnet daraus pro Zeile das `CanDelete`-Flag (auch `false` für den eigenen Account), `UpdateSellerCommandHandler` berechnet es separat (ohne Self-Check, weil seine Response nicht in der Tabelle landet), `CreateSellerCommandHandler` liefert für frisch angelegte Verkäufer immer `true`.

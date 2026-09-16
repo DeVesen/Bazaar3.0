@@ -28,7 +28,8 @@ const SELLER: Seller = {
   sellerType: SELLER_TYPES[0],
   isAdmin: false,
   articleCount: 3,
-  hasPendingInvite: false
+  hasPendingInvite: false,
+  canDelete: true
 };
 
 const BLOCKS: NumberBlock[] = [

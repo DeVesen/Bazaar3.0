@@ -73,6 +73,19 @@ describe('AppTable', () => {
     expect(emitted).toEqual([{ actionId: 'edit', row: { number: 1, name: 'A' } }]);
   });
 
+  it('hides an action button on a row where its hidden callback returns true', () => {
+    const fixture = create([{ number: 1, name: 'A' }, { number: 2, name: 'B' }]);
+    fixture.componentRef.setInput('actionColumn', {
+      actions: [{ actionId: 'delete', icon: 'pi pi-trash', ariaLabel: 'Löschen', hidden: (row: Row) => row.number === 1 }]
+    });
+    fixture.detectChanges();
+
+    const buttons = fixture.debugElement.queryAll(By.css('[data-action-id="delete"]'));
+
+    expect(buttons.length).toBe(1);
+    expect(fixture.debugElement.queryAll(By.css('tbody tr'))[1].query(By.css('[data-action-id="delete"]'))).toBeTruthy();
+  });
+
   it('formats a currency column as EUR with 2 decimals, right-aligned', () => {
     const priceColumns = [...COLUMNS, { field: 'price', header: 'Preis', type: 'currency' as const }];
     const fixture = TestBed.createComponent(AppTable<Row & { price: number }>);

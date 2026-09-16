@@ -26,9 +26,10 @@ public class GetSellersQueryHandlerTests
     private static Seller MakeSeller(string firstName, string lastName, string sellerTypeId = "t1", string city = "Karlsruhe") =>
         Seller.CreateByAdmin(firstName, lastName, null, "76133", city, "0721 1", $"{firstName}.{lastName}@example.com".ToLowerInvariant(), sellerTypeId, false);
 
-    private void SetUpDefaults(IReadOnlyList<Seller> all, IReadOnlyDictionary<string, SellerBlockSummaryDto>? summaries = null)
+    private void SetUpDefaults(IReadOnlyList<Seller> all, IReadOnlyDictionary<string, SellerBlockSummaryDto>? summaries = null, int totalAdmins = 5)
     {
         _sellers.Setup(s => s.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(all);
+        _sellers.Setup(s => s.CountAdminsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(totalAdmins);
         foreach (var typeId in all.Select(s => s.SellerTypeId).Distinct())
         {
             _masterData.Setup(t => t.GetSellerTypeConditionsAsync(typeId, It.IsAny<CancellationToken>()))
@@ -39,8 +40,8 @@ public class GetSellersQueryHandlerTests
             .ReturnsAsync(summaries ?? new Dictionary<string, SellerBlockSummaryDto>());
     }
 
-    private static GetSellersQuery Query(string? search = null, string? sellerTypeId = null, int page = 1, int pageSize = 25, params SellerSortDto[] sort) =>
-        new(sellerTypeId, search, page, pageSize, sort);
+    private static GetSellersQuery Query(string? search = null, string? sellerTypeId = null, int page = 1, int pageSize = 25, string requestingSellerId = "requester", params SellerSortDto[] sort) =>
+        new(sellerTypeId, search, page, pageSize, sort, requestingSellerId);
 
     [Fact]
     public async Task HandleAsync_SearchTermMatchesLastName_FiltersOutNonMatches()
@@ -151,6 +152,7 @@ public class GetSellersQueryHandlerTests
     {
         var anna = MakeSeller("Anna", "Beispiel", sellerTypeId: "unknown");
         _sellers.Setup(s => s.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync([anna]);
+        _sellers.Setup(s => s.CountAdminsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
         _masterData.Setup(t => t.GetSellerTypeConditionsAsync("unknown", It.IsAny<CancellationToken>()))
             .ReturnsAsync((SellerTypeConditionsDto?)null);
         _registration.Setup(a => a.GetBlockSummariesForSellersAsync(It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<CancellationToken>()))
@@ -159,5 +161,41 @@ public class GetSellersQueryHandlerTests
         var result = await CreateHandler().HandleAsync(Query(), TestContext.Current.CancellationToken);
 
         Assert.Equal(0, result.TotalCount);
+    }
+
+    [Fact]
+    public async Task HandleAsync_RowIsRequestingSeller_CanDeleteIsFalse()
+    {
+        var anna = MakeSeller("Anna", "Beispiel");
+        SetUpDefaults([anna], totalAdmins: 5);
+
+        var result = await CreateHandler().HandleAsync(
+            Query(requestingSellerId: anna.Id), TestContext.Current.CancellationToken);
+
+        Assert.False(result.Items[0].CanDelete);
+    }
+
+    [Fact]
+    public async Task HandleAsync_RowIsLastRemainingAdmin_CanDeleteIsFalse()
+    {
+        var anna = Seller.CreateByAdmin("Anna", "Beispiel", null, "76133", "Karlsruhe", "0721 1", "anna@example.com", "t1", isAdmin: true);
+        SetUpDefaults([anna], totalAdmins: 1);
+
+        var result = await CreateHandler().HandleAsync(
+            Query(requestingSellerId: "someone-else"), TestContext.Current.CancellationToken);
+
+        Assert.False(result.Items[0].CanDelete);
+    }
+
+    [Fact]
+    public async Task HandleAsync_RowIsAdminButNotLastOne_CanDeleteIsTrue()
+    {
+        var anna = Seller.CreateByAdmin("Anna", "Beispiel", null, "76133", "Karlsruhe", "0721 1", "anna@example.com", "t1", isAdmin: true);
+        SetUpDefaults([anna], totalAdmins: 2);
+
+        var result = await CreateHandler().HandleAsync(
+            Query(requestingSellerId: "someone-else"), TestContext.Current.CancellationToken);
+
+        Assert.True(result.Items[0].CanDelete);
     }
 }

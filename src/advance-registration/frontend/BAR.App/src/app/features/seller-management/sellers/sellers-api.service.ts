@@ -24,6 +24,7 @@ export interface Seller {
   isAdmin: boolean;
   articleCount: number;
   hasPendingInvite: boolean;
+  canDelete: boolean;
 }
 
 export interface NumberBlock {

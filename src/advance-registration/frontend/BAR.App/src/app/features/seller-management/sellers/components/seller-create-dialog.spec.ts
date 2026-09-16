@@ -28,7 +28,8 @@ const CREATED_SELLER: Seller = {
   sellerType: SELLER_TYPES[0],
   isAdmin: false,
   articleCount: 0,
-  hasPendingInvite: true
+  hasPendingInvite: true,
+  canDelete: true
 };
 
 function create() {
