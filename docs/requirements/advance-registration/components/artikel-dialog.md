@@ -12,34 +12,62 @@ Ein Dialog, zwei Modi: **Anlegen** (kein Löschen-Button, Nummer aus dem
 Vorschlag-Endpoint) und **Bearbeiten** (Löschen-Button, Nummer aus dem Artikel).
 
 ```
-Modus "Anlegen" (Modal, Standard-Größe):
+Modus "Anlegen" (Modal, Standard-Größe), ≥ Tablet (≥ 768 px):
 ┌─────────────────────────────────────────┐
 │  Artikel anlegen                     [✕] │
 ├─────────────────────────────────────────┤
-│  Artikelnummer  [104]  (readonly)        │
-│  wird beim Speichern endgültig vergeben  │  ← Hinweistext (12 px, muted)
-│  Bezeichnung                            │
-│  Kategorie ▾+   Marke ▾+                │
-│  Größe        Farbe                     │
-│  Preis [_____] €                        │
-│  Beschreibung [textarea]                │
+│ ╭─ Card ─────────╮                       │
+│ │ Artikelnummer  │ (33 %, readonly)      │
+│ │ [104]          │                       │
+│ │ wird beim Speichern endgültig vergeben │ ← Hinweistext (12 px, muted)
+│ ╰────────────────╯                       │
+│ ╭─ Card ─────────────────────────╮       │
+│ │ Bezeichnung (100 %)             │       │
+│ ╰─────────────────────────────────╯      │
+│ ╭─ Card ─────────────────────────╮       │
+│ │ Kategorie▾+ │ Marke▾+ │ Größe │ Farbe│ │ (je 25 %, gap 12 px)
+│ ╰─────────────────────────────────╯      │
+│ ╭─ Card ─────────╮                       │
+│ │ Preis [___] €  │ (33 %)                │
+│ ╰────────────────╯                       │
+│ ╭─ Card ─────────────────────────╮       │
+│ │ Beschreibung [textarea] (100 %) │       │
+│ ╰─────────────────────────────────╯      │
 ├─────────────────────────────────────────┤
 │ [Abbrechen] [Speichern + kopieren] [Speichern]│
 └─────────────────────────────────────────┘
 
-Modus "Bearbeiten":
+Modus "Anlegen", < Tablet (< 768 px):
+jede Card 100 % Breite; 4er-Card (Kategorie/Marke/Größe/Farbe)
+gestapelt, je Feld 100 %, gap 8 px
+
+Modus "Bearbeiten" (Modal, Standard-Größe), ≥ Tablet (≥ 768 px):
+gleiches Card-Layout wie „Anlegen", ohne Hinweistext unter Artikelnummer.
 ┌─────────────────────────────────────────┐
 │  Artikel bearbeiten                  [✕] │
 ├─────────────────────────────────────────┤
-│  Artikelnummer  [104]  (readonly)        │
-│  Bezeichnung                            │
-│  Kategorie ▾+   Marke ▾+                │
-│  Größe        Farbe                     │
-│  Preis [_____] €                        │
-│  Beschreibung [textarea]                │
+│ ╭─ Card ─────────╮                       │
+│ │ Artikelnummer  │ (33 %, readonly)      │
+│ │ [104]          │                       │
+│ ╰────────────────╯                       │
+│ ╭─ Card ─────────────────────────╮       │
+│ │ Bezeichnung (100 %)             │       │
+│ ╰─────────────────────────────────╯      │
+│ ╭─ Card ─────────────────────────╮       │
+│ │ Kategorie▾+ │ Marke▾+ │ Größe │ Farbe│ │ (je 25 %, gap 12 px)
+│ ╰─────────────────────────────────╯      │
+│ ╭─ Card ─────────╮                       │
+│ │ Preis [___] €  │ (33 %)                │
+│ ╰────────────────╯                       │
+│ ╭─ Card ─────────────────────────╮       │
+│ │ Beschreibung [textarea] (100 %) │       │
+│ ╰─────────────────────────────────╯      │
 ├─────────────────────────────────────────┤
 │  [Löschen]        [Abbrechen] [Speichern]│
 └─────────────────────────────────────────┘
+
+Modus "Bearbeiten", < Tablet (< 768 px): wie „Anlegen" < Tablet oben,
+Footer wie im Bearbeiten-Modal.
 
 Klick "Löschen" →
 ┌─────────────────────────────────┐
@@ -63,10 +91,14 @@ Klick "Speichern + kopieren", 201 →
 ┌─────────────────────────────────────────┐
 │  Artikel anlegen                     [✕] │  ← Dialog bleibt offen
 ├─────────────────────────────────────────┤
-│  Artikelnummer  [105]  (readonly)        │  ← nextNumber aus dem 201
-│  Bezeichnung  [▓Body langarm▓]          │  ← Fokus, Inhalt selektiert
-│  Kategorie ▾+   Marke ▾+                │  ← alle übrigen Werte bleiben
-│  ...                                    │
+│ ╭─ Card ─────────╮                       │
+│ │ Artikelnummer  │ ← nextNumber aus dem 201
+│ │ [105]          │                       │
+│ ╰────────────────╯                       │
+│ ╭─ Card ─────────────────────────╮       │
+│ │ Bezeichnung [▓Body langarm▓]    │ ← Fokus, Inhalt selektiert
+│ ╰─────────────────────────────────╯      │
+│  … übrige Cards, alle Werte bleiben …    │
 └─────────────────────────────────────────┘
    Toast: ✓ Artikel 104 gespeichert — nächste Nummer: 105
 ```
@@ -74,6 +106,24 @@ Klick "Speichern + kopieren", 201 →
 Modal-Muster: Standard-Größe, Footer „Mit Löschen" im Modus Bearbeiten,
 Footer „Standard + Zweitaktion" im Modus Anlegen (siehe
 `docs/components/modal/component.md`).
+
+## Layout
+
+Fünf Cards je Modus, jede Card [Panel-Block](../../../components/card/component.md#3-panel-blöcke-formulare)
+ohne Titel (nur Werte aus §3 — kein Titeltext). Abstand zwischen den Cards:
+margin-bottom 12 px.
+
+| Card | Feld(er) | Breite ≥ Tablet | Breite < Tablet |
+|---|---|---|---|
+| 1 | Artikelnummer | 33 % | 100 % |
+| 2 | Bezeichnung | 100 % | 100 % |
+| 3 | Kategorie, Marke, Größe, Farbe | je 25 %, gap 12 px | je 100 %, gestapelt, gap 8 px |
+| 4 | Preis | 33 % | 100 % |
+| 5 | Beschreibung | 100 % | 100 % |
+
+Breakpoint identisch zu [Table](../../../components/table/component.md) Abschnitt 10 / [filter-panel](../../../components/filter-panel/component.md): ≥ 768 px / < 768 px —
+**nicht** der Form-Grid-Breakpoint aus `card.md` §4 (1024 px), da dieser Dialog
+kein generisches 2-Spalten-Form-Grid nutzt, sondern eigene Card-Gruppen.
 
 ## Aufbau
 
