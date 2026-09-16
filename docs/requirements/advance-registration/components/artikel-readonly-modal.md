@@ -13,8 +13,10 @@ Gleiche Feldbasis wie [`artikel-dialog.md`](artikel-dialog.md), aber **alle Feld
 ┌─────────────────────────────────────────┐
 │  Artikel ansehen                     [✕] │
 ├─────────────────────────────────────────┤
-│  Verkäufer: Max Mustermann (#42)         │  ← zusätzlich, readonly
-│  Artikelnummer (readonly)                │
+│ ╭─ Card (100 %) ──────────────────╮      │
+│ │ Artikelnummer (33 %) │ Verkäufer (33 %)│ ← Verkäufer zusätzlich, readonly
+│ │ [104]                │ Max M. (#42)    │
+│ ╰───────────────────────────────────╯    │
 │  Bezeichnung (readonly)                  │
 │  Kategorie (readonly)   Marke (readonly) │
 │  Größe (readonly)     Farbe (readonly)   │
@@ -31,7 +33,7 @@ Modal-Muster: Standard-Größe, Footer „Nur Schließen" (siehe `docs/component
 
 Querschnitts-Regeln → [form.md](../../../components/form/component.md) (nur Anzeige: R-1/2/3/7 entfallen).
 
-Alle Felder wie in `artikel-dialog.md`, aber durchgängig `[readonly]="true"` bzw. `[disabled]="true"` (kein `p-select`/`p-autoComplete`-Interaktion, keine `p-confirmdialog`-Logik). Zusätzliches Feld:
+Alle Felder wie in `artikel-dialog.md`, aber durchgängig `[readonly]="true"` bzw. `[disabled]="true"` (kein `p-select`/`p-autoComplete`-Interaktion, keine `p-confirmdialog`-Logik). Zusätzliches Feld, in derselben Card wie Artikelnummer, dahinter, je Feld 33 % Breite (< Tablet: gestapelt, je 100 %):
 
 | Feld | PrimeNG |
 |---|---|

@@ -24,8 +24,8 @@ describe('ArticleReadonlyModal', () => {
     const fixture = create();
     const inputs = fixture.debugElement.queryAll(By.css('input[readonly]'));
     expect(inputs.length).toBeGreaterThan(0);
-    const sellerInput = inputs[0].nativeElement;
-    expect(sellerInput.value).toBe('Max Mustermann (#42)');
+    const sellerInput = inputs.find(input => input.nativeElement.value.includes('Mustermann'));
+    expect(sellerInput?.nativeElement.value).toBe('Max Mustermann (#42)');
   });
 
   it('shows all article fields readonly', () => {

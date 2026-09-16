@@ -67,6 +67,11 @@
   width: 33%;
 }
 
+.article-dialog__row-thirds {
+  display: flex;
+  gap: 12px;
+}
+
 .article-dialog__fields-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -78,9 +83,82 @@
     width: 100%;
   }
 
+  .article-dialog__row-thirds {
+    flex-direction: column;
+    gap: 8px;
+  }
+
   .article-dialog__fields-4 {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+}
+
+// Verkäufer-Typ-Zeile (seller-create-dialog / seller-edit-dialog): Select auf
+// ein Drittel verschmälert, Konditionen-Info daneben in den restlichen zwei
+// Dritteln. Erst ab "kleiner Tablet" (mobile-Breakpoint) wieder gestapelt.
+.conditions-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  align-items: center;
+  gap: 12px;
+
+  label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--color-muted);
+    margin-bottom: 4px;
+  }
+
+  &__summary {
+    margin: 0;
+  }
+}
+
+@include breakpoints.mobile {
+  .conditions-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Nummernblöcke (seller-edit-dialog): Abstand zur bestehenden Block-Liste,
+// Reservieren-Zeile mit Feldern zu je 50 % + Button in fixer Breite. Erst ab
+// "kleiner Tablet" gestapelt, Button dort rechtsbündig statt volle Breite.
+.reserve-form {
+  margin-top: 16px;
+
+  &__row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  &__fields {
+    flex: 1;
+    display: flex;
+    gap: 12px;
+  }
+
+  &__field {
+    flex: 1;
+  }
+}
+
+@include breakpoints.mobile {
+  .reserve-form__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reserve-form__fields {
+    flex-direction: column;
+  }
+
+  .reserve-form button {
+    align-self: flex-end;
   }
 }
 
@@ -93,6 +171,10 @@
 
   &--with-delete {
     justify-content: space-between;
+  }
+
+  &__delete {
+    margin-right: auto;
   }
 
   &__actions {

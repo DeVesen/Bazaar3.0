@@ -1,0 +1,75 @@
+<p-dialog [(visible)]="visibleModel" [modal]="true" header="Artikel ansehen">
+  @if (article(); as a) {
+    <div class="panel-block">
+      <p-fluid>
+      <div class="article-dialog__row-thirds">
+        <div class="article-dialog__third">
+          <label>Artikelnummer</label>
+          <input pInputText [value]="a.number" [readonly]="true" />
+        </div>
+        <div class="article-dialog__third">
+          <label>Verkäufer</label>
+          <input pInputText [value]="a.seller.firstName + ' ' + a.seller.lastName + ' (#' + (a.seller.startNumber ?? '–') + ')'" [readonly]="true" />
+        </div>
+      </div>
+      </p-fluid>
+    </div>
+
+    <div class="panel-block">
+      <p-fluid>
+      <div class="article-dialog__field">
+        <label>Bezeichnung</label>
+        <input pInputText [value]="a.name" [readonly]="true" />
+      </div>
+      </p-fluid>
+    </div>
+
+    <div class="panel-block">
+      <p-fluid>
+      <div class="article-dialog__fields-4">
+        <div>
+          <label>Kategorie</label>
+          <input pInputText [value]="a.category" [readonly]="true" />
+        </div>
+        <div>
+          <label>Marke</label>
+          <input pInputText [value]="a.brand" [readonly]="true" />
+        </div>
+        <div>
+          <label>Größe</label>
+          <input pInputText [value]="a.size ?? ''" [readonly]="true" />
+        </div>
+        <div>
+          <label>Farbe</label>
+          <input pInputText [value]="a.color ?? ''" [readonly]="true" />
+        </div>
+      </div>
+      </p-fluid>
+    </div>
+
+    <div class="panel-block">
+      <p-fluid>
+      <div class="article-dialog__third">
+        <label>Preis</label>
+        <p-inputgroup>
+          <input pInputText [value]="a.price" [readonly]="true" />
+          <p-inputgroup-addon>€</p-inputgroup-addon>
+        </p-inputgroup>
+      </div>
+      </p-fluid>
+    </div>
+
+    <div class="panel-block">
+      <p-fluid>
+      <div class="article-dialog__field">
+        <label>Beschreibung</label>
+        <input pInputText [value]="a.description ?? ''" [readonly]="true" />
+      </div>
+      </p-fluid>
+    </div>
+  }
+
+  <div class="footer">
+    <button pButton type="button" data-testid="close-button" (click)="visible.set(false)">Schließen</button>
+  </div>
+</p-dialog>
