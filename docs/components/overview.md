@@ -76,7 +76,7 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Card** | Standard-Card und Panel-Block-Container für Formular- und Listeninhalte | [card/](card/component.md) |
 | **Sidebar** | App-weite Navigations-Sidebar auf Basis der `p-sidebar`-Compound-Familie; Gruppen, Trennlinien, Active-Highlight, Footer-Slot | [sidebar/](sidebar/component.md) |
 | **Sidebar-Footer** | Footer-Bereich der Sidebar mit Avatar, Rollenangabe, optionalem Role-Toggle und Abmelden-Button | [sidebar-footer/](sidebar-footer/component.md) |
-| **Filter-Panel** | Mehrzeiliges Filter-Panel über Listen: Freitextsuche, Dropdowns, aktive Filter als Chips | [filter-panel/](filter-panel/component.md) |
+| **Filter-Panel** | Einzeilige Filter-Leiste über Listen (`p-toolbar`): Freitextsuche, Dropdowns, „+ Neu"-Button; kollabiert < Tablet zu einem Dropdown | [filter-panel/](filter-panel/component.md) |
 | **Master-Data-Filter-Toolbar** | Schlanke Live-Filter-Leiste für clientseitig gefilterte Master-Data-Listen (Freitext, optional Original/Neu) inkl. „+ Neu"-Button | [master-data-filter-toolbar/](master-data-filter-toolbar/component.md) |
 | **Stammdaten-Popup** | Anlege-/Bearbeiten-Popup für einfache Stammdaten (Name + optionales Original-Flag) | [stammdaten-popup/](stammdaten-popup/component.md) |
 | **Typ-Popup** | Anlege-/Bearbeiten-Popup für Verkäufer-Typen (Name, Provision, Gebühr) | [typ-popup/](typ-popup/component.md) |
@@ -91,7 +91,7 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 
 Einzelne Formular- und Feedback-Elemente. Sie beschreiben PrimeNG-Verhalten **plus** Projektkonventionen (Label-Stil, Pflichtfeld-Markierung, Fehlerdarstellung) — daran ist nichts app-spezifisch, darum liegen sie suite-weit. Zusammengesetzte Formulare verlinken sie statt sie erneut zu beschreiben.
 
-**Bewusst ohne eigene Datei:** `p-chip`, `p-paginator`, `p-progressbar`, `p-fileupload` und `p-metergroup`. Sie werden je nur an einer oder zwei Stellen eingesetzt und tragen keine Projektkonvention über die PrimeNG-Standardnutzung hinaus — sie stehen dort beschrieben, wo sie vorkommen (Filter-Panel, Table, Import-Panel, Statistik). Eine eigene Datei je Einzelnutzung wäre Verwaltung ohne Ertrag.
+**Bewusst ohne eigene Datei:** `p-paginator`, `p-progressbar`, `p-fileupload` und `p-metergroup`. Sie werden je nur an einer oder zwei Stellen eingesetzt und tragen keine Projektkonvention über die PrimeNG-Standardnutzung hinaus — sie stehen dort beschrieben, wo sie vorkommen (Table, Import-Panel, Statistik). Eine eigene Datei je Einzelnutzung wäre Verwaltung ohne Ertrag.
 
 | Komponente | Beschreibung | Verzeichnis |
 |---|---|---|
@@ -200,7 +200,6 @@ Konsolidierte Liste aller MISC-Direktiven und -Widgets aus beiden Apps — die A
 | `pAnimateOnScroll` | KPI-Kacheln und Karten-Grids beim Scrollen in Viewport | Beide |
 | `p-avatar` | Sidebar-Footer: Initial-Buchstabe, Farbe `#3ecf8e` | Voranmelde-App |
 | `p-badge` | Offene Artikel-Anzahl im Sidebar-Menüpunkt | Beide |
-| `p-chip` | Aktive Filter-Tags im Filter-Panel (mit × zum Entfernen) | Beide |
 | `p-progressbar` | Import-Fortschritt (Einstellungen) | Haupt-App |
 | `p-metergroup` | Statistik: Anteil Verkauft / Im Verkauf / Retour als Balken | Haupt-App |
 | `p-progressspinner` | Ladeindikator bei Such-Debounce (ersetzt Clear-Button) | Beide |

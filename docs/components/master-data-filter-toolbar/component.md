@@ -40,6 +40,7 @@ den Breakpoint und das Dropdown-Kollaps-Muster < Tablet, nicht aber die Auslöse
 
 | Element | PrimeNG | Wann |
 |---|---|---|
+| Trägerkomponente | `p-toolbar` — Filterfelder (bzw. Filter-Dropdown < Tablet) in der Start-Gruppe, „+ Neu" in der End-Gruppe | immer |
 | Original/Neu-Filter | [Select](../select/component.md), Variante Dropdown — Optionen „✓ Original“ / „Neu" | nur wenn `showOriginalFilter` gesetzt (Kategorien, Marken) |
 | Freitext-Feld | [Input](../input/component.md), Variante Icon (Such-Icon) | immer |
 | Filter-Dropdown (< Tablet) | [Select](../select/component.md)-artiges Overlay-Panel, Trigger-Label „Filter" — ersetzt Freitext-Feld (und ggf. Original/Neu-Filter), öffnet ein Dropdown-Panel mit denselben Feldern | immer |

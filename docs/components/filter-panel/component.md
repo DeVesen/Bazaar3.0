@@ -66,6 +66,7 @@ Verkäufer-Verwaltung, < Tablet:
 
 | Element | PrimeNG | Nur in |
 |---|---|---|
+| Trägerkomponente | `p-toolbar` — Filterfelder (bzw. Filter-Dropdown < Tablet) in der Start-Gruppe, „+ Neu" in der End-Gruppe | alle |
 | Verkäufer-Filter | [Select](../select/component.md), Variante Type-Ahead — über alle Verkäufer (Vorname/Nachname/Nummer) | Alle Artikel |
 | Marke-Filter | [Select](../select/component.md), Variante Dropdown — Liste aller Marken | Basis, Alle Artikel, Haupt-App Artikel |
 | Kategorie-Filter | [Select](../select/component.md), Variante Dropdown — Liste aller Kategorien | Basis, Alle Artikel, Haupt-App Artikel |
