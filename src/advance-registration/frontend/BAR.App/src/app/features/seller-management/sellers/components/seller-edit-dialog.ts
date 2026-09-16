@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { FluidModule } from 'primeng/fluid';
-import { CheckboxModule } from 'primeng/checkbox';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { SellersApiService, Seller, NumberBlock, UpdateSellerPayload } from '../sellers-api.service';
@@ -25,13 +25,63 @@ import { InfoArea } from '@shared/info-area/info-area';
     InputNumberModule,
     SelectModule,
     FluidModule,
-    CheckboxModule,
+    ToggleSwitchModule,
     AutoFocusModule,
     Badge,
     InfoArea,
     TranslatePipe
   ],
-  templateUrl: './seller-edit-dialog.html'
+  templateUrl: './seller-edit-dialog.html',
+  styles: [`
+    /* PrimeNG 22.1 injiziert fuer p-toggleswitch keine Runtime-CSS (Klassen/Struktur
+       im DOM korrekt, aber Design-Tokens greifen nicht) — Notstyling bis Upstream-Fix. */
+    :host ::ng-deep .p-toggleswitch {
+      position: relative;
+      display: inline-flex;
+      width: 2.25rem;
+      height: 1.375rem;
+      flex-shrink: 0;
+
+      .p-toggleswitch-input {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .p-toggleswitch-slider {
+        position: absolute;
+        inset: 0;
+        border-radius: 30px;
+        background: var(--color-border);
+        transition: background 0.2s;
+      }
+
+      .p-toggleswitch-handle {
+        position: absolute;
+        top: 50%;
+        left: 0.2rem;
+        width: 0.875rem;
+        height: 0.875rem;
+        border-radius: 50%;
+        background: #fff;
+        transform: translateY(-50%);
+        transition: left 0.2s;
+      }
+
+      &.p-toggleswitch-checked .p-toggleswitch-slider {
+        background: var(--color-accent);
+      }
+
+      &.p-toggleswitch-checked .p-toggleswitch-handle {
+        left: calc(100% - 0.875rem - 0.2rem);
+      }
+    }
+  `]
 })
 export class SellerEditDialog {
   private readonly sellersApi = inject(SellersApiService);
@@ -228,6 +278,32 @@ export class SellerEditDialog {
           );
         }
       });
+  }
+
+  onDeleteSeller(): void {
+    const seller = this.item();
+    if (!seller) return;
+
+    this.confirmationService.confirm({
+      message: this.translate.instant('sellers.confirmDelete', { firstName: seller.firstName, lastName: seller.lastName }),
+      acceptLabel: this.translate.instant('common.delete'),
+      rejectLabel: this.translate.instant('common.cancel'),
+      accept: () => {
+        this.sellersApi.delete(seller.id).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'success', summary: this.translate.instant('sellers.deleted') });
+            this.saved.emit();
+            this.visible.set(false);
+          },
+          error: (err: { status?: number; error?: { detail?: string } }) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: err.status === 409 ? (err.error?.detail ?? this.translate.instant('sellers.deleteFailed')) : this.translate.instant('sellers.deleteFailed')
+            });
+          }
+        });
+      }
+    });
   }
 
   onInviteClick(): void {

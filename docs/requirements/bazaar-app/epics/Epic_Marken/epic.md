@@ -25,7 +25,7 @@ updated: 2026-08-17
 
 Entity-Details → [`entities/marke.md`](../../entities/marke.md)
 
-Component-Details → Tabelle: [Table](../../../../components/table/component.md) · Popup: `stammdaten-popup` (Ausprägung Marke)
+Component-Details → Tabelle: [Table](../../../../components/table/component.md) · Popup: `master-data-popup` (Ausprägung Marke)
 
 **Ziel:** Admin pflegt die Marken-Stammdaten der Haupt-App; Kassenpersonal liest sie und legt am Annahmetisch implizit neue an.
 
@@ -37,7 +37,7 @@ Component-Details → Tabelle: [Table](../../../../components/table/component.md
 
 Verwaltung der Marken-Stammdaten. Neue Marken entstehen auf zwei Wegen: vom Admin auf dieser Seite, oder am Basar-Tag über das AutoComplete-Popup der Artikelannahme ([`spec.md`](../../spec.md) Abschnitt 9.3).
 
-**Marken und Kategorien sind bewusst getrennte Epics**, obwohl Tabelle, Popup, Flag-Logik und Endpoint-Muster identisch sind: Die Epic-Liste in [`spec.md`](../../spec.md) Abschnitt 5 ist auch der Implementierungsplan, und beide sind eigene Durchstiche, die man getrennt fertigstellt. Die gemeinsame Beschreibung lebt darum **nicht** doppelt hier, sondern in der Komponentenbeschreibung `stammdaten-popup`; epic-spezifisch bleibt nur, was wirklich abweicht (Titel, Route, Feldname).
+**Marken und Kategorien sind bewusst getrennte Epics**, obwohl Tabelle, Popup, Flag-Logik und Endpoint-Muster identisch sind: Die Epic-Liste in [`spec.md`](../../spec.md) Abschnitt 5 ist auch der Implementierungsplan, und beide sind eigene Durchstiche, die man getrennt fertigstellt. Die gemeinsame Beschreibung lebt darum **nicht** doppelt hier, sondern in der Komponentenbeschreibung `master-data-popup`; epic-spezifisch bleibt nur, was wirklich abweicht (Titel, Route, Feldname).
 
 Ein Sammel-Epic „Stammdaten" wäre der nächste naheliegende Schritt — er scheitert an Verkäufer-Typen: die tragen Provision und Gebühr und sind fachlich etwas völlig anderes. Die Klammer würde sofort undicht.
 

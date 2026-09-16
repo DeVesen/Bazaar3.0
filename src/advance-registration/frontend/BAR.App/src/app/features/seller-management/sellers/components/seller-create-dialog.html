@@ -50,23 +50,23 @@
 
   <div class="panel-block">
     <div class="panel-block__title">{{ 'sellerCreateDialog.sectionConditions' | translate }}</div>
-    <p-fluid>
-    <div class="form-grid">
-      <div class="full">
-        <label for="create-seller-type">{{ 'sellerCreateDialog.sellerType' | translate }}</label>
-        <p-select
-          id="create-seller-type"
-          [options]="sellerTypes()"
-          optionLabel="name"
-          optionValue="id"
-          [(ngModel)]="sellerTypeIdModel"
-        />
-      </div>
+    <div class="conditions-row">
+      <p-fluid>
+        <div>
+          <label for="create-seller-type">{{ 'sellerCreateDialog.sellerType' | translate }}</label>
+          <p-select
+            id="create-seller-type"
+            [options]="sellerTypes()"
+            optionLabel="name"
+            optionValue="id"
+            [(ngModel)]="sellerTypeIdModel"
+          />
+        </div>
+      </p-fluid>
+      @if (selectedType(); as type) {
+        <p class="conditions-row__summary">{{ 'sellerCreateDialog.conditionsSummary' | translate: { commissionRate: type.commissionRate, itemFee: type.itemFee } }}</p>
+      }
     </div>
-    </p-fluid>
-    @if (selectedType(); as type) {
-      <p>{{ 'sellerCreateDialog.conditionsSummary' | translate: { commissionRate: type.commissionRate, itemFee: type.itemFee } }}</p>
-    }
   </div>
 
   <div class="panel-block">
@@ -89,8 +89,10 @@
     <app-info-area type="error" [message]="error" />
   }
 
-  <div class="dialog-footer">
-    <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
-    <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">{{ 'common.save' | translate }}</button>
-  </div>
+  <ng-template #footer>
+    <div class="footer">
+      <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+      <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">{{ 'common.save' | translate }}</button>
+    </div>
+  </ng-template>
 </p-dialog>

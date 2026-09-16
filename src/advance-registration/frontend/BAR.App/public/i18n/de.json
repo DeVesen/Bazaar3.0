@@ -121,7 +121,7 @@
     "inUse": "Kategorie wird noch verwendet",
     "deleteFailed": "Löschen fehlgeschlagen"
   },
-  "stammdatenPopup": {
+  "masterDataPopup": {
     "createTitle": "Neue {{entity}}",
     "editTitle": "{{entity}} bearbeiten",
     "name": "Name",
@@ -188,7 +188,6 @@
     "blockUsage": "{{count}} Nummern · {{used}} vergeben",
     "blockFull": "Voll — nicht löschbar",
     "confirmDeleteBlock": "Diesen Nummernblock wirklich löschen?",
-    "reserveAdditional": "Zusätzliche Blöcke reservieren:",
     "blockCount": "Anzahl Blöcke",
     "suggestedStartNumber": "Startnummer (Vorschlag)",
     "reserve": "✓ Reservieren",

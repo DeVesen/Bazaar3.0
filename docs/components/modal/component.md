@@ -69,7 +69,7 @@ Das Modal ist die einheitliche Lösung für alle modalen Interaktionen in beiden
 
 | Muster | Layout |
 |---|---|
-| Standard | Rechts: `[Abbrechen (secondary outlined)]` `[Speichern (primary)]` |
+| Standard | Rechts: `[Abbrechen (secondary text)]` `[Speichern (primary)]` |
 | Mit Löschen | Links: `[Löschen (danger)]` · Rechts: `[Abbrechen]` `[Speichern]` |
 | Nur Schließen | Rechts: `[Schließen (secondary outlined)]` |
 | Standard + Zweitaktion | Rechts: `[Abbrechen (text)]` `[Zweitaktion (secondary outlined)]` `[Speichern (primary)]` |
@@ -103,7 +103,7 @@ Split-Button-Menü.
 2. **AC-2** — THE SYSTEM SHALL die Größenvarianten `sm` (max 420 px), Standard (80 % / max 700 px) und `lg` (max 940 px) unterstützen.
 3. **AC-3** — THE SYSTEM SHALL den Header mit Padding 17 px 20 px, Titel in 700 / 16 px und einem Schließen-Button ohne Hintergrund (22 px, muted) rendern.
 4. **AC-4** — THE SYSTEM SHALL den Body mit Padding 20 px und `overflow-y: auto` rendern.
-5. **AC-5** — THE SYSTEM SHALL den Footer im Muster „Standard" als `flex-end` mit gap 8 px rendern, im Muster „Mit Löschen" als `space-between` mit dem Löschen-Button (danger) links und Abbrechen/Speichern rechts.
+5. **AC-5** — THE SYSTEM SHALL den Footer im Muster „Standard" als `flex-end` mit gap 8 px rendern (Abbrechen `secondary text`, Speichern `primary`), im Muster „Mit Löschen" als `space-between` mit dem Löschen-Button (danger) links und Abbrechen/Speichern rechts.
 6. **AC-6** — WHEN der Viewport ≤ 768 px ist, THEN SHALL das System den Border-radius auf 0 setzen.
 7. **AC-7** — THE SYSTEM SHALL den Footer im Muster „Standard + Zweitaktion" als `flex-end` mit gap 8 px rendern, in der Reihenfolge Abbrechen (text) · Zweitaktion (secondary outlined) · Speichern (primary), und höchstens eine Zweitaktion zulassen.
 

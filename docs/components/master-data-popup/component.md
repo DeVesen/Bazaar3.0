@@ -3,7 +3,7 @@ status: reviewed
 reviewed-date: 2026-08-17
 ---
 
-# Component: stammdaten-popup (Anlegen + Bearbeiten)
+# Component: master-data-popup (Anlegen + Bearbeiten)
 
 Ein Popup-Muster für die einfachen Stammdaten-Listen **Marke** und **Kategorie** — reine
 Instanziierung, keine eigenen PrimeNG-Entscheidungen. Gleiches Modal für Anlegen und
@@ -43,7 +43,7 @@ Querschnitts-Regeln (Validierung, Submit-Sperre, Enter, Feedback) → [form.md](
 |---|---|
 | Name | [Input](../input/component.md), Variante Text |
 | Original (nur Edit) | [Boolean-Input](../boolean-input/component.md), Variante Switch |
-| Footer | [Button](../button/component.md) secondary outlined (Abbrechen) / primary (Anlegen bzw. Speichern) |
+| Footer | [Button](../button/component.md) `[text]="true"` secondary (Abbrechen) / primary (Anlegen bzw. Speichern) |
 | Save-Feedback | [Toast](../toast/component.md) |
 
 ## Ausprägungen

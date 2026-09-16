@@ -57,7 +57,7 @@ Grundregeln (Dumb Component, ausschließlich PrimeNG) → [`docs/components/over
 |---|---|
 | Sitzungsliste der Artikelannahme | vollständig in [intake-wizard](intake-wizard.md) Abschnitt 3 beschrieben — sie kommt nur dort vor, eine eigene Datei wäre eine zweite Quelle |
 | „Seite nicht gefunden" | ein zentrierter Satz; BSHELL-S03 AC-7 beschreibt sie vollständig |
-| Sidebar, Sidebar-Footer, Filter-Panel, Stammdaten-Popup, Typ-Popup | **suite-weit** — beide Apps nutzen sie, Varianten stehen dort in Tabellen |
+| Sidebar, Sidebar-Footer, Filter-Panel, Master-Data-Popup, Typ-Popup | **suite-weit** — beide Apps nutzen sie, Varianten stehen dort in Tabellen |
 | Table, Badge, Card, Modal, Input-Group, Info-Area, KPI-Tile, Payment-Panel, Scan-Dialog, Seller-Search, Barcode-Scanner, AutoComplete-Create, QR-Code, Numpad | **suite-weit**, unverändert übernommen |
 | Atomare Felder (Input, Select, Button, InputNumber, Boolean-Input, Datepicker, Confirmdialog, Toast) | **suite-weit**; Formulare hier verlinken sie statt sie zu beschreiben |
 | Formular-Querschnittsregeln (Feldfehler, Submit-Sperre, Enter, Feedback, Bestätigung, Readonly, Autofokus) | **suite-weit** in [`form`](../../../components/form/component.md) — dort steht auch, welche zwei Regeln in dieser App verschärft gelten |

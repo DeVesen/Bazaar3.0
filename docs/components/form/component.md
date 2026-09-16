@@ -10,7 +10,7 @@ Verhaltensregeln, die für **jedes** Formular **beider Apps** gelten (Seiten-For
 Dialoge, Popups). Formulare verlinken hierauf statt die Regeln je Doc zu wiederholen.
 
 **Verwendung:** beide Apps. Die Datei lag ursprünglich app-lokal in der Voranmelde-App, wurde
-aber von den suite-weiten Dateien [`stammdaten-popup`](../stammdaten-popup/component.md) und
+aber von den suite-weiten Dateien [`master-data-popup`](../master-data-popup/component.md) und
 [`typ-popup`](../typ-popup/component.md) referenziert — eine suite-weite Beschreibung, die von
 einer app-lokalen abhängt, ist eine umgekehrte Schichtung. Die sieben Regeln selbst sind nicht
 app-spezifisch.
@@ -101,7 +101,7 @@ Beispiel: [verkaeufer-dialog.md](../../requirements/advance-registration/compone
 | [login-form.md](../../requirements/advance-registration/components/login-form.md), [registrierung-form.md](../../requirements/advance-registration/components/registrierung-form.md) | Seiten-Formular in Card |
 | [einstellungen-form.md](../../requirements/advance-registration/components/einstellungen-form.md), [profil-page.md](../../requirements/advance-registration/components/profil-page.md) | Seiten-Formular mit Panel-Blöcken |
 | [export-panel.md](../../requirements/advance-registration/components/export-panel.md) | Panel mit Aktion |
-| [stammdaten-popup.md](../stammdaten-popup/component.md), [typ-popup.md](../typ-popup/component.md) | Modal `sm` |
+| [master-data-popup.md](../master-data-popup/component.md), [typ-popup.md](../typ-popup/component.md) | Modal `sm` |
 | [artikel-dialog.md](../../requirements/advance-registration/components/artikel-dialog.md), [verkaeufer-dialog.md](../../requirements/advance-registration/components/verkaeufer-dialog.md) | Modal Standard / `lg` |
 | [artikel-readonly-modal.md](../../requirements/advance-registration/components/artikel-readonly-modal.md) | Modal, nur Anzeige — R-1/2/3/7 entfallen |
 

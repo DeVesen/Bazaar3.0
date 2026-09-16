@@ -162,19 +162,31 @@
   }
 }
 
+// seller-edit-dialog "Sonstiges": Admin-Toggle links, Einladungslink-Button
+// rechtsbündig in derselben Card.
+.other-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  &__admin {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
 // article-dialog Footer — Muster nach modal.md §4: Standard = flex-end,
 // Mit Löschen = space-between (Löschen links, Abbrechen/Speichern rechts).
 .footer {
   display: flex;
+  width: 100%;
   justify-content: flex-end;
   gap: 8px;
 
   &--with-delete {
     justify-content: space-between;
-  }
-
-  &__delete {
-    margin-right: auto;
   }
 
   &__actions {

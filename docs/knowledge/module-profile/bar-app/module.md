@@ -5,7 +5,7 @@
 **Purpose:** Das gesamte Angular-Frontend der Voranmelde-App — ein Angular-Workspace-Projekt nach der Feature-First-Struktur mit Abteilungs-Gruppierung (`features/<abteilung>/<feature>/` + `core/` + `shared/`).
 **Identity:** Ein Build-Artefakt nach der Regel "ein `angular.json`-Projekt = ein Modul" — die 10 Unterordner unter `features/` sind **keine** eigenen Module, sondern Feature-Profil-Kandidaten innerhalb dieses einen Moduls.
 **Maturity:** sketch
-**Last updated:** 2026-09-15
+**Last updated:** 2026-09-16
 
 **Container-Image:** wird per `.github/workflows/advance-registration-docker.yml` gebaut (Nginx-Image, siehe `Dockerfile`) und als `devesen/bazaar-advance-registration-frontend` auf Docker Hub veröffentlicht (Trigger: Push auf `master` mit Änderung in `src/advance-registration/**`, oder manuell).
 
@@ -39,3 +39,4 @@ Height-Capping-Konvention (Flexbox, kein `calc()`/vh-Zahlen): `Shell` `:host` fi
 - Die 10 Feature-Ordner werden separat als Feature-Profile erfasst (siehe `docs/knowledge/feature-profile/`), nicht hier als Unterstruktur dieses Moduls im Detail wiederholt.
 - Dev-Server-Proxy (`proxy.conf.json`): `/api` und `/health` → `http://localhost:5001` (muss mit `BAR.Host`s `launchSettings.json`-Port übereinstimmen, siehe `bar-host` Modul-Profil — Mismatch verursacht 502 Bad Gateway auf jedem Backend-Call).
 - Frontend-Nginx-Image setzte bis `1e0b606` keinen `Cache-Control`-Header für `index.html` — ein Browser, der die Origin schon vor einem Redeploy besucht hatte, konnte eine alte `index.html` mit Verweisen auf nicht mehr existierende Bundle-Dateien weiter ausliefern (stiller Stillstand auf altem Code, kein sichtbarer Fehler). Fix in `nginx.conf`: eigener `location = /index.html`-Block mit `Cache-Control: no-cache`.
+- PrimeNG 22.1.0: `p-toggleswitch` rendert DOM/Klassen korrekt (`p-toggleswitch-checked`, `data-p-checked`, Input/Slider/Handle-Struktur), aber die Runtime-CSS-Injection (Design-Tokens aus `@primeuix/themes`) greift für diese eine Komponente nicht — sichtbar bleibt nur der rohe Browser-Checkbox. Andere PrimeNG-Komponenten (Button, Dialog, Input) sind nicht betroffen; Root Cause nicht gefunden (kein Fix im Rahmen dieser Session, nur Workaround). Notstyling per `:host ::ng-deep .p-toggleswitch { ... }` direkt in der jeweiligen Komponente (Referenz: `shared/master-data-popup/master-data-popup.ts`, `features/seller-management/sellers/components/seller-edit-dialog.ts`) — bei jedem neuen `p-toggleswitch`-Einsatz denselben Block kopieren, nicht erneut über Theme-Tokens/`dt()` versuchen.

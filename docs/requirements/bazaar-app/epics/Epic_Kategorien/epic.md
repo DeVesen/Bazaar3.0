@@ -26,7 +26,7 @@ updated: 2026-08-17
 
 Entity-Details → [`entities/kategorie.md`](../../entities/kategorie.md)
 
-Component-Details → Tabelle: [Table](../../../../components/table/component.md) · Popup: `stammdaten-popup` (Ausprägung Kategorie)
+Component-Details → Tabelle: [Table](../../../../components/table/component.md) · Popup: `master-data-popup` (Ausprägung Kategorie)
 
 **Ziel:** Admin pflegt die Kategorie-Stammdaten der Haupt-App; Kassenpersonal liest sie und legt am Annahmetisch implizit neue an.
 
@@ -38,7 +38,7 @@ Component-Details → Tabelle: [Table](../../../../components/table/component.md
 
 Verwaltung der Kategorie-Stammdaten. Neue Kategorien entstehen auf zwei Wegen: vom Admin auf dieser Seite, oder am Basar-Tag über das AutoComplete-Popup der Artikelannahme ([`spec.md`](../../spec.md) Abschnitt 9.3).
 
-**Aufbau, Verhalten und Endpoint-Muster sind identisch zu [Epic_Marken](../Epic_Marken/epic.md)** — dieselbe Tabelle, dasselbe Popup, dieselbe Flag-Logik, dieselbe Löschsperre, dieselbe Auth-Stufung. Damit die Beschreibung nicht doppelt lebt und beim nächsten Detail auseinanderläuft, steht das Gemeinsame in der Komponentenbeschreibung `stammdaten-popup`; hier steht nur, was kategoriespezifisch ist.
+**Aufbau, Verhalten und Endpoint-Muster sind identisch zu [Epic_Marken](../Epic_Marken/epic.md)** — dieselbe Tabelle, dasselbe Popup, dieselbe Flag-Logik, dieselbe Löschsperre, dieselbe Auth-Stufung. Damit die Beschreibung nicht doppelt lebt und beim nächsten Detail auseinanderläuft, steht das Gemeinsame in der Komponentenbeschreibung `master-data-popup`; hier steht nur, was kategoriespezifisch ist.
 
 ---
 

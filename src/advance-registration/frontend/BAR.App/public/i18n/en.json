@@ -121,7 +121,7 @@
     "inUse": "Category is still in use",
     "deleteFailed": "Delete failed"
   },
-  "stammdatenPopup": {
+  "masterDataPopup": {
     "createTitle": "New {{entity}}",
     "editTitle": "Edit {{entity}}",
     "name": "Name",
@@ -188,7 +188,6 @@
     "blockUsage": "{{count}} numbers · {{used}} assigned",
     "blockFull": "Full — cannot be deleted",
     "confirmDeleteBlock": "Really delete this number block?",
-    "reserveAdditional": "Reserve additional blocks:",
     "blockCount": "Number of blocks",
     "suggestedStartNumber": "Start number (suggested)",
     "reserve": "✓ Reserve",

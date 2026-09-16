@@ -67,7 +67,7 @@ Auslösung wie in [Epic_Meine_Artikel](../Epic_Meine_Artikel/epic.md): Enter ode
 
 **„+ Neu"-Button** (Filter-Toolbar) → öffnet Dialog „Neuen Verkäufer anlegen".
 **Edit-Button** pro Zeile → öffnet Dialog „Verkäufer bearbeiten".
-**Löschen-Button** pro Zeile → `p-confirmdialog`, danach `DELETE /api/sellers/{id}` (löscht Verkäufer samt Artikeln und Nummernblöcken). Nicht verfügbar für den eigenen Account und für den letzten verbliebenen Admin.
+**Löschen-Button** pro Zeile → `p-confirmdialog`, danach `DELETE /api/sellers/{id}` (löscht Verkäufer samt Artikeln und Nummernblöcken). Nicht verfügbar für den eigenen Account und für den letzten verbliebenen Admin. Derselbe Löschen-Button (Danger, Footer links) steht zusätzlich im „Verkäufer bearbeiten"-Dialog — gleiche `canDelete`-Bedingung, gleicher Endpoint, gleiches Confirmdialog.
 
 ---
 
@@ -104,7 +104,9 @@ Layout: `[Telefon 50%] [E-Mail 50%]`.
 |---|---|---|
 | Verkäufer-Typ | ✅ | `p-select` (nur bestehende Typen — kein Inline-Anlegen wie bei Marke/Kategorie: ein Typ braucht zwingend Provision+Gebühr, das `autocomplete-create`-Anlegen-Modal hat aber nur ein Namensfeld. Neue Typen ausschließlich über Epic_Verkaeufer_Typen.) |
 
-Darunter read-only Anzeige: „Provision: X % · Gebühr: Y € pro Stück" — abgeleitet vom gewählten Typ, kein eigenes Eingabefeld (`p-inputnumber` locale DE, `minFractionDigits="2"`, `[readonly]="true"`).
+Layout: `[Verkäufer-Typ 33%] [Provision/Gebühr-Text 66%]` nebeneinander; ab Mobile (≤ 768 px) gestapelt.
+
+Rechts daneben (bzw. bei gestapeltem Layout darunter) read-only Anzeige: „Provision: X % · Gebühr: Y € pro Stück" — abgeleitet vom gewählten Typ, kein eigenes Eingabefeld, reiner Text (kein `p-inputnumber`).
 
 ### Nummernblock-Initialfeld
 
@@ -133,22 +135,20 @@ Für jeden Block: Bereich (Nr. X–Y) · Anzahl Nummern · Anzahl bereits vergeb
 | Löschen-Button | Nur wenn 0 Nummern vergeben; `secondary outlined small`, Icon 🗑; Klick öffnet `p-confirmdialog` (Muster wie Epic_Meine_Artikel) vor dem tatsächlichen Löschen |
 | Badge „Voll — nicht löschbar" | warn; wenn ≥ 1 Nummer vergeben |
 
-**Neue Blöcke reservieren** (unterhalb der Block-Liste):
-- Trennlinie (border-top 1 px), pt 12 px, mt 14 px
-- Label (12 px, muted): „Zusätzliche Blöcke reservieren:"
-- 2-Spalten-Grid: `p-inputnumber` „Anzahl Blöcke" + `p-inputnumber` „Startnummer (Vorschlag)"
+**Neue Blöcke reservieren** (unterhalb der Block-Liste, Abstand per `margin-top`):
+- Kein eigenes Label — der Panel-Titel „Nummernblöcke" trägt den Kontext
+- Eine Zeile: `p-inputnumber` „Anzahl Blöcke" (50 %) + `p-inputnumber` „Startnummer (Vorschlag)" (50 %) + **„✓ Reservieren"-Button** (`p-button severity="primary" size="small"`, feste Breite); ab Mobile (≤ 768 px) gestapelt, Button dort rechtsbündig statt volle Breite
 - **Vorschlag-Berechnung:** System schlägt automatisch nächste freie Startnummer vor — die ab der `Anzahl Blöcke × BlockSize` Nummern lückenlos frei sind.
   - Beispiel: BlockSize=10, Anzahl=2 → benötigt 20 freie Nummern; 1–10 und 21–30 belegt → Vorschlag: 31
   - Berechnet **serverseitig** über `GET /api/blocks/next-free?blockCount=<n>` — das Frontend kennt die Blöcke anderer Verkäufer nicht. Wird beim Öffnen des Panels und bei jeder Änderung von „Anzahl Blöcke" neu gerufen.
-- Hinweistext (12 px, muted): Berechnungsregel
-- **„✓ Reservieren"-Button** (`p-button severity="primary" size="small"`): Prüft vor dem Speichern ob Nummern frei sind — bei Konflikt: Fehlermeldung; bei Erfolg: Block reserviert
+- **„✓ Reservieren"-Button** prüft vor dem Speichern ob Nummern frei sind — bei Konflikt: Fehlermeldung; bei Erfolg: Block reserviert
 
 ### Panel 05 — Sonstiges
 
 ```
-[ p-checkbox ]  Dieser Verkäufer hat Admin-Rechte
+[●─────]  Dieser Verkäufer hat Admin-Rechte
 ```
-`p-checkbox` + `<label>` nebeneinander, gap 10 px, 14 px.
+`p-toggleswitch` + `<label>` nebeneinander, gap 10 px, 14 px.
 
 ```
 [ 📋 Einladungs-Link generieren ]  ← p-button secondary outlined small
@@ -165,7 +165,9 @@ Klick → Link in Zwischenablage + Toast „✓ Einladungs-Link kopiert!".
 
 Admin-Seller-Dialog: Größe `lg` (max 940 px). Responsive: `≥ 768 px` → 80 % Breite / 90 % Höhe; `< 768 px` → 100 % / 100 %, kein `border-radius` (Standard-Modal-Regel, siehe Epic_App_Shell VSHELL-S02).
 
-**Footer:** `[ Abbrechen ]` (`p-button secondary outlined`) `[ Speichern ]` (`p-button primary`).
+**Footer (Anlegen):** `[ Abbrechen ]` (`p-button [text]="true" secondary`) `[ Speichern ]` (`p-button primary`).
+
+**Footer (Bearbeiten):** links `[ Löschen ]` (`p-button severity="danger"`, nur wenn `canDelete`) · rechts `[ Abbrechen ]` (`p-button [text]="true" secondary`) `[ Speichern ]` (`p-button primary`) — Footer-Muster „Mit Löschen" aus [modal.md](../../../../components/modal/component.md), siehe auch Zeile 70 zum Löschen-Button selbst.
 
 **Erfolg/Fehler:** Speichern erfolgreich → Toast „✓ Verkäufer gespeichert". Speichern fehlgeschlagen → eingegebene Werte bleiben erhalten, Fehlermeldung „Verkäufer konnte nicht gespeichert werden" in einer Error-InfoArea.
 

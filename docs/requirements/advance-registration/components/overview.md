@@ -13,7 +13,7 @@ kopiert**.
 **Struktur:** flach, ohne Unterordner — wie in der Haupt-App. Die frühere Aufteilung in
 `custom/`, `forms/` und `standard/` trennte nichts Belastbares: `login-layout` lag unter
 „custom", `login-form` unter „forms", beide beschreiben dieselbe Seite; `filter-panel` und
-`stammdaten-popup` sind beides Aufsätze über Listen und lagen in verschiedenen Ordnern. Die
+`master-data-popup` sind beides Aufsätze über Listen und lagen in verschiedenen Ordnern. Die
 Gruppen unten bleiben als **Lesehilfe im Index** erhalten, sie sind keine Verzeichnisse mehr.
 
 Mit **⧉** markierte Einträge liegen **suite-weit** und werden von beiden Apps genutzt — sie
@@ -73,7 +73,7 @@ Readonly, Autofokus). Die visuelle Hülle steht in den Suite-Docs
 | [einstellungen-form.md](einstellungen-form.md) | Seiten-Formular | Basar-Termine, Nummernblock-Parameter, Infotext |
 | [profil-page.md](profil-page.md) | Seiten-Formular | Drei Tabs: Steckbrief, Zugangsdaten, Löschen |
 | [export-panel.md](export-panel.md) | Panel mit Aktion | Export-Optionen + Ergebnis-Info-Area |
-| [stammdaten-popup ⧉](../../../components/stammdaten-popup/component.md) | Modal `sm` | Anlegen/Bearbeiten für Marke und Kategorie |
+| [master-data-popup ⧉](../../../components/master-data-popup/component.md) | Modal `sm` | Anlegen/Bearbeiten für Marke und Kategorie |
 | [typ-popup ⧉](../../../components/typ-popup/component.md) | Modal `sm` | Anlegen/Bearbeiten Verkäufer-Typ (Name, Provision, Gebühr) |
 | [artikel-dialog.md](artikel-dialog.md) | Modal Standard | Artikel bearbeiten inkl. Löschen |
 | [artikel-readonly-modal.md](artikel-readonly-modal.md) | Modal Standard | Artikel ansehen (Alle Artikel), alle Felder readonly |
@@ -93,7 +93,7 @@ jedem der 14 Epics wiederholt zu werden.
 
 Keine Komponente ist beides. Konkrete Folgen für die Einträge oben:
 
-- **Dialoge und Modals** (`artikel-dialog`, `verkaeufer-dialog`, `stammdaten-popup`,
+- **Dialoge und Modals** (`artikel-dialog`, `verkaeufer-dialog`, `master-data-popup`,
   `typ-popup`, `artikel-readonly-modal`) sind **Leaf**: sie bekommen ihre Daten per
   `input()` und geben das Ergebnis per `output()` an die Page zurück. Sie injizieren
   **keinen** Store und rufen selbst keine API.

@@ -29,7 +29,7 @@ Für Meldungen mit **Zahlen/Details, die stehen bleiben sollen** (z. B. Export-E
 |---|---|---|
 | [verkaeufer-dialog.md](../../requirements/advance-registration/components/verkaeufer-dialog.md) | Einladungs-Link kopieren | „✓ Einladungs-Link kopiert!" |
 | [verkaeufer-dialog.md](../../requirements/advance-registration/components/verkaeufer-dialog.md) | Speichern (Erfolg/Fehler) | „✓ Verkäufer gespeichert" / Fehler-InfoArea |
-| [stammdaten-popup.md](../stammdaten-popup/component.md) | Speichern | „✓ Marke gespeichert" / „✓ Kategorie gespeichert" |
+| [master-data-popup.md](../master-data-popup/component.md) | Speichern | „✓ Marke gespeichert" / „✓ Kategorie gespeichert" |
 | [typ-popup.md](../typ-popup/component.md) | Speichern | „✓ Verkäufer-Typ gespeichert" |
 | [einstellungen-form.md](../../requirements/advance-registration/components/einstellungen-form.md) | Speichern | „✓ Einstellungen gespeichert" |
 

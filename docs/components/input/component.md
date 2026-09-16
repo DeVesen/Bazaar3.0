@@ -79,7 +79,7 @@ Kombinierbar mit jeder Variante, wo fachlich sinnvoll:
 | [artikel-dialog.md](../../requirements/advance-registration/components/artikel-dialog.md) | Bezeichnung, Größe, Farbe | Text |
 | [artikel-dialog.md](../../requirements/advance-registration/components/artikel-dialog.md) | Preis | Number, 2 Nachkommastellen (in `input-group` mit €-Addon) |
 | [artikel-readonly-modal.md](../../requirements/advance-registration/components/artikel-readonly-modal.md) | Verkäufer (Name+Nummer) | Text, readonly |
-| [stammdaten-popup.md](../stammdaten-popup/component.md), [typ-popup.md](../typ-popup/component.md) | Name | Text |
+| [master-data-popup.md](../master-data-popup/component.md), [typ-popup.md](../typ-popup/component.md) | Name | Text |
 | [typ-popup.md](../typ-popup/component.md) | Provision (%), Gebühr (€) | Number, 2 Nachkommastellen |
 | [einstellungen-form.md](../../requirements/advance-registration/components/einstellungen-form.md) | `startNumber`/`blockSize`/`defaultBlockCount` | Number |
 | [filter-panel.md](../filter-panel/component.md) | Freitext-Suche | Icon (`pi-search`) |

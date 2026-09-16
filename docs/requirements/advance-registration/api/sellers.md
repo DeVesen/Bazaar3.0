@@ -67,7 +67,7 @@ aber fachlich Nummernblock-Verwaltung → [`blocks.md`](blocks.md).
 | `isAdmin` | Quelle des `role`-Claims im JWT. Gepflegt über die Checkbox in Panel 05. |
 | `articleCount` | Anzahl eigener Artikel — Spalte „Artikel" |
 | `hasPendingInvite` | `true`, solange ein unverbrauchtes, nicht abgelaufenes `inviteToken` existiert. Das Token selbst wird **nie** ausgeliefert. |
-| `canDelete` | `false` für den eigenen Account (Selbstlöschung läuft über `DELETE /api/profile`, Abschnitt 4) und für den letzten verbliebenen Admin (`seller.last_admin`). Steuert nur, ob die Admin-Tabelle den Lösch-Button anzeigt — die eigentliche Regel wird serverseitig bei `DELETE /api/sellers/{id}` erneut durchgesetzt, unabhängig vom Frontend-Zustand. |
+| `canDelete` | `false` für den eigenen Account (Selbstlöschung läuft über `DELETE /api/profile`, Abschnitt 4) und für den letzten verbliebenen Admin (`seller.last_admin`). Steuert den Lösch-Button sowohl in der Admin-Tabelle als auch im „Verkäufer bearbeiten"-Dialog — die eigentliche Regel wird serverseitig bei `DELETE /api/sellers/{id}` erneut durchgesetzt, unabhängig vom Frontend-Zustand. |
 
 **Nie ausgeliefert:** `passwordHash` und `inviteToken` — sie existieren nur in der
 Entität (siehe [`entities/verkaeufer.md`](../entities/verkaeufer.md)). Refresh-Tokens

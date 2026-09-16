@@ -78,7 +78,7 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Sidebar-Footer** | Footer-Bereich der Sidebar mit Avatar, Rollenangabe, optionalem Role-Toggle und Abmelden-Button | [sidebar-footer/](sidebar-footer/component.md) |
 | **Filter-Panel** | Einzeilige Filter-Leiste über Listen (`p-toolbar`): Freitextsuche, Dropdowns, „+ Neu"-Button; kollabiert < Tablet zu einem Dropdown | [filter-panel/](filter-panel/component.md) |
 | **Master-Data-Filter-Toolbar** | Schlanke Live-Filter-Leiste für clientseitig gefilterte Master-Data-Listen (Freitext, optional Original/Neu) inkl. „+ Neu"-Button | [master-data-filter-toolbar/](master-data-filter-toolbar/component.md) |
-| **Stammdaten-Popup** | Anlege-/Bearbeiten-Popup für einfache Stammdaten (Name + optionales Original-Flag) | [stammdaten-popup/](stammdaten-popup/component.md) |
+| **Master-Data-Popup** | Anlege-/Bearbeiten-Popup für einfache Stammdaten (Name + optionales Original-Flag) | [master-data-popup/](master-data-popup/component.md) |
 | **Typ-Popup** | Anlege-/Bearbeiten-Popup für Verkäufer-Typen (Name, Provision, Gebühr) | [typ-popup/](typ-popup/component.md) |
 
 ### Querschnitts-Regeln

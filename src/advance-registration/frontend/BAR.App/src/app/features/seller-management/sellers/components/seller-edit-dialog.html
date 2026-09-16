@@ -50,23 +50,23 @@
 
   <div class="panel-block">
     <div class="panel-block__title">{{ 'sellerEditDialog.sectionConditions' | translate }}</div>
-    <p-fluid>
-    <div class="form-grid">
-      <div class="full">
-        <label for="edit-seller-type">{{ 'sellerEditDialog.sellerType' | translate }}</label>
-        <p-select
-          id="edit-seller-type"
-          [options]="sellerTypes()"
-          optionLabel="name"
-          optionValue="id"
-          [(ngModel)]="sellerTypeIdModel"
-        />
-      </div>
+    <div class="conditions-row">
+      <p-fluid>
+        <div>
+          <label for="edit-seller-type">{{ 'sellerEditDialog.sellerType' | translate }}</label>
+          <p-select
+            id="edit-seller-type"
+            [options]="sellerTypes()"
+            optionLabel="name"
+            optionValue="id"
+            [(ngModel)]="sellerTypeIdModel"
+          />
+        </div>
+      </p-fluid>
+      @if (selectedType(); as type) {
+        <p class="conditions-row__summary">{{ 'sellerEditDialog.conditionsSummary' | translate: { commissionRate: type.commissionRate, itemFee: type.itemFee } }}</p>
+      }
     </div>
-    </p-fluid>
-    @if (selectedType(); as type) {
-      <p>{{ 'sellerEditDialog.conditionsSummary' | translate: { commissionRate: type.commissionRate, itemFee: type.itemFee } }}</p>
-    }
   </div>
 
   <div class="panel-block full">
@@ -84,39 +84,51 @@
     }
 
     <div class="reserve-form">
-      <label>{{ 'sellerEditDialog.reserveAdditional' | translate }}</label>
-      <p-fluid>
-      <div class="form-grid">
-        <div>
-          <label for="reserve-block-count">{{ 'sellerEditDialog.blockCount' | translate }}</label>
-          <p-inputnumber id="reserve-block-count" [useGrouping]="false" [(ngModel)]="reserveBlockCountModel" />
-        </div>
-        <div>
-          <label for="reserve-start-number">{{ 'sellerEditDialog.suggestedStartNumber' | translate }}</label>
-          <p-inputnumber id="reserve-start-number" [useGrouping]="false" [(ngModel)]="reserveStartNumberModel" />
-        </div>
+      <div class="reserve-form__row">
+        <p-fluid class="reserve-form__fields">
+          <div class="reserve-form__field">
+            <label for="reserve-block-count">{{ 'sellerEditDialog.blockCount' | translate }}</label>
+            <p-inputnumber id="reserve-block-count" [useGrouping]="false" [(ngModel)]="reserveBlockCountModel" />
+          </div>
+          <div class="reserve-form__field">
+            <label for="reserve-start-number">{{ 'sellerEditDialog.suggestedStartNumber' | translate }}</label>
+            <p-inputnumber id="reserve-start-number" [useGrouping]="false" [(ngModel)]="reserveStartNumberModel" />
+          </div>
+        </p-fluid>
+        <button pButton type="button" severity="primary" size="small" (click)="onReserve()">{{ 'sellerEditDialog.reserve' | translate }}</button>
       </div>
-      </p-fluid>
       @if (reserveError(); as error) {
         <app-info-area type="error" [message]="error" />
       }
-      <button pButton type="button" severity="primary" size="small" (click)="onReserve()">{{ 'sellerEditDialog.reserve' | translate }}</button>
     </div>
   </div>
 
   <div class="panel-block full">
     <div class="panel-block__title">{{ 'sellerEditDialog.sectionOther' | translate }}</div>
-    <p-checkbox [binary]="true" [(ngModel)]="isAdminModel" inputId="edit-is-admin" />
-    <label for="edit-is-admin">{{ 'sellerEditDialog.isAdmin' | translate }}</label>
-    <button pButton type="button" [outlined]="true" severity="secondary" size="small" (click)="onInviteClick()">{{ 'sellerEditDialog.generateInvite' | translate }}</button>
+    <div class="other-row">
+      <div class="other-row__admin">
+        <p-toggleswitch inputId="edit-is-admin" [(ngModel)]="isAdminModel" />
+        <label for="edit-is-admin">{{ 'sellerEditDialog.isAdmin' | translate }}</label>
+      </div>
+      <button pButton type="button" [outlined]="true" severity="secondary" size="small" (click)="onInviteClick()">{{ 'sellerEditDialog.generateInvite' | translate }}</button>
+    </div>
   </div>
 
   @if (formError(); as error) {
     <app-info-area type="error" [message]="error" />
   }
 
-  <div class="dialog-footer">
-    <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
-    <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">{{ 'common.save' | translate }}</button>
-  </div>
+  <ng-template #footer>
+    <div class="footer" [class.footer--with-delete]="item()?.canDelete">
+      @if (item(); as seller) {
+        @if (seller.canDelete) {
+          <button pButton type="button" severity="danger" (click)="onDeleteSeller()">{{ 'common.delete' | translate }}</button>
+        }
+      }
+      <div class="footer__actions">
+        <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+        <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">{{ 'common.save' | translate }}</button>
+      </div>
+    </div>
+  </ng-template>
 </p-dialog>

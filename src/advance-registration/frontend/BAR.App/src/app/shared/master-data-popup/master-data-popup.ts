@@ -25,19 +25,95 @@ import type { MasterDataItem } from '@shared/models/master-data-item';
       </div>
 
       @if (mode() === 'edit') {
-        <div class="field">
+        <div class="field field--switch">
           <label for="masterData-original">{{ 'masterDataPopup.original' | translate }}</label>
-          <p-toggleswitch id="masterData-original" [(ngModel)]="originalModel" />
+          <p-toggleswitch inputId="masterData-original" [(ngModel)]="originalModel" />
         </div>
       }
       </p-fluid>
 
-      <div class="dialog-footer">
-        <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
-        <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">{{ mode() === 'create' ? ('masterDataPopup.createLabel' | translate) : ('common.save' | translate) }}</button>
-      </div>
+      <ng-template #footer>
+        <div class="footer">
+          <button pButton type="button" [text]="true" severity="secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+          <button pButton type="button" [disabled]="!canSubmit()" (click)="submit()">{{ mode() === 'create' ? ('masterDataPopup.createLabel' | translate) : ('common.save' | translate) }}</button>
+        </div>
+      </ng-template>
     </p-dialog>
-  `
+  `,
+  styles: [`
+    .field {
+      margin-bottom: 16px;
+
+      label {
+        display: block;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: var(--color-muted);
+        margin-bottom: 4px;
+      }
+
+      &--switch {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        label {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    /* PrimeNG 22.1 injiziert fuer p-toggleswitch keine Runtime-CSS (Klassen/Struktur
+       im DOM korrekt, aber Design-Tokens greifen nicht) — Notstyling bis Upstream-Fix. */
+    :host ::ng-deep .p-toggleswitch {
+      position: relative;
+      display: inline-flex;
+      width: 2.25rem;
+      height: 1.375rem;
+      flex-shrink: 0;
+
+      .p-toggleswitch-input {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .p-toggleswitch-slider {
+        position: absolute;
+        inset: 0;
+        border-radius: 30px;
+        background: var(--color-border);
+        transition: background 0.2s;
+      }
+
+      .p-toggleswitch-handle {
+        position: absolute;
+        top: 50%;
+        left: 0.2rem;
+        width: 0.875rem;
+        height: 0.875rem;
+        border-radius: 50%;
+        background: #fff;
+        transform: translateY(-50%);
+        transition: left 0.2s;
+      }
+
+      &.p-toggleswitch-checked .p-toggleswitch-slider {
+        background: var(--color-accent);
+      }
+
+      &.p-toggleswitch-checked .p-toggleswitch-handle {
+        left: calc(100% - 0.875rem - 0.2rem);
+      }
+    }
+  `]
 })
 export class MasterDataPopup {
   private readonly messageService = inject(MessageService);
