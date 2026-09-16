@@ -58,18 +58,20 @@
     <p class="error">{{ errorMessage() }}</p>
   }
 
-  <div class="footer">
+  <div class="footer" [class.footer--with-delete]="mode() === 'edit'">
     @if (mode() === 'edit') {
       <button pButton type="button" severity="danger" [disabled]="saving()" (click)="deleteConfirmVisible.set(true)">{{ 'common.delete' | translate }}</button>
     }
-    <button pButton type="button" [text]="true" [disabled]="saving()" (click)="visible.set(false)">{{ 'common.cancel' | translate }}</button>
-    @if (mode() === 'create') {
-      <button pButton type="button" severity="secondary" [outlined]="true"
-        [disabled]="!isValid() || saving()" [loading]="saving()"
-        [pTooltip]="'articleDialog.saveAndCopyTooltip' | translate"
-        (click)="saveAndCopy()">{{ 'articleDialog.saveAndCopy' | translate }}</button>
-    }
-    <button pButton type="button" [disabled]="!isValid() || saving()" [loading]="saving()" (click)="save()">{{ 'common.save' | translate }}</button>
+    <div class="footer__actions">
+      <button pButton type="button" [text]="true" [disabled]="saving()" (click)="visible.set(false)">{{ 'common.cancel' | translate }}</button>
+      @if (mode() === 'create') {
+        <button pButton type="button" severity="secondary" [outlined]="true"
+          [disabled]="!isValid() || saving()" [loading]="saving()"
+          [pTooltip]="'articleDialog.saveAndCopyTooltip' | translate"
+          (click)="saveAndCopy()">{{ 'articleDialog.saveAndCopy' | translate }}</button>
+      }
+      <button pButton type="button" [disabled]="!isValid() || saving()" [loading]="saving()" (click)="save()">{{ 'common.save' | translate }}</button>
+    </div>
   </div>
 </p-dialog>
 

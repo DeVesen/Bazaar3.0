@@ -68,3 +68,20 @@
     gap: 8px;
   }
 }
+
+// article-dialog Footer — Muster nach modal.md §4: Standard = flex-end,
+// Mit Löschen = space-between (Löschen links, Abbrechen/Speichern rechts).
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+
+  &--with-delete {
+    justify-content: space-between;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+  }
+}
