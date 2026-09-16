@@ -25,7 +25,6 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
   imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, FluidModule, ToolbarModule, PopoverModule, TranslatePipe, NgTemplateOutlet],
   template: `
     <ng-template #fields>
-      <p-fluid>
       @if (showOriginalFilter()) {
         <p-select
           [options]="originalOptions" optionLabel="label" optionValue="value"
@@ -40,7 +39,6 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
         <p-inputicon class="pi pi-search" />
         <input pInputText [placeholder]="'masterDataFilterToolbar.searchPlaceholder' | translate" [(ngModel)]="searchTextModel" />
       </p-iconfield>
-      </p-fluid>
     </ng-template>
 
     <p-toolbar>
@@ -51,12 +49,14 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
             (click)="filterPopover.toggle($event)"
           ><i class="pi pi-filter"></i>{{ 'masterDataFilterToolbar.filterButton' | translate }}</button>
           <p-popover #filterPopover [appendTo]="'self'" data-testid="filter-popover">
-            <div class="master-data-filter-toolbar-overlay">
+            <p-fluid class="master-data-filter-toolbar-overlay">
               <ng-container *ngTemplateOutlet="fields" />
-            </div>
+            </p-fluid>
           </p-popover>
         } @else {
-          <ng-container *ngTemplateOutlet="fields" />
+          <div class="master-data-filter-toolbar-fields">
+            <ng-container *ngTemplateOutlet="fields" />
+          </div>
         }
       </ng-template>
       <ng-template #end>

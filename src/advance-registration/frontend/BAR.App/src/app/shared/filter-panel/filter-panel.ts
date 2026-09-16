@@ -43,7 +43,6 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
   styleUrl: './filter-panel.scss',
   template: `
     <ng-template #fields>
-      <p-fluid>
       @if (sellerAutocomplete()) {
         <p-autocomplete
           data-testid="seller-autocomplete"
@@ -92,7 +91,6 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
       @if (!liveFilter()) {
         <p-button [label]="'filterPanel.searchButton' | translate" icon="pi pi-search" data-testid="search-button" (onClick)="emit()" />
       }
-      </p-fluid>
     </ng-template>
 
     <p-toolbar>
@@ -103,12 +101,14 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
             (click)="filterPopover.toggle($event)"
           ><i class="pi pi-filter"></i>{{ 'filterPanel.filterButton' | translate }}</button>
           <p-popover #filterPopover [appendTo]="'self'" data-testid="filter-popover">
-            <div class="filter-panel-overlay">
+            <p-fluid class="filter-panel-overlay">
               <ng-container *ngTemplateOutlet="fields" />
-            </div>
+            </p-fluid>
           </p-popover>
         } @else {
-          <ng-container *ngTemplateOutlet="fields" />
+          <div class="filter-panel-fields">
+            <ng-container *ngTemplateOutlet="fields" />
+          </div>
         }
       </ng-template>
       <ng-template #end>
