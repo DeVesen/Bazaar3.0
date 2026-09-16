@@ -22,69 +22,7 @@ import { MasterDataApiService, MasterDataItem } from '../../master-data-api.serv
     FormsModule, DialogModule, InputTextModule, InputGroupModule, InputGroupAddonModule,
     InputNumberModule, FluidModule, ButtonModule, TextareaModule, TooltipModule, AutocompleteCreate, TranslatePipe
   ],
-  template: `
-    <p-dialog [(visible)]="visibleModel" [modal]="true" [header]="header">
-      <p-fluid>
-      <label>{{ 'articleDialog.number' | translate }}</label>
-      <input pInputText [value]="number()" [readonly]="true" />
-      @if (mode() === 'create') {
-        <p class="hint">{{ 'articleDialog.numberHint' | translate }}</p>
-      }
-
-      <label>{{ 'articleDialog.name' | translate }}</label>
-      <input pInputText [(ngModel)]="nameModel" #nameInput />
-
-      <label>{{ 'articleDialog.category' | translate }}</label>
-      <app-autocomplete-create [items]="categories()" [(value)]="categoryModel" [createFn]="createCategoryFn" (itemCreated)="categoryCreated.emit($event)" />
-
-      <label>{{ 'articleDialog.brand' | translate }}</label>
-      <app-autocomplete-create [items]="brands()" [(value)]="brandModel" [createFn]="createBrandFn" (itemCreated)="brandCreated.emit($event)" />
-
-      <label>{{ 'articleDialog.size' | translate }}</label>
-      <input pInputText [(ngModel)]="sizeModel" />
-
-      <label>{{ 'articleDialog.color' | translate }}</label>
-      <input pInputText [(ngModel)]="colorModel" />
-
-      <label>{{ 'articleDialog.price' | translate }}</label>
-      <p-inputgroup>
-        <p-inputnumber [(ngModel)]="priceModel" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" />
-        <p-inputgroup-addon>€</p-inputgroup-addon>
-      </p-inputgroup>
-
-      <label>{{ 'articleDialog.description' | translate }}</label>
-      <textarea pTextarea [(ngModel)]="descriptionModel"></textarea>
-      </p-fluid>
-
-      @if (errorMessage()) {
-        <p class="error">{{ errorMessage() }}</p>
-      }
-
-      <div class="footer">
-        @if (mode() === 'edit') {
-          <button pButton type="button" severity="danger" [disabled]="saving()" (click)="deleteConfirmVisible.set(true)">{{ 'common.delete' | translate }}</button>
-        }
-        <button pButton type="button" [text]="true" [disabled]="saving()" (click)="visible.set(false)">{{ 'common.cancel' | translate }}</button>
-        @if (mode() === 'create') {
-          <button pButton type="button" severity="secondary" [outlined]="true"
-            [disabled]="!isValid() || saving()" [loading]="saving()"
-            [pTooltip]="'articleDialog.saveAndCopyTooltip' | translate"
-            (click)="saveAndCopy()">{{ 'articleDialog.saveAndCopy' | translate }}</button>
-        }
-        <button pButton type="button" [disabled]="!isValid() || saving()" [loading]="saving()" (click)="save()">{{ 'common.save' | translate }}</button>
-      </div>
-    </p-dialog>
-
-    <p-dialog [(visible)]="deleteConfirmVisibleModel" [modal]="true" [header]="'articleDialog.deleteConfirmHeader' | translate">
-      <button pButton type="button" [text]="true" (click)="deleteConfirmVisible.set(false)">{{ 'common.cancel' | translate }}</button>
-      <button pButton type="button" severity="danger" (click)="confirmDelete()">{{ 'common.delete' | translate }}</button>
-    </p-dialog>
-
-    <p-dialog [(visible)]="conflictDialogVisibleModel" [modal]="true" [header]="'articleDialog.conflictHeader' | translate">
-      <p>{{ conflictMessage() }}</p>
-      <button pButton type="button" (click)="closeConflictDialog()">{{ 'common.ok' | translate }}</button>
-    </p-dialog>
-  `
+  templateUrl: './article-dialog.html'
 })
 export class ArticleDialog {
   private readonly articlesApi = inject(ArticlesApiService);

@@ -45,3 +45,26 @@
     max-height: 100vh !important;
   }
 }
+
+// article-dialog: Artikelnummer- und Preis-Card auf ein Drittel verschmälert,
+// Kategorie/Marke/Größe/Farbe als 4-Spalten-Reihe innerhalb einer Card.
+.article-dialog__third {
+  width: 33%;
+}
+
+.article-dialog__fields-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@include breakpoints.mobile {
+  .article-dialog__third {
+    width: 100%;
+  }
+
+  .article-dialog__fields-4 {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
