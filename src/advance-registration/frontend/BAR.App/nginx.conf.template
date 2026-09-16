@@ -5,13 +5,16 @@ server {
     index index.html;
 
     location /api/ {
-        proxy_pass http://bar-api:8080;
-        proxy_set_header Host $host;
+        proxy_pass ${API_UPSTREAM_SCHEME}://${API_UPSTREAM_HOST};
+        proxy_ssl_server_name on;
+        proxy_set_header Host ${API_UPSTREAM_HOST};
         proxy_set_header X-Real-IP $remote_addr;
     }
 
     location /health {
-        proxy_pass http://bar-api:8080;
+        proxy_pass ${API_UPSTREAM_SCHEME}://${API_UPSTREAM_HOST};
+        proxy_ssl_server_name on;
+        proxy_set_header Host ${API_UPSTREAM_HOST};
     }
 
     # Einzige Ausnahme von der Clickjacking-Sperre unten: /embed/countdown ist zum
