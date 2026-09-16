@@ -10,7 +10,7 @@ bewusst eine eigene, einfachere Komponente statt einer weiteren Filter-Panel-Var
 (Verkäufer-Typen, Marken, Kategorien) sind klein, clientseitig geladen (`[lazy]="false"`) und filtern
 **live** beim Tippen, ohne „Suchen"-Button. Das Filter-Panel dagegen ist für serverseitig gefilterte,
 paginierte Listen gebaut und löst **explizit** aus (Enter/„Suchen"-Klick). Beide Komponenten teilen sich
-den Breakpoint und das Drawer-Overlay-Muster < Tablet, nicht aber die Auslöse-Logik.
+den Breakpoint und das Dropdown-Kollaps-Muster < Tablet, nicht aber die Auslöse-Logik.
 
 **Verwendung:** Voranmelde-App, Master-Data-Listen mit Anlege-Funktion.
 
@@ -31,7 +31,7 @@ den Breakpoint und das Drawer-Overlay-Muster < Tablet, nicht aber die Auslöse-L
 
 < Tablet (< 768 px):
 ┌─────────────────────────────┐
-│ [🔍 Filter]         [+ Neu] │
+│ [Filter ▾]          [+ Neu] │
 ├─────────────────────────────┤
 │ Bezeichnung │ Provision │✎│🗑│
 ```
@@ -42,8 +42,8 @@ den Breakpoint und das Drawer-Overlay-Muster < Tablet, nicht aber die Auslöse-L
 |---|---|---|
 | Original/Neu-Filter | [Select](../select/component.md), Variante Dropdown — Optionen „✓ Original“ / „Neu" | nur wenn `showOriginalFilter` gesetzt (Kategorien, Marken) |
 | Freitext-Feld | [Input](../input/component.md), Variante Icon (Such-Icon) | immer |
-| Filter-Button (< Tablet) | [Button](../button/component.md) mit `pi-filter` + Text „Filter" — ersetzt Freitext-Feld (und ggf. Original/Neu-Filter), öffnet `p-drawer` (Sheet von unten) mit denselben Feldern | immer |
-| Neu-Button | [Button](../button/component.md), Text „+ Neu" (gleiche Optik wie [Table](../table/component.md) `canAdd`), ganz rechts, außerhalb des Drawers | nur wenn `canAdd` gesetzt |
+| Filter-Dropdown (< Tablet) | [Select](../select/component.md)-artiges Overlay-Panel, Trigger-Label „Filter" — ersetzt Freitext-Feld (und ggf. Original/Neu-Filter), öffnet ein Dropdown-Panel mit denselben Feldern | immer |
+| Neu-Button | [Button](../button/component.md), Text „+ Neu" (gleiche Optik wie [Table](../table/component.md) `canAdd`), ganz rechts, außerhalb des Dropdowns | nur wenn `canAdd` gesetzt |
 
 ## Verhalten
 
@@ -58,7 +58,7 @@ Breakpoint identisch zu [Table](../table/component.md) Abschnitt 10 und [Filter-
 | Viewport | Verhalten |
 |---|---|
 | ≥ Tablet (≥ 768 px) | Freitext-Feld (und ggf. Original/Neu-Filter) nebeneinander sichtbar, „+ Neu"-Button ganz rechts |
-| < Tablet (< 768 px) | Filterfelder kollabiert zu einem „Filter"-Button (Icon `pi-filter`, Text „Filter", links) — öffnet ein Drawer-Overlay von unten mit denselben Feldern. „+ Neu"-Button bleibt daneben sichtbar |
+| < Tablet (< 768 px) | Filterfelder kollabiert zu einem „Filter"-Dropdown (links) — Klick öffnet ein Overlay-Panel mit denselben Feldern. „+ Neu"-Button bleibt daneben sichtbar, außerhalb des Dropdowns |
 
 Das Live-Filter-Verhalten selbst ändert sich im Overlay nicht — nur die Darstellung wird kollabiert.
 
@@ -66,7 +66,7 @@ Das Live-Filter-Verhalten selbst ändert sich im Overlay nicht — nur die Darst
 
 1. **AC-1** — WHEN der Nutzer im Freitext-Feld tippt, THEN SHALL das System die Liste 300 ms nach der letzten Eingabe nach dem eingegebenen Text filtern (Name, case-insensitive, Teilstring).
 2. **AC-2** — WHILE kein Filter gesetzt ist, SHALL das System alle geladenen Einträge anzeigen.
-3. **AC-3** — WHILE der Viewport < 768 px breit ist, SHALL das System die Filterfelder zu einem „Filter"-Button kollabieren; ein Klick öffnet ein Overlay mit denselben Feldern. Der „+ Neu"-Button bleibt außerhalb des Overlays sichtbar.
+3. **AC-3** — WHILE der Viewport < 768 px breit ist, SHALL das System die Filterfelder zu einem „Filter"-Dropdown kollabieren; ein Klick öffnet ein Overlay-Panel mit denselben Feldern. Der „+ Neu"-Button bleibt außerhalb des Dropdowns sichtbar.
 4. **AC-4** — WHEN der Nutzer auf „+ Neu" klickt, THEN SHALL das System das Anlege-Popup der jeweiligen Liste öffnen — unabhängig vom Breakpoint.
 
 ## Tags & Piles

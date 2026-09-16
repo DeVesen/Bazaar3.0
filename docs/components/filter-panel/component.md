@@ -39,7 +39,7 @@ Basis (Meine Artikel), ≥ Tablet:
 
 Basis (Meine Artikel), < Tablet:
 ┌─────────────────────────────┐
-│ [🔍 Filter]         [+ Neu] │
+│ [Filter ▾]          [+ Neu] │
 ├─────────────────────────────┤
 │ Nr. │ Bezeichnung │ Preis │✎│
 
@@ -57,7 +57,7 @@ Verkäufer-Verwaltung, ≥ Tablet:
 
 Verkäufer-Verwaltung, < Tablet:
 ┌─────────────────────────────┐
-│ [🔍 Filter]         [+ Neu] │
+│ [Filter ▾]          [+ Neu] │
 ├─────────────────────────────┤
 │ Nr. │ Vorname │ ... │✎│
 ```
@@ -73,8 +73,8 @@ Verkäufer-Verwaltung, < Tablet:
 | Verkäufer-Typ-Filter | [Select](../select/component.md), Variante Dropdown — Liste aller Verkäufer-Typen | nur Verkäufer-Verwaltung |
 | Freitext-Feld | [Input](../input/component.md), Variante Icon (Such-Icon) | alle |
 | Suchen-Button | [Button](../button/component.md) mit `<svg data-p-icon="search">` + Text „Suchen", ganz rechts im Panel | nur bei expliziter Auslösung — entfällt bei live/debounced Verwendungsstellen |
-| Filter-Button (< Tablet) | [Button](../button/component.md) mit `pi-filter` + Text „Filter" — ersetzt alle Filterfelder inkl. Freitext, öffnet `p-drawer` (Sheet von unten) mit den Feldern der jeweiligen Verwendungsstelle | alle |
-| Neu-Button | [Button](../button/component.md), Text konfigurierbar über `createLabel` (gleiche Optik wie [Table](../table/component.md) `canAdd`), ganz rechts, außerhalb des Drawers | nur wenn `canAdd` gesetzt (Basis „Meine Artikel", Verkäufer-Verwaltung) |
+| Filter-Dropdown (< Tablet) | [Select](../select/component.md)-artiges Overlay-Panel, Trigger-Label „Filter" — ersetzt alle Filterfelder inkl. Freitext, öffnet ein Dropdown-Panel mit den Feldern der jeweiligen Verwendungsstelle | alle |
+| Neu-Button | [Button](../button/component.md), Text konfigurierbar über `createLabel` (gleiche Optik wie [Table](../table/component.md) `canAdd`), ganz rechts, außerhalb des Dropdowns | nur wenn `canAdd` gesetzt (Basis „Meine Artikel", Verkäufer-Verwaltung) |
 
 ## Verhalten
 
@@ -101,15 +101,15 @@ Breakpoint identisch zu [Table](../table/component.md) Abschnitt 10.
 | Viewport | Verhalten |
 |---|---|
 | ≥ Tablet (≥ 768 px) | Alle Filterfelder der jeweiligen Verwendungsstelle (Marke, Kategorie, Status, Freitext, ggf. Verkäufer) nebeneinander sichtbar, „+ Neu"-Button ganz rechts |
-| < Tablet (< 768 px) | Filterfelder kollabiert zu einem „Filter"-Button ([Button](../button/component.md), Icon `pi-filter`, Text „Filter“, links) — öffnet ein `p-drawer` (Sheet von unten) mit denselben Feldern (inkl. „Suchen"-Button bei expliziter Auslösung). „+ Neu"-Button bleibt daneben sichtbar |
+| < Tablet (< 768 px) | Filterfelder kollabiert zu einem „Filter"-Dropdown (links) — Klick öffnet ein Overlay-Panel mit denselben Feldern (inkl. „Suchen"-Button bei expliziter Auslösung). „+ Neu"-Button bleibt daneben sichtbar, außerhalb des Dropdowns |
 
-Das Verhalten der Filterfelder selbst (Auslösung explizit oder live/debounced) ändert sich im Drawer nicht — nur die Darstellung wird kollabiert.
+Das Verhalten der Filterfelder selbst (Auslösung explizit oder live/debounced) ändert sich im Dropdown nicht — nur die Darstellung wird kollabiert.
 
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN der Nutzer bei expliziter Auslösung Enter in einem Filterfeld drückt oder auf „Suchen" klickt, THEN SHALL das System die Tabelle mit den aktuellen Filter-Werten neu laden.
 2. **AC-2** — WHILE kein Filter gesetzt ist, SHALL das System alle (eigenen bzw. alle) Artikel/Marken/Verkäufer anzeigen.
-3. **AC-3** — WHILE der Viewport < 768 px breit ist, SHALL das System die Filterfelder zu einem „Filter"-Button kollabieren; ein Klick öffnet einen `p-drawer` mit denselben Feldern (und bei expliziter Auslösung dem „Suchen"-Button), der „+ Neu"-Button bleibt außerhalb des Drawers sichtbar.
+3. **AC-3** — WHILE der Viewport < 768 px breit ist, SHALL das System die Filterfelder zu einem „Filter"-Dropdown kollabieren; ein Klick öffnet ein Overlay-Panel mit denselben Feldern (und bei expliziter Auslösung dem „Suchen"-Button), der „+ Neu"-Button bleibt außerhalb des Dropdowns sichtbar.
 4. **AC-4** — WHEN bei live/debounced Auslösung (Marken-Tabelle) der Nutzer im Freitext-Feld tippt, THEN SHALL das System 400 ms nach der letzten Eingabe automatisch neu laden; WHEN der Status-Filter geändert wird, THEN SHALL das System sofort ohne Debounce neu laden.
 5. **AC-5** — WHEN der Nutzer auf „+ Neu" klickt, THEN SHALL das System das Anlege-Formular der jeweiligen Verwendungsstelle öffnen — nur bei Verwendungsstellen mit `canAdd`.
 
