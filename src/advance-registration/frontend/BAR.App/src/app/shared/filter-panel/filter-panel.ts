@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +9,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { FluidModule } from 'primeng/fluid';
 import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
-import { DrawerModule } from 'primeng/drawer';
+import { ToolbarModule } from 'primeng/toolbar';
+import { Popover, PopoverModule } from 'primeng/popover';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
 import type { MasterDataItem } from '@shared/models/master-data-item';
@@ -38,7 +39,7 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
 
 @Component({
   selector: 'app-filter-panel',
-  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, FluidModule, AutoCompleteModule, DrawerModule, TranslatePipe, NgTemplateOutlet],
+  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, FluidModule, AutoCompleteModule, ToolbarModule, PopoverModule, TranslatePipe, NgTemplateOutlet],
   styleUrl: './filter-panel.scss',
   template: `
     <ng-template #fields>
@@ -94,29 +95,28 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
       </p-fluid>
     </ng-template>
 
-    <div class="filter-panel">
-      <div class="filter-panel-fields">
+    <p-toolbar>
+      <ng-template #start>
         @if (isMobile()) {
-          <p-button
-            [label]="'filterPanel.filterButton' | translate" icon="pi pi-filter" data-testid="filter-button"
-            (onClick)="overlayVisible.set(true)"
-          />
-          <p-drawer
-            [visible]="overlayVisible()" (visibleChange)="overlayVisible.set($event)"
-            position="bottom" [header]="'filterPanel.filterButton' | translate"
-          >
+          <button
+            pButton type="button" icon="pi pi-filter" data-testid="filter-button"
+            (click)="filterPopover.toggle($event)"
+          >{{ 'filterPanel.filterButton' | translate }}</button>
+          <p-popover #filterPopover [appendTo]="'self'" data-testid="filter-popover">
             <div class="filter-panel-overlay">
               <ng-container *ngTemplateOutlet="fields" />
             </div>
-          </p-drawer>
+          </p-popover>
         } @else {
           <ng-container *ngTemplateOutlet="fields" />
         }
-      </div>
-      @if (canAdd()) {
-        <button pButton type="button" data-testid="add-button" (click)="create.emit()">{{ createLabel() }}</button>
-      }
-    </div>
+      </ng-template>
+      <ng-template #end>
+        @if (canAdd()) {
+          <button pButton type="button" data-testid="add-button" (click)="create.emit()">{{ createLabel() }}</button>
+        }
+      </ng-template>
+    </p-toolbar>
   `
 })
 export class FilterPanel {
@@ -155,7 +155,7 @@ export class FilterPanel {
   readonly sellerSuggestions = signal<SellerOption[]>([]);
 
   readonly isMobile = signal(false);
-  readonly overlayVisible = signal(false);
+  readonly filterPopover = viewChild.required<Popover>('filterPopover');
 
   private readonly sellerQuery$ = new Subject<string>();
   private readonly liveSearchTrigger$ = new Subject<void>();
@@ -242,6 +242,8 @@ export class FilterPanel {
       search: this.searchText().trim() || undefined,
       sellerId: this.sellerId()
     });
-    this.overlayVisible.set(false);
+    if (this.isMobile()) {
+      this.filterPopover().hide();
+    }
   }
 }

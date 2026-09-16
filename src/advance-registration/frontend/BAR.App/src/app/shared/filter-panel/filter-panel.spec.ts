@@ -260,42 +260,32 @@ describe('FilterPanel', () => {
     expect(fixture.debugElement.query(By.css('p-select'))).toBeNull();
   });
 
-  it('opens an overlay with the same filter fields when the filter button is clicked', () => {
+  it('opens a popover dropdown with the same filter fields when the filter button is clicked', () => {
     const { fixture } = create(false, undefined, true);
 
-    fixture.debugElement.query(By.css('[data-testid="filter-button"] button')).nativeElement.click();
+    fixture.debugElement.query(By.css('[data-testid="filter-button"]')).nativeElement.click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.overlayVisible()).toBe(true);
+    expect(fixture.debugElement.query(By.css('[data-testid="filter-popover"]'))).not.toBeNull();
     expect(fixture.debugElement.query(By.css('p-select'))).not.toBeNull();
     expect(fixture.debugElement.query(By.css('[data-testid="search-button"]'))).not.toBeNull();
   });
 
-  it('closes the overlay after a search is triggered from within it on mobile', () => {
+  it('closes the popover after a search is triggered from within it on mobile', () => {
     const { fixture } = create(false, undefined, true);
     const component = fixture.componentInstance;
-    component.overlayVisible.set(true);
+    fixture.debugElement.query(By.css('[data-testid="filter-button"]')).nativeElement.click();
     fixture.detectChanges();
 
     component.emit();
 
-    expect(component.overlayVisible()).toBe(false);
+    expect(component.filterPopover().overlayVisible()).toBe(false);
   });
 
-  it('does not render a filter button or overlay when the viewport is desktop-width', () => {
+  it('does not render a popover when the viewport is desktop-width', () => {
     const { fixture } = create(false, undefined, false);
 
-    expect(fixture.componentInstance.overlayVisible()).toBe(false);
-    expect(fixture.debugElement.query(By.css('p-drawer'))).toBeNull();
-  });
-
-  it('opens the overlay as a bottom sheet (p-drawer, position bottom)', () => {
-    const { fixture } = create(false, undefined, true);
-
-    const drawer = fixture.debugElement.query(By.css('p-drawer'));
-
-    expect(drawer).not.toBeNull();
-    expect(drawer.componentInstance.position()).toBe('bottom');
+    expect(fixture.debugElement.query(By.css('[data-testid="filter-popover"]'))).toBeNull();
   });
 
   it('switches from inline fields to the filter button when the viewport crosses the breakpoint', () => {
