@@ -127,3 +127,6 @@ graphify-out/
 
 ### Environment variables
 .env
+
+### Secrets (Bicep-Parameter mit echten Werten, nie committen)
+*.local.json
