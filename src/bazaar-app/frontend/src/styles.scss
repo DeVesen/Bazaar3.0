@@ -1,6 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
-@use '@fontsource/barlow';
-@use '@fontsource/barlow-condensed';
+@use '@fontsource/barlow/400.css' as *;
+@use '@fontsource/barlow/500.css' as *;
+@use '@fontsource/barlow/700.css' as *;
+@use '@fontsource/barlow-condensed/400.css' as *;
+@use '@fontsource/barlow-condensed/600.css' as *;
 
 :root {
   --color-bg: #f2f2f3;
@@ -21,7 +24,7 @@ body {
   background: var(--color-bg);
 }
 
-h1, h2, h3, .sidebar-logo {
+h1, h2, h3, .logo-block {
   font-family: var(--font-heading);
   font-weight: 600;
 }
