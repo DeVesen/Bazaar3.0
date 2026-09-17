@@ -1,0 +1,33 @@
+<p-sidebar-layout>
+  @if (isMobile() && open()) {
+    <p-sidebar-backdrop (click)="open.set(false)" />
+  }
+  <p-sidebar
+    id="app-nav"
+    [collapsible]="isMobile() ? 'offcanvas' : 'icon'"
+    [overlay]="isMobile()"
+    [(open)]="open"
+  >
+    <p-sidebar-spacer />
+    <app-sidebar
+      [role]="currentRole()"
+      [username]="currentUsername()"
+      [roleLabel]="currentRoleLabel()"
+      [openArticlesCount]="0"
+      (logoutClicked)="onLogout()"
+    />
+  </p-sidebar>
+  <p-sidebar-main>
+    @if (isMobile()) {
+      <header id="topbar" class="content-header">
+        <button id="btnBurger" pButton pSidebarTrigger target="app-nav" severity="secondary" text>
+          <svg lucideMenu></svg>
+        </button>
+        <span>Bazaar Suite</span>
+      </header>
+    }
+    <div class="content-body">
+      <router-outlet />
+    </div>
+  </p-sidebar-main>
+</p-sidebar-layout>

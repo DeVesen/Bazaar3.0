@@ -1,0 +1,20 @@
+.content-body {
+  padding: 26px 22px; // Desktop
+}
+
+@media (max-width: 768px) {
+  .content-body {
+    padding: 14px 12px;
+  }
+}
+
+@media print {
+  #app-nav,
+  #topbar {
+    display: none;
+  }
+
+  .content-body {
+    padding: 0;
+  }
+}
