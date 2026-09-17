@@ -43,6 +43,10 @@ public interface IRegistrationModuleApi
     /// <summary>For Export.</summary>
     Task<IReadOnlyList<ExportArticleDto>> GetArticlesForExportAsync(CancellationToken cancellationToken);
 
+    /// <summary>For the seller-facing CSV Export/Vorlage in Meine Artikel.</summary>
+    Task<string> GetArticleExportCsvAsync(string sellerId, CancellationToken cancellationToken);
+    Task<string> GetArticleTemplateCsvAsync(string sellerId, CancellationToken cancellationToken);
+
     /// <summary>For Home (admin view, Host composition).</summary>
     Task<RegistrationDashboardStatsDto> GetDashboardStatsAsync(DateTime heatmapSinceUtc, CancellationToken cancellationToken);
 

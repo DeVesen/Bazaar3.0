@@ -5,6 +5,7 @@ using BAR.Modules.Registration.Application.Articles.GetAll;
 using BAR.Modules.Registration.Application.Articles.GetById;
 using BAR.Modules.Registration.Application.Articles.GetMine;
 using BAR.Modules.Registration.Application.Articles.GetNextNumber;
+using BAR.Modules.Registration.Application.Articles.ImportExport;
 using BAR.Modules.Registration.Application.Articles.Update;
 using BAR.Modules.Registration.Application.Blocks;
 using BAR.Modules.Registration.Application.Blocks.Delete;
@@ -52,6 +53,8 @@ public static class DependencyInjection
         services.AddScoped<GetNextNumberQueryHandler>();
         services.AddScoped<GetAllArticlesQueryHandler>();
         services.AddScoped<GetArticleByIdQueryHandler>();
+        services.AddScoped<GetArticleExportCsvQueryHandler>();
+        services.AddScoped<GetArticleTemplateCsvQueryHandler>();
         services.AddScoped<GetMyBlocksQueryHandler>();
         services.AddScoped<GetBlocksForSellerQueryHandler>();
         services.AddScoped<GetNextFreeQueryHandler>();
