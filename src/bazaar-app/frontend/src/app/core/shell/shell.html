@@ -9,13 +9,7 @@
     [(open)]="open"
   >
     <p-sidebar-spacer />
-    <app-sidebar
-      [role]="currentRole()"
-      [username]="currentUsername()"
-      [roleLabel]="currentRoleLabel()"
-      [openArticlesCount]="0"
-      (logoutClicked)="onLogout()"
-    />
+    <app-sidebar />
   </p-sidebar>
   <p-sidebar-main>
     @if (isMobile()) {

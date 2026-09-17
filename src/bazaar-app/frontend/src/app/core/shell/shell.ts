@@ -5,7 +5,7 @@ import { filter } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { SidebarModule } from 'primeng/sidebar';
 import { LucideMenu } from '@lucide/angular';
-import { Sidebar as AppSidebar, Role } from './sidebar/sidebar';
+import { Sidebar as AppSidebar } from './sidebar/sidebar';
 
 const MOBILE_BREAKPOINT = '(max-width: 768px)';
 
@@ -21,11 +21,6 @@ export class Shell implements OnInit, OnDestroy {
 
   readonly isMobile = signal(false);
   readonly open = signal(true);
-
-  // Platzhalter, da AuthService erst in Round 9 existiert.
-  readonly currentRole = signal<Role>('admin');
-  readonly currentUsername = signal('Max Mustermann');
-  readonly currentRoleLabel = signal('Administrator');
 
   private mediaQuery?: MediaQueryList;
   private mediaQueryListener?: (event: MediaQueryListEvent) => void;
@@ -61,9 +56,5 @@ export class Shell implements OnInit, OnDestroy {
     if (this.mediaQuery && this.mediaQueryListener) {
       this.mediaQuery.removeEventListener('change', this.mediaQueryListener);
     }
-  }
-
-  onLogout(): void {
-    // TODO(Round 9): echtes Logout verdrahten, sobald AuthService existiert.
   }
 }

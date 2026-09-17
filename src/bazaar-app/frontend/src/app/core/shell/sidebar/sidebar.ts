@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { SidebarModule } from 'primeng/sidebar';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
@@ -17,8 +17,8 @@ import {
   LucideSettings,
   LucideLogOut,
 } from '@lucide/angular';
-
-export type Role = 'admin' | 'cashier';
+import { AuthService } from '../../auth/auth.service';
+import { RoleService } from '../../auth/role.service';
 
 interface NavItem {
   label: string;
@@ -56,11 +56,15 @@ interface NavGroup {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Sidebar {
-  readonly role = input.required<Role>();
-  readonly username = input.required<string>();
-  readonly roleLabel = input.required<string>();
-  readonly openArticlesCount = input(0);
-  readonly logoutClicked = output<void>();
+  private readonly authService = inject(AuthService);
+  private readonly roleService = inject(RoleService);
+  private readonly router = inject(Router);
+
+  readonly isAdmin = this.roleService.isAdmin;
+  readonly username = computed(() => this.authService.currentUser()?.name ?? '');
+  readonly roleLabel = computed(() => (this.isAdmin() ? 'Admin' : 'Kassenpersonal'));
+  readonly initials = computed(() => this.username().charAt(0).toUpperCase());
+  readonly openArticlesCount = signal(0); // Datenanbindung folgt mit Epic_Artikelannahme
 
   private readonly navGroups: NavGroup[] = [
     { label: 'Tagesgeschäft', items: [
@@ -84,11 +88,14 @@ export class Sidebar {
   readonly visibleGroups = computed(() =>
     this.navGroups.map((group) => ({
       ...group,
-      items: group.items.filter((item) => this.role() === 'admin' || !this.isSettingsItem(item)),
+      items: group.items.filter((item) => this.isAdmin() || !this.isSettingsItem(item)),
     })),
   );
 
-  readonly initials = computed(() => this.username().charAt(0).toUpperCase());
+  logout(): void {
+    this.authService.logout();
+    this.router.navigateByUrl('/login');
+  }
 
   private isSettingsItem(item: NavItem): boolean {
     return item.route === '/settings';

@@ -61,7 +61,7 @@
       <p-avatar [label]="initials()" shape="circle" />
       <span class="sidebar-username">{{ username() }}</span>
       <span class="sidebar-role">{{ roleLabel() }}</span>
-      <button pButton link (click)="logoutClicked.emit()">
+      <button pButton link (click)="logout()">
         <svg lucideLogOut></svg>
         <span>Abmelden</span>
       </button>
