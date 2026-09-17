@@ -335,4 +335,35 @@ describe('MyArticlesPage', () => {
 
     expect(fixture.componentInstance.importResult()).toEqual({ kind: 'rowErrors', errors: errorBody.errors });
   });
+
+  it('closing the import dialog after a successful import reloads the article list', () => {
+    const { fixture, articlesApi } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    vi.spyOn(importExportApi, 'import').mockReturnValue(of({ created: 1, updated: 0, deleted: 0 }));
+    const file = new File(['data'], 'import.csv', { type: 'text/csv' });
+    fixture.componentInstance.onFileSelected({ target: { files: [file], value: '' } } as unknown as Event);
+    vi.mocked(articlesApi.getMine).mockClear();
+
+    fixture.componentInstance.onImportDialogClosed(false);
+
+    expect(fixture.componentInstance.importDialogVisible()).toBe(false);
+    expect(articlesApi.getMine).toHaveBeenCalledTimes(1);
+  });
+
+  it('closing the import dialog after a row-error import does not reload the article list', () => {
+    const { fixture, articlesApi } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    const errorBody = { errors: [{ row: 2, errorCode: 'import.invalid_price', detail: 'Zeile 2: ...' }] };
+    vi.spyOn(importExportApi, 'import').mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 422, error: errorBody }))
+    );
+    const file = new File(['data'], 'import.csv', { type: 'text/csv' });
+    fixture.componentInstance.onFileSelected({ target: { files: [file], value: '' } } as unknown as Event);
+    vi.mocked(articlesApi.getMine).mockClear();
+
+    fixture.componentInstance.onImportDialogClosed(false);
+
+    expect(fixture.componentInstance.importDialogVisible()).toBe(false);
+    expect(articlesApi.getMine).not.toHaveBeenCalled();
+  });
 });

@@ -60,7 +60,7 @@ import { ImportResultDialog, ImportResultData } from '../components/import-resul
     <app-import-result-dialog
       [(visible)]="importDialogVisibleModel"
       [result]="importResult()"
-      (visibleChange)="onSaved()"
+      (visibleChange)="onImportDialogClosed($event)"
     />
   `
 })
@@ -90,6 +90,13 @@ export class MyArticlesPage implements OnInit {
 
   triggerImport(): void {
     this.fileInput()?.nativeElement.click();
+  }
+
+  onImportDialogClosed(visible: boolean): void {
+    this.importDialogVisible.set(visible);
+    if (!visible && this.importResult()?.kind === 'success') {
+      this.loadArticles();
+    }
   }
 
   onFileSelected(event: Event): void {
