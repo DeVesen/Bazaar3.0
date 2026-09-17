@@ -47,6 +47,9 @@ public interface IRegistrationModuleApi
     Task<string> GetArticleExportCsvAsync(string sellerId, CancellationToken cancellationToken);
     Task<string> GetArticleTemplateCsvAsync(string sellerId, CancellationToken cancellationToken);
 
+    /// <summary>For the seller-facing CSV/XLSX Import in Meine Artikel.</summary>
+    Task<ImportArticlesResultDto> ImportArticlesAsync(ImportArticlesCommand command, CancellationToken cancellationToken);
+
     /// <summary>For Home (admin view, Host composition).</summary>
     Task<RegistrationDashboardStatsDto> GetDashboardStatsAsync(DateTime heatmapSinceUtc, CancellationToken cancellationToken);
 

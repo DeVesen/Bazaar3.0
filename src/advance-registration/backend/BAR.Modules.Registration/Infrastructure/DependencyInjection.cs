@@ -55,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<GetArticleByIdQueryHandler>();
         services.AddScoped<GetArticleExportCsvQueryHandler>();
         services.AddScoped<GetArticleTemplateCsvQueryHandler>();
+        services.AddScoped<ImportArticlesCommandHandler>();
         services.AddScoped<GetMyBlocksQueryHandler>();
         services.AddScoped<GetBlocksForSellerQueryHandler>();
         services.AddScoped<GetNextFreeQueryHandler>();

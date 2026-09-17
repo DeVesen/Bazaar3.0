@@ -120,6 +120,9 @@ public sealed class RegistrationModuleApi(
     public Task<string> GetArticleTemplateCsvAsync(string sellerId, CancellationToken cancellationToken) =>
         Resolve<GetArticleTemplateCsvQueryHandler>().HandleAsync(sellerId, cancellationToken);
 
+    public Task<ImportArticlesResultDto> ImportArticlesAsync(ImportArticlesCommand command, CancellationToken cancellationToken) =>
+        Resolve<ImportArticlesCommandHandler>().HandleAsync(command, cancellationToken);
+
     public async Task<RegistrationDashboardStatsDto> GetDashboardStatsAsync(DateTime heatmapSinceUtc, CancellationToken cancellationToken)
     {
         var all = await articles.GetAllForExportAsync(cancellationToken);
