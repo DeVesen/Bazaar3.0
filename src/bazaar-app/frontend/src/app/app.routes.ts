@@ -2,9 +2,10 @@ import { Routes } from '@angular/router';
 import { Shell } from './core/shell/shell';
 import { authGuard } from './core/auth/auth.guard';
 import { adminGuard } from './core/auth/admin.guard';
+import { guestGuard } from './core/auth/guest.guard';
 
 export const routes: Routes = [
-  { path: 'login', loadChildren: () => import('./features/login/login.routes').then((m) => m.LOGIN_ROUTES) },
+  { path: 'login', canActivate: [guestGuard], loadChildren: () => import('./features/login/login.routes').then((m) => m.LOGIN_ROUTES) },
   {
     path: '',
     component: Shell,

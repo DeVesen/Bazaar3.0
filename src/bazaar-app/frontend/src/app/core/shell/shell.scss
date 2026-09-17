@@ -10,7 +10,8 @@
 
 @media print {
   #app-nav,
-  #topbar {
+  #topbar,
+  p-sidebar-backdrop {
     display: none;
   }
 
