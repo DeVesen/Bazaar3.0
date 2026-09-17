@@ -1,5 +1,4 @@
-using DomainUser = Bazaar.Domain.User.User;
-using Role = Bazaar.Domain.User.Role;
+using Bazaar.Domain.Users;
 
 namespace Bazaar.Domain.UnitTests;
 
@@ -11,7 +10,7 @@ public class UserTests
     public void Create_WithEmptyOrWhitespaceUsername_Throws(string username)
     {
         Assert.Throws<ArgumentException>(() =>
-            DomainUser.Create("user-1", username, "hash", Role.Cashier, mustChangePassword: false));
+            User.Create("user-1", username, "hash", Role.Cashier, mustChangePassword: false));
     }
 
     [Theory]
@@ -21,7 +20,7 @@ public class UserTests
     [InlineData(Role.Cashier, false)]
     public void Create_WithValidData_SetsAllProperties(Role role, bool mustChangePassword)
     {
-        var user = DomainUser.Create("user-1", "alice", "hashed-password", role, mustChangePassword);
+        var user = User.Create("user-1", "alice", "hashed-password", role, mustChangePassword);
 
         Assert.Equal("user-1", user.Id);
         Assert.Equal("alice", user.Username);
@@ -33,7 +32,7 @@ public class UserTests
     [Fact]
     public void ChangePassword_WhenMustChangePasswordWasTrue_UpdatesHashAndClearsFlag()
     {
-        var user = DomainUser.Create("user-1", "alice", "old-hash", Role.Cashier, mustChangePassword: true);
+        var user = User.Create("user-1", "alice", "old-hash", Role.Cashier, mustChangePassword: true);
 
         user.ChangePassword("new-hash");
 
@@ -44,7 +43,7 @@ public class UserTests
     [Fact]
     public void ChangePassword_WhenMustChangePasswordWasFalse_UpdatesHashAndStaysFalse()
     {
-        var user = DomainUser.Create("user-1", "alice", "old-hash", Role.Cashier, mustChangePassword: false);
+        var user = User.Create("user-1", "alice", "old-hash", Role.Cashier, mustChangePassword: false);
 
         user.ChangePassword("new-hash");
 

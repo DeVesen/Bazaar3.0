@@ -1,4 +1,4 @@
-namespace Bazaar.Domain.User;
+namespace Bazaar.Domain.Users;
 
 public enum Role
 {

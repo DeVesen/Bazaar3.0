@@ -1,20 +1,20 @@
-using DomainUser = global::Bazaar.Domain.User.User;
+using Bazaar.Domain.Users;
 
 namespace Bazaar.Domain.Ports;
 
 public interface IUserRepository
 {
-    Task Add(DomainUser user);
+    Task Add(User user);
 
-    Task<DomainUser?> GetById(string id);
+    Task<User?> GetById(string id);
 
     /// <summary>
     /// Case-insensitive lookup by username. Case-insensitivity is the
     /// implementation's responsibility (e.g. Postgres citext column).
     /// </summary>
-    Task<DomainUser?> GetByUsername(string username);
+    Task<User?> GetByUsername(string username);
 
-    Task Update(DomainUser user);
+    Task Update(User user);
 
     /// <summary>
     /// Returns whether any user exists at all. Used by SeedAdminHostedService
