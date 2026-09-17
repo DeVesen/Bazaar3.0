@@ -76,6 +76,7 @@ Verkäufer-Verwaltung, < Tablet:
 | Suchen-Button | [Button](../button/component.md) mit `<svg data-p-icon="search">` + Text „Suchen", ganz rechts im Panel | nur bei expliziter Auslösung — entfällt bei live/debounced Verwendungsstellen |
 | Filter-Dropdown (< Tablet) | [Select](../select/component.md)-artiges Overlay-Panel, Trigger-Label „Filter" — ersetzt alle Filterfelder inkl. Freitext, öffnet ein Dropdown-Panel mit den Feldern der jeweiligen Verwendungsstelle | alle |
 | Neu-Button | [Button](../button/component.md), Text konfigurierbar über `createLabel` (gleiche Optik wie [Table](../table/component.md) `canAdd`), ganz rechts, außerhalb des Dropdowns | nur wenn `canAdd` gesetzt (Basis „Meine Artikel", Verkäufer-Verwaltung) |
+| Neu-Button, SplitButton-Variante | `p-splitButton` statt einfachem Button — Hauptaktion identisch zum Neu-Button (`createLabel`, `create`-Output), Dropdown-Pfeil öffnet ein Menü mit zusätzlichen Aktionen (`splitButtonItems`-Input, `MenuItem[]`). Die Komponente kennt den Inhalt des Menüs nicht — reiner Durchreicher an PrimeNG, wie bei `sellerSearchFn` | nur Basis „Meine Artikel": Import/Trennlinie/Export/Trennlinie/Vorlage → [Epic_Meine_Artikel](../../requirements/advance-registration/epics/Epic_Meine_Artikel/epic.md) Abschnitt „Import/Export" |
 
 ## Verhalten
 

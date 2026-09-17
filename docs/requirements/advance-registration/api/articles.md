@@ -369,7 +369,7 @@ Rein lesend parsen und validieren, danach **alles-oder-nichts** schreiben:
    |---|---|
    | `import.invalid_number` | `Nummer` fehlt oder ist keine Ganzzahl |
    | `import.number_not_in_own_range` | `Nummer` liegt in keinem eigenen `NumberBlock` |
-   | `import.duplicate_number` | `Nummer` kommt mehrfach in der Datei vor (beide Zeilen werden gemeldet) |
+   | `import.duplicate_number` | `Nummer` kommt mehrfach in der Datei vor — Fehler steht an der **zweiten** Zeile, der Detailtext nennt die erste Zeile zur Orientierung |
    | `import.missing_field` | Zeile ist befüllt, aber `Bezeichnung`/`Kategorie`/`Marke` fehlt |
    | `import.invalid_price` | Zeile ist befüllt, aber `Preis` fehlt oder ist nicht parsebar/`> 0` |
 

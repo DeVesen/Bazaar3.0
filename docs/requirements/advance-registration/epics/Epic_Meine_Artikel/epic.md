@@ -2,7 +2,7 @@
 id: F-AR-004
 status: draft
 reviewed-date: 2026-08-17
-updated: 2026-09-14
+updated: 2026-09-17
 ---
 
 # Epic: Meine Artikel
@@ -14,6 +14,7 @@ updated: 2026-09-14
 - 3. Artikelanlage / Artikel bearbeiten — Formular
 - 4. Nummernblock-Logik — Nummernvergabe
 - 5. Backend & API — Endpoints
+- 6. Import/Export — CSV/XLSX-Massenpflege
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
@@ -50,6 +51,8 @@ Details → [`filter-panel`](../../../../components/filter-panel/component.md).
 **Suche auslösen:** explizites Absenden, kein Live-Filter beim Tippen — Enter im Freitext- oder Select-Feld, oder Klick auf den „Suchen"-Button (`p-button` mit `pi-search` links + Text „Suchen") ganz rechts im Filter-Panel.
 
 **Responsive:** ≥ Tablet zeigt das Panel alle Filterfelder nebeneinander, „+ Neu" ganz rechts. < Tablet kollabiert das Panel zu einem „Filter"-Button, „+ Neu" bleibt sichtbar. Details → [`filter-panel`](../../../../components/filter-panel/component.md) Abschnitt „Responsive".
+
+**„+ Neu" als SplitButton:** trägt zusätzlich ein Dropdown-Menü Import/Trennlinie/Export/Trennlinie/Vorlage — Details → Abschnitt 6 „Import/Export".
 
 **Vergleichsregeln** (case-insensitiv, Teilwort, Token-Zerlegung, keine Mindestlänge) gelten für alle Suchfelder der App und stehen verbindlich in [`cross-cutting.md`](../../api/cross-cutting.md) Abschnitt 4.
 
@@ -157,10 +160,49 @@ API-Details → [`api/articles.md`](../../api/articles.md)
 | `POST /api/articles` | `authenticated` | Legt Artikel an, Artikelnummer serverseitig aus Nummernblock vergeben. Optionales `expectedNumber` als Vorbedingung → `409` bei Abweichung. Antwort trägt `nextNumber` für „Speichern + kopieren". |
 | `PUT /api/articles/{id}` | `authenticated` | Aktualisiert Artikel — serverseitig geprüft, dass `{id}` dem eingeloggten Verkäufer gehört. |
 | `DELETE /api/articles/{id}` | `authenticated` | Löscht Artikel — serverseitig geprüft, dass `{id}` dem eingeloggten Verkäufer gehört. |
+| `GET /api/articles/mine/export` | `authenticated` | CSV-Export aller eigenen Artikel + leerer Nummernkreis-Plätze — Details Abschnitt 6. |
+| `GET /api/articles/mine/template` | `authenticated` | Leere CSV-Ausfüllvorlage, nur Nummern — Details Abschnitt 6. |
+| `POST /api/articles/mine/import` | `authenticated` | CSV/XLSX-Massenimport, alles-oder-nichts — Details Abschnitt 6. |
 
 Alle Endpoints beschränken sich serverseitig hart auf die Artikel des eingeloggten Verkäufers (nicht nur clientseitig gefiltert), geprüft über `sellerId` gegen den `sub`-Claim. Fremde Artikel liefern `404`, nicht `403`.
 
 **Offene Abhängigkeit — geklärt:** In der Voranmelde-App gibt es **kein** Artikel-Status-Feld. Das Statusmodell der Haupt-App leitet sich aus vier Zeitstempeln ab, die hier nicht existieren (siehe [`entities/artikel.md`](../../entities/artikel.md)); jeder Artikel ist implizit „registriert".
+
+---
+
+## 6. Import/Export
+
+Details → [`api/articles.md`](../../api/articles.md) Abschnitte 8-10.
+
+Ergänzt die manuelle Artikelpflege um CSV/XLSX-Massenpflege — kein Ersatz für
+den Anlege-/Bearbeiten-Dialog aus Abschnitt 3, sondern zusätzlicher Weg für
+größere Mengen.
+
+**Zugriff:** SplitButton „+ Neu" (Abschnitt 1) — Dropdown mit Import,
+Trennlinie, Export, Trennlinie, Vorlage.
+
+**Export** (`GET /api/articles/mine/export`): CSV mit einer Zeile pro Nummer
+im eigenen Nummernkreis, aufsteigend über alle eigenen `NumberBlock`s. Nummern
+mit Artikel sind vollständig befüllt, freie Nummern nur mit der Nummer, Rest
+leer. Löst sofortigen Browser-Download aus, keine Zwischenbestätigung.
+
+**Vorlage** (`GET /api/articles/mine/template`): identisches Format, aber
+**immer** nur Nummern — unabhängig vom aktuellen Artikelbestand. Ausgangspunkt
+zum Neu-Befüllen in Excel.
+
+**Import** (`POST /api/articles/mine/import`): Dateiauswahl (`.csv`/`.xlsx`),
+danach sofortiger Upload. Alles-oder-nichts: enthält die Datei mindestens
+einen Zeilenfehler, wird **nichts** gespeichert — ein Dialog zeigt Zeile und
+übersetzte Fehlermeldung je fehlerhafter Zeile. Ohne Fehler zeigt der Dialog
+die Anzahl angelegter/aktualisierter/gelöschter Artikel und die Liste wird
+neu geladen. Pro Zeile, abhängig von Nummer + vorhandenem Artikel +
+Zeileninhalt: Anlegen, Aktualisieren (setzt Farbe/Beschreibung auf leer, da
+die Importdatei dafür keine Spalten hat), Löschen oder keine Aktion.
+Unbekannte Marken/Kategorien werden automatisch als Stammdatum angelegt.
+
+**Ausdrücklich nicht Teil:** kein Vorschau-/Trockenlauf-Modus vor dem
+eigentlichen Import, kein Undo für importierte Löschungen (Hard-Delete wie
+beim einzelnen Löschen), kein Import über den eigenen Nummernkreis hinaus.
 
 ---
 
@@ -176,8 +218,11 @@ Alle Endpoints beschränken sich serverseitig hart auf die Artikel des eingelogg
 8. **AC-8** — IF beim Öffnen des Anlege-Dialogs global keine freie Artikelnummer verfügbar ist, THEN SHALL das System den Dialog nicht öffnen und die Meldung „Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren" als Toast anzeigen.
 9. **AC-9** — WHEN im Anlege-Dialog „Speichern + kopieren" geklickt wird und das Anlegen erfolgreich ist, THEN SHALL das System den Dialog offen halten, alle Feldwerte unverändert erhalten, die Artikelnummer auf `nextNumber` aus der Antwort setzen, den Fokus in das Feld „Bezeichnung" setzen und dessen gesamten Inhalt selektieren, das Formular wieder als `pristine` führen, die Artikelliste sofort aktualisieren und den Toast „✓ Artikel *n* gespeichert — nächste Nummer: *m*" anzeigen.
 10. **AC-10** — IF beim „Speichern + kopieren" der Artikel angelegt wurde, aber keine nächste Artikelnummer mehr vergeben werden kann, THEN SHALL das System den Dialog schließen und die Meldung „Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren" als Toast anzeigen.
+11. **AC-11** — WHEN „Export" oder „Vorlage" im SplitButton-Dropdown geklickt wird, THEN SHALL das System sofort einen CSV-Download auslösen, ohne Zwischenbestätigung.
+12. **AC-12** — WHEN „Import" geklickt und eine Datei ausgewählt wird UND mindestens eine Zeile der Datei fehlerhaft ist, THEN SHALL das System nichts speichern und einen Dialog mit Zeile und übersetzter Fehlermeldung je fehlerhafter Zeile anzeigen.
+13. **AC-13** — WHEN eine Importdatei ohne Zeilenfehler hochgeladen wird, THEN SHALL das System alle Zeilen anlegen/aktualisieren/löschen wie in Abschnitt 6 beschrieben, einen Dialog mit der Anzahl angelegter/aktualisierter/gelöschter Artikel anzeigen und die Artikelliste neu laden.
 
 ## Tags & Piles
 
 **Piles:** #pile/advance-registration
-**Tags:** #meine-artikel #verkäufer #artikel-erfassung #voranmeldung #serien-erfassung
+**Tags:** #meine-artikel #verkäufer #artikel-erfassung #voranmeldung #serien-erfassung #import #export #csv
