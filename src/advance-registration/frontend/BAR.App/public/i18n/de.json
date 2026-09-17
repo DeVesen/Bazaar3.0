@@ -212,7 +212,19 @@
     "emptyTextSuffix": " den ersten anlegen.",
     "createButton": "+ Neu",
     "loadError": "Artikel konnten nicht geladen werden",
-    "noFreeNumber": "Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren"
+    "noFreeNumber": "Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren",
+    "importExport": {
+      "import": "Import",
+      "export": "Export",
+      "template": "Vorlage"
+    },
+    "import": {
+      "dialogHeader": "Import-Ergebnis",
+      "success": "{{created}} angelegt, {{updated}} aktualisiert, {{deleted}} gelöscht.",
+      "rowColumn": "Zeile",
+      "errorColumn": "Fehler",
+      "generalError": "Import fehlgeschlagen — Datei konnte nicht verarbeitet werden."
+    }
   },
   "articleDialog": {
     "createHeader": "Artikel anlegen",

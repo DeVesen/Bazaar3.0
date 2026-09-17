@@ -212,7 +212,19 @@
     "emptyTextSuffix": " to create the first one.",
     "createButton": "+ New",
     "loadError": "Articles could not be loaded",
-    "noFreeNumber": "No free article number available — please contact the admin"
+    "noFreeNumber": "No free article number available — please contact the admin",
+    "importExport": {
+      "import": "Import",
+      "export": "Export",
+      "template": "Template"
+    },
+    "import": {
+      "dialogHeader": "Import result",
+      "success": "{{created}} created, {{updated}} updated, {{deleted}} deleted.",
+      "rowColumn": "Row",
+      "errorColumn": "Error",
+      "generalError": "Import failed — the file could not be processed."
+    }
   },
   "articleDialog": {
     "createHeader": "Create article",
