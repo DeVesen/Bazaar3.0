@@ -15,6 +15,10 @@ public interface IArticleRepository
     Task RenameBrandAsync(string oldName, string newName, CancellationToken cancellationToken);
     Task RenameCategoryAsync(string oldName, string newName, CancellationToken cancellationToken);
     Task<IReadOnlyList<Article>> GetAllForExportAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<Article>> GetAllForSellerAsync(string sellerId, CancellationToken cancellationToken);
+    Task ApplyImportAsync(
+        IReadOnlyList<Article> toCreate, IReadOnlyList<Article> toUpdate, IReadOnlyList<Article> toDelete,
+        CancellationToken cancellationToken);
     Task CreateAsync(Article article, NumberBlock? newBlock, CancellationToken cancellationToken);
     Task UpdateAsync(Article article, CancellationToken cancellationToken);
     Task DeleteAsync(Article article, CancellationToken cancellationToken);

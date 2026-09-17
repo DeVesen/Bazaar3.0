@@ -175,6 +175,49 @@ public class ArticleRepositoryTests : IClassFixture<PostgresWebApplicationFactor
 
         Assert.Contains(all, a => a.Id == article.Id);
     }
+
+    [Fact]
+    public async Task GetAllForSellerAsync_ReturnsOnlyThatSellersArticles()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        var ct = TestContext.Current.CancellationToken;
+        var sellerId = Guid.NewGuid().ToString("N")[..8];
+        var otherId = Guid.NewGuid().ToString("N")[..8];
+        await repo.CreateAsync(Article.Create(sellerId, 201, "A", "B", "C", 1m, null, null, null, Now), null, ct);
+        await repo.CreateAsync(Article.Create(otherId, 202, "A", "B", "C", 1m, null, null, null, Now), null, ct);
+
+        var result = await repo.GetAllForSellerAsync(sellerId, ct);
+
+        Assert.Single(result);
+        Assert.Equal(201, result[0].Number);
+    }
+
+    [Fact]
+    public async Task ApplyImportAsync_CreatesUpdatesAndDeletesInOneCall()
+    {
+        _ = _factory.Server;
+        using var scope = _factory.Services.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
+        var ct = TestContext.Current.CancellationToken;
+        var sellerId = Guid.NewGuid().ToString("N")[..8];
+        await repo.CreateAsync(Article.Create(sellerId, 301, "Alt", "B", "C", 1m, null, null, null, Now), null, ct);
+        await repo.CreateAsync(Article.Create(sellerId, 302, "ZuLoeschen", "B", "C", 1m, null, null, null, Now), null, ct);
+        var existing = await repo.GetAllForSellerAsync(sellerId, ct);
+        var toUpdate = existing.Single(a => a.Number == 301);
+        toUpdate.Update("Neu", "B2", "C2", 2m, null, null, null, Now);
+        var toDelete = existing.Single(a => a.Number == 302);
+        var toCreate = Article.Create(sellerId, 303, "Frisch", "B", "C", 3m, null, null, null, Now);
+
+        await repo.ApplyImportAsync([toCreate], [toUpdate], [toDelete], ct);
+
+        var after = await repo.GetAllForSellerAsync(sellerId, ct);
+        Assert.Equal(2, after.Count);
+        Assert.Contains(after, a => a.Number == 301 && a.Name == "Neu");
+        Assert.Contains(after, a => a.Number == 303 && a.Name == "Frisch");
+        Assert.DoesNotContain(after, a => a.Number == 302);
+    }
 }
 
 public class ArticleRepositoryExistsNumberBelowTests : IClassFixture<PostgresWebApplicationFactory>
