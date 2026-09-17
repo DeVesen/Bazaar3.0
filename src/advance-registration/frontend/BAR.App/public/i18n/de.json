@@ -212,7 +212,28 @@
     "emptyTextSuffix": " den ersten anlegen.",
     "createButton": "+ Neu",
     "loadError": "Artikel konnten nicht geladen werden",
-    "noFreeNumber": "Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren"
+    "noFreeNumber": "Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren",
+    "importExport": {
+      "import": "Import",
+      "export": "Export",
+      "template": "Vorlage"
+    },
+    "import": {
+      "dialogHeader": "Import-Ergebnis",
+      "success": "{{created}} angelegt, {{updated}} aktualisiert, {{deleted}} gelöscht.",
+      "rowColumn": "Zeile",
+      "errorColumn": "Fehler",
+      "generalError": "Import fehlgeschlagen — Datei konnte nicht verarbeitet werden.",
+      "exportError": "Export fehlgeschlagen — Datei konnte nicht heruntergeladen werden.",
+      "templateError": "Vorlage konnte nicht heruntergeladen werden.",
+      "errors": {
+        "invalidNumber": "Zeile {{row}}: Nummer fehlt oder ist keine Ganzzahl.",
+        "numberNotInOwnRange": "Zeile {{row}}: Nummer gehört nicht zum eigenen Nummernkreis.",
+        "duplicateNumber": "Zeile {{row}}: Nummer ist in der Datei mehrfach vergeben.",
+        "missingField": "Zeile {{row}}: Bezeichnung, Kategorie und Marke sind Pflichtfelder.",
+        "invalidPrice": "Zeile {{row}}: Preis fehlt oder ist ungültig."
+      }
+    }
   },
   "articleDialog": {
     "createHeader": "Artikel anlegen",

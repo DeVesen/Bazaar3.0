@@ -1,24 +1,30 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { Component, ElementRef, OnInit, computed, inject, signal, viewChild } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MenuItem, MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ArticlesApiService, ArticleListQuery, ArticleResponse } from '../articles-api.service';
 import { MasterDataApiService, MasterDataItem } from '../../master-data-api.service';
 import { ArticleDialog } from '../components/article-dialog';
 import { AppTable, ActionClickEvent, ActionColumnConfig, ColumnConfig, SortMeta, TablePageEvent } from '@shared/table/table';
 import { FilterPanel, FilterPanelSearch } from '@shared/filter-panel/filter-panel';
+import { ArticlesImportExportApiService, ImportRowError } from '../articles-import-export-api.service';
+import { ImportResultDialog, ImportResultData } from '../components/import-result-dialog';
 
 @Component({
   selector: 'app-my-articles-page',
-  imports: [FilterPanel, AppTable, ArticleDialog, TranslatePipe],
+  imports: [FilterPanel, AppTable, ArticleDialog, ImportResultDialog, TranslatePipe],
   template: `
     <app-filter-panel
       [brands]="brands()"
       [categories]="categories()"
       [canAdd]="true"
       [createLabel]="'myArticles.createButton' | translate"
+      [splitButtonItems]="importExportMenuItems"
       (search)="onFilterSearch($event)"
       (create)="openCreateDialog()"
     />
+
+    <input #fileInput type="file" accept=".csv,.xlsx" style="display: none" (change)="onFileSelected($event)" />
 
     @if (isEmpty() && !hasActiveFilter() && !loading()) {
       <p>{{ 'myArticles.emptyTextPrefix' | translate }}<strong>{{ 'myArticles.createButton' | translate }}</strong>{{ 'myArticles.emptyTextSuffix' | translate }}</p>
@@ -50,6 +56,12 @@ import { FilterPanel, FilterPanelSearch } from '@shared/filter-panel/filter-pane
       (brandCreated)="onBrandCreated($event)"
       (categoryCreated)="onCategoryCreated($event)"
     />
+
+    <app-import-result-dialog
+      [(visible)]="importDialogVisibleModel"
+      [result]="importResult()"
+      (visibleChange)="onImportDialogClosed($event)"
+    />
   `
 })
 export class MyArticlesPage implements OnInit {
@@ -57,6 +69,88 @@ export class MyArticlesPage implements OnInit {
   private readonly masterDataApi = inject(MasterDataApiService);
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
+  private readonly importExportApi = inject(ArticlesImportExportApiService);
+  private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
+
+  readonly importDialogVisible = signal(false);
+  readonly importResult = signal<ImportResultData | null>(null);
+
+  get importDialogVisibleModel() { return this.importDialogVisible(); }
+  set importDialogVisibleModel(v: boolean) { this.importDialogVisible.set(v); }
+
+  get importExportMenuItems(): MenuItem[] {
+    return [
+      { label: this.translate.instant('myArticles.importExport.import'), icon: 'pi pi-upload', command: () => this.triggerImport() },
+      { separator: true },
+      { label: this.translate.instant('myArticles.importExport.export'), icon: 'pi pi-download', command: () => this.onExport() },
+      { separator: true },
+      { label: this.translate.instant('myArticles.importExport.template'), icon: 'pi pi-file', command: () => this.onTemplate() }
+    ];
+  }
+
+  triggerImport(): void {
+    this.fileInput()?.nativeElement.click();
+  }
+
+  onImportDialogClosed(visible: boolean): void {
+    this.importDialogVisible.set(visible);
+    if (!visible && this.importResult()?.kind === 'success') {
+      this.loadArticles();
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    this.importExportApi.import(file).subscribe({
+      next: (summary) => {
+        this.importResult.set({ kind: 'success', summary });
+        this.importDialogVisible.set(true);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.importResult.set(
+          err.status === 422
+            ? { kind: 'rowErrors', errors: (err.error?.errors ?? []) as ImportRowError[] }
+            : { kind: 'generalError', message: this.translate.instant('myArticles.import.generalError') }
+        );
+        this.importDialogVisible.set(true);
+      }
+    });
+  }
+
+  onExport(): void {
+    this.importExportApi.export().subscribe({
+      next: (result) => this.triggerDownload(result.blob, result.fileName),
+      error: () => {
+        this.messageService.add({
+          severity: 'error', summary: this.translate.instant('myArticles.import.exportError')
+        });
+      }
+    });
+  }
+
+  onTemplate(): void {
+    this.importExportApi.template().subscribe({
+      next: (result) => this.triggerDownload(result.blob, result.fileName),
+      error: () => {
+        this.messageService.add({
+          severity: 'error', summary: this.translate.instant('myArticles.import.templateError')
+        });
+      }
+    });
+  }
+
+  private triggerDownload(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
 
   get columns(): ColumnConfig[] {
     return [

@@ -60,6 +60,21 @@ public sealed class ArticleRepository(RegistrationDbContext dbContext) : IArticl
     public async Task<IReadOnlyList<Article>> GetAllForExportAsync(CancellationToken cancellationToken) =>
         await dbContext.Articles.ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Article>> GetAllForSellerAsync(string sellerId, CancellationToken cancellationToken) =>
+        await dbContext.Articles.Where(a => a.SellerId == sellerId).ToListAsync(cancellationToken);
+
+    public async Task ApplyImportAsync(
+        IReadOnlyList<Article> toCreate, IReadOnlyList<Article> toUpdate, IReadOnlyList<Article> toDelete,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Articles.AddRange(toCreate);
+        dbContext.Articles.RemoveRange(toDelete);
+        // toUpdate entities are already tracked (loaded via GetAllForSellerAsync in the same
+        // scoped DbContext) - their mutated state is picked up by SaveChangesAsync without
+        // an explicit Update() call, same as the existing single-article UpdateAsync.
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task CreateAsync(Article article, NumberBlock? newBlock, CancellationToken cancellationToken)
     {
         if (newBlock is not null)

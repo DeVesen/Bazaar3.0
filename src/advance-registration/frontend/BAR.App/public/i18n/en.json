@@ -212,7 +212,28 @@
     "emptyTextSuffix": " to create the first one.",
     "createButton": "+ New",
     "loadError": "Articles could not be loaded",
-    "noFreeNumber": "No free article number available — please contact the admin"
+    "noFreeNumber": "No free article number available — please contact the admin",
+    "importExport": {
+      "import": "Import",
+      "export": "Export",
+      "template": "Template"
+    },
+    "import": {
+      "dialogHeader": "Import result",
+      "success": "{{created}} created, {{updated}} updated, {{deleted}} deleted.",
+      "rowColumn": "Row",
+      "errorColumn": "Error",
+      "generalError": "Import failed — the file could not be processed.",
+      "exportError": "Export failed — the file could not be downloaded.",
+      "templateError": "The template could not be downloaded.",
+      "errors": {
+        "invalidNumber": "Row {{row}}: number is missing or is not a whole number.",
+        "numberNotInOwnRange": "Row {{row}}: number does not belong to your own number range.",
+        "duplicateNumber": "Row {{row}}: number is used more than once in this file.",
+        "missingField": "Row {{row}}: name, category and brand are required fields.",
+        "invalidPrice": "Row {{row}}: price is missing or invalid."
+      }
+    }
   },
   "articleDialog": {
     "createHeader": "Create article",

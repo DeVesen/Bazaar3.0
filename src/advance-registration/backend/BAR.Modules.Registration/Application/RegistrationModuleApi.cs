@@ -4,6 +4,7 @@ using BAR.Modules.Registration.Application.Articles.GetAll;
 using BAR.Modules.Registration.Application.Articles.GetById;
 using BAR.Modules.Registration.Application.Articles.GetMine;
 using BAR.Modules.Registration.Application.Articles.GetNextNumber;
+using BAR.Modules.Registration.Application.Articles.ImportExport;
 using BAR.Modules.Registration.Application.Articles.Update;
 using BAR.Modules.Registration.Application.Blocks;
 using BAR.Modules.Registration.Application.Blocks.Delete;
@@ -112,6 +113,15 @@ public sealed class RegistrationModuleApi(
         return all.Select(a => new ExportArticleDto(
             a.SellerId, a.Id, a.Number, a.Name, a.Brand, a.Category, a.Price, a.Size, a.Color, a.Description)).ToList();
     }
+
+    public Task<string> GetArticleExportCsvAsync(string sellerId, CancellationToken cancellationToken) =>
+        Resolve<GetArticleExportCsvQueryHandler>().HandleAsync(sellerId, cancellationToken);
+
+    public Task<string> GetArticleTemplateCsvAsync(string sellerId, CancellationToken cancellationToken) =>
+        Resolve<GetArticleTemplateCsvQueryHandler>().HandleAsync(sellerId, cancellationToken);
+
+    public Task<ImportArticlesResultDto> ImportArticlesAsync(ImportArticlesCommand command, CancellationToken cancellationToken) =>
+        Resolve<ImportArticlesCommandHandler>().HandleAsync(command, cancellationToken);
 
     public async Task<RegistrationDashboardStatsDto> GetDashboardStatsAsync(DateTime heatmapSinceUtc, CancellationToken cancellationToken)
     {

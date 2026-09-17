@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 import { MyArticlesPage } from './MyArticlesPage';
 import { ArticlesApiService } from '../articles-api.service';
 import { MasterDataApiService } from '../../master-data-api.service';
+import { ArticlesImportExportApiService } from '../articles-import-export-api.service';
 
 const DE_TRANSLATIONS = {
   common: { cancel: 'Abbrechen', save: 'Speichern', create: 'Anlegen', delete: 'Löschen', edit: 'Bearbeiten', ok: 'OK' },
@@ -22,7 +23,21 @@ const DE_TRANSLATIONS = {
     emptyTextSuffix: ' den ersten anlegen.',
     createButton: '+ Neu',
     loadError: 'Artikel konnten nicht geladen werden',
-    noFreeNumber: 'Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren'
+    noFreeNumber: 'Keine freie Artikelnummer verfügbar — bitte Admin kontaktieren',
+    importExport: {
+      import: 'Import',
+      export: 'Export',
+      template: 'Vorlage'
+    },
+    import: {
+      dialogHeader: 'Import-Ergebnis',
+      success: '{{created}} angelegt, {{updated}} aktualisiert, {{deleted}} gelöscht.',
+      rowColumn: 'Zeile',
+      errorColumn: 'Fehler',
+      generalError: 'Import fehlgeschlagen — Datei konnte nicht verarbeitet werden.',
+      exportError: 'Export fehlgeschlagen — Datei konnte nicht heruntergeladen werden.',
+      templateError: 'Vorlage konnte nicht heruntergeladen werden.'
+    }
   },
   articleDialog: {
     createHeader: 'Artikel anlegen',
@@ -61,7 +76,21 @@ const EN_TRANSLATIONS = {
     emptyTextSuffix: ' to create the first one.',
     createButton: '+ New',
     loadError: 'Articles could not be loaded',
-    noFreeNumber: 'No free article number available — please contact the admin'
+    noFreeNumber: 'No free article number available — please contact the admin',
+    importExport: {
+      import: 'Import',
+      export: 'Export',
+      template: 'Template'
+    },
+    import: {
+      dialogHeader: 'Import result',
+      success: '{{created}} created, {{updated}} updated, {{deleted}} deleted.',
+      rowColumn: 'Row',
+      errorColumn: 'Error',
+      generalError: 'Import failed — file could not be processed.',
+      exportError: 'Export failed — the file could not be downloaded.',
+      templateError: 'The template could not be downloaded.'
+    }
   },
   articleDialog: {
     createHeader: 'Create article',
@@ -88,6 +117,13 @@ const EN_TRANSLATIONS = {
 };
 
 function create() {
+  // p-splitbutton (rendered by FilterPanel once splitButtonItems is set) mounts a TieredMenu
+  // whose ngOnInit unconditionally calls window.matchMedia, which jsdom does not implement.
+  window.matchMedia = vi.fn().mockReturnValue({
+    matches: false,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined
+  } as unknown as MediaQueryList);
   TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslateService(), MessageService] });
   const translate = TestBed.inject(TranslateService);
   translate.setTranslation('de', DE_TRANSLATIONS);
@@ -254,5 +290,112 @@ describe('MyArticlesPage', () => {
     fixture.componentInstance.openCreateDialog();
 
     expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({ severity: 'warn', summary: 'No free article number available — please contact the admin' }));
+  });
+
+  it('clicking the Export menu item downloads the export CSV', () => {
+    const { fixture } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    const exportSpy = vi.spyOn(importExportApi, 'export').mockReturnValue(of({ blob: new Blob(['csv']), fileName: 'meine-artikel.csv' }));
+    vi.stubGlobal('URL', { createObjectURL: vi.fn().mockReturnValue('blob:mock'), revokeObjectURL: vi.fn() });
+
+    fixture.componentInstance.onExport();
+
+    expect(exportSpy).toHaveBeenCalledOnce();
+  });
+
+  it('clicking the Vorlage menu item downloads the template CSV', () => {
+    const { fixture } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    const templateSpy = vi.spyOn(importExportApi, 'template').mockReturnValue(of({ blob: new Blob(['csv']), fileName: 'vorlage.csv' }));
+    vi.stubGlobal('URL', { createObjectURL: vi.fn().mockReturnValue('blob:mock'), revokeObjectURL: vi.fn() });
+
+    fixture.componentInstance.onTemplate();
+
+    expect(templateSpy).toHaveBeenCalledOnce();
+  });
+
+  it('a failed export shows an error toast instead of failing silently', () => {
+    const { fixture } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    vi.spyOn(importExportApi, 'export').mockReturnValue(throwError(() => ({ status: 500 })));
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, 'add');
+
+    fixture.componentInstance.onExport();
+
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error', summary: 'Export fehlgeschlagen — Datei konnte nicht heruntergeladen werden.'
+    }));
+  });
+
+  it('a failed template download shows an error toast instead of failing silently', () => {
+    const { fixture } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    vi.spyOn(importExportApi, 'template').mockReturnValue(throwError(() => ({ status: 500 })));
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, 'add');
+
+    fixture.componentInstance.onTemplate();
+
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error', summary: 'Vorlage konnte nicht heruntergeladen werden.'
+    }));
+  });
+
+  it('a successful import shows the success dialog and reloads the list', () => {
+    const { fixture } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    vi.spyOn(importExportApi, 'import').mockReturnValue(of({ created: 1, updated: 0, deleted: 0 }));
+    const file = new File(['data'], 'import.csv', { type: 'text/csv' });
+
+    fixture.componentInstance.onFileSelected({ target: { files: [file], value: '' } } as unknown as Event);
+
+    expect(fixture.componentInstance.importDialogVisible()).toBe(true);
+    expect(fixture.componentInstance.importResult()).toEqual({ kind: 'success', summary: { created: 1, updated: 0, deleted: 0 } });
+  });
+
+  it('a 422 import response shows the row-error dialog', () => {
+    const { fixture } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    const errorBody = { errors: [{ row: 2, errorCode: 'import.invalid_price', detail: 'Zeile 2: ...' }] };
+    vi.spyOn(importExportApi, 'import').mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 422, error: errorBody }))
+    );
+    const file = new File(['data'], 'import.csv', { type: 'text/csv' });
+
+    fixture.componentInstance.onFileSelected({ target: { files: [file], value: '' } } as unknown as Event);
+
+    expect(fixture.componentInstance.importResult()).toEqual({ kind: 'rowErrors', errors: errorBody.errors });
+  });
+
+  it('closing the import dialog after a successful import reloads the article list', () => {
+    const { fixture, articlesApi } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    vi.spyOn(importExportApi, 'import').mockReturnValue(of({ created: 1, updated: 0, deleted: 0 }));
+    const file = new File(['data'], 'import.csv', { type: 'text/csv' });
+    fixture.componentInstance.onFileSelected({ target: { files: [file], value: '' } } as unknown as Event);
+    vi.mocked(articlesApi.getMine).mockClear();
+
+    fixture.componentInstance.onImportDialogClosed(false);
+
+    expect(fixture.componentInstance.importDialogVisible()).toBe(false);
+    expect(articlesApi.getMine).toHaveBeenCalledTimes(1);
+  });
+
+  it('closing the import dialog after a row-error import does not reload the article list', () => {
+    const { fixture, articlesApi } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    const errorBody = { errors: [{ row: 2, errorCode: 'import.invalid_price', detail: 'Zeile 2: ...' }] };
+    vi.spyOn(importExportApi, 'import').mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 422, error: errorBody }))
+    );
+    const file = new File(['data'], 'import.csv', { type: 'text/csv' });
+    fixture.componentInstance.onFileSelected({ target: { files: [file], value: '' } } as unknown as Event);
+    vi.mocked(articlesApi.getMine).mockClear();
+
+    fixture.componentInstance.onImportDialogClosed(false);
+
+    expect(fixture.componentInstance.importDialogVisible()).toBe(false);
+    expect(articlesApi.getMine).not.toHaveBeenCalled();
   });
 });

@@ -375,4 +375,40 @@ describe('FilterPanel', () => {
 
     expect(emitted.length).toBe(0);
   });
+
+  it('renders a plain button (not a split button) when splitButtonItems is not set', () => {
+    const { fixture } = create();
+    fixture.componentRef.setInput('canAdd', true);
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.query(By.css('[data-testid="add-button"]'))).not.toBeNull();
+    expect(fixture.debugElement.query(By.css('p-splitbutton'))).toBeNull();
+  });
+
+  it('renders a p-splitButton with the given items when splitButtonItems is set', () => {
+    const { fixture } = create();
+    fixture.componentRef.setInput('canAdd', true);
+    const items = [{ label: 'Import' }, { separator: true }, { label: 'Export' }];
+    fixture.componentRef.setInput('splitButtonItems', items);
+    fixture.detectChanges();
+
+    const splitButton = fixture.debugElement.query(By.css('[data-testid="add-split-button"]'));
+    expect(splitButton).not.toBeNull();
+    expect(splitButton.componentInstance.model_()).toEqual(items);
+    expect(fixture.debugElement.query(By.css('[data-testid="add-button"]'))).toBeNull();
+  });
+
+  it('clicking the split button main action still emits create', () => {
+    const { fixture } = create();
+    fixture.componentRef.setInput('splitButtonItems', [{ label: 'Import' }]);
+    fixture.componentRef.setInput('canAdd', true);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const emitted: unknown[] = [];
+    component.create.subscribe(() => emitted.push(true));
+
+    fixture.debugElement.query(By.css('[data-testid="add-split-button"] button')).nativeElement.click();
+
+    expect(emitted.length).toBe(1);
+  });
 });
