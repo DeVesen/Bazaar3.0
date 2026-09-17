@@ -7,5 +7,4 @@ RUN npm run build
 
 FROM nginx:1.27-alpine AS final
 COPY --from=build /app/dist/bazaar-app/browser /usr/share/nginx/html
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 EXPOSE 80 443

@@ -7,7 +7,7 @@ services:
     build: ./src/bazaar-app/backend
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection}
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=bazaar;Username=bazaar;Password=${POSTGRES_PASSWORD}
       Jwt__Issuer: ${Jwt__Issuer}
       Jwt__Audience: ${Jwt__Audience}
       Jwt__Secret: ${Jwt__Secret}
@@ -26,6 +26,7 @@ services:
       LOCAL_HOSTNAME: ${LOCAL_HOSTNAME}
     volumes:
       - ./nginx/certs:/etc/nginx/certs:ro
+      - ./nginx/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
     depends_on:
       - backend
     restart: unless-stopped
