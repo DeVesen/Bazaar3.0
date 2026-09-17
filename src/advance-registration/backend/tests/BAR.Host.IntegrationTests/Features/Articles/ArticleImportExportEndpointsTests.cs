@@ -111,6 +111,30 @@ public class ArticleImportExportEndpointsTests : IClassFixture<PostgresWebApplic
         Assert.Contains(brandName, brandsBody);
     }
 
+    [Fact]
+    public async Task Import_FileLargerThanLimit_Returns400_AndCreatesNothing()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+        var nextNumber = (await (await client.GetAsync("/api/articles/next-number", TestContext.Current.CancellationToken)).Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken)).GetProperty("number").GetInt32();
+        // One valid data row plus enough padding in the (otherwise-ignored) trailing bytes
+        // of the multipart body's file part to push IFormFile.Length past the 2 MB limit -
+        // if the limit check did not run before CopyToAsync/the parser, this row would
+        // otherwise import cleanly (proving the file never reached the parser/handler).
+        var oversizedCsv = "Nummer;Bezeichnung;Kategorie;Marke;Größe;Preis\r\n" +
+                            $"{nextNumber};{new string('A', 3 * 1024 * 1024)};B;C;;1,00\r\n";
+        using var content = BuildMultipart(oversizedCsv);
+
+        var response = await client.PostAsync("/api/articles/mine/import", content, TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("import.file_too_large", body.GetProperty("errorCode").GetString());
+
+        var mine = await client.GetAsync("/api/articles/mine", TestContext.Current.CancellationToken);
+        var mineBody = await mine.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        Assert.Equal(0, mineBody.GetProperty("totalCount").GetInt32());
+    }
+
     private static MultipartFormDataContent BuildMultipart(string csv)
     {
         var content = new MultipartFormDataContent();

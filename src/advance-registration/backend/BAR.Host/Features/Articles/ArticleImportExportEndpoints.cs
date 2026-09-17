@@ -7,6 +7,17 @@ namespace BAR.Host.Features.Articles;
 
 public static class ArticleImportExportEndpoints
 {
+    /// <summary>
+    /// A seller's number range is at most a few hundred rows, so 2 MB is
+    /// generous - far below Kestrel's 30 MB default request-body limit,
+    /// which would otherwise let an authenticated seller upload a .xlsx that
+    /// ClosedXML fully decompresses into memory (a zip can expand far past
+    /// its compressed size) or a CSV with hundreds of thousands of invalid
+    /// rows. Checked against IFormFile.Length before any read, so an
+    /// oversized upload never reaches CopyToAsync/the parser.
+    /// </summary>
+    private const long MaxImportFileSizeBytes = 2 * 1024 * 1024;
+
     public static IEndpointRouteBuilder MapArticleImportExportEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/articles/mine/export", async (ClaimsPrincipal user, IRegistrationModuleApi registration, CancellationToken ct) =>
@@ -26,6 +37,15 @@ public static class ArticleImportExportEndpoints
         app.MapPost("/api/articles/mine/import", async (
             ClaimsPrincipal user, IFormFile file, IRegistrationModuleApi registration, CancellationToken ct) =>
         {
+            if (file.Length > MaxImportFileSizeBytes)
+            {
+                return Results.BadRequest(new
+                {
+                    errorCode = "import.file_too_large",
+                    detail = $"Datei ist größer als das Limit von {MaxImportFileSizeBytes / (1024 * 1024)} MB."
+                });
+            }
+
             var sellerId = user.FindFirstValue("sub")!;
             var isAdmin = user.IsInRole("admin");
             using var stream = new MemoryStream();
@@ -36,7 +56,9 @@ public static class ArticleImportExportEndpoints
 
             return result.Success
                 ? Results.Ok(new { created = result.Created, updated = result.Updated, deleted = result.Deleted })
-                : Results.Json(new { errors = result.Errors }, statusCode: StatusCodes.Status422UnprocessableEntity);
+                : Results.Json(
+                    new { errors = result.Errors, totalErrorCount = result.TotalErrorCount },
+                    statusCode: StatusCodes.Status422UnprocessableEntity);
         }).RequireAuthorization()
           .DisableAntiforgery();
 

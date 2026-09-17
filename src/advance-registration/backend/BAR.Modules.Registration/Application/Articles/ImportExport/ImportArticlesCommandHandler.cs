@@ -10,6 +10,16 @@ namespace BAR.Modules.Registration.Application.Articles.ImportExport;
 public sealed class ImportArticlesCommandHandler(
     IArticleRepository articles, INumberBlockRepository blocks, IMasterDataModuleApi masterData, IClock clock)
 {
+    /// <summary>
+    /// Caps the row-error list returned to the client. A pathological upload
+    /// (e.g. hundreds of thousands of malformed CSV rows) would otherwise
+    /// produce a response body of unbounded size; a seller's number range is
+    /// at most a few hundred rows, so 100 errors is already far more than
+    /// anyone would fix in one pass. <see cref="ImportArticlesResultDto.TotalErrorCount"/>
+    /// tells the client how many there really were when truncation happens.
+    /// </summary>
+    internal const int MaxReturnedErrors = 100;
+
     public async Task<ImportArticlesResultDto> HandleAsync(ImportArticlesCommand command, CancellationToken cancellationToken)
     {
         IReadOnlyList<ImportRawRow> rawRows;
@@ -29,7 +39,9 @@ public sealed class ImportArticlesCommandHandler(
         if (errors.Count > 0)
         {
             var dtoErrors = errors.Select(e => new ImportRowErrorDto(e.Row, e.ErrorCode, e.Detail)).ToList();
-            return new ImportArticlesResultDto(false, 0, 0, 0, dtoErrors);
+            var truncated = dtoErrors.Count > MaxReturnedErrors;
+            var returnedErrors = truncated ? dtoErrors.Take(MaxReturnedErrors).ToList() : dtoErrors;
+            return new ImportArticlesResultDto(false, 0, 0, 0, returnedErrors, truncated ? dtoErrors.Count : null);
         }
 
         await EnsureBrandsAndCategoriesExistAsync(actions, command.IsAdmin, cancellationToken);
