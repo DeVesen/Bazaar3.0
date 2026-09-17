@@ -223,7 +223,14 @@
       "success": "{{created}} created, {{updated}} updated, {{deleted}} deleted.",
       "rowColumn": "Row",
       "errorColumn": "Error",
-      "generalError": "Import failed — the file could not be processed."
+      "generalError": "Import failed — the file could not be processed.",
+      "errors": {
+        "invalidNumber": "Row {{row}}: number is missing or is not a whole number.",
+        "numberNotInOwnRange": "Row {{row}}: number does not belong to your own number range.",
+        "duplicateNumber": "Row {{row}}: number is used more than once in this file.",
+        "missingField": "Row {{row}}: name, category and brand are required fields.",
+        "invalidPrice": "Row {{row}}: price is missing or invalid."
+      }
     }
   },
   "articleDialog": {

@@ -223,7 +223,14 @@
       "success": "{{created}} angelegt, {{updated}} aktualisiert, {{deleted}} gelöscht.",
       "rowColumn": "Zeile",
       "errorColumn": "Fehler",
-      "generalError": "Import fehlgeschlagen — Datei konnte nicht verarbeitet werden."
+      "generalError": "Import fehlgeschlagen — Datei konnte nicht verarbeitet werden.",
+      "errors": {
+        "invalidNumber": "Zeile {{row}}: Nummer fehlt oder ist keine Ganzzahl.",
+        "numberNotInOwnRange": "Zeile {{row}}: Nummer gehört nicht zum eigenen Nummernkreis.",
+        "duplicateNumber": "Zeile {{row}}: Nummer ist in der Datei mehrfach vergeben.",
+        "missingField": "Zeile {{row}}: Bezeichnung, Kategorie und Marke sind Pflichtfelder.",
+        "invalidPrice": "Zeile {{row}}: Preis fehlt oder ist ungültig."
+      }
     }
   },
   "articleDialog": {

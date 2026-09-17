@@ -12,7 +12,14 @@ const DE_TRANSLATIONS = {
       success: '{{created}} angelegt, {{updated}} aktualisiert, {{deleted}} gelöscht.',
       rowColumn: 'Zeile',
       errorColumn: 'Fehler',
-      generalError: 'Import fehlgeschlagen — Datei konnte nicht verarbeitet werden.'
+      generalError: 'Import fehlgeschlagen — Datei konnte nicht verarbeitet werden.',
+      errors: {
+        invalidNumber: 'Zeile {{row}}: Nummer fehlt oder ist keine Ganzzahl.',
+        numberNotInOwnRange: 'Zeile {{row}}: Nummer gehört nicht zum eigenen Nummernkreis.',
+        duplicateNumber: 'Zeile {{row}}: Nummer ist in der Datei mehrfach vergeben.',
+        missingField: 'Zeile {{row}}: Bezeichnung, Kategorie und Marke sind Pflichtfelder.',
+        invalidPrice: 'Zeile {{row}}: Preis fehlt oder ist ungültig.'
+      }
     }
   }
 };
@@ -37,17 +44,43 @@ describe('ImportResultDialog', () => {
     expect(text).toContain('2 angelegt, 1 aktualisiert, 0 gelöscht.');
   });
 
-  it('shows a row/error table for row errors', () => {
+  it('shows a row/error table for row errors, translating the known errorCode with the row number interpolated', () => {
     const fixture = create();
     fixture.componentRef.setInput('result', {
       kind: 'rowErrors',
-      errors: [{ row: 3, errorCode: 'import.invalid_price', detail: 'Zeile 3: Preis fehlt oder ist ungültig.' }]
+      errors: [{ row: 3, errorCode: 'import.invalid_price', detail: 'RAW DETAIL SHOULD NOT SHOW' }]
     });
     fixture.detectChanges();
 
     const text = fixture.debugElement.query(By.css('[data-testid="import-error-table"]')).nativeElement.textContent;
     expect(text).toContain('3');
     expect(text).toContain('Zeile 3: Preis fehlt oder ist ungültig.');
+    expect(text).not.toContain('RAW DETAIL SHOULD NOT SHOW');
+  });
+
+  it('falls back to the raw detail for an unknown errorCode', () => {
+    const fixture = create();
+    fixture.componentRef.setInput('result', {
+      kind: 'rowErrors',
+      errors: [{ row: 5, errorCode: 'import.some_future_code', detail: 'Unbekannter Fehlertext' }]
+    });
+    fixture.detectChanges();
+
+    const text = fixture.debugElement.query(By.css('[data-testid="import-error-table"]')).nativeElement.textContent;
+    expect(text).toContain('Unbekannter Fehlertext');
+  });
+
+  it('maps every known backend errorCode to its i18n key', () => {
+    const fixture = create();
+    const codes = [
+      'import.invalid_number', 'import.number_not_in_own_range', 'import.duplicate_number',
+      'import.missing_field', 'import.invalid_price'
+    ];
+
+    for (const code of codes) {
+      expect(fixture.componentInstance.errorMessageKey(code)).not.toBeNull();
+    }
+    expect(fixture.componentInstance.errorMessageKey('import.unknown')).toBeNull();
   });
 
   it('shows a general error message', () => {
