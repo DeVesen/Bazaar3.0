@@ -57,14 +57,16 @@
         <hr />
       }
     </p-sidebar-content>
-    <p-sidebar-footer>
+    <p-sidebar-footer class="sidebar-footer-trigger" (click)="footerMenu.toggle($event)">
       <p-avatar [label]="initials()" shape="circle" />
       <span class="sidebar-username">{{ username() }}</span>
       <span class="sidebar-role">{{ roleLabel() }}</span>
-      <button pButton link (click)="logout()">
-        <svg lucideLogOut></svg>
-        <span>Abmelden</span>
-      </button>
     </p-sidebar-footer>
   </p-sidebar-panel>
 </p-sidebar-aside>
+<p-popover #footerMenu [appendTo]="'self'">
+  <div class="footer-menu">
+    <p-button [text]="true" label="Passwort ändern" routerLink="/change-password" (onClick)="footerMenu.hide()" />
+    <p-button [text]="true" icon="pi pi-sign-out" label="Abmelden" (onClick)="logout(); footerMenu.hide()" />
+  </div>
+</p-popover>

@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { SidebarModule } from 'primeng/sidebar';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
+import { Popover, PopoverModule } from 'primeng/popover';
 import {
   LucideInbox,
   LucideShoppingCart,
@@ -15,7 +16,6 @@ import {
   LucideUserCog,
   LucideBarChart3,
   LucideSettings,
-  LucideLogOut,
 } from '@lucide/angular';
 import { AuthService } from '../../auth/auth.service';
 import { RoleService } from '../../auth/role.service';
@@ -39,6 +39,7 @@ interface NavGroup {
     AvatarModule,
     ButtonModule,
     BadgeModule,
+    PopoverModule,
     LucideInbox,
     LucideShoppingCart,
     LucideReceipt,
@@ -49,7 +50,6 @@ interface NavGroup {
     LucideUserCog,
     LucideBarChart3,
     LucideSettings,
-    LucideLogOut,
   ],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
@@ -65,6 +65,7 @@ export class Sidebar {
   readonly roleLabel = computed(() => (this.isAdmin() ? 'Admin' : 'Kassenpersonal'));
   readonly initials = computed(() => this.username().charAt(0).toUpperCase());
   readonly openArticlesCount = signal(0); // Datenanbindung folgt mit Epic_Artikelannahme
+  readonly footerMenu = viewChild.required<Popover>('footerMenu');
 
   private readonly navGroups: NavGroup[] = [
     { label: 'Tagesgeschäft', items: [

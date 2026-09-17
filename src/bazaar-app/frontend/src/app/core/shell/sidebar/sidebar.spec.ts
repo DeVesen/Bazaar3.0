@@ -26,6 +26,14 @@ describe('Sidebar', () => {
     return { fixture, authService };
   }
 
+  async function openFooterMenu(fixture: ReturnType<typeof TestBed.createComponent<Sidebar>>): Promise<void> {
+    const footer = (fixture.nativeElement as HTMLElement).querySelector('p-sidebar-footer') as HTMLElement;
+    footer.dispatchEvent(new MouseEvent('click'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Sidebar],
@@ -54,11 +62,25 @@ describe('Sidebar', () => {
     expect(compiled.querySelector('p-badge')).toBeNull();
   });
 
-  it('calls authService.logout() and navigates to /login when "Abmelden" is clicked', async () => {
+  it('opens the footer popover when the avatar/name area is clicked', async () => {
+    const { fixture } = createSidebar('admin');
+    await fixture.whenStable();
+    const toggleSpy = vi.spyOn(fixture.componentInstance.footerMenu(), 'toggle');
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const footer = compiled.querySelector('p-sidebar-footer') as HTMLElement;
+    const clickEvent = new MouseEvent('click');
+    footer.dispatchEvent(clickEvent);
+
+    expect(toggleSpy).toHaveBeenCalledExactlyOnceWith(clickEvent);
+  });
+
+  it('calls authService.logout() and navigates to /login when "Abmelden" in the popover is clicked', async () => {
     const { fixture, authService } = createSidebar('admin');
     const router = TestBed.inject(Router);
     const navigateByUrlSpy = vi.spyOn(router, 'navigateByUrl');
     await fixture.whenStable();
+    await openFooterMenu(fixture);
 
     const compiled = fixture.nativeElement as HTMLElement;
     const buttons = Array.from(compiled.querySelectorAll('button'));
@@ -67,5 +89,17 @@ describe('Sidebar', () => {
 
     expect(authService.logout).toHaveBeenCalledTimes(1);
     expect(navigateByUrlSpy).toHaveBeenCalledWith('/login');
+  });
+
+  it('"Passwort ändern" in the popover links to /change-password', async () => {
+    const { fixture } = createSidebar('admin');
+    await fixture.whenStable();
+    await openFooterMenu(fixture);
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const changePasswordLink = compiled.querySelector('[routerLink="/change-password"]');
+
+    expect(changePasswordLink).not.toBeNull();
+    expect(changePasswordLink?.textContent).toContain('Passwort ändern');
   });
 });

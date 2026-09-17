@@ -29,6 +29,28 @@ hr {
   margin: 0 14px;
 }
 
+p-sidebar-footer {
+  &.sidebar-footer-trigger {
+    cursor: pointer;
+  }
+}
+
+.footer-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 180px;
+
+  p-button {
+    display: block;
+
+    button {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+}
+
 p-sidebar-menu-item {
   button[pSidebarMenuButton] {
     display: flex;
