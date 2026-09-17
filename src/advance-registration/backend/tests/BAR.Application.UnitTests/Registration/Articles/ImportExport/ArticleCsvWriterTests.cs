@@ -27,4 +27,28 @@ public class ArticleCsvWriterTests
 
         Assert.Contains("102;;;;;\r\n", csv);
     }
+
+    [Fact]
+    public void Write_FieldContainingDelimiter_IsQuoted()
+    {
+        var csv = ArticleCsvWriter.Write([new ArticleExportRow(103, "Jacke; Größe M", "Jacken", "Nike", "M", 1m)]);
+
+        Assert.Contains("103;\"Jacke; Größe M\";Jacken;Nike;M;1,00\r\n", csv);
+    }
+
+    [Fact]
+    public void Write_FieldContainingQuote_IsQuotedAndInternalQuoteDoubled()
+    {
+        var csv = ArticleCsvWriter.Write([new ArticleExportRow(104, "18\" Zoll", "Jacken", "Nike", "M", 1m)]);
+
+        Assert.Contains("104;\"18\"\" Zoll\";Jacken;Nike;M;1,00\r\n", csv);
+    }
+
+    [Fact]
+    public void Write_FieldContainingNewline_IsQuoted()
+    {
+        var csv = ArticleCsvWriter.Write([new ArticleExportRow(105, "Zeile1\r\nZeile2", "Jacken", "Nike", "M", 1m)]);
+
+        Assert.Contains("105;\"Zeile1\r\nZeile2\";Jacken;Nike;M;1,00\r\n", csv);
+    }
 }

@@ -76,4 +76,40 @@ public class ArticleImportFileParserTests
     {
         Assert.Throws<FormatException>(() => ArticleImportFileParser.Parse([1, 2, 3], "import.xlsx"));
     }
+
+    [Fact]
+    public void Parse_Csv_QuotedFieldContainingDelimiter_RoundTripsAsSingleValue()
+    {
+        var csv = "Nummer;Bezeichnung;Kategorie;Marke;Größe;Preis\r\n101;\"Jacke; Größe M\";Jacken;Nike;M;12,50\r\n";
+        var bytes = Encoding.UTF8.GetBytes(csv);
+
+        var row = ArticleImportFileParser.Parse(bytes, "import.csv").Single();
+
+        Assert.Equal("Jacke; Größe M", row.Name);
+        Assert.Equal("Jacken", row.Category);
+    }
+
+    [Fact]
+    public void Parse_Csv_QuotedFieldContainingDoubledQuote_RoundTripsWithSingleQuote()
+    {
+        var csv = "Nummer;Bezeichnung;Kategorie;Marke;Größe;Preis\r\n101;\"18\"\" Zoll\";Jacken;Nike;M;12,50\r\n";
+        var bytes = Encoding.UTF8.GetBytes(csv);
+
+        var row = ArticleImportFileParser.Parse(bytes, "import.csv").Single();
+
+        Assert.Equal("18\" Zoll", row.Name);
+    }
+
+    [Fact]
+    public void Parse_Csv_QuotedFieldContainingEmbeddedNewline_RoundTripsAsSingleValueAndDoesNotSplitTheRecord()
+    {
+        var csv = "Nummer;Bezeichnung;Kategorie;Marke;Größe;Preis\r\n101;\"Zeile1\r\nZeile2\";Jacken;Nike;M;12,50\r\n102;Weiter;Jacken;Nike;M;1,00\r\n";
+        var bytes = Encoding.UTF8.GetBytes(csv);
+
+        var rows = ArticleImportFileParser.Parse(bytes, "import.csv");
+
+        Assert.Equal(2, rows.Count);
+        Assert.Equal("Zeile1\r\nZeile2", rows[0].Name);
+        Assert.Equal("102", rows[1].NumberRaw);
+    }
 }

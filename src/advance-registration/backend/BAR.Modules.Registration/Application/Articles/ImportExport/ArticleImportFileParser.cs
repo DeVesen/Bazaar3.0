@@ -27,19 +27,121 @@ public static class ArticleImportFileParser
     private static IReadOnlyList<ImportRawRow> ParseCsv(byte[] fileContent)
     {
         var text = Encoding.UTF8.GetString(StripBom(fileContent));
-        var lines = text.Split(["\r\n", "\n"], StringSplitOptions.None).Where(l => l.Length > 0).ToList();
+        var records = SplitIntoRecords(text);
         var rows = new List<ImportRawRow>();
 
-        for (var i = 1; i < lines.Count; i++)
+        for (var i = 1; i < records.Count; i++)
         {
-            var cells = lines[i].Split(';');
-            if (cells.Length < 6)
+            var (lineNumber, cells) = records[i];
+            if (cells.Count < 6)
             {
-                throw new FormatException($"Zeile {i + 1}: erwartet 6 Spalten, gefunden {cells.Length}.");
+                throw new FormatException($"Zeile {lineNumber}: erwartet 6 Spalten, gefunden {cells.Count}.");
             }
-            rows.Add(new ImportRawRow(i + 1, cells[0], cells[1], cells[2], cells[3], cells[4], cells[5]));
+            rows.Add(new ImportRawRow(lineNumber, cells[0], cells[1], cells[2], cells[3], cells[4], cells[5]));
         }
         return rows;
+    }
+
+    /// <summary>
+    /// RFC-4180-aware CSV record splitting: a naive Split(["\r\n","\n"]) on
+    /// the whole file, followed by Split(';') per line, breaks the moment a
+    /// quoted field (written by ArticleCsvWriter for values containing ';',
+    /// '"' or a line break) itself contains a literal '\r'/'\n' - that
+    /// embedded newline would wrongly end the record early. This single pass
+    /// tracks quote state character-by-character, so both the line-splitting
+    /// and the cell-splitting stay quote-aware. Only ';' is a delimiter and
+    /// only '"' is the quote character (6-column fixed-shape format; no
+    /// external CSV library is warranted for this).
+    /// </summary>
+    private static List<(int LineNumber, List<string> Fields)> SplitIntoRecords(string text)
+    {
+        var records = new List<(int, List<string>)>();
+        var currentFields = new List<string>();
+        var field = new StringBuilder();
+        var inQuotes = false;
+        var lineNumber = 1;
+        var recordStartLine = 1;
+
+        void EndField()
+        {
+            currentFields.Add(field.ToString());
+            field.Clear();
+        }
+
+        void EndRecord()
+        {
+            EndField();
+            records.Add((recordStartLine, currentFields));
+            currentFields = [];
+        }
+
+        var i = 0;
+        while (i < text.Length)
+        {
+            var c = text[i];
+
+            if (inQuotes)
+            {
+                if (c == '"')
+                {
+                    if (i + 1 < text.Length && text[i + 1] == '"')
+                    {
+                        field.Append('"');
+                        i += 2;
+                        continue;
+                    }
+                    inQuotes = false;
+                    i++;
+                    continue;
+                }
+                if (c == '\n')
+                {
+                    lineNumber++;
+                }
+                field.Append(c);
+                i++;
+                continue;
+            }
+
+            if (c == '"' && field.Length == 0)
+            {
+                inQuotes = true;
+                i++;
+                continue;
+            }
+            if (c == ';')
+            {
+                EndField();
+                i++;
+                continue;
+            }
+            if (c == '\r' || c == '\n')
+            {
+                var hasContent = field.Length > 0 || currentFields.Count > 0;
+                if (hasContent)
+                {
+                    EndRecord();
+                }
+                lineNumber++;
+                recordStartLine = lineNumber;
+                i++;
+                if (c == '\r' && i < text.Length && text[i] == '\n')
+                {
+                    i++;
+                }
+                continue;
+            }
+
+            field.Append(c);
+            i++;
+        }
+
+        if (field.Length > 0 || currentFields.Count > 0)
+        {
+            EndRecord();
+        }
+
+        return records;
     }
 
     private static byte[] StripBom(byte[] content) =>
