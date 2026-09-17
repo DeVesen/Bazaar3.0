@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using BAR.Host.IntegrationTests.Features.Public;
 
 namespace BAR.Host.IntegrationTests.Features.Articles;
@@ -46,6 +48,76 @@ public class ArticleImportExportEndpointsTests : IClassFixture<PostgresWebApplic
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.EndsWith(";;;;;", firstDataLine);
+    }
+
+    [Fact]
+    public async Task Import_Unauthenticated_Returns401()
+    {
+        var client = _factory.CreateClient();
+        using var content = BuildMultipart("Nummer;Bezeichnung;Kategorie;Marke;Größe;Preis\r\n");
+
+        var response = await client.PostAsync("/api/articles/mine/import", content, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Import_RoundTripUnchangedExport_CreatesNothing()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+        await client.PostAsJsonAsync("/api/articles", new { name = "Jacke", brand = "Nike", category = "Jacken", price = 12.5m }, TestContext.Current.CancellationToken);
+        var exportCsv = await (await client.GetAsync("/api/articles/mine/export", TestContext.Current.CancellationToken)).Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        using var content = BuildMultipart(exportCsv);
+        var response = await client.PostAsync("/api/articles/mine/import", content, TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(0, body.GetProperty("created").GetInt32());
+        Assert.Equal(1, body.GetProperty("updated").GetInt32());
+        Assert.Equal(0, body.GetProperty("deleted").GetInt32());
+    }
+
+    [Fact]
+    public async Task Import_NumberOutsideOwnRange_Returns422WithRowError_AndCreatesNothing()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+        using var content = BuildMultipart("Nummer;Bezeichnung;Kategorie;Marke;Größe;Preis\r\n999999;A;B;C;;1,00\r\n");
+
+        var response = await client.PostAsync("/api/articles/mine/import", content, TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+
+        Assert.Equal((HttpStatusCode)422, response.StatusCode);
+        Assert.Equal("import.number_not_in_own_range", body.GetProperty("errors")[0].GetProperty("errorCode").GetString());
+
+        var mine = await client.GetAsync("/api/articles/mine", TestContext.Current.CancellationToken);
+        var mineBody = await mine.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        Assert.Equal(0, mineBody.GetProperty("totalCount").GetInt32());
+    }
+
+    [Fact]
+    public async Task Import_UnknownBrand_IsAutoCreated()
+    {
+        var client = await RegisterAndAuthenticateAsync();
+        var nextNumber = (await (await client.GetAsync("/api/articles/next-number", TestContext.Current.CancellationToken)).Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken)).GetProperty("number").GetInt32();
+        var brandName = $"Marke-{Guid.NewGuid():N}"[..12];
+        using var content = BuildMultipart($"Nummer;Bezeichnung;Kategorie;Marke;Größe;Preis\r\n{nextNumber};A;B;{brandName};;1,00\r\n");
+
+        var response = await client.PostAsync("/api/articles/mine/import", content, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var brandsResponse = await client.GetAsync("/api/brands", TestContext.Current.CancellationToken);
+        var brandsBody = await brandsResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        Assert.Contains(brandName, brandsBody);
+    }
+
+    private static MultipartFormDataContent BuildMultipart(string csv)
+    {
+        var content = new MultipartFormDataContent();
+        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes(csv));
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        content.Add(fileContent, "file", "import.csv");
+        return content;
     }
 
     private async Task<HttpClient> RegisterAndAuthenticateAsync()
