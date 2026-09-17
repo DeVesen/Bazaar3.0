@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Bazaar.Infrastructure\Bazaar.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Bazaar.Api.IntegrationTests" />
+  </ItemGroup>
+
 </Project>
