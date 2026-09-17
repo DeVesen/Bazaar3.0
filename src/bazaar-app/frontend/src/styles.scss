@@ -2,6 +2,43 @@
 @use '@fontsource/barlow';
 @use '@fontsource/barlow-condensed';
 
+:root {
+  --color-bg: #f2f2f3;
+  --color-surface: #e9e9ea;
+  --color-text: #1d1f20;
+  --color-accent: #5980a6;
+  --color-accent-2: #728fab;
+  --color-divider: color-mix(in srgb, #1d1f20 16%, transparent);
+
+  --font-heading: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+}
+
 body {
   margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+h1, h2, h3, .sidebar-logo {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+.accent {
+  color: var(--color-accent);
+}
+
+.p-dialog {
+  width: 80%;
+  max-height: 90vh;
+}
+
+@media (max-width: 768px) {
+  .p-dialog {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
 }
