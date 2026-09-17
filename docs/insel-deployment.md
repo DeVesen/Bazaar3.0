@@ -50,9 +50,10 @@ Ersetze `192.168.x.y` durch die tatsächliche LAN-IP-Adresse deines Rechners.
 
 mkcert erzeugt daraufhin zwei Dateien mit Namen wie `bazaar.local+1.pem` und `bazaar.local+1-key.pem`. Der genaue Name hängt davon ab, wie viele Zertifikate du bereits für diese Domains erzeugt hast.
 
-Verschiebe diese Dateien in das `nginx/certs/` Verzeichnis und benenne sie um:
+Lege zunächst das Zielverzeichnis an, falls es noch nicht existiert, und verschiebe die Dateien anschließend in das `nginx/certs/` Verzeichnis und benenne sie um:
 
 ```
+mkdir -p nginx/certs
 mv bazaar.local+1.pem nginx/certs/bazaar.pem
 mv bazaar.local+1-key.pem nginx/certs/bazaar-key.pem
 ```
@@ -99,7 +100,7 @@ Bevor du die Bazaar-App startest, stelle sicher, dass die Umgebungsvariablen in 
 cp .env.example .env
 ```
 
-Bearbeite `.env` und trage die Werte für `LOCAL_HOSTNAME`, Datenbankpasswörter und weitere notwendige Parameter ein (siehe `.env.example` für Dokumentation).
+Bearbeite `.env` und trage die Werte für `LOCAL_HOSTNAME`, Datenbankpasswörter und weitere notwendige Parameter ein (siehe `.env.example` für Dokumentation). Ersetze dabei insbesondere `POSTGRES_PASSWORD`, `Jwt__Secret` und die übrigen sicherheitsrelevanten Platzhalterwerte zwingend durch echte, eigene Werte, bevor der erste Start erfolgt — die Beispielwerte aus `.env.example` sind nur zur Dokumentation gedacht und dürfen nicht produktiv verwendet werden.
 
 Starte dann die Docker-Compose-Services mit dem folgenden Befehl:
 
@@ -117,3 +118,5 @@ Nach dem erfolgreichen Start sind folgende Adressen für den Zugriff auf die Baz
 2. **LAN-IP:** `https://192.168.x.y` (wobei `192.168.x.y` durch die tatsächliche LAN-IP des Basar-Rechners ersetzt wird)
 
 Beide Adressen sind gleichwertig und funktionieren auf allen Endgeräten im LAN, die die Root-CA importiert haben. Der Browser zeigt das Zertifikat als vertrauenswürdig an, ohne Sicherheitswarnungen.
+
+**Hinweis zur Namensauflösung:** mkcert erzeugt ausschließlich das SSL-Zertifikat, aber keine Namensauflösung. Damit `https://bazaar.local` (bzw. der konfigurierte `LOCAL_HOSTNAME`) auf LAN-Endgeräten tatsächlich funktioniert, muss der Hostname zusätzlich entweder als DNS-Eintrag im Router hinterlegt oder per mDNS/Bonjour bereitgestellt werden. Ohne eine dieser Maßnahmen ist auf den Endgeräten nur der Zugriff über die LAN-IP (`https://192.168.x.y`) möglich.
