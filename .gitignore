@@ -136,3 +136,6 @@ graphify-out/
 
 ### Git worktrees (isolated dev workspaces)
 .worktrees/
+
+### Insel-Betrieb: lokal generierte Zertifikate (mkcert), nie committen
+nginx/certs/

@@ -1,0 +1,31 @@
+services:
+  db:
+    ports: []   # AC-1: Port-Veröffentlichung im Insel-Betrieb entfernt
+    restart: unless-stopped
+
+  backend:
+    build: ./src/bazaar-app/backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection}
+      Jwt__Issuer: ${Jwt__Issuer}
+      Jwt__Audience: ${Jwt__Audience}
+      Jwt__Secret: ${Jwt__Secret}
+      Jwt__SigningKey: ${Jwt__Secret}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build: ./src/bazaar-app/frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      LOCAL_HOSTNAME: ${LOCAL_HOSTNAME}
+    volumes:
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
