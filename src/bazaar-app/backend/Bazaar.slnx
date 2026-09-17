@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Bazaar.Api/Bazaar.Api.csproj" />
+  <Project Path="Bazaar.Application/Bazaar.Application.csproj" />
+  <Project Path="Bazaar.Domain/Bazaar.Domain.csproj" />
+  <Project Path="Bazaar.Infrastructure/Bazaar.Infrastructure.csproj" />
+</Solution>
