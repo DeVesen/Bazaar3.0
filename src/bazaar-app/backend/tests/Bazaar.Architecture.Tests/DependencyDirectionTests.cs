@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using NetArchTest.Rules;
 
@@ -7,6 +8,7 @@ public class DependencyDirectionTests
 {
     private static readonly Assembly DomainAssembly = Assembly.Load("Bazaar.Domain");
     private static readonly Assembly ApplicationAssembly = Assembly.Load("Bazaar.Application");
+    private static readonly Assembly InfrastructureAssembly = Assembly.Load("Bazaar.Infrastructure");
 
     [Fact]
     public void Domain_HasNoDependencyOnFrameworks()
@@ -27,13 +29,22 @@ public class DependencyDirectionTests
     }
 
     [Fact]
-    public void RepositoryPorts_LiveInDomainPorts()
+    public void RepositoryAndQueryPorts_LiveInDomainPorts()
     {
-        var result = Types.InAssembly(DomainAssembly)
-            .That().HaveNameEndingWith("Repository").And().AreInterfaces()
-            .Should().ResideInNamespace("Bazaar.Domain.Ports")
-            .GetResult();
-        Assert.True(result.IsSuccessful, FailureMessage(result));
+        var scannedAssemblies = new[] { DomainAssembly, ApplicationAssembly, InfrastructureAssembly };
+
+        var violatingTypeNames = scannedAssemblies
+            .SelectMany(assembly => Types.InAssembly(assembly)
+                .That().HaveNameEndingWith("Repository").Or().HaveNameEndingWith("Query").And().AreInterfaces()
+                .Should().ResideInNamespace("Bazaar.Domain.Ports")
+                .GetResult()
+                .FailingTypeNames ?? Enumerable.Empty<string>())
+            .ToList();
+
+        Assert.True(violatingTypeNames.Count == 0,
+            violatingTypeNames.Count > 0
+                ? $"Verletzende Typen: {string.Join(", ", violatingTypeNames)}"
+                : "Regel verletzt.");
     }
 
     private static string FailureMessage(NetArchTest.Rules.TestResult result) =>
