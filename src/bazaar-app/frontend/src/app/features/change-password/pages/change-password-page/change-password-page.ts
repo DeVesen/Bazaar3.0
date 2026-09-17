@@ -42,6 +42,7 @@ export class ChangePasswordPage {
 
   readonly currentPasswordError = signal<string | null>(null);
   readonly newPasswordError = signal<string | null>(null);
+  readonly generalError = signal<string | null>(null);
 
   readonly passwordsMatch = computed(() => this.newPassword() === this.confirmPassword());
 
@@ -58,6 +59,7 @@ export class ChangePasswordPage {
 
     this.currentPasswordError.set(null);
     this.newPasswordError.set(null);
+    this.generalError.set(null);
 
     this.http
       .put<ChangePasswordResponse | null>('/api/auth/password', {
@@ -81,8 +83,12 @@ export class ChangePasswordPage {
           if (error instanceof HttpErrorResponse && error.status === 400) {
             const body = error.error as BadRequestBody;
             const message = body?.errors?.newPassword?.[0];
-            if (message) this.newPasswordError.set(message);
+            if (message) {
+              this.newPasswordError.set(message);
+              return;
+            }
           }
+          this.generalError.set('Passwort ändern derzeit nicht möglich. Bitte später erneut versuchen.');
         },
       });
   }

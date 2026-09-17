@@ -121,4 +121,32 @@ describe('ChangePasswordPage', () => {
     expect(navigateByUrl).not.toHaveBeenCalled();
     httpMock.verify();
   });
+
+  it('on 500 shows a generic error message and does not navigate', () => {
+    const { component, httpMock } = createPage();
+    fillValidForm(component);
+
+    component.onSubmit();
+    const req = httpMock.expectOne('/api/auth/password');
+    req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+    expect(component.generalError()).toBe('Passwort ändern derzeit nicht möglich. Bitte später erneut versuchen.');
+    expect(navigateByUrl).not.toHaveBeenCalled();
+    expect(login).not.toHaveBeenCalled();
+    httpMock.verify();
+  });
+
+  it('on 400 without a newPassword error key shows a generic error message', () => {
+    const { component, httpMock } = createPage();
+    fillValidForm(component);
+
+    component.onSubmit();
+    const req = httpMock.expectOne('/api/auth/password');
+    req.flush({ errors: { somethingElse: ['unexpected'] } }, { status: 400, statusText: 'Bad Request' });
+
+    expect(component.generalError()).toBe('Passwort ändern derzeit nicht möglich. Bitte später erneut versuchen.');
+    expect(component.newPasswordError()).toBeNull();
+    expect(navigateByUrl).not.toHaveBeenCalled();
+    httpMock.verify();
+  });
 });
