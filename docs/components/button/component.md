@@ -22,9 +22,9 @@ Registrieren →        ← Text/Link
 | Variante | Umsetzung | Verwendung |
 |---|---|---|
 | Primary | `p-button severity="primary"` | Speichern, Anmelden, Registrieren, Exportieren |
-| Secondary Outlined | `p-button secondary outlined` | Abbrechen |
+| Secondary Outlined | `p-button secondary outlined` | Speichern + kopieren (artikel-dialog, Modus Anlegen) |
 | Danger | `p-button severity="danger"` | Löschen |
-| Text/Link | `p-button [text]="true"` bzw. `pButton link` | Registrierung-Link, Logout |
+| Text/Link | `p-button [text]="true"` bzw. `pButton link` | Abbrechen, Registrierung-Link, Logout |
 | Icon + Text | `p-button` + `<svg data-p-icon="search">` + Textlabel | Suchen-Button (Filter-Panel) |
 | Small Outlined | `p-button secondary outlined size="small"` | Einladungs-Link generieren, Block löschen |
 
