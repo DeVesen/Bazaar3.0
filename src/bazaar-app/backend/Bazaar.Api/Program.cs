@@ -30,9 +30,9 @@ builder.Services.AddHealthChecks().AddDbContextCheck<BazaarDbContext>();
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 
-// Port implementations: registered here (not in Task B3's Application/Api
-// layer) because SeedAdminHostedService, built in this task, already needs
-// them resolvable at startup.
+// Port implementations: registered here in the composition root (not in the
+// Application/Api layer) because SeedAdminHostedService needs them resolvable
+// at startup, before the application layer's own DI wiring runs.
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
 builder.Services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
