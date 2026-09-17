@@ -16,7 +16,7 @@ describe('App', () => {
         provideTranslateService({
           lang: 'de',
           fallbackLang: 'en',
-          loader: provideTranslateHttpLoader({ prefix: '/i18n/', suffix: '.json' })
+          loader: provideTranslateHttpLoader({ prefix: '/i18n/', suffix: `.json?v=${Date.now()}` })
         })
       ]
     }).compileComponents();
@@ -33,9 +33,9 @@ describe('App', () => {
     translate.use('de');
     // fallbackLang 'en' is eagerly loaded by @ngx-translate/core 18,
     // so both requests are expected and flushed here.
-    const deReq = httpMock.expectOne('/i18n/de.json');
+    const deReq = httpMock.expectOne((r) => r.url.startsWith('/i18n/de.json'));
     deReq.flush({});
-    const enReq = httpMock.expectOne('/i18n/en.json');
+    const enReq = httpMock.expectOne((r) => r.url.startsWith('/i18n/en.json'));
     enReq.flush({});
     httpMock.verify();
   });
