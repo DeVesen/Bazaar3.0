@@ -1,6 +1,6 @@
 services:
   db:
-    ports: []   # AC-1: Port-Veröffentlichung im Insel-Betrieb entfernt
+    ports: !override []   # AC-1: Port-Veröffentlichung im Insel-Betrieb entfernt
     restart: unless-stopped
 
   backend:
