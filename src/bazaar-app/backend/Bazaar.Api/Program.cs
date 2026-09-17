@@ -1,10 +1,13 @@
 using System.Text;
 using Bazaar.Api.ExceptionHandling;
+using Bazaar.Api.Features.Auth;
 using Bazaar.Api.Features.Public;
+using Bazaar.Application.Auth;
 using Bazaar.Domain.Ports;
 using Bazaar.Infrastructure.Persistence;
 using Bazaar.Infrastructure.Persistence.Repositories;
 using Bazaar.Infrastructure.Security;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,6 +40,10 @@ builder.Services.AddSingleton<IIdGenerator, NanoIdGenerator>();
 
 builder.Services.AddHostedService<SeedAdminHostedService>();
 
+builder.Services.AddScoped<LoginHandler>();
+builder.Services.AddScoped<ChangePasswordHandler>();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -55,7 +62,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("admin", policy => policy.RequireClaim("role", "admin"));
+});
 
 // CORS: dev-only, Angular dev origin fixed. No policy object exists in
 // Production at all (AC-6) - not just unused.
@@ -80,6 +90,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthEndpoints();
+app.MapAuthEndpoints();
 
 await ApplyMigrationsAsync(app);
 

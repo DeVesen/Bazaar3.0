@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/tests/">
     <Project Path="tests/Bazaar.Api.IntegrationTests/Bazaar.Api.IntegrationTests.csproj" />
+    <Project Path="tests/Bazaar.Api.UnitTests/Bazaar.Api.UnitTests.csproj" />
     <Project Path="tests/Bazaar.Application.UnitTests/Bazaar.Application.UnitTests.csproj" />
     <Project Path="tests/Bazaar.Architecture.Tests/Bazaar.Architecture.Tests.csproj" />
     <Project Path="tests/Bazaar.Domain.UnitTests/Bazaar.Domain.UnitTests.csproj" />
