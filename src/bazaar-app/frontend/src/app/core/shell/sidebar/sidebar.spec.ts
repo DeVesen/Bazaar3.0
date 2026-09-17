@@ -65,14 +65,20 @@ describe('Sidebar', () => {
   it('opens the footer popover when the avatar/name area is clicked', async () => {
     const { fixture } = createSidebar('admin');
     await fixture.whenStable();
-    const toggleSpy = vi.spyOn(fixture.componentInstance.footerMenu(), 'toggle');
+    const popover = fixture.componentInstance.footerMenu();
+    const toggleSpy = vi.spyOn(popover, 'toggle');
 
     const compiled = fixture.nativeElement as HTMLElement;
     const footer = compiled.querySelector('p-sidebar-footer') as HTMLElement;
     const clickEvent = new MouseEvent('click');
     footer.dispatchEvent(clickEvent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(toggleSpy).toHaveBeenCalledExactlyOnceWith(clickEvent);
+    expect(popover.overlayVisible()).toBe(true);
+    expect(document.querySelector('.p-popover')).not.toBeNull();
   });
 
   it('calls authService.logout() and navigates to /login when "Abmelden" in the popover is clicked', async () => {
