@@ -122,11 +122,25 @@ export class MyArticlesPage implements OnInit {
   }
 
   onExport(): void {
-    this.importExportApi.export().subscribe((result) => this.triggerDownload(result.blob, result.fileName));
+    this.importExportApi.export().subscribe({
+      next: (result) => this.triggerDownload(result.blob, result.fileName),
+      error: () => {
+        this.messageService.add({
+          severity: 'error', summary: this.translate.instant('myArticles.import.exportError')
+        });
+      }
+    });
   }
 
   onTemplate(): void {
-    this.importExportApi.template().subscribe((result) => this.triggerDownload(result.blob, result.fileName));
+    this.importExportApi.template().subscribe({
+      next: (result) => this.triggerDownload(result.blob, result.fileName),
+      error: () => {
+        this.messageService.add({
+          severity: 'error', summary: this.translate.instant('myArticles.import.templateError')
+        });
+      }
+    });
   }
 
   private triggerDownload(blob: Blob, fileName: string): void {

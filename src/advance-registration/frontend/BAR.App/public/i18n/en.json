@@ -224,6 +224,8 @@
       "rowColumn": "Row",
       "errorColumn": "Error",
       "generalError": "Import failed — the file could not be processed.",
+      "exportError": "Export failed — the file could not be downloaded.",
+      "templateError": "The template could not be downloaded.",
       "errors": {
         "invalidNumber": "Row {{row}}: number is missing or is not a whole number.",
         "numberNotInOwnRange": "Row {{row}}: number does not belong to your own number range.",

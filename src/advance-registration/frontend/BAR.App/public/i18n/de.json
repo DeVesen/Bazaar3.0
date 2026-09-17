@@ -224,6 +224,8 @@
       "rowColumn": "Zeile",
       "errorColumn": "Fehler",
       "generalError": "Import fehlgeschlagen — Datei konnte nicht verarbeitet werden.",
+      "exportError": "Export fehlgeschlagen — Datei konnte nicht heruntergeladen werden.",
+      "templateError": "Vorlage konnte nicht heruntergeladen werden.",
       "errors": {
         "invalidNumber": "Zeile {{row}}: Nummer fehlt oder ist keine Ganzzahl.",
         "numberNotInOwnRange": "Zeile {{row}}: Nummer gehört nicht zum eigenen Nummernkreis.",

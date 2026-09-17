@@ -34,7 +34,9 @@ const DE_TRANSLATIONS = {
       success: '{{created}} angelegt, {{updated}} aktualisiert, {{deleted}} gelöscht.',
       rowColumn: 'Zeile',
       errorColumn: 'Fehler',
-      generalError: 'Import fehlgeschlagen — Datei konnte nicht verarbeitet werden.'
+      generalError: 'Import fehlgeschlagen — Datei konnte nicht verarbeitet werden.',
+      exportError: 'Export fehlgeschlagen — Datei konnte nicht heruntergeladen werden.',
+      templateError: 'Vorlage konnte nicht heruntergeladen werden.'
     }
   },
   articleDialog: {
@@ -85,7 +87,9 @@ const EN_TRANSLATIONS = {
       success: '{{created}} created, {{updated}} updated, {{deleted}} deleted.',
       rowColumn: 'Row',
       errorColumn: 'Error',
-      generalError: 'Import failed — file could not be processed.'
+      generalError: 'Import failed — file could not be processed.',
+      exportError: 'Export failed — the file could not be downloaded.',
+      templateError: 'The template could not be downloaded.'
     }
   },
   articleDialog: {
@@ -308,6 +312,34 @@ describe('MyArticlesPage', () => {
     fixture.componentInstance.onTemplate();
 
     expect(templateSpy).toHaveBeenCalledOnce();
+  });
+
+  it('a failed export shows an error toast instead of failing silently', () => {
+    const { fixture } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    vi.spyOn(importExportApi, 'export').mockReturnValue(throwError(() => ({ status: 500 })));
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, 'add');
+
+    fixture.componentInstance.onExport();
+
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error', summary: 'Export fehlgeschlagen — Datei konnte nicht heruntergeladen werden.'
+    }));
+  });
+
+  it('a failed template download shows an error toast instead of failing silently', () => {
+    const { fixture } = create();
+    const importExportApi = TestBed.inject(ArticlesImportExportApiService);
+    vi.spyOn(importExportApi, 'template').mockReturnValue(throwError(() => ({ status: 500 })));
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, 'add');
+
+    fixture.componentInstance.onTemplate();
+
+    expect(addSpy).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error', summary: 'Vorlage konnte nicht heruntergeladen werden.'
+    }));
   });
 
   it('a successful import shows the success dialog and reloads the list', () => {
