@@ -1,4 +1,10 @@
-import { CanActivateFn } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
 
-// TODO(Round 9): durch echte AuthService-Prüfung ersetzen (siehe BSHELL-S05).
-export const adminGuard: CanActivateFn = () => true;
+export const adminGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  if (authService.role() === 'admin') return true;
+  return router.createUrlTree(['/intake']);
+};
