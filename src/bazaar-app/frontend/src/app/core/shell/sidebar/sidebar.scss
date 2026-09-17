@@ -27,17 +27,19 @@ hr {
 
 p-sidebar-menu-item {
   button[pSidebarMenuButton] {
+    display: flex;
+    align-items: center;
     padding: 9px 18px;
     font-size: 13.5px;
 
     svg {
+      flex-shrink: 0;
       width: 16px;
       height: 16px;
     }
 
     svg:first-child {
-      display: inline-block;
-      width: 18px;
+      margin-right: 2px;
     }
   }
 }
