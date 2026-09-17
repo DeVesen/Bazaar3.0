@@ -27,6 +27,11 @@
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.11" />
   </ItemGroup>
 
+  <!-- Import/Export -->
+  <ItemGroup>
+    <PackageVersion Include="ClosedXML" Version="0.104.2" />
+  </ItemGroup>
+
   <!-- Sicherheit -->
   <ItemGroup>
     <PackageVersion Include="BCrypt.Net-Next" Version="4.0.3" />
