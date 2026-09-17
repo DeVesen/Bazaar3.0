@@ -120,6 +120,7 @@ app.MapBlocksEndpoints();
 app.MapProfileEndpoints();
 app.MapHomeEndpoints();
 app.MapArticlesEndpoints();
+app.MapArticleImportExportEndpoints();
 app.MapBrandsEndpoints();
 app.MapCategoriesEndpoints();
 app.MapSellersEndpoints();
