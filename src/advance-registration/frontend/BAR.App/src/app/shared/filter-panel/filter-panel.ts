@@ -11,6 +11,8 @@ import { FluidModule } from 'primeng/fluid';
 import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Popover, PopoverModule } from 'primeng/popover';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { MenuItem } from 'primeng/api';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
 import type { MasterDataItem } from '@shared/models/master-data-item';
@@ -39,7 +41,7 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
 
 @Component({
   selector: 'app-filter-panel',
-  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, FluidModule, AutoCompleteModule, ToolbarModule, PopoverModule, TranslatePipe, NgTemplateOutlet],
+  imports: [FormsModule, SelectModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, FluidModule, AutoCompleteModule, ToolbarModule, PopoverModule, SplitButtonModule, TranslatePipe, NgTemplateOutlet],
   styleUrl: './filter-panel.scss',
   template: `
     <ng-template #fields>
@@ -113,7 +115,11 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
       </ng-template>
       <ng-template #end>
         @if (canAdd()) {
-          <button pButton type="button" data-testid="add-button" (click)="create.emit()">{{ createLabel() }}</button>
+          @if (splitButtonItems(); as items) {
+            <p-splitbutton data-testid="add-split-button" [label]="createLabel()" [model]="items" (onClick)="create.emit()" />
+          } @else {
+            <button pButton type="button" data-testid="add-button" (click)="create.emit()">{{ createLabel() }}</button>
+          }
         }
       </ng-template>
     </p-toolbar>
@@ -129,6 +135,7 @@ export class FilterPanel {
   readonly sellerAutocomplete = input<boolean>(false);
   readonly canAdd = input<boolean>(false);
   readonly createLabel = input<string>('+ Neu');
+  readonly splitButtonItems = input<MenuItem[]>();
   /**
    * When true, filters emit automatically (debounced for free text, immediately for
    * selects) instead of waiting for Enter/"Suchen" - used where no explicit search
