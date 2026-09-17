@@ -1,5 +1,10 @@
-import { CanActivateFn } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
 
-// TODO(Round 9): durch echte AuthService-Prüfung ersetzen — bereits eingeloggte
-// Nutzer sollen von /login auf /intake umgeleitet werden (BSHELL-S03 AC-4).
-export const guestGuard: CanActivateFn = () => true;
+export const guestGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  if (authService.isLoggedIn()) return router.createUrlTree(['/intake']);
+  return true;
+};
