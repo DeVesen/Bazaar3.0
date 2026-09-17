@@ -133,3 +133,6 @@ graphify-out/
 
 ### Superpowers SDD scratch workspace
 .superpowers/
+
+### Git worktrees (isolated dev workspaces)
+.worktrees/
