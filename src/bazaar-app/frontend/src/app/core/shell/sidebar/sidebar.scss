@@ -1,6 +1,10 @@
 :host {
   display: block;
-  width: 228px;
+  --px-sidebar-width: 228px;
+}
+
+p-sidebar-panel {
+  --p-sidebar-panel-background: var(--color-surface);
   background: var(--color-surface);
 }
 
