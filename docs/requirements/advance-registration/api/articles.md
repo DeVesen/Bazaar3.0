@@ -31,6 +31,9 @@ Components → [`artikel-dialog.md`](../components/artikel-dialog.md),
 | `DELETE /api/articles/{id}` | `authenticated` | Eigenen Artikel löschen |
 | `GET /api/articles` | `admin` | Alle Artikel aller Verkäufer, paginiert + gefiltert |
 | `GET /api/articles/{id}` | `admin` | Readonly-Detail inkl. Verkäufer |
+| `GET /api/articles/mine/export` | `authenticated` | CSV-Export der eigenen Artikel |
+| `GET /api/articles/mine/template` | `authenticated` | Leere CSV-Vorlage für den eigenen Nummernkreis |
+| `POST /api/articles/mine/import` | `authenticated` | CSV/XLSX-Import der eigenen Artikel |
 
 **Ownership:** `PUT`/`DELETE` und `/mine` prüfen `sellerId` gegen den
 `sub`-Claim. Ein fremder Artikel liefert `404`, nicht `403`
@@ -299,6 +302,99 @@ inklusive `seller`. Das Modal hat nur einen Schließen-Button, es gibt daher
 bewusst **kein** `PUT`/`DELETE` auf fremde Artikel.
 
 **Response `200`** · **`404`** bei unbekannter ID
+
+---
+
+## 8. `GET /api/articles/mine/export`
+
+CSV-Export aller Nummern im eigenen Nummernkreis (alle eigenen `NumberBlock`s,
+blockübergreifend aufsteigend sortiert), mit den Artikeldaten, falls für die
+Nummer bereits ein Artikel existiert. Leere Nummernkreis-Plätze werden als
+Zeile mit nur der Nummer, alle übrigen Felder leer, exportiert.
+
+**CSV-Format** (identisch für Export, Vorlage und Import):
+
+- Header-Zeile exakt `Nummer;Bezeichnung;Kategorie;Marke;Größe;Preis`.
+- `;` als Spalten-Trennzeichen, Komma als Dezimaltrennzeichen (deutsches
+  Excel-Dialekt, verhindert, dass eine Datei mit `.`/`,` komplett in Spalte A
+  landet).
+- UTF-8 mit BOM für Excel-Kompatibilität.
+- **RFC-4180-Quoting:** enthält ein Feld (`Bezeichnung`, `Kategorie`, `Marke`
+  oder `Größe`) selbst ein `;`, ein `"` oder einen Zeilenumbruch, wird es in
+  `"…"` eingeschlossen, ein internes `"` wird zu `""` verdoppelt. Ein Feld
+  ohne diese Zeichen bleibt unquotiert. Export und Import beherrschen dieses
+  Quoting symmetrisch — ein exportiertes/re-importiertes Feld mit `;` bleibt
+  dadurch ein einzelner Wert statt die folgenden Spalten zu verschieben.
+
+**Response `200`** — `Content-Type: text/csv; charset=utf-8`,
+`Content-Disposition: attachment; filename="meine-artikel-YYYY-MM-DD.csv"`.
+
+---
+
+## 9. `GET /api/articles/mine/template`
+
+Gleiches CSV-Format wie Abschnitt 8, aber **jede Zeile enthält ausschließlich
+die Nummer** — unabhängig davon, ob und welche Artikeldaten für diese Nummer
+bereits existieren. Dient als leere Ausfüllvorlage für den (Re-)Import.
+
+**Response `200`** — `Content-Type: text/csv; charset=utf-8`,
+`Content-Disposition: attachment;
+filename="meine-artikel-vorlage-YYYY-MM-DD.csv"`.
+
+---
+
+## 10. `POST /api/articles/mine/import`
+
+`multipart/form-data` mit einer Datei (Feldname `file`, `.csv` oder `.xlsx`,
+erkannt an der Dateiendung). Falsche/fehlende Endung oder eine kaputte/nicht
+lesbare Datei → sofortiger `400` (kein Zeilen-Fehler, es gibt noch keine
+Zeilen).
+
+**Größenlimit:** maximal **2 MB**. Größere Dateien werden **vor** dem Lesen
+abgelehnt (`400`, `errorCode: import.file_too_large`) — ein Verkäufer-
+Nummernkreis umfasst höchstens ein paar hundert Zeilen, und die Prüfung
+verhindert, dass ein `.xlsx` erst vollständig entpackt oder eine CSV mit
+hunderttausenden ungültigen Zeilen erst geparst werden muss.
+
+### Ablauf
+
+Rein lesend parsen und validieren, danach **alles-oder-nichts** schreiben:
+
+1. **Parsen:** CSV über einen eigenen RFC-4180-fähigen Parser (kein
+   Zeilenumbruch-naives Splitten — ein gequotetes Feld darf selbst einen
+   Zeilenumbruch enthalten), `.xlsx` über ClosedXML.
+2. **Validieren**, pro Zeile:
+
+   | `errorCode` | Bedeutung |
+   |---|---|
+   | `import.invalid_number` | `Nummer` fehlt oder ist keine Ganzzahl |
+   | `import.number_not_in_own_range` | `Nummer` liegt in keinem eigenen `NumberBlock` |
+   | `import.duplicate_number` | `Nummer` kommt mehrfach in der Datei vor (beide Zeilen werden gemeldet) |
+   | `import.missing_field` | Zeile ist befüllt, aber `Bezeichnung`/`Kategorie`/`Marke` fehlt |
+   | `import.invalid_price` | Zeile ist befüllt, aber `Preis` fehlt oder ist nicht parsebar/`> 0` |
+
+3. **Aktion pro Zeile** (aus Nummer + vorhandenem Artikel + Zeileninhalt):
+   Nummer frei + Zeile befüllt → **Create**; Nummer belegt + Zeile befüllt →
+   **Update** (setzt alle 5 Spalten-Felder, `Farbe`/`Beschreibung` werden auf
+   `null` gesetzt, da die Importdatei dafür keine Spalten hat); Nummer belegt
+   + Zeile leer → **Delete** (Hard-Delete); Nummer frei + Zeile leer →
+   **NoOp**.
+4. **Marke/Kategorie unbekannt:** vor dem Schreiben werden alle in der Datei
+   vorkommenden Marken/Kategorien gegen die Stammdaten abgeglichen
+   (case-insensitiv) und unbekannte automatisch angelegt.
+5. **Bei mindestens einem Zeilen-Fehler:** `422`, **nichts** wird
+   gespeichert:
+   ```json
+   { "errors": [ { "row": 4, "errorCode": "import.number_not_in_own_range", "detail": "…" } ], "totalErrorCount": null }
+   ```
+   Die Fehlerliste ist auf **100 Einträge** gedeckelt; wurde gekürzt, trägt
+   `totalErrorCount` die tatsächliche Gesamtzahl (sonst `null`).
+6. **Keine Fehler:** alle Aktionen in einer Transaktion ausführen.
+
+**Response `200`**
+```json
+{ "created": 3, "updated": 1, "deleted": 2 }
+```
 
 ---
 
