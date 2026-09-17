@@ -33,12 +33,20 @@ public class DependencyDirectionTests
     {
         var scannedAssemblies = new[] { DomainAssembly, ApplicationAssembly, InfrastructureAssembly };
 
+        // NetArchTest's fluent predicate chain has no grouping, so
+        // "...HaveNameEndingWith(A).Or().HaveNameEndingWith(B).And().AreInterfaces()"
+        // evaluates as "(A) Or (B And AreInterfaces())", not the intended
+        // "(A Or B) And AreInterfaces()" — that would flag concrete
+        // *Repository classes (e.g. UserRepository) as violations even though
+        // only *Repository/*Query interfaces are meant to be restricted to
+        // Bazaar.Domain.Ports. Filtering manually avoids that grouping gap.
         var violatingTypeNames = scannedAssemblies
-            .SelectMany(assembly => Types.InAssembly(assembly)
-                .That().HaveNameEndingWith("Repository").Or().HaveNameEndingWith("Query").And().AreInterfaces()
-                .Should().ResideInNamespace("Bazaar.Domain.Ports")
-                .GetResult()
-                .FailingTypeNames ?? Enumerable.Empty<string>())
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => type.IsInterface
+                && (type.Name.EndsWith("Repository", StringComparison.Ordinal)
+                    || type.Name.EndsWith("Query", StringComparison.Ordinal))
+                && type.Namespace != "Bazaar.Domain.Ports")
+            .Select(type => type.FullName ?? type.Name)
             .ToList();
 
         Assert.True(violatingTypeNames.Count == 0,

@@ -1,8 +1,10 @@
 using System.Text;
 using Bazaar.Api.ExceptionHandling;
 using Bazaar.Api.Features.Public;
-using Bazaar.Api.Security;
+using Bazaar.Domain.Ports;
 using Bazaar.Infrastructure.Persistence;
+using Bazaar.Infrastructure.Persistence.Repositories;
+using Bazaar.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -22,6 +24,18 @@ builder.Services.AddDbContext<BazaarDbContext>((sp, options) =>
 });
 
 builder.Services.AddHealthChecks().AddDbContextCheck<BazaarDbContext>();
+
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
+
+// Port implementations: registered here (not in Task B3's Application/Api
+// layer) because SeedAdminHostedService, built in this task, already needs
+// them resolvable at startup.
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
+builder.Services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
+builder.Services.AddSingleton<IIdGenerator, NanoIdGenerator>();
+
+builder.Services.AddHostedService<SeedAdminHostedService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

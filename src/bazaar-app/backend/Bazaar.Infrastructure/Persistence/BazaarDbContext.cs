@@ -1,11 +1,15 @@
+using Bazaar.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bazaar.Infrastructure.Persistence;
 
 public sealed class BazaarDbContext(DbContextOptions<BazaarDbContext> options) : DbContext(options)
 {
+    public DbSet<User> Users { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("citext");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BazaarDbContext).Assembly);
     }
 }

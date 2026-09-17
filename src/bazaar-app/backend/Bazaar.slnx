@@ -4,6 +4,7 @@
     <Project Path="tests/Bazaar.Application.UnitTests/Bazaar.Application.UnitTests.csproj" />
     <Project Path="tests/Bazaar.Architecture.Tests/Bazaar.Architecture.Tests.csproj" />
     <Project Path="tests/Bazaar.Domain.UnitTests/Bazaar.Domain.UnitTests.csproj" />
+    <Project Path="tests/Bazaar.Infrastructure.UnitTests/Bazaar.Infrastructure.UnitTests.csproj" />
   </Folder>
   <Project Path="Bazaar.Api/Bazaar.Api.csproj" />
   <Project Path="Bazaar.Application/Bazaar.Application.csproj" />
