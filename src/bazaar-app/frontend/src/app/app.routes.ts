@@ -11,6 +11,7 @@ export const routes: Routes = [
     component: Shell,
     children: [
       { path: '', redirectTo: 'intake', pathMatch: 'full' },
+      { path: 'change-password', canActivate: [authGuard], loadChildren: () => import('./features/change-password/change-password.routes').then((m) => m.CHANGE_PASSWORD_ROUTES) },
       { path: 'intake', canActivate: [authGuard], loadChildren: () => import('./features/intake/intake.routes').then((m) => m.INTAKE_ROUTES) },
       { path: 'checkout', canActivate: [authGuard], loadChildren: () => import('./features/checkout/checkout.routes').then((m) => m.CHECKOUT_ROUTES) },
       { path: 'settlement', canActivate: [authGuard], loadChildren: () => import('./features/settlement/settlement.routes').then((m) => m.SETTLEMENT_ROUTES) },

@@ -72,4 +72,19 @@ describe('jwtInterceptor', () => {
     expect(navigateByUrl).toHaveBeenCalledWith('/login');
     httpMock.verify();
   });
+
+  it('does not log out or navigate on a 401 from /api/auth/password (wrong current password, not an invalid session)', () => {
+    TestBed.inject(TokenStore).setToken('token-abc');
+    const http = TestBed.inject(HttpClient);
+    const httpMock = TestBed.inject(HttpTestingController);
+
+    http.put('/api/auth/password', {}).subscribe({ error: () => undefined });
+    const req = httpMock.expectOne('/api/auth/password');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer token-abc');
+    req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    expect(logout).not.toHaveBeenCalled();
+    expect(navigateByUrl).not.toHaveBeenCalled();
+    httpMock.verify();
+  });
 });
