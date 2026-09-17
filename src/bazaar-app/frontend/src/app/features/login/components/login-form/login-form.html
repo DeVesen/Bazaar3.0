@@ -1,0 +1,47 @@
+<div class="login-form">
+  <p-card>
+    <form (ngSubmit)="onSubmit()">
+      <p-iconfield>
+        <p-inputicon>
+          <i class="pi pi-user"></i>
+        </p-inputicon>
+        <input
+          id="login-username"
+          pInputText
+          [ngModel]="username()"
+          (ngModelChange)="username.set($event)"
+          name="username"
+          type="text"
+          required
+        />
+      </p-iconfield>
+
+      <p-iconfield>
+        <p-inputicon>
+          <i class="pi pi-lock"></i>
+        </p-inputicon>
+        <input
+          id="login-password"
+          pInputPassword
+          [(mask)]="mask"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          name="password"
+          type="password"
+          required
+        />
+        <p-inputicon (click)="mask.set(!mask())">
+          <i [class]="mask() ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+        </p-inputicon>
+      </p-iconfield>
+
+      @if (errorMessage()) {
+        <p class="login-form__error">{{ errorMessage() }}</p>
+      }
+
+      <p class="login-form__hint">Passwort vergessen? Wende dich an den Admin.</p>
+
+      <p-button type="submit" label="Anmelden" [fluid]="true" />
+    </form>
+  </p-card>
+</div>
