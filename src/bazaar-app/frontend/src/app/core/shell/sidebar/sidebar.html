@@ -1,0 +1,70 @@
+<p-sidebar-aside>
+  <p-sidebar-panel>
+    <p-sidebar-header>
+      <div class="logo-block">Bazaar <span class="accent">Suite</span></div>
+    </p-sidebar-header>
+    <p-sidebar-content>
+      @for (group of visibleGroups(); track group.label) {
+        <p-sidebar-group>
+          <p-sidebar-group-label>{{ group.label.toUpperCase() }}</p-sidebar-group-label>
+          <p-sidebar-group-content>
+            <p-sidebar-menu>
+              @for (item of group.items; track item.route) {
+                <p-sidebar-menu-item>
+                  <button pSidebarMenuButton [routerLink]="item.route" routerLinkActive="active" #rla="routerLinkActive" [isActive]="rla.isActive">
+                    @switch (item.route) {
+                      @case ('/intake') {
+                        <svg lucideInbox></svg>
+                      }
+                      @case ('/checkout') {
+                        <svg lucideShoppingCart></svg>
+                      }
+                      @case ('/settlement') {
+                        <svg lucideReceipt></svg>
+                      }
+                      @case ('/sellers') {
+                        <svg lucideUsers></svg>
+                      }
+                      @case ('/articles') {
+                        <svg lucideTag></svg>
+                      }
+                      @case ('/brands') {
+                        <svg lucideBookmark></svg>
+                      }
+                      @case ('/categories') {
+                        <svg lucideFolder></svg>
+                      }
+                      @case ('/seller-types') {
+                        <svg lucideUserCog></svg>
+                      }
+                      @case ('/statistics') {
+                        <svg lucideBarChart3></svg>
+                      }
+                      @case ('/settings') {
+                        <svg lucideSettings></svg>
+                      }
+                    }
+                    <span>{{ item.label }}</span>
+                    @if (item.route === '/intake' && openArticlesCount() > 0) {
+                      <p-badge [value]="openArticlesCount()" />
+                    }
+                  </button>
+                </p-sidebar-menu-item>
+              }
+            </p-sidebar-menu>
+          </p-sidebar-group-content>
+        </p-sidebar-group>
+        <hr />
+      }
+    </p-sidebar-content>
+    <p-sidebar-footer>
+      <p-avatar [label]="initials()" shape="circle" />
+      <span class="sidebar-username">{{ username() }}</span>
+      <span class="sidebar-role">{{ roleLabel() }}</span>
+      <button pButton link (click)="logoutClicked.emit()">
+        <svg lucideLogOut></svg>
+        <span>Abmelden</span>
+      </button>
+    </p-sidebar-footer>
+  </p-sidebar-panel>
+</p-sidebar-aside>
