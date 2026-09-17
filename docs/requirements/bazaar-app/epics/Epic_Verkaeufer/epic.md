@@ -48,7 +48,7 @@ Die Verkäufer-Seite zeigt alle Verkäufer als Karten-Grid. Von hier aus wird de
 | 1 | Freitext-Suche (Name, Ort) · Sortierung-Dropdown |
 | 2 | Status-Dropdown |
 
-**„+ Neu"-Button** befindet sich ausschließlich im Seitentitel (Page-Header) — nicht in der Filter-Toolbar.
+**„+ Neu"-Button** sitzt im Filter-Panel ganz rechts, wie in [`filter-panel`](../../../../components/filter-panel/component.md) dokumentiert — nicht im Seitentitel.
 
 **Status-Dropdown:** Alle · Offen · Im Verkauf · Abgerechnet
 

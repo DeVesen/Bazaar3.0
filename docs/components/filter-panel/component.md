@@ -60,7 +60,22 @@ Verkäufer-Verwaltung, < Tablet:
 │ [Filter ▾]          [+ Neu] │
 ├─────────────────────────────┤
 │ Nr. │ Vorname │ ... │✎│
+
+Haupt-App Artikel, ≥ Tablet (zweizeilig, kein „+ Neu"):
+┌─────────────────────────────────────────────────┐
+│ [🔍 Suche Nr./Bezeichnung/Marke/Kategorie/Verkäufer...] │
+│ [Marke ▾] [Kategorie ▾] [Artikelstatus ▾]        │
+├─────────────────────────────────────────────────┤
+│ Nr. │ Bezeichnung │ Kategorie │ Marke │ Preis │Status│Verkäufer│
+
+Haupt-App Artikel, < Tablet:
+┌─────────────────────────────┐
+│ [Filter ▾]                  │
+├─────────────────────────────┤
+│ Nr. │ Bezeichnung │ Preis │Status│
 ```
+
+**Haupt-App Artikel — Sonderfall zweizeilig:** einzige Verwendungsstelle mit zwei Zeilen statt einer `p-toolbar`-Zeile — Freitext allein in Zeile 1 (volle Breite), die drei Dropdowns als 3-Spalten-Grid (Gap 10 px, bricht < Tablet auf 1 Spalte) in Zeile 2. Grund: fünf Filterfelder (Freitext + 3 Dropdowns) passen bei `sortierung`-losem Artikel-Freitext (deutlich längerer Suchtext als bei den anderen Stellen) nicht sinnvoll in eine Zeile.
 
 ## Aufbau
 

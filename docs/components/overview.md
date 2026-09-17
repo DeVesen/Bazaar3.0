@@ -11,7 +11,7 @@ updated: 2026-07-31
 - Grundregel: PrimeNG — UI-Bibliothek
 - Komponenten-Index — Komponentenliste
 - PrimeNG-Komponenten-Mapping — Forms, Buttons, Tabellen
-- Globale Layout-Abstände — Content-Padding, Page-Header, Sidebar
+- Globale Layout-Abstände — Content-Padding, Page-Header, Formular-Seiten-Container, Sidebar
 - PrimeNG MISC-Komponenten — Direktiven und Widgets
 - Tags & Piles — Ablage
 
@@ -173,6 +173,32 @@ margin-bottom: 20px;
 |---|---|
 | Titel | 20 px, 800, `#0f1f30` (Haupt-App) / `#0d1f2a` (Voranmelde-App) |
 | Actions (rechts) | `display: flex; gap: 8px` |
+
+### Formular-Seiten-Container
+
+Konvention für vollflächige Formular-Seiten (z. B. Profil, Einstellungen, Export) — kein Modal, keine kleine Card, sondern eine ganze Seite. Entstanden bei der Voranmelde-App-Umsetzung, gilt app-übergreifend.
+
+**Breite & Zentrierung:**
+
+```css
+width: 66.666%; /* 2/3 */
+margin: 0 auto;
+```
+
+| Breakpoint | Breite |
+|---|---|
+| Desktop | 66.666 % (2/3), horizontal zentriert |
+| Mobile (≤ 768 px) | 100 %, `margin: 0` |
+
+**Sticky Footer + scrollbarer Content:** Seiten mit Footer-Aktionsleiste (z. B. „Speichern") halten den Footer fix am unteren Rand, während nur der Content-Bereich darüber scrollt — nicht die ganze Seite.
+
+```css
+:host { display: flex; flex-direction: column; height: 100%; }
+.form-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+.form-footer { flex-shrink: 0; border-top: 1px solid ...; }
+```
+
+Beide Regeln zusammen ergeben das aus Profil/Einstellungen/Export bekannte Bild: schmale zentrierte Formularsäule, Footer klebt unten, Inhalt scrollt dahinter.
 
 ### Sidebar
 
