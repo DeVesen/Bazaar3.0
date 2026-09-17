@@ -5,10 +5,11 @@
 **Purpose:** Kernstück der Voranmelde-App — verwaltet Artikel der Verkäufer und die Nummernkreis-Allokation (Number Blocks), inklusive der Vergabe fortlaufender Artikelnummern.
 **Identity:** Größtes der 5 Fach-Module; einziges Modul mit eigenen Integration-Event-Handlern (reagiert auf MasterData-Events).
 **Maturity:** reviewed
-**Last updated:** 2026-09-15
+**Last updated:** 2026-09-17
 
 ## Responsibilities
 - Artikel-CRUD, Nummernblock-Reservierung/-Zuteilung, Nummernkreis-Allokator
+- CSV/XLSX Export, Vorlage und Import der eigenen Artikel (alles-oder-nichts, Marken-/Kategorie-Auto-Anlage)
 - `EventHandlers/`: reagiert auf `BrandRenamed`/`CategoryRenamed` aus MasterData
 - Nicht zuständig: kennt Verkäufer-Stammdaten nicht selbst (fragt SellerManagement), kennt Nummernkreis-Konfiguration nicht selbst (fragt Operations)
 
@@ -23,10 +24,12 @@ Kein eigener Vertrag über die Modulgrenze — Vertrag ist `IRegistrationModuleA
 - `BAR.SharedKernel`
 - `BAR.Modules.Registration.Contracts` (implementiert dessen Interface)
 - `BAR.Modules.Operations.Contracts`, `BAR.Modules.MasterData.Contracts`, `BAR.Modules.SellerManagement.Contracts` — bidirektional, lazy per `IServiceProvider`
+- `BAR.Modules.MasterData.Contracts.IMasterDataModuleApi` — seit dem Import-Feature auch aktiv aufgerufen (`CreateBrandAsync`/`CreateCategoryAsync`/`GetAllBrandNamesAsync`/`GetAllCategoryNamesAsync` aus `ImportArticlesCommandHandler`), nicht mehr nur passiver Event-Empfänger
 - Konsumiert Integration Events aus `BAR.Modules.MasterData.Contracts.Events` (`BrandRenamed`, `CategoryRenamed`)
+- `ClosedXML` (NuGet, `.xlsx`-Lesen/Schreiben für den Import-Datei-Parser)
 
 ## Structure
-`Application/Articles/{Create,Update,Delete,GetAll,GetById,GetMine,GetNextNumber}/`, `Application/Blocks/{Delete,GetForSeller,GetMine,NextFree,Reserve}/`, `Application/Blocks/AllocateInitialBlocksService.cs`, `Application/EventHandlers/`, `Domain/Articles/{Article,ArticleNumberAllocator}.cs`, `Domain/NumberBlocks/{NumberBlock,NumberBlockAllocator}.cs`, `Domain/Exceptions/NumberBlockExceptions.cs`, `Infrastructure/Persistence/*` inkl. eigener `ArticleQueries` als Read-Port.
+`Application/Articles/{Create,Update,Delete,GetAll,GetById,GetMine,GetNextNumber}/`, `Application/Articles/ImportExport/` (`ArticleCsvWriter`, `ArticleExportRowBuilder`, `ArticleImportFileParser`, `ArticleImportValidator`, `ImportArticlesCommandHandler`, `GetArticleExportCsvQueryHandler`, `GetArticleTemplateCsvQueryHandler` — CSV/XLSX Export/Vorlage/Import), `Application/Blocks/{Delete,GetForSeller,GetMine,NextFree,Reserve}/`, `Application/Blocks/AllocateInitialBlocksService.cs`, `Application/EventHandlers/`, `Domain/Articles/{Article,ArticleNumberAllocator}.cs`, `Domain/NumberBlocks/{NumberBlock,NumberBlockAllocator,NumberBlockSequence}.cs`, `Domain/Exceptions/NumberBlockExceptions.cs`, `Infrastructure/Persistence/*` inkl. eigener `ArticleQueries` als Read-Port.
 
 ## Notes
 - Lazy-Resolution-Muster wie die anderen 3 Fach-Module — vermeidet DI-Konstruktionszyklus.
