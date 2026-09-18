@@ -1,0 +1,74 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [header]="dialogTitle()"
+  [style]="{ width: '25rem' }"
+>
+  <div class="typ-popup">
+    <p class="typ-popup__hint">
+      Änderungen wirken nicht rückwirkend auf bereits zugewiesene Verkäufer.
+    </p>
+
+    <div class="typ-popup__field">
+      <label for="typ-popup-name">Name</label>
+      <input
+        id="typ-popup-name"
+        pInputText
+        [ngModel]="name()"
+        (ngModelChange)="name.set($event)"
+        name="name"
+        type="text"
+        required
+        (keydown.enter)="onSave()"
+      />
+      @if (serverErrors()?.name) {
+        <small class="typ-popup__error">{{ serverErrors()?.name }}</small>
+      }
+    </div>
+
+    <div class="typ-popup__field">
+      <label for="typ-popup-commission-rate">Provision (%)</label>
+      <p-inputnumber
+        inputId="typ-popup-commission-rate"
+        [ngModel]="commissionRate()"
+        (ngModelChange)="commissionRate.set($event)"
+        name="commissionRate"
+        mode="decimal"
+        locale="de-DE"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="2"
+        suffix=" %"
+        [min]="0"
+        [max]="100"
+        (keydown.enter)="onSave()"
+      />
+      @if (serverErrors()?.commissionRate) {
+        <small class="typ-popup__error">{{ serverErrors()?.commissionRate }}</small>
+      }
+    </div>
+
+    <div class="typ-popup__field">
+      <label for="typ-popup-item-fee">Gebühr (€)</label>
+      <p-inputnumber
+        inputId="typ-popup-item-fee"
+        [ngModel]="itemFee()"
+        (ngModelChange)="itemFee.set($event)"
+        name="itemFee"
+        mode="currency"
+        currency="EUR"
+        locale="de-DE"
+        [min]="0"
+        (keydown.enter)="onSave()"
+      />
+      @if (serverErrors()?.itemFee) {
+        <small class="typ-popup__error">{{ serverErrors()?.itemFee }}</small>
+      }
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
+    <p-button [text]="true" [disabled]="!canSave()" label="Speichern" (onClick)="onSave()" />
+  </ng-template>
+</p-dialog>
