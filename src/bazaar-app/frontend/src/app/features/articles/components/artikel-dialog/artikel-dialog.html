@@ -1,0 +1,161 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [header]="dialogTitle()"
+  [style]="{ width: '32rem' }"
+>
+  <div class="artikel-dialog">
+    @if (isSettled()) {
+      <p class="artikel-dialog__banner">
+        Abrechnung zuerst stornieren, mit Verweis auf die
+        <a routerLink="/sellers">Verkäufer-Seite</a>.
+      </p>
+    }
+
+    <div class="artikel-dialog__field">
+      <span class="artikel-dialog__readonly-label">Artikelnummer</span>
+      <span class="artikel-dialog__readonly-value">{{ articleNumber() }}</span>
+    </div>
+
+    <div class="artikel-dialog__field">
+      <label for="artikel-dialog-name">Bezeichnung</label>
+      <input
+        id="artikel-dialog-name"
+        pInputText
+        [ngModel]="name()"
+        (ngModelChange)="name.set($event)"
+        name="name"
+        type="text"
+        required
+        [disabled]="fieldsDisabled()"
+      />
+      @if (serverErrors()?.name) {
+        <small class="artikel-dialog__error">{{ serverErrors()?.name }}</small>
+      }
+    </div>
+
+    <div class="artikel-dialog__row">
+      <div class="artikel-dialog__field">
+        <label for="artikel-dialog-category">Kategorie</label>
+        <p-select
+          inputId="artikel-dialog-category"
+          [options]="categoriesList()"
+          optionLabel="name"
+          optionValue="name"
+          [ngModel]="category()"
+          (ngModelChange)="category.set($event)"
+          name="category"
+          [disabled]="fieldsDisabled()"
+        />
+        @if (serverErrors()?.category) {
+          <small class="artikel-dialog__error">{{ serverErrors()?.category }}</small>
+        }
+      </div>
+
+      <div class="artikel-dialog__field">
+        <label for="artikel-dialog-brand">Marke</label>
+        <p-select
+          inputId="artikel-dialog-brand"
+          [options]="brandsList()"
+          optionLabel="name"
+          optionValue="name"
+          [ngModel]="brand()"
+          (ngModelChange)="brand.set($event)"
+          name="brand"
+          [disabled]="fieldsDisabled()"
+        />
+        @if (serverErrors()?.brand) {
+          <small class="artikel-dialog__error">{{ serverErrors()?.brand }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="artikel-dialog__field">
+      <label for="artikel-dialog-price">Preis</label>
+      <p-inputnumber
+        inputId="artikel-dialog-price"
+        [ngModel]="price()"
+        (ngModelChange)="price.set($event)"
+        name="price"
+        mode="currency"
+        currency="EUR"
+        locale="de-DE"
+        [min]="0"
+        [disabled]="priceDisabled()"
+      />
+      @if (isSold()) {
+        <small class="artikel-dialog__hint">Verkauf zuerst stornieren</small>
+      }
+      @if (serverErrors()?.price) {
+        <small class="artikel-dialog__error">{{ serverErrors()?.price }}</small>
+      }
+    </div>
+
+    <div class="artikel-dialog__row">
+      <div class="artikel-dialog__field">
+        <label for="artikel-dialog-size">Größe</label>
+        <input
+          id="artikel-dialog-size"
+          pInputText
+          [ngModel]="size()"
+          (ngModelChange)="size.set($event)"
+          name="size"
+          type="text"
+          [disabled]="fieldsDisabled()"
+        />
+      </div>
+
+      <div class="artikel-dialog__field">
+        <label for="artikel-dialog-color">Farbe</label>
+        <input
+          id="artikel-dialog-color"
+          pInputText
+          [ngModel]="color()"
+          (ngModelChange)="color.set($event)"
+          name="color"
+          type="text"
+          [disabled]="fieldsDisabled()"
+        />
+      </div>
+    </div>
+
+    <div class="artikel-dialog__field">
+      <label for="artikel-dialog-description">Beschreibung</label>
+      <textarea
+        id="artikel-dialog-description"
+        pTextarea
+        [ngModel]="description()"
+        (ngModelChange)="description.set($event)"
+        name="description"
+        rows="3"
+        [disabled]="fieldsDisabled()"
+      ></textarea>
+    </div>
+
+    @if (deleteError()) {
+      <p class="artikel-dialog__delete-error">{{ deleteError() }}</p>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="artikel-dialog__footer">
+      <div class="artikel-dialog__footer-left">
+        @if (canDelete()) {
+          <p-button
+            [text]="true"
+            severity="danger"
+            label="Löschen"
+            (onClick)="onDeleteClick()"
+          />
+        }
+      </div>
+      <div class="artikel-dialog__footer-right">
+        <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
+        <p-button [text]="true" [disabled]="!canSave()" label="Speichern" (onClick)="onSave()" />
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-confirmdialog key="deleteArticle" />
