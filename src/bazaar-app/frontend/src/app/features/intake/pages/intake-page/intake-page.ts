@@ -6,16 +6,17 @@ import { SellerSearch, SellerSummary } from '../../../../shared/components/selle
 // `SellerTypesApi` import.
 // eslint-disable-next-line boundaries/dependencies
 import { SellersApi } from '../../../sellers/data/sellers-api';
+import { IntakeWizard } from '../../components/intake-wizard/intake-wizard';
 
 /**
  * Round-16 Task 7 wiring for Epic_Artikelannahme's entry point: search-for-seller, then hand
- * off to the intake wizard (not built yet, Task 8 — see the `'wizard'`-state branch below).
+ * off to the intake wizard (Task 8's `IntakeWizard` — see the `'wizard'`-state branch below).
  */
 type IntakeState = 'search' | 'wizard';
 
 @Component({
   selector: 'app-intake-page',
-  imports: [SellerSearch],
+  imports: [SellerSearch, IntakeWizard],
   templateUrl: './intake-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -52,9 +53,9 @@ export class IntakePage implements OnInit {
   }
 
   /**
-   * Task 8's `intake-wizard` will call this (or an equivalent) on cancel/complete so that
-   * newly created/removed sellers are reflected once the wizard-state branch below is replaced
-   * with the real `<app-intake-wizard>` — see that branch's own comment.
+   * `IntakeWizard`'s `closed` output — fires on cancel (with or without a same-session delete)
+   * and, in later rounds, on a completed Step 2 booking — so newly created/removed sellers are
+   * reflected once we're back on the search view.
    */
   onWizardClosed(): void {
     this.resolvedSellerId.set(null);

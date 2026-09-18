@@ -9,8 +9,9 @@
     (createRequested)="onCreateRequested($event)"
   />
 } @else {
-  <!-- Task 8 hand-off point: `intake-wizard` (not built yet) replaces this placeholder with
-       `<app-intake-wizard [sellerId]="resolvedSellerId()" [pendingSearchText]="pendingSearchText()"
-       (closed)="onWizardClosed()" />` or equivalent. -->
-  <p>Wizard folgt (Task 8) — Verkäufer-ID: {{ resolvedSellerId() ?? '(neu)' }}, Suchtext: {{ pendingSearchText() ?? '—' }}</p>
+  <app-intake-wizard
+    [sellerId]="resolvedSellerId()"
+    [pendingSearchText]="pendingSearchText()"
+    (closed)="onWizardClosed()"
+  />
 }
