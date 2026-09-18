@@ -1,0 +1,86 @@
+.seller-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--p-content-border-color);
+  background: var(--p-content-background);
+  cursor: pointer;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__name {
+    font-weight: 600;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  &__address {
+    color: var(--p-text-muted-color);
+    font-size: 0.875rem;
+  }
+
+  &__status {
+    display: flex;
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__stat-label {
+    color: var(--p-text-muted-color);
+    font-size: 0.75rem;
+  }
+
+  &__stat-value {
+    font-weight: 600;
+  }
+
+  &__footer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    border-top: 1px solid var(--p-content-border-color);
+    padding-top: 0.75rem;
+  }
+
+  &__footer-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__footer-label {
+    color: var(--p-text-muted-color);
+    font-size: 0.75rem;
+  }
+
+  &__footer-value {
+    font-weight: 600;
+  }
+}

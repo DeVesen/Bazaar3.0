@@ -1,0 +1,80 @@
+<div
+  class="seller-card"
+  role="button"
+  tabindex="0"
+  (click)="onCardClick()"
+  (keydown.enter)="onCardClick()"
+  (keydown.space)="onCardClick()"
+>
+  <div class="seller-card__header">
+    <div class="seller-card__title">
+      <span class="seller-card__name">{{ card().firstName }} {{ card().lastName }}</span>
+      <p-tag [value]="card().sellerType" severity="warn" />
+    </div>
+    <div class="seller-card__actions">
+      <p-button
+        icon="pi pi-pencil"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        ariaLabel="Bearbeiten"
+        (onClick)="onEdit(); $event.stopPropagation()"
+      />
+      <p-button
+        icon="pi pi-camera"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        ariaLabel="Scannen"
+        (onClick)="onScan(); $event.stopPropagation()"
+      />
+    </div>
+  </div>
+
+  <div class="seller-card__address">{{ addressLine() }}</div>
+
+  <div class="seller-card__status">
+    <p-tag
+      [value]="statusLabel()"
+      [severity]="statusSeverity()"
+      role="button"
+      tabindex="0"
+      (click)="onStatusClick(); $event.stopPropagation()"
+      (keydown.enter)="onStatusClick(); $event.stopPropagation()"
+    />
+  </div>
+
+  <div class="seller-card__stats">
+    <div class="seller-card__stat">
+      <span class="seller-card__stat-label">Artikel</span>
+      <span class="seller-card__stat-value">{{ card().articleCount }}</span>
+    </div>
+    <div class="seller-card__stat">
+      <span class="seller-card__stat-label">Freigegeben</span>
+      <span class="seller-card__stat-value">{{ card().releasedCount }}</span>
+    </div>
+    <div class="seller-card__stat">
+      <span class="seller-card__stat-label">Verkauft</span>
+      <span class="seller-card__stat-value">{{ card().soldCount }}</span>
+    </div>
+    <div class="seller-card__stat">
+      <span class="seller-card__stat-label">Retour</span>
+      <span class="seller-card__stat-value">{{ card().returnedCount }}</span>
+    </div>
+  </div>
+
+  <div class="seller-card__footer">
+    <div class="seller-card__footer-item">
+      <span class="seller-card__footer-label">Angenommener Wert</span>
+      <span class="seller-card__footer-value">{{ card().acceptedValue | currency: 'EUR' }}</span>
+    </div>
+    <div class="seller-card__footer-item">
+      <span class="seller-card__footer-label">Offener Wert</span>
+      <span class="seller-card__footer-value">{{ card().openValue | currency: 'EUR' }}</span>
+    </div>
+    <div class="seller-card__footer-item">
+      <span class="seller-card__footer-label">Umsatz</span>
+      <span class="seller-card__footer-value">{{ card().revenue | currency: 'EUR' }}</span>
+    </div>
+  </div>
+</div>
