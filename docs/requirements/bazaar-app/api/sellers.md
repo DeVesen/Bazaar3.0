@@ -17,6 +17,7 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md)
 | `GET /api/sellers` | `authenticated` |
 | `GET /api/sellers/search` | `authenticated` |
 | `POST /api/sellers` | `authenticated` |
+| `GET /api/sellers/{id}` | `authenticated` |
 | `PUT /api/sellers/{id}` | `authenticated` (Konditionsfelder nur `admin`) |
 | `DELETE /api/sellers/{id}` | `authenticated` (nur ohne Artikel) |
 | `GET /api/sellers/{id}/articles` | `authenticated` |
@@ -101,6 +102,37 @@ POST /api/sellers
 **Der Server belegt `salesCommission` und `feePerItem` aus dem Typ** — sie werden im Request **nicht** akzeptiert. Ein Kassenvorgang darf keine Konditionen setzen ([`seller-types.md`](seller-types.md)).
 
 `intakeFeePaid` startet bei `0`, `payoutAmount` und `settledAt` bleiben leer.
+
+---
+
+## 3a. `GET /api/sellers/{id}` — volle Stammdaten für den Bearbeiten-Dialog
+
+Ergänzt in Round-14 (Task 10, Fix-Runde), weil `GET /api/sellers`' Karten-DTO
+(Abschnitt 1) `email`/`address`/`phone`/`salesCommission`/`feePerItem` nicht führt: Ein
+Bearbeiten-Dialog, der aus der Karte statt aus dieser Route vorbelegt wurde, hätte
+`PUT /api/sellers/{id}` (nimmt den vollständigen Datensatz entgegen, kein Patch) mit
+leeren/falschen Werten überschrieben.
+
+```
+GET /api/sellers/{id}
+
+→ 200 OK
+{
+  "id": "a3f9c2d1",
+  "firstName": "Anna", "lastName": "Meier",
+  "address": null, "postalCode": "76133", "city": "Karlsruhe", "phone": null,
+  "email": "anna@example.org",
+  "sellerTypeId": "b7c1e4f2",
+  "salesCommission": 12.5, "feePerItem": 0.50,
+  "intakeFeePaid": 0,
+  "settledAt": null, "payoutAmount": null
+}
+→ 404 Not Found
+```
+
+Liefert die rohen `Seller`-Stammfelder — bewusst **ohne** die Karten-Aggregate
+(`status`/`articleCount`/…) aus Abschnitt 1, die aus dem Query-Port stammen und der
+Bearbeiten-Dialog weder anzeigt noch editiert.
 
 ---
 

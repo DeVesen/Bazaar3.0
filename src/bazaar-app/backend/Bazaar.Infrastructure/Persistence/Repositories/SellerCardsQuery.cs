@@ -3,20 +3,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bazaar.Infrastructure.Persistence.Repositories;
 
-// TODO(Round-15): status/counters/sums gegen echte Artikel-Daten implementieren
+// TODO(Round-15): counters/sums gegen echte Artikel-Daten implementieren; status-Split open/selling
 /// <summary>
 /// Backs GET /api/sellers (spec.md://api/sellers.md §1). This round has no
 /// Articles table yet, so everything article-derived is a hardcoded
-/// placeholder: `status` is always "open" (a caller filtering by e.g.
-/// "settled" gets zero results until Round-15 wires this up for real), all
-/// four counters (articleCount/releasedCount/soldCount/returnedCount) and
-/// all three money fields (acceptedValue/openValue/revenue) are 0.
+/// placeholder: all four counters (articleCount/releasedCount/soldCount/
+/// returnedCount) and all three money fields (acceptedValue/openValue/
+/// revenue) are 0.
 ///
-/// `q` uses the same 3-field (FirstName/LastName/Id) token search as
-/// SellerSearchQuery — not the doc's broader "ID, Vor- und Nachname, Ort"
-/// wording, per this task's brief, which pins GetCards' q-filtering to
-/// "same ILIKE/token logic as SellerSearchQuery"; extending to City is left
-/// for a later round if needed.
+/// `status` filtering IS real this round, derived from `SettledAt` alone:
+/// `status=settled` returns sellers with `SettledAt != null`; `status=open`
+/// and `status=selling` both currently return the same set — sellers with
+/// `SettledAt == null` — because splitting "open" from "selling" requires
+/// knowing whether a seller has at least one released article, which
+/// doesn't exist until Round-15 (see TODO above). `status=null`/empty
+/// applies no filter.
+///
+/// `q` uses the same token search as SellerSearchQuery
+/// (FirstName/LastName/Id/City — see SellerTokenSearch), matching the
+/// doc's "ID, Vor- und Nachname, Ort" wording.
 ///
 /// Sorting: `sort` is "field:direction" (default "name:asc"). Since
 /// acceptedValue/openValue/revenue are placeholder-constant 0 in this
@@ -28,9 +33,13 @@ public sealed class SellerCardsQuery(BazaarDbContext dbContext) : ISellerCardsQu
 {
     private const int DefaultPageSize = 60;
 
+    // Upper bound so a caller-supplied pageSize (e.g. 100000) can't force the
+    // whole sellers table to be materialized in one page.
+    private const int MaxPageSize = 200;
+
     public async Task<SellerCardsPage> GetCards(string? q, string? status, string? sort, int page, int pageSize)
     {
-        var effectivePageSize = pageSize > 0 ? pageSize : DefaultPageSize;
+        var effectivePageSize = pageSize > 0 ? Math.Min(pageSize, MaxPageSize) : DefaultPageSize;
         var effectivePage = page > 0 ? page : 1;
 
         var sellers = await (
@@ -49,9 +58,11 @@ public sealed class SellerCardsQuery(BazaarDbContext dbContext) : ISellerCardsQu
             .ToListAsync();
 
         var tokens = SellerTokenSearch.Tokenize(q);
-        var filtered = tokens.Length == 0
+        var textFiltered = tokens.Length == 0
             ? sellers
-            : sellers.Where(s => SellerTokenSearch.Matches(tokens, s.FirstName, s.LastName, s.Id)).ToList();
+            : sellers.Where(s => SellerTokenSearch.Matches(tokens, s.FirstName, s.LastName, s.Id, s.City)).ToList();
+
+        var filtered = ApplyStatusFilter(textFiltered, status, s => s.SettledAt);
 
         var (sortField, descending) = ParseSort(sort);
 
@@ -78,7 +89,11 @@ public sealed class SellerCardsQuery(BazaarDbContext dbContext) : ISellerCardsQu
                 s.PostalCode,
                 s.City,
                 s.SellerType,
-                Status: "open",
+                // "settled" is fully derivable from SettledAt alone (no article
+                // dependency); "open" is the Round-15 TODO placeholder for
+                // everything that isn't settled — see class summary for why
+                // "open" vs. "selling" can't split yet.
+                Status: s.SettledAt != null ? "settled" : "open",
                 ArticleCount: 0,
                 ReleasedCount: 0,
                 SoldCount: 0,
@@ -90,6 +105,27 @@ public sealed class SellerCardsQuery(BazaarDbContext dbContext) : ISellerCardsQu
             .ToList();
 
         return new SellerCardsPage(items, totalCount, effectivePage, effectivePageSize);
+    }
+
+    /// <summary>
+    /// Filters by the `status` query parameter. Fully real for "settled"
+    /// (derived straight from SettledAt); "open" and "selling" currently
+    /// resolve to the identical non-settled set until Round-15 can tell them
+    /// apart via released articles — see class summary.
+    /// </summary>
+    private static List<T> ApplyStatusFilter<T>(List<T> sellers, string? status, Func<T, DateTimeOffset?> settledAtOf)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return sellers;
+        }
+
+        return status switch
+        {
+            "settled" => sellers.Where(s => settledAtOf(s) != null).ToList(),
+            "open" or "selling" => sellers.Where(s => settledAtOf(s) == null).ToList(),
+            _ => sellers
+        };
     }
 
     private static (string Field, bool Descending) ParseSort(string? sort)

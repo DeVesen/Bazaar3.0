@@ -2,6 +2,7 @@ using Bazaar.Application.Sellers;
 using Bazaar.Domain.Exceptions;
 using Bazaar.Domain.Ports;
 using Bazaar.Domain.Sellers;
+using Bazaar.Domain.SellerTypes;
 using Moq;
 
 namespace Bazaar.Application.UnitTests.Sellers;
@@ -9,8 +10,9 @@ namespace Bazaar.Application.UnitTests.Sellers;
 public class UpdateSellerHandlerTests
 {
     private readonly Mock<ISellerRepository> _sellerRepository = new();
+    private readonly Mock<ISellerTypeRepository> _sellerTypeRepository = new();
 
-    private UpdateSellerHandler CreateSut() => new(_sellerRepository.Object);
+    private UpdateSellerHandler CreateSut() => new(_sellerRepository.Object, _sellerTypeRepository.Object);
 
     private static Seller CreateSeller(decimal salesCommission = 10m, decimal feePerItem = 0.5m) =>
         Seller.Create(
@@ -99,5 +101,69 @@ public class UpdateSellerHandlerTests
         Assert.Equal(15m, seller.SalesCommission);
         Assert.Equal(1m, seller.FeePerItem);
         _sellerRepository.Verify(r => r.Update(seller), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_NonAdminChangesType_DerivesConditionsFromNewTypeAndDoesNotThrow()
+    {
+        var seller = CreateSeller(salesCommission: 10m, feePerItem: 0.5m);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+        var newType = SellerType.Create("SELLERTYPE002", "Verein", 20m, 1.5m);
+        _sellerTypeRepository.Setup(r => r.GetById("SELLERTYPE002")).ReturnsAsync(newType);
+        var sut = CreateSut();
+
+        var command = CreateCommand(callerIsAdmin: false);
+        command.SellerTypeId = "SELLERTYPE002";
+        // Non-admin still echoes the old values in the request body (frontend habit) —
+        // the type change must win over them regardless.
+        command.SalesCommission = seller.SalesCommission;
+        command.FeePerItem = seller.FeePerItem;
+
+        await sut.Handle(command);
+
+        Assert.Equal("SELLERTYPE002", seller.SellerTypeId);
+        Assert.Equal(20m, seller.SalesCommission);
+        Assert.Equal(1.5m, seller.FeePerItem);
+        _sellerRepository.Verify(r => r.Update(seller), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_AdminChangesTypeWithExplicitConditionsInSameRequest_TypeChangeWinsOverManualValues()
+    {
+        var seller = CreateSeller(salesCommission: 10m, feePerItem: 0.5m);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+        var newType = SellerType.Create("SELLERTYPE002", "Verein", 20m, 1.5m);
+        _sellerTypeRepository.Setup(r => r.GetById("SELLERTYPE002")).ReturnsAsync(newType);
+        var sut = CreateSut();
+
+        // Admin sends a type change AND explicit, different manual conditions in the same
+        // request — per api/sellers.md §4 ("Typwechsel überschreibt die Konditionen ...
+        // auch manuell gesetzte"), the type's own values must win, not the manual ones.
+        var command = CreateCommand(salesCommission: 99m, feePerItem: 9m, callerIsAdmin: true);
+        command.SellerTypeId = "SELLERTYPE002";
+
+        await sut.Handle(command);
+
+        Assert.Equal("SELLERTYPE002", seller.SellerTypeId);
+        Assert.Equal(20m, seller.SalesCommission);
+        Assert.Equal(1.5m, seller.FeePerItem);
+        _sellerRepository.Verify(r => r.Update(seller), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_TypeChangedToUnknownType_ThrowsNotFoundWithSellerTypeNotFoundCode()
+    {
+        var seller = CreateSeller();
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+        _sellerTypeRepository.Setup(r => r.GetById("UNKNOWN")).ReturnsAsync((SellerType?)null);
+        var sut = CreateSut();
+
+        var command = CreateCommand(callerIsAdmin: true);
+        command.SellerTypeId = "UNKNOWN";
+
+        var exception = await Assert.ThrowsAsync<NotFoundException>(() => sut.Handle(command));
+
+        Assert.Equal("seller_type.not_found", exception.ErrorCode);
+        _sellerRepository.Verify(r => r.Update(It.IsAny<Seller>()), Times.Never);
     }
 }

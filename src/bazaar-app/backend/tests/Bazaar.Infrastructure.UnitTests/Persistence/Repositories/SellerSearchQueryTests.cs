@@ -30,6 +30,9 @@ public class SellerSearchQueryTests
         await dbContext.Sellers.AddAsync(Seller.Create(
             "SEL00003", "Petra", "Klein", null, "76133", "Karlsruhe", null,
             "petra@example.org", "SLT00001", 10m, 0.5m));
+        await dbContext.Sellers.AddAsync(Seller.Create(
+            "SEL00004", "Jonas", "Fischer", null, "79098", "Freiburg", null,
+            "jonas@example.org", "SLT00001", 10m, 0.5m));
 
         await dbContext.SaveChangesAsync();
     }
@@ -43,7 +46,7 @@ public class SellerSearchQueryTests
 
         var found = await sut.Search(null);
 
-        Assert.Equal(3, found.Count);
+        Assert.Equal(4, found.Count);
     }
 
     [Fact]
@@ -55,7 +58,7 @@ public class SellerSearchQueryTests
 
         var found = await sut.Search("   ");
 
-        Assert.Equal(3, found.Count);
+        Assert.Equal(4, found.Count);
     }
 
     [Fact]
@@ -133,5 +136,31 @@ public class SellerSearchQueryTests
 
         Assert.Single(found);
         Assert.Equal("Privat", found[0].SellerType);
+    }
+
+    [Fact]
+    public async Task Search_CityOnlyToken_MatchesSellerByCity()
+    {
+        await using var dbContext = CreateContext();
+        await SeedAsync(dbContext);
+        var sut = new SellerSearchQuery(dbContext);
+
+        var found = await sut.Search("Freiburg");
+
+        Assert.Single(found);
+        Assert.Equal("SEL00004", found[0].Id);
+    }
+
+    [Fact]
+    public async Task Search_CityOnlyToken_IsCaseInsensitive()
+    {
+        await using var dbContext = CreateContext();
+        await SeedAsync(dbContext);
+        var sut = new SellerSearchQuery(dbContext);
+
+        var found = await sut.Search("freiburg");
+
+        Assert.Single(found);
+        Assert.Equal("SEL00004", found[0].Id);
     }
 }

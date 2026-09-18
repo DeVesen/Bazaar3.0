@@ -7,8 +7,8 @@ namespace Bazaar.Infrastructure.Persistence.Repositories;
 /// Backs GET /api/sellers/search (spec.md://api/cross-cutting.md §6).
 /// Search rules: token-decompose the incoming query on spaces, each token
 /// must match (case-insensitively, substring) at least one of
-/// FirstName/LastName/Id (OR across fields), and every token must find a
-/// match somewhere, independently (AND across tokens). Empty/whitespace
+/// FirstName/LastName/Id/City (OR across fields), and every token must find
+/// a match somewhere, independently (AND across tokens). Empty/whitespace
 /// query returns all sellers, not paginated.
 ///
 /// Design decision: filtering happens client-side (after materializing the
@@ -41,7 +41,7 @@ public sealed class SellerSearchQuery(BazaarDbContext dbContext) : ISellerSearch
         }
 
         return sellers
-            .Where(s => SellerTokenSearch.Matches(tokens, s.FirstName, s.LastName, s.Id))
+            .Where(s => SellerTokenSearch.Matches(tokens, s.FirstName, s.LastName, s.Id, s.City))
             .ToList();
     }
 }

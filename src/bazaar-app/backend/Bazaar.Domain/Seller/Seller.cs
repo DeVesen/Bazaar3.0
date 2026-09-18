@@ -86,8 +86,9 @@ public sealed class Seller
 
     /// <summary>
     /// Resets a settlement, e.g. when a settlement is cancelled/storniert.
-    /// Not called by any handler until Round-20/21 — Seller is the
-    /// aggregate that must encapsulate this, so it is provided here.
+    /// Called by <c>ResetSellerSettlementHandler</c> (DELETE
+    /// /api/sellers/{id}/settlement, Round-14) — Seller is the aggregate
+    /// that must encapsulate this, so it is provided here.
     /// </summary>
     public void ResetSettlement()
     {

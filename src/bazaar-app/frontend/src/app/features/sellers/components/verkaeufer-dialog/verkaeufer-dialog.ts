@@ -117,10 +117,6 @@ export class VerkaeuferDialog {
   /** Only admins may type numeric fee/commission values directly (backend rule). */
   readonly conditionsEditable = computed(() => this.isAdmin());
 
-  private isEditNonAdmin(): boolean {
-    return this.mode() === 'edit' && !this.isAdmin();
-  }
-
   readonly canSave = computed(
     () =>
       this.firstName().trim().length > 0 &&
@@ -183,9 +179,12 @@ export class VerkaeuferDialog {
 
     // Edit mode.
     if (!this.isAdmin()) {
-      // Non-admin: the type may change, but fee/commission always stay pinned to the
-      // seller's original values — the frontend never lets a non-admin alter conditions,
-      // consistent with the backend's `seller.conditions_admin_only` 403 rule.
+      // Non-admin: the type may change freely, no confirm dialog needed — a non-admin
+      // never has a way to edit fee/commission directly (conditionsEditable() is
+      // false), so there is nothing for them to confirm against. The server derives
+      // the new type's conditions itself on save (UpdateSellerHandler), silently
+      // overriding whatever fee/commission this dialog happens to send — so leaving
+      // these signals untouched here is fine, they're informational only.
       this.sellerTypeId.set(newTypeId);
       return;
     }
@@ -248,12 +247,16 @@ export class VerkaeuferDialog {
       postalCode: this.postalCode().trim() || null,
       city: this.city().trim() || null,
       phone: this.phone().trim() || null,
-      // Edit mode, non-admin: always resend the seller's original conditions, regardless
-      // of which type ended up selected — the effective values never changed for them.
-      // (Create mode ignores this distinction — the backend derives conditions from
-      // `sellerTypeId` on creation and never reads these two fields there.)
-      feePerItem: this.isEditNonAdmin() ? this.originalFeePerItem() : this.feePerItem(),
-      salesCommission: this.isEditNonAdmin() ? this.originalSalesCommission() : this.salesCommission(),
+      // Always send the current signal values. A non-admin never has a way to change
+      // these (conditionsEditable() is false, and onTypeChange() leaves them untouched
+      // for a non-admin), so they end up resending the seller's original conditions
+      // naturally — no special-casing needed here. On a type change, the server
+      // recomputes salesCommission/feePerItem from the new type and ignores whatever
+      // is sent in this request (UpdateSellerHandler, Round-14 review fix), so it
+      // doesn't matter whether an admin's request carries the new type's values (set by
+      // onTypeChange's confirm) or stale ones — the server-derived result is the same.
+      feePerItem: this.feePerItem(),
+      salesCommission: this.salesCommission(),
     });
   }
 

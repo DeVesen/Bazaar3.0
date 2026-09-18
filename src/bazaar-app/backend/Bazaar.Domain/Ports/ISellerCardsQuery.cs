@@ -3,10 +3,11 @@ namespace Bazaar.Domain.Ports;
 /// <summary>
 /// Placeholder port until the Articles table exists (Round-15/16).
 /// Used by GetSellerCardsHandler (GET /api/sellers) for the seller-page
-/// card grid. Infrastructure's placeholder implementation returns
-/// placeholder-constant values for Status and the six numeric fields
-/// until real article data exists — callers can't tell placeholder from
-/// real values, so the shape below is already final.
+/// card grid. Infrastructure's implementation derives Status "settled" for
+/// real (from SettledAt) but still returns "open" as a placeholder for
+/// everything else (a real "selling" split needs released articles); the
+/// six numeric fields stay placeholder-constant 0 until real article data
+/// exists. See SellerCardsQuery's class summary for the full breakdown.
 /// </summary>
 public interface ISellerCardsQuery
 {
