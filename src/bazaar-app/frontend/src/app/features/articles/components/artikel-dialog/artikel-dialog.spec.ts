@@ -107,6 +107,14 @@ describe('ArtikelDialog', () => {
     expect(component.size()).toBe('104');
     expect(component.color()).toBe('Blau');
     expect(component.description()).toBe('Kaum getragen');
+
+    // Proves the price-seeding gap fix actually reaches the rendered InputGroup, not just the
+    // dialog's own `price()` signal (which the seeding effect above sets regardless of whether
+    // the viewChild()+applyExternalValue() wiring in artikel-dialog.ts's second effect exists
+    // at all) — read the InputGroup instance's own internal display signal directly.
+    const inputGroup = fixture.debugElement.query(By.directive(InputGroup))
+      .componentInstance as InputGroup;
+    expect(inputGroup.priceValue()).toBe(12.5);
   });
 
   it('is invalid while required fields are empty and valid once they are filled', async () => {
