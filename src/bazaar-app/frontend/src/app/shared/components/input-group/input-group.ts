@@ -307,8 +307,12 @@ export class InputGroup {
 
   onNumpadClear(): void {
     if (this.variant() === 'price') {
+      // Review fix (Round-16 Task 4, fix round 1): do NOT emit `valueChange` here. `null`/empty
+      // is "kein Wert eingegeben", which is not the same as a valid price of `0` — emitting `0`
+      // would make the two indistinguishable for a later consumer (e.g. intake-wizard). The
+      // field simply becomes empty; a real price value is only emitted once one is actually
+      // entered again (typed, scanned, or via the numpad).
       this.priceValue.set(null);
-      this.valueChange.emit(0);
     } else {
       this.rawValue.set('');
       this.valueChange.emit('');

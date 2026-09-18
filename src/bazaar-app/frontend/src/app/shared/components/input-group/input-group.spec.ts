@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { InputNumber } from 'primeng/inputnumber';
 import { vi } from 'vitest';
 import { InputGroup, InputMode } from './input-group';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
@@ -208,6 +209,25 @@ describe('InputGroup', () => {
       expect(fixture.componentInstance.rawValue()).toBe('');
     });
 
+    // Review fix (Round-16 Task 4, fix round 1) — Important 2: clearing a price via the numpad
+    // must not emit `valueChange(0)`. Emitting `0` would make "kein Wert eingegeben" (an empty
+    // field) indistinguishable from a genuinely entered price of zero for a later consumer
+    // (e.g. intake-wizard). Clearing should just leave the field empty without emitting.
+    it('clears the price field via the numpad cleared event WITHOUT emitting a 0 valueChange', () => {
+      const fixture = create(['keyboard', 'numpad'], 'price');
+      fixture.componentInstance.switchMode('numpad');
+      fixture.componentInstance.priceValue.set(12.5);
+      fixture.detectChanges();
+
+      const emitted: (string | number)[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
+
+      fixture.componentInstance.onNumpadClear();
+
+      expect(fixture.componentInstance.priceValue()).toBeNull();
+      expect(emitted).toEqual([]);
+    });
+
     it("wires the numpad's submitted event to the same submit handler as the action button", () => {
       const fixture = create(['keyboard', 'numpad'], 'price');
       fixture.componentInstance.switchMode('numpad');
@@ -220,6 +240,46 @@ describe('InputGroup', () => {
       numpad.submitted.emit();
 
       expect(submittedCount).toBe(1);
+    });
+
+    // Review fix (Round-16 Task 4, fix round 1) — Important 1: the numpadDispatchInProgress
+    // bypass in onPriceTyped() was only covered indirectly via a search-variant assertion;
+    // exercise it explicitly for the price variant here. `p-inputnumber` handles a (dispatched)
+    // keydown internally and calls (ngModelChange)/onPriceTyped() SYNCHRONOUSLY within the
+    // dispatchEvent() call — the mocked dispatchEvent below reproduces exactly that timing, so
+    // onPriceTyped() runs while `numpadDispatchInProgress` is still true, the same as in
+    // production.
+    it('emits price changes from the numpad immediately, while keyboard-typed price changes still debounce', () => {
+      vi.useFakeTimers();
+      const fixture = create(['keyboard', 'numpad'], 'price');
+      fixture.componentInstance.switchMode('numpad');
+      fixture.detectChanges();
+
+      const priceInput = fixture.debugElement.query(By.directive(InputNumber))
+        .componentInstance as InputNumber;
+      const nativeInput = priceInput.input().nativeElement;
+      vi.spyOn(nativeInput, 'dispatchEvent').mockImplementation(() => {
+        fixture.componentInstance.onPriceTyped(5);
+        return true;
+      });
+
+      const emitted: (string | number)[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
+
+      fixture.componentInstance.onNumpadKey({ key: '5' });
+
+      // No debounce wait needed — the numpad-origin change must already be through.
+      expect(emitted).toEqual([5]);
+
+      // A genuinely keyboard-typed change (numpadDispatchInProgress is false again by now)
+      // still goes through the 300ms debounce.
+      fixture.componentInstance.onPriceTyped(12);
+      expect(emitted).toEqual([5]);
+
+      vi.advanceTimersByTime(300);
+      expect(emitted).toEqual([5, 12]);
+
+      vi.useRealTimers();
     });
   });
 
