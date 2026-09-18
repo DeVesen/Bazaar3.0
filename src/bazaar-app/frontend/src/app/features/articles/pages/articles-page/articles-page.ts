@@ -1,14 +1,35 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
-import { ColumnConfig, SortEvent, PageEvent, Table } from '../../../../shared/components/table/table';
-import { ArticleListItem } from '../../data/articles-api';
+import {
+  ActionClickEvent,
+  ActionColumnConfig,
+  ColumnConfig,
+  SortEvent,
+  PageEvent,
+  Table,
+} from '../../../../shared/components/table/table';
+import { RoleService } from '../../../../core/auth/role.service';
+import { ArticleDetail, ArticleListItem } from '../../data/articles-api';
 import { ArticlesStore } from '../../articles-store';
+import {
+  ArtikelDialog,
+  ArtikelDialogServerErrors,
+  ArtikelFormResult,
+  ArtikelFormValue,
+} from '../../components/artikel-dialog/artikel-dialog';
+import {
+  ArticleStatusPopup,
+  ArticleStatusValue,
+  ArticleTimestampsChange,
+} from '../../components/article-status-popup/article-status-popup';
 // Cross-feature READ of another feature's data-layer, per spec.md's own framing ("hier nur
 // lesend importiert"): the Brand/Category dropdown OPTIONS come straight from the Brands and
 // Categories master-data lists (GET /api/brands, GET /api/categories), not from anything
@@ -71,25 +92,51 @@ const STATUS_SEVERITY: Record<string, 'success' | 'info' | 'warn' | 'secondary'>
   [STATUS_LABELS['returned']]: 'warn',
 };
 
+interface ValidationProblemBody {
+  errors?: Record<string, string[]>;
+}
+
+interface ProblemDetailsBody {
+  errorCode?: string;
+  detail?: string;
+}
+
 /**
- * Orchestration page for Round-15 "Artikel-Übersicht & Korrektur" (Task 6) — replaces the
- * Round-7 placeholder. Filter panel is the Haupt-App "Sonderfall zweizeilig" (two-row) layout:
- * row 1 is a full-width free-text search (debounced, no sort-select/"+ Neu" — sort here comes
- * from clicking column headers, and spec.md is explicit there's no create action on this page),
- * row 2 is a 3-column Brand/Category/Status filter grid (immediate, no debounce). The table
- * itself is `<app-table [lazy]="true">` (Round-15 Task 6 also extended `Table` with this mode —
- * see its class doc comment), driven by `ArticlesStore` (Task 6), which resolves search/filter/
- * sort/pagination entirely server-side.
+ * Orchestration page for Round-15 "Artikel-Übersicht & Korrektur" (Task 6, wired up in the
+ * Round-15 review fix) — replaces the Round-7 placeholder. Filter panel is the Haupt-App
+ * "Sonderfall zweizeilig" (two-row) layout: row 1 is a full-width free-text search (debounced,
+ * no sort-select/"+ Neu" — sort here comes from clicking column headers, and spec.md is explicit
+ * there's no create action on this page), row 2 is a 3-column Brand/Category/Status filter grid
+ * (immediate, no debounce). The table itself is `<app-table [lazy]="true">` (Round-15 Task 6 also
+ * extended `Table` with this mode — see its class doc comment), driven by `ArticlesStore`
+ * (Task 6), which resolves search/filter/sort/pagination entirely server-side.
  *
- * Row-click / correction dialog: Tasks 7 (`artikel-dialog`) and 8 (`article-status-popup`) are
- * not part of this task and did not exist yet when this page was built — `onRowClick` is a
- * clearly marked TODO stub rather than an invented dialog. Wire it up following
- * `sellers-page.ts`'s `dialogVisible`/`editingCard`/`onDialogSave` orchestration pattern once
- * those components land.
+ * Aktionen / correction dialogs (review fix, following `sellers-page.ts`'s
+ * `dialogVisible`/`editingCard`/`onDialogSave` orchestration pattern): the 8th spec column
+ * ("Aktionen", spec.md "Tabelle") is `Table`'s `actionColumn` input, not an entry in `columns` —
+ * mirrors why it's excluded from Multi-Sort ("alle außer Aktionsspalte sortierbar"). Every
+ * authenticated user gets the "Bearbeiten" (pencil) action, opening `artikel-dialog` for the
+ * Stammfelder (`PUT /api/articles/{id}` is `authenticated`, both roles may correct a typo per
+ * api/articles.md §4). Only admins additionally get the "Status" (clock) action, opening
+ * `article-status-popup` (`PUT /api/articles/{id}/timestamps` is `admin`-only) — this is how
+ * spec.md's "Status-Badge für Kassenpersonal nicht klickbar" is realized: `Table`'s badge column
+ * has no click handler of its own, so hiding the one actual entry point (the action button) for
+ * non-admins is the equivalent lock. Both actions fetch the full `ArticleDetail`
+ * (`ArticlesStore.getById`, review fix — the list row lacks size/color/description/raw
+ * timestamps) before opening their dialog, exactly like `sellers-page.ts`'s `onEdit`.
  */
 @Component({
   selector: 'app-articles-page',
-  imports: [FormsModule, IconFieldModule, InputIconModule, InputTextModule, SelectModule, Table],
+  imports: [
+    FormsModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    SelectModule,
+    Table,
+    ArtikelDialog,
+    ArticleStatusPopup,
+  ],
   templateUrl: './articles-page.html',
   styleUrl: './articles-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -99,6 +146,10 @@ export class ArticlesPage {
   private readonly brandsApi = inject(BrandsApi);
   private readonly categoriesApi = inject(CategoriesApi);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly roleService = inject(RoleService);
+  private readonly messageService = inject(MessageService);
+
+  readonly isAdmin = this.roleService.isAdmin;
 
   /** `ArticlesStore.items` mapped to the derived `ArticleRow` shape `Table` actually renders —
    * see `ArticleRow`'s doc comment. */
@@ -148,6 +199,70 @@ export class ArticlesPage {
     },
     { field: 'sellerName', header: 'Verkäufer', type: 'text', filterable: false },
   ];
+
+  /** Spec's 8th column ("Aktionen") — see the class doc comment for why "Bearbeiten" is
+   * available to every authenticated user while "Status" is admin-only. */
+  readonly actionColumn = computed<ActionColumnConfig>(() => ({
+    buttons: [
+      { actionId: 'edit', icon: 'pi pi-pencil', tooltip: 'Bearbeiten' },
+      ...(this.isAdmin()
+        ? [{ actionId: 'status', icon: 'pi pi-clock', tooltip: 'Status' }]
+        : []),
+    ],
+  }));
+
+  // Edit dialog (artikel-dialog).
+  readonly dialogVisible = signal(false);
+  readonly editingRow = signal<ArticleListItem | null>(null);
+  readonly editingDetail = signal<ArticleDetail | null>(null);
+  readonly editLoading = signal(false);
+  readonly saving = signal(false);
+  readonly serverErrors = signal<ArtikelDialogServerErrors | null>(null);
+  readonly deleteError = signal<string | null>(null);
+
+  readonly dialogInitialValue = computed<ArtikelFormValue | null>(() => {
+    const detail = this.editingDetail();
+    if (!detail) return null;
+    return {
+      name: detail.name,
+      brand: detail.brand,
+      category: detail.category,
+      price: detail.price,
+      size: detail.size,
+      color: detail.color,
+      description: detail.description,
+    };
+  });
+
+  /** Gestaffelte Sperre (spec.md): `'sold'` disables only the price field, `'settled'`
+   * disables everything. Client-side convenience only — the server is the actual authority
+   * (`article.sold`/`settlement.locked`, see `artikel-dialog.ts`'s `locked` input doc). */
+  readonly dialogLocked = computed<'none' | 'sold' | 'settled'>(() => {
+    const detail = this.editingDetail();
+    if (!detail) return 'none';
+    if (detail.sellerSettledAt != null) return 'settled';
+    if (detail.soldAt != null) return 'sold';
+    return 'none';
+  });
+
+  // Status/timestamps popup (article-status-popup, admin-only).
+  readonly statusPopupVisible = signal(false);
+  readonly statusPopupDetail = signal<ArticleDetail | null>(null);
+  readonly statusSaving = signal(false);
+
+  readonly statusPopupValue = computed<ArticleStatusValue>(() => {
+    const detail = this.statusPopupDetail();
+    return {
+      createdAt: detail?.createdAt ?? '',
+      releasedAt: detail?.releasedAt ?? null,
+      soldAt: detail?.soldAt ?? null,
+      returnedAt: detail?.returnedAt ?? null,
+    };
+  });
+
+  readonly statusPopupSettlementLocked = computed(
+    () => this.statusPopupDetail()?.sellerSettledAt != null,
+  );
 
   constructor() {
     this.articlesStore.load();
@@ -212,10 +327,214 @@ export class ArticlesPage {
     this.articlesStore.setPage(event.page + 1);
   }
 
-  onRowClick(row: ArticleListItem): void {
-    // TODO(Task 7/8): wire artikel-dialog / article-status-popup. Those components are not
-    // part of Task 6 and didn't exist yet when this page was built — see the class doc comment.
-    void row;
+  onTableAction(event: ActionClickEvent<ArticleListItem>): void {
+    if (event.actionId === 'edit') {
+      this.onEdit(event.row);
+      return;
+    }
+    if (event.actionId === 'status') {
+      this.onStatusClick(event.row);
+    }
+  }
+
+  onEdit(row: ArticleListItem): void {
+    this.editingRow.set(row);
+    this.editingDetail.set(null);
+    this.serverErrors.set(null);
+    this.deleteError.set(null);
+    this.editLoading.set(true);
+
+    this.articlesStore.getById(row.id).subscribe({
+      next: (detail) => {
+        this.editLoading.set(false);
+        this.editingDetail.set(detail);
+        this.dialogVisible.set(true);
+      },
+      error: () => {
+        this.editLoading.set(false);
+        this.editingRow.set(null);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Artikel konnte nicht geladen werden',
+          detail: 'Der Artikel wurde eventuell zwischenzeitlich gelöscht.',
+        });
+      },
+    });
+  }
+
+  onDialogVisibleChange(visible: boolean): void {
+    this.dialogVisible.set(visible);
+    if (!visible) {
+      this.editingRow.set(null);
+      this.editingDetail.set(null);
+      this.serverErrors.set(null);
+      this.deleteError.set(null);
+    }
+  }
+
+  onDialogCancel(): void {
+    this.dialogVisible.set(false);
+    this.editingRow.set(null);
+    this.editingDetail.set(null);
+    this.serverErrors.set(null);
+    this.deleteError.set(null);
+  }
+
+  onDialogSave(result: ArtikelFormResult): void {
+    const editing = this.editingDetail();
+    if (!editing) return;
+
+    this.saving.set(true);
+    this.articlesStore.update(editing.id, result).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.dialogVisible.set(false);
+        this.editingRow.set(null);
+        this.editingDetail.set(null);
+        this.serverErrors.set(null);
+        this.messageService.add({ severity: 'success', summary: '✓ Artikel gespeichert' });
+      },
+      error: (error: unknown) => {
+        this.saving.set(false);
+
+        if (error instanceof HttpErrorResponse && error.status === 400) {
+          this.serverErrors.set(this.fieldErrorsOf(error));
+          return;
+        }
+
+        const code = this.errorCodeOf(error);
+        if (code === 'article.sold') {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Artikel bereits verkauft',
+            detail: 'Der Preis kann nach dem Verkauf nicht mehr geändert werden.',
+          });
+          return;
+        }
+        if (code === 'settlement.locked') {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Verkäufer bereits abgerechnet',
+            detail: 'Ein Artikel eines abgerechneten Verkäufers kann nicht mehr geändert werden.',
+          });
+          return;
+        }
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Artikel konnte nicht gespeichert werden',
+        });
+      },
+    });
+  }
+
+  onDeleteRequested(): void {
+    const editing = this.editingDetail();
+    if (!editing) return;
+
+    this.articlesStore.remove(editing.id).subscribe({
+      next: () => {
+        this.dialogVisible.set(false);
+        this.editingRow.set(null);
+        this.editingDetail.set(null);
+        this.deleteError.set(null);
+        this.messageService.add({ severity: 'success', summary: '✓ Artikel gelöscht' });
+      },
+      error: (error: unknown) => {
+        const code = this.errorCodeOf(error);
+        if (code === 'article.sold' || code === 'settlement.locked') {
+          this.deleteError.set(
+            this.detailOf(error) ?? 'Artikel kann in diesem Zustand nicht gelöscht werden.',
+          );
+          return;
+        }
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Artikel konnte nicht gelöscht werden',
+        });
+      },
+    });
+  }
+
+  onStatusClick(row: ArticleListItem): void {
+    this.articlesStore.getById(row.id).subscribe({
+      next: (detail) => {
+        this.statusPopupDetail.set(detail);
+        this.statusPopupVisible.set(true);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Artikel konnte nicht geladen werden',
+          detail: 'Der Artikel wurde eventuell zwischenzeitlich gelöscht.',
+        });
+      },
+    });
+  }
+
+  onStatusPopupVisibleChange(visible: boolean): void {
+    this.statusPopupVisible.set(visible);
+    if (!visible) {
+      this.statusPopupDetail.set(null);
+    }
+  }
+
+  onTimestampsChange(change: ArticleTimestampsChange): void {
+    const detail = this.statusPopupDetail();
+    if (!detail) return;
+
+    this.statusSaving.set(true);
+    this.articlesStore.updateTimestamps(detail.id, change).subscribe({
+      next: () => {
+        this.statusSaving.set(false);
+        this.statusPopupVisible.set(false);
+        this.statusPopupDetail.set(null);
+        this.messageService.add({ severity: 'success', summary: '✓ Zeitstempel aktualisiert' });
+      },
+      error: (error: unknown) => {
+        this.statusSaving.set(false);
+        const code = this.errorCodeOf(error);
+        if (code === 'settlement.locked') {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Verkäufer bereits abgerechnet',
+          });
+          return;
+        }
+        if (code === 'article.sold_and_returned') {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Ungültige Zeitstempel-Kombination',
+            detail: 'Verkauft und zurückgegeben schließen sich aus.',
+          });
+          return;
+        }
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Zeitstempel konnten nicht aktualisiert werden',
+        });
+      },
+    });
+  }
+
+  private errorCodeOf(error: unknown): string | undefined {
+    if (!(error instanceof HttpErrorResponse)) return undefined;
+    return (error.error as ProblemDetailsBody | null)?.errorCode;
+  }
+
+  private detailOf(error: unknown): string | undefined {
+    if (!(error instanceof HttpErrorResponse)) return undefined;
+    return (error.error as ProblemDetailsBody | null)?.detail;
+  }
+
+  private fieldErrorsOf(error: HttpErrorResponse): ArtikelDialogServerErrors {
+    const errors = (error.error as ValidationProblemBody | null)?.errors ?? {};
+    const firstMessage = (key: string): string | undefined => errors[key]?.[0];
+    return {
+      name: firstMessage('name'),
+      brand: firstMessage('brand'),
+      category: firstMessage('category'),
+      price: firstMessage('price'),
+    };
   }
 
   private loadBrandOptions(): void {

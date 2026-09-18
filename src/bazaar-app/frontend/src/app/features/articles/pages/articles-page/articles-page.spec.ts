@@ -1,9 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ArticlesPage } from './articles-page';
 import { ArticlesStore, ArticlesFilters } from '../../articles-store';
-import { ArticleListItem } from '../../data/articles-api';
+import { ArticleDetail, ArticleListItem } from '../../data/articles-api';
+import { RoleService } from '../../../../core/auth/role.service';
 // eslint-disable-next-line boundaries/dependencies
 import { Brand, BrandsApi } from '../../../brands/data/brands-api';
 // eslint-disable-next-line boundaries/dependencies
@@ -25,6 +28,30 @@ function buildItem(overrides: Partial<ArticleListItem> = {}): ArticleListItem {
   };
 }
 
+function buildDetail(overrides: Partial<ArticleDetail> = {}): ArticleDetail {
+  return {
+    id: 'a1',
+    number: 1001,
+    name: 'Schneeanzug 104',
+    brand: 'Playmobil',
+    category: 'Kleidung',
+    price: 12.5,
+    size: '104',
+    color: 'blau',
+    description: null,
+    status: 'selling',
+    soldManually: false,
+    sellerId: 's1',
+    sellerName: 'Anna Meier',
+    createdAt: '2026-08-01T08:00:00Z',
+    releasedAt: '2026-08-02T08:00:00Z',
+    soldAt: null,
+    returnedAt: null,
+    sellerSettledAt: null,
+    ...overrides,
+  };
+}
+
 const BRANDS: Brand[] = [{ id: 'b1', name: 'Playmobil', original: true, articleCount: 3 }];
 const CATEGORIES: Category[] = [{ id: 'c1', name: 'Kleidung', original: true, articleCount: 5 }];
 
@@ -34,10 +61,16 @@ describe('ArticlesPage', () => {
   let pageSizeSignal: ReturnType<typeof signal<number>>;
   let loadingSignal: ReturnType<typeof signal<boolean>>;
   let filtersSignal: ReturnType<typeof signal<ArticlesFilters>>;
+  let isAdminSignal: ReturnType<typeof signal<boolean>>;
   let load: ReturnType<typeof vi.fn>;
   let setFilters: ReturnType<typeof vi.fn>;
   let setPage: ReturnType<typeof vi.fn>;
   let setPageSize: ReturnType<typeof vi.fn>;
+  let getById: ReturnType<typeof vi.fn>;
+  let update: ReturnType<typeof vi.fn>;
+  let updateTimestamps: ReturnType<typeof vi.fn>;
+  let remove: ReturnType<typeof vi.fn>;
+  let messageServiceAdd: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     itemsSignal = signal<ArticleListItem[]>([]);
@@ -51,12 +84,18 @@ describe('ArticlesPage', () => {
       status: null,
       sort: 'number:asc',
     });
+    isAdminSignal = signal(true);
     load = vi.fn();
     setFilters = vi.fn((partial: Partial<ArticlesFilters>) => {
       filtersSignal.set({ ...filtersSignal(), ...partial });
     });
     setPage = vi.fn();
     setPageSize = vi.fn();
+    getById = vi.fn().mockReturnValue(of(buildDetail()));
+    update = vi.fn().mockReturnValue(of(undefined));
+    updateTimestamps = vi.fn().mockReturnValue(of(undefined));
+    remove = vi.fn().mockReturnValue(of(undefined));
+    messageServiceAdd = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [ArticlesPage],
@@ -73,10 +112,17 @@ describe('ArticlesPage', () => {
             setFilters,
             setPage,
             setPageSize,
+            getById,
+            update,
+            updateTimestamps,
+            remove,
           },
         },
+        { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
+        { provide: MessageService, useValue: { add: messageServiceAdd } },
         { provide: BrandsApi, useValue: { getAll: () => of(BRANDS) } },
         { provide: CategoriesApi, useValue: { getAll: () => of(CATEGORIES) } },
+        ConfirmationService,
       ],
     }).compileComponents();
   });
@@ -302,6 +348,210 @@ describe('ArticlesPage', () => {
         'Verkauft',
         'Zurückgegeben',
       ]);
+    });
+  });
+
+  describe('Aktionen column (review fix)', () => {
+    it('always includes the "Bearbeiten" (edit) action', async () => {
+      const { component } = await createPage();
+
+      expect(component.actionColumn().buttons.map((b) => b.actionId)).toContain('edit');
+    });
+
+    it('includes the "Status" action only for admins', async () => {
+      isAdminSignal.set(true);
+      const { component } = await createPage();
+      expect(component.actionColumn().buttons.map((b) => b.actionId)).toContain('status');
+
+      isAdminSignal.set(false);
+      expect(component.actionColumn().buttons.map((b) => b.actionId)).not.toContain('status');
+    });
+
+    it('routes the "edit" actionClick to onEdit and "status" to onStatusClick', async () => {
+      const { component } = await createPage();
+      const row = buildItem();
+      const editSpy = vi.spyOn(component, 'onEdit');
+      const statusSpy = vi.spyOn(component, 'onStatusClick');
+
+      component.onTableAction({ actionId: 'edit', row });
+      expect(editSpy).toHaveBeenCalledWith(row);
+
+      component.onTableAction({ actionId: 'status', row });
+      expect(statusSpy).toHaveBeenCalledWith(row);
+    });
+  });
+
+  describe('edit flow (artikel-dialog, review fix)', () => {
+    it('fetches the full detail via ArticlesStore.getById and opens the dialog on success', async () => {
+      const { component } = await createPage();
+      const detail = buildDetail();
+      getById.mockReturnValue(of(detail));
+
+      component.onEdit(buildItem());
+
+      expect(getById).toHaveBeenCalledWith('a1');
+      expect(component.dialogVisible()).toBe(true);
+      expect(component.dialogInitialValue()).toEqual({
+        name: detail.name,
+        brand: detail.brand,
+        category: detail.category,
+        price: detail.price,
+        size: detail.size,
+        color: detail.color,
+        description: detail.description,
+      });
+    });
+
+    it('toasts and keeps the dialog closed when getById fails', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(throwError(() => new Error('not found')));
+
+      component.onEdit(buildItem());
+
+      expect(component.dialogVisible()).toBe(false);
+      expect(messageServiceAdd).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'error' }),
+      );
+    });
+
+    it('derives locked="sold" when soldAt is set but the seller is not settled', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(of(buildDetail({ soldAt: '2026-08-05T08:00:00Z' })));
+
+      component.onEdit(buildItem());
+
+      expect(component.dialogLocked()).toBe('sold');
+    });
+
+    it('derives locked="settled" when the seller is settled, even if also sold', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(
+        of(buildDetail({ soldAt: '2026-08-05T08:00:00Z', sellerSettledAt: '2026-08-06T08:00:00Z' })),
+      );
+
+      component.onEdit(buildItem());
+
+      expect(component.dialogLocked()).toBe('settled');
+    });
+
+    it('calls ArticlesStore.update with the form result and closes the dialog on success', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(of(buildDetail()));
+      component.onEdit(buildItem());
+      const formResult = {
+        name: 'Neuer Name',
+        brand: 'Playmobil',
+        category: 'Kleidung',
+        price: 15,
+        size: '104',
+        color: 'blau',
+        description: null,
+      };
+
+      component.onDialogSave(formResult);
+
+      expect(update).toHaveBeenCalledWith('a1', formResult);
+      expect(component.dialogVisible()).toBe(false);
+    });
+
+    it('maps a 400 response to field-level serverErrors instead of closing the dialog', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(of(buildDetail()));
+      component.onEdit(buildItem());
+      update.mockReturnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 400,
+              error: { errors: { name: ['Bezeichnung ist erforderlich'] } },
+            }),
+        ),
+      );
+
+      component.onDialogSave({
+        name: '',
+        brand: 'Playmobil',
+        category: 'Kleidung',
+        price: 15,
+        size: null,
+        color: null,
+        description: null,
+      });
+
+      expect(component.dialogVisible()).toBe(true);
+      expect(component.serverErrors()?.name).toBe('Bezeichnung ist erforderlich');
+    });
+
+    it('calls ArticlesStore.remove on deleteRequested and closes the dialog on success', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(of(buildDetail()));
+      component.onEdit(buildItem());
+
+      component.onDeleteRequested();
+
+      expect(remove).toHaveBeenCalledWith('a1');
+      expect(component.dialogVisible()).toBe(false);
+    });
+  });
+
+  describe('status popup flow (article-status-popup, review fix)', () => {
+    it('fetches the full detail and opens the popup on success', async () => {
+      const { component } = await createPage();
+      const detail = buildDetail({ soldAt: null, returnedAt: null });
+      getById.mockReturnValue(of(detail));
+
+      component.onStatusClick(buildItem());
+
+      expect(getById).toHaveBeenCalledWith('a1');
+      expect(component.statusPopupVisible()).toBe(true);
+      expect(component.statusPopupValue()).toEqual({
+        createdAt: detail.createdAt,
+        releasedAt: detail.releasedAt,
+        soldAt: detail.soldAt,
+        returnedAt: detail.returnedAt,
+      });
+    });
+
+    it('derives statusPopupSettlementLocked from sellerSettledAt', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(of(buildDetail({ sellerSettledAt: '2026-08-06T08:00:00Z' })));
+
+      component.onStatusClick(buildItem());
+
+      expect(component.statusPopupSettlementLocked()).toBe(true);
+    });
+
+    it('calls ArticlesStore.updateTimestamps and closes the popup on success', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(of(buildDetail()));
+      component.onStatusClick(buildItem());
+
+      component.onTimestampsChange({ releasedAt: '2026-08-02T08:00:00Z', soldAt: '2026-08-05T08:00:00Z', returnedAt: null });
+
+      expect(updateTimestamps).toHaveBeenCalledWith('a1', {
+        releasedAt: '2026-08-02T08:00:00Z',
+        soldAt: '2026-08-05T08:00:00Z',
+        returnedAt: null,
+      });
+      expect(component.statusPopupVisible()).toBe(false);
+    });
+
+    it('toasts settlement.locked without closing on error', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(of(buildDetail()));
+      component.onStatusClick(buildItem());
+      updateTimestamps.mockReturnValue(
+        throwError(
+          () => new HttpErrorResponse({ status: 409, error: { errorCode: 'settlement.locked' } }),
+        ),
+      );
+
+      component.onTimestampsChange({ releasedAt: null, soldAt: null, returnedAt: null });
+
+      expect(component.statusPopupVisible()).toBe(true);
+      expect(messageServiceAdd).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'error', summary: 'Verkäufer bereits abgerechnet' }),
+      );
     });
   });
 });

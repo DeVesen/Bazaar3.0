@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import {
+  ArticleDetail,
   ArticleListItem,
   ArticlesApi,
   UpdateArticleRequest,
@@ -94,6 +95,12 @@ export class ArticlesStore {
     this.pageSize.set(pageSize);
     this.page.set(1);
     this.load();
+  }
+
+  /** Fetches the full Stammdaten for one article — used to seed `artikel-dialog`/
+   * `article-status-popup` before opening them, mirroring `SellersStore.getById`. */
+  getById(id: string): Observable<ArticleDetail> {
+    return this.articlesApi.getById(id);
   }
 
   update(id: string, request: UpdateArticleRequest): Observable<void> {

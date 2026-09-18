@@ -31,6 +31,24 @@ public static class ArticleEndpoints
         })
         .RequireAuthorization();
 
+        // GET /api/articles/{id} (Round-15 review fix): full Stammdaten plus raw status
+        // timestamps to seed `artikel-dialog`/`article-status-popup` — see
+        // `GetArticleByIdHandler`'s doc comment for why the list DTO above doesn't carry
+        // enough for that. Mirrors `GET /api/sellers/{id}`'s precedent (Round-14 Task 10 fix).
+        app.MapGet("/api/articles/{id}", async (string id, GetArticleByIdHandler handler) =>
+        {
+            var (article, sellerName, sellerSettledAt) = await handler.Handle(id);
+            var dto = new ArticleDetailDto(
+                article.Id, article.Number, article.Name, article.Brand, article.Category, article.Price,
+                article.Size, article.Color, article.Description,
+                article.Status.ToString().ToLowerInvariant(), article.SoldManually,
+                article.SellerId, sellerName,
+                article.CreatedAt, article.ReleasedAt, article.SoldAt, article.ReturnedAt,
+                sellerSettledAt);
+            return Results.Ok(dto);
+        })
+        .RequireAuthorization();
+
         app.MapPut("/api/articles/{id}", async (string id, UpdateArticleCommand command, UpdateArticleHandler handler) =>
         {
             command.Id = id;

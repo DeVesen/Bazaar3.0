@@ -15,6 +15,35 @@ export interface ArticleListItem {
   sellerName: string;
 }
 
+/**
+ * Response shape for `GET /api/articles/{id}` (Round-15 review fix) — the full Stammdaten plus
+ * raw status timestamps, matching the backend's `ArticleDetailDto`. `ArticleListItem` above only
+ * carries the columns the table itself renders; it has no `size`/`color`/`description` nor the
+ * raw `createdAt`/`releasedAt`/`soldAt`/`returnedAt` timestamps that `artikel-dialog`/
+ * `article-status-popup` need to seed their forms — same gap `SellerDetail`/`GET /api/sellers/{id}`
+ * closed for the sellers-page edit flow (Round-14 Task 10 fix round 1).
+ */
+export interface ArticleDetail {
+  id: string;
+  number: number;
+  name: string;
+  brand: string;
+  category: string;
+  price: number;
+  size: string | null;
+  color: string | null;
+  description: string | null;
+  status: string;
+  soldManually: boolean;
+  sellerId: string;
+  sellerName: string;
+  createdAt: string;
+  releasedAt: string | null;
+  soldAt: string | null;
+  returnedAt: string | null;
+  sellerSettledAt: string | null;
+}
+
 export interface ArticleListResponse {
   items: ArticleListItem[];
   totalCount: number;
@@ -70,6 +99,10 @@ export class ArticlesApi {
     if (params.status) httpParams = httpParams.set('status', params.status);
     if (params.sort) httpParams = httpParams.set('sort', params.sort);
     return this.http.get<ArticleListResponse>('/api/articles', { params: httpParams });
+  }
+
+  getById(id: string): Observable<ArticleDetail> {
+    return this.http.get<ArticleDetail>(`/api/articles/${id}`);
   }
 
   update(id: string, request: UpdateArticleRequest): Observable<void> {

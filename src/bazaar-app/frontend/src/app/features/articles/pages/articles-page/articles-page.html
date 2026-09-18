@@ -45,19 +45,41 @@
     />
   </div>
 
-  <!--
-    Row click is not yet wired to anything (Tasks 7/8 — artikel-dialog / article-status-popup —
-    aren't built yet; see the class doc comment and onRowClick's TODO). Table has no rowClick
-    output of its own, so there is nothing to bind here until those tasks add one.
-  -->
   <app-table
     [lazy]="true"
     [rows]="pageSize()"
     [columns]="columns"
+    [actionColumn]="actionColumn()"
     [data]="items()"
     [totalRecords]="totalCount()"
     [loading]="loading()"
     (sortChange)="onSortChange($event)"
     (pageChange)="onPageChange($event)"
+    (actionClick)="onTableAction($event)"
   />
 </div>
+
+<app-artikel-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="onDialogVisibleChange($event)"
+  [articleNumber]="editingRow()?.number ?? 0"
+  [initialValue]="dialogInitialValue()"
+  [locked]="dialogLocked()"
+  [saving]="saving()"
+  [serverErrors]="serverErrors()"
+  [deleteError]="deleteError()"
+  (save)="onDialogSave($event)"
+  (cancel)="onDialogCancel()"
+  (deleteRequested)="onDeleteRequested()"
+/>
+
+<app-article-status-popup
+  [visible]="statusPopupVisible()"
+  (visibleChange)="onStatusPopupVisibleChange($event)"
+  [articleNumber]="statusPopupDetail()?.number ?? 0"
+  [value]="statusPopupValue()"
+  [settledAt]="statusPopupDetail()?.sellerSettledAt ?? null"
+  [settlementLocked]="statusPopupSettlementLocked()"
+  [saving]="statusSaving()"
+  (timestampsChange)="onTimestampsChange($event)"
+/>
