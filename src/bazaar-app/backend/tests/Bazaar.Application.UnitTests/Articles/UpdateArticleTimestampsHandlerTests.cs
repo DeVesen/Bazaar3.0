@@ -90,27 +90,47 @@ public class UpdateArticleTimestampsHandlerTests
     }
 
     /// <summary>
-    /// Documents a deliberate consequence of the brief's given wasSold/manually
-    /// computation: because "manually" is recomputed fresh on every call from
-    /// wasSold (true here, since soldAt was already set) and is therefore always
-    /// false whenever the article was already sold — regardless of whether
-    /// SoldManually was previously true — a full-replace PUT that resends the
-    /// SAME non-null soldAt value on an article that was manually sold DOES reset
-    /// SoldManually back to false. This matches the brief's own framing that
-    /// SoldManually should only be true when soldAt is "newly set THROUGH THIS
-    /// ENDPOINT" — leaving it unchanged is, by that definition, never a "new"
-    /// manual sale, so recomputing to false here is treated as correct rather
-    /// than a bug. Covered explicitly so a future change to the computation is a
-    /// conscious decision, not an accidental regression.
+    /// SoldManually is a persistent audit marker (spec.md: without this bit, a
+    /// discrepancy in the cash drawer could not be attributed to a cause). When
+    /// soldAt is resent unchanged (same non-null value) — e.g. an admin reopens
+    /// the article-status-popup to edit only returnedAt — the existing flag must
+    /// be preserved, not recomputed from scratch. Otherwise it would be silently
+    /// wiped by any request that happens to resend the current soldAt value.
     /// </summary>
     [Fact]
-    public async Task Handle_LeavingSoldAtUnchanged_BothNonNull_ResetsSoldManuallyToFalse()
+    public async Task Handle_LeavingSoldAtUnchanged_BothNonNull_PreservesSoldManuallyTrue()
     {
         var article = CreateArticle();
         var released = DateTimeOffset.UtcNow.AddDays(-5);
         var soldAt = DateTimeOffset.UtcNow.AddDays(-1);
         article.SetTimestamps(released, soldAt, null, true, DateTimeOffset.UtcNow);
         Assert.True(article.SoldManually); // sanity check on the starting state
+
+        var seller = CreateSeller();
+        SetupFound(article, seller);
+        var sut = CreateSut();
+
+        await sut.Handle(new UpdateArticleTimestampsCommand { Id = "ARTICLE001", ReleasedAt = released, SoldAt = soldAt, ReturnedAt = null });
+
+        Assert.Equal(soldAt, article.SoldAt);
+        Assert.True(article.SoldManually);
+        _articleRepository.Verify(r => r.Update(article), Times.Once);
+    }
+
+    /// <summary>
+    /// Mirror of the case above for the opposite starting value: an article sold
+    /// through a normal Kassenvorgang (SoldManually=false) that has soldAt resent
+    /// unchanged must stay false. Confirms preservation works both ways, not just
+    /// true-to-true.
+    /// </summary>
+    [Fact]
+    public async Task Handle_LeavingSoldAtUnchanged_BothNonNull_PreservesSoldManuallyFalse()
+    {
+        var article = CreateArticle();
+        var released = DateTimeOffset.UtcNow.AddDays(-5);
+        var soldAt = DateTimeOffset.UtcNow.AddDays(-1);
+        article.SetTimestamps(released, soldAt, null, false, DateTimeOffset.UtcNow);
+        Assert.False(article.SoldManually); // sanity check on the starting state
 
         var seller = CreateSeller();
         SetupFound(article, seller);

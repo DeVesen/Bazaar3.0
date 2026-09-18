@@ -17,8 +17,10 @@ public sealed class UpdateArticleTimestampsHandler(IArticleRepository articleRep
         }
 
         var now = DateTimeOffset.UtcNow;
-        var wasSold = article.SoldAt != null;
-        var manually = !wasSold && command.SoldAt != null;
+        var previousSoldAt = article.SoldAt;
+        var manually = previousSoldAt == command.SoldAt
+            ? article.SoldManually
+            : previousSoldAt is null && command.SoldAt is not null;
 
         article.SetTimestamps(command.ReleasedAt, command.SoldAt, command.ReturnedAt, manually, now);
 
