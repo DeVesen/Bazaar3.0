@@ -16,7 +16,7 @@ public sealed class ArticleRepository(BazaarDbContext dbContext) : IArticleRepos
         dbContext.Articles.SingleOrDefaultAsync(a => a.Id == id);
 
     public Task<Article?> GetByNumber(int number) =>
-        dbContext.Articles.FirstOrDefaultAsync(a => a.Number == number);
+        dbContext.Articles.SingleOrDefaultAsync(a => a.Number == number);
 
     public async Task Update(Article article)
     {
