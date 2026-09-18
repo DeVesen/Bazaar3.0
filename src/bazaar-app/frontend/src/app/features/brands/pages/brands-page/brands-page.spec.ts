@@ -70,6 +70,15 @@ describe('BrandsPage', () => {
     );
   });
 
+  it('marks every column as not filterable (no column filtering in Round-11)', () => {
+    const { component } = createPage();
+
+    expect(component.columns.length).toBeGreaterThan(0);
+    for (const column of component.columns) {
+      expect(column.filterable).toBe(false);
+    }
+  });
+
   describe('role-based visibility', () => {
     it('admin sees actionColumn and canAdd', () => {
       isAdminSignal.set(true);

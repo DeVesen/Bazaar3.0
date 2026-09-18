@@ -48,15 +48,16 @@ export class BrandsPage {
   private readonly sortState = signal<SortEvent[]>([]);
 
   readonly columns: ColumnConfig[] = [
-    { field: 'id', header: 'ID', type: 'text' },
-    { field: 'name', header: 'Name', type: 'text' },
+    { field: 'id', header: 'ID', type: 'text', filterable: false },
+    { field: 'name', header: 'Name', type: 'text', filterable: false },
     {
       field: 'originalLabel',
       header: 'Original',
       type: 'badge',
       badgeSeverity: (value) => (value === '✓ Original' ? 'success' : 'warn'),
+      filterable: false,
     },
-    { field: 'articleCount', header: 'Artikel', type: 'number' },
+    { field: 'articleCount', header: 'Artikel', type: 'number', filterable: false },
   ];
 
   readonly rows = computed<BrandRow[]>(() => {

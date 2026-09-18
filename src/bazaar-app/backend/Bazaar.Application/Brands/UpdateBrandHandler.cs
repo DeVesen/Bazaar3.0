@@ -16,7 +16,7 @@ public sealed class UpdateBrandHandler(IBrandRepository brandRepository, IBrandA
         if (!string.Equals(oldName, trimmedName, StringComparison.OrdinalIgnoreCase)
             && await brandRepository.ExistsByNameIgnoreCase(trimmedName))
         {
-            throw new ConflictException("Marke bereits vergeben", "brand.name_taken");
+            throw new ConflictException("Marke existiert bereits", "brand.name_taken");
         }
 
         brand.Rename(trimmedName);

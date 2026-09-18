@@ -11,7 +11,7 @@ public sealed class CreateBrandHandler(IBrandRepository brandRepository, IIdGene
         var trimmedName = command.Name.Trim();
         if (await brandRepository.ExistsByNameIgnoreCase(trimmedName))
         {
-            throw new ConflictException("Marke bereits vergeben", "brand.name_taken");
+            throw new ConflictException("Marke existiert bereits", "brand.name_taken");
         }
 
         var brand = Brand.Create(idGenerator.Generate(), trimmedName, command.Original);
