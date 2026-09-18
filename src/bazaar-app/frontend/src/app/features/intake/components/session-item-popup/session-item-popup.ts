@@ -59,7 +59,11 @@ export class SessionItemPopup {
   readonly price = signal(0);
 
   readonly canSave = computed(
-    () => this.name().trim().length > 0 && this.category().length > 0 && this.brand().length > 0,
+    () =>
+      this.name().trim().length > 0 &&
+      this.category().length > 0 &&
+      this.brand().length > 0 &&
+      this.price() > 0,
   );
 
   constructor() {

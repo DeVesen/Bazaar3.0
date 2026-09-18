@@ -72,6 +72,29 @@ describe('SessionItemPopup', () => {
     expect(component.canSave()).toBe(false);
 
     component.brand.set('Playmobil');
+    expect(component.canSave()).toBe(false);
+
+    component.price.set(12.5);
+    expect(component.canSave()).toBe(true);
+  });
+
+  it('is invalid while price is 0 or unset, even with all other required fields filled', async () => {
+    const { fixture } = await setup();
+    fixture.componentRef.setInput('visible', true);
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    component.name.set('Winterjacke');
+    component.category.set('Kleidung');
+    component.brand.set('Playmobil');
+
+    expect(component.price()).toBe(0);
+    expect(component.canSave()).toBe(false);
+
+    component.price.set(0);
+    expect(component.canSave()).toBe(false);
+
+    component.price.set(12.5);
     expect(component.canSave()).toBe(true);
   });
 
