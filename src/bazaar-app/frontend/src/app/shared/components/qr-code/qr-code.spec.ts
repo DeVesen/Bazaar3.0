@@ -80,4 +80,21 @@ describe('QrCode', () => {
     expect(svg?.getAttribute('width')).toBe('200');
     expect(svg?.getAttribute('height')).toBe('200');
   });
+
+  it('renders a fixed white background rect covering the full SVG behind the modules', async () => {
+    const fixture = TestBed.createComponent(QrCode);
+    fixture.componentRef.setInput('value', 'a3f9c2d1');
+    fixture.componentRef.setInput('size', 128);
+    await fixture.whenStable();
+
+    const svg = (fixture.nativeElement as HTMLElement).querySelector('.qr-code__image svg');
+    const rects = svg?.querySelectorAll('rect');
+    const background = rects?.[0];
+
+    expect(background?.getAttribute('fill')).toBe('#fff');
+    expect(background?.getAttribute('x')).toBe('0');
+    expect(background?.getAttribute('y')).toBe('0');
+    expect(background?.getAttribute('width')).toBe(svg?.getAttribute('width'));
+    expect(background?.getAttribute('height')).toBe(svg?.getAttribute('height'));
+  });
 });

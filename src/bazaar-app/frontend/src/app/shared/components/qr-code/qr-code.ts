@@ -50,10 +50,35 @@ export class QrCode {
       [EncodeHintType.ERROR_CORRECTION, QRCodeDecoderErrorCorrectionLevel.fromString(this.errorCorrection())],
     ]);
     const svgElement = this.writer.write(value, size, size, hints);
+    this.addBackground(svgElement);
 
     const serialized = this.serialize(svgElement);
     return this.sanitizer.bypassSecurityTrustHtml(serialized);
   });
+
+  /**
+   * `BrowserQRCodeSvgWriter.renderResult()` only draws black `<rect>` elements for "on"
+   * modules — it never draws a background, so the SVG is transparent by default. The doc
+   * requires a fixed `#fff` background (not theme-dependent, AC-5: scannable in dark mode
+   * and black-and-white print). ZXing's quiet zone (4 modules, `QUIET_ZONE_SIZE`) is
+   * already baked into the matrix it renders — `renderResult()` sizes the returned SVG's
+   * `width`/`height` attributes to cover that quiet zone, so a background rect matching
+   * those attributes covers the whole quiet zone too, no extra margin needed here.
+   * Inserted as the first child so the black module rects painted afterwards stay on top.
+   */
+  private addBackground(svgElement: SVGElement): void {
+    const width = svgElement.getAttribute('width') ?? '0';
+    const height = svgElement.getAttribute('height') ?? '0';
+
+    const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    background.setAttribute('x', '0');
+    background.setAttribute('y', '0');
+    background.setAttribute('width', width);
+    background.setAttribute('height', height);
+    background.setAttribute('fill', '#fff');
+
+    svgElement.insertBefore(background, svgElement.firstChild);
+  }
 
   /**
    * Serializes the generated `SVGElement` into a markup string safe to pass to
