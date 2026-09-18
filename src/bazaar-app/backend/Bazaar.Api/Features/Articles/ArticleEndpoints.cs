@@ -1,5 +1,6 @@
 using Bazaar.Api.Filters;
 using Bazaar.Application.Articles;
+using Bazaar.Application.Intake;
 
 namespace Bazaar.Api.Features.Articles;
 
@@ -35,6 +36,20 @@ public static class ArticleEndpoints
         {
             var nextNumber = await handler.Handle();
             return Results.Ok(new { nextNumber });
+        })
+        .RequireAuthorization();
+
+        // GET /api/articles/by-number/{number} (api/articles.md §2): one endpoint, two
+        // readers — the cash desk for article recognition and intake for the
+        // number-uniqueness preview (the transaction in POST /api/intake still decides).
+        app.MapGet("/api/articles/by-number/{number:int}", async (int number, GetArticleByNumberHandler handler) =>
+        {
+            var (article, sellerName) = await handler.Handle(number);
+            var dto = new ArticleByNumberDto(
+                article.Id, article.Number, article.Name, article.Price,
+                article.Status.ToString().ToLowerInvariant(),
+                article.SellerId, sellerName);
+            return Results.Ok(dto);
         })
         .RequireAuthorization();
 

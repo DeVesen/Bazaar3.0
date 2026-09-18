@@ -1,5 +1,18 @@
 namespace Bazaar.Api.Features.Articles;
 
+/// <summary>
+/// Response shape for GET /api/articles/by-number/{number} (api/articles.md §2) — used by both
+/// the cash desk (article recognition) and intake (number-uniqueness preview).
+/// </summary>
+public sealed record ArticleByNumberDto(
+    string Id,
+    int Number,
+    string Name,
+    decimal Price,
+    string Status,
+    string SellerId,
+    string SellerName);
+
 public sealed record ArticleListItemDto(
     string Id,
     int Number,
