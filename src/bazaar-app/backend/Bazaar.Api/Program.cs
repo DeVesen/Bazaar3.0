@@ -5,10 +5,12 @@ using Bazaar.Api.Features.Brands;
 using Bazaar.Api.Features.Categories;
 using Bazaar.Api.Features.Public;
 using Bazaar.Api.Features.SellerTypes;
+using Bazaar.Api.Features.Sellers;
 using Bazaar.Application.Auth;
 using Bazaar.Application.Brands;
 using Bazaar.Application.Categories;
 using Bazaar.Application.SellerTypes;
+using Bazaar.Application.Sellers;
 using Bazaar.Domain.Ports;
 using Bazaar.Infrastructure.Persistence;
 using Bazaar.Infrastructure.Persistence.Repositories;
@@ -71,6 +73,13 @@ builder.Services.AddScoped<GetSellerTypesHandler>();
 builder.Services.AddScoped<CreateSellerTypeHandler>();
 builder.Services.AddScoped<UpdateSellerTypeHandler>();
 builder.Services.AddScoped<DeleteSellerTypeHandler>();
+builder.Services.AddScoped<GetSellerCardsHandler>();
+builder.Services.AddScoped<SearchSellersHandler>();
+builder.Services.AddScoped<CreateSellerHandler>();
+builder.Services.AddScoped<UpdateSellerHandler>();
+builder.Services.AddScoped<DeleteSellerHandler>();
+builder.Services.AddScoped<GetSellerArticlesHandler>();
+builder.Services.AddScoped<ResetSellerSettlementHandler>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -123,6 +132,7 @@ app.MapAuthEndpoints();
 app.MapBrandEndpoints();
 app.MapCategoryEndpoints();
 app.MapSellerTypeEndpoints();
+app.MapSellerEndpoints();
 
 await ApplyMigrationsAsync(app);
 

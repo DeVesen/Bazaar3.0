@@ -19,7 +19,7 @@ public sealed class DomainExceptionHandler : IExceptionHandler
             _ => StatusCodes.Status500InternalServerError
         };
 
-        var problem = new ProblemDetails { Status = status, Title = domainException.Message };
+        var problem = new ProblemDetails { Status = status, Title = domainException.Message, Detail = domainException.Message };
         problem.Extensions["errorCode"] = domainException.ErrorCode;
 
         ctx.Response.StatusCode = status;
