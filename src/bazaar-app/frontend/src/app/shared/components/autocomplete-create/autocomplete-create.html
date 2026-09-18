@@ -1,0 +1,59 @@
+<div class="autocomplete-create">
+  <p-autocomplete
+    [ngModel]="typedValue()"
+    (ngModelChange)="onInput($event)"
+    [suggestions]="filteredOptions()"
+    (completeMethod)="onFilter($event)"
+    (onSelect)="onSelectOption($event)"
+    (keydown.enter)="onEnter()"
+    [dropdown]="!isCreateMode()"
+    [completeOnFocus]="true"
+    [minQueryLength]="0"
+    [forceSelection]="false"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    styleClass="autocomplete-create__field"
+  />
+
+  @if (isCreateMode()) {
+    <p-button
+      type="button"
+      icon="pi pi-plus"
+      severity="success"
+      styleClass="autocomplete-create__create-button"
+      [disabled]="disabled()"
+      (onClick)="openCreateModal()"
+    />
+  }
+</div>
+
+<p-dialog
+  [visible]="modalVisible()"
+  (visibleChange)="onModalVisibleChange($event)"
+  [modal]="true"
+  [header]="modalTitle()"
+  [style]="{ width: '25rem' }"
+>
+  <div class="autocomplete-create__modal-field">
+    <label for="autocomplete-create-modal-name">Name</label>
+    <input
+      id="autocomplete-create-modal-name"
+      pInputText
+      [ngModel]="modalName()"
+      (ngModelChange)="modalName.set($event)"
+      name="modalName"
+      type="text"
+      (keydown.enter)="onModalConfirm()"
+    />
+  </div>
+
+  <ng-template #footer>
+    <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onModalCancel()" />
+    <p-button
+      [text]="true"
+      [disabled]="!modalName().trim()"
+      label="Anlegen"
+      (onClick)="onModalConfirm()"
+    />
+  </ng-template>
+</p-dialog>
