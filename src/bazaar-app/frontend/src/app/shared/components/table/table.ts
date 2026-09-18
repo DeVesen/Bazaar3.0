@@ -88,6 +88,34 @@ const CIRCLED_DIGIT_BASE = 0x2460; // U+2460 = '①'
  *   Ctrl/Cmd+click, but component.md §5 and AC-3 specify Shift+click. Managing sort state
  *   ourselves lets the documented Shift+click contract stand without fighting PrimeNG's
  *   built-in modifier-key check.
+ *
+ * KNOWN LIMITATION — no `[lazy]` mode (backend-driven pagination trap for future consumers):
+ * `p-table` in table.html is bound WITHOUT `[lazy]="true"`. In that default (non-lazy) mode,
+ * PrimeNG treats `[value]="data()"` as the COMPLETE dataset and re-slices it itself using its
+ * own internal paginator/sort/filter state (`first`/`rows`). That is exactly what Brands
+ * (the only Round-11 consumer) wants: it hands in the full, in-memory, unpaginated array and
+ * `totalRecords` just falls back to `data().length`.
+ *
+ * It silently breaks for a FUTURE consumer that does backend-driven pagination — e.g. the
+ * Artikel/Statistik lists referenced in component.md §2/§6/§7 — if that consumer passes only
+ * the CURRENT PAGE's rows (`data()` = one server-fetched page, e.g. 10 rows) together with a
+ * larger `totalRecords()` (e.g. 500) for the full server-side count. Without `[lazy]="true"`,
+ * PrimeNG does not know `data()` is already page-scoped: on page 2+ it will try to re-slice
+ * that small page-array using its own paginator offset (`first`), index out of range, and
+ * render blank/wrong rows instead of the intended page — a purely functional bug with no
+ * compile-time or template warning.
+ *
+ * Before wiring this component to any backend-paginated list, a future implementer MUST
+ * either:
+ *   (a) extend `Table` with a `[lazy]="true"` mode on `p-table`, driven by `(onLazyLoad)`
+ *       instead of `(onPage)`, and make sure `sortChange`/`filterChange`/`pageChange` all
+ *       emit from that lazy event so the parent can refetch the correct server page/sort/
+ *       filter — the existing `onPage`/`onHeaderClick`/`onFilterValueChange` handlers assume
+ *       PrimeNG already has the full dataset and are NOT sufficient as-is; or
+ *   (b) not reuse this component for a backend-paginated list until (a) exists — keep
+ *       feeding it the complete in-memory dataset (as Brands does today).
+ * This is not covered by any of the 13 existing AC tests, which only exercise the in-memory
+ * path; do not treat their passing as evidence this limitation is handled.
  */
 @Component({
   selector: 'app-table',

@@ -10,6 +10,13 @@
     </div>
   }
 
+  <!--
+    NOTE: no [lazy]="true" here — this p-table treats [value]="data()" as the complete
+    dataset and re-slices it itself for paging/sorting. Fine for Brands' in-memory list;
+    a WRONG fit for a future backend-paginated consumer that hands in only the current
+    page's rows plus a larger totalRecords(). See the "KNOWN LIMITATION" doc-comment on
+    the Table class in table.ts before reusing this component that way.
+  -->
   <p-table
     [value]="data()"
     [loading]="loading()"
