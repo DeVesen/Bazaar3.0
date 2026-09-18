@@ -52,6 +52,8 @@ public class UpdateBrandHandlerTests
 
         _brandRepository.Verify(r => r.ExistsByNameIgnoreCase(It.IsAny<string>()), Times.Never);
         _brandRepository.Verify(r => r.Update(brand), Times.Once);
+        _brandArticleLink.Verify(
+            l => l.RenameArticlesReferencingBrand(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
