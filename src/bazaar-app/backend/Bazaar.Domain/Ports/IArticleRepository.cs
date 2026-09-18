@@ -8,6 +8,8 @@ public interface IArticleRepository
 
     Task<Article?> GetById(string id);
 
+    Task<Article?> GetByNumber(int number);
+
     Task Update(Article article);
 
     Task Remove(Article article);

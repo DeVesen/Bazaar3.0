@@ -55,6 +55,32 @@ public class ArticleRepositoryTests
     }
 
     [Fact]
+    public async Task GetByNumber_ArticleExists_ReturnsIt()
+    {
+        await using var dbContext = CreateContext();
+        var sut = new ArticleRepository(dbContext);
+        var article = CreateArticle(number: 7);
+        await sut.Add(article);
+
+        var found = await sut.GetByNumber(7);
+
+        Assert.NotNull(found);
+        Assert.Equal("ART00001", found!.Id);
+    }
+
+    [Fact]
+    public async Task GetByNumber_UnknownNumber_ReturnsNull()
+    {
+        await using var dbContext = CreateContext();
+        var sut = new ArticleRepository(dbContext);
+        await sut.Add(CreateArticle(number: 1));
+
+        var found = await sut.GetByNumber(999);
+
+        Assert.Null(found);
+    }
+
+    [Fact]
     public async Task Update_PersistsChanges()
     {
         await using var dbContext = CreateContext();
