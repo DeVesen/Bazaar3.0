@@ -1,13 +1,33 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SellersPage } from './sellers-page';
 import { SellersStore, SellersFilters } from '../../sellers-store';
 import { RoleService } from '../../../../core/auth/role.service';
 // eslint-disable-next-line boundaries/dependencies
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
-import { SellerCard } from '../../data/sellers-api';
+import { SellerCard, SellerDetail } from '../../data/sellers-api';
+
+function buildDetail(overrides: Partial<SellerDetail> = {}): SellerDetail {
+  return {
+    id: 's1',
+    firstName: 'Anna',
+    lastName: 'Meier',
+    address: 'Hauptstr. 1',
+    postalCode: '76133',
+    city: 'Karlsruhe',
+    phone: '0123456789',
+    email: 'anna@example.org',
+    sellerTypeId: 'type-privat',
+    salesCommission: 10,
+    feePerItem: 0.5,
+    intakeFeePaid: 0,
+    settledAt: null,
+    payoutAmount: null,
+    ...overrides,
+  };
+}
 
 function buildCard(overrides: Partial<SellerCard> = {}): SellerCard {
   return {
@@ -50,6 +70,7 @@ describe('SellersPage', () => {
   let remove: ReturnType<typeof vi.fn>;
   let resetSettlement: ReturnType<typeof vi.fn>;
   let getArticles: ReturnType<typeof vi.fn>;
+  let getById: ReturnType<typeof vi.fn>;
   let messageServiceAdd: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
@@ -70,6 +91,7 @@ describe('SellersPage', () => {
     remove = vi.fn();
     resetSettlement = vi.fn();
     getArticles = vi.fn().mockReturnValue(of([]));
+    getById = vi.fn().mockReturnValue(of(buildDetail()));
     messageServiceAdd = vi.fn();
 
     await TestBed.configureTestingModule({
@@ -92,6 +114,7 @@ describe('SellersPage', () => {
             remove,
             resetSettlement,
             getArticles,
+            getById,
           },
         },
         { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
@@ -224,23 +247,57 @@ describe('SellersPage', () => {
   });
 
   describe('edit', () => {
-    it('opens the dialog in edit mode with an initial value derived from the card', async () => {
+    it('fetches the seller detail via getById and only then opens the dialog in edit mode', async () => {
       const { component, fixture } = await createPage();
-      const card = buildCard({ firstName: 'Anna', lastName: 'Meier', sellerType: 'Privat' });
+      const card = buildCard({ id: 's1', firstName: 'Anna', lastName: 'Meier' });
+      getById.mockReturnValue(
+        of(
+          buildDetail({
+            id: 's1',
+            firstName: 'Anna',
+            lastName: 'Meier',
+            email: 'anna@example.org',
+            address: 'Hauptstr. 1',
+            phone: '0123456789',
+            sellerTypeId: 'type-privat',
+            salesCommission: 10,
+            feePerItem: 0.5,
+          }),
+        ),
+      );
 
       component.onEdit(card);
       await fixture.whenStable();
 
+      expect(getById).toHaveBeenCalledWith('s1');
       expect(component.dialogVisible()).toBe(true);
       expect(component.dialogMode()).toBe('edit');
       expect(component.dialogInitialValue()).toEqual(
         expect.objectContaining({
           firstName: 'Anna',
           lastName: 'Meier',
+          email: 'anna@example.org',
+          address: 'Hauptstr. 1',
+          phone: '0123456789',
           sellerTypeId: 'type-privat',
           salesCommission: 10,
           feePerItem: 0.5,
         }),
+      );
+    });
+
+    it('does not open the dialog and shows an error toast when the fetch fails', async () => {
+      const { component, fixture } = await createPage();
+      getById.mockReturnValue(throwError(() => new Error('not found')));
+      const card = buildCard({ id: 's1' });
+
+      component.onEdit(card);
+      await fixture.whenStable();
+
+      expect(component.dialogVisible()).toBe(false);
+      expect(component.dialogInitialValue()).toBeNull();
+      expect(messageServiceAdd).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'error' }),
       );
     });
   });

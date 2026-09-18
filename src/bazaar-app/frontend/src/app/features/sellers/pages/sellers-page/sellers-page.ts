@@ -22,15 +22,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SelectModule } from 'primeng/select';
 import { RoleService } from '../../../../core/auth/role.service';
-// Cross-feature import, read-only: `SellerTypesApi.getAll()` is needed here to resolve
-// a `SellerCard.sellerType` (display name) back to a `sellerTypeId` (guid) when opening the
-// edit dialog — see the "single-seller-detail gap" note below. Same sanctioned pattern as
-// `verkaeufer-dialog.ts` (Task 8) already uses for its own type dropdown.
-// eslint-disable-next-line boundaries/dependencies
-import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
 import {
   CreateSellerRequest,
   SellerCard as SellerCardModel,
+  SellerDetail,
   UpdateSellerRequest,
 } from '../../data/sellers-api';
 import { SellersStore } from '../../sellers-store';
@@ -80,18 +75,15 @@ interface ProblemDetailsBody {
  * dialog and the settlement status popup on top of `SellersStore` (Task 6), `seller-card`
  * (Task 7), `verkaeufer-dialog` (Task 8) and `seller-detail-modal` (Task 9).
  *
- * KNOWN GAP — no `GET /api/sellers/{id}` single-seller-detail endpoint exists (checked
- * `SellerEndpoints.cs`/`Dtos.cs`, Task 5/6's committed Api layer): `GET /api/sellers`'s
- * `SellerCardDto` does not carry `email`/`address`/`phone`/`salesCommission`/`feePerItem`,
- * which `verkaeufer-dialog`'s edit mode needs. This is a frontend-only task, so no new
- * backend route is added here (see task-10-report.md for the full write-up). Workaround:
- * `buildEditInitialValue` fills what the card DOES carry (`firstName`/`lastName`/
- * `postalCode`/`city`) and resolves `sellerTypeId`/`salesCommission`/`feePerItem` from the
- * seller TYPE's own defaults (via `SellerTypesApi`, matched by `SellerCard.sellerType`
- * name) — an approximation for per-seller-customized conditions, but the best available
- * without a new endpoint. `email`/`address`/`phone` start blank; the user re-enters them
- * if they need changing (a no-op resend of the unchanged old value otherwise, since the
- * backend's `UpdateSellerCommand` requires the full record on every `PUT`).
+ * Edit flow (Round-14 Task 10 fix round 1): `GET /api/sellers`'s `SellerCardDto` never
+ * carried `email`/`address`/`phone`/`salesCommission`/`feePerItem`, so seeding the edit
+ * dialog straight from the already-loaded card either left the Save button disabled
+ * (empty required `email`) or, worse, silently blanked the seller's real `address`/`phone`
+ * server-side on every save (`PUT /api/sellers/{id}` takes the full record, not a patch).
+ * Fixed by adding a real `GET /api/sellers/{id}` endpoint: `onEdit` now calls
+ * `SellersStore.getById(id)` first and only opens `verkaeufer-dialog` once the full
+ * Stammdaten have arrived; a fetch error (e.g. the seller was deleted concurrently) toasts
+ * and never opens the dialog.
  */
 @Component({
   selector: 'app-sellers-page',
@@ -120,7 +112,6 @@ export class SellersPage {
   private readonly roleService = inject(RoleService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
-  private readonly sellerTypesApi = inject(SellerTypesApi);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly items = this.sellersStore.items;
@@ -136,8 +127,6 @@ export class SellersPage {
 
   /** Local mirror of the free-text input for immediate UI feedback; debounced into the store. */
   readonly qInput = signal('');
-
-  readonly sellerTypesList = signal<SellerType[]>([]);
 
   readonly hasActiveFilters = computed(
     () => this.filters().q !== '' || this.filters().status !== null,
@@ -159,14 +148,16 @@ export class SellersPage {
   readonly dialogVisible = signal(false);
   readonly dialogMode = signal<'create' | 'edit'>('create');
   readonly editingCard = signal<SellerCardModel | null>(null);
+  readonly editingDetail = signal<SellerDetail | null>(null);
+  readonly editLoading = signal(false);
   readonly saving = signal(false);
   readonly serverErrors = signal<SellerDialogServerErrors | null>(null);
   readonly deleteError = signal<string | null>(null);
 
   readonly dialogInitialValue = computed<SellerFormValue | null>(() => {
-    const card = this.editingCard();
-    if (!card) return null;
-    return this.buildEditInitialValue(card);
+    const detail = this.editingDetail();
+    if (!detail) return null;
+    return this.buildEditInitialValue(detail);
   });
 
   // Status/settlement popup.
@@ -184,7 +175,6 @@ export class SellersPage {
 
   constructor() {
     this.sellersStore.load();
-    this.sellerTypesApi.getAll().subscribe((types) => this.sellerTypesList.set(types));
 
     toObservable(this.qInput)
       .pipe(debounceTime(DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
@@ -251,6 +241,7 @@ export class SellersPage {
 
   onNewClick(): void {
     this.editingCard.set(null);
+    this.editingDetail.set(null);
     this.dialogMode.set('create');
     this.serverErrors.set(null);
     this.deleteError.set(null);
@@ -262,13 +253,32 @@ export class SellersPage {
     this.dialogMode.set('edit');
     this.serverErrors.set(null);
     this.deleteError.set(null);
-    this.dialogVisible.set(true);
+    this.editingDetail.set(null);
+    this.editLoading.set(true);
+
+    this.sellersStore.getById(card.id).subscribe({
+      next: (detail) => {
+        this.editLoading.set(false);
+        this.editingDetail.set(detail);
+        this.dialogVisible.set(true);
+      },
+      error: () => {
+        this.editLoading.set(false);
+        this.editingCard.set(null);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Verkäufer konnte nicht geladen werden',
+          detail: 'Der Verkäufer wurde eventuell zwischenzeitlich gelöscht.',
+        });
+      },
+    });
   }
 
   onDialogVisibleChange(visible: boolean): void {
     this.dialogVisible.set(visible);
     if (!visible) {
       this.editingCard.set(null);
+      this.editingDetail.set(null);
       this.serverErrors.set(null);
       this.deleteError.set(null);
     }
@@ -277,6 +287,7 @@ export class SellersPage {
   onDialogCancel(): void {
     this.dialogVisible.set(false);
     this.editingCard.set(null);
+    this.editingDetail.set(null);
     this.serverErrors.set(null);
     this.deleteError.set(null);
   }
@@ -289,6 +300,7 @@ export class SellersPage {
       this.saving.set(false);
       this.dialogVisible.set(false);
       this.editingCard.set(null);
+      this.editingDetail.set(null);
       this.serverErrors.set(null);
       this.messageService.add({ severity: 'success', summary: '✓ Verkäufer gespeichert' });
     };
@@ -368,6 +380,7 @@ export class SellersPage {
       next: () => {
         this.dialogVisible.set(false);
         this.editingCard.set(null);
+        this.editingDetail.set(null);
         this.deleteError.set(null);
         this.messageService.add({ severity: 'success', summary: '✓ Verkäufer gelöscht' });
       },
@@ -424,19 +437,18 @@ export class SellersPage {
     });
   }
 
-  private buildEditInitialValue(card: SellerCardModel): SellerFormValue {
-    const matchedType = this.sellerTypesList().find((t) => t.name === card.sellerType) ?? null;
+  private buildEditInitialValue(detail: SellerDetail): SellerFormValue {
     return {
-      firstName: card.firstName,
-      lastName: card.lastName,
-      email: '',
-      sellerTypeId: matchedType?.id ?? '',
-      address: null,
-      postalCode: card.postalCode,
-      city: card.city,
-      phone: null,
-      salesCommission: matchedType?.commissionRate ?? 0,
-      feePerItem: matchedType?.itemFee ?? 0,
+      firstName: detail.firstName,
+      lastName: detail.lastName,
+      email: detail.email,
+      sellerTypeId: detail.sellerTypeId,
+      address: detail.address,
+      postalCode: detail.postalCode,
+      city: detail.city,
+      phone: detail.phone,
+      salesCommission: detail.salesCommission,
+      feePerItem: detail.feePerItem,
     };
   }
 

@@ -5,6 +5,7 @@ import {
   CreateSellerRequest,
   Seller,
   SellerCard,
+  SellerDetail,
   SellerSearchResult,
   SellersApi,
   UpdateSellerRequest,
@@ -85,6 +86,10 @@ export class SellersStore {
 
   resetSettlement(id: string): Observable<void> {
     return this.sellersApi.resetSettlement(id).pipe(tap(() => this.load()));
+  }
+
+  getById(id: string): Observable<SellerDetail> {
+    return this.sellersApi.getById(id);
   }
 
   getArticles(id: string): Observable<ArticleSummary[]> {

@@ -105,6 +105,29 @@ export interface Seller {
   settledAt: string | null;
 }
 
+/**
+ * Response shape of GET /api/sellers/{id} — the seller's full Stammdaten, as needed to
+ * seed the edit dialog (see backend's `SellerDto`, Round-14 Task 10 fix). Deliberately
+ * excludes the card-level aggregates (`status`/`articleCount`/…) that `Seller` above
+ * carries — those live on `SellerCard` already loaded by the grid, not needed here.
+ */
+export interface SellerDetail {
+  id: string;
+  firstName: string;
+  lastName: string;
+  address: string | null;
+  postalCode: string | null;
+  city: string | null;
+  phone: string | null;
+  email: string;
+  sellerTypeId: string;
+  salesCommission: number;
+  feePerItem: number;
+  intakeFeePaid: number;
+  settledAt: string | null;
+  payoutAmount: number | null;
+}
+
 export interface GetCardsParams {
   page?: number;
   pageSize?: number;
@@ -151,6 +174,10 @@ export class SellersApi {
 
   remove(id: string): Observable<void> {
     return this.http.delete<void>(`/api/sellers/${id}`);
+  }
+
+  getById(id: string): Observable<SellerDetail> {
+    return this.http.get<SellerDetail>(`/api/sellers/${id}`);
   }
 
   getArticles(id: string): Observable<ArticleSummary[]> {
