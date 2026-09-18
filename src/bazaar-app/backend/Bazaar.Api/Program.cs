@@ -74,6 +74,7 @@ builder.Services.AddScoped<CreateSellerTypeHandler>();
 builder.Services.AddScoped<UpdateSellerTypeHandler>();
 builder.Services.AddScoped<DeleteSellerTypeHandler>();
 builder.Services.AddScoped<GetSellerCardsHandler>();
+builder.Services.AddScoped<GetSellerByIdHandler>();
 builder.Services.AddScoped<SearchSellersHandler>();
 builder.Services.AddScoped<CreateSellerHandler>();
 builder.Services.AddScoped<UpdateSellerHandler>();

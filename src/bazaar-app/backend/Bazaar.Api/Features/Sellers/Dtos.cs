@@ -59,6 +59,30 @@ public sealed record SellerDetailDto(
 // bound directly from the wire contract, with Id/CallerIsAdmin (not part
 // of the wire contract) set by the endpoint after validation runs.
 
+/// <summary>
+/// Response shape for GET /api/sellers/{id} — the full Stammdaten of one seller,
+/// as needed to seed the edit dialog (see Round-14 Task 10 fix). Deliberately
+/// leaves out the card-level aggregates (Status/ArticleCount/…) that
+/// <see cref="SellerDetailDto"/> carries — those come from
+/// <c>ISellerCardsQuery</c>, not from the <c>Seller</c> aggregate itself, and the
+/// edit dialog never displays or edits them.
+/// </summary>
+public sealed record SellerDto(
+    string Id,
+    string FirstName,
+    string LastName,
+    string? Address,
+    string? PostalCode,
+    string? City,
+    string? Phone,
+    string Email,
+    string SellerTypeId,
+    decimal SalesCommission,
+    decimal FeePerItem,
+    decimal IntakeFeePaid,
+    DateTimeOffset? SettledAt,
+    decimal? PayoutAmount);
+
 public sealed record ArticleSummaryDto(
     string Id,
     int Number,

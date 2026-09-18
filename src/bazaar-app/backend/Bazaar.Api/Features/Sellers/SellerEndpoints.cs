@@ -79,6 +79,28 @@ public static class SellerEndpoints
         .RequireAuthorization()
         .AddEndpointFilter<ValidationFilter<CreateSellerCommand>>();
 
+        app.MapGet("/api/sellers/{id}", async (string id, GetSellerByIdHandler handler) =>
+        {
+            var seller = await handler.Handle(id);
+            var dto = new SellerDto(
+                seller.Id,
+                seller.FirstName,
+                seller.LastName,
+                seller.Address,
+                seller.PostalCode,
+                seller.City,
+                seller.Phone,
+                seller.Email,
+                seller.SellerTypeId,
+                seller.SalesCommission,
+                seller.FeePerItem,
+                seller.IntakeFeePaid,
+                seller.SettledAt,
+                seller.PayoutAmount);
+            return Results.Ok(dto);
+        })
+        .RequireAuthorization();
+
         app.MapPut("/api/sellers/{id}", async (string id, UpdateSellerCommand command, ClaimsPrincipal user, UpdateSellerHandler handler) =>
         {
             // Filter above validates `command` (Stammdaten/Konditionen) before
