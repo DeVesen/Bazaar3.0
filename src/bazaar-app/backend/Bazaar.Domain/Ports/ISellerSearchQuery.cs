@@ -16,4 +16,5 @@ public sealed record SellerSearchResult(
     string FirstName,
     string LastName,
     string? City,
-    string SellerType);
+    string SellerType,
+    DateTimeOffset? SettledAt);

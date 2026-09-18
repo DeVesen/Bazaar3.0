@@ -30,7 +30,7 @@ public sealed class SellerSearchQuery(BazaarDbContext dbContext) : ISellerSearch
         var sellers = await (
             from seller in dbContext.Sellers
             join sellerType in dbContext.SellerTypes on seller.SellerTypeId equals sellerType.Id
-            select new SellerSearchResult(seller.Id, seller.FirstName, seller.LastName, seller.City, sellerType.Name))
+            select new SellerSearchResult(seller.Id, seller.FirstName, seller.LastName, seller.City, sellerType.Name, seller.SettledAt))
             .ToListAsync();
 
         var tokens = SellerTokenSearch.Tokenize(q);

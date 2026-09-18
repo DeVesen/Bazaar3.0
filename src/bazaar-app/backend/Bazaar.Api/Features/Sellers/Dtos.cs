@@ -22,7 +22,8 @@ public sealed record SellerSearchResultDto(
     string FirstName,
     string LastName,
     string? City,
-    string SellerType);
+    string SellerType,
+    DateTimeOffset? SettledAt);
 
 /// <summary>
 /// Response shape for POST /api/sellers (201 Created). Mirrors BrandDto's

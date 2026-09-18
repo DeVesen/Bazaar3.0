@@ -46,7 +46,7 @@ public static class SellerEndpoints
         app.MapGet("/api/sellers/search", async (string? q, SearchSellersHandler handler) =>
         {
             var results = await handler.Handle(q);
-            return Results.Ok(results.Select(r => new SellerSearchResultDto(r.Id, r.FirstName, r.LastName, r.City, r.SellerType)));
+            return Results.Ok(results.Select(r => new SellerSearchResultDto(r.Id, r.FirstName, r.LastName, r.City, r.SellerType, r.SettledAt)));
         })
         .RequireAuthorization();
 

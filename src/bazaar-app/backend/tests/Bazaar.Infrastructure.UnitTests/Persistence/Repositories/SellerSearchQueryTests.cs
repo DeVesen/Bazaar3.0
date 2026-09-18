@@ -163,4 +163,34 @@ public class SellerSearchQueryTests
         Assert.Single(found);
         Assert.Equal("SEL00004", found[0].Id);
     }
+
+    [Fact]
+    public async Task Search_SettledSeller_AppearsWithSettledAtPopulated()
+    {
+        await using var dbContext = CreateContext();
+        await SeedAsync(dbContext);
+        var settledAt = DateTimeOffset.UtcNow;
+        var settledSeller = await dbContext.Sellers.FindAsync(["SEL00001"], TestContext.Current.CancellationToken);
+        settledSeller!.Settle(42m, settledAt);
+        await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        var sut = new SellerSearchQuery(dbContext);
+
+        var found = await sut.Search("mei");
+
+        Assert.Single(found);
+        Assert.Equal(settledAt, found[0].SettledAt);
+    }
+
+    [Fact]
+    public async Task Search_NonSettledSeller_HasNullSettledAt()
+    {
+        await using var dbContext = CreateContext();
+        await SeedAsync(dbContext);
+        var sut = new SellerSearchQuery(dbContext);
+
+        var found = await sut.Search("mei");
+
+        Assert.Single(found);
+        Assert.Null(found[0].SettledAt);
+    }
 }

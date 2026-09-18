@@ -13,7 +13,7 @@ public class SearchSellersHandlerTests
     [Fact]
     public async Task Handle_WithQuery_DelegatesToSellerSearchQueryAndReturnsItsResult()
     {
-        var results = new List<SellerSearchResult> { new("SELLER001", "Anna", "Meier", "Karlsruhe", "Privat") };
+        var results = new List<SellerSearchResult> { new("SELLER001", "Anna", "Meier", "Karlsruhe", "Privat", null) };
         _sellerSearchQuery.Setup(q => q.Search("mei")).ReturnsAsync(results);
         var sut = CreateSut();
 
