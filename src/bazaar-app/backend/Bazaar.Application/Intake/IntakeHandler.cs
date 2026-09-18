@@ -36,6 +36,7 @@ public sealed class IntakeHandler(
         }
 
         var articleIds = new List<string>();
+        var intakeFeePaid = 0m;
 
         await unitOfWork.ExecuteInTransactionAsync(async _ =>
         {
@@ -65,7 +66,9 @@ public sealed class IntakeHandler(
 
             if (taken.Count > 0)
             {
-                throw new ConflictException("Artikelnummer(n) vergeben", "article.number_taken")
+                throw new ConflictException(
+                    $"Artikelnummer{(taken.Count > 1 ? "n" : "")} {string.Join(", ", taken)} ist inzwischen vergeben",
+                    "article.number_taken")
                 {
                     Extensions =
                     {
@@ -98,10 +101,23 @@ public sealed class IntakeHandler(
                 articleIds.Add(existing.Id);
             }
 
-            seller.AddIntakeFeePaid(command.FeeAmount);
-            await sellerRepository.Update(seller);
+            // Re-fetch inside the closure — a CreateExecutionStrategy retry (Program.cs:
+            // EnableRetryOnFailure) re-runs this whole delegate on a transient failure
+            // that happens after a mutation but before commit. Mutating the outer
+            // `seller` captured before the transaction would double-apply
+            // AddIntakeFeePaid on the same in-memory instance across attempts; fetching
+            // fresh here means each attempt mutates its own instance (mirrors
+            // ChangePasswordHandler's fetch-inside-scope pattern, applied to the one
+            // spot in this handler that mutates state persisted across the retry
+            // boundary).
+            var freshSeller = await sellerRepository.GetById(command.SellerId)
+                ?? throw new NotFoundException("Verkäufer nicht gefunden", "seller.not_found");
+
+            freshSeller.AddIntakeFeePaid(command.FeeAmount);
+            await sellerRepository.Update(freshSeller);
+            intakeFeePaid = freshSeller.IntakeFeePaid;
         }, CancellationToken.None);
 
-        return new IntakeResult(articleIds, seller.IntakeFeePaid);
+        return new IntakeResult(articleIds, intakeFeePaid);
     }
 }

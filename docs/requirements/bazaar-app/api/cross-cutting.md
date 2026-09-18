@@ -124,6 +124,7 @@ Beim Hinzufügen eines Fehlers zuerst hier nachsehen: Ein Code, den es schon gib
 | `article.sold_and_returned` | 409 | Artikel kann nicht gleichzeitig verkauft und zurückgegeben sein | [`articles.md`](articles.md) — Zeitstempel |
 | `article.not_sellable` | 409 | Artikel *n* ist nicht mehr im Verkauf | [`sales.md`](sales.md) |
 | `article.not_releasable` | 409 | Artikel *n* ist bereits freigegeben | [`release.md`](release.md) |
+| `intake.fee_mismatch` | 400 | Gebührenbetrag stimmt nicht mit Anzahl Artikel × Gebühr je Artikel überein | [`intake.md`](intake.md) |
 | `brand.name_taken` | 409 | Marke existiert bereits | [`master-data.md`](master-data.md) |
 | `brand.in_use` | 409 | Marke wird noch verwendet | [`master-data.md`](master-data.md) |
 | `category.name_taken` | 409 | Kategorie existiert bereits | [`master-data.md`](master-data.md) |

@@ -67,6 +67,44 @@ public class IntakeHandlerTests
         _sellerRepository.Verify(r => r.Update(seller), Times.Once);
     }
 
+    /// <summary>
+    /// Regression test for the retry-safety fix: a CreateExecutionStrategy retry
+    /// (Program.cs configures EnableRetryOnFailure) re-invokes the whole transaction
+    /// closure. Mutating the `seller` instance fetched BEFORE the transaction (used
+    /// only for the fail-fast fee check) would double-apply AddIntakeFeePaid across
+    /// attempts. The handler must instead re-fetch seller inside the closure and
+    /// mutate that fresh instance — proven here by returning two DIFFERENT Seller
+    /// instances from the two GetById calls and asserting only the second (fetched
+    /// inside the closure) ends up mutated/persisted.
+    /// </summary>
+    [Fact]
+    public async Task Handle_FetchesSellerFreshInsideTransactionClosure_MutatesOnlyTheFreshInstance()
+    {
+        var outerSeller = CreateSeller(feePerItem: 3.00m);
+        var freshSeller = CreateSeller(feePerItem: 3.00m);
+        _sellerRepository.SetupSequence(r => r.GetById("SELLER001"))
+            .ReturnsAsync(outerSeller)
+            .ReturnsAsync(freshSeller);
+        _articleRepository.Setup(r => r.GetByNumber(It.IsAny<int>())).ReturnsAsync((Article?)null);
+        _idGenerator.Setup(g => g.Generate()).Returns("ARTICLE001");
+        var command = new IntakeCommand
+        {
+            SellerId = "SELLER001",
+            FeeAmount = 3.00m,
+            Articles = [Line(1043)],
+        };
+        var sut = CreateSut();
+
+        var result = await sut.Handle(command);
+
+        Assert.Equal(0m, outerSeller.IntakeFeePaid);
+        Assert.Equal(3.00m, freshSeller.IntakeFeePaid);
+        Assert.Equal(3.00m, result.IntakeFeePaid);
+        _sellerRepository.Verify(r => r.GetById("SELLER001"), Times.Exactly(2));
+        _sellerRepository.Verify(r => r.Update(freshSeller), Times.Once);
+        _sellerRepository.Verify(r => r.Update(outerSeller), Times.Never);
+    }
+
     [Fact]
     public async Task Handle_NumberTakenByAnotherSeller_ThrowsConflictWithTakenNumbersAndNextNumber_AndMakesNoWrites()
     {
