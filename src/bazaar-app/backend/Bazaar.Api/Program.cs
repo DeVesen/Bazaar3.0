@@ -34,6 +34,8 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptio
 // Application/Api layer) because SeedAdminHostedService needs them resolvable
 // at startup, before the application layer's own DI wiring runs.
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBrandRepository, BrandRepository>();
+builder.Services.AddScoped<IBrandArticleLink, BrandArticleLink>();
 builder.Services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
 builder.Services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
 builder.Services.AddSingleton<IIdGenerator, NanoIdGenerator>();
