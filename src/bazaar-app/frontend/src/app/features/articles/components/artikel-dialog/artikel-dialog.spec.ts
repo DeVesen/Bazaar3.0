@@ -1,9 +1,13 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { RoleService } from '../../../../core/auth/role.service';
+import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
+import { InputGroup } from '../../../../shared/components/input-group/input-group';
 // Cross-feature import, read-only — see the matching exception note in artikel-dialog.ts.
 // eslint-disable-next-line boundaries/dependencies
 import { Category, CategoriesApi } from '../../../categories/data/categories-api';
@@ -39,16 +43,36 @@ interface ConfirmConfig {
   reject?: () => void;
 }
 
-async function setup(options: { isAdmin: boolean }) {
+function categoriesApiStub() {
+  return {
+    getAll: vi.fn().mockReturnValue(of(CATEGORIES)),
+    create: vi.fn().mockReturnValue(of({ id: 'cat-new', name: 'Neu', original: false, articleCount: 0 })),
+  };
+}
+
+function brandsApiStub() {
+  return {
+    getAll: vi.fn().mockReturnValue(of(BRANDS)),
+    create: vi.fn().mockReturnValue(of({ id: 'brand-new', name: 'Neu', original: false, articleCount: 0 })),
+  };
+}
+
+async function setup(options: {
+  isAdmin: boolean;
+  categoriesApi?: ReturnType<typeof categoriesApiStub>;
+  brandsApi?: ReturnType<typeof brandsApiStub>;
+}) {
   const isAdminSignal = signal(options.isAdmin);
+  const categoriesApi = options.categoriesApi ?? categoriesApiStub();
+  const brandsApi = options.brandsApi ?? brandsApiStub();
 
   await TestBed.configureTestingModule({
     imports: [ArtikelDialog],
     providers: [
       provideRouter([]),
       { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
-      { provide: CategoriesApi, useValue: { getAll: () => of(CATEGORIES) } },
-      { provide: BrandsApi, useValue: { getAll: () => of(BRANDS) } },
+      { provide: CategoriesApi, useValue: categoriesApi },
+      { provide: BrandsApi, useValue: brandsApi },
       ConfirmationService,
     ],
   }).compileComponents();
@@ -61,6 +85,8 @@ async function setup(options: { isAdmin: boolean }) {
   return {
     fixture,
     isAdminSignal,
+    categoriesApi,
+    brandsApi,
     confirmSpy: confirmSpy as unknown as ReturnType<typeof vi.fn<(config: ConfirmConfig) => void>>,
   };
 }
@@ -132,6 +158,12 @@ describe('ArtikelDialog', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
       'Verkauf zuerst stornieren',
     );
+    const priceFieldset = (fixture.nativeElement as HTMLElement).querySelector(
+      'fieldset.artikel-dialog__price-fieldset',
+    ) as HTMLFieldSetElement;
+    expect(priceFieldset.disabled).toBe(true);
+    const category = fixture.debugElement.query(By.directive(AutocompleteCreate));
+    expect((category.componentInstance as AutocompleteCreate).disabled()).toBe(false);
   });
 
   it('disables every field when locked is settled, and shows the settlement banner', async () => {
@@ -149,6 +181,12 @@ describe('ArtikelDialog', () => {
       'Abrechnung zuerst stornieren',
     );
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Verkäufer-Seite');
+    const priceFieldset = (fixture.nativeElement as HTMLElement).querySelector(
+      'fieldset.artikel-dialog__price-fieldset',
+    ) as HTMLFieldSetElement;
+    expect(priceFieldset.disabled).toBe(true);
+    const category = fixture.debugElement.query(By.directive(AutocompleteCreate));
+    expect((category.componentInstance as AutocompleteCreate).disabled()).toBe(true);
   });
 
   describe('delete button visibility (admin x locked)', () => {
@@ -268,5 +306,88 @@ describe('ArtikelDialog', () => {
       color: 'Blau',
       description: 'Kaum getragen',
     });
+  });
+
+  it('selecting a category/brand via autocomplete-create updates the signals and canSave()', async () => {
+    const { fixture } = await setup({ isAdmin: true });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('articleNumber', 1043);
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    component.name.set('Winterjacke');
+    component.price.set(12.5);
+    expect(component.canSave()).toBe(false);
+
+    const [category, brand] = fixture.debugElement
+      .queryAll(By.directive(AutocompleteCreate))
+      .map((debugElement) => debugElement.componentInstance as AutocompleteCreate);
+
+    category.valueChange.emit('Kleidung');
+    brand.valueChange.emit('Playmobil');
+    await fixture.whenStable();
+
+    expect(component.category()).toBe('Kleidung');
+    expect(component.brand()).toBe('Playmobil');
+    expect(component.canSave()).toBe(true);
+  });
+
+  it('creating a new category via entryCreated calls CategoriesApi.create, appends it to the options list, and sets category()', async () => {
+    const categoriesApi = categoriesApiStub();
+    categoriesApi.create.mockReturnValue(
+      of({ id: 'cat-schuhe', name: 'Schuhe', original: false, articleCount: 0 }),
+    );
+    const { fixture } = await setup({ isAdmin: true, categoriesApi });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('articleNumber', 1043);
+    await fixture.whenStable();
+
+    const category = fixture.debugElement.query(By.directive(AutocompleteCreate))
+      .componentInstance as AutocompleteCreate;
+
+    category.entryCreated.emit('Schuhe');
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    expect(categoriesApi.create).toHaveBeenCalledWith('Schuhe');
+    expect(component.categoriesList().map((c) => c.name)).toContain('Schuhe');
+    expect(component.category()).toBe('Schuhe');
+  });
+
+  it('creating a new brand that already exists (409, concurrent race) refreshes the list and sets brand() to the typed name', async () => {
+    const brandsApi = brandsApiStub();
+    brandsApi.create.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    brandsApi.getAll.mockReturnValue(
+      of([...BRANDS, { id: 'brand-nike', name: 'Nike', original: false, articleCount: 0 }]),
+    );
+    const { fixture } = await setup({ isAdmin: true, brandsApi });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('articleNumber', 1043);
+    await fixture.whenStable();
+
+    const brand = fixture.debugElement.queryAll(By.directive(AutocompleteCreate))[1]
+      .componentInstance as AutocompleteCreate;
+
+    brand.entryCreated.emit('Nike');
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    expect(component.brandsList().map((b) => b.name)).toContain('Nike');
+    expect(component.brand()).toBe('Nike');
+  });
+
+  it('entering a price via input-group updates price()', async () => {
+    const { fixture } = await setup({ isAdmin: true });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('articleNumber', 1043);
+    await fixture.whenStable();
+
+    const inputGroup = fixture.debugElement.query(By.directive(InputGroup))
+      .componentInstance as InputGroup;
+
+    inputGroup.valueChange.emit(19.9);
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.price()).toBe(19.9);
   });
 });

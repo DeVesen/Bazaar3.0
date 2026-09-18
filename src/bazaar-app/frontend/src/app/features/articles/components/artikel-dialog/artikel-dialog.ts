@@ -1,15 +1,26 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { RoleService } from '../../../../core/auth/role.service';
+import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
+import { InputGroup } from '../../../../shared/components/input-group/input-group';
 // Cross-feature import, read-only: `CategoriesApi.getAll()` populates the category dropdown.
 // Sanctioned per spec.md's Round-15 §Frontend note ("hier nur lesend importiert") — same
 // precedent as `verkaeufer-dialog.ts`'s `SellerTypesApi` import and `articles-page.ts`'s own
@@ -57,10 +68,10 @@ export interface ArtikelDialogServerErrors {
     DialogModule,
     ConfirmDialogModule,
     InputTextModule,
-    InputNumberModule,
-    SelectModule,
     TextareaModule,
     ButtonModule,
+    AutocompleteCreate,
+    InputGroup,
   ],
   templateUrl: './artikel-dialog.html',
   styleUrl: './artikel-dialog.scss',
@@ -101,8 +112,20 @@ export class ArtikelDialog {
 
   readonly isAdmin = this.roleService.isAdmin;
 
+  /**
+   * `input-group`'s price variant has no reactive `value` input as of Round-16 (checked
+   * `input-group.ts` before wiring, per Task 4 brief) — its own `priceValue` signal is only
+   * writable via user interaction or the imperative `applyExternalValue()` method. This
+   * `viewChild` lets the seeding effect below push `initialValue().price` into the rendered
+   * component when the dialog opens for an existing article, mirroring what the removed
+   * `p-inputnumber`'s `[ngModel]="price()"` binding did for free.
+   */
+  private readonly priceInputGroup = viewChild(InputGroup);
+
   readonly categoriesList = signal<Category[]>([]);
   readonly brandsList = signal<Brand[]>([]);
+  readonly categoryNames = computed(() => this.categoriesList().map((category) => category.name));
+  readonly brandNames = computed(() => this.brandsList().map((brand) => brand.name));
 
   readonly name = signal('');
   readonly brand = signal('');
@@ -153,6 +176,60 @@ export class ArtikelDialog {
       this.size.set(initial?.size ?? '');
       this.color.set(initial?.color ?? '');
       this.description.set(initial?.description ?? '');
+    });
+
+    // Separate from the seeding effect above: deliberately does NOT read `price()` (only the
+    // input's own initial-value dependencies), so a user typing into `input-group` — which
+    // round-trips through `onPriceChange()` back into the `price` signal — never re-triggers
+    // this and fights the user's own input. Re-syncs display to `initialValue()` whenever the
+    // dialog (re)opens or the `input-group` view becomes available.
+    effect(() => {
+      if (!this.visible()) return;
+      const inputGroup = this.priceInputGroup();
+      if (!inputGroup) return;
+      const initial = this.initialValue();
+      inputGroup.applyExternalValue(String(initial?.price ?? 0));
+    });
+  }
+
+  onPriceChange(value: string | number): void {
+    this.price.set(typeof value === 'number' ? value : Number(value));
+  }
+
+  onCategoryCreated(name: string): void {
+    this.categoriesApi.create(name).subscribe({
+      next: (created) => {
+        this.categoriesList.update((list) => [...list, created]);
+        this.category.set(created.name);
+      },
+      error: (error: unknown) => {
+        // 409: someone else created the same name a moment ago (serverseitige
+        // Duplikatprüfung, spec.md Nachtrag) — a race, not a failure for this dialog. Refresh
+        // the list so the now-existing entry is selectable, and land on the typed name.
+        if (error instanceof HttpErrorResponse && error.status === 409) {
+          this.categoriesApi.getAll().subscribe((categories) => {
+            this.categoriesList.set(categories);
+            this.category.set(name);
+          });
+        }
+      },
+    });
+  }
+
+  onBrandCreated(name: string): void {
+    this.brandsApi.create(name).subscribe({
+      next: (created) => {
+        this.brandsList.update((list) => [...list, created]);
+        this.brand.set(created.name);
+      },
+      error: (error: unknown) => {
+        if (error instanceof HttpErrorResponse && error.status === 409) {
+          this.brandsApi.getAll().subscribe((brands) => {
+            this.brandsList.set(brands);
+            this.brand.set(name);
+          });
+        }
+      },
     });
   }
 

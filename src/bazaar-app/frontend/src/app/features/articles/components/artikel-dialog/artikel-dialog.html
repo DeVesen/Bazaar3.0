@@ -37,16 +37,14 @@
 
     <div class="artikel-dialog__row">
       <div class="artikel-dialog__field">
-        <label for="artikel-dialog-category">Kategorie</label>
-        <p-select
-          inputId="artikel-dialog-category"
-          [options]="categoriesList()"
-          optionLabel="name"
-          optionValue="name"
-          [ngModel]="category()"
-          (ngModelChange)="category.set($event)"
-          name="category"
+        <label>Kategorie</label>
+        <app-autocomplete-create
+          [options]="categoryNames()"
+          [value]="category()"
+          (valueChange)="category.set($event)"
+          entityLabel="Kategorie"
           [disabled]="fieldsDisabled()"
+          (entryCreated)="onCategoryCreated($event)"
         />
         @if (serverErrors()?.category) {
           <small class="artikel-dialog__error">{{ serverErrors()?.category }}</small>
@@ -54,16 +52,14 @@
       </div>
 
       <div class="artikel-dialog__field">
-        <label for="artikel-dialog-brand">Marke</label>
-        <p-select
-          inputId="artikel-dialog-brand"
-          [options]="brandsList()"
-          optionLabel="name"
-          optionValue="name"
-          [ngModel]="brand()"
-          (ngModelChange)="brand.set($event)"
-          name="brand"
+        <label>Marke</label>
+        <app-autocomplete-create
+          [options]="brandNames()"
+          [value]="brand()"
+          (valueChange)="brand.set($event)"
+          entityLabel="Marke"
           [disabled]="fieldsDisabled()"
+          (entryCreated)="onBrandCreated($event)"
         />
         @if (serverErrors()?.brand) {
           <small class="artikel-dialog__error">{{ serverErrors()?.brand }}</small>
@@ -72,18 +68,19 @@
     </div>
 
     <div class="artikel-dialog__field">
-      <label for="artikel-dialog-price">Preis</label>
-      <p-inputnumber
-        inputId="artikel-dialog-price"
-        [ngModel]="price()"
-        (ngModelChange)="price.set($event)"
-        name="price"
-        mode="currency"
-        currency="EUR"
-        locale="de-DE"
-        [min]="0"
-        [disabled]="priceDisabled()"
-      />
+      <label>Preis</label>
+      <!-- `input-group` has no generic `disabled` input as of Round-16 (checked before
+           wiring, Task 4 brief) — a native `fieldset` cascades the disabled state onto its
+           native `<input>`/`<button>` descendants, the closest faithful equivalent to the
+           removed `p-inputnumber`'s `[disabled]="priceDisabled()"`, including the mode
+           buttons per the sold/settled lock (api/articles.md §4). -->
+      <fieldset class="artikel-dialog__price-fieldset" [disabled]="priceDisabled()">
+        <app-input-group
+          variant="price"
+          [modes]="['keyboard', 'numpad']"
+          (valueChange)="onPriceChange($event)"
+        />
+      </fieldset>
       @if (isSold()) {
         <small class="artikel-dialog__hint">Verkauf zuerst stornieren</small>
       }
