@@ -64,6 +64,30 @@ namespace Bazaar.Infrastructure.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Bazaar.Domain.SellerTypes.SellerType", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<decimal>("CommissionRate")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("ItemFee")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("citext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("SellerTypes");
+                });
+
             modelBuilder.Entity("Bazaar.Domain.Users.User", b =>
                 {
                     b.Property<string>("Id")
