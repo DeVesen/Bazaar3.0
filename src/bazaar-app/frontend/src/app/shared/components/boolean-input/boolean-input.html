@@ -1,0 +1,20 @@
+@if (variant() === 'checkbox') {
+  <div class="boolean-input boolean-input--checkbox">
+    <p-checkbox
+      [ngModel]="value()"
+      (ngModelChange)="onToggle($event)"
+      [binary]="true"
+      inputId="boolean-input-checkbox"
+    />
+    <label for="boolean-input-checkbox">{{ label() }}</label>
+  </div>
+} @else {
+  <div class="boolean-input boolean-input--switch">
+    <label for="boolean-input-switch">{{ label() }}</label>
+    <p-toggleswitch
+      [ngModel]="value()"
+      (ngModelChange)="onToggle($event)"
+      inputId="boolean-input-switch"
+    />
+  </div>
+}

@@ -1,0 +1,38 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [header]="mode() === 'create' ? 'Neue ' + entityLabel() : entityLabel() + ' bearbeiten'"
+  [style]="{ width: '25rem' }"
+>
+  <div class="master-data-popup">
+    <label for="master-data-popup-name">Name</label>
+    <input
+      id="master-data-popup-name"
+      pInputText
+      [ngModel]="name()"
+      (ngModelChange)="name.set($event)"
+      name="name"
+      type="text"
+      required
+    />
+
+    @if (mode() === 'edit') {
+      <app-boolean-input
+        variant="switch"
+        label="Original"
+        [value]="original()"
+        (valueChange)="original.set($event)"
+      />
+    }
+  </div>
+
+  <ng-template #footer>
+    <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
+    <p-button
+      [text]="true"
+      [label]="mode() === 'create' ? 'Anlegen' : 'Speichern'"
+      (onClick)="onSave()"
+    />
+  </ng-template>
+</p-dialog>
