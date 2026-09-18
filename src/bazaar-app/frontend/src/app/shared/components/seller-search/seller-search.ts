@@ -109,13 +109,16 @@ export class SellerSearch {
    * Abschnitt 6 "Scan-Ablauf": pushes the value into the field via `applyExternalValue()`, then
    * decides the post-scan mode transition itself, synchronously, based on the resulting match
    * count — no timing assumptions, no microtask.
+   *
+   * Does NOT emit `searchChanged` itself (fix round 2): `applyExternalValue()` already emits
+   * `input-group`'s own `valueChange`, which the template's `(valueChange)="onValueChange($event)"`
+   * binding forwards to `searchChanged` — emitting it again here would fire it twice per scan.
    */
   onScanDetected(value: string): void {
     const inputGroup = this.inputGroupRef();
     if (!inputGroup) return;
 
     inputGroup.applyExternalValue(value);
-    this.searchChanged.emit(value);
 
     const results = this.filteredSellers();
     if (results.length === 1) {

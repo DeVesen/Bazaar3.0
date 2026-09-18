@@ -183,6 +183,25 @@ describe('SellerSearch', () => {
     expect(inputGroup.activeMode()).toBe('keyboard');
   });
 
+  // fix round 2: onScanDetected() used to emit searchChanged itself IN ADDITION to the emission
+  // already forwarded from input-group's own valueChange (triggered by applyExternalValue()),
+  // firing it twice per scan.
+  it('emits searchChanged exactly once per scan, not twice', () => {
+    const fixture = create([seller({ id: 'SEL00001' })], { showScanButton: true });
+    const emitted: string[] = [];
+    fixture.componentInstance.searchChanged.subscribe((v) => emitted.push(v));
+
+    const inputGroup = inputGroupOf(fixture);
+    inputGroup.switchMode('camera');
+    fixture.detectChanges();
+    const scanner = fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
+
+    scanner.codeDetected.emit('SEL00001');
+    fixture.detectChanges();
+
+    expect(emitted).toEqual(['SEL00001']);
+  });
+
   it('keeps the camera active when a scan matches 0 sellers', () => {
     const fixture = create([seller({ id: 'SEL00001' })], { showScanButton: true });
 
