@@ -1,0 +1,47 @@
+<p-card styleClass="seller-search" (keydown)="onKeydown($event)">
+  <app-input-group #inputGroup [modes]="modes()" (valueChange)="onValueChange($event)" (submitted)="onSubmit()" />
+
+  <p class="seller-search__hint">{{ hint() }}</p>
+
+  @if (isCameraActive()) {
+    <!-- Camera replaces the result list here (not the input field) — seller-search's own
+         override of input-group's general "camera replaces the input field" default, per
+         input-group's doc Abschnitt 3 note about Seller-Search. `app-input-group` above already
+         renders its own `app-barcode-scanner` while in camera mode; the block below is only
+         seller-search's own listbox being hidden while that happens. -->
+  } @else {
+    <p-listbox
+      [options]="filteredSellers()"
+      styleClass="seller-search__list"
+      (onChange)="onListboxChange($event)"
+    >
+      <ng-template #item let-seller>
+        <div
+          class="seller-search__item"
+          [class.seller-search__item--settled]="seller.settledAt !== null"
+          [class.seller-search__item--highlighted]="filteredSellers().indexOf(seller) === highlightedIndex()"
+        >
+          <span class="seller-search__item-name">{{ seller.lastName }}, {{ seller.firstName }}</span>
+          <span class="seller-search__item-meta">#{{ seller.id }} · {{ seller.city }}</span>
+          @if (seller.settledAt !== null) {
+            <p-tag value="Abgerechnet" severity="warn" styleClass="seller-search__item-tag" />
+          }
+        </div>
+      </ng-template>
+    </p-listbox>
+
+    @if (blockedSelectionHint(); as blocked) {
+      <p class="seller-search__blocked-hint">{{ blocked }}</p>
+    }
+
+    @if (showCreateButton() && filteredSellers().length === 0) {
+      <p-button
+        label="+ Neuen Verkäufer anlegen"
+        severity="secondary"
+        [outlined]="true"
+        styleClass="seller-search__create-button"
+        (onClick)="onCreateClick()"
+      />
+    }
+  }
+</p-card>

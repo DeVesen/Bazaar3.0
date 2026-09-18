@@ -33,6 +33,7 @@ export interface SellerSearchResult {
   lastName: string;
   city: string | null;
   sellerType: string;
+  settledAt: string | null;
 }
 
 export interface ArticleSummary {

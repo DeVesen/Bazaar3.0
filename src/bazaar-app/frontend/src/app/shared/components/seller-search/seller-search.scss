@@ -1,0 +1,69 @@
+:host {
+  display: block;
+}
+
+// `p-card`/`p-listbox`/`p-tag`/`p-button` are separate PrimeNG components — a `styleClass`
+// input on them lands on THEIR own rendered root, outside this component's emulated-encapsulation
+// scope, so those rules need `::ng-deep`. Elements this component's own template owns directly
+// (the hint/blocked-hint `<p>`, the item `<div>`s and their children) stay plain scoped rules.
+::ng-deep .seller-search {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+::ng-deep .seller-search__list {
+  display: block;
+  width: 100%;
+  border: none;
+  margin-top: 0.75rem;
+}
+
+::ng-deep .seller-search__item-tag {
+  margin-left: auto;
+}
+
+::ng-deep .seller-search__create-button {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.seller-search {
+  &__hint {
+    margin: 10px 0 0;
+    font-size: 12.5px;
+    color: var(--p-text-muted-color);
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.25rem 0;
+    cursor: pointer;
+
+    &--settled {
+      opacity: 0.75;
+    }
+
+    &--highlighted {
+      background: var(--p-highlight-background, rgba(0, 0, 0, 0.04));
+    }
+  }
+
+  &__item-name {
+    font-weight: 600;
+  }
+
+  &__item-meta {
+    color: var(--p-text-muted-color);
+    font-size: 0.875rem;
+  }
+
+  &__blocked-hint {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--p-red-500, #ef4444);
+  }
+}
