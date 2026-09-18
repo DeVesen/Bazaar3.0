@@ -53,6 +53,8 @@ builder.Services.AddScoped<ISellerSearchQuery, SellerSearchQuery>();
 builder.Services.AddScoped<ISellerCardsQuery, SellerCardsQuery>();
 builder.Services.AddScoped<IArticlesBySellerQuery, ArticlesBySellerQuery>();
 builder.Services.AddScoped<IArticleCountBySellerQuery, ArticleCountBySellerQuery>();
+builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
+builder.Services.AddScoped<IArticleListQuery, ArticleListQuery>();
 builder.Services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
 builder.Services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
 builder.Services.AddSingleton<IIdGenerator, NanoIdGenerator>();
