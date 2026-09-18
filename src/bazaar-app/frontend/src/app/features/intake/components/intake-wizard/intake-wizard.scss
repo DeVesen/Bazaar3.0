@@ -1,0 +1,102 @@
+:host {
+  display: block;
+}
+
+// `p-tabs`/`p-tablist`/`p-tab` render their own markup outside this component's emulated
+// encapsulation scope, so the exact tab-shell styling from Epic_Artikelannahme Abschnitt 2
+// ("flex row, border-bottom 2px --border, mb 20px; tab item padding 10px 20px, 600, 13px,
+// muted; active tab: primary color + border-bottom") needs `::ng-deep` — same reasoning
+// `seller-search.scss` documents for its own PrimeNG child components.
+::ng-deep .intake-wizard .p-tablist-tab-list {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2px solid var(--p-content-border-color);
+  margin-bottom: 20px;
+}
+
+::ng-deep .intake-wizard .p-tab {
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--p-text-muted-color);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+::ng-deep .intake-wizard .p-tab-active {
+  color: var(--p-primary-color);
+  border-bottom-color: var(--p-primary-color);
+}
+
+.intake-wizard {
+  &__panel {
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+    border: 1px solid #dde6ee;
+    border-radius: 8px;
+    padding: 15px 16px;
+    margin-bottom: 12px;
+  }
+
+  &__panel-title {
+    margin: 0 0 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #4a6080;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    &--full {
+      grid-column: 1 / -1;
+    }
+  }
+
+  // `p-select`/`p-inputnumber` render their own root element outside this component's
+  // encapsulation scope — force them to fill their grid cell like the plain `pInputText`
+  // inputs next to them.
+  &__field ::ng-deep .p-select,
+  &__field ::ng-deep .p-inputnumber {
+    width: 100%;
+  }
+
+  &__field label {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--p-text-muted-color);
+  }
+
+  &__required {
+    color: var(--p-red-500);
+  }
+
+  &__error {
+    color: var(--p-red-500);
+  }
+
+  &__create-error {
+    margin: 0 0 12px;
+    color: var(--p-red-500);
+    font-size: 0.875rem;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+}

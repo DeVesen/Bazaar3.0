@@ -1,0 +1,178 @@
+<div class="intake-wizard">
+  <p-tabs [value]="activeStep()" (valueChange)="onTabChange($event)">
+    <p-tablist>
+      <p-tab value="step1">Schritt 1 — Verkäufer</p-tab>
+      <p-tab value="step2" [disabled]="!canGoToStep2()">Schritt 2 — Artikelannahme</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <p-tabpanel value="step1">
+        <div class="intake-wizard__panel">
+          <h3 class="intake-wizard__panel-title">Personendaten</h3>
+          <div class="intake-wizard__grid">
+            <div class="intake-wizard__field">
+              <label for="intake-wizard-first-name">Vorname <span class="intake-wizard__required">*</span></label>
+              <input
+                id="intake-wizard-first-name"
+                pInputText
+                [pAutoFocus]="true"
+                [ngModel]="firstName()"
+                (ngModelChange)="firstName.set($event)"
+                name="firstName"
+                type="text"
+              />
+            </div>
+
+            <div class="intake-wizard__field">
+              <label for="intake-wizard-last-name">Nachname <span class="intake-wizard__required">*</span></label>
+              <input
+                id="intake-wizard-last-name"
+                pInputText
+                [ngModel]="lastName()"
+                (ngModelChange)="lastName.set($event)"
+                name="lastName"
+                type="text"
+              />
+            </div>
+
+            <div class="intake-wizard__field intake-wizard__field--full">
+              <label for="intake-wizard-address">Anschrift</label>
+              <input
+                id="intake-wizard-address"
+                pInputText
+                [ngModel]="address()"
+                (ngModelChange)="address.set($event)"
+                name="address"
+                type="text"
+              />
+            </div>
+
+            <div class="intake-wizard__field">
+              <label for="intake-wizard-postal-code">PLZ</label>
+              <input
+                id="intake-wizard-postal-code"
+                pInputText
+                [ngModel]="postalCode()"
+                (ngModelChange)="postalCode.set($event)"
+                name="postalCode"
+                type="text"
+              />
+            </div>
+
+            <div class="intake-wizard__field">
+              <label for="intake-wizard-city">Ort</label>
+              <input
+                id="intake-wizard-city"
+                pInputText
+                [ngModel]="city()"
+                (ngModelChange)="city.set($event)"
+                name="city"
+                type="text"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="intake-wizard__panel">
+          <h3 class="intake-wizard__panel-title">Kontakt</h3>
+          <div class="intake-wizard__grid">
+            <div class="intake-wizard__field">
+              <label for="intake-wizard-phone">Telefon</label>
+              <input
+                id="intake-wizard-phone"
+                pInputText
+                [ngModel]="phone()"
+                (ngModelChange)="phone.set($event)"
+                name="phone"
+                type="text"
+              />
+            </div>
+
+            <div class="intake-wizard__field">
+              <label for="intake-wizard-email">E-Mail <span class="intake-wizard__required">*</span></label>
+              <input
+                id="intake-wizard-email"
+                pInputText
+                [ngModel]="email()"
+                (ngModelChange)="email.set($event)"
+                name="email"
+                type="email"
+              />
+              @if (emailFormatError()) {
+                <small class="intake-wizard__error">{{ emailFormatError() }}</small>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="intake-wizard__panel">
+          <h3 class="intake-wizard__panel-title">Konditionen</h3>
+          <div class="intake-wizard__grid">
+            <div class="intake-wizard__field intake-wizard__field--full">
+              <label for="intake-wizard-seller-type">Verkäufer-Typ <span class="intake-wizard__required">*</span></label>
+              <p-select
+                inputId="intake-wizard-seller-type"
+                [options]="sellerTypesList()"
+                optionLabel="name"
+                optionValue="id"
+                [ngModel]="sellerTypeId()"
+                (ngModelChange)="onTypeChange($event)"
+                name="sellerTypeId"
+              />
+            </div>
+
+            <div class="intake-wizard__field">
+              <label for="intake-wizard-fee-per-item">Gebühr je Stück</label>
+              <p-inputnumber
+                inputId="intake-wizard-fee-per-item"
+                [ngModel]="feePerItem()"
+                (ngModelChange)="feePerItem.set($event)"
+                name="feePerItem"
+                mode="currency"
+                currency="EUR"
+                locale="de-DE"
+                [min]="0"
+                [disabled]="!conditionsEditable()"
+              />
+            </div>
+
+            <div class="intake-wizard__field">
+              <label for="intake-wizard-sales-commission">Provision</label>
+              <p-inputnumber
+                inputId="intake-wizard-sales-commission"
+                [ngModel]="salesCommission()"
+                (ngModelChange)="salesCommission.set($event)"
+                name="salesCommission"
+                mode="decimal"
+                locale="de-DE"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2"
+                suffix=" %"
+                [min]="0"
+                [max]="100"
+                [disabled]="!conditionsEditable()"
+              />
+            </div>
+          </div>
+        </div>
+
+        @if (createError()) {
+          <p class="intake-wizard__create-error">{{ createError() }}</p>
+        }
+      </p-tabpanel>
+
+      <p-tabpanel value="step2">
+        @if (step2SellerId(); as sellerId) {
+          <app-intake-step-two-placeholder [sellerId]="sellerId" />
+        }
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+
+  <div class="intake-wizard__footer">
+    <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
+    @if (activeStep() === 'step1') {
+      <p-button severity="primary" label="Weiter →" [disabled]="!canSave()" (onClick)="onNext()" />
+    }
+  </div>
+</div>
