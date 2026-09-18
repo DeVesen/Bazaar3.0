@@ -1,0 +1,50 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true"
+  [closable]="true"
+  header="Verkäufer-Details"
+  [style]="{ width: '36rem' }"
+>
+  @if (seller(); as seller) {
+    <div class="seller-detail-modal">
+      <div class="seller-detail-modal__header">
+        <span class="seller-detail-modal__name">{{ fullName() }}</span>
+        <p-tag [value]="typeLabel()" severity="warn" />
+        <p-tag [value]="statusLabel()" [severity]="statusSeverity()" />
+      </div>
+
+      <div class="seller-detail-modal__identity">
+        <span class="seller-detail-modal__seller-number">Verkäufernummer: {{ seller.id }}</span>
+        <app-qr-code [value]="seller.id" [size]="128" />
+      </div>
+
+      <div class="seller-detail-modal__articles">
+        <h3 class="seller-detail-modal__section-title">Artikel</h3>
+
+        @if (articles().length === 0) {
+          <p class="seller-detail-modal__empty">Noch keine Artikel erfasst.</p>
+        } @else {
+          <p-table [value]="articles()" [paginator]="false">
+            <ng-template #header>
+              <tr>
+                <th>Nummer</th>
+                <th>Bezeichnung</th>
+                <th>Preis</th>
+                <th>Status</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-article>
+              <tr>
+                <td>{{ article.number }}</td>
+                <td>{{ article.name }}</td>
+                <td>{{ article.price | currency: 'EUR' }}</td>
+                <td>{{ articleStatusLabel(article.status) }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        }
+      </div>
+    </div>
+  }
+</p-dialog>

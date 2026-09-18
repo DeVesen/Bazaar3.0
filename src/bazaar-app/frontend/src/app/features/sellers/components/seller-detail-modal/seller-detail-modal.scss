@@ -1,0 +1,39 @@
+.seller-detail-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__name {
+    font-weight: 600;
+    font-size: 1.125rem;
+  }
+
+  &__identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__seller-number {
+    font-family: monospace;
+    color: var(--p-text-muted-color);
+  }
+
+  &__section-title {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  &__empty {
+    color: var(--p-text-muted-color);
+  }
+}
