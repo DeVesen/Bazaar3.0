@@ -85,7 +85,9 @@ const SEARCH_DEBOUNCE_MS = 300;
     <div class="input-group">
       @if (variant() === 'search') {
         <p-inputgroup>
-          <p-inputgroup-addon><i class="pi pi-search"></i></p-inputgroup-addon>
+          @if (showLeftAddon()) {
+            <p-inputgroup-addon><i class="pi pi-search"></i></p-inputgroup-addon>
+          }
 
           @if (activeMode() === 'camera' && cameraReplacesInput()) {
             <app-barcode-scanner [active]="activeMode() === 'camera'" (codeDetected)="onCodeDetected($event)" />
@@ -194,6 +196,14 @@ export class InputGroup {
    * behavior, unchanged for every other consumer of this component).
    */
   readonly cameraReplacesInput = input<boolean>(true);
+  /**
+   * Final-review fix (Important 2): doc AC-8 requires the Left-Addon slot to fall away
+   * completely — not just visually — when it is not configured. Additive `Input`, default
+   * `true` so every existing consumer (e.g. Seller-Search) keeps its 🔍 addon unchanged; only
+   * the price variant never renders it (it has no Left-Addon slot in the first place, see
+   * Abschnitt 5). Set to `false` when a search-variant consumer needs the field without one.
+   */
+  readonly showLeftAddon = input<boolean>(true);
 
   readonly valueChange = output<string | number>();
   readonly submitted = output<void>();

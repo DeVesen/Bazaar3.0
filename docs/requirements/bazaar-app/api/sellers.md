@@ -72,7 +72,7 @@ GET /api/sellers/search?q=mei
 → 200 OK
 [
   { "id": "a3f9c2d1", "firstName": "Anna", "lastName": "Meier",
-    "city": "Karlsruhe", "sellerType": "Privat" }
+    "city": "Karlsruhe", "sellerType": "Privat", "settledAt": null }
 ]
 ```
 

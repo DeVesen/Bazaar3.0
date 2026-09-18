@@ -362,6 +362,23 @@ describe('InputGroup', () => {
     });
   });
 
+  describe('showLeftAddon (final-review fix, Important 2 — doc AC-8)', () => {
+    it('renders the 🔍 Left-Addon by default', () => {
+      const fixture = create();
+      expect(fixture.debugElement.query(By.css('p-inputgroup-addon'))).toBeTruthy();
+      expect(fixture.debugElement.query(By.css('.pi-search'))).toBeTruthy();
+    });
+
+    it('removes the Left-Addon slot from the DOM entirely when showLeftAddon=false', () => {
+      const fixture = create();
+      fixture.componentRef.setInput('showLeftAddon', false);
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css('p-inputgroup-addon'))).toBeFalsy();
+      expect(fixture.debugElement.query(By.css('.pi-search'))).toBeFalsy();
+    });
+  });
+
   describe('previous-mode tracking (Round-16 Task 7 fix round 1, reviewer Important 3)', () => {
     it('getPreviousMode() defaults to keyboard before camera has ever been entered', () => {
       const fixture = create(['keyboard', 'camera', 'numpad']);

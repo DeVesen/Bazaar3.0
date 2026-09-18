@@ -136,11 +136,12 @@ Bei nicht gesetztem `showScanButton` sind nur zwei Modi konfiguriert (Tastatur, 
 
 ```
 {
-  id:        string   // Verkäufer-ID
+  id:        string          // Verkäufer-ID
   firstName: string
   lastName:  string
   zip:       string
   city:      string
+  settledAt: string | null   // gesetzt wenn abgerechnet — blockiert die Auswahl (Epic_Artikelannahme AC-12)
 }
 ```
 

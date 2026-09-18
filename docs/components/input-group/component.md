@@ -56,6 +56,16 @@ Preis-Variante:
 | **Action-Button** | ↩ — löst die primäre Aktion aus. Immer sichtbar, `disabled` solange das Feld leer ist. |
 | **Modus-Buttons** | _Nur Haupt-App:_ ein oder zwei Buttons, die in einen anderen Eingabemodus wechseln (Abschnitt 3). |
 
+### Weitere Inputs / Methoden
+
+| Name | Typ | Richtung | Beschreibung |
+|---|---|---|---|
+| `showLeftAddon` | `boolean` | `@Input` | Steuert den Left-Addon-Slot (🔍) der Such-Variante. Bei `false` entfällt der Slot vollständig (kein Element im DOM, nicht nur ausgeblendet) — siehe AC-8. Default: `true`, damit bestehende Verwendungsstellen (z. B. [Seller-Search](../seller-search/component.md)) unverändert bleiben. Ohne Wirkung auf die Preis-Variante, die ohnehin keinen Left-Addon kennt (Abschnitt 5). |
+| `searching` | `boolean` | `@Input` | Ersetzt den Clear-Button durch `p-progressspinner`, solange `true` (Abschnitt 4 „Spinner"). Default: `false`. |
+| `cameraReplacesInput` | `boolean` | `@Input` | Steuert, ob der Kamera-Modus das Eingabefeld selbst ersetzt (Standardfall, Abschnitt 3) oder stattdessen ein anderes Element der Verwendungsstelle (z. B. die Trefferliste im [Seller-Search](../seller-search/component.md)) — dort rendert die Verwendungsstelle dann ihren eigenen Barcode-Scanner und schreibt erkannte Werte über `applyExternalValue()` zurück. Default: `true`. |
+| `applyExternalValue(value)` | `(value: string) => void` | Methode | Öffentlicher Schreibzugriff für eine Verwendungsstelle mit `cameraReplacesInput=false`: setzt den Feldwert und emittiert `valueChange`, wie ein interner Scan-Treffer — lässt aber, anders als der interne Scan-Pfad, den Moduswechsel bewusst der Verwendungsstelle. |
+| `getPreviousMode()` | `() => InputMode` | Methode | Liefert den Modus, der unmittelbar vor dem aktuellen/letzten Wechsel in den Kamera-Modus aktiv war (Abschnitt 3 „zuvor aktiver Modus"). Default `'keyboard'`, solange der Kamera-Modus noch nie aktiviert wurde. |
+
 ---
 
 ## 3. Eingabe-Modi

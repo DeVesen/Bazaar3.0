@@ -165,13 +165,33 @@ describe('IntakeWizard', () => {
     expect(component.salesCommission()).toBe(15);
   });
 
-  it('marks conditions read-only for a non-admin and editable for an admin', async () => {
+  // Final-review fix (Important 1): the intake wizard never lets ANY role hand-edit the derived
+  // fee/commission fields — `CreateSellerRequest` has no fee/commission fields at all, so a
+  // typed-in value would silently be dropped on "Weiter". The admin override still exists, just
+  // not here — it lives in the existing Verkäufer-Bearbeiten dialog (`verkaeufer-dialog.ts`),
+  // whose update request DOES carry the edited values back to the server.
+  it('keeps the fee/commission fields read-only for both a non-admin and an admin (conditions are never editable in the intake wizard)', async () => {
     const nonAdmin = await setup({ isAdmin: false });
     expect(nonAdmin.fixture.componentInstance.conditionsEditable()).toBe(false);
 
     TestBed.resetTestingModule();
     const admin = await setup({ isAdmin: true });
-    expect(admin.fixture.componentInstance.conditionsEditable()).toBe(true);
+    expect(admin.fixture.componentInstance.conditionsEditable()).toBe(false);
+  });
+
+  it('renders the fee/commission inputs as disabled in the DOM even for an admin', async () => {
+    const { fixture } = await setup({ isAdmin: true });
+    const feeInput = (fixture.nativeElement as HTMLElement).querySelector(
+      '#intake-wizard-fee-per-item',
+    ) as HTMLInputElement | null;
+    const commissionInput = (fixture.nativeElement as HTMLElement).querySelector(
+      '#intake-wizard-sales-commission',
+    ) as HTMLInputElement | null;
+
+    expect(feeInput).toBeTruthy();
+    expect(commissionInput).toBeTruthy();
+    expect(feeInput?.disabled).toBe(true);
+    expect(commissionInput?.disabled).toBe(true);
   });
 
   it('still lets a non-admin freely change the type itself (only manual fee/commission edits are blocked)', async () => {

@@ -6,7 +6,6 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TabsModule } from 'primeng/tabs';
-import { RoleService } from '../../../../core/auth/role.service';
 // Cross-feature import, read-only: `SellersApi.create()`/`SellersApi.remove()` — same pattern
 // `verkaeufer-dialog.ts`/`intake-page.ts` already use for the sellers feature's public API.
 // eslint-disable-next-line boundaries/dependencies
@@ -58,14 +57,11 @@ function splitPendingSearchText(text: string): { firstName: string; lastName: st
 export class IntakeWizard {
   private readonly sellersApi = inject(SellersApi);
   private readonly sellerTypesApi = inject(SellerTypesApi);
-  private readonly roleService = inject(RoleService);
 
   readonly sellerId = input<string | null>(null);
   readonly pendingSearchText = input<string | null>(null);
 
   readonly closed = output<void>();
-
-  readonly isAdmin = this.roleService.isAdmin;
 
   readonly activeStep = signal<WizardStep>('step1');
   /** The seller id Step 2 renders for — either the resolved `sellerId` Input, or the id returned by `create()`. */
@@ -95,15 +91,18 @@ export class IntakeWizard {
   readonly emailFormatError = signal<string | null>(null);
 
   /**
-   * Epic_Artikelannahme Abschnitt 2 overrides ANNAHME-S02 AC-7 here (already ruled in spec.md,
-   * ledger-closed, not re-litigated per task brief): the fee/commission fields derived from the
-   * selected type render read-only for Kassenpersonal — only an admin may hand-edit them. The
-   * type itself stays freely selectable by anyone (`onTypeChange` always updates the type and
-   * its derived conditions, regardless of role) — same `[disabled]="!conditionsEditable()"`
-   * binding `verkaeufer-dialog.ts` uses for the identical reason (this is the one input in the
-   * app that moves money directly).
+   * Final-review fix (Important 1): fixed `false`, no longer `computed(() => this.isAdmin())`.
+   * `CreateSellerRequest` deliberately has no fee/commission fields (see `onNext()`'s own doc
+   * comment) — the server always derives both from `sellerTypeId` on creation. Letting an admin
+   * type a value into these fields here would silently discard it on "Weiter", with no error and
+   * no indication anything was dropped. The admin override this field name still hints at does
+   * NOT happen in the intake wizard: it lives exclusively in the existing Verkäufer-Bearbeiten
+   * dialog (`Epic_Verkaeufer` / `verkaeufer-dialog.ts`, whose own `conditionsEditable` computed
+   * from `isAdmin()` is correct there because that dialog's update request DOES carry the edited
+   * fee/commission back to the server), per Epic_Artikelannahme Abschnitt 2. The fields stay
+   * `[disabled]` unconditionally here, independent of role.
    */
-  readonly conditionsEditable = computed(() => this.isAdmin());
+  readonly conditionsEditable = computed(() => false);
 
   readonly canSave = computed(
     () =>
