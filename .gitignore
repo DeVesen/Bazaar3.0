@@ -75,6 +75,10 @@ out/
 # Build results
 [Dd]ebug/
 [Rr]elease/
+# Exception: Bazaar.Application's "Artikel freigeben" vertical slice and its
+# tests are legitimately named Release/ (business term), not a build output.
+!src/bazaar-app/backend/Bazaar.Application/Release/
+!src/bazaar-app/backend/tests/Bazaar.Application.UnitTests/Release/
 x64/
 x86/
 [Ww][Ii][Nn]32/

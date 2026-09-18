@@ -150,6 +150,21 @@ public sealed class Article
         UpdatedAt = now;
     }
 
+    /// <summary>
+    /// Sets ReleasedAt for an article booked via the Haupt-App's "Artikel
+    /// freigeben" flow (api/release.md, Round-18 ReleaseHandler). The
+    /// caller's own re-check guarantees ReleasedAt is still null before
+    /// calling this — deliberately not reusing <see cref="SetTimestamps"/>
+    /// (admin-only cascade invariants) or <see cref="MarkAcceptedAndReleased"/>
+    /// (also sets AcceptedAt, which a pre-registered article already has via
+    /// the advance-registration flow).
+    /// </summary>
+    public void MarkReleased(DateTimeOffset now)
+    {
+        ReleasedAt = now;
+        UpdatedAt = now;
+    }
+
     private static void EnsureRequiredFields(string name, string brand, string category)
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name required.");
