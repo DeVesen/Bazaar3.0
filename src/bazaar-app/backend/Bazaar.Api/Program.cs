@@ -4,9 +4,11 @@ using Bazaar.Api.Features.Auth;
 using Bazaar.Api.Features.Brands;
 using Bazaar.Api.Features.Categories;
 using Bazaar.Api.Features.Public;
+using Bazaar.Api.Features.SellerTypes;
 using Bazaar.Application.Auth;
 using Bazaar.Application.Brands;
 using Bazaar.Application.Categories;
+using Bazaar.Application.SellerTypes;
 using Bazaar.Domain.Ports;
 using Bazaar.Infrastructure.Persistence;
 using Bazaar.Infrastructure.Persistence.Repositories;
@@ -60,6 +62,10 @@ builder.Services.AddScoped<GetCategoriesHandler>();
 builder.Services.AddScoped<CreateCategoryHandler>();
 builder.Services.AddScoped<UpdateCategoryHandler>();
 builder.Services.AddScoped<DeleteCategoryHandler>();
+builder.Services.AddScoped<GetSellerTypesHandler>();
+builder.Services.AddScoped<CreateSellerTypeHandler>();
+builder.Services.AddScoped<UpdateSellerTypeHandler>();
+builder.Services.AddScoped<DeleteSellerTypeHandler>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -111,6 +117,7 @@ app.MapHealthEndpoints();
 app.MapAuthEndpoints();
 app.MapBrandEndpoints();
 app.MapCategoryEndpoints();
+app.MapSellerTypeEndpoints();
 
 await ApplyMigrationsAsync(app);
 
