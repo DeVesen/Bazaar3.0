@@ -1,7 +1,16 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { RoleService } from '../../../../core/auth/role.service';
+// eslint-disable-next-line boundaries/dependencies
+import { ArticlesApi } from '../../../articles/data/articles-api';
+// eslint-disable-next-line boundaries/dependencies
+import { CategoriesApi } from '../../../categories/data/categories-api';
+// eslint-disable-next-line boundaries/dependencies
+import { BrandsApi } from '../../../brands/data/brands-api';
+import { IntakeArticleEntry } from '../intake-article-entry/intake-article-entry';
 
 // `p-tabs`'s `TabList` observes its own size via `ResizeObserver` (for the scrollable-tabs
 // nav buttons) — unavailable in jsdom. Same kind of environment stub `intake-page.spec.ts`
@@ -70,13 +79,26 @@ async function setup(options: {
       : of(options.createResult ?? createdSeller()),
   );
   const remove = vi.fn().mockReturnValue(of(undefined));
+  // Step 2 now renders the real `intake-article-entry` (Round-17 Task 6), which needs its own
+  // dependencies stubbed so mounting it doesn't make real HTTP calls in these Step-1-focused
+  // tests — see `intake-article-entry.spec.ts` for the component's own dedicated test coverage.
+  const getById = vi.fn().mockReturnValue(of({ feePerItem: 0.5 }));
 
   await TestBed.configureTestingModule({
     imports: [IntakeWizard],
     providers: [
       { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
       { provide: SellerTypesApi, useValue: { getAll: () => of(SELLER_TYPES) } },
-      { provide: SellersApi, useValue: { create, remove } },
+      { provide: SellersApi, useValue: { create, remove, getById } },
+      {
+        provide: ArticlesApi,
+        useValue: {
+          getNextNumber: () => of({ nextNumber: 1 }),
+          getByNumber: () => throwError(() => new HttpErrorResponse({ status: 404 })),
+        },
+      },
+      { provide: CategoriesApi, useValue: { getAll: () => of([]) } },
+      { provide: BrandsApi, useValue: { getAll: () => of([]) } },
     ],
   }).compileComponents();
 
@@ -102,12 +124,26 @@ describe('IntakeWizard', () => {
     expect(text).toContain('Schritt 2 — Artikelannahme');
   });
 
-  it('skips straight to Step 2 with the resolved sellerId, passed through to the placeholder', async () => {
+  it('skips straight to Step 2 with the resolved sellerId, passed through to intake-article-entry', async () => {
     const { fixture } = await setup({ sellerId: 'SEL00001' });
 
     expect(fixture.componentInstance.activeStep()).toBe('step2');
     expect(fixture.componentInstance.step2SellerId()).toBe('SEL00001');
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('SEL00001');
+    const articleEntry = fixture.debugElement.query(By.directive(IntakeArticleEntry))
+      .componentInstance as IntakeArticleEntry;
+    expect(articleEntry.sellerId()).toBe('SEL00001');
+  });
+
+  it('wires intake-article-entry\'s booked output to the wizard\'s closed output (Round-17 Task 7 hand-off)', async () => {
+    const { fixture } = await setup({ sellerId: 'SEL00001' });
+    const closedSpy = vi.fn();
+    fixture.componentInstance.closed.subscribe(closedSpy);
+
+    const articleEntry = fixture.debugElement.query(By.directive(IntakeArticleEntry))
+      .componentInstance as IntakeArticleEntry;
+    articleEntry.booked.emit();
+
+    expect(closedSpy).toHaveBeenCalled();
   });
 
   it('starts on Step 1 and pre-splits pendingSearchText on the first space into Vorname/Nachname', async () => {

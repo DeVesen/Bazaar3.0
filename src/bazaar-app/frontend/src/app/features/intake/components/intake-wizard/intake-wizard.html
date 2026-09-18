@@ -163,7 +163,7 @@
 
       <p-tabpanel value="step2">
         @if (step2SellerId(); as sellerId) {
-          <app-intake-step-two-placeholder [sellerId]="sellerId" />
+          <app-intake-article-entry [sellerId]="sellerId" (booked)="onArticleEntryBooked()" />
         }
       </p-tabpanel>
     </p-tabpanels>

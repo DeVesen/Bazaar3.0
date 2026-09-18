@@ -1,0 +1,121 @@
+<div class="intake-article-entry">
+  <div class="intake-article-entry__form">
+    <div class="intake-article-entry__grid">
+      <div class="intake-article-entry__field intake-article-entry__field--full">
+        <label for="intake-article-entry-number">Artikelnummer <span class="intake-article-entry__required">*</span></label>
+        <app-input-group
+          #numberGroup
+          inputId="intake-article-entry-number"
+          variant="search"
+          [modes]="['keyboard', 'camera', 'numpad']"
+          [showLeftAddon]="false"
+          (valueChange)="onArticleNumberChange($event)"
+          (submitted)="onArticleNumberSubmit()"
+        />
+        <app-scan-feedback [result]="scanFeedbackResult()" />
+        @if (numberTakenMessage()) {
+          <small class="intake-article-entry__error">{{ numberTakenMessage() }}</small>
+        }
+      </div>
+
+      <div class="intake-article-entry__field intake-article-entry__field--full">
+        <label for="intake-article-entry-name">Bezeichnung <span class="intake-article-entry__required">*</span></label>
+        <input
+          id="intake-article-entry-name"
+          pInputText
+          [ngModel]="name()"
+          (ngModelChange)="name.set($event)"
+          name="name"
+          type="text"
+          required
+        />
+      </div>
+
+      <div class="intake-article-entry__field">
+        <label for="intake-article-entry-category">Kategorie <span class="intake-article-entry__required">*</span></label>
+        <app-autocomplete-create
+          inputId="intake-article-entry-category"
+          [options]="categoryNames()"
+          [value]="category()"
+          (valueChange)="category.set($event)"
+          entityLabel="Kategorie"
+          (entryCreated)="onCategoryCreated($event)"
+        />
+      </div>
+
+      <div class="intake-article-entry__field">
+        <label for="intake-article-entry-brand">Marke <span class="intake-article-entry__required">*</span></label>
+        <app-autocomplete-create
+          inputId="intake-article-entry-brand"
+          [options]="brandNames()"
+          [value]="brand()"
+          (valueChange)="brand.set($event)"
+          entityLabel="Marke"
+          (entryCreated)="onBrandCreated($event)"
+        />
+      </div>
+
+      <div class="intake-article-entry__field intake-article-entry__field--full">
+        <label for="intake-article-entry-price">Preis <span class="intake-article-entry__required">*</span></label>
+        <app-input-group
+          #priceGroup
+          inputId="intake-article-entry-price"
+          variant="price"
+          [modes]="['keyboard', 'numpad']"
+          (valueChange)="onPriceChange($event)"
+        />
+      </div>
+
+      <div class="intake-article-entry__field">
+        <label for="intake-article-entry-size">Größe</label>
+        <input
+          id="intake-article-entry-size"
+          pInputText
+          [ngModel]="size()"
+          (ngModelChange)="size.set($event)"
+          name="size"
+          type="text"
+        />
+      </div>
+
+      <div class="intake-article-entry__field">
+        <label for="intake-article-entry-color">Farbe</label>
+        <input
+          id="intake-article-entry-color"
+          pInputText
+          [ngModel]="color()"
+          (ngModelChange)="color.set($event)"
+          name="color"
+          type="text"
+        />
+      </div>
+
+      <div class="intake-article-entry__field intake-article-entry__field--full">
+        <label for="intake-article-entry-description">Beschreibung</label>
+        <textarea
+          id="intake-article-entry-description"
+          pTextarea
+          [ngModel]="description()"
+          (ngModelChange)="description.set($event)"
+          name="description"
+          rows="3"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="intake-article-entry__actions">
+      <p-button label="Übernehmen" [disabled]="!canSave()" (onClick)="onSubmitEntry()" />
+    </div>
+  </div>
+
+  <div class="intake-article-entry__session">
+    <h4 class="intake-article-entry__session-title">Artikel dieser Sitzung</h4>
+    <!-- Round-17 Task 7 replaces this minimal, non-interactive list wholesale with
+         `<app-intake-session-list [items]="items()" [feePerItem]="feePerItem()"
+         (itemDeleted)="..." (itemUpdated)="..." (booked)="onBooked($event)" />` — `items`/
+         `feePerItem` are already plain signals so that swap is template-only. -->
+    @for (item of items(); track item.localId) {
+      <div class="intake-article-entry__session-item">{{ item.number }} — {{ item.name }}</div>
+    }
+  </div>
+</div>

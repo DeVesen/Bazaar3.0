@@ -14,7 +14,7 @@ import { CreateSellerRequest, SellersApi } from '../../../sellers/data/sellers-a
 // same pattern `verkaeufer-dialog.ts` uses.
 // eslint-disable-next-line boundaries/dependencies
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
-import { IntakeStepTwoPlaceholder } from '../intake-step-two-placeholder/intake-step-two-placeholder';
+import { IntakeArticleEntry } from '../intake-article-entry/intake-article-entry';
 
 type WizardStep = 'step1' | 'step2';
 
@@ -48,7 +48,7 @@ function splitPendingSearchText(text: string): { firstName: string; lastName: st
     InputNumberModule,
     SelectModule,
     AutoFocusModule,
-    IntakeStepTwoPlaceholder,
+    IntakeArticleEntry,
   ],
   templateUrl: './intake-wizard.html',
   styleUrl: './intake-wizard.scss',
@@ -244,6 +244,16 @@ export class IntakeWizard {
       });
       return;
     }
+    this.closed.emit();
+  }
+
+  /**
+   * Round-17 Task 6: minimal hand-off for `intake-article-entry`'s `booked` output — not driven
+   * by a real booking flow yet (that's Task 7's `POST /api/intake` + payment panel). Reuses the
+   * wizard's existing `closed` output, which `intake-page.ts` already handles by resetting to
+   * the search view, so Task 7 gets a real, already-tested hand-off path to build on.
+   */
+  onArticleEntryBooked(): void {
     this.closed.emit();
   }
 }

@@ -1,12 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { IntakePage } from './intake-page';
 // eslint-disable-next-line boundaries/dependencies -- see intake-page.ts's own justification
 import { SellersApi, SellerSearchResult } from '../../../sellers/data/sellers-api';
 // eslint-disable-next-line boundaries/dependencies -- IntakeWizard's own read-only dependency, needed to satisfy its DI here
 import { SellerTypesApi } from '../../../seller-types/data/seller-types-api';
+// eslint-disable-next-line boundaries/dependencies -- IntakeArticleEntry's own read-only dependency, needed to satisfy its DI here
+import { ArticlesApi } from '../../../articles/data/articles-api';
+// eslint-disable-next-line boundaries/dependencies -- IntakeArticleEntry's own read-only dependency, needed to satisfy its DI here
+import { CategoriesApi } from '../../../categories/data/categories-api';
+// eslint-disable-next-line boundaries/dependencies -- IntakeArticleEntry's own read-only dependency, needed to satisfy its DI here
+import { BrandsApi } from '../../../brands/data/brands-api';
 import { SellerSearch, SellerSummary } from '../../../../shared/components/seller-search/seller-search';
 import { IntakeWizard } from '../../components/intake-wizard/intake-wizard';
 import { RoleService } from '../../../../core/auth/role.service';
@@ -63,9 +70,26 @@ describe('IntakePage', () => {
     await TestBed.configureTestingModule({
       imports: [IntakePage],
       providers: [
-        { provide: SellersApi, useValue: { search } },
+        { provide: SellersApi, useValue: { search, getById: () => of({ feePerItem: 0 }) } },
         { provide: SellerTypesApi, useValue: { getAll: () => of([]) } },
         { provide: RoleService, useValue: { isAdmin: () => false } },
+        // `IntakeWizard`'s Step 2 now renders the real `intake-article-entry` (Round-17 Task
+        // 6) — stubbed here purely so mounting it doesn't make real HTTP calls; its own
+        // behavior is covered by `intake-article-entry.spec.ts`.
+        {
+          provide: ArticlesApi,
+          useValue: {
+            getNextNumber: () => of({ nextNumber: 1 }),
+            // The next-number prefill round-trips through `applyExternalValue()`, which also
+            // emits `valueChange` — so this IS actually called (with the suggested, guaranteed-
+            // free number) even though nothing here explicitly types into the field. A 404
+            // (like the real backend would return for a genuinely free number) is the correct
+            // stub, not a bare `of(null)`.
+            getByNumber: () => throwError(() => new HttpErrorResponse({ status: 404 })),
+          },
+        },
+        { provide: CategoriesApi, useValue: { getAll: () => of([]) } },
+        { provide: BrandsApi, useValue: { getAll: () => of([]) } },
       ],
     }).compileComponents();
   });
