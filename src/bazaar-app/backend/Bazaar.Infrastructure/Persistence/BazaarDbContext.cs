@@ -1,4 +1,5 @@
 using Bazaar.Domain.Brands;
+using Bazaar.Domain.Categories;
 using Bazaar.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,8 @@ public sealed class BazaarDbContext(DbContextOptions<BazaarDbContext> options) :
     public DbSet<User> Users { get; set; } = null!;
 
     public DbSet<Brand> Brands { get; set; } = null!;
+
+    public DbSet<Category> Categories { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
