@@ -1,0 +1,23 @@
+<app-table
+  title="Verkäufer-Typen"
+  [columns]="columns"
+  [data]="rows()"
+  [loading]="loading()"
+  [actionColumn]="actionColumn()"
+  [emptyText]="emptyText"
+  [canAdd]="canAdd()"
+  (sortChange)="onSortChange($event)"
+  (actionClick)="onActionClick($event)"
+  (rowAdd)="onRowAdd()"
+/>
+
+<app-typ-popup
+  [visible]="popupVisible()"
+  (visibleChange)="popupVisible.set($event)"
+  [mode]="popupMode()"
+  [initialValue]="popupInitialValue()"
+  [saving]="saving()"
+  [serverErrors]="serverErrors()"
+  (save)="onPopupSave($event)"
+  (cancel)="onPopupCancel()"
+/>
