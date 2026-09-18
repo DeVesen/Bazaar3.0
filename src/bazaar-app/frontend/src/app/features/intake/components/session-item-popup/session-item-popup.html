@@ -1,0 +1,58 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  header="Artikel bearbeiten"
+  [style]="{ width: '28rem' }"
+>
+  <div class="session-item-popup">
+    <div class="session-item-popup__field">
+      <label for="session-item-popup-name">Bezeichnung</label>
+      <input
+        id="session-item-popup-name"
+        pInputText
+        [ngModel]="name()"
+        (ngModelChange)="name.set($event)"
+        name="name"
+        type="text"
+        required
+      />
+    </div>
+
+    <div class="session-item-popup__row">
+      <div class="session-item-popup__field">
+        <label>Kategorie</label>
+        <app-autocomplete-create
+          [options]="categoryOptions()"
+          [value]="category()"
+          (valueChange)="category.set($event)"
+          entityLabel="Kategorie"
+          (entryCreated)="categoryCreated.emit($event)"
+        />
+      </div>
+
+      <div class="session-item-popup__field">
+        <label>Marke</label>
+        <app-autocomplete-create
+          [options]="brandOptions()"
+          [value]="brand()"
+          (valueChange)="brand.set($event)"
+          entityLabel="Marke"
+          (entryCreated)="brandCreated.emit($event)"
+        />
+      </div>
+    </div>
+
+    <div class="session-item-popup__field">
+      <label>Preis</label>
+      <app-input-group variant="price" [modes]="['keyboard', 'numpad']" (valueChange)="onPriceChange($event)" />
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <div class="session-item-popup__footer">
+      <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
+      <p-button [text]="true" [disabled]="!canSave()" label="Speichern" (onClick)="onSave()" />
+    </div>
+  </ng-template>
+</p-dialog>
