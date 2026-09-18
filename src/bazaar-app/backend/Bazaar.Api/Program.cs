@@ -1,6 +1,7 @@
 using System.Text;
 using Bazaar.Api.ExceptionHandling;
 using Bazaar.Api.Features.Auth;
+using Bazaar.Api.Features.Brands;
 using Bazaar.Api.Features.Public;
 using Bazaar.Application.Auth;
 using Bazaar.Application.Brands;
@@ -98,6 +99,7 @@ app.UseAuthorization();
 
 app.MapHealthEndpoints();
 app.MapAuthEndpoints();
+app.MapBrandEndpoints();
 
 await ApplyMigrationsAsync(app);
 
