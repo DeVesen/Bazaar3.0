@@ -1,0 +1,132 @@
+<div class="sellers-page">
+  <div class="sellers-page__filter-row">
+    <p-iconfield class="sellers-page__search">
+      <p-inputicon class="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        placeholder="Suche nach Name, Ort …"
+        [ngModel]="qInput()"
+        (ngModelChange)="onQInputChange($event)"
+      />
+    </p-iconfield>
+
+    <p-select
+      [options]="sortOptions"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="filters().sort"
+      (ngModelChange)="onSortChange($event)"
+      aria-label="Sortierung"
+    />
+
+    <div class="sellers-page__spacer"></div>
+
+    <p-button label="+ Neu" (onClick)="onNewClick()" />
+  </div>
+
+  <div class="sellers-page__filter-row">
+    <p-select
+      [options]="statusOptions"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="filters().status"
+      (ngModelChange)="onStatusChange($event)"
+      aria-label="Status"
+    />
+  </div>
+
+  @if (hasActiveFilters()) {
+    <div class="sellers-page__chips">
+      @if (filters().q) {
+        <p-chip [label]="'Suche: ' + filters().q" [removable]="true" (onRemove)="clearQFilter()" />
+      }
+      @if (filters().status) {
+        <p-chip
+          [label]="'Status: ' + (filters().status === 'open' ? 'Offen' : filters().status === 'selling' ? 'Im Verkauf' : 'Abgerechnet')"
+          [removable]="true"
+          (onRemove)="clearStatusFilter()"
+        />
+      }
+    </div>
+  }
+
+  @if (noSellersAtAll()) {
+    <div class="sellers-page__empty">
+      <p>
+        Noch keine Verkäufer. Über <strong>Einstellungen → Import</strong> die Voranmeldedaten
+        einlesen oder mit <strong>+ Neu</strong> einen Verkäufer anlegen.
+      </p>
+    </div>
+  } @else if (noResultsForFilter()) {
+    <div class="sellers-page__empty">
+      <p>Keine Verkäufer für die gewählten Filter.</p>
+      <p-button label="Filter zurücksetzen" [text]="true" (onClick)="resetAllFilters()" />
+    </div>
+  } @else {
+    <div class="sellers-page__grid">
+      @for (card of items(); track card.id) {
+        <app-seller-card
+          [card]="card"
+          (edit)="onEdit($event)"
+          (scan)="onScan($event)"
+          (statusClick)="onStatusClick($event)"
+          (cardClick)="onCardClick($event)"
+        />
+      }
+    </div>
+
+    <p-paginator
+      [first]="(page() - 1) * pageSize()"
+      [rows]="pageSize()"
+      [totalRecords]="totalCount()"
+      (onPageChange)="onPageChange($event)"
+    />
+  }
+</div>
+
+<app-verkaeufer-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="onDialogVisibleChange($event)"
+  [mode]="dialogMode()"
+  [initialValue]="dialogInitialValue()"
+  [saving]="saving()"
+  [serverErrors]="serverErrors()"
+  [deleteError]="deleteError()"
+  (save)="onDialogSave($event)"
+  (cancel)="onDialogCancel()"
+  (deleteRequested)="onDeleteRequested()"
+/>
+
+<app-seller-detail-modal
+  [visible]="detailModalVisible()"
+  (visibleChange)="onDetailModalVisibleChange($event)"
+  [seller]="selectedCardForDetail()"
+/>
+
+<p-dialog
+  [visible]="statusPopupVisible()"
+  (visibleChange)="onStatusPopupVisibleChange($event)"
+  [modal]="true"
+  header="Abrechnungsstatus"
+  [style]="{ width: '24rem' }"
+>
+  @if (statusPopupCard(); as card) {
+    <p>Status: {{ statusPopupLabel() }}</p>
+    @if (card.settledAt) {
+      <p>Abgerechnet am {{ card.settledAt | date: 'dd.MM.yyyy HH:mm' }}</p>
+    } @else {
+      <p>Verkäufer ist noch nicht abgerechnet.</p>
+    }
+    @if (statusPopupCanReset()) {
+      <p-button
+        label="Zurücksetzen"
+        severity="danger"
+        [text]="true"
+        (onClick)="onResetSettlement()"
+      />
+    }
+  }
+</p-dialog>
+
+<p-confirmdialog key="resetSettlement" />
