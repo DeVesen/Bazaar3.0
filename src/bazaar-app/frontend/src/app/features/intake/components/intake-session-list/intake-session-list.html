@@ -1,0 +1,51 @@
+<div class="intake-session-list">
+  <div class="intake-session-list__rows">
+    @for (item of items(); track item.localId) {
+      <div
+        class="intake-session-list__row"
+        [class.intake-session-list__row--conflict]="item.conflict"
+        role="button"
+        tabindex="0"
+        (click)="onRowClick(item)"
+        (keydown.enter)="onRowClick(item)"
+        (keydown.space)="onRowClick(item)"
+      >
+        <span class="intake-session-list__row-text">{{ item.number }} — {{ item.name }}</span>
+        <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" (onClick)="onDelete(item.localId, $event)" />
+      </div>
+    }
+  </div>
+
+  <div class="intake-session-list__fee">
+    <span>Gebühr</span>
+    <span>{{ fee() | currency: 'EUR' }}</span>
+  </div>
+
+  @if (bookingError()) {
+    <p class="intake-session-list__error">{{ bookingError() }}</p>
+  }
+
+  <p-button label="Speichern" severity="success" [fluid]="true" [disabled]="!canBook()" (onClick)="openPayment()" />
+</div>
+
+<app-session-item-popup
+  [visible]="popupVisible()"
+  (visibleChange)="popupVisible.set($event)"
+  [initialValue]="initialPopupValue()"
+  [categoryOptions]="categoryOptions()"
+  [brandOptions]="brandOptions()"
+  (save)="onPopupSave($event)"
+  (cancel)="onPopupCancel()"
+  (categoryCreated)="categoryCreated.emit($event)"
+  (brandCreated)="brandCreated.emit($event)"
+/>
+
+<p-dialog [(visible)]="paymentPanelVisible" [modal]="true" header="Bezahlen">
+  <app-payment-panel
+    totalLabel="Gesamtgebühr"
+    [totalAmount]="fee()"
+    confirmLabel="Buchen"
+    (confirmed)="onPaymentConfirmed($event)"
+    (cancelled)="paymentPanelVisible.set(false)"
+  />
+</p-dialog>

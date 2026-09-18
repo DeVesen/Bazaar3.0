@@ -1,0 +1,50 @@
+<div class="payment-panel">
+  <div class="payment-panel__total">
+    <span>{{ totalLabel() }}</span>
+    <span>{{ totalAmount() | currency: 'EUR' }}</span>
+  </div>
+  <div class="payment-panel__divider"></div>
+
+  <div class="payment-panel__received">
+    <label for="payment-panel-amount">Betrag erhalten</label>
+    <p-inputgroup>
+      <p-inputnumber
+        #amountInput
+        inputId="payment-panel-amount"
+        mode="decimal"
+        locale="de-DE"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        [ngModel]="receivedAmount()"
+        (ngModelChange)="onAmountChange($event)"
+        [readonly]="mode() === 'numpad'"
+        [pAutoFocus]="mode() === 'keyboard'"
+      />
+      <p-inputgroup-addon>€</p-inputgroup-addon>
+      <p-button [icon]="modeButtonIcon()" severity="secondary" [rounded]="true" [text]="true" (onClick)="toggleMode()" />
+    </p-inputgroup>
+  </div>
+
+  @if (mode() === 'numpad') {
+    <app-numpad
+      [showDecimal]="true"
+      [showEnter]="true"
+      [enterDisabled]="belowTotal()"
+      (keyPressed)="onNumpadKey($event)"
+      (cleared)="onNumpadClear()"
+      (submitted)="onNumpadSubmit()"
+    />
+  }
+
+  @if (showChange()) {
+    <div class="payment-panel__change">
+      <div class="payment-panel__change-amount">{{ change() | currency: 'EUR' }}</div>
+      <div class="payment-panel__change-label">Rückgeld</div>
+    </div>
+  }
+
+  <div class="payment-panel__footer">
+    <p-button label="Abbrechen" severity="secondary" (onClick)="cancel()" />
+    <p-button [label]="confirmLabel()" severity="primary" [disabled]="belowTotal()" (onClick)="confirm()" />
+  </div>
+</div>

@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.payment-panel {
+  &__total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 17px;
+  }
+
+  &__divider {
+    border-top: 2px solid var(--p-content-border-color);
+    margin: 10px 0;
+    padding-top: 10px;
+  }
+
+  &__received {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    p-inputgroup {
+      width: 100%;
+    }
+  }
+
+  &__change {
+    font-size: 32px;
+    font-weight: 800;
+    text-align: center;
+    padding: 14px;
+    background: #e8f8f0;
+    border-radius: 8px;
+    color: #1a5c38;
+    margin: 12px 0;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
+}

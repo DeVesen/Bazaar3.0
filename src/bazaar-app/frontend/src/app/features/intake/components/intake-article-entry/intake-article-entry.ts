@@ -22,6 +22,8 @@ import { Brand, BrandsApi } from '../../../brands/data/brands-api';
 // sanctioned pattern `intake-wizard.ts` already uses for `SellersApi`/`SellerTypesApi`.
 // eslint-disable-next-line boundaries/dependencies
 import { SellersApi } from '../../../sellers/data/sellers-api';
+import { BookingConflict, IntakeSessionList } from '../intake-session-list/intake-session-list';
+import { SessionItemFormValue } from '../session-item-popup/session-item-popup';
 
 /**
  * A single article entered into THIS intake session, held locally until the whole session is
@@ -40,21 +42,34 @@ export interface SessionArticle {
   size: string | null;
   color: string | null;
   description: string | null;
+  /** Round-17 Task 7: set true when a booking attempt's 409 `article.number_taken` reported this
+   * row's number as taken (`onBookingConflict()`) — cleared once the row is edited
+   * (`onItemUpdated()`). Drives `intake-session-list`'s row highlight (AC-8). */
+  conflict?: boolean;
 }
 
 /**
  * Wizard Schritt-2 container (Epic_Artikelannahme Abschnitt 2) — replaces the Round-16
  * `intake-step-two-placeholder`. Left column (70%): the article entry form (Artikelnummer with
  * camera/scan-feedback, Bezeichnung, Kategorie/Marke, Preis, Größe/Farbe, Beschreibung,
- * "Übernehmen"). Right column (30%): a minimal, non-interactive session article list — Round-17
- * Task 7 replaces this with a real `intake-session-list` child component (click-to-edit via
- * `session-item-popup`, delete, payment panel); `items`/`feePerItem` are already shaped as plain
- * signals so that swap is template-only, no data rework (see this class's own doc comments below
- * on `items`/`feePerItem`).
+ * "Übernehmen"). Right column (30%): `app-intake-session-list` (Round-17 Task 7) — click-to-edit
+ * via `session-item-popup`, delete, and the payment panel that actually books the session
+ * (`POST /api/intake`). This component owns `items()`/`feePerItem()` and applies the mutations
+ * `intake-session-list` requests via its intent events (`itemDeleted`/`itemUpdated`/`booked`/
+ * `bookingConflict`) — see those events' own handler doc comments below.
  */
 @Component({
   selector: 'app-intake-article-entry',
-  imports: [FormsModule, ButtonModule, InputTextModule, TextareaModule, AutocompleteCreate, InputGroup, ScanFeedback],
+  imports: [
+    FormsModule,
+    ButtonModule,
+    InputTextModule,
+    TextareaModule,
+    AutocompleteCreate,
+    InputGroup,
+    ScanFeedback,
+    IntakeSessionList,
+  ],
   templateUrl: './intake-article-entry.html',
   styleUrl: './intake-article-entry.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -266,11 +281,50 @@ export class IntakeArticleEntry {
       },
     ]);
 
-    // TODO(Round-17 Task 7): this is currently a purely local, in-memory session list — Task 7
-    // adds the payment panel + `POST /api/intake` call and calls `this.booked.emit()` here (or
-    // wherever the booking API call ends up living) once the whole session is booked, not on
-    // every single "Übernehmen" click.
     this.resetForm();
+  }
+
+  /** `intake-session-list`'s `itemDeleted` — pure in-memory session state, no confirm dialog
+   * needed (unlike the Round-15 artikel-dialog's DB-backed delete). */
+  onItemDeleted(localId: string): void {
+    this.items.update((items) => items.filter((item) => item.localId !== localId));
+  }
+
+  /** `intake-session-list`'s `itemUpdated` (via `session-item-popup`'s `save`) — clears any
+   * stale `conflict` flag, since the row was just hand-corrected. */
+  onItemUpdated(event: { localId: string; value: SessionItemFormValue }): void {
+    this.items.update((items) =>
+      items.map((item) =>
+        item.localId === event.localId
+          ? {
+              ...item,
+              name: event.value.name,
+              category: event.value.category,
+              brand: event.value.brand,
+              price: event.value.price,
+              conflict: false,
+            }
+          : item,
+      ),
+    );
+  }
+
+  /** `intake-session-list`'s `booked` — the whole session was just booked server-side; clear the
+   * now-stale local list and re-emit upward (wizard hand-off, Task 6). */
+  onBooked(): void {
+    this.items.set([]);
+    this.booked.emit();
+  }
+
+  /** `intake-session-list`'s `bookingConflict` (409 `article.number_taken`) — mark the affected
+   * rows and prefill the Artikelnummer field with the server's `nextNumber` suggestion (AC-8).
+   * Deliberately does NOT clear `items()` — the session must stay intact for the user to fix the
+   * marked rows and retry. */
+  onBookingConflict(event: BookingConflict): void {
+    this.items.update((items) =>
+      items.map((item) => (event.takenNumbers.includes(item.number) ? { ...item, conflict: true } : item)),
+    );
+    this.pendingNumberValue.set(String(event.nextNumber));
   }
 
   private checkArticleNumber(raw: string): void {

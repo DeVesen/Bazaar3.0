@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.intake-session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-radius: 6px;
+    background: var(--p-surface-100, #f3f4f6);
+    cursor: pointer;
+
+    &--conflict {
+      background: var(--p-red-50, #fef2f2);
+      border: 1px solid var(--p-red-300, #fca5a5);
+    }
+  }
+
+  &__row-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__fee {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    padding: 0.5rem 0;
+  }
+
+  &__error {
+    color: var(--p-red-500);
+  }
+}

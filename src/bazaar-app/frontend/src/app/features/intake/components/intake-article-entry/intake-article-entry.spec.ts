@@ -12,7 +12,10 @@ import { Brand, BrandsApi } from '../../../brands/data/brands-api';
 import { SellerDetail, SellersApi } from '../../../sellers/data/sellers-api';
 import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
-import { IntakeArticleEntry } from './intake-article-entry';
+import { PrintService } from '../../../../core/print/print.service';
+import { IntakeApi } from '../../data/intake-api';
+import { IntakeSessionList } from '../intake-session-list/intake-session-list';
+import { IntakeArticleEntry, SessionArticle } from './intake-article-entry';
 
 const SELLER_ID = 'SEL00001';
 
@@ -73,17 +76,44 @@ function brandsApiStub() {
   };
 }
 
+function intakeApiStub() {
+  return { bookIntake: vi.fn().mockReturnValue(of({ articleIds: ['ART00099'], intakeFeePaid: 1 })) };
+}
+
+function printServiceStub() {
+  return { printIntakeReceipt: vi.fn() };
+}
+
+function sessionArticleStub(overrides: Partial<SessionArticle> = {}): SessionArticle {
+  return {
+    localId: 'local-1',
+    number: 1043,
+    name: 'Winterjacke',
+    brand: 'Lego',
+    category: 'Kleidung',
+    price: 12.5,
+    size: null,
+    color: null,
+    description: null,
+    ...overrides,
+  };
+}
+
 async function setup(
   options: {
     articlesApi?: ReturnType<typeof articlesApiStub>;
     categoriesApi?: ReturnType<typeof categoriesApiStub>;
     brandsApi?: ReturnType<typeof brandsApiStub>;
+    intakeApi?: ReturnType<typeof intakeApiStub>;
+    printService?: ReturnType<typeof printServiceStub>;
   } = {},
 ) {
   const articlesApi = options.articlesApi ?? articlesApiStub();
   const categoriesApi = options.categoriesApi ?? categoriesApiStub();
   const brandsApi = options.brandsApi ?? brandsApiStub();
   const sellersApi = { getById: vi.fn().mockReturnValue(of(sellerDetailStub())) };
+  const intakeApi = options.intakeApi ?? intakeApiStub();
+  const printService = options.printService ?? printServiceStub();
 
   await TestBed.configureTestingModule({
     imports: [IntakeArticleEntry],
@@ -92,6 +122,8 @@ async function setup(
       { provide: CategoriesApi, useValue: categoriesApi },
       { provide: BrandsApi, useValue: brandsApi },
       { provide: SellersApi, useValue: sellersApi },
+      { provide: IntakeApi, useValue: intakeApi },
+      { provide: PrintService, useValue: printService },
     ],
   }).compileComponents();
 
@@ -101,7 +133,11 @@ async function setup(
   fixture.detectChanges();
   await fixture.whenStable();
 
-  return { fixture, articlesApi, categoriesApi, brandsApi, sellersApi };
+  return { fixture, articlesApi, categoriesApi, brandsApi, sellersApi, intakeApi, printService };
+}
+
+function sessionList(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
+  return fixture.debugElement.query(By.directive(IntakeSessionList)).componentInstance as IntakeSessionList;
 }
 
 function numberInputGroup(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
@@ -418,6 +454,67 @@ describe('IntakeArticleEntry', () => {
       const component = fixture.componentInstance;
       expect(component.brandsList().map((b) => b.name)).toContain('Nike');
       expect(component.brand()).toBe('Nike');
+    });
+  });
+
+  describe('intake-session-list wiring (Round-17 Task 7)', () => {
+    it('itemDeleted removes exactly the matching item from items()', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.items.set([sessionArticleStub({ localId: 'a' }), sessionArticleStub({ localId: 'b', number: 1099 })]);
+      fixture.detectChanges();
+
+      sessionList(fixture).itemDeleted.emit('a');
+
+      expect(component.items().map((i) => i.localId)).toEqual(['b']);
+    });
+
+    it('itemUpdated applies the new form values to the matching item and clears its conflict flag', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.items.set([sessionArticleStub({ localId: 'a', conflict: true })]);
+      fixture.detectChanges();
+
+      sessionList(fixture).itemUpdated.emit({
+        localId: 'a',
+        value: { name: 'Sommerjacke', category: 'Kleidung', brand: 'Lego', price: 19.9 },
+      });
+
+      expect(component.items()).toEqual([
+        sessionArticleStub({ localId: 'a', name: 'Sommerjacke', price: 19.9, conflict: false }),
+      ]);
+    });
+
+    it('bookingConflict marks the affected rows by number and prefills the Artikelnummer field with nextNumber', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.items.set([
+        sessionArticleStub({ localId: 'a', number: 1043 }),
+        sessionArticleStub({ localId: 'b', number: 1099 }),
+      ]);
+      fixture.detectChanges();
+
+      sessionList(fixture).bookingConflict.emit({ takenNumbers: [1043], nextNumber: 1050 });
+      await fixture.whenStable();
+
+      expect(component.items().find((i) => i.localId === 'a')?.conflict).toBe(true);
+      expect(component.items().find((i) => i.localId === 'b')?.conflict).toBeFalsy();
+      expect(numberInputGroup(fixture).rawValue()).toBe('1050');
+    });
+
+    it('booked from the child clears items() and re-emits booked upward', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.items.set([sessionArticleStub()]);
+      fixture.detectChanges();
+
+      const bookedSpy = vi.fn();
+      component.booked.subscribe(bookedSpy);
+
+      sessionList(fixture).booked.emit();
+
+      expect(component.items()).toEqual([]);
+      expect(bookedSpy).toHaveBeenCalled();
     });
   });
 });

@@ -110,12 +110,18 @@
 
   <div class="intake-article-entry__session">
     <h4 class="intake-article-entry__session-title">Artikel dieser Sitzung</h4>
-    <!-- Round-17 Task 7 replaces this minimal, non-interactive list wholesale with
-         `<app-intake-session-list [items]="items()" [feePerItem]="feePerItem()"
-         (itemDeleted)="..." (itemUpdated)="..." (booked)="onBooked($event)" />` — `items`/
-         `feePerItem` are already plain signals so that swap is template-only. -->
-    @for (item of items(); track item.localId) {
-      <div class="intake-article-entry__session-item">{{ item.number }} — {{ item.name }}</div>
-    }
+    <app-intake-session-list
+      [items]="items()"
+      [feePerItem]="feePerItem()"
+      [sellerId]="sellerId()"
+      [categoryOptions]="categoryNames()"
+      [brandOptions]="brandNames()"
+      (itemDeleted)="onItemDeleted($event)"
+      (itemUpdated)="onItemUpdated($event)"
+      (booked)="onBooked()"
+      (bookingConflict)="onBookingConflict($event)"
+      (categoryCreated)="onCategoryCreated($event)"
+      (brandCreated)="onBrandCreated($event)"
+    />
   </div>
 </div>
