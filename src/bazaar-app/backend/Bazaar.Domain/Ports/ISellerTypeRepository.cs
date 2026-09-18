@@ -16,5 +16,7 @@ public interface ISellerTypeRepository
     /// </summary>
     Task<bool> ExistsByNameIgnoreCase(string name);
 
+    Task Update(SellerType sellerType);
+
     Task Remove(SellerType sellerType);
 }
