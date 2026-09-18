@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group__spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+// Doc Abschnitt 3 "Kamera nicht verfügbar oder Zugriff verweigert" — exact wording is
+// binding, only the visual treatment ("rote InfoArea") is this component's own choice.
+.input-group__camera-error {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--p-red-700, #b91c1c);
+  background: var(--p-red-50, #fef2f2);
+  border: 1px solid var(--p-red-200, #fecaca);
+  font-size: 14px;
+}
