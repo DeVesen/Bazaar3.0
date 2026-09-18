@@ -1,6 +1,7 @@
 using Bazaar.Domain.Articles;
 using Bazaar.Infrastructure.Persistence;
 using Bazaar.Infrastructure.Persistence.Repositories;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bazaar.Infrastructure.UnitTests.Persistence.Repositories;
@@ -59,15 +60,24 @@ public class BrandArticleLinkTests
         Assert.Equal(0, count);
     }
 
-    [Fact(Skip =
-        "ExecuteUpdateAsync is not supported by Microsoft.EntityFrameworkCore.InMemory 10.0.4 " +
-        "(confirmed empirically: throws InvalidOperationException at query-compile time). " +
-        "RenameArticlesReferencingBrand can only be verified against a real provider " +
-        "(Postgres via Npgsql.EntityFrameworkCore.PostgreSQL) — see task-2-report.md.")]
+    [Fact]
     public async Task RenameArticlesReferencingBrand_UpdatesMatchingArticlesOnly()
     {
         var cancellationToken = TestContext.Current.CancellationToken;
-        await using var dbContext = CreateContext();
+
+        // ExecuteUpdateAsync is not supported by Microsoft.EntityFrameworkCore.InMemory 10.0.4
+        // (confirmed empirically: throws InvalidOperationException at query-compile time).
+        // SQLite's provider does support ExecuteUpdateAsync translation and needs no external
+        // service, so this test uses an open in-memory SQLite connection instead.
+        using var connection = new SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync(cancellationToken);
+
+        var options = new DbContextOptionsBuilder<BazaarDbContext>()
+            .UseSqlite(connection)
+            .Options;
+        await using var dbContext = new BazaarDbContext(options);
+        await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+
         await SeedAsync(dbContext, cancellationToken);
         var sut = new BrandArticleLink(dbContext);
 
