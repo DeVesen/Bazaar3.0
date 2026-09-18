@@ -109,6 +109,18 @@ public sealed class Seller
         SettledAt = settledAt;
     }
 
+    /// <summary>
+    /// Adds to <see cref="IntakeFeePaid"/> — called once per intake
+    /// transaction (api/intake.md: "feeAmount wird auf intakeFeePaid des
+    /// Verkäufers addiert"). Additive, never a replace, since a seller can
+    /// go through intake more than once (e.g. bringing a second box later).
+    /// </summary>
+    public void AddIntakeFeePaid(decimal amount)
+    {
+        if (amount < 0) throw new ArgumentException("Amount must not be negative.");
+        IntakeFeePaid += amount;
+    }
+
     private static void EnsureRequiredFields(string firstName, string lastName, string email, string sellerTypeId)
     {
         if (string.IsNullOrWhiteSpace(firstName)) throw new ArgumentException("FirstName required.");

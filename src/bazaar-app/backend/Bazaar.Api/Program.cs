@@ -11,6 +11,7 @@ using Bazaar.Application.Articles;
 using Bazaar.Application.Auth;
 using Bazaar.Application.Brands;
 using Bazaar.Application.Categories;
+using Bazaar.Application.Intake;
 using Bazaar.Application.SellerTypes;
 using Bazaar.Application.Sellers;
 using Bazaar.Domain.Ports;
@@ -57,6 +58,7 @@ builder.Services.AddScoped<IArticlesBySellerQuery, ArticlesBySellerQuery>();
 builder.Services.AddScoped<IArticleCountBySellerQuery, ArticleCountBySellerQuery>();
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddScoped<IArticleListQuery, ArticleListQuery>();
+builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 builder.Services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
 builder.Services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
 builder.Services.AddSingleton<IIdGenerator, NanoIdGenerator>();
@@ -90,6 +92,8 @@ builder.Services.AddScoped<GetNextArticleNumberHandler>();
 builder.Services.AddScoped<UpdateArticleHandler>();
 builder.Services.AddScoped<UpdateArticleTimestampsHandler>();
 builder.Services.AddScoped<DeleteArticleHandler>();
+builder.Services.AddScoped<GetArticleByNumberHandler>();
+builder.Services.AddScoped<IntakeHandler>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

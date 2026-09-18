@@ -135,6 +135,21 @@ public sealed class Article
         UpdatedAt = now;
     }
 
+    /// <summary>
+    /// Sets AcceptedAt and ReleasedAt together to the same instant — the
+    /// intake-only write (api/intake.md: "An jedem Artikel werden
+    /// acceptedAt und releasedAt auf den Vorgangszeitpunkt gesetzt").
+    /// Deliberately separate from <see cref="SetTimestamps"/> (Round-15,
+    /// admin-only timestamps-popup with cascade-invariant checks) — intake
+    /// booking is a simpler, unconditional write with no such invariants.
+    /// </summary>
+    public void MarkAcceptedAndReleased(DateTimeOffset now)
+    {
+        AcceptedAt = now;
+        ReleasedAt = now;
+        UpdatedAt = now;
+    }
+
     private static void EnsureRequiredFields(string name, string brand, string category)
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name required.");

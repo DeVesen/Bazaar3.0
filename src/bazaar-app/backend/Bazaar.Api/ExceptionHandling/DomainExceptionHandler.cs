@@ -16,11 +16,20 @@ public sealed class DomainExceptionHandler : IExceptionHandler
             ConflictException => StatusCodes.Status409Conflict,
             UnauthorizedException => StatusCodes.Status401Unauthorized,
             ForbiddenException => StatusCodes.Status403Forbidden,
+            BadRequestException => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
 
         var problem = new ProblemDetails { Status = status, Title = domainException.Message, Detail = domainException.Message };
         problem.Extensions["errorCode"] = domainException.ErrorCode;
+
+        if (domainException.Extensions is { Count: > 0 })
+        {
+            foreach (var (key, value) in domainException.Extensions)
+            {
+                problem.Extensions[key] = value;
+            }
+        }
 
         ctx.Response.StatusCode = status;
         ctx.Response.ContentType = "application/problem+json";

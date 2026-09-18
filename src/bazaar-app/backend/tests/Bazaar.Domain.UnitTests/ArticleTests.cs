@@ -226,4 +226,29 @@ public class ArticleTests
 
         Assert.Equal(manually, article.SoldManually);
     }
+
+    [Fact]
+    public void MarkAcceptedAndReleased_SetsAcceptedAtReleasedAtAndUpdatedAtToSameInstant()
+    {
+        var article = CreateValidArticle();
+        var now = new DateTimeOffset(2026, 9, 18, 9, 0, 0, TimeSpan.Zero);
+
+        article.MarkAcceptedAndReleased(now);
+
+        Assert.Equal(now, article.AcceptedAt);
+        Assert.Equal(now, article.ReleasedAt);
+        Assert.Equal(now, article.UpdatedAt);
+    }
+
+    [Fact]
+    public void MarkAcceptedAndReleased_DoesNotTouchSoldAtOrReturnedAt()
+    {
+        var article = CreateValidArticle();
+        var now = new DateTimeOffset(2026, 9, 18, 9, 0, 0, TimeSpan.Zero);
+
+        article.MarkAcceptedAndReleased(now);
+
+        Assert.Null(article.SoldAt);
+        Assert.Null(article.ReturnedAt);
+    }
 }

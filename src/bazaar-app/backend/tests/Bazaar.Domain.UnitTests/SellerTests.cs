@@ -225,4 +225,33 @@ public class SellerTests
         Assert.Null(seller.PayoutAmount);
         Assert.Null(seller.SettledAt);
     }
+
+    [Fact]
+    public void AddIntakeFeePaid_AddsToExistingValue()
+    {
+        var seller = CreateValidSeller();
+
+        seller.AddIntakeFeePaid(6.00m);
+        seller.AddIntakeFeePaid(3.50m);
+
+        Assert.Equal(9.50m, seller.IntakeFeePaid);
+    }
+
+    [Fact]
+    public void AddIntakeFeePaid_WithNegativeAmount_Throws()
+    {
+        var seller = CreateValidSeller();
+
+        Assert.Throws<ArgumentException>(() => seller.AddIntakeFeePaid(-1m));
+    }
+
+    [Fact]
+    public void AddIntakeFeePaid_WithZero_Succeeds()
+    {
+        var seller = CreateValidSeller();
+
+        seller.AddIntakeFeePaid(0m);
+
+        Assert.Equal(0m, seller.IntakeFeePaid);
+    }
 }
