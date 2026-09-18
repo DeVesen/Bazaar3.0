@@ -1,0 +1,56 @@
+.verkaeufer-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__panel-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--p-text-muted-color);
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+
+    &--grow {
+      flex: 2;
+    }
+  }
+
+  &__row {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__error {
+    color: var(--p-red-500);
+  }
+
+  &__delete-error {
+    margin: 0;
+    color: var(--p-red-500);
+    font-size: 0.875rem;
+  }
+}
+
+.verkaeufer-dialog__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.verkaeufer-dialog__footer-right {
+  display: flex;
+  gap: 0.25rem;
+}

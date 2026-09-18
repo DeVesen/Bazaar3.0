@@ -1,0 +1,196 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [header]="dialogTitle()"
+  [style]="{ width: '32rem' }"
+>
+  <div class="verkaeufer-dialog">
+    <section class="verkaeufer-dialog__panel">
+      <h3 class="verkaeufer-dialog__panel-title">Personendaten</h3>
+
+      <div class="verkaeufer-dialog__field">
+        <label for="verkaeufer-dialog-first-name">Vorname</label>
+        <input
+          id="verkaeufer-dialog-first-name"
+          pInputText
+          [ngModel]="firstName()"
+          (ngModelChange)="firstName.set($event)"
+          name="firstName"
+          type="text"
+          required
+        />
+        @if (serverErrors()?.firstName) {
+          <small class="verkaeufer-dialog__error">{{ serverErrors()?.firstName }}</small>
+        }
+      </div>
+
+      <div class="verkaeufer-dialog__field">
+        <label for="verkaeufer-dialog-last-name">Nachname</label>
+        <input
+          id="verkaeufer-dialog-last-name"
+          pInputText
+          [ngModel]="lastName()"
+          (ngModelChange)="lastName.set($event)"
+          name="lastName"
+          type="text"
+          required
+        />
+        @if (serverErrors()?.lastName) {
+          <small class="verkaeufer-dialog__error">{{ serverErrors()?.lastName }}</small>
+        }
+      </div>
+
+      <div class="verkaeufer-dialog__field">
+        <label for="verkaeufer-dialog-address">Anschrift</label>
+        <input
+          id="verkaeufer-dialog-address"
+          pInputText
+          [ngModel]="address()"
+          (ngModelChange)="address.set($event)"
+          name="address"
+          type="text"
+        />
+      </div>
+
+      <div class="verkaeufer-dialog__row">
+        <div class="verkaeufer-dialog__field">
+          <label for="verkaeufer-dialog-postal-code">PLZ</label>
+          <input
+            id="verkaeufer-dialog-postal-code"
+            pInputText
+            [ngModel]="postalCode()"
+            (ngModelChange)="postalCode.set($event)"
+            name="postalCode"
+            type="text"
+          />
+        </div>
+
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--grow">
+          <label for="verkaeufer-dialog-city">Ort</label>
+          <input
+            id="verkaeufer-dialog-city"
+            pInputText
+            [ngModel]="city()"
+            (ngModelChange)="city.set($event)"
+            name="city"
+            type="text"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section class="verkaeufer-dialog__panel">
+      <h3 class="verkaeufer-dialog__panel-title">Kontakt</h3>
+
+      <div class="verkaeufer-dialog__field">
+        <label for="verkaeufer-dialog-phone">Telefon</label>
+        <input
+          id="verkaeufer-dialog-phone"
+          pInputText
+          [ngModel]="phone()"
+          (ngModelChange)="phone.set($event)"
+          name="phone"
+          type="text"
+        />
+      </div>
+
+      <div class="verkaeufer-dialog__field">
+        <label for="verkaeufer-dialog-email">E-Mail</label>
+        <input
+          id="verkaeufer-dialog-email"
+          pInputText
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          name="email"
+          type="email"
+          required
+        />
+        @if (serverErrors()?.email) {
+          <small class="verkaeufer-dialog__error">{{ serverErrors()?.email }}</small>
+        }
+      </div>
+    </section>
+
+    <section class="verkaeufer-dialog__panel">
+      <h3 class="verkaeufer-dialog__panel-title">Konditionen</h3>
+
+      <div class="verkaeufer-dialog__field">
+        <label for="verkaeufer-dialog-seller-type">Verkäufer-Typ</label>
+        <p-select
+          inputId="verkaeufer-dialog-seller-type"
+          [options]="sellerTypesList()"
+          optionLabel="name"
+          optionValue="id"
+          [ngModel]="sellerTypeId()"
+          (ngModelChange)="onTypeChange($event)"
+          name="sellerTypeId"
+        />
+        @if (serverErrors()?.sellerTypeId) {
+          <small class="verkaeufer-dialog__error">{{ serverErrors()?.sellerTypeId }}</small>
+        }
+      </div>
+
+      <div class="verkaeufer-dialog__row">
+        <div class="verkaeufer-dialog__field">
+          <label for="verkaeufer-dialog-fee-per-item">Gebühr/Stück (€)</label>
+          <p-inputnumber
+            inputId="verkaeufer-dialog-fee-per-item"
+            [ngModel]="feePerItem()"
+            (ngModelChange)="feePerItem.set($event)"
+            name="feePerItem"
+            mode="currency"
+            currency="EUR"
+            locale="de-DE"
+            [min]="0"
+            [disabled]="!conditionsEditable()"
+          />
+        </div>
+
+        <div class="verkaeufer-dialog__field">
+          <label for="verkaeufer-dialog-sales-commission">Provision (%)</label>
+          <p-inputnumber
+            inputId="verkaeufer-dialog-sales-commission"
+            [ngModel]="salesCommission()"
+            (ngModelChange)="salesCommission.set($event)"
+            name="salesCommission"
+            mode="decimal"
+            locale="de-DE"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="2"
+            suffix=" %"
+            [min]="0"
+            [max]="100"
+            [disabled]="!conditionsEditable()"
+          />
+        </div>
+      </div>
+    </section>
+
+    @if (deleteError()) {
+      <p class="verkaeufer-dialog__delete-error">{{ deleteError() }}</p>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="verkaeufer-dialog__footer">
+      <div class="verkaeufer-dialog__footer-left">
+        @if (isAdmin() && mode() === 'edit') {
+          <p-button
+            [text]="true"
+            severity="danger"
+            label="Löschen"
+            (onClick)="onDeleteClick()"
+          />
+        }
+      </div>
+      <div class="verkaeufer-dialog__footer-right">
+        <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
+        <p-button [text]="true" [disabled]="!canSave()" label="Speichern" (onClick)="onSave()" />
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-confirmdialog key="typeChange" />
+<p-confirmdialog key="delete" />
