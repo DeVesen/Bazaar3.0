@@ -29,4 +29,7 @@ public sealed class ArticleRepository(BazaarDbContext dbContext) : IArticleRepos
 
     public async Task<IReadOnlyList<Article>> GetAllBySellerId(string sellerId) =>
         await dbContext.Articles.Where(a => a.SellerId == sellerId).ToListAsync();
+
+    public Task<int?> GetMaxNumber() =>
+        dbContext.Articles.MaxAsync(a => (int?)a.Number);
 }

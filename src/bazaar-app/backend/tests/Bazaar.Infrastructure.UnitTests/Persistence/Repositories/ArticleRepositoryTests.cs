@@ -111,4 +111,29 @@ public class ArticleRepositoryTests
 
         Assert.Empty(result);
     }
+
+    [Fact]
+    public async Task GetMaxNumber_EmptyTable_ReturnsNull()
+    {
+        await using var dbContext = CreateContext();
+        var sut = new ArticleRepository(dbContext);
+
+        var result = await sut.GetMaxNumber();
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetMaxNumber_WithArticles_ReturnsHighestNumber()
+    {
+        await using var dbContext = CreateContext();
+        var sut = new ArticleRepository(dbContext);
+        await sut.Add(CreateArticle("ART00001", 5));
+        await sut.Add(CreateArticle("ART00002", 12));
+        await sut.Add(CreateArticle("ART00003", 8));
+
+        var result = await sut.GetMaxNumber();
+
+        Assert.Equal(12, result);
+    }
 }

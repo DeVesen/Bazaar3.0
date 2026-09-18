@@ -13,4 +13,6 @@ public interface IArticleRepository
     Task Remove(Article article);
 
     Task<IReadOnlyList<Article>> GetAllBySellerId(string sellerId);
+
+    Task<int?> GetMaxNumber();
 }
