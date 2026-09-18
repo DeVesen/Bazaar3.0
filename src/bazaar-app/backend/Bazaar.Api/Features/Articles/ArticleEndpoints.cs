@@ -31,6 +31,13 @@ public static class ArticleEndpoints
         })
         .RequireAuthorization();
 
+        app.MapGet("/api/articles/next-number", async (GetNextArticleNumberHandler handler) =>
+        {
+            var nextNumber = await handler.Handle();
+            return Results.Ok(new { nextNumber });
+        })
+        .RequireAuthorization();
+
         // GET /api/articles/{id} (Round-15 review fix): full Stammdaten plus raw status
         // timestamps to seed `artikel-dialog`/`article-status-popup` — see
         // `GetArticleByIdHandler`'s doc comment for why the list DTO above doesn't carry
