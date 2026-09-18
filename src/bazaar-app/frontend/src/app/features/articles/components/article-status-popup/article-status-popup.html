@@ -1,0 +1,115 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [header]="dialogTitle()"
+  [style]="{ width: '28rem' }"
+>
+  <div class="article-status-popup">
+    <div class="article-status-popup__row">
+      <span class="article-status-popup__label">Erstellt Am</span>
+      <span class="article-status-popup__value">{{ value().createdAt | date: 'dd.MM.yyyy HH:mm' }}</span>
+    </div>
+
+    <div class="article-status-popup__row">
+      <span class="article-status-popup__label">Freigegeben Am</span>
+      <span class="article-status-popup__value">
+        {{ value().releasedAt ? (value().releasedAt | date: 'dd.MM.yyyy HH:mm') : '—' }}
+      </span>
+      @if (value().releasedAt) {
+        <p-button
+          [text]="true"
+          [rounded]="true"
+          icon="pi pi-trash"
+          [disabled]="releasedActionDisabled()"
+          [attr.aria-label]="'Freigegeben Am löschen'"
+          (onClick)="onDeleteReleased()"
+        />
+      } @else {
+        <p-button
+          [text]="true"
+          [rounded]="true"
+          icon="pi pi-plus"
+          [disabled]="releasedActionDisabled()"
+          [attr.aria-label]="'Freigegeben Am setzen'"
+          (onClick)="onSetReleased()"
+        />
+      }
+    </div>
+
+    <div class="article-status-popup__row">
+      <span class="article-status-popup__label">Verkauft Am</span>
+      <span class="article-status-popup__value">
+        {{ value().soldAt ? (value().soldAt | date: 'dd.MM.yyyy HH:mm') : '—' }}
+      </span>
+      @if (value().soldAt) {
+        <p-button
+          [text]="true"
+          [rounded]="true"
+          icon="pi pi-trash"
+          [disabled]="soldDeleteDisabled()"
+          [attr.aria-label]="'Verkauft Am löschen'"
+          (onClick)="onDeleteSold()"
+        />
+      } @else {
+        <p-button
+          [text]="true"
+          [rounded]="true"
+          icon="pi pi-plus"
+          [disabled]="soldSetDisabled()"
+          [attr.aria-label]="'Verkauft Am setzen'"
+          (onClick)="onSetSold()"
+        />
+      }
+    </div>
+
+    <div class="article-status-popup__row">
+      <span class="article-status-popup__label">Rückgegeben Am</span>
+      <span class="article-status-popup__value">
+        {{ value().returnedAt ? (value().returnedAt | date: 'dd.MM.yyyy HH:mm') : '—' }}
+      </span>
+      @if (value().returnedAt) {
+        <p-button
+          [text]="true"
+          [rounded]="true"
+          icon="pi pi-trash"
+          [disabled]="returnedDeleteDisabled()"
+          [attr.aria-label]="'Rückgegeben Am löschen'"
+          (onClick)="onDeleteReturned()"
+        />
+      } @else {
+        <p-button
+          [text]="true"
+          [rounded]="true"
+          icon="pi pi-plus"
+          [disabled]="returnedSetDisabled()"
+          [attr.aria-label]="'Rückgegeben Am setzen'"
+          (onClick)="onSetReturned()"
+        />
+      }
+    </div>
+
+    <div class="article-status-popup__row">
+      <span class="article-status-popup__label">Abgerechnet Am</span>
+      <span class="article-status-popup__value">
+        {{ settledAt() ? (settledAt() | date: 'dd.MM.yyyy HH:mm') : '—' }}
+      </span>
+    </div>
+
+    @if (settlementLocked()) {
+      <p class="article-status-popup__banner">
+        Abrechnung zuerst stornieren, mit Verweis auf die
+        <a routerLink="/sellers">Verkäufer-Seite</a>.
+      </p>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="article-status-popup__footer">
+      <p-button [text]="true" severity="secondary" label="Schließen" (onClick)="onClose()" />
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-confirmdialog key="cascadeDelete" />
+<p-confirmdialog key="manualSale" />
