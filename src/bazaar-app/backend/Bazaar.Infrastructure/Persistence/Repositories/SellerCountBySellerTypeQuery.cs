@@ -1,9 +1,10 @@
 using Bazaar.Domain.Ports;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bazaar.Infrastructure.Persistence.Repositories;
 
-// TODO(Round-14): reale Zählung gegen Sellers.SellerTypeId implementieren
-public sealed class SellerCountBySellerTypeQuery : ISellerCountBySellerTypeQuery
+public sealed class SellerCountBySellerTypeQuery(BazaarDbContext dbContext) : ISellerCountBySellerTypeQuery
 {
-    public Task<int> CountBySellerTypeId(string id) => Task.FromResult(0);
+    public Task<int> CountBySellerTypeId(string id) =>
+        dbContext.Sellers.CountAsync(s => s.SellerTypeId == id);
 }
