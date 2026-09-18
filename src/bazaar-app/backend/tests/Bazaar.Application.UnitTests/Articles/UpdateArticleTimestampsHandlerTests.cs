@@ -169,6 +169,41 @@ public class UpdateArticleTimestampsHandlerTests
         _articleRepository.Verify(r => r.Update(article), Times.Once);
     }
 
+    /// <summary>
+    /// Third transition alongside "newly set" (null -> non-null) and "reset" (non-null ->
+    /// null): correcting an already-set soldAt to a DIFFERENT non-null value (e.g. fixing a
+    /// fat-fingered time) is a pure value correction, not a fresh manual sale and not an
+    /// undone one. SoldManually must be left exactly as it was — this used to fall through to
+    /// the same branch as "newly set" and get reset to false, silently erasing the manual-sale
+    /// audit marker on a simple time correction.
+    /// </summary>
+    [Fact]
+    public async Task Handle_CorrectingSoldAtToADifferentNonNullValue_PreservesSoldManually()
+    {
+        var article = CreateArticle();
+        var released = DateTimeOffset.UtcNow.AddDays(-5);
+        var originalSoldAt = DateTimeOffset.UtcNow.AddDays(-1);
+        var correctedSoldAt = originalSoldAt.AddHours(-2);
+        article.SetTimestamps(released, originalSoldAt, null, true, DateTimeOffset.UtcNow);
+        Assert.True(article.SoldManually); // sanity check on the starting state
+
+        var seller = CreateSeller();
+        SetupFound(article, seller);
+        var sut = CreateSut();
+
+        await sut.Handle(new UpdateArticleTimestampsCommand
+        {
+            Id = "ARTICLE001",
+            ReleasedAt = released,
+            SoldAt = correctedSoldAt,
+            ReturnedAt = null,
+        });
+
+        Assert.Equal(correctedSoldAt, article.SoldAt);
+        Assert.True(article.SoldManually);
+        _articleRepository.Verify(r => r.Update(article), Times.Once);
+    }
+
     [Fact]
     public async Task Handle_InvalidCascade_PropagatesArticleSoldAndReturnedConflictException()
     {
