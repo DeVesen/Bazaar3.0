@@ -81,6 +81,21 @@ export class ArticlesStore {
     this.load();
   }
 
+  /**
+   * Round-15 Task 6 fix round 1: the paginator's `rowsPerPageOptions` (Brands-style `[10, 25,
+   * 50]`, see `Table`'s class doc comment "Known remaining gap") lets a user pick a page size
+   * other than this store's own fixed 50. Without this method, that pick only shrank `p-table`'s
+   * client-side `rows()` — the already-fetched 50-row page got silently sliced down, rows
+   * "vanished" with no error. Mirrors `setFilters`'s reset-and-reload pattern: set the new page
+   * size, reset to page 1 (the old page number may no longer make sense at a different size),
+   * reload.
+   */
+  setPageSize(pageSize: number): void {
+    this.pageSize.set(pageSize);
+    this.page.set(1);
+    this.load();
+  }
+
   update(id: string, request: UpdateArticleRequest): Observable<void> {
     return this.articlesApi.update(id, request).pipe(tap(() => this.load()));
   }

@@ -129,12 +129,18 @@ const CIRCLED_DIGIT_BASE = 0x2460; // U+2460 = '①'
  *   regardless of `lazy()`, so the lazy parent (Articles) converts them to backend params
  *   itself; no change was needed here for those two.
  *
- * Known remaining gap: `Table` does not expose the paginator's `rowsPerPageOptions`, so a lazy
- * consumer's user picking a row-count other than the caller's real page size (e.g. Brands-style
- * `[10, 25, 50]`, still hardcoded here) changes `p-table`'s internal `rows()` without the parent
- * ever learning about it or re-fetching at that size — the display and the backend page size
- * can then disagree. No Round-15 consumer's store exposes a `setPageSize`, so this is left as a
- * documented follow-up rather than plumbed through speculatively.
+ * Round-15 Task 6 fix round 1: the previous version of this doc comment flagged a gap where a
+ * lazy consumer's user picking a row-count other than the caller's real page size (still the
+ * hardcoded Brands-style `[10, 25, 50]` below) changed `p-table`'s internal `rows()` without the
+ * parent ever learning about it or re-fetching at that size, silently slicing already-fetched
+ * rows out of view. Closed on the CALLER side, not here: `Table` still only emits `pageChange`
+ * with the new `{ page, rows }` (unchanged) — it has no opinion on page size vs. page number.
+ * `articles-page.ts`'s `onPageChange` now compares the emitted `rows` against
+ * `ArticlesStore.pageSize()` and calls the new `ArticlesStore.setPageSize()` (reset-and-reload,
+ * mirroring `setFilters`) instead of `setPage()` when they differ. Any other lazy consumer needs
+ * the same comparison in its own `pageChange` handler plus its own store's `setPageSize` — this
+ * component still does not expose `rowsPerPageOptions` as an input, so all lazy callers share the
+ * same hardcoded `[10, 25, 50]`.
  */
 @Component({
   selector: 'app-table',

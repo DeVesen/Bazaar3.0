@@ -37,6 +37,7 @@ describe('ArticlesPage', () => {
   let load: ReturnType<typeof vi.fn>;
   let setFilters: ReturnType<typeof vi.fn>;
   let setPage: ReturnType<typeof vi.fn>;
+  let setPageSize: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     itemsSignal = signal<ArticleListItem[]>([]);
@@ -55,6 +56,7 @@ describe('ArticlesPage', () => {
       filtersSignal.set({ ...filtersSignal(), ...partial });
     });
     setPage = vi.fn();
+    setPageSize = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [ArticlesPage],
@@ -70,6 +72,7 @@ describe('ArticlesPage', () => {
             load,
             setFilters,
             setPage,
+            setPageSize,
           },
         },
         { provide: BrandsApi, useValue: { getAll: () => of(BRANDS) } },
@@ -179,6 +182,26 @@ describe('ArticlesPage', () => {
     });
   });
 
+  describe('pagination: paginator page-size change -> ArticlesStore.setPageSize (fix round 1)', () => {
+    it('calls setPageSize instead of setPage when the emitted rows differ from the current pageSize', async () => {
+      const { component } = await createPage();
+
+      component.onPageChange({ page: 0, rows: 10 });
+
+      expect(setPageSize).toHaveBeenCalledWith(10);
+      expect(setPage).not.toHaveBeenCalled();
+    });
+
+    it('does not call setPageSize when rows matches the current pageSize, a plain page-number change', async () => {
+      const { component } = await createPage();
+
+      component.onPageChange({ page: 1, rows: 50 });
+
+      expect(setPageSize).not.toHaveBeenCalled();
+      expect(setPage).toHaveBeenCalledWith(2);
+    });
+  });
+
   describe('sort: SortEvent[] -> comma-separated backend param', () => {
     it('joins a single sort event as "field:order"', async () => {
       const { component } = await createPage();
@@ -214,7 +237,7 @@ describe('ArticlesPage', () => {
   describe('"manuell" secondary badge', () => {
     it('the status column config renders a secondary "manuell" badge only when soldManually is true', async () => {
       const { component } = await createPage();
-      const statusColumn = component.columns.find((c) => c.field === 'status');
+      const statusColumn = component.columns.find((c) => c.field === 'statusLabel');
 
       expect(statusColumn?.secondaryBadge?.(buildItem({ soldManually: true }))).toEqual({
         text: 'manuell',
@@ -235,15 +258,50 @@ describe('ArticlesPage', () => {
 
   describe('status badge severity mapping', () => {
     it.each([
-      ['registered', 'secondary'],
-      ['selling', 'info'],
-      ['sold', 'success'],
-      ['returned', 'warn'],
-    ])('maps status "%s" to severity "%s"', async (status, severity) => {
+      ['Registriert', 'secondary'],
+      ['Im Verkauf', 'info'],
+      ['Verkauft', 'success'],
+      ['Zurückgegeben', 'warn'],
+    ])('maps German status label "%s" to severity "%s"', async (label, severity) => {
       const { component } = await createPage();
-      const statusColumn = component.columns.find((c) => c.field === 'status');
+      const statusColumn = component.columns.find((c) => c.field === 'statusLabel');
 
-      expect(statusColumn?.badgeSeverity?.(status)).toBe(severity);
+      expect(statusColumn?.badgeSeverity?.(label)).toBe(severity);
+    });
+  });
+
+  describe('status badge shows the German label, not the raw backend value (fix round 1)', () => {
+    it('points the status column config at the derived statusLabel field, not the raw status', async () => {
+      const { component } = await createPage();
+
+      expect(component.columns.find((c) => c.field === 'status')).toBeUndefined();
+      expect(component.columns.find((c) => c.field === 'statusLabel')).toBeDefined();
+    });
+
+    it('renders the German label ("Im Verkauf") in the DOM, not the raw English status ("selling")', async () => {
+      itemsSignal.set([buildItem({ status: 'selling' })]);
+      totalCountSignal.set(1);
+      const { fixture } = await createPage();
+
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+      expect(text).toContain('Im Verkauf');
+      expect(text).not.toContain('selling');
+    });
+
+    it('maps every raw status value to its German label on the row Table actually receives', async () => {
+      const { component } = await createPage();
+
+      itemsSignal.set([
+        buildItem({ id: 'r', status: 'registered' }),
+        buildItem({ id: 's', status: 'sold' }),
+        buildItem({ id: 't', status: 'returned' }),
+      ]);
+
+      expect(component.items().map((r) => r.statusLabel)).toEqual([
+        'Registriert',
+        'Verkauft',
+        'Zurückgegeben',
+      ]);
     });
   });
 });

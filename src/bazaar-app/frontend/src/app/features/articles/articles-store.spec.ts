@@ -128,6 +128,23 @@ describe('ArticlesStore', () => {
     });
   });
 
+  describe('setPageSize', () => {
+    it('sets pageSize, resets page to 1 and triggers a reload with the new page size (fix round 1)', () => {
+      getArticles.mockReturnValue(of({ items: [], totalCount: 0, page: 1, pageSize: 50 }));
+      const store = createStore();
+      store.setPage(3);
+      getArticles.mockClear();
+
+      store.setPageSize(10);
+
+      expect(store.pageSize()).toBe(10);
+      expect(store.page()).toBe(1);
+      expect(getArticles).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 1, pageSize: 10 }),
+      );
+    });
+  });
+
   describe('update', () => {
     it('calls the API and triggers a reload on success', () => {
       getArticles.mockReturnValue(of({ items: [], totalCount: 0, page: 1, pageSize: 50 }));
