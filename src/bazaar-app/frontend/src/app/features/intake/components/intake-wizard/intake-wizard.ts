@@ -115,6 +115,14 @@ export class IntakeWizard {
   );
 
   readonly canGoToStep2 = computed(() => this.step2SellerId() !== null);
+  /**
+   * Fix round 1 (review finding): once a seller exists for this session — either created via
+   * "Weiter" or resolved via the `sellerId` Input — Step 1 must no longer be reachable. Clicking
+   * back into it with the form still filled and hitting "Weiter" again would call `create()` a
+   * second time, orphaning the first seller with no Cancel path back to it (Cancel only ever
+   * targets `step2SellerId()`, i.e. the most recent one).
+   */
+  readonly canGoToStep1 = computed(() => this.step2SellerId() === null);
 
   constructor() {
     this.sellerTypesApi.getAll().subscribe((types) => {
@@ -168,10 +176,17 @@ export class IntakeWizard {
   onTabChange(value: string | number | undefined): void {
     if (value === undefined) return;
     if (value === 'step2' && !this.canGoToStep2()) return;
+    if (value === 'step1' && !this.canGoToStep1()) return;
     this.activeStep.set(value as WizardStep);
   }
 
   onNext(): void {
+    // Defense in depth #1 (fix round 1, review finding): a seller was already created (or
+    // resolved) for this wizard session — a second `create()` would orphan the first one with
+    // no cancel-path back to it. The Step-1 tab's `[disabled]` binding is the primary guard
+    // (defense in depth #2); this check covers any path that could still reach `onNext()`
+    // (e.g. a stale reference, a re-enabled tab via a future change) regardless of the template.
+    if (this.step2SellerId() !== null) return;
     if (!this.canSave()) return;
 
     const email = this.email().trim();

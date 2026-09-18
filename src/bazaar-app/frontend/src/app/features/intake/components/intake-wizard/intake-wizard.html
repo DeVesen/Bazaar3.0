@@ -1,7 +1,7 @@
 <div class="intake-wizard">
   <p-tabs [value]="activeStep()" (valueChange)="onTabChange($event)">
     <p-tablist>
-      <p-tab value="step1">Schritt 1 — Verkäufer</p-tab>
+      <p-tab value="step1" [disabled]="!canGoToStep1()">Schritt 1 — Verkäufer</p-tab>
       <p-tab value="step2" [disabled]="!canGoToStep2()">Schritt 2 — Artikelannahme</p-tab>
     </p-tablist>
 

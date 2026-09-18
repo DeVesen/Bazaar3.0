@@ -214,6 +214,56 @@ describe('IntakeWizard', () => {
     expect(component.activeStep()).toBe('step2');
   });
 
+  it('fix round 1: disables the Step-1 tab once a seller exists for this session (created or resolved)', async () => {
+    const created = await setup({ createResult: createdSeller({ id: 'SEL00099' }) });
+    expect(created.fixture.componentInstance.canGoToStep1()).toBe(true);
+
+    created.fixture.componentInstance.firstName.set('Max');
+    created.fixture.componentInstance.lastName.set('Mustermann');
+    created.fixture.componentInstance.email.set('max@example.com');
+    created.fixture.componentInstance.onNext();
+
+    expect(created.fixture.componentInstance.canGoToStep1()).toBe(false);
+
+    TestBed.resetTestingModule();
+    const resolved = await setup({ sellerId: 'SEL00001' });
+    expect(resolved.fixture.componentInstance.canGoToStep1()).toBe(false);
+  });
+
+  it('fix round 1: a second "Weiter" click after a successful creation is a no-op — no second create() call, no orphaned duplicate', async () => {
+    const { fixture, create } = await setup({ createResult: createdSeller({ id: 'SEL00099' }) });
+    const component = fixture.componentInstance;
+
+    component.firstName.set('Max');
+    component.lastName.set('Mustermann');
+    component.email.set('max@example.com');
+    component.onNext();
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(component.step2SellerId()).toBe('SEL00099');
+
+    // Simulate the tab somehow still being reachable (e.g. a future regression re-enabling it)
+    // and the user clicking "Weiter" again with the (still-filled) form.
+    component.onNext();
+
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(component.step2SellerId()).toBe('SEL00099');
+  });
+
+  it('fix round 1: onTabChange ignores a manual attempt to switch back to Step 1 once a seller exists for this session', async () => {
+    const { fixture } = await setup({ createResult: createdSeller({ id: 'SEL00099' }) });
+    const component = fixture.componentInstance;
+
+    component.firstName.set('Max');
+    component.lastName.set('Mustermann');
+    component.email.set('max@example.com');
+    component.onNext();
+    expect(component.activeStep()).toBe('step2');
+
+    component.onTabChange('step1');
+
+    expect(component.activeStep()).toBe('step2');
+  });
+
   it('on failure: keeps field values, shows an error, and stays on Step 1', async () => {
     const { fixture } = await setup({ createError: new Error('boom') });
     const component = fixture.componentInstance;
