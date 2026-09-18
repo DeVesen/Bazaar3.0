@@ -1,0 +1,149 @@
+<div class="app-table">
+  @if (title() || canAdd()) {
+    <div class="app-table__toolbar">
+      @if (title()) {
+        <h2 class="app-table__title">{{ title() }}</h2>
+      }
+      @if (canAdd()) {
+        <p-button label="+ Neu" (onClick)="onAddClick()" />
+      }
+    </div>
+  }
+
+  <p-table
+    [value]="data()"
+    [loading]="loading()"
+    [paginator]="showPaginator()"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [totalRecords]="totalRecords() || data().length"
+    currentPageReportTemplate="Zeige {first} – {last} von {totalRecords} Einträgen"
+    [showCurrentPageReport]="true"
+    [stripedRows]="true"
+    [rowHover]="true"
+    [style]="{ '--p-datatable-row-striped-background': '#FAFAFA' }"
+    (onPage)="onPage($event)"
+  >
+    <ng-template #header>
+      <tr>
+        @for (col of columns(); track col.field) {
+          <th
+            [class.app-table__col--right]="col.type === 'number' || col.type === 'currency'"
+            [class.app-table__col--sortable]="col.sortable !== false"
+            (click)="onHeaderClick($event, col)"
+          >
+            <div class="app-table__header-cell">
+              <span>{{ col.header }}</span>
+              @if (col.sortable !== false) {
+                <span class="app-table__sort-indicator">
+                  @if (sortOrderOf(col.field); as order) {
+                    <span>{{ order === 'asc' ? '▲' : '▼' }}</span>
+                  }
+                  @if (sortBadgeOf(col.field); as badge) {
+                    <span class="app-table__sort-badge">{{ badge }}</span>
+                  }
+                </span>
+              }
+            </div>
+          </th>
+        }
+        @if (actionColumn()) {
+          <th class="app-table__col--action"></th>
+        }
+      </tr>
+      @if (hasFilterableColumns()) {
+        <tr class="app-table__filter-row">
+          @for (col of columns(); track col.field) {
+            <th>
+              @if (col.filterable !== false) {
+                @if (col.filterOptions?.length) {
+                  <p-select
+                    class="app-table__filter-input"
+                    [options]="col.filterOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="filterState()[col.field]?.value ?? null"
+                    (ngModelChange)="onFilterValueChange(col, $event)"
+                    [showClear]="true"
+                    placeholder="Alle"
+                  />
+                } @else {
+                  <input
+                    pInputText
+                    type="text"
+                    class="app-table__filter-input"
+                    [ngModel]="filterState()[col.field]?.value ?? ''"
+                    (ngModelChange)="onFilterValueChange(col, $event)"
+                  />
+                }
+              }
+            </th>
+          }
+          @if (actionColumn()) {
+            <th></th>
+          }
+        </tr>
+      }
+    </ng-template>
+
+    <ng-template #body let-row>
+      <tr>
+        @for (col of columns(); track col.field) {
+          <td [class.app-table__col--right]="col.type === 'number' || col.type === 'currency'">
+            @switch (col.type) {
+              @case ('currency') {
+                {{ getNumericValue(row, col.field) | currency: 'EUR' }}
+              }
+              @case ('date') {
+                {{ getDateValue(row, col.field) | date: 'dd.MM.yyyy' }}
+              }
+              @case ('badge') {
+                <p-tag
+                  [value]="toDisplayString(getValue(row, col.field))"
+                  [severity]="resolveSeverity(col, getValue(row, col.field))"
+                />
+              }
+              @default {
+                {{ getValue(row, col.field) }}
+              }
+            }
+          </td>
+        }
+        @if (actionColumn(); as actions) {
+          <td class="app-table__actions">
+            @for (btn of actions.buttons; track btn.actionId) {
+              <p-button
+                [text]="true"
+                [rounded]="true"
+                [icon]="btn.icon"
+                [pTooltip]="btn.tooltip ?? ''"
+                (onClick)="onActionClick(btn.actionId, row)"
+              />
+            }
+          </td>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template #loadingbody>
+      @for (i of skeletonRows; track i) {
+        <tr>
+          @for (col of columns(); track col.field) {
+            <td><p-skeleton height="1rem" /></td>
+          }
+          @if (actionColumn()) {
+            <td><p-skeleton height="1rem" /></td>
+          }
+        </tr>
+      }
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td [attr.colspan]="columns().length + (actionColumn() ? 1 : 0)" class="app-table__empty">
+          {{ resolvedEmptyText() }}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

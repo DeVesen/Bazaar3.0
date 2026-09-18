@@ -1,0 +1,61 @@
+.app-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.app-table__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-table__title {
+  margin: 0;
+}
+
+.app-table__header-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.app-table__col--sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.app-table__col--right {
+  text-align: right;
+}
+
+.app-table__sort-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.75rem;
+}
+
+.app-table__sort-badge {
+  font-size: 0.7rem;
+}
+
+.app-table__filter-row th {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.app-table__filter-input {
+  width: 100%;
+}
+
+.app-table__actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.app-table__empty {
+  text-align: center;
+  padding: 1.5rem 0;
+}
