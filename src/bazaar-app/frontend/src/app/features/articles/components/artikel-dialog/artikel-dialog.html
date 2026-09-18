@@ -37,8 +37,9 @@
 
     <div class="artikel-dialog__row">
       <div class="artikel-dialog__field">
-        <label>Kategorie</label>
+        <label for="artikel-dialog-category">Kategorie</label>
         <app-autocomplete-create
+          inputId="artikel-dialog-category"
           [options]="categoryNames()"
           [value]="category()"
           (valueChange)="category.set($event)"
@@ -52,8 +53,9 @@
       </div>
 
       <div class="artikel-dialog__field">
-        <label>Marke</label>
+        <label for="artikel-dialog-brand">Marke</label>
         <app-autocomplete-create
+          inputId="artikel-dialog-brand"
           [options]="brandNames()"
           [value]="brand()"
           (valueChange)="brand.set($event)"
@@ -68,7 +70,7 @@
     </div>
 
     <div class="artikel-dialog__field">
-      <label>Preis</label>
+      <label for="artikel-dialog-price">Preis</label>
       <!-- `input-group` has no generic `disabled` input as of Round-16 (checked before
            wiring, Task 4 brief) — a native `fieldset` cascades the disabled state onto its
            native `<input>`/`<button>` descendants, the closest faithful equivalent to the
@@ -76,6 +78,7 @@
            buttons per the sold/settled lock (api/articles.md §4). -->
       <fieldset class="artikel-dialog__price-fieldset" [disabled]="priceDisabled()">
         <app-input-group
+          inputId="artikel-dialog-price"
           variant="price"
           [modes]="['keyboard', 'numpad']"
           (valueChange)="onPriceChange($event)"

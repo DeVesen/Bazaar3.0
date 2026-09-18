@@ -32,6 +32,9 @@ export class AutocompleteCreate {
   readonly placeholder = input<string>('');
   readonly entityLabel = input.required<string>();
   readonly disabled = input<boolean>(false);
+  /** Forwarded onto the internal `p-autocomplete`'s native input, so a parent `<label for="…">`
+   * can associate with the field (a11y — `@angular-eslint/template/label-has-associated-control`). */
+  readonly inputId = input<string | undefined>(undefined);
 
   readonly valueChange = output<string>();
   readonly entryCreated = output<string>();

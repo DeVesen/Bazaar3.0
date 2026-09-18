@@ -21,8 +21,9 @@
 
     <div class="session-item-popup__row">
       <div class="session-item-popup__field">
-        <label>Kategorie</label>
+        <label for="session-item-popup-category">Kategorie</label>
         <app-autocomplete-create
+          inputId="session-item-popup-category"
           [options]="categoryOptions()"
           [value]="category()"
           (valueChange)="category.set($event)"
@@ -32,8 +33,9 @@
       </div>
 
       <div class="session-item-popup__field">
-        <label>Marke</label>
+        <label for="session-item-popup-brand">Marke</label>
         <app-autocomplete-create
+          inputId="session-item-popup-brand"
           [options]="brandOptions()"
           [value]="brand()"
           (valueChange)="brand.set($event)"
@@ -44,8 +46,13 @@
     </div>
 
     <div class="session-item-popup__field">
-      <label>Preis</label>
-      <app-input-group variant="price" [modes]="['keyboard', 'numpad']" (valueChange)="onPriceChange($event)" />
+      <label for="session-item-popup-price">Preis</label>
+      <app-input-group
+        inputId="session-item-popup-price"
+        variant="price"
+        [modes]="['keyboard', 'numpad']"
+        (valueChange)="onPriceChange($event)"
+      />
     </div>
   </div>
 

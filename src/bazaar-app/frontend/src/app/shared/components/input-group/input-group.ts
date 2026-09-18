@@ -96,6 +96,7 @@ const SEARCH_DEBOUNCE_MS = 300;
               #searchInput
               pInputText
               type="text"
+              [id]="inputId()"
               [ngModel]="rawValue()"
               (ngModelChange)="onTyped($event)"
               [readonly]="activeMode() === 'numpad'"
@@ -138,6 +139,7 @@ const SEARCH_DEBOUNCE_MS = 300;
           } @else {
             <p-inputnumber
               #priceInput
+              [inputId]="inputId()"
               mode="decimal"
               locale="de-DE"
               [minFractionDigits]="2"
@@ -204,6 +206,10 @@ export class InputGroup {
    * Abschnitt 5). Set to `false` when a search-variant consumer needs the field without one.
    */
   readonly showLeftAddon = input<boolean>(true);
+  /** Forwarded onto the variant's native input (search: `<input>`, price: `p-inputnumber`'s
+   * internal input), so a parent `<label for="…">` can associate with the field (a11y —
+   * `@angular-eslint/template/label-has-associated-control`). */
+  readonly inputId = input<string | undefined>(undefined);
 
   readonly valueChange = output<string | number>();
   readonly submitted = output<void>();

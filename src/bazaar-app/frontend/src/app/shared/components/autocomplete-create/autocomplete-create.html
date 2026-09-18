@@ -1,5 +1,6 @@
 <div class="autocomplete-create">
   <p-autocomplete
+    [inputId]="inputId()"
     [ngModel]="typedValue()"
     (ngModelChange)="onInput($event)"
     [suggestions]="filteredOptions()"
