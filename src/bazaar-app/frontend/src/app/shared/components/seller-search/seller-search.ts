@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { ListboxModule } from 'primeng/listbox';
 import { TagModule } from 'primeng/tag';
 import { InputGroup, InputMode } from '../input-group/input-group';
+import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
 
 /**
  * Shape the search-result list is filtered/rendered over
@@ -23,19 +24,31 @@ export interface SellerSummary {
 /**
  * Shared cross-app entry point for "find one seller, then continue" flows
  * (docs/components/seller-search/component.md). Composes `app-input-group` for the search
- * field itself with a `p-listbox` result list / camera-view swap that this component owns.
+ * field itself with a `p-listbox` result list / own `app-barcode-scanner` camera view that this
+ * component owns and positions itself.
  *
- * Design note on tracking `input-group`'s active mode (Round-16 Task 7 brief's central
- * question): `InputGroup.activeMode` (and `.rawValue`/`.onClear()`) are already plain public
- * class members in the merged Task 4 component — not marked `private`, not wrapped behind any
- * `@Input`/`@Output`. Reading (and, for the camera-mode override below, writing) them via a
- * `viewChild<InputGroup>()` reference therefore needs NO change to `input-group.ts` at all;
- * that file is untouched by this task. See the two effects below and `onValueChange` for the
- * exact mechanics.
+ * Design note on tracking/driving `input-group`'s active mode (Round-16 Task 7 brief's central
+ * question, revisited in fix round 1 after code review): rather than reaching into
+ * `input-group`'s internal signals via a `viewChild` reference (the original Task 7 approach,
+ * flagged as an encapsulation break), this component now drives `input-group` entirely through
+ * its deliberate public API, added additively in fix round 1:
+ * - `[cameraReplacesInput]="false"` — tells `input-group` NOT to swap its own `<input>` for an
+ *   internal `app-barcode-scanner` in camera mode. Seller-search renders its OWN
+ *   `app-barcode-scanner` in place of the result list instead (this component's own override of
+ *   input-group's "camera replaces the input field" default, per input-group's doc Abschnitt 3
+ *   note about Seller-Search) — the search field itself stays visible and usable throughout,
+ *   exactly as AC-5 requires.
+ * - `activeMode()` (read-only signal) / `switchMode(mode)` (the one sanctioned way to change it)
+ *   / `getPreviousMode()` (the mode active immediately before the current camera session,
+ *   tracked synchronously by input-group itself) / `applyExternalValue(value)` (pushes a scanned
+ *   value into the field and emits `valueChange`, without input-group touching the mode itself).
+ * This makes the whole flow deterministic and synchronous — no more inferring "did this value
+ * come from a scan" from signal-write ordering, and no more `queueMicrotask` overrides racing
+ * input-group's own effects.
  */
 @Component({
   selector: 'app-seller-search',
-  imports: [CardModule, ButtonModule, ListboxModule, TagModule, InputGroup],
+  imports: [CardModule, ButtonModule, ListboxModule, TagModule, InputGroup, BarcodeScanner],
   templateUrl: './seller-search.html',
   styleUrl: './seller-search.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,12 +70,12 @@ export class SellerSearch {
   );
 
   /**
-   * Live search text — read directly off `input-group`'s own `rawValue` signal rather than its
-   * debounced `valueChange` output, so the result list (and Enter/Arrow behavior) always reacts
-   * to what is currently in the field, per doc Abschnitt 3 ("Filterung erfolgt in der
-   * Komponente"). The debounced `valueChange` is only forwarded to this component's own
-   * `searchChanged` output, matching that output's doc description ("für optionales
-   * Parent-Tracking").
+   * Live search text — read directly off `input-group`'s own (public, read-only) `rawValue`
+   * signal rather than its debounced `valueChange` output, so the result list (and Enter/Arrow
+   * behavior) always reacts to what is currently in the field, per doc Abschnitt 3 ("Filterung
+   * erfolgt in der Komponente"). The debounced `valueChange` is only forwarded to this
+   * component's own `searchChanged` output, matching that output's doc description ("für
+   * optionales Parent-Tracking").
    */
   readonly searchText = computed<string>(() => this.inputGroupRef()?.rawValue() ?? '');
 
@@ -74,22 +87,9 @@ export class SellerSearch {
   /** ↓/↑ highlight index into `filteredSellers()` (doc Abschnitt 4 "Navigation in der Trefferliste"). */
   readonly highlightedIndex = signal<number>(-1);
 
-  /** The mode `input-group` was in immediately before switching to camera — restored on Escape/multi-hit-after-scan. */
-  private readonly lastNonCameraMode = signal<InputMode>('keyboard');
-
   readonly isCameraActive = computed<boolean>(() => this.inputGroupRef()?.activeMode() === 'camera');
 
   constructor() {
-    // Tracks the last non-camera mode so Escape-in-camera and "multiple hits after a scan" can
-    // restore the mode the user was actually in before switching to the camera — instead of
-    // relying on input-group's own post-scan default of always resetting to keyboard.
-    effect(() => {
-      const mode = this.inputGroupRef()?.activeMode();
-      if (mode && mode !== 'camera') {
-        this.lastNonCameraMode.set(mode);
-      }
-    });
-
     // Reset the highlight whenever the visible result set changes shape (new search text).
     effect(() => {
       this.filteredSellers();
@@ -97,40 +97,35 @@ export class SellerSearch {
     });
   }
 
-  /**
-   * Fires for every `input-group` `valueChange` — keyboard-typed (debounced), scanned, or
-   * numpad-typed (immediate). Forwards to `searchChanged` unconditionally, then applies the
-   * scan-specific result-count rules from doc Abschnitt 6 ("Scan-Ablauf") only when the value
-   * actually came from a scan.
-   *
-   * Detecting "came from a scan": `input-group.onCodeDetected()` sets `rawValue`, emits
-   * `valueChange` (this handler runs synchronously inside that emit), and only THEN sets
-   * `activeMode` back to `'keyboard'`. So at the moment this handler runs, `activeMode()` still
-   * reads `'camera'` for a scan-originated value and never does for a typed/numpad one.
-   */
+  /** Fires for every `input-group` `valueChange` from typing/numpad — scans never go through this (see `onScanDetected`). */
   onValueChange(value: string | number): void {
-    const text = String(value);
-    this.searchChanged.emit(text);
+    this.searchChanged.emit(String(value));
+  }
 
-    const cameFromScan = this.inputGroupRef()?.activeMode() === 'camera';
-    if (!cameFromScan) {
-      return;
-    }
+  /**
+   * Fires from this component's OWN `app-barcode-scanner` (rendered in place of the result
+   * list while `isCameraActive()`, see the template) — never from inside `input-group`, since
+   * `cameraReplacesInput=false` means input-group renders no internal scanner of its own. Doc
+   * Abschnitt 6 "Scan-Ablauf": pushes the value into the field via `applyExternalValue()`, then
+   * decides the post-scan mode transition itself, synchronously, based on the resulting match
+   * count — no timing assumptions, no microtask.
+   */
+  onScanDetected(value: string): void {
+    const inputGroup = this.inputGroupRef();
+    if (!inputGroup) return;
 
-    const results = filterSellers(this.sellers(), text);
+    inputGroup.applyExternalValue(value);
+    this.searchChanged.emit(value);
+
+    const results = this.filteredSellers();
     if (results.length === 1) {
-      // input-group itself already stops the camera (sets activeMode back to 'keyboard') right
-      // after this handler returns — matches doc's "Kamera stoppt".
       this.trySelect(results[0]);
+      inputGroup.switchMode('keyboard');
     } else if (results.length > 1) {
-      // Multiple hits: camera stops, return to the mode active before camera — deferred past
-      // input-group's own synchronous keyboard-reset so this override actually sticks.
-      queueMicrotask(() => this.inputGroupRef()?.activeMode.set(this.lastNonCameraMode()));
-    } else {
-      // 0 hits: value stays visible, camera stays active — override input-group's default of
-      // resetting to keyboard after every scan.
-      queueMicrotask(() => this.inputGroupRef()?.activeMode.set('camera'));
+      inputGroup.switchMode(inputGroup.getPreviousMode());
     }
+    // 0 results: value stays visible, camera stays active — no mode change needed since
+    // input-group never left camera mode on its own in this configuration.
   }
 
   onSubmit(): void {
@@ -184,7 +179,7 @@ export class SellerSearch {
     if (!inputGroup) return;
 
     if (inputGroup.activeMode() === 'camera') {
-      inputGroup.activeMode.set(this.lastNonCameraMode());
+      inputGroup.switchMode(inputGroup.getPreviousMode());
     } else {
       inputGroup.onClear();
       this.blockedSelectionHint.set(null);

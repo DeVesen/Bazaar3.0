@@ -79,14 +79,14 @@ describe('InputGroup', () => {
 
     it('shows keyboard then numpad when camera is active', () => {
       const fixture = create(['keyboard', 'camera', 'numpad']);
-      fixture.componentInstance.activeMode.set('camera');
+      fixture.componentInstance.switchMode('camera');
       fixture.detectChanges();
       expect(fixture.componentInstance.visibleModes()).toEqual(['keyboard', 'numpad']);
     });
 
     it('shows keyboard then camera when numpad is active', () => {
       const fixture = create(['keyboard', 'camera', 'numpad']);
-      fixture.componentInstance.activeMode.set('numpad');
+      fixture.componentInstance.switchMode('numpad');
       fixture.detectChanges();
       expect(fixture.componentInstance.visibleModes()).toEqual(['keyboard', 'camera']);
     });
@@ -322,6 +322,69 @@ describe('InputGroup', () => {
 
       expect(fixture.componentInstance.priceValue()).toBe(12.5);
       expect(emitted).toEqual([12.5]);
+    });
+  });
+
+  describe('cameraReplacesInput=false (Round-16 Task 7 fix round 1, reviewer Critical 1)', () => {
+    it('keeps the <input> in the DOM and does not render its own barcode-scanner while camera mode is active', () => {
+      const fixture = create(['keyboard', 'camera']);
+      fixture.componentRef.setInput('cameraReplacesInput', false);
+      fixture.componentInstance.switchMode('camera');
+      fixture.detectChanges();
+
+      const input = fixture.debugElement.query(By.css('input[pInputText]'));
+      expect(input).toBeTruthy();
+      expect(fixture.debugElement.query(By.directive(BarcodeScanner))).toBeFalsy();
+    });
+
+    it('applyExternalValue() sets the field value and emits valueChange without touching activeMode', () => {
+      const fixture = create(['keyboard', 'camera']);
+      fixture.componentRef.setInput('cameraReplacesInput', false);
+      fixture.componentInstance.switchMode('camera');
+      fixture.detectChanges();
+
+      const emitted: (string | number)[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
+
+      fixture.componentInstance.applyExternalValue('SEL00001');
+
+      expect(fixture.componentInstance.rawValue()).toBe('SEL00001');
+      expect(emitted).toEqual(['SEL00001']);
+      // Unlike onCodeDetected(), applyExternalValue() leaves mode transitions to the parent.
+      expect(fixture.componentInstance.activeMode()).toBe('camera');
+    });
+
+    it('applyExternalValue() parses the value as a number for the price variant', () => {
+      const fixture = create(['keyboard'], 'price');
+      fixture.componentInstance.applyExternalValue('12,50');
+
+      expect(fixture.componentInstance.priceValue()).toBe(12.5);
+    });
+  });
+
+  describe('previous-mode tracking (Round-16 Task 7 fix round 1, reviewer Important 3)', () => {
+    it('getPreviousMode() defaults to keyboard before camera has ever been entered', () => {
+      const fixture = create(['keyboard', 'camera', 'numpad']);
+      expect(fixture.componentInstance.getPreviousMode()).toBe('keyboard');
+    });
+
+    it('captures the mode active immediately before switching into camera, synchronously inside switchMode()', () => {
+      const fixture = create(['keyboard', 'camera', 'numpad']);
+      fixture.componentInstance.switchMode('numpad');
+      fixture.componentInstance.switchMode('camera');
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.getPreviousMode()).toBe('numpad');
+    });
+
+    it('does not overwrite the previous mode on a redundant camera-to-camera switch', () => {
+      const fixture = create(['keyboard', 'camera', 'numpad']);
+      fixture.componentInstance.switchMode('numpad');
+      fixture.componentInstance.switchMode('camera');
+      fixture.componentInstance.switchMode('camera');
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.getPreviousMode()).toBe('numpad');
     });
   });
 

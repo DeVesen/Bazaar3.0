@@ -87,7 +87,7 @@ const SEARCH_DEBOUNCE_MS = 300;
         <p-inputgroup>
           <p-inputgroup-addon><i class="pi pi-search"></i></p-inputgroup-addon>
 
-          @if (activeMode() === 'camera') {
+          @if (activeMode() === 'camera' && cameraReplacesInput()) {
             <app-barcode-scanner [active]="activeMode() === 'camera'" (codeDetected)="onCodeDetected($event)" />
           } @else {
             <input
@@ -183,16 +183,44 @@ export class InputGroup {
    * parent signals that state. Added as the minimal reasonable `Input` for it.
    */
   readonly searching = input<boolean>(false);
+  /**
+   * Round-16 Task 7 fix round 1 (reviewer Critical 1): when `false`, the search-variant camera
+   * mode does NOT swap `app-barcode-scanner` in for the `<input>` — the field stays visible and
+   * usable, and this component renders no internal scanner at all. For a consumer like
+   * Seller-Search that needs the camera view to replace something else entirely (its own result
+   * list, per its own component doc Abschnitt 6/input-group doc Abschnitt 3's note), the
+   * consumer renders its own `app-barcode-scanner` wherever it wants and pushes detected values
+   * back in via `applyExternalValue()`. Defaults to `true` (input-group's own historical
+   * behavior, unchanged for every other consumer of this component).
+   */
+  readonly cameraReplacesInput = input<boolean>(true);
 
   readonly valueChange = output<string | number>();
   readonly submitted = output<void>();
 
-  /** Always starts at `'keyboard'` (doc Abschnitt 3 "Startmodus") — no device detection, no persistence. */
-  readonly activeMode = signal<InputMode>('keyboard');
+  /**
+   * Public, deliberately read-only surface (Round-16 Task 7 fix round 1, reviewer Important 2):
+   * external code reads the current mode but can only change it through `switchMode()` — never
+   * by writing the signal directly. Always starts at `'keyboard'` (doc Abschnitt 3
+   * "Startmodus") — no device detection, no persistence.
+   */
+  private readonly _activeMode = signal<InputMode>('keyboard');
+  readonly activeMode = this._activeMode.asReadonly();
 
-  readonly rawValue = signal<string>('');
+  /** Same read-only-surface contract as `activeMode` above. */
+  private readonly _rawValue = signal<string>('');
+  readonly rawValue = this._rawValue.asReadonly();
+
   readonly priceValue = signal<number | null>(null);
   readonly cameraDenied = signal<boolean>(false);
+
+  /**
+   * The mode active immediately before the current/most-recent camera session — captured
+   * synchronously inside `switchMode()` itself (Round-16 Task 7 fix round 1, reviewer
+   * Important 3), not reconstructed afterwards from signal-change timing. Read via
+   * `getPreviousMode()`.
+   */
+  private previousMode: InputMode = 'keyboard';
 
   private readonly keyboardTypedSearch = signal<string | undefined>(undefined);
   private readonly keyboardTypedPrice = signal<number | null | undefined>(undefined);
@@ -249,11 +277,23 @@ export class InputGroup {
   }
 
   switchMode(mode: InputMode): void {
-    this.activeMode.set(mode);
+    if (mode === 'camera' && this._activeMode() !== 'camera') {
+      this.previousMode = this._activeMode();
+    }
+    this._activeMode.set(mode);
+  }
+
+  /**
+   * The mode active immediately before the current/most-recent switch into `'camera'` — doc's
+   * "zuvor aktiver Modus" (Abschnitt 4 Escape, Abschnitt 6 "Mehrere" scan result). Defaults to
+   * `'keyboard'` if camera was never entered yet.
+   */
+  getPreviousMode(): InputMode {
+    return this.previousMode;
   }
 
   onTyped(value: string): void {
-    this.rawValue.set(value);
+    this._rawValue.set(value);
     this.keyboardTypedSearch.set(value);
   }
 
@@ -269,7 +309,7 @@ export class InputGroup {
   }
 
   onClear(): void {
-    this.rawValue.set('');
+    this._rawValue.set('');
     this.valueChange.emit('');
     this.searchInputRef()?.nativeElement.focus();
   }
@@ -280,12 +320,34 @@ export class InputGroup {
       this.priceValue.set(parsed);
       this.valueChange.emit(parsed ?? 0);
     } else {
-      this.rawValue.set(value);
+      this._rawValue.set(value);
       this.valueChange.emit(value);
     }
     // A hit ends the standard scan (component doc: "Ausprägung je Verwendungsstelle" — this is
-    // input-group's own default; Seller-Search, task 7, may override).
-    this.activeMode.set('keyboard');
+    // input-group's own default when it owns the camera view itself, i.e. `cameraReplacesInput`
+    // is `true`). A consumer with `cameraReplacesInput=false` never triggers this method at all
+    // (it renders its own scanner and calls `applyExternalValue()` instead), so it fully owns
+    // the post-scan mode transition — see that method's own doc comment.
+    this.switchMode('keyboard');
+  }
+
+  /**
+   * Public write entry point for a parent that owns its own camera view instead of this
+   * component's internal one (`cameraReplacesInput=false` — see that input's doc comment, e.g.
+   * Seller-Search's component doc Abschnitt 6). Sets the field's value and emits `valueChange`
+   * immediately, exactly like a normal internal scan (`onCodeDetected`) would — but, unlike
+   * `onCodeDetected`, does NOT touch `activeMode`: the parent decides the post-scan mode
+   * transition itself (it knows the scan's result count; this component does not).
+   */
+  applyExternalValue(value: string): void {
+    if (this.variant() === 'price') {
+      const parsed = this.parseGermanDecimal(value);
+      this.priceValue.set(parsed);
+      this.valueChange.emit(parsed ?? 0);
+    } else {
+      this._rawValue.set(value);
+      this.valueChange.emit(value);
+    }
   }
 
   onNumpadKey(init: KeyboardEventInit): void {
@@ -314,7 +376,7 @@ export class InputGroup {
       // entered again (typed, scanned, or via the numpad).
       this.priceValue.set(null);
     } else {
-      this.rawValue.set('');
+      this._rawValue.set('');
       this.valueChange.emit('');
     }
   }
@@ -332,9 +394,9 @@ export class InputGroup {
 
   private applyNumpadKeyToSearchValue(key: string | undefined): void {
     if (key === undefined) return;
-    const current = this.rawValue();
+    const current = this._rawValue();
     const next = key === 'Backspace' ? current.slice(0, -1) : current + key;
-    this.rawValue.set(next);
+    this._rawValue.set(next);
     this.valueChange.emit(next);
   }
 
@@ -386,7 +448,7 @@ export class InputGroup {
 
   private flagCameraDenied(): void {
     this.cameraDenied.set(true);
-    this.activeMode.set('keyboard');
+    this._activeMode.set('keyboard');
   }
 
   private teardownPermissionWatch(): void {

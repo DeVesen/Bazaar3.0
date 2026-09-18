@@ -1,14 +1,25 @@
 <p-card styleClass="seller-search" (keydown)="onKeydown($event)">
-  <app-input-group #inputGroup [modes]="modes()" (valueChange)="onValueChange($event)" (submitted)="onSubmit()" />
+  <app-input-group
+    #inputGroup
+    [modes]="modes()"
+    [cameraReplacesInput]="false"
+    (valueChange)="onValueChange($event)"
+    (submitted)="onSubmit()"
+  />
 
   <p class="seller-search__hint">{{ hint() }}</p>
 
   @if (isCameraActive()) {
-    <!-- Camera replaces the result list here (not the input field) — seller-search's own
-         override of input-group's general "camera replaces the input field" default, per
-         input-group's doc Abschnitt 3 note about Seller-Search. `app-input-group` above already
-         renders its own `app-barcode-scanner` while in camera mode; the block below is only
-         seller-search's own listbox being hidden while that happens. -->
+    <!-- Camera replaces the RESULT LIST here, not the input field (`[cameraReplacesInput]="false"`
+         above keeps input-group's own `<input>` in place) — seller-search's own override of
+         input-group's general "camera replaces the input field" default, per input-group's doc
+         Abschnitt 3 note about Seller-Search. This is seller-search's OWN `app-barcode-scanner`
+         instance, not input-group's (which renders none while `cameraReplacesInput=false`). -->
+    <app-barcode-scanner
+      class="seller-search__camera"
+      [active]="isCameraActive()"
+      (codeDetected)="onScanDetected($event)"
+    />
   } @else {
     <p-listbox
       [options]="filteredSellers()"

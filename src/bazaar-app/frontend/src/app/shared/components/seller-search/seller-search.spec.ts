@@ -135,18 +135,28 @@ describe('SellerSearch', () => {
     expect(createButton()).toBeFalsy();
   });
 
-  // AC-5
-  it('offers the camera mode and swaps the result list for the video feed when active, leaving the field itself in place', () => {
+  // AC-5 (fix round 1, reviewer Critical 1: verify the field itself really stays, not just
+  // that "some BarcodeScanner exists somewhere")
+  it('offers the camera mode and swaps the RESULT LIST (not the input field) for the video feed when active', () => {
     const fixture = create([seller()], { showScanButton: true });
 
     expect(fixture.componentInstance.modes()).toEqual(['keyboard', 'camera', 'numpad']);
     expect(fixture.debugElement.query(By.css('p-listbox'))).toBeTruthy();
+    expect(fixture.debugElement.query(By.css('input[pInputText]'))).toBeTruthy();
 
     inputGroupOf(fixture).switchMode('camera');
     fixture.detectChanges();
 
+    // The result list is gone, the video feed takes its place...
     expect(fixture.debugElement.query(By.css('p-listbox'))).toBeFalsy();
-    expect(fixture.debugElement.query(By.directive(BarcodeScanner))).toBeTruthy();
+    const scanners = fixture.debugElement.queryAll(By.directive(BarcodeScanner));
+    expect(scanners.length).toBe(1);
+    expect(scanners[0].nativeElement.classList).toContain('seller-search__camera');
+    // ...but the search field itself is still there and still the one input-group renders
+    // (input-group's own `cameraReplacesInput=false` keeps rendering it instead of swapping it
+    // for an internal scanner of its own — there is exactly one BarcodeScanner in the whole
+    // tree, seller-search's own).
+    expect(fixture.debugElement.query(By.css('input[pInputText]'))).toBeTruthy();
   });
 
   it('does not offer the camera mode when showScanButton is false (default)', () => {
@@ -173,7 +183,7 @@ describe('SellerSearch', () => {
     expect(inputGroup.activeMode()).toBe('keyboard');
   });
 
-  it('keeps the camera active when a scan matches 0 sellers', async () => {
+  it('keeps the camera active when a scan matches 0 sellers', () => {
     const fixture = create([seller({ id: 'SEL00001' })], { showScanButton: true });
 
     const inputGroup = inputGroupOf(fixture);
@@ -181,17 +191,16 @@ describe('SellerSearch', () => {
     fixture.detectChanges();
     const scanner = fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
 
+    // Synchronous now (fix round 1, reviewer Important 3): seller-search's own scanner bypasses
+    // input-group's internal onCodeDetected() entirely, so there is no auto-reset to override
+    // and no microtask/timing dependency left.
     scanner.codeDetected.emit('NOPE');
-    fixture.detectChanges();
-    // input-group's own onCodeDetected() synchronously resets to keyboard; seller-search's
-    // override runs in a microtask right after.
-    await Promise.resolve();
     fixture.detectChanges();
 
     expect(inputGroup.activeMode()).toBe('camera');
   });
 
-  it('stops the camera and returns to the previously active mode when a scan matches more than one seller', async () => {
+  it('stops the camera and returns to the previously active mode when a scan matches more than one seller', () => {
     const fixture = create(
       [seller({ id: 'SEL1', lastName: 'Meier' }), seller({ id: 'SEL2', lastName: 'Meierhof' })],
       { showScanButton: true },
@@ -205,11 +214,29 @@ describe('SellerSearch', () => {
 
     scanner.codeDetected.emit('Meier');
     fixture.detectChanges();
-    await Promise.resolve();
-    fixture.detectChanges();
 
     expect(inputGroup.activeMode()).toBe('keyboard');
     expect(fixture.debugElement.query(By.css('p-listbox'))).toBeTruthy();
+  });
+
+  // reviewer Important 3: the interesting case with a non-keyboard previous mode
+  it('returns to numpad (not keyboard) after a multi-hit scan when numpad was active before the camera', () => {
+    const fixture = create(
+      [seller({ id: 'SEL1', lastName: 'Meier' }), seller({ id: 'SEL2', lastName: 'Meierhof' })],
+      { showScanButton: true },
+    );
+
+    const inputGroup = inputGroupOf(fixture);
+    inputGroup.switchMode('numpad');
+    fixture.detectChanges();
+    inputGroup.switchMode('camera');
+    fixture.detectChanges();
+    const scanner = fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
+
+    scanner.codeDetected.emit('Meier');
+    fixture.detectChanges();
+
+    expect(inputGroup.activeMode()).toBe('numpad');
   });
 
   // AC-7
