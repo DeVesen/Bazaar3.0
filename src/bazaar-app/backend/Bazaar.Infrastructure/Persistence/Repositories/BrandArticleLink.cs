@@ -1,13 +1,15 @@
 using Bazaar.Domain.Ports;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bazaar.Infrastructure.Persistence.Repositories;
 
-// TODO(Round-15): implement real counting/renaming against Articles.Brand
-// once the Articles table exists.
-public sealed class BrandArticleLink : IBrandArticleLink
+public sealed class BrandArticleLink(BazaarDbContext dbContext) : IBrandArticleLink
 {
-    public Task<int> CountByBrandName(string name) => Task.FromResult(0);
+    public Task<int> CountByBrandName(string name) =>
+        dbContext.Articles.CountAsync(a => a.Brand == name);
 
     public Task RenameArticlesReferencingBrand(string oldName, string newName) =>
-        Task.CompletedTask;
+        dbContext.Articles
+            .Where(a => a.Brand == oldName)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(a => a.Brand, newName));
 }

@@ -21,11 +21,12 @@ public sealed class UpdateCategoryHandler(ICategoryRepository categoryRepository
 
         category.Rename(trimmedName);
         category.SetOriginal(command.Original);
-        await categoryRepository.Update(category);
 
         if (!string.Equals(oldName, trimmedName, StringComparison.OrdinalIgnoreCase))
         {
             await categoryArticleLink.RenameArticlesReferencingCategory(oldName, trimmedName);
         }
+
+        await categoryRepository.Update(category);
     }
 }

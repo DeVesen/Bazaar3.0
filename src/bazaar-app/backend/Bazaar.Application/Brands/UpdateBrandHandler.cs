@@ -21,11 +21,12 @@ public sealed class UpdateBrandHandler(IBrandRepository brandRepository, IBrandA
 
         brand.Rename(trimmedName);
         brand.SetOriginal(command.Original);
-        await brandRepository.Update(brand);
 
         if (!string.Equals(oldName, trimmedName, StringComparison.OrdinalIgnoreCase))
         {
             await brandArticleLink.RenameArticlesReferencingBrand(oldName, trimmedName);
         }
+
+        await brandRepository.Update(brand);
     }
 }
