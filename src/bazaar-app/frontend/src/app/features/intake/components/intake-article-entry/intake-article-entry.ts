@@ -121,6 +121,26 @@ export class IntakeArticleEntry {
   private readonly pendingNumberValue = signal<string | null>(null);
   private readonly pendingPriceValue = signal<string | null>(null);
 
+  /**
+   * Fix round 1 (reviewer Important 1): bumped on every REAL Artikelnummer-field interaction
+   * (`checkArticleNumber()` — typed/scanned/submitted) and captured by `prefillNextNumber()` at
+   * call time. `prefillNextNumber()`'s async `GetNextNumber` response only gets applied if this
+   * counter still matches its captured value when the response lands — otherwise a real scan/typed
+   * entry happened in the meantime and the (now stale) suggested number must NOT silently
+   * overwrite it (which would also wrongly re-trigger a number-check for the wrong number).
+   */
+  private numberFieldSeq = 0;
+  /**
+   * Fix round 1 (reviewer Important 2): true only while `name`/`price` hold values that came
+   * from `handleArticleFound()`'s own-seller-unreleased prefill branch, not from the user's own
+   * typing — cleared on any manual edit to those two fields (`onNameChange()`/`onPriceChange()`)
+   * and consumed (cleared + fields reset) once the Artikelnummer field moves on to a DIFFERENT
+   * number whose lookup no longer confirms that same prefill (`clearPrefilledFields()`). Prevents
+   * article A's prefilled Bezeichnung/Preis from silently leaking into a "fresh" entry for a
+   * different number B.
+   */
+  private prefillActive = false;
+
   readonly canSave = computed(
     () =>
       this.articleNumber().trim().length > 0 &&
@@ -179,8 +199,16 @@ export class IntakeArticleEntry {
     this.checkArticleNumber(raw);
   }
 
+  /** Manual edit to Bezeichnung — no longer counts as a lookup-prefilled value (fix round 1,
+   * reviewer Important 2). */
+  onNameChange(value: string): void {
+    this.name.set(value);
+    this.prefillActive = false;
+  }
+
   onPriceChange(value: string | number): void {
     this.price.set(typeof value === 'number' ? value : Number(value));
+    this.prefillActive = false;
   }
 
   onCategoryCreated(name: string): void {
@@ -246,6 +274,11 @@ export class IntakeArticleEntry {
   }
 
   private checkArticleNumber(raw: string): void {
+    // Fix round 1 (reviewer Important 1): every REAL trigger of a number-check invalidates any
+    // still-in-flight `prefillNextNumber()` response — see that method's own guard and
+    // `numberFieldSeq`'s doc comment.
+    this.numberFieldSeq++;
+
     const trimmed = raw.trim();
     if (!trimmed) {
       this.numberTakenMessage.set(null);
@@ -277,6 +310,11 @@ export class IntakeArticleEntry {
     const alreadyReleased = article.status !== 'registered';
 
     if (!belongsToThisSeller || alreadyReleased) {
+      // Fix round 1 (reviewer Important 2): this number is a DIFFERENT article than whatever
+      // the previous lookup may have prefilled — never leave that stale data sitting in
+      // Bezeichnung/Preis behind a "vergeben" message the user can't get past without first
+      // changing the number again.
+      this.clearPrefilledFields();
       this.numberTakenMessage.set('Artikelnummer bereits vergeben');
       if (isCameraOrigin) this.scanFeedbackResult.set('already-set');
       return;
@@ -289,14 +327,24 @@ export class IntakeArticleEntry {
     this.numberTakenMessage.set(null);
     this.name.set(article.name);
     this.price.set(article.price);
-    this.pendingPriceValue.set(String(article.price));
+    // Direct call rather than the generic `pendingPriceValue` signal/effect indirection: by the
+    // time a lookup can fire at all, the view (and `priceInputGroup`'s viewChild) is guaranteed
+    // already resolved, and going through `pendingPriceValue` here would let its own
+    // `applyExternalValue()` round-trip (which re-emits `valueChange` -> `onPriceChange()`, which
+    // clears `prefillActive`) race against setting `prefillActive = true` below in the wrong
+    // order.
+    this.priceInputGroup()?.applyExternalValue(String(article.price));
+    this.prefillActive = true;
     if (isCameraOrigin) this.scanFeedbackResult.set('success');
   }
 
   private handleArticleLookupError(error: unknown, isCameraOrigin: boolean): void {
     if (error instanceof HttpErrorResponse && error.status === 404) {
-      // Number is free — normal new-entry flow, clear any stale "vergeben" message.
+      // Number is free — normal new-entry flow, clear any stale "vergeben" message AND any
+      // stale Bezeichnung/Preis a PREVIOUS number's found-article prefill left behind (fix round
+      // 1, reviewer Important 2) — this number was never confirmed to be that same article.
       this.numberTakenMessage.set(null);
+      this.clearPrefilledFields();
       if (isCameraOrigin) this.scanFeedbackResult.set('success');
       return;
     }
@@ -307,8 +355,26 @@ export class IntakeArticleEntry {
     if (isCameraOrigin) this.scanFeedbackResult.set('unknown');
   }
 
+  /** Fix round 1 (reviewer Important 2): resets Bezeichnung/Preis back to empty/default, but
+   * ONLY when they currently hold a previous lookup's prefilled values (`prefillActive`) — never
+   * clobbers values the user is genuinely hand-typing for a fresh entry that never went through a
+   * found-article prefill in the first place. */
+  private clearPrefilledFields(): void {
+    if (!this.prefillActive) return;
+    this.name.set('');
+    this.price.set(0);
+    this.priceInputGroup()?.applyExternalValue('');
+    this.prefillActive = false;
+  }
+
   private prefillNextNumber(): void {
+    // Fix round 1 (reviewer Important 1): capture the sequence counter's value at request time.
+    // If a real scan/typed/submitted number-check happens before this resolves, `numberFieldSeq`
+    // will have moved on — this stale response must then be dropped, not silently applied on top
+    // of (and re-triggering a lookup for) whatever the user already entered.
+    const requestSeq = this.numberFieldSeq;
     this.articlesApi.getNextNumber().subscribe((result) => {
+      if (this.numberFieldSeq !== requestSeq) return;
       this.pendingNumberValue.set(String(result.nextNumber));
     });
   }
@@ -325,6 +391,8 @@ export class IntakeArticleEntry {
     this.numberTakenMessage.set(null);
     this.scanFeedbackResult.set(null);
     this.pendingPriceValue.set('');
+    this.prefillActive = false;
+    this.numberFieldSeq++;
     this.prefillNextNumber();
   }
 }

@@ -24,7 +24,7 @@
           id="intake-article-entry-name"
           pInputText
           [ngModel]="name()"
-          (ngModelChange)="name.set($event)"
+          (ngModelChange)="onNameChange($event)"
           name="name"
           type="text"
           required
