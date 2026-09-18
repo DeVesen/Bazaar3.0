@@ -16,5 +16,7 @@ public interface IBrandRepository
     /// </summary>
     Task<bool> ExistsByNameIgnoreCase(string name);
 
+    Task Update(Brand brand);
+
     Task Remove(Brand brand);
 }

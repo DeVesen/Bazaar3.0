@@ -73,6 +73,24 @@ public class BrandRepositoryTests
     }
 
     [Fact]
+    public async Task Update_PersistsChanges()
+    {
+        await using var dbContext = CreateContext();
+        var sut = new BrandRepository(dbContext);
+        var brand = Brand.Create("BRAND001", "Adidas", original: true);
+        await sut.Add(brand);
+
+        brand.Rename("Adidas Sport");
+        brand.SetOriginal(false);
+        await sut.Update(brand);
+
+        var found = await sut.GetById("BRAND001");
+        Assert.NotNull(found);
+        Assert.Equal("Adidas Sport", found!.Name);
+        Assert.False(found.Original);
+    }
+
+    [Fact]
     public async Task Remove_DeletesBrand()
     {
         await using var dbContext = CreateContext();

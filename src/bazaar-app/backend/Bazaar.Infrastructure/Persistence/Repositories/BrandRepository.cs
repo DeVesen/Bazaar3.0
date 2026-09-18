@@ -21,6 +21,12 @@ public sealed class BrandRepository(BazaarDbContext dbContext) : IBrandRepositor
     public Task<bool> ExistsByNameIgnoreCase(string name) =>
         dbContext.Brands.AnyAsync(b => b.Name == name);
 
+    public async Task Update(Brand brand)
+    {
+        dbContext.Brands.Update(brand);
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task Remove(Brand brand)
     {
         dbContext.Brands.Remove(brand);

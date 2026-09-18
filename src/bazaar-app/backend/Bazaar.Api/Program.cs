@@ -3,6 +3,7 @@ using Bazaar.Api.ExceptionHandling;
 using Bazaar.Api.Features.Auth;
 using Bazaar.Api.Features.Public;
 using Bazaar.Application.Auth;
+using Bazaar.Application.Brands;
 using Bazaar.Domain.Ports;
 using Bazaar.Infrastructure.Persistence;
 using Bazaar.Infrastructure.Persistence.Repositories;
@@ -44,6 +45,10 @@ builder.Services.AddHostedService<SeedAdminHostedService>();
 
 builder.Services.AddScoped<LoginHandler>();
 builder.Services.AddScoped<ChangePasswordHandler>();
+builder.Services.AddScoped<GetBrandsHandler>();
+builder.Services.AddScoped<CreateBrandHandler>();
+builder.Services.AddScoped<UpdateBrandHandler>();
+builder.Services.AddScoped<DeleteBrandHandler>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
