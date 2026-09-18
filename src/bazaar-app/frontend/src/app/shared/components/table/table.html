@@ -11,17 +11,16 @@
   }
 
   <!--
-    NOTE: no [lazy]="true" here — this p-table treats [value]="data()" as the complete
-    dataset and re-slices it itself for paging/sorting. Fine for Brands' in-memory list;
-    a WRONG fit for a future backend-paginated consumer that hands in only the current
-    page's rows plus a larger totalRecords(). See the "KNOWN LIMITATION" doc-comment on
-    the Table class in table.ts before reusing this component that way.
+    [lazy]="lazy()" opts into backend-paginated mode (Articles/Statistik). [lazyLoadOnInit]
+    is hardcoded false — the initial load stays the parent's own store.load() call, same as
+    every non-lazy page, instead of racing PrimeNG's own automatic first onLazyLoad emission.
+    See the "LAZY (backend-paginated) MODE" doc-comment on the Table class in table.ts.
   -->
   <p-table
     [value]="data()"
     [loading]="loading()"
     [paginator]="showPaginator()"
-    [rows]="10"
+    [rows]="rows()"
     [rowsPerPageOptions]="[10, 25, 50]"
     [totalRecords]="totalRecords() || data().length"
     currentPageReportTemplate="Zeige {first} – {last} von {totalRecords} Einträgen"
@@ -29,7 +28,10 @@
     [stripedRows]="true"
     [rowHover]="true"
     [style]="{ '--p-datatable-row-striped-background': '#FAFAFA' }"
+    [lazy]="lazy()"
+    [lazyLoadOnInit]="false"
     (onPage)="onPage($event)"
+    (onLazyLoad)="onLazyLoad($event)"
   >
     <ng-template #header>
       <tr>
@@ -109,6 +111,9 @@
                   [value]="toDisplayString(getValue(row, col.field))"
                   [severity]="resolveSeverity(col, getValue(row, col.field))"
                 />
+                @if (resolveSecondaryBadge(col, row); as secondary) {
+                  <p-tag [value]="secondary.text" [severity]="secondary.severity" />
+                }
               }
               @default {
                 {{ getValue(row, col.field) }}

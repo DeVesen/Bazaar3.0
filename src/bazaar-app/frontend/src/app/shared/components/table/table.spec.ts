@@ -211,6 +211,110 @@ describe('Table', () => {
     });
   });
 
+  describe('Round-15 Task 6: lazy mode', () => {
+    it('lazy=true: onLazyLoad emits pageChange with the correct {page, rows}, not onPage', async () => {
+      const fixture = createFixture(makeRows(3));
+      fixture.componentRef.setInput('lazy', true);
+      fixture.componentRef.setInput('rows', 50);
+      fixture.componentRef.setInput('totalRecords', 500);
+      const spy = vi.fn();
+      fixture.componentInstance.pageChange.subscribe(spy);
+      await fixture.whenStable();
+
+      fixture.componentInstance.onLazyLoad({ first: 100, rows: 50 });
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith({ page: 2, rows: 50 });
+    });
+
+    it('lazy=true: a direct onPage call (simulating PrimeNG emitting it unconditionally alongside onLazyLoad) is a no-op, so pageChange is not emitted twice', async () => {
+      const fixture = createFixture(makeRows(3));
+      fixture.componentRef.setInput('lazy', true);
+      fixture.componentRef.setInput('rows', 50);
+      fixture.componentRef.setInput('totalRecords', 500);
+      const spy = vi.fn();
+      fixture.componentInstance.pageChange.subscribe(spy);
+      await fixture.whenStable();
+
+      // Simulate what PrimeNG's own paginator handler does on a page click in lazy mode:
+      // it calls both onPage and onLazyLoad.
+      fixture.componentInstance.onPage({ first: 100, rows: 50 });
+      fixture.componentInstance.onLazyLoad({ first: 100, rows: 50 });
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith({ page: 2, rows: 50 });
+    });
+
+    it('lazy=false (default): onPage still emits pageChange exactly as before', async () => {
+      const fixture = createFixture(makeRows(3));
+      const spy = vi.fn();
+      fixture.componentInstance.pageChange.subscribe(spy);
+      await fixture.whenStable();
+
+      fixture.componentInstance.onPage({ first: 20, rows: 10 });
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith({ page: 2, rows: 10 });
+    });
+
+    it('binds [lazy] and the caller-supplied [rows] onto p-table', async () => {
+      const fixture = createFixture(makeRows(3));
+      fixture.componentRef.setInput('lazy', true);
+      fixture.componentRef.setInput('rows', 50);
+      await fixture.whenStable();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const table = compiled.querySelector('p-table') as HTMLElement;
+      expect(table.classList.contains('p-datatable')).toBe(true);
+    });
+  });
+
+  describe('Round-15 Task 6: secondary badge on badge columns', () => {
+    it('renders a second p-tag next to the primary badge when secondaryBadge returns a value', async () => {
+      const columnsWithSecondary: ColumnConfig[] = [
+        ...COLUMNS.slice(0, 3),
+        {
+          field: 'status',
+          header: 'Status',
+          type: 'badge',
+          secondaryBadge: (row) =>
+            (row as Row & { manual?: boolean }).manual
+              ? { text: 'manuell', severity: 'secondary' }
+              : null,
+        },
+      ];
+      const rows = makeRows(1).map((r) => ({ ...r, manual: true }));
+      const fixture = TestBed.createComponent(Table<Row>);
+      fixture.componentRef.setInput('columns', columnsWithSecondary);
+      fixture.componentRef.setInput('data', rows);
+      await fixture.whenStable();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const tags = compiled.querySelectorAll('p-tag');
+      expect(tags.length).toBe(2);
+      expect(compiled.textContent).toContain('manuell');
+    });
+
+    it('renders only the primary badge when secondaryBadge returns null', async () => {
+      const columnsWithSecondary: ColumnConfig[] = [
+        ...COLUMNS.slice(0, 3),
+        {
+          field: 'status',
+          header: 'Status',
+          type: 'badge',
+          secondaryBadge: () => null,
+        },
+      ];
+      const fixture = createFixture(makeRows(1));
+      fixture.componentRef.setInput('columns', columnsWithSecondary);
+      await fixture.whenStable();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const tags = compiled.querySelectorAll('p-tag');
+      expect(tags.length).toBe(1);
+    });
+  });
+
   describe('AC-10: loading skeleton', () => {
     it('renders 5 skeleton rows with a p-skeleton per data column while loading', async () => {
       const fixture = createFixture([]);

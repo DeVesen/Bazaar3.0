@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TableModule } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -22,8 +22,19 @@ export interface ColumnConfig {
    * fix a global badge-value -> severity mapping, so the caller may supply one; defaults to
    * PrimeNG's `'info'` severity when omitted.
    */
-  badgeSeverity?: (value: unknown) => 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
+  badgeSeverity?: (value: unknown) => BadgeSeverity;
+  /**
+   * Optional SECOND badge rendered next to the primary `type: 'badge'` tag, from the whole row
+   * rather than a single field (e.g. Articles' "manuell" marker next to the status badge — see
+   * `api/articles.md`/spec.md). Returns `null` to render nothing for that row. Mirrors the
+   * caller-supplied-function shape of `badgeSeverity` rather than introducing a templating API:
+   * `Table` stays generic and config-driven, with no Article-specific knowledge of its own.
+   * Only consulted for `type: 'badge'` columns.
+   */
+  secondaryBadge?: (row: unknown) => { text: string; severity: BadgeSeverity } | null;
 }
+
+export type BadgeSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 
 export type MatchMode = 'equals' | 'startsWith' | 'contains' | 'endsWith' | 'lt' | 'lte' | 'gt' | 'gte';
 
@@ -89,33 +100,41 @@ const CIRCLED_DIGIT_BASE = 0x2460; // U+2460 = '①'
  *   ourselves lets the documented Shift+click contract stand without fighting PrimeNG's
  *   built-in modifier-key check.
  *
- * KNOWN LIMITATION — no `[lazy]` mode (backend-driven pagination trap for future consumers):
- * `p-table` in table.html is bound WITHOUT `[lazy]="true"`. In that default (non-lazy) mode,
- * PrimeNG treats `[value]="data()"` as the COMPLETE dataset and re-slices it itself using its
- * own internal paginator/sort/filter state (`first`/`rows`). That is exactly what Brands
- * (the only Round-11 consumer) wants: it hands in the full, in-memory, unpaginated array and
- * `totalRecords` just falls back to `data().length`.
+ * LAZY (backend-paginated) MODE — implemented Round-15 Task 6, option (a) from the previous
+ * version of this doc comment:
+ * Set `[lazy]="true"` when the parent already resolves paging server-side (e.g. Articles) and
+ * hands in only the CURRENT PAGE's rows via `data()` (not the full dataset), together with the
+ * real server-side count via `totalRecords()`. In that mode:
+ * - `p-table` is bound with `[lazy]="true"` and `[lazyLoadOnInit]="false"` — the initial load
+ *   is left to the parent's own `store.load()` call (matching every other page's convention)
+ *   rather than PrimeNG's own automatic first `onLazyLoad` emission, so the two don't race and
+ *   double-fetch on init.
+ * - Pass the ACTUAL server page size via the `rows` input (e.g. `[rows]="pageSize()"`). PrimeNG
+ *   slices `data()` down to `[0, rows())` for rendering even in lazy mode (`dataToRender`), so
+ *   a `rows` value smaller than the real page size would silently hide fetched rows — this is
+ *   why `rows` is now a caller-supplied input instead of the old hardcoded `10` (default stays
+ *   `10`, so every existing non-lazy caller's behavior is unchanged).
+ * - `(onLazyLoad)` drives `pageChange` in lazy mode. `(onPage)` is still bound for the non-lazy
+ *   path, but `onPage()` now no-ops when `lazy()` is true: verified empirically against this
+ *   project's installed PrimeNG version (22.1.x) that its internal paginator handler
+ *   (`p-table`'s `onPageChange`) emits its own `onPage` output UNCONDITIONALLY and ADDITIONALLY
+ *   emits `onLazyLoad` when lazy — i.e. paging (unlike sorting/filtering, which PrimeNG itself
+ *   gates with an `if (lazy()) … else …`) is NOT mutually exclusive between the two events at
+ *   the PrimeNG level. Without the guard, a paginator click on a lazy table would emit
+ *   `pageChange` twice. Sorting/filtering here don't have this problem because `Table` handles
+ *   both via its own custom `onHeaderClick`/`onFilterValueChange` handlers, never through
+ *   PrimeNG's native `pSortableColumn`/column-filter machinery — so PrimeNG's own internal
+ *   lazy-gated sort/filter `onLazyLoad` emissions are never reached from this component at all.
+ * - `sortChange`/`filterChange` are unaffected: they already emit from `Table`'s own handlers
+ *   regardless of `lazy()`, so the lazy parent (Articles) converts them to backend params
+ *   itself; no change was needed here for those two.
  *
- * It silently breaks for a FUTURE consumer that does backend-driven pagination — e.g. the
- * Artikel/Statistik lists referenced in component.md §2/§6/§7 — if that consumer passes only
- * the CURRENT PAGE's rows (`data()` = one server-fetched page, e.g. 10 rows) together with a
- * larger `totalRecords()` (e.g. 500) for the full server-side count. Without `[lazy]="true"`,
- * PrimeNG does not know `data()` is already page-scoped: on page 2+ it will try to re-slice
- * that small page-array using its own paginator offset (`first`), index out of range, and
- * render blank/wrong rows instead of the intended page — a purely functional bug with no
- * compile-time or template warning.
- *
- * Before wiring this component to any backend-paginated list, a future implementer MUST
- * either:
- *   (a) extend `Table` with a `[lazy]="true"` mode on `p-table`, driven by `(onLazyLoad)`
- *       instead of `(onPage)`, and make sure `sortChange`/`filterChange`/`pageChange` all
- *       emit from that lazy event so the parent can refetch the correct server page/sort/
- *       filter — the existing `onPage`/`onHeaderClick`/`onFilterValueChange` handlers assume
- *       PrimeNG already has the full dataset and are NOT sufficient as-is; or
- *   (b) not reuse this component for a backend-paginated list until (a) exists — keep
- *       feeding it the complete in-memory dataset (as Brands does today).
- * This is not covered by any of the 13 existing AC tests, which only exercise the in-memory
- * path; do not treat their passing as evidence this limitation is handled.
+ * Known remaining gap: `Table` does not expose the paginator's `rowsPerPageOptions`, so a lazy
+ * consumer's user picking a row-count other than the caller's real page size (e.g. Brands-style
+ * `[10, 25, 50]`, still hardcoded here) changes `p-table`'s internal `rows()` without the parent
+ * ever learning about it or re-fetching at that size — the display and the backend page size
+ * can then disagree. No Round-15 consumer's store exposes a `setPageSize`, so this is left as a
+ * documented follow-up rather than plumbed through speculatively.
  */
 @Component({
   selector: 'app-table',
@@ -143,6 +162,15 @@ export class Table<T = unknown> {
   readonly actionColumn = input<ActionColumnConfig | null>(null);
   readonly emptyText = input<string | null>(null);
   readonly hasActiveFilter = input<boolean>(false);
+  /**
+   * Rows per page. Also doubles as the effective page size in `[lazy]="true"` mode — see the
+   * "LAZY (backend-paginated) MODE" doc comment above for why a lazy caller MUST pass its real
+   * server page size here. Defaults to `10`, the value this was hardcoded to before Round-15
+   * Task 6, so every existing non-lazy caller's behavior is unchanged.
+   */
+  readonly rows = input<number>(10);
+  /** Opt-in backend-paginated mode — see the "LAZY (backend-paginated) MODE" doc comment above. */
+  readonly lazy = input<boolean>(false);
   /** Controls the "+ Neu" toolbar button (component.md §3) — the parent owns the permission check. */
   readonly canAdd = input<boolean>(false);
   /** Optional toolbar title (component.md §3 "Seitenüberschrift / Epic-Titel"). */
@@ -198,6 +226,10 @@ export class Table<T = unknown> {
     return column.badgeSeverity?.(value) ?? 'info';
   }
 
+  resolveSecondaryBadge(column: ColumnConfig, row: T): { text: string; severity: BadgeSeverity } | null {
+    return column.secondaryBadge?.(row) ?? null;
+  }
+
   sortIndexOf(field: string): number {
     return this.sortState().findIndex((s) => s.field === field);
   }
@@ -251,8 +283,20 @@ export class Table<T = unknown> {
   }
 
   onPage(event: { first: number; rows: number }): void {
+    // In `[lazy]="true"` mode, PrimeNG's own paginator handler emits `onPage` unconditionally
+    // AND `onLazyLoad` additionally (verified against this project's PrimeNG version — see the
+    // class doc comment) — no-op here so `pageChange` isn't emitted twice; `onLazyLoad` below
+    // is the sole source of truth for lazy tables.
+    if (this.lazy()) return;
     const page = event.rows > 0 ? Math.floor(event.first / event.rows) : 0;
     this.pageChange.emit({ page, rows: event.rows });
+  }
+
+  onLazyLoad(event: TableLazyLoadEvent): void {
+    const rows = event.rows ?? 10;
+    const first = event.first ?? 0;
+    const page = rows > 0 ? Math.floor(first / rows) : 0;
+    this.pageChange.emit({ page, rows });
   }
 
   onActionClick(actionId: string, row: T): void {

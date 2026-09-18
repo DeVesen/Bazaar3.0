@@ -1,0 +1,63 @@
+<div class="articles-page">
+  <div class="articles-page__filter-row">
+    <p-iconfield class="articles-page__search">
+      <p-inputicon class="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        placeholder="Suche nach Nr., Bezeichnung …"
+        [ngModel]="qInput()"
+        (ngModelChange)="onQInputChange($event)"
+      />
+    </p-iconfield>
+  </div>
+
+  <div class="articles-page__filter-grid">
+    <p-select
+      [options]="brandOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="filters().brand"
+      (ngModelChange)="onBrandChange($event)"
+      [showClear]="true"
+      placeholder="Alle"
+      aria-label="Marke"
+    />
+    <p-select
+      [options]="categoryOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="filters().category"
+      (ngModelChange)="onCategoryChange($event)"
+      [showClear]="true"
+      placeholder="Alle"
+      aria-label="Kategorie"
+    />
+    <p-select
+      [options]="statusOptions"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="filters().status"
+      (ngModelChange)="onStatusChange($event)"
+      [showClear]="true"
+      placeholder="Alle"
+      aria-label="Status"
+    />
+  </div>
+
+  <!--
+    Row click is not yet wired to anything (Tasks 7/8 — artikel-dialog / article-status-popup —
+    aren't built yet; see the class doc comment and onRowClick's TODO). Table has no rowClick
+    output of its own, so there is nothing to bind here until those tasks add one.
+  -->
+  <app-table
+    [lazy]="true"
+    [rows]="pageSize()"
+    [columns]="columns"
+    [data]="items()"
+    [totalRecords]="totalCount()"
+    [loading]="loading()"
+    (sortChange)="onSortChange($event)"
+    (pageChange)="onPageChange($event)"
+  />
+</div>
