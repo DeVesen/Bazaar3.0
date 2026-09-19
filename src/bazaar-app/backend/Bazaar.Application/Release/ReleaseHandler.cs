@@ -62,7 +62,7 @@ public sealed class ReleaseHandler(
             if (notReleasable.Count > 0 || hasUnresolvedId)
             {
                 throw new ConflictException(
-                    $"Artikel{(notReleasable.Count > 1 ? "" : "")} {string.Join(", ", notReleasable)} ist nicht freigebbar",
+                    $"Artikelnummer{(notReleasable.Count > 1 ? "n" : "")} {string.Join(", ", notReleasable)} ist nicht freigebbar",
                     "article.not_releasable")
                 {
                     Extensions =

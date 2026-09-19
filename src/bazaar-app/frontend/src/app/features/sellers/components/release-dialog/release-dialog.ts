@@ -32,9 +32,12 @@ import { PrintService } from '../../../../core/print/print.service';
  * 409) would silently wipe the very session it is supposed to preserve. To avoid that, `scan-
  * dialog`'s `[visible]` stays bound directly to this component's own `visible()` input and is
  * NEVER ANDed with anything else — the payment-panel overlay is instead a purely local `[hidden]`
- * toggle (`scanDialogVisible()`) on the wrapping element, which hides `scan-dialog` visually
- * without ever touching its `visible` input, so it stays mounted with its session state intact
- * throughout the whole payment/409 dance. `sessionIds()` (this component's own mirror, kept in
+ * toggle bound directly to `paymentPanelVisible()` on the wrapping element (`release-dialog.html`),
+ * which hides `scan-dialog` visually without ever touching its `visible` input, so it stays
+ * mounted with its session state intact throughout the whole payment/409 dance. There is
+ * deliberately no separate "is scan-dialog visible" flag — it is always the logical inverse of
+ * `paymentPanelVisible()`, so keeping only one signal removes the risk of the two drifting apart.
+ * `sessionIds()` (this component's own mirror, kept in
  * sync via `scan-dialog`'s `sessionArticleIds` output, which keeps firing regardless of which
  * overlay is on top) is the source of truth for the fee and for the booking request.
  *
@@ -81,10 +84,10 @@ export class ReleaseDialog {
    * comment) — never counted/derived from `scanComplete` events here. */
   readonly sessionIds = signal<readonly string[]>([]);
 
-  /** Local overlay switch: `true` while `scan-dialog` itself is the visible layer, `false` while
-   * the payment-panel `p-dialog` is shown on top of it (see class doc comment above for why this
-   * is a `[hidden]` toggle rather than `scan-dialog`'s own `visible` input). */
-  readonly scanDialogVisible = signal(true);
+  /** Local overlay switch: `true` while the payment-panel `p-dialog` is shown on top of
+   * `scan-dialog` (see class doc comment above for why this drives a `[hidden]` toggle on
+   * `scan-dialog`'s wrapper rather than `scan-dialog`'s own `visible` input). `scan-dialog` is
+   * visible exactly when this is `false` — no separate flag for that, see class doc comment. */
   readonly paymentPanelVisible = signal(false);
   readonly bookingError = signal<string | null>(null);
 
@@ -100,11 +103,10 @@ export class ReleaseDialog {
 
     // Fresh local state every time the dialog opens — `scan-dialog` resets its own session on
     // this same `visible` transition, so this only needs to reset THIS component's own overlay
-    // flags (a previous visit may have left `scanDialogVisible`/`paymentPanelVisible` in
-    // whatever state the last close/booking left them in).
+    // flag (a previous visit may have left `paymentPanelVisible` in whatever state the last
+    // close/booking left it in).
     effect(() => {
       if (this.visible()) {
-        this.scanDialogVisible.set(true);
         this.paymentPanelVisible.set(false);
         this.bookingError.set(null);
       }
@@ -128,7 +130,6 @@ export class ReleaseDialog {
       return;
     }
 
-    this.scanDialogVisible.set(false);
     this.bookingError.set(null);
     this.paymentPanelVisible.set(true);
   }
@@ -138,7 +139,6 @@ export class ReleaseDialog {
    * want to scan more or fix something. */
   onPaymentCancelled(): void {
     this.paymentPanelVisible.set(false);
-    this.scanDialogVisible.set(true);
   }
 
   onPaymentConfirmed(event: PaymentConfirmedEvent): void {
@@ -166,7 +166,6 @@ export class ReleaseDialog {
    * actually visible while `scan-dialog`'s modal is reopened on top. */
   private handleBookingError(error: unknown): void {
     this.paymentPanelVisible.set(false);
-    this.scanDialogVisible.set(true);
 
     if (
       error instanceof HttpErrorResponse &&

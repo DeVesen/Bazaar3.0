@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -35,6 +35,17 @@ function messageServiceStub() {
  * clicks through `payment-panel`'s own template. */
 function httpClientStub(): HttpClient {
   return { get: vi.fn().mockReturnValue(of([])) } as unknown as HttpClient;
+}
+
+/** Reads the actual DOM `hidden` state of the `app-scan-dialog` wrapper (`release-dialog.html`'s
+ * `<div [hidden]="paymentPanelVisible()">`) rather than a component-level flag — this is what
+ * would actually catch it if the template's binding ever drifted from `paymentPanelVisible()`
+ * (Round-18 review fix: the old `scanDialogVisible()` signal could not, since it was set by hand
+ * at every call site and only happened to stay in sync with the template). */
+function scanDialogHidden(fixture: ComponentFixture<unknown>): boolean {
+  const scanDialogElement = fixture.nativeElement.querySelector('app-scan-dialog') as HTMLElement | null;
+  const wrapper = scanDialogElement?.parentElement as HTMLElement | null | undefined;
+  return Boolean(wrapper?.hidden);
 }
 
 async function setup(
@@ -99,16 +110,17 @@ describe('ReleaseDialog', () => {
   });
 
   it('closing scan-dialog with a non-empty session opens payment-panel instead of closing', async () => {
-    const { component } = await setup();
+    const { fixture, component } = await setup();
     const spy = vi.fn();
     component.visibleChange.subscribe(spy);
     component.onSessionChanged(['a1']);
 
     component.onScanDialogVisibleChange(false);
+    fixture.detectChanges();
 
     expect(spy).not.toHaveBeenCalled();
     expect(component.paymentPanelVisible()).toBe(true);
-    expect(component.scanDialogVisible()).toBe(false);
+    expect(scanDialogHidden(fixture)).toBe(true);
   });
 
   it('renders payment-panel with fee as totalAmount once open', async () => {
@@ -126,15 +138,20 @@ describe('ReleaseDialog', () => {
   });
 
   it('payment cancel reopens scan-dialog and keeps the session', async () => {
-    const { component } = await setup();
+    const { fixture, component } = await setup();
     component.onSessionChanged(['a1']);
     component.paymentPanelVisible.set(true);
-    component.scanDialogVisible.set(false);
+    fixture.detectChanges();
 
     component.onPaymentCancelled();
+    fixture.detectChanges();
 
+    // Real signal driving the template's `[hidden]` on the scan-dialog wrapper (release-dialog.html)
+    // — `false` means scan-dialog is visible again. No separate "scan-dialog visible" flag exists
+    // any more (Round-18 review fix), so this is the one signal that can actually catch a template
+    // divergence.
     expect(component.paymentPanelVisible()).toBe(false);
-    expect(component.scanDialogVisible()).toBe(true);
+    expect(scanDialogHidden(fixture)).toBe(false);
     expect(component.sessionIds()).toEqual(['a1']);
   });
 
@@ -179,15 +196,17 @@ describe('ReleaseDialog', () => {
           }),
       ),
     );
-    const { component, messageService } = await setup({ releaseApi });
+    const { fixture, component, messageService } = await setup({ releaseApi });
     component.onSessionChanged(['a1', 'a2']);
     component.paymentPanelVisible.set(true);
+    fixture.detectChanges();
     const releasedSpy = vi.fn();
     const visibleChangeSpy = vi.fn();
     component.released.subscribe(releasedSpy);
     component.visibleChange.subscribe(visibleChangeSpy);
 
     component.onPaymentConfirmed({ totalAmount: 1, receivedAmount: 5, change: 4 });
+    fixture.detectChanges();
 
     expect(component.bookingError()).toBe('Artikel 1043, 1050 sind nicht mehr freigebbar.');
     // Fix round 1: the inline `bookingError` text alone is invisible once `scan-dialog`'s modal
@@ -198,7 +217,7 @@ describe('ReleaseDialog', () => {
       expect.objectContaining({ severity: 'error', summary: 'Artikel 1043, 1050 sind nicht mehr freigebbar.' }),
     );
     expect(component.paymentPanelVisible()).toBe(false);
-    expect(component.scanDialogVisible()).toBe(true);
+    expect(scanDialogHidden(fixture)).toBe(false);
     expect(component.sessionIds()).toEqual(['a1', 'a2']);
     expect(releasedSpy).not.toHaveBeenCalled();
     expect(visibleChangeSpy).not.toHaveBeenCalled();
@@ -219,7 +238,7 @@ describe('ReleaseDialog', () => {
     expect(messageService.add).toHaveBeenCalledWith(
       expect.objectContaining({ severity: 'error', summary: 'Buchung fehlgeschlagen. Bitte erneut versuchen.' }),
     );
-    expect(component.scanDialogVisible()).toBe(true);
+    expect(component.paymentPanelVisible()).toBe(false);
     expect(visibleChangeSpy).not.toHaveBeenCalled();
   });
 
@@ -227,7 +246,6 @@ describe('ReleaseDialog', () => {
     const { fixture, component } = await setup();
     component.onSessionChanged(['a1']);
     component.paymentPanelVisible.set(true);
-    component.scanDialogVisible.set(false);
     component.bookingError.set('stale error');
 
     fixture.componentRef.setInput('visible', false);
@@ -235,7 +253,6 @@ describe('ReleaseDialog', () => {
     fixture.componentRef.setInput('visible', true);
     fixture.detectChanges();
 
-    expect(component.scanDialogVisible()).toBe(true);
     expect(component.paymentPanelVisible()).toBe(false);
     expect(component.bookingError()).toBeNull();
   });
