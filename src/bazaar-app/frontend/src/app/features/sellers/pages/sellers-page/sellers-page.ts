@@ -37,6 +37,7 @@ import {
   VerkaeuferDialog,
 } from '../../components/verkaeufer-dialog/verkaeufer-dialog';
 import { SellerDetailModal } from '../../components/seller-detail-modal/seller-detail-modal';
+import { ReleaseDialog } from '../../components/release-dialog/release-dialog';
 
 const DEBOUNCE_MS = 300;
 
@@ -102,6 +103,7 @@ interface ProblemDetailsBody {
     SellerCard,
     VerkaeuferDialog,
     SellerDetailModal,
+    ReleaseDialog,
   ],
   templateUrl: './sellers-page.html',
   styleUrl: './sellers-page.scss',
@@ -173,6 +175,10 @@ export class SellersPage {
     () => this.isAdmin() && this.statusPopupCard()?.settledAt != null,
   );
 
+  // Freigeben-Popup (Round-18 Task 4).
+  readonly releaseDialogVisible = signal(false);
+  readonly releaseDialogSellerId = signal<string | null>(null);
+
   constructor() {
     this.sellersStore.load();
 
@@ -219,12 +225,20 @@ export class SellersPage {
   }
 
   onScan(card: SellerCardModel): void {
-    // `card` is not used yet — the scan flow is a placeholder toast only (see class doc).
-    void card;
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Freigabe folgt in einem späteren Häppchen',
-    });
+    this.releaseDialogSellerId.set(card.id);
+    this.releaseDialogVisible.set(true);
+  }
+
+  onReleaseDialogVisibleChange(visible: boolean): void {
+    this.releaseDialogVisible.set(visible);
+    if (!visible) {
+      this.releaseDialogSellerId.set(null);
+    }
+  }
+
+  onReleased(): void {
+    this.sellersStore.load();
+    this.messageService.add({ severity: 'success', summary: '✓ Artikel freigegeben' });
   }
 
   onCardClick(card: SellerCardModel): void {

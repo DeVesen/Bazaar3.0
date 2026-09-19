@@ -1,0 +1,24 @@
+@if (bookingError()) {
+  <p class="release-dialog__error">{{ bookingError() }}</p>
+}
+
+<div [hidden]="paymentPanelVisible()">
+  <app-scan-dialog
+    [visible]="visible()"
+    title="Artikel freigeben"
+    [sellerId]="sellerId()"
+    targetField="releasedAt"
+    (visibleChange)="onScanDialogVisibleChange($event)"
+    (sessionArticleIds)="onSessionChanged($event)"
+  />
+</div>
+
+<p-dialog [(visible)]="paymentPanelVisible" [modal]="true" header="Bezahlen">
+  <app-payment-panel
+    totalLabel="Gesamtgebühr"
+    [totalAmount]="fee()"
+    confirmLabel="Buchen"
+    (confirmed)="onPaymentConfirmed($event)"
+    (cancelled)="onPaymentCancelled()"
+  />
+</p-dialog>

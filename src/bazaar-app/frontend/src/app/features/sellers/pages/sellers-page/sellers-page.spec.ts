@@ -7,7 +7,8 @@ import { SellersStore, SellersFilters } from '../../sellers-store';
 import { RoleService } from '../../../../core/auth/role.service';
 // eslint-disable-next-line boundaries/dependencies
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
-import { SellerCard, SellerDetail } from '../../data/sellers-api';
+import { SellerCard, SellerDetail, SellersApi } from '../../data/sellers-api';
+import { ReleaseApi } from '../../data/release-api';
 
 function buildDetail(overrides: Partial<SellerDetail> = {}): SellerDetail {
   return {
@@ -93,6 +94,10 @@ describe('SellersPage', () => {
     getArticles = vi.fn().mockReturnValue(of([]));
     getById = vi.fn().mockReturnValue(of(buildDetail()));
     messageServiceAdd = vi.fn();
+    // `app-release-dialog` (Round-18 Task 4) is always rendered by `sellers-page.html` and
+    // injects the real `SellersApi`/`ReleaseApi` itself (`providedIn: 'root'`) — both are
+    // overridden here purely so their real `HttpClient` dependency is never required by this
+    // page's own spec, same reasoning as the `SellerTypesApi` mock above.
 
     await TestBed.configureTestingModule({
       imports: [SellersPage],
@@ -120,6 +125,8 @@ describe('SellersPage', () => {
         { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
         { provide: MessageService, useValue: { add: messageServiceAdd } },
         { provide: SellerTypesApi, useValue: { getAll: () => of(SELLER_TYPES) } },
+        { provide: SellersApi, useValue: { getById: vi.fn().mockReturnValue(of(buildDetail())) } },
+        { provide: ReleaseApi, useValue: { bookRelease: vi.fn() } },
         ConfirmationService,
       ],
     }).compileComponents();
@@ -218,19 +225,37 @@ describe('SellersPage', () => {
   });
 
   describe('scan', () => {
-    it('shows the placeholder toast and makes no API call', async () => {
+    it('opens the release dialog for the clicked card', async () => {
       const { component } = await createPage();
 
-      component.onScan(buildCard());
+      component.onScan(buildCard({ id: 's1' }));
 
-      expect(messageServiceAdd).toHaveBeenCalledWith(
-        expect.objectContaining({
-          severity: 'info',
-          summary: 'Freigabe folgt in einem späteren Häppchen',
-        }),
-      );
+      expect(component.releaseDialogVisible()).toBe(true);
+      expect(component.releaseDialogSellerId()).toBe('s1');
       expect(create).not.toHaveBeenCalled();
       expect(update).not.toHaveBeenCalled();
+    });
+
+    it('clears the seller id when the release dialog closes', async () => {
+      const { component } = await createPage();
+      component.onScan(buildCard({ id: 's1' }));
+
+      component.onReleaseDialogVisibleChange(false);
+
+      expect(component.releaseDialogVisible()).toBe(false);
+      expect(component.releaseDialogSellerId()).toBeNull();
+    });
+
+    it('onReleased refreshes the seller list and shows a success toast', async () => {
+      const { component } = await createPage();
+      load.mockClear();
+
+      component.onReleased();
+
+      expect(load).toHaveBeenCalled();
+      expect(messageServiceAdd).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'success', summary: '✓ Artikel freigegeben' }),
+      );
     });
   });
 

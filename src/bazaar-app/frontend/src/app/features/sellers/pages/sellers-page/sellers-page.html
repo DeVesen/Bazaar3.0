@@ -104,6 +104,13 @@
   [seller]="selectedCardForDetail()"
 />
 
+<app-release-dialog
+  [visible]="releaseDialogVisible()"
+  [sellerId]="releaseDialogSellerId() ?? ''"
+  (visibleChange)="onReleaseDialogVisibleChange($event)"
+  (released)="onReleased()"
+/>
+
 <p-dialog
   [visible]="statusPopupVisible()"
   (visibleChange)="onStatusPopupVisibleChange($event)"
