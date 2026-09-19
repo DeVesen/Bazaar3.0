@@ -1,0 +1,32 @@
+<p-dialog
+  styleClass="scan-dialog"
+  [header]="title()"
+  [visible]="visible()"
+  [modal]="true"
+  [closable]="true"
+  (visibleChange)="onVisibleChange($event)"
+  (onShow)="onShown()"
+>
+  <app-input-group
+    #inputGroup
+    [modes]="['keyboard', 'camera', 'numpad']"
+    [cameraReplacesInput]="false"
+    (valueChange)="onTypedOrNumpad($event)"
+    (submitted)="onSubmit()"
+  />
+
+  @if (isCameraActive()) {
+    <app-barcode-scanner class="scan-dialog__camera" [active]="isCameraActive()" (codeDetected)="onScanDetected($event)" />
+    <app-scan-feedback [result]="scanFeedbackResult()" [pauseMs]="pauseMs()" />
+  } @else {
+    @if (pendingList().length > 0) {
+      <p-listbox [options]="pendingList()" styleClass="scan-dialog__list" (onChange)="onListboxSelect($event)">
+        <ng-template #item let-a>{{ a.number }} — {{ a.name }}</ng-template>
+      </p-listbox>
+    } @else if (showUnknownMessage()) {
+      <p class="scan-dialog__message">Artikel nicht bekannt</p>
+    } @else {
+      <p class="scan-dialog__message">{{ allDoneMessage() }}</p>
+    }
+  }
+</p-dialog>

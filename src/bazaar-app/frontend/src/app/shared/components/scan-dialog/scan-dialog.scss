@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+// `p-dialog`/`p-listbox` are separate PrimeNG components — a `styleClass` input on them lands on
+// THEIR own rendered root, outside this component's emulated-encapsulation scope, so those rules
+// need `::ng-deep`, same convention as `seller-search.scss`.
+::ng-deep .scan-dialog {
+  min-width: 360px;
+}
+
+::ng-deep .scan-dialog__list {
+  display: block;
+  width: 100%;
+  border: none;
+  margin-top: 0.75rem;
+}
+
+.scan-dialog {
+  &__camera {
+    display: block;
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  &__message {
+    margin: 0.75rem 0 0;
+    color: var(--p-text-muted-color);
+  }
+}
