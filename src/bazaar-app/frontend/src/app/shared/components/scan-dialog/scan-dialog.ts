@@ -66,7 +66,7 @@ interface ArticleByNumberResult {
  * list endpoint only exposes the derived `status` — this is the judgment-call mapping onto that.
  */
 function pendingStatusFor(targetField: ScanDialogTargetField): string {
-  return targetField === 'releasedAt' ? 'registered' : 'sold';
+  return targetField === 'releasedAt' ? 'registered' : 'selling';
 }
 
 /** Numeric substring/prefix match on `number.toString()` — mirrors `seller-search.ts`'s own
@@ -118,6 +118,11 @@ export class ScanDialog {
   /** Forwarded to `app-scan-feedback`'s own `pauseMs` in camera mode — no app-settings wiring
    * this round (same deliberate scope-cut `scan-feedback`/`intake-article-entry` already made). */
   readonly pauseMs = input<number>(3000);
+  /** `'batch'` (default): Round-18 behaviour, unchanged — matches are collected in `sessionIds`
+   * and reported via `sessionArticleIds`/`scanComplete`, the parent writes once at the end ("wie
+   * der Warenkorb an der Kasse"). `'immediate'`: every successful match fires `articleConfirmed`
+   * right away instead, and `sessionIds`/`sessionArticleIds` are never touched (Round-20). */
+  readonly writeMode = input<'batch' | 'immediate'>('batch');
 
   readonly visibleChange = output<boolean>();
   readonly scanComplete = output<ScanCompleteEvent>();
@@ -125,6 +130,11 @@ export class ScanDialog {
    * comment. Emits `string[]` (a plain array snapshot of the internally-held `Set<string>`, taken
    * via `Array.from()` at emit time), never the `Set` itself and never a partial delta. */
   readonly sessionArticleIds = output<readonly string[]>();
+  /** Fires once per successful, genuinely-new match when writeMode() === 'immediate' — the
+   * parent is responsible for calling the actual write endpoint (this component has no HTTP
+   * write knowledge, only read-only validation lookups, per the class's existing architectural
+   * doc comment). Never fires in 'batch' mode (see sessionArticleIds/scanComplete for that path). */
+  readonly articleConfirmed = output<string>();
 
   private readonly inputGroupRef = viewChild<InputGroup>('inputGroup');
 
@@ -267,6 +277,17 @@ export class ScanDialog {
       // and "number unknown" (handled in `handleLookupError()`) all collapse to the same
       // `'unknown'` result — plan.md never distinguishes them, and neither does this component.
       this.emitResult(article.id, 'unknown', isCameraOrigin);
+      return;
+    }
+
+    if (this.writeMode() === 'immediate') {
+      // Round-20 immediate path: no session collection at all (plan's "statt intern zu
+      // sammeln") — instead drop the match straight out of the already-loaded pending list so
+      // the AutoComplete reflects it without a reload, and let the parent do the actual write.
+      this.pendingArticles.update((articles) => articles.filter((a) => a.id !== article.id));
+      this.inputGroupRef()?.applyExternalValue('');
+      this.articleConfirmed.emit(article.id);
+      this.emitResult(article.id, 'success', isCameraOrigin);
       return;
     }
 

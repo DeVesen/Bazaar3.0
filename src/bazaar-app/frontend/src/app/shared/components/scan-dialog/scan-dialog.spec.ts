@@ -84,7 +84,13 @@ describe('ScanDialog', () => {
 
   async function create(
     http: HttpClient,
-    opts: { sellerId?: string; targetField?: 'releasedAt' | 'returnedAt'; visible?: boolean; pauseMs?: number } = {},
+    opts: {
+      sellerId?: string;
+      targetField?: 'releasedAt' | 'returnedAt';
+      visible?: boolean;
+      pauseMs?: number;
+      writeMode?: 'batch' | 'immediate';
+    } = {},
   ) {
     await TestBed.configureTestingModule({
       imports: [ScanDialog],
@@ -97,6 +103,7 @@ describe('ScanDialog', () => {
     fixture.componentRef.setInput('targetField', opts.targetField ?? 'releasedAt');
     fixture.componentRef.setInput('visible', opts.visible ?? true);
     if (opts.pauseMs !== undefined) fixture.componentRef.setInput('pauseMs', opts.pauseMs);
+    if (opts.writeMode !== undefined) fixture.componentRef.setInput('writeMode', opts.writeMode);
     fixture.detectChanges();
     return fixture;
   }
@@ -301,6 +308,73 @@ describe('ScanDialog', () => {
       scannerOf(fixture).codeDetected.emit('101');
       fixture.detectChanges();
       expect((http.get as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(callsAfterFirst);
+    });
+  });
+
+  describe('writeMode', () => {
+    const pending: PendingArticleFixture[] = [{ id: 'A1', number: 101, name: 'Jacke blau', status: 'registered' }];
+    const article: ByNumberFixture = { id: 'A1', number: 101, name: 'Jacke blau', sellerId: 'SEL1', status: 'registered' };
+
+    it('never fires articleConfirmed when writeMode is left at its default (batch)', async () => {
+      const fixture = await create(httpClientMock({ pending, byNumber: { 101: article } }));
+      const confirmed: string[] = [];
+      fixture.componentInstance.articleConfirmed.subscribe((id) => confirmed.push(id));
+
+      typeInto(fixture, '101');
+      fixture.componentInstance.onSubmit();
+
+      expect(confirmed).toEqual([]);
+    });
+
+    it('emits articleConfirmed once and updates the pending list without a second lookup, in immediate mode', async () => {
+      const sellingPending: PendingArticleFixture[] = [
+        { id: 'A1', number: 101, name: 'Jacke blau', status: 'selling' },
+      ];
+      const sellingArticle: ByNumberFixture = {
+        id: 'A1',
+        number: 101,
+        name: 'Jacke blau',
+        sellerId: 'SEL1',
+        status: 'selling',
+      };
+      const http = httpClientMock({ pending: sellingPending, byNumber: { 101: sellingArticle } });
+      const fixture = await create(http, { targetField: 'returnedAt', writeMode: 'immediate' });
+
+      const confirmed: string[] = [];
+      const sessionSnapshots: readonly (readonly string[])[] = [];
+      fixture.componentInstance.articleConfirmed.subscribe((id) => confirmed.push(id));
+      fixture.componentInstance.sessionArticleIds.subscribe((ids) => (sessionSnapshots as string[][]).push([...ids]));
+
+      const callsBeforeSubmit = (http.get as ReturnType<typeof vi.fn>).mock.calls.filter((c) =>
+        /\/api\/sellers\/.+\/articles$/.test(c[0] as string),
+      ).length;
+
+      typeInto(fixture, '101');
+      fixture.componentInstance.onSubmit();
+
+      expect(confirmed).toEqual(['A1']);
+      // Only the initial open-triggered reset to `[]` — never a non-empty snapshot in immediate mode.
+      expect(sessionSnapshots.every((snapshot) => snapshot.length === 0)).toBe(true);
+      expect(fixture.componentInstance.pendingList().find((a) => a.id === 'A1')).toBeUndefined();
+
+      const callsAfterSubmit = (http.get as ReturnType<typeof vi.fn>).mock.calls.filter((c) =>
+        /\/api\/sellers\/.+\/articles$/.test(c[0] as string),
+      ).length;
+      expect(callsAfterSubmit).toBe(callsBeforeSubmit);
+    });
+
+    it('behaves exactly like batch (default) when writeMode is explicitly set to "batch"', async () => {
+      const fixture = await create(httpClientMock({ pending, byNumber: { 101: article } }), { writeMode: 'batch' });
+      const scanCompletes: ScanCompleteEvent[] = [];
+      const sessionSnapshots: readonly (readonly string[])[] = [];
+      fixture.componentInstance.scanComplete.subscribe((e) => scanCompletes.push(e));
+      fixture.componentInstance.sessionArticleIds.subscribe((ids) => (sessionSnapshots as string[][]).push([...ids]));
+
+      typeInto(fixture, '101');
+      fixture.componentInstance.onSubmit();
+
+      expect(scanCompletes).toEqual([{ articleId: 'A1', result: 'success' }]);
+      expect(sessionSnapshots.at(-1)).toEqual(['A1']);
     });
   });
 });
