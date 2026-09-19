@@ -5,6 +5,7 @@ using Bazaar.Api.Features.Auth;
 using Bazaar.Api.Features.Brands;
 using Bazaar.Api.Features.Categories;
 using Bazaar.Api.Features.Intake;
+using Bazaar.Api.Features.Release;
 using Bazaar.Api.Features.Public;
 using Bazaar.Api.Features.SellerTypes;
 using Bazaar.Api.Features.Sellers;
@@ -13,6 +14,7 @@ using Bazaar.Application.Auth;
 using Bazaar.Application.Brands;
 using Bazaar.Application.Categories;
 using Bazaar.Application.Intake;
+using Bazaar.Application.Release;
 using Bazaar.Application.SellerTypes;
 using Bazaar.Application.Sellers;
 using Bazaar.Domain.Ports;
@@ -96,6 +98,7 @@ builder.Services.AddScoped<UpdateArticleTimestampsHandler>();
 builder.Services.AddScoped<DeleteArticleHandler>();
 builder.Services.AddScoped<GetArticleByNumberHandler>();
 builder.Services.AddScoped<IntakeHandler>();
+builder.Services.AddScoped<ReleaseHandler>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -151,6 +154,7 @@ app.MapSellerTypeEndpoints();
 app.MapSellerEndpoints();
 app.MapArticleEndpoints();
 app.MapIntakeEndpoints();
+app.MapReleaseEndpoints();
 
 await ApplyMigrationsAsync(app);
 
