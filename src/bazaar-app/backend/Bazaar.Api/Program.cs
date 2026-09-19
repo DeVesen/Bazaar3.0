@@ -108,6 +108,7 @@ builder.Services.AddScoped<RecordSaleHandler>();
 builder.Services.AddScoped<UndoSaleHandler>();
 builder.Services.AddScoped<GetSellerSettlementHandler>();
 builder.Services.AddScoped<ReturnArticleHandler>();
+builder.Services.AddScoped<SettleSellerHandler>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
