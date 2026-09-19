@@ -3,6 +3,12 @@ import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SellersPage } from './sellers-page';
+// `SellersPage` renders `ReleaseDialog`, which renders `ScanDialog` -> `InputGroup` ->
+// `BarcodeScanner`/`@zxing/browser` — importing the ONE shared mock (see that file's own
+// comment for why it must be centralized, and why every spec that transitively loads
+// `BarcodeScanner` must import it, not just the ones asserting on it) so this test never
+// touches real device camera APIs (unavailable in jsdom).
+import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { SellersStore, SellersFilters } from '../../sellers-store';
 import { RoleService } from '../../../../core/auth/role.service';
 // eslint-disable-next-line boundaries/dependencies

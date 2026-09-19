@@ -10,6 +10,12 @@ import { ArticlesApi } from '../../../articles/data/articles-api';
 import { CategoriesApi } from '../../../categories/data/categories-api';
 // eslint-disable-next-line boundaries/dependencies
 import { BrandsApi } from '../../../brands/data/brands-api';
+// `IntakeArticleEntry` renders `InputGroup`, which depends on `BarcodeScanner`/`@zxing/browser`
+// — importing the ONE shared mock (see that file's own comment for why it must be centralized,
+// and why every spec that transitively loads `BarcodeScanner` must import it, not just the
+// ones asserting on it) so this test never touches real device camera APIs (unavailable in
+// jsdom).
+import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { IntakeArticleEntry } from '../intake-article-entry/intake-article-entry';
 
 // `p-tabs`'s `TabList` observes its own size via `ResizeObserver` (for the scrollable-tabs

@@ -4,20 +4,10 @@ import { vi } from 'vitest';
 import { SellerSearch, SellerSummary } from './seller-search';
 import { InputGroup } from '../input-group/input-group';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
-
-/**
- * `InputGroup` (a real dependency of `SellerSearch`) itself depends on `BarcodeScanner`, which
- * depends on `@zxing/browser` — mocked the same way `input-group.spec.ts` does so camera-mode
- * tests never touch real device APIs (unavailable in jsdom).
- */
-const decodeFromVideoDeviceMock = vi.fn();
-vi.mock('@zxing/browser', () => ({
-  BrowserMultiFormatReader: vi.fn().mockImplementation(function (this: {
-    decodeFromVideoDevice: typeof decodeFromVideoDeviceMock;
-  }) {
-    this.decodeFromVideoDevice = decodeFromVideoDeviceMock;
-  }),
-}));
+// `InputGroup` (a real dependency of `SellerSearch`) itself depends on `BarcodeScanner` — this
+// imports the ONE shared `@zxing/browser` mock (see that file's own comment for why it must be
+// centralized) so camera-mode tests never touch real device APIs (unavailable in jsdom).
+import { decodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
 
 function seller(overrides: Partial<SellerSummary> = {}): SellerSummary {
   return {

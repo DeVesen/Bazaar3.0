@@ -4,6 +4,12 @@ import { of, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { PaymentPanel } from '../../../../shared/components/payment-panel/payment-panel';
 import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialog';
+// `ScanDialog` composes `InputGroup` -> `BarcodeScanner`, which depends on `@zxing/browser` —
+// importing the ONE shared mock (see that file's own comment for why it must be centralized,
+// and why every spec that transitively loads `BarcodeScanner` must import it, not just the
+// ones asserting on it) so this test never touches real device camera APIs (unavailable in
+// jsdom).
+import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { PrintService } from '../../../../core/print/print.service';
 import { ReleaseApi } from '../../data/release-api';
 import { SellersApi } from '../../data/sellers-api';

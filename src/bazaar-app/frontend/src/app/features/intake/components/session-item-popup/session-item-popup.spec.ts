@@ -2,6 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
+// `InputGroup` depends on `BarcodeScanner`/`@zxing/browser` — importing the ONE shared mock
+// (see that file's own comment for why it must be centralized, and why every spec that
+// transitively loads `BarcodeScanner` must import it, not just the ones asserting on it) so
+// this test never touches real device camera APIs (unavailable in jsdom).
+import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { SessionItemFormValue, SessionItemPopup } from './session-item-popup';
 
 const CATEGORY_OPTIONS = ['Kleidung', 'Spielzeug'];

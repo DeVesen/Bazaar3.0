@@ -5,6 +5,11 @@ import { of, throwError } from 'rxjs';
 // eslint-disable-next-line boundaries/dependencies
 import { ArticleByNumberResult, ArticlesApi } from '../../../articles/data/articles-api';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
+// `InputGroup` depends on `BarcodeScanner`/`@zxing/browser` — importing the ONE shared mock
+// (see that file's own comment for why it must be centralized, and why every spec that
+// transitively loads `BarcodeScanner` must import it, not just the ones asserting on it) so
+// this test never touches real device camera APIs (unavailable in jsdom).
+import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { PaymentConfirmedEvent } from '../../../../shared/components/payment-panel/payment-panel';
 import { SalesApi } from '../../data/sales-api';
 import { CheckoutPage } from './checkout-page';

@@ -6,6 +6,12 @@ import { PaymentPanel } from '../../../../shared/components/payment-panel/paymen
 import { PrintService } from '../../../../core/print/print.service';
 import { IntakeApi } from '../../data/intake-api';
 import { SessionArticle } from '../intake-article-entry/intake-article-entry';
+// `SessionItemPopup` renders `InputGroup`, which depends on `BarcodeScanner`/`@zxing/browser`
+// — importing the ONE shared mock (see that file's own comment for why it must be centralized,
+// and why every spec that transitively loads `BarcodeScanner` must import it, not just the
+// ones asserting on it) so this test never touches real device camera APIs (unavailable in
+// jsdom).
+import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { SessionItemPopup } from '../session-item-popup/session-item-popup';
 import { IntakeSessionList } from './intake-session-list';
 

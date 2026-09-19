@@ -8,6 +8,11 @@ import { ConfirmationService } from 'primeng/api';
 import { RoleService } from '../../../../core/auth/role.service';
 import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
+// `InputGroup` depends on `BarcodeScanner`/`@zxing/browser` — importing the ONE shared mock
+// (see that file's own comment for why it must be centralized, and why every spec that
+// transitively loads `BarcodeScanner` must import it, not just the ones asserting on it) so
+// this test never touches real device camera APIs (unavailable in jsdom).
+import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 // Cross-feature import, read-only — see the matching exception note in artikel-dialog.ts.
 // eslint-disable-next-line boundaries/dependencies
 import { Category, CategoriesApi } from '../../../categories/data/categories-api';

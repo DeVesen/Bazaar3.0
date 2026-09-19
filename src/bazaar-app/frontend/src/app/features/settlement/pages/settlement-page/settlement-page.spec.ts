@@ -11,17 +11,11 @@ import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialo
 import { ArticleSummary, SellerSearchResult, SellersApi } from '../../../sellers/data/sellers-api';
 import { PrintService } from '../../../../core/print/print.service';
 import { SellerSettlement, SettlementApi } from '../../data/settlement-api';
-
-/**
- * `SellerSearch`/`ScanDialog` both compose `InputGroup` -> `BarcodeScanner`, which depends on
- * `@zxing/browser` — mocked the same way `intake-page.spec.ts`/`seller-search.spec.ts` do so no
- * test here touches real device camera APIs (unavailable in jsdom).
- */
-vi.mock('@zxing/browser', () => ({
-  BrowserMultiFormatReader: vi.fn().mockImplementation(function (this: { decodeFromVideoDevice: () => void }) {
-    this.decodeFromVideoDevice = vi.fn();
-  }),
-}));
+// `SellerSearch`/`ScanDialog` both compose `InputGroup` -> `BarcodeScanner` — importing the ONE
+// shared `@zxing/browser` mock (see that file's own comment for why it must be centralized) so
+// no test here touches real device camera APIs (unavailable in jsdom). The import alone is
+// enough to trigger `vi.mock` registration; this file doesn't need to configure/track calls.
+import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 
 function searchResult(overrides: Partial<SellerSearchResult> = {}): SellerSearchResult {
   return {

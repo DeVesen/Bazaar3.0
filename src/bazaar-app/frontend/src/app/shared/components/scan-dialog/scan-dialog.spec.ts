@@ -6,20 +6,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScanCompleteEvent, ScanDialog } from './scan-dialog';
 import { InputGroup } from '../input-group/input-group';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
-
-/**
- * `InputGroup` (a real dependency of `ScanDialog`) itself depends on `BarcodeScanner`, which
- * depends on `@zxing/browser` — mocked the same way `seller-search.spec.ts`/`input-group.spec.ts`
- * do so camera-mode tests never touch real device APIs (unavailable in jsdom).
- */
-const decodeFromVideoDeviceMock = vi.fn();
-vi.mock('@zxing/browser', () => ({
-  BrowserMultiFormatReader: vi.fn().mockImplementation(function (this: {
-    decodeFromVideoDevice: typeof decodeFromVideoDeviceMock;
-  }) {
-    this.decodeFromVideoDevice = decodeFromVideoDeviceMock;
-  }),
-}));
+// `InputGroup` (a real dependency of `ScanDialog`) itself depends on `BarcodeScanner` — this
+// imports the ONE shared `@zxing/browser` mock (see that file's own comment for why it must be
+// centralized) so camera-mode tests never touch real device APIs (unavailable in jsdom).
+import { decodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
 
 interface PendingArticleFixture {
   id: string;

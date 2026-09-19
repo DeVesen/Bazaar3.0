@@ -17,17 +17,12 @@ import { BrandsApi } from '../../../brands/data/brands-api';
 import { SellerSearch, SellerSummary } from '../../../../shared/components/seller-search/seller-search';
 import { IntakeWizard } from '../../components/intake-wizard/intake-wizard';
 import { RoleService } from '../../../../core/auth/role.service';
-
-/**
- * `IntakePage` renders `SellerSearch`, which renders `InputGroup`, which renders
- * `BarcodeScanner` — mocked the same way `seller-search.spec.ts`/`input-group.spec.ts` do so no
- * test here touches real device camera APIs (unavailable in jsdom).
- */
-vi.mock('@zxing/browser', () => ({
-  BrowserMultiFormatReader: vi.fn().mockImplementation(function (this: { decodeFromVideoDevice: () => void }) {
-    this.decodeFromVideoDevice = vi.fn();
-  }),
-}));
+// `IntakePage` renders `SellerSearch`, which renders `InputGroup`, which renders
+// `BarcodeScanner` — importing the ONE shared `@zxing/browser` mock (see that file's own
+// comment for why it must be centralized) so no test here touches real device camera APIs
+// (unavailable in jsdom). The import alone is enough to trigger `vi.mock` registration; this
+// file doesn't need to configure/track calls itself.
+import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 
 // `p-tabs`'s `TabList` (rendered by `IntakeWizard` in the 'wizard' state) observes its own size
 // via `ResizeObserver` — unavailable in jsdom. See `intake-wizard.spec.ts` for the same stub.

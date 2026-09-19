@@ -1,27 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { BarcodeScanner } from './barcode-scanner';
-import { BrowserMultiFormatReader } from '@zxing/browser';
-
-/**
- * Mocks `@zxing/browser`'s `BrowserMultiFormatReader` rather than the underlying
- * `navigator.mediaDevices.getUserMedia` + full zxing decode pipeline: `decodeFromVideoDevice`
- * is the one public entry point the component actually calls, and stubbing at that boundary
- * gives a reliable, non-flaky test without reimplementing jsdom video/canvas plumbing that
- * zxing itself would need to run a real decode loop.
- */
-const decodeFromVideoDeviceMock = vi.fn();
-
-vi.mock('@zxing/browser', () => ({
-  BrowserMultiFormatReader: vi.fn().mockImplementation(function (this: { decodeFromVideoDevice: typeof decodeFromVideoDeviceMock }) {
-    this.decodeFromVideoDevice = decodeFromVideoDeviceMock;
-  }),
-}));
+// Shared `@zxing/browser` mock (see that file for why this must be centralized rather than
+// each spec declaring its own `vi.mock('@zxing/browser', ...)`): Angular's vitest unit-test
+// builder runs spec files in a non-isolated environment, so `barcode-scanner.ts` is evaluated
+// only once per worker and binds to whichever spec's factory registers first.
+import { decodeFromVideoDeviceMock } from './testing/zxing-browser.mock';
 
 describe('BarcodeScanner', () => {
   beforeEach(async () => {
     decodeFromVideoDeviceMock.mockReset();
-    (BrowserMultiFormatReader as unknown as ReturnType<typeof vi.fn>).mockClear();
 
     await TestBed.configureTestingModule({
       imports: [BarcodeScanner],
@@ -32,15 +20,30 @@ describe('BarcodeScanner', () => {
     return { stop: vi.fn() };
   }
 
+  /**
+   * `setInput()` only schedules the constructor `effect()`; a single `whenStable()` can
+   * resolve before that effect has actually flushed when the whole suite runs under load
+   * (many parallel `TestBed` environments contending for the zoneless scheduler's
+   * microtask/rAF queue) — observed as an intermittent 0-calls failure only at full-suite
+   * scale, never in isolation. `detectChanges()` forces the pending effect to run
+   * synchronously where possible; `vi.waitFor` below additionally re-polls the assertion for
+   * cases where the flush still lands a tick later under heavy load, so the test doesn't
+   * depend on winning that race within a single microtask.
+   */
+  async function setActive(fixture: ReturnType<typeof TestBed.createComponent<BarcodeScanner>>, active: boolean): Promise<void> {
+    fixture.componentRef.setInput('active', active);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
+
   it('starts the camera via decodeFromVideoDevice when active becomes true', async () => {
     const controls = createFakeControls();
     decodeFromVideoDeviceMock.mockResolvedValue(controls);
 
     const fixture = TestBed.createComponent(BarcodeScanner);
-    fixture.componentRef.setInput('active', true);
-    await fixture.whenStable();
+    await setActive(fixture, true);
 
-    expect(decodeFromVideoDeviceMock).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(decodeFromVideoDeviceMock).toHaveBeenCalledTimes(1));
     const [deviceId, videoElement] = decodeFromVideoDeviceMock.mock.calls[0];
     expect(deviceId).toBeUndefined();
     expect(videoElement).toBeInstanceOf(HTMLVideoElement);
@@ -51,13 +54,11 @@ describe('BarcodeScanner', () => {
     decodeFromVideoDeviceMock.mockResolvedValue(controls);
 
     const fixture = TestBed.createComponent(BarcodeScanner);
-    fixture.componentRef.setInput('active', true);
-    await fixture.whenStable();
+    await setActive(fixture, true);
+    await vi.waitFor(() => expect(decodeFromVideoDeviceMock).toHaveBeenCalledTimes(1));
+    await setActive(fixture, false);
 
-    fixture.componentRef.setInput('active', false);
-    await fixture.whenStable();
-
-    expect(controls.stop).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(controls.stop).toHaveBeenCalledTimes(1));
   });
 
   it('stops all tracks when the component is destroyed while active', async () => {
@@ -65,12 +66,12 @@ describe('BarcodeScanner', () => {
     decodeFromVideoDeviceMock.mockResolvedValue(controls);
 
     const fixture = TestBed.createComponent(BarcodeScanner);
-    fixture.componentRef.setInput('active', true);
-    await fixture.whenStable();
+    await setActive(fixture, true);
+    await vi.waitFor(() => expect(decodeFromVideoDeviceMock).toHaveBeenCalledTimes(1));
 
     fixture.destroy();
 
-    expect(controls.stop).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(controls.stop).toHaveBeenCalledTimes(1));
   });
 
   it('emits codeDetected with the raw decoded text when the decode callback reports a result', async () => {
@@ -81,8 +82,8 @@ describe('BarcodeScanner', () => {
     const detected: string[] = [];
     fixture.componentInstance.codeDetected.subscribe((value) => detected.push(value));
 
-    fixture.componentRef.setInput('active', true);
-    await fixture.whenStable();
+    await setActive(fixture, true);
+    await vi.waitFor(() => expect(decodeFromVideoDeviceMock).toHaveBeenCalledTimes(1));
 
     const decodeCallback = decodeFromVideoDeviceMock.mock.calls[0][2];
     decodeCallback({ getText: () => 'ABC123' }, undefined, controls);
@@ -98,8 +99,7 @@ describe('BarcodeScanner', () => {
     const detected: string[] = [];
     fixture.componentInstance.codeDetected.subscribe((value) => detected.push(value));
 
-    fixture.componentRef.setInput('active', true);
-    await expect(fixture.whenStable()).resolves.not.toThrow();
+    await expect(setActive(fixture, true)).resolves.not.toThrow();
 
     expect(detected).toEqual([]);
   });

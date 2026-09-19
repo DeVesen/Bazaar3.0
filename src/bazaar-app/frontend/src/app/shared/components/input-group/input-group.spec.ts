@@ -5,21 +5,11 @@ import { vi } from 'vitest';
 import { InputGroup, InputMode } from './input-group';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
 import { Numpad } from '../numpad/numpad';
-
-/**
- * `BarcodeScanner` (Task 3) is a real dependency of `InputGroup` — mocking `@zxing/browser`
- * here the same way `barcode-scanner.spec.ts` does keeps camera-mode tests from touching real
- * device APIs (unavailable in jsdom) while still exercising the actual wiring between the two
- * components.
- */
-const decodeFromVideoDeviceMock = vi.fn();
-vi.mock('@zxing/browser', () => ({
-  BrowserMultiFormatReader: vi.fn().mockImplementation(function (this: {
-    decodeFromVideoDevice: typeof decodeFromVideoDeviceMock;
-  }) {
-    this.decodeFromVideoDevice = decodeFromVideoDeviceMock;
-  }),
-}));
+// `BarcodeScanner` (Task 3) is a real dependency of `InputGroup` — this imports the ONE shared
+// `@zxing/browser` mock (see that file's own comment for why it must be centralized) so
+// camera-mode tests never touch real device APIs (unavailable in jsdom) while still exercising
+// the actual wiring between the two components.
+import { decodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
 
 describe('InputGroup', () => {
   beforeEach(async () => {
