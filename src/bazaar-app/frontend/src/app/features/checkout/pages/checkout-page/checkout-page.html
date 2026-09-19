@@ -1,0 +1,28 @@
+<div class="checkout-page">
+  <div class="checkout-page__column checkout-page__column--left">
+    <div class="checkout-page__field">
+      <label for="checkout-page-number">Artikelnummer</label>
+      <app-input-group
+        #numberGroup
+        inputId="checkout-page-number"
+        variant="search"
+        [modes]="['keyboard', 'camera', 'numpad']"
+        (valueChange)="onArticleNumberChange($event)"
+        (submitted)="onArticleNumberSubmit()"
+      />
+    </div>
+
+    <div class="checkout-page__info-area checkout-page__info-area--{{ infoState().type }}">
+      <i [class]="infoIcon()"></i>
+      <span>{{ infoState().text }}</span>
+    </div>
+
+    @if (foundArticle()) {
+      <p-button styleClass="checkout-page__price-button" [label]="priceLabel()" severity="success" (onClick)="onAddToCart()" />
+    }
+  </div>
+
+  <div class="checkout-page__column checkout-page__column--right">
+    <div>{{ cartItems().length }} Artikel im Warenkorb</div>
+  </div>
+</div>
