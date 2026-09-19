@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DialogModule } from 'primeng/dialog';
+import { MessageService } from 'primeng/api';
 import { PaymentConfirmedEvent, PaymentPanel } from '../../../../shared/components/payment-panel/payment-panel';
 import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialog';
 import { ReleaseApi } from '../../data/release-api';
@@ -36,6 +37,18 @@ import { PrintService } from '../../../../core/print/print.service';
  * throughout the whole payment/409 dance. `sessionIds()` (this component's own mirror, kept in
  * sync via `scan-dialog`'s `sessionArticleIds` output, which keeps firing regardless of which
  * overlay is on top) is the source of truth for the fee and for the booking request.
+ *
+ * Booking-error visibility (fix round 1, reviewer Important finding): the inline `bookingError`
+ * text renders in this component's own host, in normal document flow — but the reopened
+ * `scan-dialog` on top of it is a PrimeNG `p-dialog[modal]`, whose mask+panel render
+ * `position: fixed` with a high `z-index` above ordinary page content. That left the inline
+ * message effectively invisible behind the reopened modal on every error path, even though
+ * `bookingError()` itself was set correctly. Fixed by ALSO surfacing the same text via
+ * `MessageService` (the app's global `p-toast`, same convention `sellers-page.ts` already uses
+ * for its own error toasts) — the toast stacks above any `p-dialog` mask by design, so the user
+ * actually sees why the booking failed. `bookingError()` is kept as well (still asserted by
+ * tests, still useful for anything that reads component state), it is just no longer the ONLY
+ * channel.
  */
 @Component({
   selector: 'app-release-dialog',
@@ -48,6 +61,7 @@ export class ReleaseDialog {
   private readonly releaseApi = inject(ReleaseApi);
   private readonly sellersApi = inject(SellersApi);
   private readonly printService = inject(PrintService);
+  private readonly messageService = inject(MessageService);
 
   readonly visible = input<boolean>(false);
   readonly sellerId = input.required<string>();
@@ -145,8 +159,11 @@ export class ReleaseDialog {
   }
 
   /** 409 `article.not_releasable` (spec.md: "Sitzung bleibt im Dialog erhalten") reopens
-   * `scan-dialog` with the session untouched and shows an inline error; any other failure
-   * (network/5xx/unmapped) gets the same reopen + a generic message. */
+   * `scan-dialog` with the session untouched and shows an error; any other failure
+   * (network/5xx/unmapped) gets the same reopen + a generic message. Both the inline
+   * `bookingError` signal and a `MessageService` toast are set to the same text — see this
+   * class's doc comment ("Booking-error visibility") for why the toast is the one that is
+   * actually visible while `scan-dialog`'s modal is reopened on top. */
   private handleBookingError(error: unknown): void {
     this.paymentPanelVisible.set(false);
     this.scanDialogVisible.set(true);
@@ -157,10 +174,15 @@ export class ReleaseDialog {
       (error.error as { errorCode?: string } | null)?.errorCode === 'article.not_releasable'
     ) {
       const numbers = (error.error as { articleNumbers?: number[] } | null)?.articleNumbers ?? [];
-      this.bookingError.set(`Artikel ${numbers.join(', ')} sind nicht mehr freigebbar.`);
+      this.setBookingError(`Artikel ${numbers.join(', ')} sind nicht mehr freigebbar.`);
       return;
     }
 
-    this.bookingError.set('Buchung fehlgeschlagen. Bitte erneut versuchen.');
+    this.setBookingError('Buchung fehlgeschlagen. Bitte erneut versuchen.');
+  }
+
+  private setBookingError(message: string): void {
+    this.bookingError.set(message);
+    this.messageService.add({ severity: 'error', summary: message });
   }
 }

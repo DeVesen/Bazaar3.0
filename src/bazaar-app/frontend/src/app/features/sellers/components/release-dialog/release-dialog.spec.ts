@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { PaymentPanel } from '../../../../shared/components/payment-panel/payment-panel';
 import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialog';
 import { PrintService } from '../../../../core/print/print.service';
@@ -22,6 +23,10 @@ function printServiceStub() {
   return { printIntakeReceipt: vi.fn() };
 }
 
+function messageServiceStub() {
+  return { add: vi.fn() };
+}
+
 /** `ScanDialog` (a real dependency here, mounted by `release-dialog.html`) injects `HttpClient`
  * directly — this fake only needs to satisfy its constructor-time `loadPendingArticles()` call
  * (`GET /api/sellers/{id}/articles`), never exercised further since this spec drives
@@ -40,11 +45,13 @@ async function setup(
     releaseApi?: ReturnType<typeof releaseApiStub>;
     sellersApi?: ReturnType<typeof sellersApiStub>;
     printService?: ReturnType<typeof printServiceStub>;
+    messageService?: ReturnType<typeof messageServiceStub>;
   } = {},
 ) {
   const releaseApi = options.releaseApi ?? releaseApiStub();
   const sellersApi = options.sellersApi ?? sellersApiStub(options.feePerItem ?? 0.5);
   const printService = options.printService ?? printServiceStub();
+  const messageService = options.messageService ?? messageServiceStub();
 
   await TestBed.configureTestingModule({
     imports: [ReleaseDialog],
@@ -52,6 +59,7 @@ async function setup(
       { provide: ReleaseApi, useValue: releaseApi },
       { provide: SellersApi, useValue: sellersApi },
       { provide: PrintService, useValue: printService },
+      { provide: MessageService, useValue: messageService },
       { provide: HttpClient, useValue: httpClientStub() },
     ],
   }).compileComponents();
@@ -62,7 +70,7 @@ async function setup(
   await fixture.whenStable();
   fixture.detectChanges();
 
-  return { fixture, component: fixture.componentInstance, releaseApi, sellersApi, printService };
+  return { fixture, component: fixture.componentInstance, releaseApi, sellersApi, printService, messageService };
 }
 
 describe('ReleaseDialog', () => {
@@ -160,7 +168,7 @@ describe('ReleaseDialog', () => {
     expect(visibleChangeSpy).toHaveBeenCalledWith(false);
   });
 
-  it('409 article.not_releasable: reopens scan-dialog, keeps the session, shows an inline error, does not close', async () => {
+  it('409 article.not_releasable: reopens scan-dialog, keeps the session, shows an inline error + toast, does not close', async () => {
     const releaseApi = releaseApiStub();
     releaseApi.bookRelease.mockReturnValue(
       throwError(
@@ -171,7 +179,7 @@ describe('ReleaseDialog', () => {
           }),
       ),
     );
-    const { component } = await setup({ releaseApi });
+    const { component, messageService } = await setup({ releaseApi });
     component.onSessionChanged(['a1', 'a2']);
     component.paymentPanelVisible.set(true);
     const releasedSpy = vi.fn();
@@ -182,6 +190,13 @@ describe('ReleaseDialog', () => {
     component.onPaymentConfirmed({ totalAmount: 1, receivedAmount: 5, change: 4 });
 
     expect(component.bookingError()).toBe('Artikel 1043, 1050 sind nicht mehr freigebbar.');
+    // Fix round 1: the inline `bookingError` text alone is invisible once `scan-dialog`'s modal
+    // reopens on top of it (PrimeNG `p-dialog[modal]` renders `position: fixed` above normal
+    // flow) — the toast is what the user actually sees, see `release-dialog.ts`'s class doc
+    // comment ("Booking-error visibility").
+    expect(messageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({ severity: 'error', summary: 'Artikel 1043, 1050 sind nicht mehr freigebbar.' }),
+    );
     expect(component.paymentPanelVisible()).toBe(false);
     expect(component.scanDialogVisible()).toBe(true);
     expect(component.sessionIds()).toEqual(['a1', 'a2']);
@@ -189,10 +204,10 @@ describe('ReleaseDialog', () => {
     expect(visibleChangeSpy).not.toHaveBeenCalled();
   });
 
-  it('other errors: generic inline error, reopens scan-dialog, does not close', async () => {
+  it('other errors: generic inline error + toast, reopens scan-dialog, does not close', async () => {
     const releaseApi = releaseApiStub();
     releaseApi.bookRelease.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-    const { component } = await setup({ releaseApi });
+    const { component, messageService } = await setup({ releaseApi });
     component.onSessionChanged(['a1']);
     component.paymentPanelVisible.set(true);
     const visibleChangeSpy = vi.fn();
@@ -201,6 +216,9 @@ describe('ReleaseDialog', () => {
     component.onPaymentConfirmed({ totalAmount: 0.5, receivedAmount: 1, change: 0.5 });
 
     expect(component.bookingError()).toBe('Buchung fehlgeschlagen. Bitte erneut versuchen.');
+    expect(messageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({ severity: 'error', summary: 'Buchung fehlgeschlagen. Bitte erneut versuchen.' }),
+    );
     expect(component.scanDialogVisible()).toBe(true);
     expect(visibleChangeSpy).not.toHaveBeenCalled();
   });
