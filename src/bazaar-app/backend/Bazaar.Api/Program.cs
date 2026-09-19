@@ -10,6 +10,7 @@ using Bazaar.Api.Features.Public;
 using Bazaar.Api.Features.Sales;
 using Bazaar.Api.Features.SellerTypes;
 using Bazaar.Api.Features.Sellers;
+using Bazaar.Api.Features.Settlement;
 using Bazaar.Application.Articles;
 using Bazaar.Application.Auth;
 using Bazaar.Application.Brands;
@@ -19,6 +20,7 @@ using Bazaar.Application.Release;
 using Bazaar.Application.Sales;
 using Bazaar.Application.SellerTypes;
 using Bazaar.Application.Sellers;
+using Bazaar.Application.Settlement;
 using Bazaar.Domain.Ports;
 using Bazaar.Infrastructure.Persistence;
 using Bazaar.Infrastructure.Persistence.Repositories;
@@ -63,6 +65,7 @@ builder.Services.AddScoped<IArticlesBySellerQuery, ArticlesBySellerQuery>();
 builder.Services.AddScoped<IArticleCountBySellerQuery, ArticleCountBySellerQuery>();
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddScoped<IArticleListQuery, ArticleListQuery>();
+builder.Services.AddScoped<ISellerSettlementQuery, SellerSettlementQuery>();
 builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 builder.Services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
 builder.Services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
@@ -103,6 +106,8 @@ builder.Services.AddScoped<IntakeHandler>();
 builder.Services.AddScoped<ReleaseHandler>();
 builder.Services.AddScoped<RecordSaleHandler>();
 builder.Services.AddScoped<UndoSaleHandler>();
+builder.Services.AddScoped<GetSellerSettlementHandler>();
+builder.Services.AddScoped<ReturnArticleHandler>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -160,6 +165,7 @@ app.MapArticleEndpoints();
 app.MapIntakeEndpoints();
 app.MapReleaseEndpoints();
 app.MapSalesEndpoints();
+app.MapSettlementEndpoints();
 
 await ApplyMigrationsAsync(app);
 
