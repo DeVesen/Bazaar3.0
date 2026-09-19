@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.leaderboard__scroll {
+  max-height: 300px;
+  overflow-y: auto;
+
+  // Table has no per-column width input (see table.ts) — scoped nth-child rule targeting the
+  // first column (Rang badge) of this component's own table only, per task-B-brief.md.
+  ::ng-deep .app-table table th:first-child,
+  ::ng-deep .app-table table td:first-child {
+    width: 50px;
+  }
+}

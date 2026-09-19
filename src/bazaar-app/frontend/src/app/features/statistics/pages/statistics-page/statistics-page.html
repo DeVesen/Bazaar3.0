@@ -1,0 +1,82 @@
+<div class="statistics-page">
+  <section>
+    <div class="section-label">ARTIKEL-ÜBERSICHT</div>
+    <app-kpi-grid [columns]="6">
+      <app-kpi-tile label="Gesamt" [value]="statistics()?.articles?.total ?? null" />
+      <app-kpi-tile label="Angenommen" [value]="statistics()?.articles?.accepted ?? null" />
+      <app-kpi-tile label="Im Verkauf" [value]="statistics()?.articles?.selling ?? null" />
+      <app-kpi-tile label="Verkauft" [value]="statistics()?.articles?.sold ?? null" />
+      <app-kpi-tile label="Retour" [value]="statistics()?.articles?.returned ?? null" />
+      <app-kpi-tile label="Verkaufsquote" [value]="sellRateDisplay()" />
+    </app-kpi-grid>
+  </section>
+
+  <section>
+    <div class="section-label">RÜCKBLICK</div>
+    <app-kpi-grid [columns]="3">
+      <app-kpi-tile
+        label="Warenwert Angenommen"
+        [value]="statistics()?.values?.acceptedValue ?? null | currency: 'EUR'"
+      />
+      <app-kpi-tile
+        label="Warenwert Retour"
+        [value]="statistics()?.values?.returnedValue ?? null | currency: 'EUR'"
+      />
+      <app-kpi-tile
+        label="Offener Warenwert"
+        [value]="statistics()?.values?.openValue ?? null | currency: 'EUR'"
+      />
+    </app-kpi-grid>
+  </section>
+
+  <section>
+    <div class="section-label">FINANZ-KENNZAHLEN</div>
+    <app-kpi-grid [columns]="6">
+      <app-kpi-tile
+        label="Einnahmen Brutto"
+        [value]="statistics()?.finance?.grossIncome ?? null | currency: 'EUR'"
+        [subLabel]="grossIncomeManualSubLabel()"
+      />
+      <app-kpi-tile
+        label="Verdienst Provision"
+        [value]="statistics()?.finance?.commission ?? null | currency: 'EUR'"
+      />
+      <app-kpi-tile
+        label="Verdienst Gebühren"
+        [value]="statistics()?.finance?.fees ?? null | currency: 'EUR'"
+      />
+      <app-kpi-tile
+        label="Verdienst Gesamt"
+        [value]="statistics()?.finance?.earningsTotal ?? null | currency: 'EUR'"
+      />
+      <app-kpi-tile
+        label="Auszahlung erwartet"
+        [value]="statistics()?.finance?.payoutExpected ?? null | currency: 'EUR'"
+      />
+      <app-kpi-tile
+        label="Auszahlung geleistet"
+        [value]="statistics()?.finance?.payoutSettled ?? null | currency: 'EUR'"
+      />
+    </app-kpi-grid>
+
+    <p-metergroup [value]="meterItems()" />
+  </section>
+
+  <p-card class="statistics-page__leaderboard-card">
+    <div class="statistics-page__leaderboard-header">
+      <h2>Verkäufer-Leaderboard</h2>
+      <p-select
+        [options]="typeFilterOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="selectedTypeId()"
+        (ngModelChange)="onTypeFilterChange($event)"
+        aria-label="Verkäufer-Typ"
+      />
+    </div>
+    <app-leaderboard
+      [rows]="statistics()?.leaderboard ?? []"
+      [typeColumnVisible]="selectedTypeId() === null"
+    />
+  </p-card>
+</div>
