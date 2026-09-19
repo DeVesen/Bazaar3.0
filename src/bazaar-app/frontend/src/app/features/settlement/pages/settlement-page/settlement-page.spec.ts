@@ -256,7 +256,18 @@ describe('SettlementPage', () => {
       expect(component.isSettled()).toBe(true);
       expect(component.canReturn()).toBe(false);
       expect(component.canSettleClick()).toBe(false);
-      expect(fixture.nativeElement.querySelector('p-tag')).toBeTruthy();
+
+      const badge = fixture.nativeElement.querySelector('p-tag') as HTMLElement;
+      expect(badge).toBeTruthy();
+      // Fix round 1 (reviewer finding): the CurrencyPipe itself already prefixes the €
+      // symbol (no locale data/LOCALE_ID override registered in this project, so 'EUR'
+      // falls back to en-US formatting, e.g. "€332.94") — a trailing `+ ' €'` in the
+      // template used to duplicate it into "€332.94 €". Assert there is exactly one
+      // currency symbol in the rendered badge text, not the mere presence of the tag.
+      const badgeText = badge.textContent ?? '';
+      expect(badgeText).toContain('332.94');
+      expect(badgeText.match(/€/g)?.length ?? 0).toBe(1);
+      expect(badgeText).not.toContain('€332.94 €');
     });
   });
 

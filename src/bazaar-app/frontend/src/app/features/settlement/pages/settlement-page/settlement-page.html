@@ -9,7 +9,7 @@
         @if (isSettled()) {
           <p-tag
             severity="success"
-            [value]="'Abgerechnet am ' + (s.settledAt | date: 'dd.MM.yyyy HH:mm') + ' · ' + (s.payoutAmount | currency: 'EUR') + ' €'"
+            [value]="'Abgerechnet am ' + (s.settledAt | date: 'dd.MM.yyyy HH:mm') + ' · ' + (s.payoutAmount | currency: 'EUR')"
           />
         }
       </div>
