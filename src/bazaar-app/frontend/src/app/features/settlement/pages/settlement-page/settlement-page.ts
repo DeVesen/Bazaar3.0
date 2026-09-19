@@ -146,7 +146,11 @@ export class SettlementPage {
       next: () => {
         this.settlePanelVisible.set(false);
         this.settleError.set(null);
+        // Der Server hat gerade alle ReleasedAt == null-Artikel hart gelöscht (settlement.md
+        // §4) — ohne loadArticles() würde die Tabelle sie fälschlich weiter als "Angenommen"
+        // zeigen. Gleiches Muster wie onArticleConfirmed().
         this.loadSettlement();
+        this.loadArticles();
         this.printService.printSellerSummary({ sellerId, phase: 'final' });
       },
       error: (err: HttpErrorResponse) => {
@@ -155,6 +159,7 @@ export class SettlementPage {
           this.settlePanelVisible.set(false);
           this.settleError.set(null);
           this.loadSettlement();
+          this.loadArticles();
           this.messageService.add({ severity: 'info', summary: 'Verkäufer ist bereits abgerechnet' });
           return;
         }

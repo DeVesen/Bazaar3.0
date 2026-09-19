@@ -299,21 +299,26 @@ describe('SettlementPage', () => {
       expect(settlementApi.settle).toHaveBeenCalledWith('SEL00001', 332.94);
     });
 
-    it('on success: closes the panel, reloads the settlement read-model and prints the final summary', async () => {
+    it('on success: closes the panel, reloads settlement and articles, and prints the final summary', async () => {
       const settlementApi = settlementApiStub();
+      const sellersApi = sellersApiStub();
       settlementApi.getSettlement.mockReturnValue(of(settlement({ openCount: 0, canSettle: true, payout: 332.94 })));
       const printService = printServiceStub();
-      const { component } = await setup({ settlementApi, printService });
+      const { component } = await setup({ settlementApi, sellersApi, printService });
 
       selectSeller(component);
       component.onSettleClick();
       settlementApi.getSettlement.mockClear();
+      sellersApi.getArticles.mockClear();
 
       component.onSettleConfirmed();
 
       expect(component.settlePanelVisible()).toBe(false);
       expect(component.settleError()).toBeNull();
       expect(settlementApi.getSettlement).toHaveBeenCalledWith('SEL00001');
+      // Der Server hat gerade alle nie freigegebenen Artikel hart gelöscht — die Tabelle muss
+      // neu geladen werden, sonst zeigt sie sie fälschlich weiter als "Angenommen".
+      expect(sellersApi.getArticles).toHaveBeenCalledWith('SEL00001');
       expect(printService.printSellerSummary).toHaveBeenCalledWith({ sellerId: 'SEL00001', phase: 'final' });
     });
 
@@ -336,24 +341,27 @@ describe('SettlementPage', () => {
       expect(component.settleError()).toBe('3 Artikel sind noch im Verkauf');
     });
 
-    it('on 409 settlement.already_settled: closes the panel, clears the error and reloads the settlement read-model', async () => {
+    it('on 409 settlement.already_settled: closes the panel, clears the error and reloads settlement and articles', async () => {
       const settlementApi = settlementApiStub();
+      const sellersApi = sellersApiStub();
       settlementApi.getSettlement.mockReturnValue(of(settlement({ openCount: 0, canSettle: true, payout: 332.94 })));
       settlementApi.settle.mockReturnValue(
         throwError(() => ({ error: { errorCode: 'settlement.already_settled' } })),
       );
       const messageService = messageServiceStub();
-      const { component } = await setup({ settlementApi, messageService });
+      const { component } = await setup({ settlementApi, sellersApi, messageService });
 
       selectSeller(component);
       component.onSettleClick();
       settlementApi.getSettlement.mockClear();
+      sellersApi.getArticles.mockClear();
 
       component.onSettleConfirmed();
 
       expect(component.settlePanelVisible()).toBe(false);
       expect(component.settleError()).toBeNull();
       expect(settlementApi.getSettlement).toHaveBeenCalledWith('SEL00001');
+      expect(sellersApi.getArticles).toHaveBeenCalledWith('SEL00001');
       expect(messageService.add).toHaveBeenCalledWith({
         severity: 'info',
         summary: 'Verkäufer ist bereits abgerechnet',
