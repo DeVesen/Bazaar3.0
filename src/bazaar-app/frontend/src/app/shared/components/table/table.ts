@@ -29,7 +29,7 @@ export interface ColumnConfig {
    * `api/articles.md`/spec.md). Returns `null` to render nothing for that row. Mirrors the
    * caller-supplied-function shape of `badgeSeverity` rather than introducing a templating API:
    * `Table` stays generic and config-driven, with no Article-specific knowledge of its own.
-   * Only consulted for `type: 'badge'` columns.
+   * Only consulted for `type: 'badge'` and `type: 'currency'` columns.
    */
   secondaryBadge?: (row: unknown) => { text: string; severity: BadgeSeverity } | null;
 }

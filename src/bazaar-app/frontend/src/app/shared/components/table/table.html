@@ -102,6 +102,9 @@
             @switch (col.type) {
               @case ('currency') {
                 {{ getNumericValue(row, col.field) | currency: 'EUR' }}
+                @if (resolveSecondaryBadge(col, row); as secondary) {
+                  <p-tag [value]="secondary.text" [severity]="secondary.severity" />
+                }
               }
               @case ('date') {
                 {{ getDateValue(row, col.field) | date: 'dd.MM.yyyy' }}
