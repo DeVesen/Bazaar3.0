@@ -17,6 +17,11 @@
     padding: 8px 0;
     border-bottom: 1px solid #f2f4f6;
     font-size: 13.5px;
+
+    &--highlighted {
+      background: #fdecea;
+      color: #a61b1b;
+    }
   }
 
   &__total {

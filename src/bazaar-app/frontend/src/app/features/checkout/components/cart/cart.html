@@ -3,7 +3,7 @@
     <div class="cart__empty">Warenkorb ist leer</div>
   } @else {
     @for (item of items(); track item.id) {
-      <div class="cart__item">
+      <div class="cart__item" [class.cart__item--highlighted]="item.id === highlightedItemId()">
         <span>{{ item.number }} {{ item.name }}</span>
         <span>{{ item.price | currency: 'EUR' }}</span>
         <p-button icon="pi pi-trash" [text]="true" [rounded]="true" (onClick)="onRemove(item.id)" />

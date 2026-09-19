@@ -6,13 +6,14 @@ function cartItem(overrides: Partial<CartItem> = {}): CartItem {
   return { id: 'ART00001', number: 1043, name: 'Winterjacke', price: 12, ...overrides };
 }
 
-async function setup(items: CartItem[] = []) {
+async function setup(items: CartItem[] = [], highlightedItemId: string | null = null) {
   await TestBed.configureTestingModule({
     imports: [Cart],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(Cart);
   fixture.componentRef.setInput('items', items);
+  fixture.componentRef.setInput('highlightedItemId', highlightedItemId);
   await fixture.whenStable();
   fixture.detectChanges();
 
@@ -72,5 +73,15 @@ describe('Cart', () => {
     buchenButton?.click();
 
     expect(checkoutSpy).toHaveBeenCalled();
+  });
+
+  it('marks only the row matching highlightedItemId (Task 5)', async () => {
+    const items = [cartItem({ id: 'ART00001' }), cartItem({ id: 'ART00002', number: 1044, name: 'Gummistiefel', price: 8 })];
+    const { fixture } = await setup(items, 'ART00002');
+
+    const rows = Array.from(fixture.nativeElement.querySelectorAll('.cart__item')) as HTMLElement[];
+
+    expect(rows[0].classList.contains('cart__item--highlighted')).toBe(false);
+    expect(rows[1].classList.contains('cart__item--highlighted')).toBe(true);
   });
 });

@@ -20,14 +20,29 @@
     @if (foundArticle()) {
       <p-button styleClass="checkout-page__price-button" [label]="priceLabel()" severity="success" (onClick)="onAddToCart()" />
     }
+
+    @if (lastSaleArticleIds().length > 0) {
+      <p-button label="Letzten Vorgang stornieren" severity="secondary" [outlined]="true" (onClick)="onUndoSale()" />
+    }
   </div>
 
   <div class="checkout-page__column checkout-page__column--right">
     <app-cart
       [items]="cartItems()"
+      [highlightedItemId]="highlightedItemId()"
       (removeItem)="onCartRemoveItem($event)"
       (clear)="onCartClear()"
       (checkout)="onCartCheckout()"
     />
   </div>
 </div>
+
+<p-dialog [(visible)]="paymentPanelVisible" [modal]="true" header="Bezahlen">
+  <app-payment-panel
+    totalLabel="Gesamtbetrag"
+    [totalAmount]="cartTotal()"
+    confirmLabel="Bezahlt"
+    (confirmed)="onPaymentConfirmed($event)"
+    (cancelled)="onPaymentCancelled()"
+  />
+</p-dialog>

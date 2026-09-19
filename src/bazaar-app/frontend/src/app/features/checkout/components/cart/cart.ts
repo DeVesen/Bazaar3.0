@@ -20,6 +20,9 @@ import { CartItem } from '../../pages/checkout-page/checkout-page';
 })
 export class Cart {
   readonly items = input.required<CartItem[]>();
+  /** Additive (Task 5): id of the row to mark after a booking 409 (`article.not_sellable`) —
+   * `null` when nothing should be highlighted. Owned/cleared by `checkout.page.ts`. */
+  readonly highlightedItemId = input<string | null>(null);
 
   readonly removeItem = output<string>();
   readonly clear = output<void>();
