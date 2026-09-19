@@ -190,6 +190,22 @@ public sealed class Article
         UpdatedAt = now;
     }
 
+    /// <summary>
+    /// Marks an article as returned (api/settlement.md, Round-20 return flow).
+    /// Idempotent: calling Return again on an already-returned article is safe.
+    /// A sold article cannot be returned (409 conflict).
+    /// </summary>
+    public void Return(DateTimeOffset now)
+    {
+        if (SoldAt is not null)
+        {
+            throw new ConflictException("Artikel ist verkauft — Rückgabe nicht möglich", "article.sold");
+        }
+
+        ReturnedAt = now;
+        UpdatedAt = now;
+    }
+
     private static void EnsureRequiredFields(string name, string brand, string category)
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name required.");

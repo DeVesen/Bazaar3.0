@@ -251,4 +251,30 @@ public class ArticleTests
         Assert.Null(article.SoldAt);
         Assert.Null(article.ReturnedAt);
     }
+
+    [Fact]
+    public void Return_WhenNotSold_SetsReturnedAt()
+    {
+        var article = CreateValidArticle();
+        var now = new DateTimeOffset(2026, 9, 19, 14, 30, 0, TimeSpan.Zero);
+
+        article.Return(now);
+
+        Assert.Equal(now, article.ReturnedAt);
+        Assert.Equal(now, article.UpdatedAt);
+    }
+
+    [Fact]
+    public void Return_WhenSold_ThrowsConflictExceptionWithArticleSoldErrorCode()
+    {
+        var article = CreateValidArticle();
+        var soldAt = new DateTimeOffset(2026, 9, 19, 10, 0, 0, TimeSpan.Zero);
+        var returnAt = new DateTimeOffset(2026, 9, 19, 14, 30, 0, TimeSpan.Zero);
+
+        article.SetTimestamps(UpdatedAt, soldAt, null, false, soldAt);
+
+        var exception = Assert.Throws<ConflictException>(() => article.Return(returnAt));
+
+        Assert.Equal("article.sold", exception.ErrorCode);
+    }
 }
