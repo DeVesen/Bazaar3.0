@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.cart {
+  &__empty {
+    color: var(--muted, #6b7280);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f2f4f6;
+    font-size: 13.5px;
+  }
+
+  &__total {
+    font-weight: 700;
+    font-size: 18px;
+    text-align: right;
+    padding-top: 10px;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  &__checkout-button {
+    font-size: 15px;
+  }
+}

@@ -23,6 +23,11 @@
   </div>
 
   <div class="checkout-page__column checkout-page__column--right">
-    <div>{{ cartItems().length }} Artikel im Warenkorb</div>
+    <app-cart
+      [items]="cartItems()"
+      (removeItem)="onCartRemoveItem($event)"
+      (clear)="onCartClear()"
+      (checkout)="onCartCheckout()"
+    />
   </div>
 </div>

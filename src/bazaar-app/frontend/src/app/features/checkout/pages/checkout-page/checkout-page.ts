@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signa
 import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
+import { Cart } from '../../components/cart/cart';
 // Cross-feature import, read-only: ArticlesApi.getByNumber() backs the
 // checkout page's article-number lookup, same sanctioned pattern
 // intake-article-entry.ts already uses for the same API.
@@ -31,14 +32,15 @@ interface InfoState {
 /**
  * Kasse/Verkauf page (Epic_Verkauf) — left column: article-number `input-group`
  * (keyboard/camera/numpad), an inline InfoArea reporting the lookup result, and a
- * Preis-Button that adds the found article to the basket. Right column (`cart`,
- * Task 4) and the payment-panel/BUCHEN/Storno wiring (Task 5) are out of scope for
- * this task — see the trivial placeholder in the template and `lastSaleArticleIds`
- * below, both left for those tasks to build on.
+ * Preis-Button that adds the found article to the basket. Right column renders
+ * `app-cart` (Task 4), which owns the remove/clear/checkout intents (this page still
+ * owns `cartItems` mutation and refocusing). The payment-panel/BUCHEN/Storno booking
+ * flow (Task 5) is out of scope for this task — see `onCartCheckout()`'s stub and
+ * `lastSaleArticleIds` below, both left for that task to build on.
  */
 @Component({
   selector: 'app-checkout-page',
-  imports: [ButtonModule, InputGroup],
+  imports: [ButtonModule, InputGroup, Cart],
   templateUrl: './checkout-page.html',
   styleUrl: './checkout-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -179,6 +181,23 @@ export class CheckoutPage {
     // generic error message rather than silently doing nothing.
     this.infoState.set({ type: 'error', text: 'Artikel-Suche fehlgeschlagen. Bitte erneut versuchen.' });
     this.foundArticle.set(null);
+  }
+
+  onCartRemoveItem(id: string): void {
+    this.cartItems.update((items) => items.filter((item) => item.id !== id));
+    this.numberGroup()?.applyExternalValue('');
+    this.focusArticleNumberField();
+  }
+
+  onCartClear(): void {
+    this.cartItems.set([]);
+    this.numberGroup()?.applyExternalValue('');
+    this.infoState.set({ type: 'info', text: 'Ersten Artikel eingeben …' });
+    this.focusArticleNumberField();
+  }
+
+  onCartCheckout(): void {
+    // TODO Task 5: open the payment-panel and wire the booking flow (SalesApi.bookSale()).
   }
 
   /** Extracted since it is called from multiple places (init, after add-to-cart) — Task 4/5 will

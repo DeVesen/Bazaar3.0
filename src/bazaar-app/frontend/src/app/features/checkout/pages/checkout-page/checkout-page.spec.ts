@@ -168,4 +168,37 @@ describe('CheckoutPage', () => {
       expect(component.cartItems()).toEqual([]);
     });
   });
+
+  describe('cart wiring (Task 4)', () => {
+    it('onCartRemoveItem removes only the matching item, clears the input field and refocuses it', async () => {
+      const { fixture, component } = await setup();
+      component.cartItems.set([
+        { id: 'ART00001', number: 1042, name: 'Winterjacke', price: 12.5 },
+        { id: 'ART00002', number: 1044, name: 'Gummistiefel', price: 8 },
+      ]);
+      const applyExternalValueSpy = vi.spyOn(numberInputGroup(fixture), 'applyExternalValue');
+      const focusSpy = vi.spyOn(fixture.nativeElement.querySelector('input') as HTMLInputElement, 'focus');
+
+      component.onCartRemoveItem('ART00001');
+
+      expect(component.cartItems()).toEqual([{ id: 'ART00002', number: 1044, name: 'Gummistiefel', price: 8 }]);
+      expect(applyExternalValueSpy).toHaveBeenCalledWith('');
+      expect(focusSpy).toHaveBeenCalled();
+    });
+
+    it('onCartClear empties the cart, resets infoState to the info state and refocuses the input field', async () => {
+      const { fixture, component } = await setup();
+      component.cartItems.set([{ id: 'ART00001', number: 1042, name: 'Winterjacke', price: 12.5 }]);
+      component.infoState.set({ type: 'success', text: 'Nächsten Artikel eingeben …' });
+      const applyExternalValueSpy = vi.spyOn(numberInputGroup(fixture), 'applyExternalValue');
+      const focusSpy = vi.spyOn(fixture.nativeElement.querySelector('input') as HTMLInputElement, 'focus');
+
+      component.onCartClear();
+
+      expect(component.cartItems()).toEqual([]);
+      expect(component.infoState()).toEqual({ type: 'info', text: 'Ersten Artikel eingeben …' });
+      expect(applyExternalValueSpy).toHaveBeenCalledWith('');
+      expect(focusSpy).toHaveBeenCalled();
+    });
+  });
 });
