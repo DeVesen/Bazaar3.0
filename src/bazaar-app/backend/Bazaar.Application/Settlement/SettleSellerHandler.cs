@@ -24,7 +24,7 @@ public sealed class SettleSellerHandler(
         _ = await sellerRepository.GetById(command.SellerId)
             ?? throw new NotFoundException("Verkäufer nicht gefunden", "seller.not_found");
 
-        var now = DateTimeOffset.UtcNow;
+        var settledAt = default(DateTimeOffset);
         var payoutAmount = 0m;
         var removedArticleCount = 0;
 
@@ -71,6 +71,7 @@ public sealed class SettleSellerHandler(
                 };
             }
 
+            var now = DateTimeOffset.UtcNow;
             seller.Settle(command.PayoutAmount, now);
             await sellerRepository.Update(seller);
 
@@ -80,11 +81,12 @@ public sealed class SettleSellerHandler(
                 await articleRepository.Remove(article);
             }
 
+            settledAt = now;
             payoutAmount = command.PayoutAmount;
             removedArticleCount = notDelivered.Count;
         }, CancellationToken.None);
 
-        return new SettleSellerResult(now, payoutAmount, removedArticleCount);
+        return new SettleSellerResult(settledAt, payoutAmount, removedArticleCount);
     }
 }
 
