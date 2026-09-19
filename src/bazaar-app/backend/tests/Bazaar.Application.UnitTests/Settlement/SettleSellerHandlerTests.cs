@@ -101,6 +101,31 @@ public class SettleSellerHandlerTests
     }
 
     [Fact]
+    public async Task Handle_SellerHasNoReleasedArticles_ThrowsConflictWithArticlesOpen_AndMakesNoWrites()
+    {
+        // Mirrors GetSellerSettlementHandler's canSettle = releasedCount > 0 && openCount == 0
+        // (Round-20): a seller whose articles were never handed over (ReleasedAt == null) has
+        // openCount == 0 too, so without this guard the handler would fall through, compute
+        // revenue/payout as 0, and hard-delete every one of these never-released articles.
+        var seller = CreateSeller();
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+
+        var neverReleased1 = CreateArticle("ARTICLE001", 1001);
+        var neverReleased2 = CreateArticle("ARTICLE002", 1002);
+        _articleRepository.Setup(r => r.GetAllBySellerId("SELLER001"))
+            .ReturnsAsync([neverReleased1, neverReleased2]);
+
+        var command = new SettleSellerCommand { SellerId = "SELLER001", PayoutAmount = 0m };
+        var sut = CreateSut();
+
+        var exception = await Assert.ThrowsAsync<ConflictException>(() => sut.Handle(command));
+
+        Assert.Equal("settlement.articles_open", exception.ErrorCode);
+        _sellerRepository.Verify(r => r.Update(It.IsAny<Seller>()), Times.Never);
+        _articleRepository.Verify(r => r.Remove(It.IsAny<Article>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_SellerAlreadySettled_ThrowsConflictWithAlreadySettled()
     {
         var seller = CreateSeller();

@@ -54,6 +54,21 @@ public sealed class SettleSellerHandler(
                 throw new ConflictException("Verkäufer ist bereits abgerechnet", "settlement.already_settled");
             }
 
+            // Mirrors GetSellerSettlementHandler's canSettle = releasedCount > 0 && openCount == 0
+            // (Round-20). A seller with zero released articles (nothing ever handed over) must
+            // not be settleable either — without this check, openCount stays 0, revenue/payout
+            // are both 0, and a {"payoutAmount": 0} request would pass through and irrecoverably
+            // hard-delete every ReleasedAt == null article of this seller below. No dedicated
+            // errorCode is defined for this case in settlement.md/spec.md — both this and the
+            // open-articles case mean "not settleable yet", so the same articles_open code is
+            // reused here. Checked after already-settled so a settled seller always gets
+            // already_settled regardless of article state.
+            var releasedCount = articles.Count(a => a.ReleasedAt != null);
+            if (releasedCount == 0)
+            {
+                throw new ConflictException("Verkäufer hat keine freigegebenen Artikel", "settlement.articles_open");
+            }
+
             var revenue = articles.Where(a => a.SoldAt != null).Sum(a => a.Price);
             var (_, payout) = SettlementCalculation.Calculate(revenue, seller.SalesCommission);
 
