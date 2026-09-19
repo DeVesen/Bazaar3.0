@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { MessageService } from 'primeng/api';
 import { SettlementPage } from './settlement-page';
@@ -10,7 +10,7 @@ import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialo
 // eslint-disable-next-line boundaries/dependencies -- see settlement-page.ts's own justification
 import { ArticleSummary, SellerSearchResult, SellersApi } from '../../../sellers/data/sellers-api';
 import { PrintService } from '../../../../core/print/print.service';
-import { SellerSettlement, SettlementApi } from '../../data/settlement-api';
+import { SellerSettlement, SettleSellerResponse, SettlementApi } from '../../data/settlement-api';
 // `SellerSearch`/`ScanDialog` both compose `InputGroup` -> `BarcodeScanner` — importing the ONE
 // shared `@zxing/browser` mock (see that file's own comment for why it must be centralized) so
 // no test here touches real device camera APIs (unavailable in jsdom). The import alone is
@@ -76,10 +76,20 @@ function sellersApiStub() {
   };
 }
 
+function settleSellerResponse(overrides: Partial<SettleSellerResponse> = {}): SettleSellerResponse {
+  return {
+    settledAt: '2026-01-15T10:00:00Z',
+    payoutAmount: 332.94,
+    removedArticleCount: 10,
+    ...overrides,
+  };
+}
+
 function settlementApiStub() {
   return {
     getSettlement: vi.fn().mockReturnValue(of(settlement())),
     returnArticle: vi.fn().mockReturnValue(of(undefined)),
+    settle: vi.fn().mockReturnValue(of(settleSellerResponse())),
   };
 }
 
@@ -265,20 +275,90 @@ describe('SettlementPage', () => {
     });
   });
 
-  it('"Abrechnen" click shows an info toast and calls no settlement-write endpoint', async () => {
-    const settlementApi = settlementApiStub();
-    settlementApi.getSettlement.mockReturnValue(of(settlement({ openCount: 0, canSettle: true })));
-    const messageService = messageServiceStub();
-    const { component } = await setup({ settlementApi, messageService });
+  describe('Abrechnen / settlement-panel booking flow', () => {
+    it('onSettleClick opens the settlement panel and clears any previous error', async () => {
+      const settlementApi = settlementApiStub();
+      settlementApi.getSettlement.mockReturnValue(of(settlement({ openCount: 0, canSettle: true })));
+      const { component } = await setup({ settlementApi });
 
-    selectSeller(component);
-    component.onSettleClick();
+      selectSeller(component);
+      component.onSettleClick();
 
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'info',
-      summary: 'Abrechnen folgt in einem späteren Häppchen',
+      expect(component.settlePanelVisible()).toBe(true);
+      expect(component.settleError()).toBeNull();
     });
-    expect(settlementApi.returnArticle).not.toHaveBeenCalled();
+
+    it('onSettleConfirmed calls settlementApi.settle with the seller id and the settlement payout', async () => {
+      const settlementApi = settlementApiStub();
+      settlementApi.getSettlement.mockReturnValue(of(settlement({ openCount: 0, canSettle: true, payout: 332.94 })));
+      const { component } = await setup({ settlementApi });
+
+      selectSeller(component);
+      component.onSettleConfirmed();
+
+      expect(settlementApi.settle).toHaveBeenCalledWith('SEL00001', 332.94);
+    });
+
+    it('on success: closes the panel, reloads the settlement read-model and prints the final summary', async () => {
+      const settlementApi = settlementApiStub();
+      settlementApi.getSettlement.mockReturnValue(of(settlement({ openCount: 0, canSettle: true, payout: 332.94 })));
+      const printService = printServiceStub();
+      const { component } = await setup({ settlementApi, printService });
+
+      selectSeller(component);
+      component.onSettleClick();
+      settlementApi.getSettlement.mockClear();
+
+      component.onSettleConfirmed();
+
+      expect(component.settlePanelVisible()).toBe(false);
+      expect(component.settleError()).toBeNull();
+      expect(settlementApi.getSettlement).toHaveBeenCalledWith('SEL00001');
+      expect(printService.printSellerSummary).toHaveBeenCalledWith({ sellerId: 'SEL00001', phase: 'final' });
+    });
+
+    it('on 409 settlement.articles_open: keeps the panel open and shows the server detail message', async () => {
+      const settlementApi = settlementApiStub();
+      settlementApi.getSettlement.mockReturnValue(of(settlement({ openCount: 0, canSettle: true, payout: 332.94 })));
+      settlementApi.settle.mockReturnValue(
+        throwError(() => ({
+          error: { errorCode: 'settlement.articles_open', detail: '3 Artikel sind noch im Verkauf' },
+        })),
+      );
+      const { component } = await setup({ settlementApi });
+
+      selectSeller(component);
+      component.onSettleClick();
+
+      component.onSettleConfirmed();
+
+      expect(component.settlePanelVisible()).toBe(true);
+      expect(component.settleError()).toBe('3 Artikel sind noch im Verkauf');
+    });
+
+    it('on 409 settlement.already_settled: closes the panel, clears the error and reloads the settlement read-model', async () => {
+      const settlementApi = settlementApiStub();
+      settlementApi.getSettlement.mockReturnValue(of(settlement({ openCount: 0, canSettle: true, payout: 332.94 })));
+      settlementApi.settle.mockReturnValue(
+        throwError(() => ({ error: { errorCode: 'settlement.already_settled' } })),
+      );
+      const messageService = messageServiceStub();
+      const { component } = await setup({ settlementApi, messageService });
+
+      selectSeller(component);
+      component.onSettleClick();
+      settlementApi.getSettlement.mockClear();
+
+      component.onSettleConfirmed();
+
+      expect(component.settlePanelVisible()).toBe(false);
+      expect(component.settleError()).toBeNull();
+      expect(settlementApi.getSettlement).toHaveBeenCalledWith('SEL00001');
+      expect(messageService.add).toHaveBeenCalledWith({
+        severity: 'info',
+        summary: 'Verkäufer ist bereits abgerechnet',
+      });
+    });
   });
 
   it('onArticleConfirmed calls returnArticle then reloads both the settlement read-model and the article list', async () => {

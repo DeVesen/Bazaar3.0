@@ -1,0 +1,41 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  header="Abrechnen"
+  [style]="{ width: '28rem' }"
+>
+  <div class="settlement-panel">
+    <div class="settlement-panel__row">
+      <span class="settlement-panel__label">Umsatz</span>
+      <span class="settlement-panel__value">{{ settlement().revenue | currency: 'EUR' }}</span>
+    </div>
+
+    <div class="settlement-panel__row settlement-panel__row--commission">
+      <span class="settlement-panel__label">Provision</span>
+      <span class="settlement-panel__value">− {{ settlement().commission | currency: 'EUR' }}</span>
+    </div>
+
+    <div class="settlement-panel__row settlement-panel__row--total">
+      <span class="settlement-panel__label">Auszahlung</span>
+      <span class="settlement-panel__value">{{ settlement().payout | currency: 'EUR' }}</span>
+    </div>
+
+    @if (settlement().notDeliveredCount > 0) {
+      <p class="settlement-panel__hint">
+        {{ settlement().notDeliveredCount }} nicht abgegebene Artikel werden entfernt
+      </p>
+    }
+
+    @if (errorMessage()) {
+      <p class="settlement-panel__error">{{ errorMessage() }}</p>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="settlement-panel__footer">
+      <p-button label="Abbrechen" severity="secondary" [text]="true" (onClick)="onCancel()" />
+      <p-button label="Buchen" severity="primary" (onClick)="onConfirm()" />
+    </div>
+  </ng-template>
+</p-dialog>

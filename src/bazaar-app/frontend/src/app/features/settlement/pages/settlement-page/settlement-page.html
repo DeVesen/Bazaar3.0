@@ -56,4 +56,14 @@
     (visibleChange)="onScanDialogVisibleChange($event)"
     (articleConfirmed)="onArticleConfirmed($event)"
   />
+
+  @if (settlement(); as s) {
+    <app-settlement-panel
+      [visible]="settlePanelVisible()"
+      [settlement]="s"
+      [errorMessage]="settleError()"
+      (visibleChange)="onSettlePanelVisibleChange($event)"
+      (confirmed)="onSettleConfirmed()"
+    />
+  }
 }

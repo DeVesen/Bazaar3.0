@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -8,6 +9,7 @@ import { SellerSearch, SellerSummary } from '../../../../shared/components/selle
 import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialog';
 import { KpiGrid } from '../../../../shared/components/kpi-tile/kpi-grid';
 import { KpiTile } from '../../../../shared/components/kpi-tile/kpi-tile';
+import { SettlementPanel } from '../../components/settlement-panel/settlement-panel';
 // Cross-feature import, read-only: `SellersApi.search('')` loads the full seller list for
 // seller-search to filter in-memory, and `SellersApi.getArticles(id)` loads the read-only
 // article table — same sanctioned pattern `intake-page.ts` already uses for the first call
@@ -43,7 +45,18 @@ const ARTICLE_STATUS_LABELS: Record<string, string> = {
  */
 @Component({
   selector: 'app-settlement-page',
-  imports: [CurrencyPipe, DatePipe, ButtonModule, TableModule, TagModule, SellerSearch, ScanDialog, KpiGrid, KpiTile],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    ButtonModule,
+    TableModule,
+    TagModule,
+    SellerSearch,
+    ScanDialog,
+    KpiGrid,
+    KpiTile,
+    SettlementPanel,
+  ],
   templateUrl: './settlement-page.html',
   styleUrl: './settlement-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +75,8 @@ export class SettlementPage {
   readonly settlement = signal<SellerSettlement | null>(null);
   readonly articles = signal<ArticleSummary[]>([]);
   readonly scanDialogVisible = signal(false);
+  readonly settlePanelVisible = signal(false);
+  readonly settleError = signal<string | null>(null);
 
   readonly hint = 'ENTER bei 1 Treffer oder direkt klicken';
 
@@ -110,9 +125,44 @@ export class SettlementPage {
     this.scanDialogVisible.set(true);
   }
 
-  /** kein Backend-Aufruf, kein Dialog (plan.md/spec.md, explicit) — "Abrechnen" is Round-21. */
   onSettleClick(): void {
-    this.messageService.add({ severity: 'info', summary: 'Abrechnen folgt in einem späteren Häppchen' });
+    this.settleError.set(null);
+    this.settlePanelVisible.set(true);
+  }
+
+  onSettlePanelVisibleChange(visible: boolean): void {
+    this.settlePanelVisible.set(visible);
+    if (!visible) {
+      this.settleError.set(null);
+    }
+  }
+
+  onSettleConfirmed(): void {
+    const sellerId = this.selectedSellerId();
+    const payoutAmount = this.settlement()?.payout;
+    if (!sellerId || payoutAmount === undefined) return;
+
+    this.settlementApi.settle(sellerId, payoutAmount).subscribe({
+      next: () => {
+        this.settlePanelVisible.set(false);
+        this.settleError.set(null);
+        this.loadSettlement();
+        this.printService.printSellerSummary({ sellerId, phase: 'final' });
+      },
+      error: (err: HttpErrorResponse) => {
+        if (err.error?.errorCode === 'settlement.already_settled') {
+          // Zustand hat sich bereits geändert (spec.md) — Popup schließen, Ansicht neu laden.
+          this.settlePanelVisible.set(false);
+          this.settleError.set(null);
+          this.loadSettlement();
+          this.messageService.add({ severity: 'info', summary: 'Verkäufer ist bereits abgerechnet' });
+          return;
+        }
+        // 409 settlement.articles_open / 400 settlement.payout_mismatch: keep the popup open,
+        // show the server's own message.
+        this.settleError.set(err.error?.detail ?? 'Abrechnung fehlgeschlagen');
+      },
+    });
   }
 
   onScanDialogVisibleChange(visible: boolean): void {
