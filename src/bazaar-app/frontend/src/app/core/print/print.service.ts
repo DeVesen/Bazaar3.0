@@ -7,14 +7,25 @@ export interface IntakeReceiptData {
   feeAmount: number;
 }
 
+/** Data needed to print a seller's Abrechnungs-Beleg (Round-20 Task 6b's "Drucken" button). */
+export interface SellerSummaryPrintData {
+  sellerId: string;
+  phase: 'preliminary' | 'final';
+}
+
 /**
- * Stub for the real print layout (Round-23) — deliberately does nothing beyond logging. The call
- * site in `intake-session-list` (`printIntakeReceipt()` after a successful booking) must not
- * change when the real implementation lands.
+ * Stub for the real print layout (Round-23 for `printIntakeReceipt`, Round-24 for
+ * `printSellerSummary`) — deliberately does nothing beyond logging. The call sites in
+ * `intake-session-list`/`release-dialog` (`printIntakeReceipt()`) and `settlement-page`
+ * (`printSellerSummary()`) must not change when the real implementations land.
  */
 @Injectable({ providedIn: 'root' })
 export class PrintService {
   printIntakeReceipt(data: IntakeReceiptData): void {
     console.log('[PrintService] printIntakeReceipt', data);
+  }
+
+  printSellerSummary(data: SellerSummaryPrintData): void {
+    console.log('[PrintService] printSellerSummary', data);
   }
 }

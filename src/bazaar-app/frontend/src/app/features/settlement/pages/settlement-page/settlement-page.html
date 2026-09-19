@@ -1,0 +1,59 @@
+@if (state() === 'selection') {
+  <app-seller-search [sellers]="sellers()" [hint]="hint" [showCreateButton]="false" (sellerSelected)="onSellerSelected($event)" />
+} @else if (settlement(); as s) {
+  <div class="settlement-page">
+    <div class="settlement-page__header">
+      <div class="settlement-page__identity">
+        <span class="settlement-page__name">{{ s.seller.firstName }} {{ s.seller.lastName }}</span>
+        <span class="settlement-page__address">{{ s.seller.address }}, {{ s.seller.postalCode }} {{ s.seller.city }}</span>
+        @if (isSettled()) {
+          <p-tag
+            severity="success"
+            [value]="'Abgerechnet am ' + (s.settledAt | date: 'dd.MM.yyyy HH:mm') + ' · ' + (s.payoutAmount | currency: 'EUR') + ' €'"
+          />
+        }
+      </div>
+      <div class="settlement-page__actions">
+        <p-button label="← Zurück" severity="secondary" [outlined]="true" (onClick)="onBack()" />
+        <p-button label="🖨️ Drucken" (onClick)="onPrint()" />
+        <p-button label="↩ Zurückgeben" [disabled]="!canReturn()" (onClick)="onReturnClick()" />
+        <p-button label="✓ Abrechnen" [disabled]="!canSettleClick()" (onClick)="onSettleClick()" />
+      </div>
+    </div>
+
+    <app-kpi-grid [columns]="3">
+      <app-kpi-tile label="Offene Artikel" [value]="s.openCount" severity="warning" />
+      <app-kpi-tile label="Verkaufte Artikel" [value]="s.soldCount" severity="success" />
+      <app-kpi-tile label="Umsatz" [value]="s.revenue | currency: 'EUR'" />
+    </app-kpi-grid>
+
+    <p-table [value]="articles()" [paginator]="false">
+      <ng-template #header>
+        <tr>
+          <th>Nummer</th>
+          <th>Bezeichnung</th>
+          <th>Preis</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-article>
+        <tr>
+          <td>{{ article.number }}</td>
+          <td>{{ article.name }}</td>
+          <td>{{ article.price | currency: 'EUR' }}</td>
+          <td>{{ articleStatusLabel(article.status) }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <app-scan-dialog
+    [visible]="scanDialogVisible()"
+    title="Artikel zurückgeben"
+    [sellerId]="selectedSellerId() ?? ''"
+    targetField="returnedAt"
+    writeMode="immediate"
+    (visibleChange)="onScanDialogVisibleChange($event)"
+    (articleConfirmed)="onArticleConfirmed($event)"
+  />
+}
