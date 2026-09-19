@@ -165,6 +165,31 @@ public sealed class Article
         UpdatedAt = now;
     }
 
+    /// <summary>
+    /// Sets SoldAt for an article booked via the Haupt-App's checkout flow
+    /// (api/sales.md, Round-19 RecordSaleHandler). SoldManually stays
+    /// untouched — it marks ONLY sales recorded without a Kassenvorgang
+    /// (api/articles.md §5). The caller's own re-check guarantees the article
+    /// is still Selling before calling this.
+    /// </summary>
+    public void RecordSale(DateTimeOffset now)
+    {
+        SoldAt = now;
+        UpdatedAt = now;
+    }
+
+    /// <summary>
+    /// Reverts a checkout booking (api/sales.md §2, Round-19 UndoSaleHandler,
+    /// "Storno des letzten Vorgangs") — sets SoldAt back to null. Session-bound
+    /// on the frontend; the caller's own re-check guarantees the seller is not
+    /// settled before calling this.
+    /// </summary>
+    public void UndoSale(DateTimeOffset now)
+    {
+        SoldAt = null;
+        UpdatedAt = now;
+    }
+
     private static void EnsureRequiredFields(string name, string brand, string category)
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name required.");
