@@ -1,4 +1,3 @@
-using Bazaar.Api.Filters;
 using Bazaar.Application.Settlement;
 
 namespace Bazaar.Api.Features.Settlement;
@@ -41,8 +40,7 @@ public static class SettlementEndpoints
             var result = await handler.Handle(command);
             return Results.Ok(new SettleSellerResponseDto(result.SettledAt, result.PayoutAmount, result.RemovedArticleCount));
         })
-        .RequireAuthorization()
-        .AddEndpointFilter<ValidationFilter<SettleSellerCommand>>();
+        .RequireAuthorization();
 
         return app;
     }
