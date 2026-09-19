@@ -228,6 +228,11 @@ export class CheckoutPage {
   }
 
   onPaymentConfirmed(event: PaymentConfirmedEvent): void {
+    // `bookSale()` only needs the article ids, not the payment breakdown (unlike
+    // release-dialog.ts/intake-session-list.ts, which forward `event.totalAmount`). `void` keeps
+    // the parameter referenced so lint's no-unused-vars rule (no underscore-prefix exemption
+    // configured in this project) stays quiet without pretending it is actually used.
+    void event;
     const articleIds = this.cartItems().map((item) => item.id);
     this.salesApi.bookSale(articleIds).subscribe({
       next: () => {
@@ -239,14 +244,14 @@ export class CheckoutPage {
         this.infoState.set({ type: 'info', text: 'Ersten Artikel eingeben …' });
         this.focusArticleNumberField();
       },
-      error: (error: unknown) => this.handleBookingError(error, articleIds),
+      error: (error: unknown) => this.handleBookingError(error),
     });
   }
 
   /** 409 `article.not_sellable` (cart.md AC-7 / epic.md AC-8): the cart stays completely
    * unchanged — only the payment-panel closes and the affected row gets marked. Mirrors
    * `release-dialog.ts`'s own `handleBookingError` shape. */
-  private handleBookingError(error: unknown, articleIds: string[]): void {
+  private handleBookingError(error: unknown): void {
     this.paymentPanelVisible.set(false);
 
     if (
