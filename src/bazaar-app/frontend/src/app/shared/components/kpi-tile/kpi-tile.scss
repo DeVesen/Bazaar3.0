@@ -1,0 +1,83 @@
+:host {
+  display: block;
+}
+
+// `p-card` renders its own root outside this component's emulated-encapsulation scope, so the
+// container rules driven by the static `class="kpi-tile"` / `[class]="severityClass()"`
+// bindings on `<p-card>` need `::ng-deep` — same pattern as
+// shared/components/seller-search/seller-search.scss (PrimeNG v22's `p-card` no longer exposes
+// a `styleClass` input, so plain `class`/`[class]` bindings are used instead).
+::ng-deep .kpi-tile.p-card {
+  background: #ffffff;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  text-align: center;
+
+  .p-card-body,
+  .p-card-content {
+    padding: 0;
+  }
+
+  .p-card-body {
+    padding: 16px;
+  }
+}
+
+::ng-deep .kpi-tile--success.p-card {
+  border-top: 3px solid var(--p-green-500, #22c55e);
+}
+
+::ng-deep .kpi-tile--warning.p-card {
+  border-top: 3px solid var(--p-orange-400, #fb923c);
+}
+
+::ng-deep .kpi-tile--danger.p-card {
+  border-top: 3px solid var(--p-red-500, #ef4444);
+}
+
+::ng-deep .kpi-tile--info.p-card {
+  border-top: 3px solid var(--p-blue-500, #3b82f6);
+}
+
+.kpi-tile {
+  &__label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted, #6b7280);
+  }
+
+  &__value {
+    margin-top: 4px;
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f1f30;
+  }
+
+  &__sub-label {
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted, #6b7280);
+  }
+}
+
+// The severity modifier class lives on `p-card`'s own root element (outside this component's
+// encapsulation scope, see above), while `.kpi-tile__value` is this component's own projected
+// element — so the descendant selector must stay unscoped via `::ng-deep` on both sides.
+::ng-deep .kpi-tile--success .kpi-tile__value {
+  color: var(--p-green-500, #22c55e);
+}
+
+::ng-deep .kpi-tile--warning .kpi-tile__value {
+  color: var(--p-orange-400, #fb923c);
+}
+
+::ng-deep .kpi-tile--danger .kpi-tile__value {
+  color: var(--p-red-500, #ef4444);
+}
+
+::ng-deep .kpi-tile--info .kpi-tile__value {
+  color: var(--p-blue-500, #3b82f6);
+}

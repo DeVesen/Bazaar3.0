@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.kpi-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.kpi-grid--c3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.kpi-grid--c4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.kpi-grid--c5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.kpi-grid--c6 {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+// AC-5: below 1024px the configured column count no longer applies — these overrides target
+// the base `.kpi-grid` selector so they come after (and win the cascade over) the `--cN`
+// modifier rules above, regardless of which modifier class is present.
+@media (max-width: 1023px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

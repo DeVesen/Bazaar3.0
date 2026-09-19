@@ -1,0 +1,7 @@
+<p-card class="kpi-tile" [class]="severityClass()">
+  <div class="kpi-tile__label">{{ label() }}</div>
+  <div class="kpi-tile__value">{{ displayValue() }}</div>
+  @if (subLabel()) {
+    <div class="kpi-tile__sub-label">{{ subLabel() }}</div>
+  }
+</p-card>
