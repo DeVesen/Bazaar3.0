@@ -1,0 +1,95 @@
+<div class="import-panel">
+  <h3 class="import-panel__title">JSON-Import</h3>
+
+  <div class="import-panel__picker">
+    <p-fileupload
+      mode="basic"
+      chooseLabel="Datei wählen"
+      accept="application/json"
+      (onSelect)="onFileSelect($event)"
+    />
+    @if (selectedFile()) {
+      <span class="import-panel__filename">{{ selectedFile()!.name }}</span>
+    }
+  </div>
+
+  @if (previewError()) {
+    <p class="import-panel__error">{{ previewError() }}</p>
+  }
+
+  @if (previewResult() && !previewError()) {
+    <div class="import-panel__preview">
+      <h4>Vorschau</h4>
+
+      @if (previewResult()!.sellerCount === 0) {
+        <p class="import-panel__hint">Die Datei enthält keine Verkäufer.</p>
+      } @else {
+        <p>
+          {{ previewResult()!.sellerCount }} Verkäufer · {{ previewResult()!.articleCount }} Artikel
+        </p>
+        <p>
+          davon {{ previewResult()!.newSellers }} neu · {{ previewResult()!.replacedSellers }} werden
+          ersetzt · {{ previewResult()!.skippedSellers.length }} übersprungen
+        </p>
+      }
+
+      @if (previewResult()!.skippedSellers.length > 0) {
+        <div class="import-panel__skipped">
+          <p>⚠ Übersprungen (verkauft oder abgerechnet):</p>
+          <ul>
+            @for (skippedSeller of previewResult()!.skippedSellers; track skippedSeller.id) {
+              <li>{{ skippedSeller.name }} — {{ reasonText(skippedSeller) }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (previewResult()!.unknownSellerTypes.length > 0) {
+        <div class="import-panel__unknown-types">
+          <p>⚠ Unbekannte Verkäufer-Typen — Zuordnung nötig:</p>
+          @for (unknownType of previewResult()!.unknownSellerTypes; track unknownType.name) {
+            <div class="import-panel__unknown-type-row">
+              <label [for]="'import-panel-type-' + unknownType.name">
+                „{{ unknownType.name }}" ({{ unknownType.affectedSellers }} Verkäufer)
+              </label>
+              <p-select
+                [inputId]="'import-panel-type-' + unknownType.name"
+                [options]="sellerTypesOptions()"
+                optionLabel="name"
+                optionValue="id"
+                [ngModel]="sellerTypeMapping()[unknownType.name]"
+                (ngModelChange)="onSellerTypeMappingChange(unknownType.name, $event)"
+                [name]="'import-panel-type-' + unknownType.name"
+              />
+            </div>
+          }
+        </div>
+      }
+
+      <app-boolean-input
+        variant="checkbox"
+        [label]="'Marken übernehmen (' + previewResult()!.newBrands + ' neu)'"
+        [value]="importBrands()"
+        (valueChange)="onImportBrandsChange($event)"
+      />
+      <app-boolean-input
+        variant="checkbox"
+        [label]="'Kategorien übernehmen (' + previewResult()!.newCategories + ' neu)'"
+        [value]="importCategories()"
+        (valueChange)="onImportCategoriesChange($event)"
+      />
+    </div>
+  }
+
+  @if (state() === 'running') {
+    <p-progressbar mode="indeterminate" />
+  }
+
+  @if (previewResult() && !previewError()) {
+    <p-button
+      label="Import bestätigen"
+      [disabled]="confirmDisabled() || state() === 'running'"
+      (onClick)="onConfirm()"
+    />
+  }
+</div>

@@ -1,0 +1,50 @@
+.import-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 520px;
+
+  &__title {
+    margin: 0;
+  }
+
+  &__picker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__filename {
+    color: var(--p-text-muted-color);
+    font-size: 0.875rem;
+  }
+
+  &__error {
+    margin: 0;
+    color: var(--p-red-500);
+  }
+
+  &__hint {
+    margin: 0;
+    color: var(--p-text-muted-color);
+  }
+
+  &__preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__skipped,
+  &__unknown-types {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__unknown-type-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
