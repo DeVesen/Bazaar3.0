@@ -1,6 +1,7 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { SetupPage } from './setup-page';
 import { BootstrapApi } from '../../data/bootstrap-api';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -13,10 +14,12 @@ describe('SetupPage - Admin step', () => {
   let component: SetupPage;
   let bootstrapApi: { bootstrapAdmin: ReturnType<typeof vi.fn> };
   let authService: { login: ReturnType<typeof vi.fn> };
+  let navigateByUrl: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     bootstrapApi = { bootstrapAdmin: vi.fn() };
     authService = { login: vi.fn() };
+    navigateByUrl = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [SetupPage],
@@ -26,6 +29,7 @@ describe('SetupPage - Admin step', () => {
         { provide: SellerTypesApi, useValue: { create: vi.fn() } },
         { provide: BrandsApi, useValue: { create: vi.fn() } },
         { provide: CategoriesApi, useValue: { create: vi.fn() } },
+        { provide: Router, useValue: { navigateByUrl } },
       ],
     }).compileComponents();
 
@@ -65,6 +69,13 @@ describe('SetupPage - Admin step', () => {
     component.submitAdmin(vi.fn());
 
     expect(component.adminError()).toContain('bereits abgeschlossen');
+    expect(component.adminAlreadySetUp()).toBe(true);
+  });
+
+  it('navigates to /login when the login link is used after a conflict', () => {
+    component.goToLogin();
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/login');
   });
 });
 
@@ -83,6 +94,7 @@ describe('SetupPage - Seller types step', () => {
         { provide: SellerTypesApi, useValue: sellerTypesApi },
         { provide: BrandsApi, useValue: { create: vi.fn() } },
         { provide: CategoriesApi, useValue: { create: vi.fn() } },
+        { provide: Router, useValue: { navigateByUrl: vi.fn() } },
       ],
     }).compileComponents();
 
@@ -110,6 +122,16 @@ describe('SetupPage - Seller types step', () => {
     ]);
     expect(component.sellerTypeName()).toBe('');
     expect(component.canProceedPastSellerTypes()).toBe(true);
+  });
+
+  it('sets an error message when adding a seller type fails', () => {
+    sellerTypesApi.create.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400 })));
+    component.sellerTypeName.set('Kleidung');
+
+    component.addSellerType();
+
+    expect(component.sellerTypeError()).toBeTruthy();
+    expect(component.sellerTypes()).toEqual([]);
   });
 });
 
@@ -143,6 +165,7 @@ describe('SetupPage - Brands/categories step and finish', () => {
         { provide: SellerTypesApi, useValue: { create: vi.fn() } },
         { provide: BrandsApi, useValue: brandsApi },
         { provide: CategoriesApi, useValue: categoriesApi },
+        { provide: Router, useValue: { navigateByUrl: vi.fn() } },
       ],
     }).compileComponents();
 
@@ -184,6 +207,26 @@ describe('SetupPage - Brands/categories step and finish', () => {
     expect(categoriesApi.create).toHaveBeenCalledWith('Schuhe');
     expect(component.categories()).toEqual([{ id: 'C1', name: 'Schuhe', original: true, articleCount: 0 }]);
     expect(component.categoryName()).toBe('');
+  });
+
+  it('sets an error message when adding a brand fails', () => {
+    brandsApi.create.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400 })));
+    component.brandName.set('Nike');
+
+    component.addBrand();
+
+    expect(component.masterDataError()).toBeTruthy();
+    expect(component.brands()).toEqual([]);
+  });
+
+  it('sets an error message when adding a category fails', () => {
+    categoriesApi.create.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400 })));
+    component.categoryName.set('Schuhe');
+
+    component.addCategory();
+
+    expect(component.masterDataError()).toBeTruthy();
+    expect(component.categories()).toEqual([]);
   });
 
   it('finish logs out and reloads the page', () => {

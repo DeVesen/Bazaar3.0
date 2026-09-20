@@ -15,6 +15,9 @@
               <input pInputPassword [ngModel]="passwordConfirm()" (ngModelChange)="passwordConfirm.set($event)" name="setup-password-confirm" placeholder="Passwort bestätigen" required />
               @if (adminError()) {
                 <p class="setup-page__error">{{ adminError() }}</p>
+                @if (adminAlreadySetUp()) {
+                  <p-button link label="Zum Login" (onClick)="goToLogin()" />
+                }
               }
               <p-button type="submit" label="Weiter" [disabled]="!canSubmitAdmin()" />
             </form>
@@ -30,9 +33,12 @@
               }
             </ul>
             <input pInputText [ngModel]="sellerTypeName()" (ngModelChange)="sellerTypeName.set($event)" name="seller-type-name" placeholder="Name" />
-            <p-inputNumber [ngModel]="sellerTypeCommissionRate()" (ngModelChange)="sellerTypeCommissionRate.set($event)" name="seller-type-commission" suffix=" %" />
-            <p-inputNumber [ngModel]="sellerTypeItemFee()" (ngModelChange)="sellerTypeItemFee.set($event)" name="seller-type-fee" mode="currency" currency="EUR" />
+            <p-inputNumber [ngModel]="sellerTypeCommissionRate()" (ngModelChange)="sellerTypeCommissionRate.set($event)" name="seller-type-commission" suffix=" %" min="0" max="100" />
+            <p-inputNumber [ngModel]="sellerTypeItemFee()" (ngModelChange)="sellerTypeItemFee.set($event)" name="seller-type-fee" mode="currency" currency="EUR" min="0" />
             <p-button label="Hinzufügen" [disabled]="!canAddSellerType()" (onClick)="addSellerType()" />
+            @if (sellerTypeError()) {
+              <p class="setup-page__error">{{ sellerTypeError() }}</p>
+            }
             <div class="setup-page__actions">
               <p-button severity="secondary" label="Zurück" (onClick)="activateCallback(1)" />
               <p-button label="Weiter" [disabled]="!canProceedPastSellerTypes()" (onClick)="activateCallback(3)" />
@@ -63,6 +69,9 @@
               <input pInputText [ngModel]="categoryName()" (ngModelChange)="categoryName.set($event)" name="category-name" placeholder="Kategoriename" />
               <p-button label="Kategorie hinzufügen" [disabled]="!categoryName().trim()" (onClick)="addCategory()" />
             </section>
+            @if (masterDataError()) {
+              <p class="setup-page__error">{{ masterDataError() }}</p>
+            }
             <div class="setup-page__actions">
               <p-button severity="secondary" label="Zurück" (onClick)="activateCallback(2)" />
               <p-button label="Setup abschließen" (onClick)="finish()" />

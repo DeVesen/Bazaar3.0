@@ -101,10 +101,10 @@ Angesiedelt als eigener Bereich in [Epic_Einstellungen](../Epic_Einstellungen/ep
 
 ## 4. Erststart — Setup-Wizard
 
-Existiert noch kein Benutzer in der Datenbank, leitet die App jeden Aufruf auf `/setup` um (siehe
-[Epic_App_Shell](../Epic_App_Shell/epic.md) für den Guard-Mechanismus). Dort legt der Anwender
-selbst das erste Admin-Konto an (Benutzername + Passwort, sofort ohne Zwangswechsel gültig — er hat
-es ja gerade selbst gewählt), definiert danach mindestens einen Händlertyp
+Existiert noch kein Benutzer in der Datenbank, leitet die App jeden Aufruf auf `/setup` um
+(`noAdminGuard` client-seitig, `bootstrap.already_done` serverseitig als zweite Linie). Dort legt
+der Anwender selbst das erste Admin-Konto an (Benutzername + Passwort, sofort ohne Zwangswechsel
+gültig — er hat es ja gerade selbst gewählt), definiert danach mindestens einen Händlertyp
 ([Epic_Verkaeufer_Typen](../Epic_Verkaeufer_Typen/epic.md)) und kann optional erste Marken
 ([Epic_Marken](../Epic_Marken/epic.md)) und Kategorien ([Epic_Kategorien](../Epic_Kategorien/epic.md))
 anlegen. Nach Abschluss verwirft die App die Sitzung und lädt neu — der Anwender meldet sich mit dem
@@ -112,6 +112,13 @@ gerade angelegten Konto regulär über `/login` an.
 
 Damit gibt es weder einen Zustand, in dem niemand hereinkommt, noch ein Passwort im Repository, und
 kein Environment-Variablen-Geheimnis, das vor dem ersten Start bekannt sein müsste.
+
+**Betriebliche Konsequenz:** `/setup` ist unauthentifiziert und macht **wer auch immer die Seite
+zuerst lädt** zum Admin — kein Setup-Token, keine Bindung an `localhost`, kein Zeitfenster. Für den
+geschlossenen Basar-LAN-Betrieb ist das eine bewusste Abwägung (kein vorab zu verteilendes
+Geheimnis, siehe [`entities/benutzer.md`](../../entities/benutzer.md)), setzt aber voraus, dass der
+Ersteinrichtung **vor** der Öffnung des Netzes/WLANs für Gäste und Verkäufer geschieht — sonst kann
+statt des Betreibers jeder im Raum den ersten Aufruf gewinnen und das Admin-Konto anlegen.
 
 ---
 
@@ -123,6 +130,8 @@ API-Details → [`api/auth.md`](../../api/auth.md)
 |---|---|---|
 | `POST /api/auth/login` | `public` | `{ username, password }` → `200 { accessToken }` / `401` bei falschen Daten |
 | `PUT /api/auth/password` | `authenticated` | `{ currentPassword, newPassword }` → `204` / `401` bei falschem aktuellem Passwort |
+| `GET /api/public/bootstrap-status` | `public` | → `200 { hasAdmin }` — Basis für `noAdminGuard`/`adminExistsGuard` |
+| `POST /api/public/bootstrap-admin` | `public` | `{ username, password }` → `200 { accessToken }` / `409 bootstrap.already_done` / `400` bei Validierungsfehler |
 
 **Kein Refresh-Endpoint, keine Refresh-Tokens.** Ein einziges Access-Token mit **16 Stunden** Lebensdauer deckt jeden Basar-Tag ab. Ein Token, das mitten im Kassenvorgang abläuft und die Kassenkraft auf den Login-Screen wirft, während der Kunde wartet, ist ein Betriebsschaden — und der Refresh-Mechanismus löst ein Problem (kurzlebige Tokens im Dauerbetrieb), das hier nicht existiert. Bewusste Abweichung von der Voranmelde-App, wo Dauerbetrieb über Wochen der Normalfall ist.
 

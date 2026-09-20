@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -36,12 +37,14 @@ export class SetupPage {
   private readonly brandsApi = inject(BrandsApi);
   private readonly categoriesApi = inject(CategoriesApi);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   // Step 1 - Admin-Konto
   readonly username = signal('');
   readonly password = signal('');
   readonly passwordConfirm = signal('');
   readonly adminError = signal<string | null>(null);
+  readonly adminAlreadySetUp = signal(false);
   readonly adminSaving = signal(false);
   readonly canSubmitAdmin = computed(
     () =>
@@ -57,6 +60,7 @@ export class SetupPage {
   readonly sellerTypeItemFee = signal(0);
   readonly sellerTypes = signal<SellerType[]>([]);
   readonly sellerTypeSaving = signal(false);
+  readonly sellerTypeError = signal<string | null>(null);
   readonly canAddSellerType = computed(() => this.sellerTypeName().trim().length > 0 && !this.sellerTypeSaving());
   readonly canProceedPastSellerTypes = computed(() => this.sellerTypes().length > 0);
 
@@ -65,10 +69,12 @@ export class SetupPage {
   readonly brands = signal<Brand[]>([]);
   readonly categoryName = signal('');
   readonly categories = signal<Category[]>([]);
+  readonly masterDataError = signal<string | null>(null);
 
   submitAdmin(activateCallback: (step: number) => void): void {
     if (!this.canSubmitAdmin()) return;
     this.adminError.set(null);
+    this.adminAlreadySetUp.set(false);
     this.adminSaving.set(true);
     this.bootstrapApi.bootstrapAdmin(this.username().trim(), this.password()).subscribe({
       next: ({ accessToken }) => {
@@ -80,6 +86,7 @@ export class SetupPage {
         this.adminSaving.set(false);
         if (error instanceof HttpErrorResponse && error.status === 409) {
           this.adminError.set('Setup wurde bereits abgeschlossen. Bitte melde dich an.');
+          this.adminAlreadySetUp.set(true);
         } else {
           this.adminError.set('Admin-Konto konnte nicht angelegt werden. Bitte erneut versuchen.');
         }
@@ -89,6 +96,7 @@ export class SetupPage {
 
   addSellerType(): void {
     if (!this.canAddSellerType()) return;
+    this.sellerTypeError.set(null);
     this.sellerTypeSaving.set(true);
     this.sellerTypesApi
       .create(this.sellerTypeName().trim(), this.sellerTypeCommissionRate(), this.sellerTypeItemFee())
@@ -100,30 +108,45 @@ export class SetupPage {
           this.sellerTypeItemFee.set(0);
           this.sellerTypeSaving.set(false);
         },
-        error: () => this.sellerTypeSaving.set(false),
+        error: () => {
+          this.sellerTypeSaving.set(false);
+          this.sellerTypeError.set('Verkäufer-Typ konnte nicht angelegt werden. Bitte Eingaben prüfen.');
+        },
       });
   }
 
   addBrand(): void {
     const name = this.brandName().trim();
     if (!name) return;
-    this.brandsApi.create(name).subscribe((brand) => {
-      this.brands.set([...this.brands(), brand]);
-      this.brandName.set('');
+    this.masterDataError.set(null);
+    this.brandsApi.create(name).subscribe({
+      next: (brand) => {
+        this.brands.set([...this.brands(), brand]);
+        this.brandName.set('');
+      },
+      error: () => this.masterDataError.set('Marke konnte nicht angelegt werden. Bitte erneut versuchen.'),
     });
   }
 
   addCategory(): void {
     const name = this.categoryName().trim();
     if (!name) return;
-    this.categoriesApi.create(name).subscribe((category) => {
-      this.categories.set([...this.categories(), category]);
-      this.categoryName.set('');
+    this.masterDataError.set(null);
+    this.categoriesApi.create(name).subscribe({
+      next: (category) => {
+        this.categories.set([...this.categories(), category]);
+        this.categoryName.set('');
+      },
+      error: () => this.masterDataError.set('Kategorie konnte nicht angelegt werden. Bitte erneut versuchen.'),
     });
   }
 
   finish(): void {
     this.authService.logout();
     window.location.reload();
+  }
+
+  goToLogin(): void {
+    this.router.navigateByUrl('/login');
   }
 }

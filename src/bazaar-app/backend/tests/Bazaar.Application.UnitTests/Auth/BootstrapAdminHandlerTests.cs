@@ -71,4 +71,55 @@ public class BootstrapAdminHandlerTests
         Assert.False(addedUser.MustChangePassword);
         Assert.True(_state.HasAdmin);
     }
+
+    [Fact]
+    public async Task Handle_TwoConcurrentCalls_OnlyOneCreatesAdminTheOtherGetsConflict()
+    {
+        // Uses the real AdminBootstrapState (not a fake/mock) so the SemaphoreSlim
+        // added to close the TOCTOU race actually serializes the two calls below -
+        // a mocked state would just short-circuit this test without exercising the fix.
+        _state.Initialize(false);
+        _userRepository.Setup(r => r.AnyAsync()).ReturnsAsync(false);
+        _passwordHasher.Setup(h => h.Hash(It.IsAny<string>())).Returns("hashed-password");
+        _idGenerator.Setup(g => g.Generate()).Returns(() => Guid.NewGuid().ToString());
+        _userRepository.Setup(r => r.Add(It.IsAny<User>())).Returns(Task.CompletedTask);
+        _tokenIssuer.Setup(t => t.IssueAccessToken(It.IsAny<User>(), It.IsAny<DateTime>())).Returns("issued-token");
+        var sut = CreateSut();
+
+        ConflictException? firstConflict = null;
+        ConflictException? secondConflict = null;
+
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var first = Task.Run(async () =>
+        {
+            try
+            {
+                await sut.Handle(new BootstrapAdminCommand { Username = "admin-one", Password = "changeme1" });
+            }
+            catch (ConflictException ex)
+            {
+                firstConflict = ex;
+            }
+        }, cancellationToken);
+        var second = Task.Run(async () =>
+        {
+            try
+            {
+                await sut.Handle(new BootstrapAdminCommand { Username = "admin-two", Password = "changeme1" });
+            }
+            catch (ConflictException ex)
+            {
+                secondConflict = ex;
+            }
+        }, cancellationToken);
+
+        await Task.WhenAll(first, second);
+
+        // Exactly one of the two concurrent calls must have been rejected - without the
+        // semaphore, both could pass the check-and-create and both would succeed.
+        var conflicts = new[] { firstConflict, secondConflict }.Count(c => c is not null);
+        Assert.Equal(1, conflicts);
+        _userRepository.Verify(r => r.Add(It.IsAny<User>()), Times.Once);
+        Assert.True(_state.HasAdmin);
+    }
 }

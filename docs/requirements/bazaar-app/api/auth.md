@@ -14,6 +14,8 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md)
 |---|---|
 | `POST /api/auth/login` | `public` |
 | `PUT /api/auth/password` | `authenticated` |
+| `GET /api/public/bootstrap-status` | `public` |
+| `POST /api/public/bootstrap-admin` | `public` |
 
 ---
 
@@ -60,6 +62,52 @@ PUT /api/auth/password
 ```
 
 **Passwort-Regel:** mindestens 8 Zeichen. Keine Stärke-Klassen, kein Meter — die Konten legt der Admin an, es registriert sich niemand selbst.
+
+---
+
+## 3. `GET /api/public/bootstrap-status`
+
+```
+GET /api/public/bootstrap-status
+
+→ 200 OK
+   { "hasAdmin": false }
+```
+
+**Anonym, ohne DB-Zugriff pro Request.** Liefert das beim Programmstart einmal ermittelte,
+im Speicher gehaltene Flag (`AdminBootstrapState`) — nicht bei jedem Aufruf neu aus der
+Datenbank gelesen. Fachliche Quelle → [Epic_Login](../epics/Epic_Login/epic.md) Abschnitt 4.
+
+Frontend-Nutzung: `noAdminGuard`/`adminExistsGuard` entscheiden anhand `hasAdmin`, ob auf
+`/setup` bzw. `/login` umgeleitet wird.
+
+---
+
+## 4. `POST /api/public/bootstrap-admin`
+
+```
+POST /api/public/bootstrap-admin
+{ "username": "admin", "password": "…" }
+
+→ 200 OK
+   { "accessToken": "eyJ…" }
+
+→ 409 Conflict        errorCode: bootstrap.already_done
+→ 400 Bad Request     errors: { "username": ["…"], "password": ["Passwort muss mindestens 8 Zeichen lang sein"] }
+```
+
+**Anonym, nur solange kein Benutzer existiert.** Legt das erste Admin-Konto an
+(`mustChangePassword: false` — der Anwender hat das Passwort gerade selbst gewählt) und gibt
+sofort ein Access-Token zurück, damit Schritt 2/3 des Setup-Wizards authentifiziert
+weiterlaufen können.
+
+**`409 bootstrap.already_done`**, sobald irgendein Benutzer existiert — unabhängig davon, ob
+er über diesen Endpoint oder anders angelegt wurde. Zwei gleichzeitige erste Requests auf
+eine leere Datenbank werden serverseitig serialisiert (`AdminBootstrapState`), damit nicht
+beide durchkommen.
+
+**Validierung:** Benutzername darf nicht leer sein, Passwort mindestens 8 Zeichen — dieselbe
+Regel wie bei `PUT /api/auth/password`.
 
 ---
 
