@@ -11,6 +11,9 @@ import { SessionArticle } from '../intake-article-entry/intake-article-entry';
 // and why every spec that transitively loads `BarcodeScanner` must import it, not just the
 // ones asserting on it) so this test never touches real device camera APIs (unavailable in
 // jsdom).
+// (Round-25 review fix: this registration now also happens unconditionally via the global
+// Vitest `setupFiles` entry in `angular.json` — this import is kept for documentation/clarity,
+// not because it is still load-bearing for the mock to win the race.)
 import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { SessionItemPopup } from '../session-item-popup/session-item-popup';
 import { IntakeSessionList } from './intake-session-list';

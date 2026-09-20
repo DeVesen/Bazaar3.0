@@ -22,6 +22,9 @@ import { RoleService } from '../../../../core/auth/role.service';
 // comment for why it must be centralized) so no test here touches real device camera APIs
 // (unavailable in jsdom). The import alone is enough to trigger `vi.mock` registration; this
 // file doesn't need to configure/track calls itself.
+// (Round-25 review fix: this registration now also happens unconditionally via the global
+// Vitest `setupFiles` entry in `angular.json` — this import is kept for documentation/clarity,
+// not because it is still load-bearing for the mock to win the race.)
 import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 
 // `p-tabs`'s `TabList` (rendered by `IntakeWizard` in the 'wizard' state) observes its own size
