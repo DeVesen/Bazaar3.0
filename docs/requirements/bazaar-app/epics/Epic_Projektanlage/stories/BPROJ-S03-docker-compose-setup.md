@@ -74,10 +74,9 @@ Stand der Prüfung: PostgreSQL 18 ist die aktuelle stabile Major (Docker Hub, 20
 | `POSTGRES_PASSWORD` | Datenbank-Passwort | diese Story |
 | `ConnectionStrings__DefaultConnection` | Verbindung des Backends | [BPROJ-S04](BPROJ-S04-efcore-datenbank-setup.md) |
 | `Jwt__Issuer` · `Jwt__Audience` · `Jwt__Secret` | Token-Parameter | [BPROJ-S02](BPROJ-S02-dotnet-api-anlegen.md) AC-8 |
-| `SEED_ADMIN_USER` · `SEED_ADMIN_PASSWORD` | erstes Admin-Konto beim Erststart | [Epic_Login](../../Epic_Login/epic.md) Abschnitt 4 |
 | `LOCAL_HOSTNAME` | Hostname im Insel-Betrieb | [BPROJ-S05](BPROJ-S05-ssl-insel-deployment.md) |
 
-Die Liste steht hier vollständig, weil sonst beim ersten Start auffällt, dass der Seed-Admin nicht angelegt werden kann — und niemand weiß, warum. Neue Variablen späterer Stories werden hier ergänzt.
+Die Liste steht hier vollständig, damit beim ersten Start jede erwartete Variable bekannt ist. Neue Variablen späterer Stories werden hier ergänzt.
 
 ## Akzeptanzkriterien
 

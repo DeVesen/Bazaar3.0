@@ -2,7 +2,7 @@
 id: F-BA-012
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-09-20
 ---
 
 # Epic: Login
@@ -12,7 +12,7 @@ updated: 2026-08-17
 - 1. Layout — Login-Seite
 - 2. Rollen & Rechte — Zugriffsmatrix
 - 3. Benutzerverwaltung — Anlegen, Zurücksetzen
-- 4. Erststart — Seed-Admin
+- 4. Erststart — Setup-Wizard
 - 5. Backend & API — Endpoints, Token-Handling
 - 6. Out-of-Scope (MVP) — bewusst verschobene Themen
 - Akzeptanzkriterien — EARS-Kriterien
@@ -99,11 +99,19 @@ Angesiedelt als eigener Bereich in [Epic_Einstellungen](../Epic_Einstellungen/ep
 
 ---
 
-## 4. Erststart — Seed-Admin
+## 4. Erststart — Setup-Wizard
 
-Beim ersten Start existiert **genau ein** Admin-Konto. Benutzername und Initialpasswort kommen aus den Environment-Variablen `SEED_ADMIN_USER` und `SEED_ADMIN_PASSWORD`; die App legt das Konto nur an, wenn noch kein Benutzer in der Datenbank steht.
+Existiert noch kein Benutzer in der Datenbank, leitet die App jeden Aufruf auf `/setup` um (siehe
+[Epic_App_Shell](../Epic_App_Shell/epic.md) für den Guard-Mechanismus). Dort legt der Anwender
+selbst das erste Admin-Konto an (Benutzername + Passwort, sofort ohne Zwangswechsel gültig — er hat
+es ja gerade selbst gewählt), definiert danach mindestens einen Händlertyp
+([Epic_Verkaeufer_Typen](../Epic_Verkaeufer_Typen/epic.md)) und kann optional erste Marken
+([Epic_Marken](../Epic_Marken/epic.md)) und Kategorien ([Epic_Kategorien](../Epic_Kategorien/epic.md))
+anlegen. Nach Abschluss verwirft die App die Sitzung und lädt neu — der Anwender meldet sich mit dem
+gerade angelegten Konto regulär über `/login` an.
 
-Beim ersten Login mit diesem Konto erzwingt die App den Passwortwechsel. Damit gibt es weder einen Zustand, in dem niemand hereinkommt, noch ein Passwort im Repository.
+Damit gibt es weder einen Zustand, in dem niemand hereinkommt, noch ein Passwort im Repository, und
+kein Environment-Variablen-Geheimnis, das vor dem ersten Start bekannt sein müsste.
 
 ---
 
@@ -160,7 +168,7 @@ Bewusst zurückgestellt, nicht vergessen:
 2. **AC-2** — IF Benutzername oder Passwort falsch ist, THEN SHALL das System die Meldung „Ungültige Anmeldedaten" anzeigen, ohne preiszugeben, welcher der beiden Werte falsch war.
 3. **AC-3** — WHILE das Passwortfeld fokussiert ist und Enter gedrückt wird, SHALL das System die Anmeldung auslösen.
 4. **AC-4** — THE SYSTEM SHALL ein Access-Token mit 16 Stunden Lebensdauer ausstellen und die Claims `sub`, `name`, `role` und `mustChangePassword` setzen.
-5. **AC-5** — WHEN kein Benutzer in der Datenbank existiert, THEN SHALL das System beim Start genau ein Admin-Konto aus `SEED_ADMIN_USER` und `SEED_ADMIN_PASSWORD` anlegen.
+5. **AC-5** — WHEN kein Benutzer in der Datenbank existiert, THEN SHALL das System jeden Aufruf auf `/setup` umleiten, wo der Anwender selbst Benutzername und Passwort des ersten Admin-Kontos festlegt.
 6. **AC-6** — IF ein Benutzer mit gesetztem `mustChangePassword` sich anmeldet, THEN SHALL das System vor jeder anderen Seite die Passwortänderung erzwingen.
 7. **AC-7** — WHEN ein Admin das Passwort eines Benutzers zurücksetzt, THEN SHALL das System `mustChangePassword` für diesen Benutzer setzen.
 8. **AC-8** — IF ein neues Passwort kürzer als 8 Zeichen ist, THEN SHALL das System es mit `400` ablehnen.

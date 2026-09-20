@@ -39,16 +39,16 @@ Wahrscheinlichkeit die eigene Kassenkraft aussperren.
 **E-Mail, Invite-Token, Passwort-Reset-Token.** Ohne Mailserver im LAN gibt es keinen
 Zustellweg; der Admin setzt Passwörter direkt.
 
-## Seed-Admin
+## Erststart — Setup-Wizard
 
-Existiert kein Benutzer, legt die App beim Start genau ein Admin-Konto aus den
-Environment-Variablen `SEED_ADMIN_USER` und `SEED_ADMIN_PASSWORD` an, mit
-`mustChangePassword = true`. Damit gibt es weder einen Zustand, in dem niemand hereinkommt,
-noch ein Passwort im Repository.
+Existiert kein Benutzer, leitet die App auf `/setup` um; dort legt der Anwender selbst
+Benutzername und Passwort des ersten Admin-Kontos fest (`mustChangePassword = false` — er hat
+das Passwort gerade selbst gewählt). Damit gibt es weder einen Zustand, in dem niemand
+hereinkommt, noch ein Passwort im Repository, noch ein vorab zu verteilendes Geheimnis.
 
 ## Verwendung
 
-- [Epic_Login](../epics/Epic_Login/epic.md) — Anmeldung, Passwortwechsel, Seed-Admin
+- [Epic_Login](../epics/Epic_Login/epic.md) — Anmeldung, Passwortwechsel, Setup-Wizard
 - [Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) — Benutzerverwaltung (Oberfläche)
 - [Epic_App_Shell](../epics/Epic_App_Shell/epic.md) — Rolle als Token-Claim, Guards
 
