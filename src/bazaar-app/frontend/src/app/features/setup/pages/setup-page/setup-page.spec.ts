@@ -112,3 +112,75 @@ describe('SetupPage - Seller types step', () => {
     expect(component.canProceedPastSellerTypes()).toBe(true);
   });
 });
+
+describe('SetupPage - Brands/categories step and finish', () => {
+  let fixture: ComponentFixture<SetupPage>;
+  let component: SetupPage;
+  let brandsApi: { create: ReturnType<typeof vi.fn> };
+  let categoriesApi: { create: ReturnType<typeof vi.fn> };
+  let authService: { login: ReturnType<typeof vi.fn>; logout: ReturnType<typeof vi.fn> };
+  let reloadSpy: ReturnType<typeof vi.fn>;
+
+  beforeEach(async () => {
+    brandsApi = { create: vi.fn() };
+    categoriesApi = { create: vi.fn() };
+    authService = { login: vi.fn(), logout: vi.fn() };
+    reloadSpy = vi.fn();
+
+    // Mock window.location.reload
+    const originalLocation = window.location;
+    delete (window as any).location;
+    (window as any).location = { ...originalLocation, reload: reloadSpy };
+
+    await TestBed.configureTestingModule({
+      imports: [SetupPage],
+      providers: [
+        { provide: BootstrapApi, useValue: { bootstrapAdmin: vi.fn() } },
+        { provide: AuthService, useValue: authService },
+        { provide: SellerTypesApi, useValue: { create: vi.fn() } },
+        { provide: BrandsApi, useValue: brandsApi },
+        { provide: CategoriesApi, useValue: categoriesApi },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SetupPage);
+    component = fixture.componentInstance;
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('adds a brand and clears the input', () => {
+    brandsApi.create.mockReturnValue(
+      of({ id: 'B1', name: 'Nike', original: true, articleCount: 0 }),
+    );
+    component.brandName.set('Nike');
+
+    component.addBrand();
+
+    expect(brandsApi.create).toHaveBeenCalledWith('Nike');
+    expect(component.brands()).toEqual([{ id: 'B1', name: 'Nike', original: true, articleCount: 0 }]);
+    expect(component.brandName()).toBe('');
+  });
+
+  it('adds a category and clears the input', () => {
+    categoriesApi.create.mockReturnValue(
+      of({ id: 'C1', name: 'Schuhe', original: true, articleCount: 0 }),
+    );
+    component.categoryName.set('Schuhe');
+
+    component.addCategory();
+
+    expect(categoriesApi.create).toHaveBeenCalledWith('Schuhe');
+    expect(component.categories()).toEqual([{ id: 'C1', name: 'Schuhe', original: true, articleCount: 0 }]);
+    expect(component.categoryName()).toBe('');
+  });
+
+  it('finish logs out and reloads the page', () => {
+    component.finish();
+
+    expect(authService.logout).toHaveBeenCalled();
+    expect(reloadSpy).toHaveBeenCalled();
+  });
+});

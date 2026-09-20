@@ -103,4 +103,27 @@ export class SetupPage {
         error: () => this.sellerTypeSaving.set(false),
       });
   }
+
+  addBrand(): void {
+    const name = this.brandName().trim();
+    if (!name) return;
+    this.brandsApi.create(name).subscribe((brand) => {
+      this.brands.set([...this.brands(), brand]);
+      this.brandName.set('');
+    });
+  }
+
+  addCategory(): void {
+    const name = this.categoryName().trim();
+    if (!name) return;
+    this.categoriesApi.create(name).subscribe((category) => {
+      this.categories.set([...this.categories(), category]);
+      this.categoryName.set('');
+    });
+  }
+
+  finish(): void {
+    this.authService.logout();
+    window.location.reload();
+  }
 }
