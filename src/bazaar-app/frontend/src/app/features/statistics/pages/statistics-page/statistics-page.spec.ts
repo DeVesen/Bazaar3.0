@@ -52,6 +52,21 @@ function messageServiceStub() {
   return { add: vi.fn() };
 }
 
+/** Finds the `app-kpi-tile` with the given `label()` input and returns its rendered
+ * `.kpi-tile__value` text, mirroring `settlement-page.spec.ts`'s DOM-querying convention
+ * (`fixture.nativeElement.querySelector(...)`) rather than asserting on signals alone. */
+function kpiValueText(fixture: { nativeElement: HTMLElement }, label: string): string | null {
+  const tiles = Array.from(fixture.nativeElement.querySelectorAll('app-kpi-tile'));
+  const tile = tiles.find((t) => t.querySelector('.kpi-tile__label')?.textContent?.trim() === label);
+  return tile?.querySelector('.kpi-tile__value')?.textContent?.trim() ?? null;
+}
+
+function kpiSubLabelElement(fixture: { nativeElement: HTMLElement }, label: string): Element | null {
+  const tiles = Array.from(fixture.nativeElement.querySelectorAll('app-kpi-tile'));
+  const tile = tiles.find((t) => t.querySelector('.kpi-tile__label')?.textContent?.trim() === label);
+  return tile?.querySelector('.kpi-tile__sub-label') ?? null;
+}
+
 async function setup(
   options: {
     statisticsApi?: ReturnType<typeof statisticsApiStub>;
@@ -94,13 +109,28 @@ describe('StatisticsPage', () => {
     expect(component.statistics()?.finance.earningsTotal).toBe(1492.68);
   });
 
+  it('renders KPI values in the DOM (catches template-binding typos)', async () => {
+    const { fixture } = await setup();
+
+    expect(kpiValueText(fixture, 'Gesamt')).toBe('812');
+    expect(kpiValueText(fixture, 'Angenommen')).toBe('780');
+    expect(kpiValueText(fixture, 'Im Verkauf')).toBe('96');
+    expect(kpiValueText(fixture, 'Verkauft')).toBe('640');
+    expect(kpiValueText(fixture, 'Retour')).toBe('44');
+    expect(kpiValueText(fixture, 'Verkaufsquote')).toBe('82,05 %');
+    // CurrencyPipe here (no LOCALE_ID override registered in this project, see
+    // settlement-page.spec.ts's own note) falls back to en-US formatting, e.g. "€1,492.68".
+    expect(kpiValueText(fixture, 'Verdienst Gesamt')).toContain('1,492.68');
+  });
+
   it('sellRate === null renders "—" (passed through, not pre-formatted)', async () => {
     const statisticsApi = statisticsApiStub(
       statistics({ articles: { total: 0, accepted: 0, selling: 0, sold: 0, returned: 0, sellRate: null } }),
     );
-    const { component } = await setup({ statisticsApi });
+    const { component, fixture } = await setup({ statisticsApi });
 
     expect(component.sellRateDisplay()).toBeNull();
+    expect(kpiValueText(fixture, 'Verkaufsquote')).toBe('—');
   });
 
   it('sellRate non-null renders as a formatted percent string', async () => {
@@ -111,16 +141,20 @@ describe('StatisticsPage', () => {
 
   it('grossIncomeManual === 0 hides the sub-label', async () => {
     const statisticsApi = statisticsApiStub(statistics({ finance: { ...statistics().finance, grossIncomeManual: 0 } }));
-    const { component } = await setup({ statisticsApi });
+    const { component, fixture } = await setup({ statisticsApi });
 
     expect(component.grossIncomeManualSubLabel()).toBe('');
+    expect(kpiSubLabelElement(fixture, 'Einnahmen Brutto')).toBeNull();
   });
 
   it('grossIncomeManual > 0 shows the sub-label with the formatted amount', async () => {
-    const { component } = await setup();
+    const { component, fixture } = await setup();
 
     expect(component.grossIncomeManualSubLabel()).toContain('davon manuell');
     expect(component.grossIncomeManualSubLabel()).toContain('40');
+    const subLabel = kpiSubLabelElement(fixture, 'Einnahmen Brutto');
+    expect(subLabel).not.toBeNull();
+    expect(subLabel?.textContent).toContain('davon manuell');
   });
 
   it('selecting a type filter triggers a second getStatistics call with that id', async () => {
@@ -154,6 +188,24 @@ describe('StatisticsPage', () => {
     const { component } = await setup({ statisticsApi });
 
     expect(component.meterItems()).toEqual([]);
+  });
+
+  it('renders the leaderboard rows in the DOM from the stubbed response', async () => {
+    const statisticsApi = statisticsApiStub(
+      statistics({
+        leaderboard: [
+          { rank: 1, sellerId: 's1', sellerName: 'Anna Meier', sellerType: 'Privat', accepted: 42, sold: 31, revenue: 380.5, payout: 332.94, settled: true },
+          { rank: 2, sellerId: 's2', sellerName: 'Bernd Schmidt', sellerType: 'Verein', accepted: 10, sold: 4, revenue: 50, payout: 40, settled: false },
+        ],
+      }),
+    );
+    const { fixture } = await setup({ statisticsApi });
+
+    const rows = fixture.nativeElement.querySelectorAll('app-leaderboard tbody tr');
+    expect(rows.length).toBe(2);
+    const bodyText = fixture.nativeElement.querySelector('app-leaderboard')?.textContent ?? '';
+    expect(bodyText).toContain('Anna Meier');
+    expect(bodyText).toContain('Bernd Schmidt');
   });
 
   it('shows an error toast when getStatistics fails', async () => {

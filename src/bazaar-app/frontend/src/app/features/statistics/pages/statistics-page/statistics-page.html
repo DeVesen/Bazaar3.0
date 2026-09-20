@@ -62,7 +62,7 @@
     <p-metergroup [value]="meterItems()" />
   </section>
 
-  <p-card class="statistics-page__leaderboard-card">
+  <p-card>
     <div class="statistics-page__leaderboard-header">
       <h2>Verkäufer-Leaderboard</h2>
       <p-select
@@ -71,6 +71,7 @@
         optionValue="value"
         [ngModel]="selectedTypeId()"
         (ngModelChange)="onTypeFilterChange($event)"
+        [disabled]="loading()"
         aria-label="Verkäufer-Typ"
       />
     </div>
