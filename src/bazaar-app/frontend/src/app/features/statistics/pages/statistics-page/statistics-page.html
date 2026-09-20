@@ -34,7 +34,7 @@
     <app-kpi-grid [columns]="6">
       <app-kpi-tile
         label="Einnahmen Brutto"
-        [value]="statistics()?.finance?.grossIncome ?? null | currency: 'EUR'"
+        [value]="grossIncomeDisplay()"
         [subLabel]="grossIncomeManualSubLabel()"
       />
       <app-kpi-tile

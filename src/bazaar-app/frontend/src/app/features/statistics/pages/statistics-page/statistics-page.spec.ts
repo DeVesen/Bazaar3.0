@@ -157,6 +157,14 @@ describe('StatisticsPage', () => {
     expect(subLabel?.textContent).toContain('davon manuell');
   });
 
+  it('Round-22 review (Important 3): the "Einnahmen Brutto" main value and its "davon manuell" ' +
+    "sub-label use the SAME de-DE currency format, not CurrencyPipe's en-US fallback", async () => {
+    const { component, fixture } = await setup();
+
+    expect(component.grossIncomeDisplay()).toBe('8.168,00 €');
+    expect(kpiValueText(fixture, 'Einnahmen Brutto')).toBe('8.168,00 €');
+  });
+
   it('selecting a type filter triggers a second getStatistics call with that id', async () => {
     const { component, statisticsApi } = await setup();
     statisticsApi.getStatistics.mockClear();

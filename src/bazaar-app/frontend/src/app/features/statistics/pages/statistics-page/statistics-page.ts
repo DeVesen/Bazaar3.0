@@ -64,6 +64,16 @@ export class StatisticsPage {
     return manual > 0 ? `davon manuell: ${this.formatCurrency(manual)}` : '';
   });
 
+  /** Round-22 review (Important 3): the "Einnahmen Brutto" tile's main value used
+   * `CurrencyPipe:'EUR'` (en-US formatting without a registered `LOCALE_ID`, e.g. "€1,492.68")
+   * while its "davon manuell" sub-label above already used `formatCurrency` (de-DE, e.g.
+   * "40,00 €") — two formats in the same tile. Both now go through `formatCurrency`. `null`
+   * passes through so `KpiTile` renders its own "—" fallback instead of a fake "0,00 €". */
+  readonly grossIncomeDisplay = computed<string | null>(() => {
+    const value = this.statistics()?.finance.grossIncome ?? null;
+    return value === null ? null : this.formatCurrency(value);
+  });
+
   /** Segments of the meter group, in percent of `articles.accepted` (not of total) —
    * epic.md: "bezogen auf alle angenommenen Artikel". Guarded against `accepted === 0`. */
   readonly meterItems = computed<MeterItem[]>(() => {
