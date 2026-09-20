@@ -17,6 +17,7 @@ using Bazaar.Application.Articles;
 using Bazaar.Application.Auth;
 using Bazaar.Application.Brands;
 using Bazaar.Application.Categories;
+using Bazaar.Application.Import;
 using Bazaar.Application.Intake;
 using Bazaar.Application.Release;
 using Bazaar.Application.Sales;
@@ -119,6 +120,7 @@ builder.Services.AddScoped<GetSellerSettlementHandler>();
 builder.Services.AddScoped<GetStatisticsHandler>();
 builder.Services.AddScoped<ReturnArticleHandler>();
 builder.Services.AddScoped<SettleSellerHandler>();
+builder.Services.AddScoped<PreviewImportHandler>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
