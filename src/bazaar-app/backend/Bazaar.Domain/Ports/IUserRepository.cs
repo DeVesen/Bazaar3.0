@@ -29,4 +29,10 @@ public interface IUserRepository
     Task<int> CountByRole(Role role);
 
     Task Remove(User user);
+
+    /// <summary>
+    /// Returns all users. Used by GetUsersHandler for the (non-paginated)
+    /// user-management list.
+    /// </summary>
+    Task<IReadOnlyList<User>> GetAll();
 }

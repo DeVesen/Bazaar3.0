@@ -34,4 +34,7 @@ public sealed class UserRepository(BazaarDbContext dbContext) : IUserRepository
         dbContext.Users.Remove(user);
         await dbContext.SaveChangesAsync();
     }
+
+    public async Task<IReadOnlyList<User>> GetAll() =>
+        await dbContext.Users.ToListAsync();
 }
