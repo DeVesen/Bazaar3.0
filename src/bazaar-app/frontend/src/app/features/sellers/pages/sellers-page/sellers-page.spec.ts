@@ -355,4 +355,13 @@ describe('SellersPage', () => {
       expect(component.statusPopupCanReset()).toBe(false);
     });
   });
+
+  describe('onResetSettlement', () => {
+    it('builds the confirm-dialog message without throwing (NG0701 regression)', async () => {
+      const { component } = await createPage();
+      component.onStatusClick(buildCard({ settledAt: '2026-01-01T10:00:00Z' }));
+
+      expect(() => component.onResetSettlement()).not.toThrow();
+    });
+  });
 });

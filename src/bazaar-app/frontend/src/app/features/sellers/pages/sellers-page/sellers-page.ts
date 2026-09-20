@@ -466,9 +466,15 @@ export class SellersPage {
     };
   }
 
+  /**
+   * Deliberately omits an explicit locale argument: the format string (`dd.MM.yyyy HH:mm`)
+   * is digits-only and locale-independent, and instantiating `DatePipe` with a locale id
+   * that has no registered locale data (this project registers none) throws `NG0701`.
+   * The default `LOCALE_ID` (`en-US`, built into Angular) produces byte-identical output.
+   */
   private formatDate(value: string | null): string {
     if (!value) return '';
-    return new DatePipe('de-DE').transform(value, 'dd.MM.yyyy HH:mm') ?? value;
+    return new DatePipe('en-US').transform(value, 'dd.MM.yyyy HH:mm') ?? value;
   }
 
   private errorCodeOf(error: unknown): string | undefined {
