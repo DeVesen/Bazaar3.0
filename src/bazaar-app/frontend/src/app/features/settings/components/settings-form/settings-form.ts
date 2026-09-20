@@ -33,6 +33,7 @@ const MAX_SCANNER_PAUSE_MS = 15000;
   selector: 'app-settings-form',
   imports: [ButtonModule, InputGroup],
   templateUrl: './settings-form.html',
+  styleUrl: './settings-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsForm implements AfterViewInit {
@@ -45,7 +46,11 @@ export class SettingsForm implements AfterViewInit {
   readonly saving = signal(false);
   readonly fieldError = signal<string | null>(null);
 
-  readonly helpText = `Wie lange das Scan-Ergebnis am Annahmetisch angezeigt wird, bevor automatisch weitergescannt werden kann. Gültige Werte: ${MIN_SCANNER_PAUSE_MS}–${MAX_SCANNER_PAUSE_MS} ms.`;
+  readonly helpText = `Wie lange das Scan-Ergebnis am Annahmetisch angezeigt wird, bevor automatisch weitergescannt werden kann. Gültige Werte: ${SettingsForm.formatMs(MIN_SCANNER_PAUSE_MS)}–${SettingsForm.formatMs(MAX_SCANNER_PAUSE_MS)} ms.`;
+
+  private static formatMs(value: number): string {
+    return new Intl.NumberFormat('de-DE').format(value);
+  }
 
   ngAfterViewInit(): void {
     this.settingsApi.get().subscribe((settings) => {

@@ -30,6 +30,12 @@ describe('SettingsForm', () => {
     return { fixture, component: fixture.componentInstance };
   }
 
+  it('formats the help text range with German thousands grouping', () => {
+    const { component } = createForm();
+
+    expect(component.helpText).toContain('500–15.000 ms');
+  });
+
   it('loads and displays the current value on init', () => {
     get.mockReturnValue(of({ scannerPauseMs: 4500 }));
     const { component } = createForm();
