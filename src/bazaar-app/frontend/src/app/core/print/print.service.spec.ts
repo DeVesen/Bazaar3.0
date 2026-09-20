@@ -3,6 +3,8 @@ import { of } from 'rxjs';
 import { PrintService } from './print.service';
 // eslint-disable-next-line boundaries/dependencies -- see print.service.ts's own justification
 import { ArticleSummary, SellerDetail, SellersApi } from '../../features/sellers/data/sellers-api';
+// eslint-disable-next-line boundaries/dependencies -- see print.service.ts's own justification
+import { SellerSettlement, SettlementApi } from '../../features/settlement/data/settlement-api';
 
 const seller: SellerDetail = {
   id: 'seller-1',
@@ -35,6 +37,29 @@ function article(
   };
 }
 
+const settlement: SellerSettlement = {
+  seller: {
+    id: 'seller-1',
+    firstName: 'Anna',
+    lastName: 'Meier',
+    address: 'Musterstraße 5',
+    postalCode: '76133',
+    city: 'Karlsruhe',
+  },
+  openCount: 1,
+  soldCount: 1,
+  returnedCount: 1,
+  revenue: 20,
+  commissionRate: 10,
+  commission: 2,
+  payout: 18,
+  intakeFeePaid: 1.5,
+  notDeliveredCount: 0,
+  settledAt: null,
+  payoutAmount: null,
+  canSettle: true,
+};
+
 describe('PrintService', () => {
   let getByIdSpy: ReturnType<typeof vi.fn>;
   let getArticlesSpy: ReturnType<typeof vi.fn>;
@@ -44,14 +69,18 @@ describe('PrintService', () => {
   // `setup()` is also called a second time within a single test (the "same document shape for
   // both callers" test) — a fresh `TestBed` module per `setup()` call keeps the two `PrintService`
   // instances (and their `SellersApi` mocks) fully independent of each other.
+  let getSettlementSpy: ReturnType<typeof vi.fn>;
+
   function setup(articles: ArticleSummary[]): PrintService {
     TestBed.resetTestingModule();
     getByIdSpy = vi.fn().mockReturnValue(of(seller));
     getArticlesSpy = vi.fn().mockReturnValue(of(articles));
+    getSettlementSpy = vi.fn().mockReturnValue(of(settlement));
 
     TestBed.configureTestingModule({
       providers: [
         { provide: SellersApi, useValue: { getById: getByIdSpy, getArticles: getArticlesSpy } },
+        { provide: SettlementApi, useValue: { getSettlement: getSettlementSpy } },
       ],
     });
 
@@ -66,6 +95,7 @@ describe('PrintService', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     document.querySelectorAll('app-print-abgabe-beleg').forEach((el) => el.remove());
+    document.querySelectorAll('app-print-verkaeufer-uebersicht').forEach((el) => el.remove());
   });
 
   it('loads seller + articles by sellerId, filters/orders by articleIds, prints, and cleans up on afterprint', () => {
@@ -134,5 +164,65 @@ describe('PrintService', () => {
     window.dispatchEvent(new Event('afterprint'));
 
     expect(printSpy).toHaveBeenCalledTimes(2);
+  });
+
+  describe('printSellerSummary', () => {
+    it('loads settlement + articles by sellerId, renders preliminary phase, prints, and cleans up on afterprint', () => {
+      const articles = [
+        article({ id: 'art-1', number: 1001, name: 'Winterjacke', status: 'selling' }),
+        article({ id: 'art-2', number: 1002, name: 'Gummistiefel', status: 'sold' }),
+      ];
+      const service = setup(articles);
+
+      service.printSellerSummary({ sellerId: 'seller-1', phase: 'preliminary' });
+
+      expect(getSettlementSpy).toHaveBeenCalledWith('seller-1');
+      expect(getArticlesSpy).toHaveBeenCalledWith('seller-1');
+
+      const rendered = document.querySelector('app-print-verkaeufer-uebersicht');
+      expect(rendered).toBeTruthy();
+      expect(rendered!.textContent).toContain('Anna Meier');
+      expect(rendered!.textContent).toContain('Winterjacke');
+      expect(rendered!.textContent).toContain('Gummistiefel');
+      // AC-3: rounded settlement amounts pass through unmodified.
+      expect(rendered!.textContent).toContain('20,00');
+      expect(rendered!.textContent).toContain('18,00');
+      expect(rendered!.textContent).toContain('VORLÄUFIG');
+
+      expect(printSpy).toHaveBeenCalledTimes(1);
+
+      window.dispatchEvent(new Event('afterprint'));
+      expect(document.querySelector('app-print-verkaeufer-uebersicht')).toBeNull();
+    });
+
+    it('passes `phase` through unchanged — no preliminary hint for the final phase', () => {
+      const articles = [article({ id: 'art-1', number: 1, name: 'Schal', status: 'returned' })];
+      const service = setup(articles);
+
+      service.printSellerSummary({ sellerId: 'seller-1', phase: 'final' });
+
+      const rendered = document.querySelector('app-print-verkaeufer-uebersicht');
+      expect(rendered!.textContent).not.toContain('VORLÄUFIG');
+
+      window.dispatchEvent(new Event('afterprint'));
+    });
+
+    it('renders all loaded articles unfiltered — unlike printIntakeReceipt, no articleIds subset', () => {
+      const articles = [
+        article({ id: 'art-1', number: 1, name: 'Erster', status: 'selling' }),
+        article({ id: 'art-2', number: 2, name: 'Zweiter', status: 'sold' }),
+        article({ id: 'art-3', number: 3, name: 'Dritter', status: 'returned' }),
+      ];
+      const service = setup(articles);
+
+      service.printSellerSummary({ sellerId: 'seller-1', phase: 'preliminary' });
+
+      const rendered = document.querySelector('app-print-verkaeufer-uebersicht');
+      expect(rendered!.textContent).toContain('Erster');
+      expect(rendered!.textContent).toContain('Zweiter');
+      expect(rendered!.textContent).toContain('Dritter');
+
+      window.dispatchEvent(new Event('afterprint'));
+    });
   });
 });
