@@ -121,6 +121,7 @@ builder.Services.AddScoped<GetStatisticsHandler>();
 builder.Services.AddScoped<ReturnArticleHandler>();
 builder.Services.AddScoped<SettleSellerHandler>();
 builder.Services.AddScoped<PreviewImportHandler>();
+builder.Services.AddScoped<RunImportHandler>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginCommandValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
