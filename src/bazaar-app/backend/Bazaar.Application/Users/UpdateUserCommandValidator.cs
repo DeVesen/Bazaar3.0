@@ -7,9 +7,9 @@ public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCom
     public UpdateUserCommandValidator()
     {
         RuleFor(x => x)
-            .Must(x => x.NewRole is not null || !string.IsNullOrEmpty(x.NewPassword))
+            .Must(x => x.Role is not null || !string.IsNullOrEmpty(x.NewPassword))
             .WithMessage("Entweder Rolle oder neues Passwort muss angegeben werden")
-            .WithName("NewRole");
+            .WithName("role");
 
         RuleFor(x => x.NewPassword)
             .MinimumLength(8).WithMessage("Passwort muss mindestens 8 Zeichen lang sein")

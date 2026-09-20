@@ -18,7 +18,7 @@ public class UpdateUserCommandValidatorTests
     [Fact]
     public void Validate_OnlyRoleSet_IsValid()
     {
-        var result = _sut.Validate(new UpdateUserCommand { Id = "USER001", NewRole = Role.Admin });
+        var result = _sut.Validate(new UpdateUserCommand { Id = "USER001", Role = Role.Admin });
 
         Assert.True(result.IsValid);
     }

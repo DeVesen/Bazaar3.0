@@ -11,15 +11,15 @@ public sealed class UpdateUserHandler(IUserRepository userRepository, IPasswordH
         var user = await userRepository.GetById(command.Id)
             ?? throw new NotFoundException("Benutzer nicht gefunden", "user.not_found");
 
-        if (command.NewRole is not null && command.NewRole.Value != user.Role)
+        if (command.Role is not null && command.Role.Value != user.Role)
         {
             var adminCount = await userRepository.CountByRole(Role.Admin);
-            if (LastAdminGuard.IsLastRemainingAdmin(user, adminCount) && command.NewRole.Value != Role.Admin)
+            if (LastAdminGuard.IsLastRemainingAdmin(user, adminCount) && command.Role.Value != Role.Admin)
             {
                 throw new ConflictException("Das letzte Admin-Konto kann seine Rolle nicht verlieren", "user.last_admin");
             }
 
-            user.ChangeRole(command.NewRole.Value);
+            user.ChangeRole(command.Role.Value);
         }
 
         if (!string.IsNullOrEmpty(command.NewPassword))

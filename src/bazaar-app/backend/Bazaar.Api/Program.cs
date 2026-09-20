@@ -43,6 +43,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
+// Global enum-as-string JSON convention: Bazaar.Domain.Users.Role (and any future
+// enum bound from/serialized to a request/response body) round-trips as camelCase
+// strings ("admin"/"cashier") instead of System.Text.Json's numeric default. Without
+// this, POST /api/users and PUT /api/users/{id} cannot deserialize the "role" field
+// from the wire shape mandated by docs/requirements/bazaar-app/api/users.md §2/§3.
+builder.Services.ConfigureHttpJsonOptions(o =>
+    o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter(System.Text.Json.JsonNamingPolicy.CamelCase)));
+
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddProblemDetails();
 

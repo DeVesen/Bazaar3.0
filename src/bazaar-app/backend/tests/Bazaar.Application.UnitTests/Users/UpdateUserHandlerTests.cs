@@ -21,7 +21,7 @@ public class UpdateUserHandlerTests
         var sut = CreateSut();
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(() => sut.Handle(
-            new UpdateUserCommand { Id = "USER001", NewRole = Role.Admin }));
+            new UpdateUserCommand { Id = "USER001", Role = Role.Admin }));
 
         Assert.Equal("user.not_found", exception.ErrorCode);
     }
@@ -34,7 +34,7 @@ public class UpdateUserHandlerTests
         _userRepository.Setup(r => r.CountByRole(Role.Admin)).ReturnsAsync(2);
         var sut = CreateSut();
 
-        await sut.Handle(new UpdateUserCommand { Id = "USER001", NewRole = Role.Cashier });
+        await sut.Handle(new UpdateUserCommand { Id = "USER001", Role = Role.Cashier });
 
         Assert.Equal(Role.Cashier, user.Role);
         _userRepository.Verify(r => r.Update(user), Times.Once);
@@ -49,7 +49,7 @@ public class UpdateUserHandlerTests
         var sut = CreateSut();
 
         var exception = await Assert.ThrowsAsync<ConflictException>(() => sut.Handle(
-            new UpdateUserCommand { Id = "USER001", NewRole = Role.Cashier }));
+            new UpdateUserCommand { Id = "USER001", Role = Role.Cashier }));
 
         Assert.Equal("user.last_admin", exception.ErrorCode);
         Assert.Equal(Role.Admin, user.Role);
@@ -64,7 +64,7 @@ public class UpdateUserHandlerTests
         _userRepository.Setup(r => r.CountByRole(Role.Admin)).ReturnsAsync(1);
         var sut = CreateSut();
 
-        await sut.Handle(new UpdateUserCommand { Id = "USER001", NewRole = Role.Admin });
+        await sut.Handle(new UpdateUserCommand { Id = "USER001", Role = Role.Admin });
 
         Assert.Equal(Role.Admin, user.Role);
         _userRepository.Verify(r => r.Update(user), Times.Once);
@@ -77,7 +77,7 @@ public class UpdateUserHandlerTests
         _userRepository.Setup(r => r.GetById("USER001")).ReturnsAsync(user);
         var sut = CreateSut();
 
-        await sut.Handle(new UpdateUserCommand { Id = "USER001", NewRole = Role.Admin });
+        await sut.Handle(new UpdateUserCommand { Id = "USER001", Role = Role.Admin });
 
         Assert.Equal(Role.Admin, user.Role);
         _userRepository.Verify(r => r.CountByRole(It.IsAny<Role>()), Times.Never);
