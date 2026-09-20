@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SellerSettlement } from '../../data/settlement-api';
@@ -9,10 +8,14 @@ import { SellerSettlement } from '../../data/settlement-api';
  * payout calculation (Umsatz / Provision / Auszahlung) and lets the user confirm the booking.
  * Deliberately no `intakeFeePaid` row — spec.md is explicit this would double-count an amount
  * already collected at intake.
+ *
+ * Currency formatting deliberately does NOT use `CurrencyPipe:'EUR'` (falls back to `en-US`
+ * formatting since this project registers no `LOCALE_ID`) — same `Intl.NumberFormat('de-DE', ...)`
+ * pattern as `print-abgabe-beleg.ts`'s `formatCurrency`.
  */
 @Component({
   selector: 'app-settlement-panel',
-  imports: [CurrencyPipe, DialogModule, ButtonModule],
+  imports: [DialogModule, ButtonModule],
   templateUrl: './settlement-panel.html',
   styleUrl: './settlement-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,5 +40,9 @@ export class SettlementPanel {
 
   onConfirm(): void {
     this.confirmed.emit();
+  }
+
+  protected formatCurrency(value: number): string {
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
   }
 }

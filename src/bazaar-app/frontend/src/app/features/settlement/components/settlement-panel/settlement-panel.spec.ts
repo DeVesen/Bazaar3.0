@@ -56,12 +56,12 @@ describe('SettlementPanel', () => {
 
     const t = text(fixture);
     expect(t).toContain('Umsatz');
-    expect(t).toContain('380.50');
+    expect(t).toContain('380,50');
     expect(t).toContain('Provision');
     expect(t).toContain('− ');
-    expect(t).toContain('47.56');
+    expect(t).toContain('47,56');
     expect(t).toContain('Auszahlung');
-    expect(t).toContain('332.94');
+    expect(t).toContain('332,94');
   });
 
   it('shows the "N nicht abgegebene Artikel werden entfernt" hint when notDeliveredCount > 0', async () => {

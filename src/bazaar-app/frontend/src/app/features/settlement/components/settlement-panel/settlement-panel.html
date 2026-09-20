@@ -8,17 +8,17 @@
   <div class="settlement-panel">
     <div class="settlement-panel__row">
       <span class="settlement-panel__label">Umsatz</span>
-      <span class="settlement-panel__value">{{ settlement().revenue | currency: 'EUR' }}</span>
+      <span class="settlement-panel__value">{{ formatCurrency(settlement().revenue) }}</span>
     </div>
 
     <div class="settlement-panel__row settlement-panel__row--commission">
       <span class="settlement-panel__label">Provision</span>
-      <span class="settlement-panel__value">− {{ settlement().commission | currency: 'EUR' }}</span>
+      <span class="settlement-panel__value">− {{ formatCurrency(settlement().commission) }}</span>
     </div>
 
     <div class="settlement-panel__row settlement-panel__row--total">
       <span class="settlement-panel__label">Auszahlung</span>
-      <span class="settlement-panel__value">{{ settlement().payout | currency: 'EUR' }}</span>
+      <span class="settlement-panel__value">{{ formatCurrency(settlement().payout) }}</span>
     </div>
 
     @if (settlement().notDeliveredCount > 0) {
