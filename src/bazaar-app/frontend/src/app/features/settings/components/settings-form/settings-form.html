@@ -1,0 +1,17 @@
+<div class="settings-form">
+  <label for="settings-scanner-pause-ms">Scan-Pause</label>
+  <app-input-group
+    #scannerPauseInput
+    variant="count"
+    [modes]="['keyboard', 'numpad']"
+    inputId="settings-scanner-pause-ms"
+    (valueChange)="onValueChange($event)"
+  />
+  <p class="settings-form__help">{{ helpText }}</p>
+
+  @if (fieldError()) {
+    <p class="settings-form__error">{{ fieldError() }}</p>
+  }
+
+  <p-button label="Speichern" [disabled]="saving()" (onClick)="onSave()" />
+</div>
