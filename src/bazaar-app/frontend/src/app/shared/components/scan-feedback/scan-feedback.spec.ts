@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScanFeedback } from './scan-feedback';
+// eslint-disable-next-line boundaries/dependencies -- see scan-feedback.ts's own justification
 import { SettingsService } from '../../../core/settings/settings.service';
 
 /**

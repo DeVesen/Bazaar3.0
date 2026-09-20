@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScanCompleteEvent, ScanDialog } from './scan-dialog';
 import { InputGroup } from '../input-group/input-group';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
+// eslint-disable-next-line boundaries/dependencies -- see scan-dialog.ts's own justification
 import { SettingsService } from '../../../core/settings/settings.service';
 // `InputGroup` (a real dependency of `ScanDialog`) itself depends on `BarcodeScanner` — this
 // imports the ONE shared `@zxing/browser` mock (see that file's own comment for why it must be

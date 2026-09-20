@@ -16,6 +16,15 @@ import { ListboxModule } from 'primeng/listbox';
 import { InputGroup } from '../input-group/input-group';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
 import { ScanFeedback } from '../scan-feedback/scan-feedback';
+// Sanctioned `shared` -> `core` boundary crossing (Round-25 Task 5, review-fix decision):
+// `pauseMs`'s default now reads the app-wide `SettingsService` instead of a hardcoded constant
+// (see the `pauseMs` input's own doc comment below). Routing the default through a
+// feature-injected value instead would require re-opening the `@Input` shape this task
+// deliberately kept stable — every current caller (`release-dialog.ts`, `settlement-page.ts`)
+// relies on the parameterless default, and this component has no feature of its own to inject
+// `SettingsService` from. `SettingsService` is read-only here (a single signal getter), so this
+// crossing carries no risk of `shared` picking up feature-specific behaviour.
+// eslint-disable-next-line boundaries/dependencies
 import { SettingsService } from '../../../core/settings/settings.service';
 
 /**

@@ -1,4 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, effect, inject, input, signal, untracked } from '@angular/core';
+// Sanctioned `shared` -> `core` boundary crossing (Round-25 Task 5, review-fix decision) — same
+// justification as `scan-dialog.ts`'s own import of `SettingsService`: `pauseMs`'s default reads
+// the app-wide setting instead of a hardcoded constant, this component has no feature of its own
+// to inject it from instead, and `SettingsService` is used here read-only (a single signal
+// getter).
+// eslint-disable-next-line boundaries/dependencies
 import { SettingsService } from '../../../core/settings/settings.service';
 
 /**
