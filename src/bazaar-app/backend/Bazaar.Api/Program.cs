@@ -4,6 +4,7 @@ using Bazaar.Api.Features.Articles;
 using Bazaar.Api.Features.Auth;
 using Bazaar.Api.Features.Brands;
 using Bazaar.Api.Features.Categories;
+using Bazaar.Api.Features.Import;
 using Bazaar.Api.Features.Intake;
 using Bazaar.Api.Features.Release;
 using Bazaar.Api.Features.Public;
@@ -182,6 +183,7 @@ app.MapReleaseEndpoints();
 app.MapSalesEndpoints();
 app.MapSettlementEndpoints();
 app.MapStatisticsEndpoints();
+app.MapImportEndpoints();
 
 await ApplyMigrationsAsync(app);
 
