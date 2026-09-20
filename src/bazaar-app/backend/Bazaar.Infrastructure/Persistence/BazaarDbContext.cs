@@ -5,6 +5,7 @@ using Bazaar.Domain.Sellers;
 using Bazaar.Domain.SellerTypes;
 using Bazaar.Domain.Users;
 using Microsoft.EntityFrameworkCore;
+using SettingsAggregate = Bazaar.Domain.Settings.Settings;
 
 namespace Bazaar.Infrastructure.Persistence;
 
@@ -21,6 +22,8 @@ public sealed class BazaarDbContext(DbContextOptions<BazaarDbContext> options) :
     public DbSet<Seller> Sellers { get; set; } = null!;
 
     public DbSet<Article> Articles { get; set; } = null!;
+
+    public DbSet<SettingsAggregate> Settings { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

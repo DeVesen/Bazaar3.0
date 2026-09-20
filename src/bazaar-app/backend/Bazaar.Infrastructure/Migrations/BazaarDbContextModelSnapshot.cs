@@ -209,6 +209,19 @@ namespace Bazaar.Infrastructure.Migrations
                     b.ToTable("Sellers");
                 });
 
+            modelBuilder.Entity("Bazaar.Domain.Settings.Settings", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ScannerPauseMs")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Settings", (string)null);
+                });
+
             modelBuilder.Entity("Bazaar.Domain.Users.User", b =>
                 {
                     b.Property<string>("Id")
