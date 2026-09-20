@@ -39,6 +39,15 @@ import { vi } from 'vitest';
  * makes the mock registration unconditional — no more "whichever file's import runs first" race —
  * while every consuming spec's own `import { decodeFromVideoDeviceMock } from '...'` keeps working
  * unchanged (importing an already-evaluated module is idempotent and returns the same object).
+ *
+ * `setupFiles` alone was still observed to flake once under full-suite load (`@zxing/browser`
+ * bound to the real module for one worker despite the global `setupFiles` registration) — the
+ * `@angular/build:unit-test` schema documents its `splitting` option (default `true`, "shared code
+ * between test files is split into separate chunks") as a known cause of exactly this class of bug
+ * ("Issues with live ESM bindings ... such as ... mocking failures"). The test target therefore
+ * also sets `splitting: false`, so `barcode-scanner.ts`/`@zxing/browser` are no longer pulled from
+ * a separately-bundled shared chunk that could end up resolved before this file's `setupFiles`
+ * registration lands. Verified stable across repeated full-suite runs after both changes.
  */
 export const decodeFromVideoDeviceMock = vi.fn();
 

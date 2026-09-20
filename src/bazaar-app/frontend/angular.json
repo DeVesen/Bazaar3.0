@@ -72,7 +72,8 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "setupFiles": ["src/app/shared/components/barcode-scanner/testing/zxing-browser.mock.ts"]
+            "setupFiles": ["src/app/shared/components/barcode-scanner/testing/zxing-browser.mock.ts"],
+            "splitting": false
           }
         },
         "lint": {
