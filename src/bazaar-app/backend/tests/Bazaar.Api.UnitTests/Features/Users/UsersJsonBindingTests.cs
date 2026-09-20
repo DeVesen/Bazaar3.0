@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Bazaar.Api.Json;
 using Bazaar.Application.Users;
 using Bazaar.Domain.Users;
 
@@ -17,6 +18,15 @@ namespace Bazaar.Api.UnitTests.Features.Users;
 /// did, and why it never caught either bug: without the converter, "role":"cashier" fails to
 /// deserialize at all — the handler is never reached — and NewRole previously didn't bind from
 /// "role" in the first place).
+///
+/// Round-27 final review fix (Important): <see cref="CreateAppOptions"/> used to rebuild the
+/// converter by hand instead of calling into the same configuration Program.cs registers, so a
+/// future removal of that registration would not have failed this test. It now calls
+/// <see cref="AppJsonOptions.ConfigureEnumsAsCamelCaseStrings"/> - the exact method Program.cs
+/// invokes - so a change to the shared logic is caught here. See that class's doc comment, and
+/// Bazaar.Architecture.Tests.ProgramJsonOptionsRegistrationTests, for the remaining gap (Program.cs
+/// forgetting to *call* the method) and why a real WebApplicationFactory boot isn't used instead
+/// (needs Postgres via Testcontainers/Docker, unavailable here).
 /// </summary>
 public class UsersJsonBindingTests
 {
@@ -25,7 +35,7 @@ public class UsersJsonBindingTests
     private static JsonSerializerOptions CreateAppOptions()
     {
         var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-        options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+        AppJsonOptions.ConfigureEnumsAsCamelCaseStrings(options);
         return options;
     }
 

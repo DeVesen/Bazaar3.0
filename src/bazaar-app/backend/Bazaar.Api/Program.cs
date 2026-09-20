@@ -48,8 +48,11 @@ builder.Services.AddOpenApi();
 // strings ("admin"/"cashier") instead of System.Text.Json's numeric default. Without
 // this, POST /api/users and PUT /api/users/{id} cannot deserialize the "role" field
 // from the wire shape mandated by docs/requirements/bazaar-app/api/users.md §2/§3.
+// Extracted into Bazaar.Api.Json.AppJsonOptions (Round-27 review fix) so
+// UsersJsonBindingTests exercises the same configuration logic instead of a
+// hand-rolled duplicate - see that class's doc comment for the full rationale.
 builder.Services.ConfigureHttpJsonOptions(o =>
-    o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter(System.Text.Json.JsonNamingPolicy.CamelCase)));
+    Bazaar.Api.Json.AppJsonOptions.ConfigureEnumsAsCamelCaseStrings(o.SerializerOptions));
 
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddProblemDetails();
