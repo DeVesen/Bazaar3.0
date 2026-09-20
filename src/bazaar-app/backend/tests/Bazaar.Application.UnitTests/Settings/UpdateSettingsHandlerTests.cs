@@ -2,6 +2,8 @@ using Bazaar.Application.Settings;
 using Bazaar.Domain.Ports;
 using Moq;
 
+using SettingsAggregate = Bazaar.Domain.Settings.Settings;
+
 namespace Bazaar.Application.UnitTests.Settings;
 
 public class UpdateSettingsHandlerTests
@@ -14,7 +16,7 @@ public class UpdateSettingsHandlerTests
     [Fact]
     public async Task Handle_ValidCommand_UpdatesSettingsViaRepository()
     {
-        var settings = Bazaar.Domain.Settings.Settings.Create(3000);
+        var settings = SettingsAggregate.Create(3000);
         _settingsRepository.Setup(r => r.Get()).ReturnsAsync(settings);
         var sut = CreateSut();
 
@@ -27,12 +29,12 @@ public class UpdateSettingsHandlerTests
     [Fact]
     public async Task Handle_ValidCommand_UpdatesSameAggregateInstanceReturnedByGet()
     {
-        var settings = Bazaar.Domain.Settings.Settings.Create(3000);
+        var settings = SettingsAggregate.Create(3000);
         _settingsRepository.Setup(r => r.Get()).ReturnsAsync(settings);
         var sut = CreateSut();
 
         await sut.Handle(new UpdateSettingsCommand { ScannerPauseMs = 1000 });
 
-        _settingsRepository.Verify(r => r.Update(It.Is<Bazaar.Domain.Settings.Settings>(s => ReferenceEquals(s, settings))), Times.Once);
+        _settingsRepository.Verify(r => r.Update(It.Is<SettingsAggregate>(s => ReferenceEquals(s, settings))), Times.Once);
     }
 }
