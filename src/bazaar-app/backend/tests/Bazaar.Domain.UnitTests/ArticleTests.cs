@@ -277,4 +277,85 @@ public class ArticleTests
 
         Assert.Equal("article.sold", exception.ErrorCode);
     }
+
+    [Fact]
+    public void CreateFromImport_WithValidData_SetsAllFieldsAndDefaultsSoldManuallyToFalse()
+    {
+        var article = Article.CreateFromImport(
+            "article-1",
+            1,
+            "seller-1",
+            "T-Shirt",
+            "Acme",
+            "Kleidung",
+            9.99m,
+            "M",
+            "Blau",
+            "Kaum getragen",
+            CreatedAt,
+            UpdatedAt);
+
+        Assert.Equal("article-1", article.Id);
+        Assert.Equal(1, article.Number);
+        Assert.Equal("seller-1", article.SellerId);
+        Assert.Equal("T-Shirt", article.Name);
+        Assert.Equal("Acme", article.Brand);
+        Assert.Equal("Kleidung", article.Category);
+        Assert.Equal(9.99m, article.Price);
+        Assert.Equal("M", article.Size);
+        Assert.Equal("Blau", article.Color);
+        Assert.Equal("Kaum getragen", article.Description);
+        Assert.Equal(CreatedAt, article.CreatedAt);
+        Assert.Equal(UpdatedAt, article.UpdatedAt);
+        Assert.False(article.SoldManually);
+        Assert.Null(article.AcceptedAt);
+        Assert.Null(article.ReleasedAt);
+        Assert.Null(article.SoldAt);
+        Assert.Null(article.ReturnedAt);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void CreateFromImport_WithEmptyOrWhitespaceName_Throws(string name)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Article.CreateFromImport("article-1", 1, "seller-1", name, "Acme", "Kleidung", 9.99m, null, null, null, CreatedAt, UpdatedAt));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void CreateFromImport_WithEmptyOrWhitespaceBrand_Throws(string brand)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Article.CreateFromImport("article-1", 1, "seller-1", "T-Shirt", brand, "Kleidung", 9.99m, null, null, null, CreatedAt, UpdatedAt));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void CreateFromImport_WithEmptyOrWhitespaceCategory_Throws(string category)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Article.CreateFromImport("article-1", 1, "seller-1", "T-Shirt", "Acme", category, 9.99m, null, null, null, CreatedAt, UpdatedAt));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void CreateFromImport_WithEmptyOrWhitespaceId_Throws(string id)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Article.CreateFromImport(id, 1, "seller-1", "T-Shirt", "Acme", "Kleidung", 9.99m, null, null, null, CreatedAt, UpdatedAt));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void CreateFromImport_WithEmptyOrWhitespaceSellerId_Throws(string sellerId)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Article.CreateFromImport("article-1", 1, sellerId, "T-Shirt", "Acme", "Kleidung", 9.99m, null, null, null, CreatedAt, UpdatedAt));
+    }
 }

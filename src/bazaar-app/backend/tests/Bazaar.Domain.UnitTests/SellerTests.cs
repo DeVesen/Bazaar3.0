@@ -254,4 +254,72 @@ public class SellerTests
 
         Assert.Equal(0m, seller.IntakeFeePaid);
     }
+
+    [Fact]
+    public void CreateFromImport_WithValidData_SetsAllPropertiesAndDefaultsIntakeFeePaidToZero()
+    {
+        var seller = Seller.CreateFromImport(
+            "seller-1", "Anna", "Meier", "Hauptstr. 1", "76133", "Karlsruhe", "0721 123456",
+            "anna@example.org", "sellertype-1", 10m, 0.5m);
+
+        Assert.Equal("seller-1", seller.Id);
+        Assert.Equal("Anna", seller.FirstName);
+        Assert.Equal("Meier", seller.LastName);
+        Assert.Equal("Hauptstr. 1", seller.Address);
+        Assert.Equal("76133", seller.PostalCode);
+        Assert.Equal("Karlsruhe", seller.City);
+        Assert.Equal("0721 123456", seller.Phone);
+        Assert.Equal("anna@example.org", seller.Email);
+        Assert.Equal("sellertype-1", seller.SellerTypeId);
+        Assert.Equal(10m, seller.SalesCommission);
+        Assert.Equal(0.5m, seller.FeePerItem);
+        Assert.Equal(0m, seller.IntakeFeePaid);
+        Assert.Null(seller.SettledAt);
+        Assert.Null(seller.PayoutAmount);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void CreateFromImport_WithEmptyOrWhitespaceId_Throws(string id)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Seller.CreateFromImport(id, "Anna", "Meier", null, null, null, null, "anna@example.org", "sellertype-1", 10m, 0.5m));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void CreateFromImport_WithEmptyOrWhitespaceFirstName_Throws(string firstName)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Seller.CreateFromImport("seller-1", firstName, "Meier", null, null, null, null, "anna@example.org", "sellertype-1", 10m, 0.5m));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void CreateFromImport_WithEmptyOrWhitespaceLastName_Throws(string lastName)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Seller.CreateFromImport("seller-1", "Anna", lastName, null, null, null, null, "anna@example.org", "sellertype-1", 10m, 0.5m));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void CreateFromImport_WithEmptyOrWhitespaceEmail_Throws(string email)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Seller.CreateFromImport("seller-1", "Anna", "Meier", null, null, null, null, email, "sellertype-1", 10m, 0.5m));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void CreateFromImport_WithEmptyOrWhitespaceSellerTypeId_Throws(string sellerTypeId)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Seller.CreateFromImport("seller-1", "Anna", "Meier", null, null, null, null, "anna@example.org", sellerTypeId, 10m, 0.5m));
+    }
 }

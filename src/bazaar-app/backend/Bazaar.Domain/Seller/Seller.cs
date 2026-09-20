@@ -51,6 +51,30 @@ public sealed class Seller
     }
 
     /// <summary>
+    /// Deliberate exception to the project's usual IIdGenerator-only creation
+    /// rule (Round-26 JSON-Import): the id is taken 1:1 from a
+    /// Voranmelde-App export file rather than generated here — the import
+    /// handler (Application layer, later task) decides whether that id is a
+    /// fresh one or reused from a prior import cycle. The import file
+    /// (entities/import-format.md) carries no Konditionszahlen beyond what
+    /// <see cref="Create"/> already covers, so IntakeFeePaid still defaults
+    /// to 0m and this simply delegates.
+    /// </summary>
+    public static Seller CreateFromImport(
+        string id,
+        string firstName,
+        string lastName,
+        string? address,
+        string? postalCode,
+        string? city,
+        string? phone,
+        string email,
+        string sellerTypeId,
+        decimal salesCommission,
+        decimal feePerItem) =>
+        Create(id, firstName, lastName, address, postalCode, city, phone, email, sellerTypeId, salesCommission, feePerItem);
+
+    /// <summary>
     /// Updates the basic Stammdaten fields. Deliberately excludes
     /// SalesCommission/FeePerItem — those are updated only via
     /// <see cref="UpdateConditions"/>, since UpdateSellerHandler's

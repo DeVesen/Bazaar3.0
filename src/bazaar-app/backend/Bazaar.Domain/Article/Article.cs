@@ -72,6 +72,31 @@ public sealed class Article
     }
 
     /// <summary>
+    /// Deliberate exception to the project's usual IIdGenerator-only creation
+    /// rule (Round-26 JSON-Import): the id is taken 1:1 from a
+    /// Voranmelde-App export file rather than generated here — the import
+    /// handler (Application layer, later task) decides whether that id is a
+    /// fresh one or reused from a prior import cycle. Imported articles start
+    /// with no status timestamps (entities/import-format.md) and
+    /// SoldManually = false, which is already <see cref="Create"/>'s default,
+    /// so this simply delegates.
+    /// </summary>
+    public static Article CreateFromImport(
+        string id,
+        int number,
+        string sellerId,
+        string name,
+        string brand,
+        string category,
+        decimal price,
+        string? size,
+        string? color,
+        string? description,
+        DateTimeOffset createdAt,
+        DateTimeOffset updatedAt) =>
+        Create(id, number, sellerId, name, brand, category, price, size, color, description, createdAt, updatedAt);
+
+    /// <summary>
     /// Aktualisiert die Stammdaten. Name/Brand/Category/Size/Color/Description
     /// bleiben auch nach Verkauf frei änderbar — lediglich eine Preisänderung
     /// an einem bereits verkauften Artikel ist gesperrt.
