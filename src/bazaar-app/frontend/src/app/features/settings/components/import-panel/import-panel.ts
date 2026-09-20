@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -40,10 +40,17 @@ const SKIPPED_REASON_TEXT: Record<string, (seller: SkippedSeller) => string> = {
   styleUrl: './import-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ImportPanel {
+export class ImportPanel implements OnDestroy {
   private readonly importApi = inject(ImportApi);
   private readonly sellerTypesApi = inject(SellerTypesApi);
   private readonly messageService = inject(MessageService);
+
+  /** Handle of the delayed `resetToEmpty()` scheduled by a successful `onConfirm()` (fix round 1,
+   * Finding 2). Plain field, not a signal — it's a housekeeping detail, not render state. Cleared
+   * at the start of every `onFileSelect()` (a new selection during the reset-delay window must
+   * win, not be silently wiped out later by the stale timeout) and in `ngOnDestroy` (no leaked
+   * timer firing after the component is gone). */
+  private pendingResetTimeout: ReturnType<typeof setTimeout> | null = null;
 
   readonly state = signal<'empty' | 'preview' | 'running' | 'done'>('empty');
   readonly selectedFile = signal<File | null>(null);
@@ -61,13 +68,30 @@ export class ImportPanel {
     return result.unknownSellerTypes.some((type) => !mapping[type.name]);
   });
 
+  /** Fix round 1, Finding 1: the preview block and confirm button must disappear once the import
+   * has succeeded (`state() === 'done'`) — matching the component doc's "Vorschau verschwindet" —
+   * so the same file can't be re-submitted with `POST /api/import` during the
+   * `IMPORT_SUCCESS_RESET_DELAY_MS` window before `resetToEmpty()` runs. */
+  readonly showPreview = computed(
+    () => this.previewResult() !== null && !this.previewError() && this.state() !== 'done',
+  );
+
   constructor() {
     this.sellerTypesApi.getAll().subscribe((sellerTypes) => this.sellerTypesOptions.set(sellerTypes));
+  }
+
+  ngOnDestroy(): void {
+    this.clearPendingReset();
   }
 
   onFileSelect(event: FileSelectEvent): void {
     const file = event.files[0];
     if (!file) return;
+
+    // Fix round 1, Finding 2: a new selection always wins over a still-pending reset from a
+    // just-finished import — cancel it before touching any state, otherwise the stale timeout
+    // would fire later and silently wipe this new selection/preview back to `empty`.
+    this.clearPendingReset();
 
     this.selectedFile.set(file);
     this.previewError.set(null);
@@ -130,7 +154,13 @@ export class ImportPanel {
         // Round-26 Task 6 judgment call: no project-wide toast-dismiss-then-reset convention
         // found (grepped for existing `setTimeout` reset patterns) — 2s is long enough for the
         // toast to register before the panel returns to `empty`, see IMPORT_SUCCESS_RESET_DELAY_MS.
-        setTimeout(() => this.resetToEmpty(), IMPORT_SUCCESS_RESET_DELAY_MS);
+        // Handle stored so a new file selection (or component teardown) can cancel it — see
+        // `pendingResetTimeout`'s doc comment (fix round 1, Finding 2).
+        this.clearPendingReset();
+        this.pendingResetTimeout = setTimeout(() => {
+          this.pendingResetTimeout = null;
+          this.resetToEmpty();
+        }, IMPORT_SUCCESS_RESET_DELAY_MS);
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Import fehlgeschlagen' });
@@ -139,6 +169,12 @@ export class ImportPanel {
         this.state.set('preview');
       },
     });
+  }
+
+  private clearPendingReset(): void {
+    if (this.pendingResetTimeout === null) return;
+    clearTimeout(this.pendingResetTimeout);
+    this.pendingResetTimeout = null;
   }
 
   private resetToEmpty(): void {

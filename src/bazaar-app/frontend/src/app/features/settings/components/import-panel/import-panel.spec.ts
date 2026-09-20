@@ -131,6 +131,86 @@ describe('ImportPanel', () => {
     vi.useRealTimers();
   });
 
+  it('fix round 1, Finding 1: the preview/confirm-button block is hidden during the "done" reset-delay window (no double-submit)', () => {
+    vi.useFakeTimers();
+    preview.mockReturnValue(of(previewResultStub()));
+    run.mockReturnValue(
+      of({ importedSellers: 82, importedArticles: 598, skippedSellers: 2, importedBrands: 23, importedCategories: 5 }),
+    );
+    const { component } = createPanel();
+    component.onFileSelect(selectEventFor(jsonFile()));
+    expect(component.showPreview()).toBe(true);
+
+    component.onConfirm();
+
+    // `state()` is 'done' (not 'running'), yet the panel must still hide the preview/button —
+    // otherwise the same file could be re-submitted via a second `onConfirm()` call before the
+    // delayed reset runs.
+    expect(component.state()).toBe('done');
+    expect(component.showPreview()).toBe(false);
+
+    vi.advanceTimersByTime(1000);
+    expect(component.showPreview()).toBe(false);
+
+    vi.runAllTimers();
+    vi.useRealTimers();
+  });
+
+  it('fix round 1, Finding 2: selecting a new file during the post-success reset-delay window is not later wiped by the stale timeout', () => {
+    vi.useFakeTimers();
+    preview.mockReturnValue(of(previewResultStub()));
+    run.mockReturnValue(
+      of({ importedSellers: 82, importedArticles: 598, skippedSellers: 2, importedBrands: 23, importedCategories: 5 }),
+    );
+    const { component } = createPanel();
+    component.onFileSelect(selectEventFor(jsonFile('first.json')));
+    component.onConfirm();
+    expect(component.state()).toBe('done');
+
+    // Within the reset-delay window, a new file is selected (only reachable once Finding 1 is
+    // fixed and the admin can still interact with the picker — the picker itself is never
+    // disabled by `state`).
+    vi.advanceTimersByTime(500);
+    const secondPreview = previewResultStub({ sellerCount: 12, articleCount: 40 });
+    preview.mockReturnValue(of(secondPreview));
+    const secondFile = jsonFile('second.json');
+    component.onFileSelect(selectEventFor(secondFile));
+
+    expect(component.selectedFile()).toBe(secondFile);
+    expect(component.previewResult()).toEqual(secondPreview);
+    expect(component.state()).toBe('preview');
+
+    // The stale timeout from the FIRST import's success must not fire and wipe this new
+    // selection back to `empty` once its original 2000ms delay elapses.
+    vi.advanceTimersByTime(2000);
+
+    expect(component.state()).toBe('preview');
+    expect(component.selectedFile()).toBe(secondFile);
+    expect(component.previewResult()).toEqual(secondPreview);
+
+    vi.useRealTimers();
+  });
+
+  it('fix round 1, Finding 2: ngOnDestroy cancels a still-pending reset timeout', () => {
+    vi.useFakeTimers();
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
+    preview.mockReturnValue(of(previewResultStub()));
+    run.mockReturnValue(
+      of({ importedSellers: 82, importedArticles: 598, skippedSellers: 2, importedBrands: 23, importedCategories: 5 }),
+    );
+    const { fixture, component } = createPanel();
+    component.onFileSelect(selectEventFor(jsonFile()));
+    component.onConfirm();
+    expect(component.state()).toBe('done');
+    clearTimeoutSpy.mockClear();
+
+    fixture.destroy();
+
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    clearTimeoutSpy.mockRestore();
+    vi.useRealTimers();
+  });
+
   it('a failed run shows an error toast and returns to the preview state (not empty)', () => {
     preview.mockReturnValue(of(previewResultStub()));
     run.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));

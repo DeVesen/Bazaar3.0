@@ -17,7 +17,7 @@
     <p class="import-panel__error">{{ previewError() }}</p>
   }
 
-  @if (previewResult() && !previewError()) {
+  @if (showPreview()) {
     <div class="import-panel__preview">
       <h4>Vorschau</h4>
 
@@ -85,7 +85,7 @@
     <p-progressbar mode="indeterminate" />
   }
 
-  @if (previewResult() && !previewError()) {
+  @if (showPreview()) {
     <p-button
       label="Import bestätigen"
       [disabled]="confirmDisabled() || state() === 'running'"
