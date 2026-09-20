@@ -181,6 +181,14 @@ export class Table<T = unknown> {
   readonly canAdd = input<boolean>(false);
   /** Optional toolbar title (component.md §3 "Seitenüberschrift / Epic-Titel"). */
   readonly title = input<string | null>(null);
+  /**
+   * Override for the automatic paginator-visibility threshold (component.md §7). `null`
+   * (default) keeps `showPaginator`'s existing "> 25 rows" behavior for every caller that
+   * doesn't set it. Callers whose spec mandates the full list in a scrolling box with NO
+   * pagination regardless of row count — e.g. `leaderboard.html` (leaderboard component.md
+   * AC-6) — pass `[paginator]="false"` explicitly.
+   */
+  readonly paginator = input<boolean | null>(null);
 
   readonly sortChange = output<SortEvent[]>();
   readonly filterChange = output<FilterEvent>();
@@ -196,6 +204,8 @@ export class Table<T = unknown> {
   readonly hasFilterableColumns = computed(() => this.columns().some((c) => c.filterable !== false));
 
   readonly showPaginator = computed(() => {
+    const override = this.paginator();
+    if (override !== null) return override;
     const total = this.totalRecords() || this.data().length;
     return total > PAGINATION_THRESHOLD;
   });

@@ -74,6 +74,7 @@ Das Parent entscheidet, ob Sortierung und Filterung lokal in Memory oder als Bac
 | `actionClick` | `ActionClickEvent` | `@Output` | Emittiert `{ actionId, row }` bei Klick auf einen Action-Button |
 | `rowAdd` | `void` | `@Output` | Emittiert bei Klick auf „+ Neu"-Button in der Toolbar |
 | `hasActiveFilter` | `boolean` | `@Input` | Steuert den Leerzustand-Text (Abschnitt 8), wenn die Filterung **außerhalb** der Tabelle passiert (z. B. [Master-Data-Filter-Toolbar](../master-data-filter-toolbar/component.md)) — die Tabelle kennt in diesem Fall keinen eigenen Filter-Zustand und muss ihn vom Parent mitgeteilt bekommen. Standard `false`. Bei Tabellen mit eigenem Spalten-Filter (`p-columnFilter`) unnötig — dort erkennt die Tabelle den aktiven Filter selbst. |
+| `paginator` | `boolean \| null` | `@Input` | Erzwingt Ein-/Ausblenden der Paginierung unabhängig von der Schwelle aus Abschnitt 7. Standard `null` = automatisches Verhalten (Schwelle 25 Zeilen). Für Listen, deren Spec eine vollständige, ungepaginierte Ansicht verlangt (z. B. [Leaderboard](../../requirements/bazaar-app/components/leaderboard.md) AC-6), `false` übergeben. |
 
 Das Parent ist verantwortlich für:
 - Datenladen und Aktualisierung von `data` und `totalRecords`

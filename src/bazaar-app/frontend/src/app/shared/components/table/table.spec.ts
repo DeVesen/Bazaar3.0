@@ -118,6 +118,25 @@ describe('Table', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.querySelector('.p-paginator')).toBeNull();
     });
+
+    it('`[paginator]="false"` suppresses the paginator even above the 25-row threshold', async () => {
+      const fixture = createFixture(makeRows(30));
+      fixture.componentRef.setInput('paginator', false);
+      await fixture.whenStable();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.p-paginator')).toBeNull();
+      expect(compiled.querySelectorAll('tbody tr').length).toBe(30);
+    });
+
+    it('`[paginator]="true"` forces the paginator even at or below the 25-row threshold', async () => {
+      const fixture = createFixture(makeRows(10));
+      fixture.componentRef.setInput('paginator', true);
+      await fixture.whenStable();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.p-paginator')).not.toBeNull();
+    });
   });
 
   describe('AC-5: action button click emits actionClick', () => {
