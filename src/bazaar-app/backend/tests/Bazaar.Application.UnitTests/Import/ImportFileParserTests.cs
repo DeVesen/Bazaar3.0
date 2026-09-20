@@ -124,6 +124,69 @@ public class ImportFileParserTests
         Assert.Equal("import.invalid_format", exception.ErrorCode);
     }
 
+    [Fact]
+    public async Task Parse_NullElementInSellersArray_ThrowsBadRequestWithInvalidFormatErrorCode()
+    {
+        const string json = """
+            {
+              "exportedAt": "2026-06-14T08:00:00Z",
+              "sellers": [
+                null,
+                {
+                  "id": "Ab3dEf7G",
+                  "firstName": "Max",
+                  "lastName": "Mustermann",
+                  "email": "max@example.com",
+                  "sellerType": "Privat",
+                  "articles": []
+                }
+              ],
+              "brands": [],
+              "categories": []
+            }
+            """;
+
+        var exception = await Assert.ThrowsAsync<BadRequestException>(() => ImportFileParser.Parse(ToStream(json), TestContext.Current.CancellationToken));
+
+        Assert.Equal("import.invalid_format", exception.ErrorCode);
+    }
+
+    [Fact]
+    public async Task Parse_NullElementInArticlesArray_ThrowsBadRequestWithInvalidFormatErrorCode()
+    {
+        const string json = """
+            {
+              "exportedAt": "2026-06-14T08:00:00Z",
+              "sellers": [
+                {
+                  "id": "Ab3dEf7G",
+                  "firstName": "Max",
+                  "lastName": "Mustermann",
+                  "email": "max@example.com",
+                  "sellerType": "Privat",
+                  "articles": [
+                    null,
+                    {
+                      "id": "Xy9zWq2P",
+                      "number": 101,
+                      "name": "Winterjacke",
+                      "brand": "Nike",
+                      "category": "Jacken",
+                      "price": 25.00
+                    }
+                  ]
+                }
+              ],
+              "brands": [],
+              "categories": []
+            }
+            """;
+
+        var exception = await Assert.ThrowsAsync<BadRequestException>(() => ImportFileParser.Parse(ToStream(json), TestContext.Current.CancellationToken));
+
+        Assert.Equal("import.invalid_format", exception.ErrorCode);
+    }
+
     [Theory]
     [InlineData(0, 25.00)]
     [InlineData(-1, 25.00)]

@@ -58,6 +58,11 @@ public static class ImportFileParser
 
         foreach (var seller in dto.Sellers)
         {
+            if (seller is null)
+            {
+                throw InvalidFormat();
+            }
+
             ValidateSeller(seller);
         }
     }
@@ -80,6 +85,11 @@ public static class ImportFileParser
 
         foreach (var article in seller.Articles)
         {
+            if (article is null)
+            {
+                throw InvalidFormat();
+            }
+
             ValidateArticle(article);
         }
     }
