@@ -66,56 +66,24 @@ export interface PrintVerkaeuferUebersichtSettlement {
         <app-qr-code [value]="seller().id" [caption]="seller().id" />
       </header>
 
-      <section class="print-verkaeufer-uebersicht__group">
-        <h2>Noch im Verkauf ({{ sellingArticles().length }})</h2>
-        @if (sellingArticles().length > 0) {
-          <ul>
-            @for (article of sellingArticles(); track article.number) {
-              <li>
-                <span>{{ article.number }}</span>
-                <span>{{ article.name }}</span>
-                <span>{{ formatCurrency(article.price) }}</span>
-              </li>
-            }
-          </ul>
-        } @else {
-          <p>—</p>
-        }
-      </section>
-
-      <section class="print-verkaeufer-uebersicht__group">
-        <h2>Verkauft ({{ soldArticles().length }})</h2>
-        @if (soldArticles().length > 0) {
-          <ul>
-            @for (article of soldArticles(); track article.number) {
-              <li>
-                <span>{{ article.number }}</span>
-                <span>{{ article.name }}</span>
-                <span>{{ formatCurrency(article.price) }}</span>
-              </li>
-            }
-          </ul>
-        } @else {
-          <p>—</p>
-        }
-      </section>
-
-      <section class="print-verkaeufer-uebersicht__group">
-        <h2>Zurückgegeben ({{ returnedArticles().length }})</h2>
-        @if (returnedArticles().length > 0) {
-          <ul>
-            @for (article of returnedArticles(); track article.number) {
-              <li>
-                <span>{{ article.number }}</span>
-                <span>{{ article.name }}</span>
-                <span>{{ formatCurrency(article.price) }}</span>
-              </li>
-            }
-          </ul>
-        } @else {
-          <p>—</p>
-        }
-      </section>
+      @for (group of articleGroups(); track group.label) {
+        <section class="print-verkaeufer-uebersicht__group">
+          <h2>{{ group.label }} ({{ group.articles.length }})</h2>
+          @if (group.articles.length > 0) {
+            <ul>
+              @for (article of group.articles; track article.number) {
+                <li>
+                  <span>{{ article.number }}</span>
+                  <span>{{ article.name }}</span>
+                  <span>{{ formatCurrency(article.price) }}</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p>—</p>
+          }
+        </section>
+      }
 
       <section class="print-verkaeufer-uebersicht__settlement">
         <div class="print-verkaeufer-uebersicht__row">
@@ -159,6 +127,21 @@ export class PrintVerkaeuferUebersicht {
   readonly returnedArticles = computed(() =>
     this.articles().filter((article) => article.status === 'returned'),
   );
+
+  /**
+   * Combines the three status-filtered computeds above into one array so the template renders
+   * all three groups through a single `@for` block instead of three structurally identical
+   * `@if`/`@for`/`@else` sections (AC-1/AC-2: fixed order "Noch im Verkauf" → "Verkauft" →
+   * "Zurückgegeben"). The three separate computeds stay in place — they are what the spec
+   * asserts against directly — this just recombines their results for rendering.
+   */
+  readonly articleGroups = computed<
+    { label: string; articles: PrintVerkaeuferUebersichtArticle[] }[]
+  >(() => [
+    { label: 'Noch im Verkauf', articles: this.sellingArticles() },
+    { label: 'Verkauft', articles: this.soldArticles() },
+    { label: 'Zurückgegeben', articles: this.returnedArticles() },
+  ]);
 
   /** "PLZ Ort" line — hidden entirely when both are `null` rather than printing a lone space
    * (same pattern as `print-abgabe-beleg.ts`'s `cityLine`). */
