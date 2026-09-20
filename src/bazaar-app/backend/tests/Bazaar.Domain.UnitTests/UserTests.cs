@@ -50,4 +50,36 @@ public class UserTests
         Assert.Equal("new-hash", user.PasswordHash);
         Assert.False(user.MustChangePassword);
     }
+
+    [Fact]
+    public void ChangeRole_UpdatesRole()
+    {
+        var user = User.Create("user-1", "alice", "hash", Role.Cashier, mustChangePassword: false);
+
+        user.ChangeRole(Role.Admin);
+
+        Assert.Equal(Role.Admin, user.Role);
+    }
+
+    [Fact]
+    public void ResetPassword_WhenMustChangePasswordWasFalse_UpdatesHashAndSetsFlagTrue()
+    {
+        var user = User.Create("user-1", "alice", "old-hash", Role.Cashier, mustChangePassword: false);
+
+        user.ResetPassword("new-hash");
+
+        Assert.Equal("new-hash", user.PasswordHash);
+        Assert.True(user.MustChangePassword);
+    }
+
+    [Fact]
+    public void ResetPassword_WhenMustChangePasswordWasTrue_UpdatesHashAndStaysTrue()
+    {
+        var user = User.Create("user-1", "alice", "old-hash", Role.Cashier, mustChangePassword: true);
+
+        user.ResetPassword("new-hash");
+
+        Assert.Equal("new-hash", user.PasswordHash);
+        Assert.True(user.MustChangePassword);
+    }
 }

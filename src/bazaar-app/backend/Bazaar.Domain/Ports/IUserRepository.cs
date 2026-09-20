@@ -21,4 +21,12 @@ public interface IUserRepository
     /// to decide whether the initial admin user needs to be seeded.
     /// </summary>
     Task<bool> AnyAsync();
+
+    /// <summary>
+    /// Counts users with the given role. Used to enforce the "last admin"
+    /// rule when changing a user's role or deleting a user.
+    /// </summary>
+    Task<int> CountByRole(Role role);
+
+    Task Remove(User user);
 }

@@ -19,4 +19,20 @@ public sealed class User
         PasswordHash = newPasswordHash;
         MustChangePassword = false;
     }
+
+    public void ChangeRole(Role newRole)
+    {
+        Role = newRole;
+    }
+
+    /// <summary>
+    /// Admin-triggered password reset. Unlike <see cref="ChangePassword"/> (self-service,
+    /// clears the flag), this SETS <see cref="MustChangePassword"/> to force the user to
+    /// choose a new password on next login.
+    /// </summary>
+    public void ResetPassword(string newPasswordHash)
+    {
+        PasswordHash = newPasswordHash;
+        MustChangePassword = true;
+    }
 }

@@ -25,4 +25,13 @@ public sealed class UserRepository(BazaarDbContext dbContext) : IUserRepository
     }
 
     public Task<bool> AnyAsync() => dbContext.Users.AnyAsync();
+
+    public Task<int> CountByRole(Role role) =>
+        dbContext.Users.CountAsync(u => u.Role == role);
+
+    public async Task Remove(User user)
+    {
+        dbContext.Users.Remove(user);
+        await dbContext.SaveChangesAsync();
+    }
 }

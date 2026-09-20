@@ -100,4 +100,39 @@ public class UserRepositoryTests
 
         Assert.True(await sut.AnyAsync());
     }
+
+    [Fact]
+    public async Task CountByRole_CountsOnlyMatchingRole()
+    {
+        await using var dbContext = CreateContext();
+        var sut = new UserRepository(dbContext);
+        await sut.Add(User.Create("USER01", "admin1", "hash", Role.Admin, mustChangePassword: false));
+        await sut.Add(User.Create("USER02", "admin2", "hash", Role.Admin, mustChangePassword: false));
+        await sut.Add(User.Create("USER03", "cashier1", "hash", Role.Cashier, mustChangePassword: false));
+
+        Assert.Equal(2, await sut.CountByRole(Role.Admin));
+        Assert.Equal(1, await sut.CountByRole(Role.Cashier));
+    }
+
+    [Fact]
+    public async Task CountByRole_NoMatchingUsers_ReturnsZero()
+    {
+        await using var dbContext = CreateContext();
+        var sut = new UserRepository(dbContext);
+
+        Assert.Equal(0, await sut.CountByRole(Role.Admin));
+    }
+
+    [Fact]
+    public async Task Remove_DeletesUser()
+    {
+        await using var dbContext = CreateContext();
+        var sut = new UserRepository(dbContext);
+        var user = User.Create("USER01", "cashier1", "hash", Role.Cashier, mustChangePassword: false);
+        await sut.Add(user);
+
+        await sut.Remove(user);
+
+        Assert.Null(await sut.GetById("USER01"));
+    }
 }
