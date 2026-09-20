@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, of } from 'rxjs';
 
 /** Shape of `GET /api/settings` / `PUT /api/settings` (docs/requirements/bazaar-app, Round-25). */
 export interface Settings {
@@ -29,8 +29,25 @@ export class SettingsService {
    */
   readonly scannerPauseMs = computed(() => this._settings()?.scannerPauseMs ?? 3000);
 
+  /**
+   * Errors (401 for the common not-yet-logged-in case, but any HTTP failure) are swallowed
+   * here, not propagated: `load()` is awaited by the `provideAppInitializer` in
+   * `app.config.ts`, and a rejected app initializer stops `bootstrapApplication()` from
+   * rendering the app at all (see `main.ts`'s `.catch(err => console.error(err))`). Every
+   * fresh visit, logout, or expired token would otherwise blank the whole app instead of just
+   * `/settings`. `scannerPauseMs`'s `?? 3000` fallback covers `settings()` staying `null`.
+   */
   async load(): Promise<void> {
-    const settings = await firstValueFrom(this.http.get<Settings>('/api/settings'));
-    this._settings.set(settings);
+    const settings = await firstValueFrom(
+      this.http.get<Settings>('/api/settings').pipe(
+        catchError((err) => {
+          console.error('SettingsService.load failed, falling back to defaults', err);
+          return of(null);
+        }),
+      ),
+    );
+    if (settings) {
+      this._settings.set(settings);
+    }
   }
 }

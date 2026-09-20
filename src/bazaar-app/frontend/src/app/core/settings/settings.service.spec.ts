@@ -36,4 +36,16 @@ describe('SettingsService', () => {
     expect(settingsService.settings()).toEqual({ scannerPauseMs: 7000 });
     expect(settingsService.scannerPauseMs()).toBe(7000);
   });
+
+  it('load() swallows a failing GET /api/settings (e.g. 401 for a not-yet-logged-in user) and keeps the 3000 fallback', async () => {
+    const loadPromise = settingsService.load();
+
+    const req = httpMock.expectOne('/api/settings');
+    req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    await expect(loadPromise).resolves.toBeUndefined();
+
+    expect(settingsService.settings()).toBeNull();
+    expect(settingsService.scannerPauseMs()).toBe(3000);
+  });
 });
