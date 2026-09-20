@@ -67,3 +67,48 @@ describe('SetupPage - Admin step', () => {
     expect(component.adminError()).toContain('bereits abgeschlossen');
   });
 });
+
+describe('SetupPage - Seller types step', () => {
+  let fixture: ComponentFixture<SetupPage>;
+  let component: SetupPage;
+  let sellerTypesApi: { create: ReturnType<typeof vi.fn> };
+
+  beforeEach(async () => {
+    sellerTypesApi = { create: vi.fn() };
+    await TestBed.configureTestingModule({
+      imports: [SetupPage],
+      providers: [
+        { provide: BootstrapApi, useValue: { bootstrapAdmin: vi.fn() } },
+        { provide: AuthService, useValue: { login: vi.fn() } },
+        { provide: SellerTypesApi, useValue: sellerTypesApi },
+        { provide: BrandsApi, useValue: { create: vi.fn() } },
+        { provide: CategoriesApi, useValue: { create: vi.fn() } },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SetupPage);
+    component = fixture.componentInstance;
+  });
+
+  it('cannot proceed with zero seller types', () => {
+    expect(component.canProceedPastSellerTypes()).toBe(false);
+  });
+
+  it('adds a seller type and allows proceeding afterwards', () => {
+    sellerTypesApi.create.mockReturnValue(
+      of({ id: 'ST1', name: 'Kleidung', commissionRate: 10, itemFee: 0.5, sellerCount: 0 }),
+    );
+    component.sellerTypeName.set('Kleidung');
+    component.sellerTypeCommissionRate.set(10);
+    component.sellerTypeItemFee.set(0.5);
+
+    component.addSellerType();
+
+    expect(sellerTypesApi.create).toHaveBeenCalledWith('Kleidung', 10, 0.5);
+    expect(component.sellerTypes()).toEqual([
+      { id: 'ST1', name: 'Kleidung', commissionRate: 10, itemFee: 0.5, sellerCount: 0 },
+    ]);
+    expect(component.sellerTypeName()).toBe('');
+    expect(component.canProceedPastSellerTypes()).toBe(true);
+  });
+});

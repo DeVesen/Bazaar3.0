@@ -86,4 +86,21 @@ export class SetupPage {
       },
     });
   }
+
+  addSellerType(): void {
+    if (!this.canAddSellerType()) return;
+    this.sellerTypeSaving.set(true);
+    this.sellerTypesApi
+      .create(this.sellerTypeName().trim(), this.sellerTypeCommissionRate(), this.sellerTypeItemFee())
+      .subscribe({
+        next: (sellerType) => {
+          this.sellerTypes.set([...this.sellerTypes(), sellerType]);
+          this.sellerTypeName.set('');
+          this.sellerTypeCommissionRate.set(0);
+          this.sellerTypeItemFee.set(0);
+          this.sellerTypeSaving.set(false);
+        },
+        error: () => this.sellerTypeSaving.set(false),
+      });
+  }
 }

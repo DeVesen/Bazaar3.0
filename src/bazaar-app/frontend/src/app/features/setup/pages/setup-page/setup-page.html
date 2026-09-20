@@ -23,7 +23,21 @@
       </p-step-panel>
       <p-step-panel [value]="2">
         <ng-template #content let-activateCallback="activateCallback">
-          <p>Händlertypen folgen in Task 8.</p>
+          <p-card>
+            <ul>
+              @for (sellerType of sellerTypes(); track sellerType.id) {
+                <li>{{ sellerType.name }} — {{ sellerType.commissionRate }}% / {{ sellerType.itemFee }} €</li>
+              }
+            </ul>
+            <input pInputText [ngModel]="sellerTypeName()" (ngModelChange)="sellerTypeName.set($event)" name="seller-type-name" placeholder="Name" />
+            <p-inputNumber [ngModel]="sellerTypeCommissionRate()" (ngModelChange)="sellerTypeCommissionRate.set($event)" name="seller-type-commission" suffix=" %" />
+            <p-inputNumber [ngModel]="sellerTypeItemFee()" (ngModelChange)="sellerTypeItemFee.set($event)" name="seller-type-fee" mode="currency" currency="EUR" />
+            <p-button label="Hinzufügen" [disabled]="!canAddSellerType()" (onClick)="addSellerType()" />
+            <div class="setup-page__actions">
+              <p-button severity="secondary" label="Zurück" (onClick)="activateCallback(1)" />
+              <p-button label="Weiter" [disabled]="!canProceedPastSellerTypes()" (onClick)="activateCallback(3)" />
+            </div>
+          </p-card>
         </ng-template>
       </p-step-panel>
       <p-step-panel [value]="3">
