@@ -1,9 +1,10 @@
 import { ApplicationRef, ComponentRef, Injectable, createComponent, inject } from '@angular/core';
 import { forkJoin } from 'rxjs';
-// Sanctioned `core` → `feature` boundary crossing (Round-23 Task 2 brief): `SellersApi` is
-// already imported the same way by feature code (`release-dialog.ts`), and this print flow
-// needs to load the seller/article data itself to keep both callers' `printIntakeReceipt()`
-// signature unchanged.
+// Sanctioned `core` → `feature` boundary crossing (Round-23 Task 2 brief) — the first one in
+// this project (`release-dialog.ts`'s own `SellersApi` import is same-feature, not a
+// cross-boundary precedent). Sanctioned because the brief forbids extending
+// `printIntakeReceipt()`'s signature, so this print flow must load the seller/article data
+// itself rather than have callers pass it in.
 // eslint-disable-next-line boundaries/dependencies
 import { ArticleSummary, SellersApi } from '../../features/sellers/data/sellers-api';
 // Sanctioned `core` → `shared` boundary crossing: `PrintAbgabeBeleg` (Round-23 Task 1) is the
