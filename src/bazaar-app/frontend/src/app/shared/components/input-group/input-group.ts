@@ -184,6 +184,7 @@ const SEARCH_DEBOUNCE_MS = 300;
             #priceInput
             [inputId]="inputId()"
             mode="decimal"
+            locale="de-DE"
             [minFractionDigits]="0"
             [maxFractionDigits]="0"
             [ngModel]="priceValue()"
@@ -374,7 +375,7 @@ export class InputGroup {
 
   onCodeDetected(value: string): void {
     if (this.isNumericVariant()) {
-      const parsed = this.parseGermanDecimal(value);
+      const parsed = this.toVariantNumber(this.parseGermanDecimal(value));
       this.priceValue.set(parsed);
       this.valueChange.emit(parsed ?? 0);
     } else {
@@ -399,7 +400,7 @@ export class InputGroup {
    */
   applyExternalValue(value: string): void {
     if (this.isNumericVariant()) {
-      const parsed = this.parseGermanDecimal(value);
+      const parsed = this.toVariantNumber(this.parseGermanDecimal(value));
       this.priceValue.set(parsed);
       this.valueChange.emit(parsed ?? 0);
     } else {
@@ -468,6 +469,19 @@ export class InputGroup {
     const normalized = raw.replace(',', '.').trim();
     const parsed = Number(normalized);
     return Number.isFinite(parsed) && normalized.length > 0 ? parsed : null;
+  }
+
+  /**
+   * Fix round 1 (reviewer Important 2): `parseGermanDecimal()` can yield a fractional number
+   * (e.g. "12,5" → 12.5), which is correct for `price` but must never reach `count` — that
+   * variant's integer-only contract is otherwise only enforced at the UI layer
+   * (`minFractionDigits`/`maxFractionDigits` = 0), which `onCodeDetected()` and
+   * `applyExternalValue()` bypass entirely since they set `priceValue`/emit directly. Rounds
+   * only for `count`; `price` (and `null`, "kein Wert") pass through unchanged.
+   */
+  private toVariantNumber(parsed: number | null): number | null {
+    if (parsed === null || this.variant() !== 'count') return parsed;
+    return Math.round(parsed);
   }
 
   /**

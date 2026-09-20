@@ -517,5 +517,17 @@ describe('InputGroup', () => {
       expect(fixture.componentInstance.priceValue()).toBeNull();
       expect(emitted).toEqual([]);
     });
+
+    it('rounds a fractional value from applyExternalValue() to an integer (fix round 1, reviewer Important 2)', () => {
+      const fixture = create(['keyboard'], 'count');
+
+      const emitted: (string | number)[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
+
+      fixture.componentInstance.applyExternalValue('12,5');
+
+      expect(fixture.componentInstance.priceValue()).toBe(13);
+      expect(emitted).toEqual([13]);
+    });
   });
 });
