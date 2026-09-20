@@ -1,0 +1,78 @@
+// Content layout only — no `@media print` here. The App Shell already hides sidebar/chrome for
+// every printed page (docs/requirements/bazaar-app/epics/Epic_App_Shell/epic.md BSHELL-S02 AC-6);
+// repeating that rule in this component would duplicate the base rule
+// (docs/requirements/bazaar-app/components/print-abgabe-beleg.md Abschnitt 4).
+.print-abgabe-beleg {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: inherit;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  &__title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  &__occurred-at {
+    margin: 0;
+    color: var(--p-text-muted-color);
+  }
+
+  &__seller {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__seller-name {
+    font-weight: 600;
+  }
+
+  &__articles {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--p-content-border-color);
+    }
+
+    th:last-child,
+    td:last-child {
+      text-align: right;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__fee-paid {
+    font-weight: 600;
+  }
+}
