@@ -4,12 +4,16 @@ import { authGuard } from './core/auth/auth.guard';
 import { adminGuard } from './core/auth/admin.guard';
 import { guestGuard } from './core/auth/guest.guard';
 import { passwordChangeGuard } from './core/auth/password-change.guard';
+import { noAdminGuard } from './core/bootstrap/no-admin.guard';
+import { adminExistsGuard } from './core/bootstrap/admin-exists.guard';
 
 export const routes: Routes = [
-  { path: 'login', canActivate: [guestGuard], loadChildren: () => import('./features/login/login.routes').then((m) => m.LOGIN_ROUTES) },
+  { path: 'setup', canActivate: [adminExistsGuard], loadChildren: () => import('./features/setup/setup.routes').then((m) => m.SETUP_ROUTES) },
+  { path: 'login', canActivate: [guestGuard, noAdminGuard], loadChildren: () => import('./features/login/login.routes').then((m) => m.LOGIN_ROUTES) },
   {
     path: '',
     component: Shell,
+    canActivate: [noAdminGuard],
     children: [
       { path: '', redirectTo: 'intake', pathMatch: 'full' },
       { path: 'change-password', canActivate: [authGuard], loadChildren: () => import('./features/change-password/change-password.routes').then((m) => m.CHANGE_PASSWORD_ROUTES) },
