@@ -1,0 +1,36 @@
+<div class="setup-page">
+  <p-stepper [value]="1" [linear]="true">
+    <p-step-list>
+      <p-step [value]="1">Admin-Konto</p-step>
+      <p-step [value]="2">Händlertypen</p-step>
+      <p-step [value]="3">Marken &amp; Kategorien</p-step>
+    </p-step-list>
+    <p-step-panels>
+      <p-step-panel [value]="1">
+        <ng-template #content let-activateCallback="activateCallback">
+          <p-card>
+            <form (ngSubmit)="submitAdmin(activateCallback)">
+              <input pInputText [ngModel]="username()" (ngModelChange)="username.set($event)" name="setup-username" placeholder="Benutzername" required />
+              <input pInputPassword [ngModel]="password()" (ngModelChange)="password.set($event)" name="setup-password" placeholder="Passwort" required />
+              <input pInputPassword [ngModel]="passwordConfirm()" (ngModelChange)="passwordConfirm.set($event)" name="setup-password-confirm" placeholder="Passwort bestätigen" required />
+              @if (adminError()) {
+                <p class="setup-page__error">{{ adminError() }}</p>
+              }
+              <p-button type="submit" label="Weiter" [disabled]="!canSubmitAdmin()" />
+            </form>
+          </p-card>
+        </ng-template>
+      </p-step-panel>
+      <p-step-panel [value]="2">
+        <ng-template #content let-activateCallback="activateCallback">
+          <p>Händlertypen folgen in Task 8.</p>
+        </ng-template>
+      </p-step-panel>
+      <p-step-panel [value]="3">
+        <ng-template #content let-activateCallback="activateCallback">
+          <p>Marken/Kategorien folgen in Task 9.</p>
+        </ng-template>
+      </p-step-panel>
+    </p-step-panels>
+  </p-stepper>
+</div>
