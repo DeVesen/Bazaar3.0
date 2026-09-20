@@ -1,0 +1,25 @@
+<app-table
+  title="Benutzer"
+  [columns]="columns"
+  [data]="rows()"
+  [loading]="loading()"
+  [actionColumn]="actionColumn"
+  [emptyText]="emptyText"
+  [canAdd]="true"
+  [paginator]="false"
+  (actionClick)="onActionClick($event)"
+  (rowAdd)="onRowAdd()"
+/>
+
+<app-user-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [mode]="dialogMode()"
+  [initialValue]="dialogInitialValue()"
+  [saving]="saving()"
+  [serverErrors]="serverErrors()"
+  (save)="onDialogSave($event)"
+  (cancel)="onDialogCancel()"
+/>
+
+<p-confirmdialog key="deleteUser" />

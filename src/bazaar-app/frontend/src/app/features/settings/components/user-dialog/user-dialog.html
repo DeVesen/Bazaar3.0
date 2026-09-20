@@ -1,0 +1,118 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [header]="dialogTitle()"
+  [style]="{ width: '25rem' }"
+>
+  <div class="user-dialog">
+    @if (isCreate()) {
+      <div class="user-dialog__field">
+        <label for="user-dialog-username">Benutzername</label>
+        <input
+          id="user-dialog-username"
+          pInputText
+          [ngModel]="username()"
+          (ngModelChange)="username.set($event)"
+          name="username"
+          type="text"
+          required
+        />
+        @if (serverErrors()?.username) {
+          <small class="user-dialog__error">{{ serverErrors()?.username }}</small>
+        }
+      </div>
+    }
+
+    <div class="user-dialog__field">
+      <label for="user-dialog-role">Rolle</label>
+      <p-select
+        inputId="user-dialog-role"
+        [options]="roleOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="role()"
+        (ngModelChange)="role.set($event)"
+        name="role"
+      />
+      @if (serverErrors()?.role) {
+        <small class="user-dialog__error">{{ serverErrors()?.role }}</small>
+      }
+      @if (!isCreate()) {
+        <small class="user-dialog__hint">Rollenwechsel wirkt erst beim nächsten Login.</small>
+      }
+    </div>
+
+    @if (isCreate()) {
+      <div class="user-dialog__field">
+        <label for="user-dialog-initial-password">Initialpasswort</label>
+        <p-iconfield>
+          <p-inputicon>
+            <i class="pi pi-lock"></i>
+          </p-inputicon>
+          <input
+            id="user-dialog-initial-password"
+            pInputPassword
+            [(mask)]="initialPasswordMask"
+            [ngModel]="initialPassword()"
+            (ngModelChange)="initialPassword.set($event)"
+            name="initialPassword"
+            type="password"
+            required
+            (keydown.enter)="onSave()"
+          />
+          <p-inputicon (click)="initialPasswordMask.set(!initialPasswordMask())">
+            <i [class]="initialPasswordMask() ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+          </p-inputicon>
+        </p-iconfield>
+        @if (serverErrors()?.initialPassword) {
+          <small class="user-dialog__error">{{ serverErrors()?.initialPassword }}</small>
+        }
+      </div>
+    } @else {
+      <app-boolean-input
+        variant="checkbox"
+        label="Neues Passwort setzen"
+        [value]="setNewPassword()"
+        (valueChange)="setNewPassword.set($event)"
+      />
+
+      @if (setNewPassword()) {
+        <div class="user-dialog__field">
+          <label for="user-dialog-new-password">Neues Passwort</label>
+          <p-iconfield>
+            <p-inputicon>
+              <i class="pi pi-lock"></i>
+            </p-inputicon>
+            <input
+              id="user-dialog-new-password"
+              pInputPassword
+              [(mask)]="newPasswordMask"
+              [ngModel]="newPassword()"
+              (ngModelChange)="newPassword.set($event)"
+              name="newPassword"
+              type="password"
+              required
+              (keydown.enter)="onSave()"
+            />
+            <p-inputicon (click)="newPasswordMask.set(!newPasswordMask())">
+              <i [class]="newPasswordMask() ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+            </p-inputicon>
+          </p-iconfield>
+          @if (serverErrors()?.newPassword) {
+            <small class="user-dialog__error">{{ serverErrors()?.newPassword }}</small>
+          }
+        </div>
+      }
+    }
+
+    @if (showForcedChangeHint()) {
+      <p class="user-dialog__hint">Wird beim ersten Login zum Ändern verlangt.</p>
+    }
+  </div>
+
+  <ng-template #footer>
+    <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
+    <p-button [text]="true" [disabled]="!canSave()" label="Speichern" (onClick)="onSave()" />
+  </ng-template>
+</p-dialog>
