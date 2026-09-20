@@ -1,0 +1,38 @@
+using Bazaar.Application.Settings;
+using Bazaar.Domain.Ports;
+using Moq;
+
+namespace Bazaar.Application.UnitTests.Settings;
+
+public class UpdateSettingsHandlerTests
+{
+    private readonly Mock<ISettingsRepository> _settingsRepository = new();
+
+    private UpdateSettingsHandler CreateSut() =>
+        new(_settingsRepository.Object);
+
+    [Fact]
+    public async Task Handle_ValidCommand_UpdatesSettingsViaRepository()
+    {
+        var settings = Bazaar.Domain.Settings.Settings.Create(3000);
+        _settingsRepository.Setup(r => r.Get()).ReturnsAsync(settings);
+        var sut = CreateSut();
+
+        await sut.Handle(new UpdateSettingsCommand { ScannerPauseMs = 5000 });
+
+        Assert.Equal(5000, settings.ScannerPauseMs);
+        _settingsRepository.Verify(r => r.Update(settings), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_UpdatesSameAggregateInstanceReturnedByGet()
+    {
+        var settings = Bazaar.Domain.Settings.Settings.Create(3000);
+        _settingsRepository.Setup(r => r.Get()).ReturnsAsync(settings);
+        var sut = CreateSut();
+
+        await sut.Handle(new UpdateSettingsCommand { ScannerPauseMs = 1000 });
+
+        _settingsRepository.Verify(r => r.Update(It.Is<Bazaar.Domain.Settings.Settings>(s => ReferenceEquals(s, settings))), Times.Once);
+    }
+}
