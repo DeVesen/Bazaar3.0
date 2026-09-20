@@ -120,6 +120,7 @@ describe('SetupPage - Brands/categories step and finish', () => {
   let categoriesApi: { create: ReturnType<typeof vi.fn> };
   let authService: { login: ReturnType<typeof vi.fn>; logout: ReturnType<typeof vi.fn> };
   let reloadSpy: ReturnType<typeof vi.fn>;
+  let originalLocation: Location;
 
   beforeEach(async () => {
     brandsApi = { create: vi.fn() };
@@ -128,7 +129,9 @@ describe('SetupPage - Brands/categories step and finish', () => {
     reloadSpy = vi.fn();
 
     // Mock window.location.reload
-    const originalLocation = window.location;
+    // Important: capture the original Location object before replacing it so it can be restored
+    // in afterEach. This prevents cross-file leakage (see zxing-browser.mock.ts for precedent).
+    originalLocation = window.location;
     delete (window as any).location;
     (window as any).location = { ...originalLocation, reload: reloadSpy };
 
@@ -149,6 +152,12 @@ describe('SetupPage - Brands/categories step and finish', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    // Explicitly restore the original Location object to prevent cross-file leakage to other specs
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+      configurable: true,
+    });
   });
 
   it('adds a brand and clears the input', () => {
