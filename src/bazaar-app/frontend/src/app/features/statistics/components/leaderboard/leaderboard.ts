@@ -4,7 +4,7 @@ import { LeaderboardRow } from '../../data/statistics-api';
 
 export type { LeaderboardRow };
 
-/** Rang → PrimeNG-Badge-Severity (Round-22 spec.md/epic.md AC-7): Gold/Silber/Bronze/Grau.
+/** Rang → PrimeNG-Badge-Severity (component.md AC-4): Gold/Silber/Bronze/Grau.
  * `'warn'` is the closest PrimeNG severity to a gold/amber accent (no literal "gold" value);
  * silver and the generic gray fallback both map to `'secondary'` (no 4th muted tone exists
  * in `BadgeSeverity`). */
@@ -20,8 +20,10 @@ function rankSeverity(rank: number): BadgeSeverity {
  * already-loaded `rows()` from `StatisticsPage` and owns its OWN client-side re-sort — the
  * type-filter-triggered `GET /api/statistics?sellerTypeId=...` reload stays the parent's job
  * (spec.md: "kein erneuter Request bei Filter-Wechsel im Leaderboard außer dem serverseitigen
- * Typ-Filter-Parameter"). `rank` is a fixed, backend-assigned value (default sort order = sold
- * descending) and is never recomputed here, even when the displayed order changes.
+ * Typ-Filter-Parameter"). `rank` follows the CURRENTLY DISPLAYED order (component.md AC-3): it
+ * is recomputed as `index + 1` on every read of `sortedRows`, never taken verbatim from the
+ * backend value on `rows()` — sorting by e.g. "Umsatz" must put the top earner at Rang 1, not
+ * whoever leads the backend's default sold-descending order.
  */
 @Component({
   selector: 'app-leaderboard',
@@ -40,11 +42,14 @@ export class Leaderboard {
   readonly emptyText = 'Noch keine Verkäufe.';
 
   /** Default order (backend: sold descending) passes through untouched until the user sorts
-   * by a column via `Table`'s `(sortChange)` output — `rows()` itself is never mutated. */
+   * by a column via `Table`'s `(sortChange)` output — `rows()` itself is never mutated. `rank`
+   * is always reassigned from the resulting position (component.md AC-3), including in the
+   * default (unsorted) case, so Rang 1 always matches row 0 of whatever is actually shown. */
   readonly sortedRows = computed<LeaderboardRow[]>(() => {
     const sort = this.sortState();
     const rows = this.rows();
-    return sort.length === 0 ? rows : [...rows].sort((a, b) => this.compareBySort(a, b, sort));
+    const ordered = sort.length === 0 ? rows : [...rows].sort((a, b) => this.compareBySort(a, b, sort));
+    return ordered.map((row, index) => ({ ...row, rank: index + 1 }));
   });
 
   readonly columns = computed<ColumnConfig[]>(() => {

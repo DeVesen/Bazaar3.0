@@ -37,6 +37,36 @@ describe('Leaderboard', () => {
     expect(fixture.componentInstance.sortedRows().map((r) => r.sellerId)).toEqual(['s1', 's2', 's3']);
   });
 
+  it('component.md AC-3: rank follows the CURRENT sort, not the fixed backend value — sorting ' +
+    'by revenue puts the top earner at rank 1, even though they are not the top seller by count', async () => {
+    const rows = [
+      row({ sellerId: 's1', sellerName: 'Top Seller', rank: 1, sold: 31, revenue: 100 }),
+      row({ sellerId: 's2', sellerName: 'Top Earner', rank: 2, sold: 20, revenue: 500 }),
+      row({ sellerId: 's3', sellerName: 'Third', rank: 3, sold: 5, revenue: 10 }),
+    ];
+    const fixture = await createFixture(rows);
+
+    fixture.componentInstance.onSortChange([{ field: 'revenue', order: 'desc' }]);
+    const sorted = fixture.componentInstance.sortedRows();
+
+    expect(sorted.map((r) => r.sellerId)).toEqual(['s2', 's1', 's3']);
+    expect(sorted[0]).toMatchObject({ sellerId: 's2', rank: 1 });
+    expect(sorted[1]).toMatchObject({ sellerId: 's1', rank: 2 });
+    expect(sorted[2]).toMatchObject({ sellerId: 's3', rank: 3 });
+  });
+
+  it('recomputes rank from the displayed order even without an explicit sort (default view)', async () => {
+    const rows = [
+      row({ sellerId: 's1', rank: 7, sold: 31 }),
+      row({ sellerId: 's2', rank: 9, sold: 20 }),
+    ];
+    const fixture = await createFixture(rows);
+
+    const sorted = fixture.componentInstance.sortedRows();
+    expect(sorted[0]).toMatchObject({ sellerId: 's1', rank: 1 });
+    expect(sorted[1]).toMatchObject({ sellerId: 's2', rank: 2 });
+  });
+
   it('re-sorts the local copy when Table emits sortChange, without mutating the rows input', async () => {
     const rows = [
       row({ sellerId: 's1', sellerName: 'Zara', sold: 31 }),
@@ -81,5 +111,18 @@ describe('Leaderboard', () => {
     const payoutColumn = fixture.componentInstance.columns().find((c) => c.field === 'payout');
     expect(payoutColumn?.secondaryBadge?.(row({ settled: true }))).toEqual({ text: '✓', severity: 'success' });
     expect(payoutColumn?.secondaryBadge?.(row({ settled: false }))).toBeNull();
+  });
+
+  it('component.md AC-6: renders the full list without a paginator even above the ' +
+    "Table's default 25-row pagination threshold", async () => {
+    const rows = Array.from({ length: 30 }, (_, i) =>
+      row({ sellerId: `s${i + 1}`, sellerName: `Verkäufer ${i + 1}`, rank: i + 1, sold: 30 - i }),
+    );
+    const fixture = await createFixture(rows);
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.p-paginator')).toBeNull();
+    expect(compiled.querySelectorAll('tbody tr').length).toBe(30);
   });
 });
