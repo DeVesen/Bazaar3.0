@@ -8,6 +8,7 @@ import { routes } from './app.routes';
 import { IndustryPreset } from './core/theme/industry-preset';
 import { AuthService } from './core/auth/auth.service';
 import { jwtInterceptor } from './core/auth/jwt.interceptor';
+import { SettingsService } from './core/settings/settings.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +23,13 @@ export const appConfig: ApplicationConfig = {
     // first navigation, regardless of whether a guard fires (AC-3).
     provideAppInitializer(() => {
       inject(AuthService);
+    }),
+    // Loads system settings (Round-25) before first navigation — analogous to AuthService above,
+    // so scan-feedback/scan-dialog's pauseMs default (and any future settings consumer) has a
+    // real value from the very first render instead of only the SettingsService's own ?? 3000
+    // fallback.
+    provideAppInitializer(async () => {
+      await inject(SettingsService).load();
     }),
   ]
 };

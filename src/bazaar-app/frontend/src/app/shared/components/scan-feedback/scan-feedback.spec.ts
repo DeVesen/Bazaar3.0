@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScanFeedback } from './scan-feedback';
+import { SettingsService } from '../../../core/settings/settings.service';
 
 /**
  * Mocks the Web Audio constructors (`AudioContext`, its `createOscillator`/`createGain`)
@@ -49,6 +50,7 @@ describe('ScanFeedback', () => {
 
     await TestBed.configureTestingModule({
       imports: [ScanFeedback],
+      providers: [{ provide: SettingsService, useValue: { scannerPauseMs: () => 3000 } }],
     }).compileComponents();
   });
 

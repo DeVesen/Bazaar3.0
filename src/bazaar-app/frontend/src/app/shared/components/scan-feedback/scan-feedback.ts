@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, effect, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, effect, inject, input, signal, untracked } from '@angular/core';
+import { SettingsService } from '../../../core/settings/settings.service';
 
 /**
  * Cross-app dumb/leaf component giving audible/haptic/visual feedback for a scan result
@@ -33,12 +34,15 @@ import { ChangeDetectionStrategy, Component, OnDestroy, effect, input, signal, u
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScanFeedback implements OnDestroy {
+  private readonly settingsService = inject(SettingsService);
+
   readonly result = input<'success' | 'already-set' | 'unknown' | null>(null);
   /**
-   * Plain code-constant default — this round does NOT read from application settings,
-   * that wiring is deferred to Round-25 (out of scope here).
+   * Default now reads the app-wide `SettingsService` (Round-25) instead of a hardcoded
+   * constant. A parent may still override it explicitly via the `[pauseMs]` binding (no
+   * breaking change to this input's public shape).
    */
-  readonly pauseMs = input<number>(3000);
+  readonly pauseMs = input<number>(this.settingsService.scannerPauseMs());
 
   /** Circle radius is fixed (r=18 in the 40x40 viewBox), so the circumference is a constant. */
   readonly circumference = 2 * Math.PI * 18;

@@ -16,6 +16,7 @@ import { ListboxModule } from 'primeng/listbox';
 import { InputGroup } from '../input-group/input-group';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
 import { ScanFeedback } from '../scan-feedback/scan-feedback';
+import { SettingsService } from '../../../core/settings/settings.service';
 
 /**
  * Which timestamp this dialog session is meant to set (docs/components/scan-dialog/component.md
@@ -110,14 +111,19 @@ function filterPending(articles: PendingArticle[], query: string): PendingArticl
 export class ScanDialog {
   private readonly http = inject(HttpClient);
   private readonly hostElement: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly settingsService = inject(SettingsService);
 
   readonly visible = input<boolean>(false);
   readonly title = input.required<string>();
   readonly sellerId = input.required<string>();
   readonly targetField = input.required<ScanDialogTargetField>();
-  /** Forwarded to `app-scan-feedback`'s own `pauseMs` in camera mode — no app-settings wiring
-   * this round (same deliberate scope-cut `scan-feedback`/`intake-article-entry` already made). */
-  readonly pauseMs = input<number>(3000);
+  /**
+   * Default now reads the app-wide `SettingsService` (Round-25) instead of a hardcoded
+   * constant. A parent may still override it explicitly via the `[pauseMs]` binding (no
+   * breaking change to this input's public shape). Forwarded to `app-scan-feedback`'s own
+   * `pauseMs` in camera mode.
+   */
+  readonly pauseMs = input<number>(this.settingsService.scannerPauseMs());
   /** `'batch'` (default): Round-18 behaviour, unchanged — matches are collected in `sessionIds`
    * and reported via `sessionArticleIds`/`scanComplete`, the parent writes once at the end ("wie
    * der Warenkorb an der Kasse"). `'immediate'`: every successful match fires `articleConfirmed`
