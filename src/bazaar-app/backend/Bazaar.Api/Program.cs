@@ -69,8 +69,8 @@ builder.Services.AddHealthChecks().AddDbContextCheck<BazaarDbContext>();
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 
 // Port implementations: registered here in the composition root (not in the
-// Application/Api layer) because SeedAdminHostedService needs them resolvable
-// at startup, before the application layer's own DI wiring runs.
+// Application/Api layer) because InitializeAdminBootstrapStateAsync needs them
+// resolvable at startup, before the application layer's own DI wiring runs.
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBrandRepository, BrandRepository>();
 builder.Services.AddScoped<IBrandArticleLink, BrandArticleLink>();
@@ -92,11 +92,11 @@ builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 builder.Services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
 builder.Services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
 builder.Services.AddSingleton<IIdGenerator, NanoIdGenerator>();
-
-builder.Services.AddHostedService<SeedAdminHostedService>();
+builder.Services.AddSingleton<AdminBootstrapState>();
 
 builder.Services.AddScoped<LoginHandler>();
 builder.Services.AddScoped<ChangePasswordHandler>();
+builder.Services.AddScoped<BootstrapAdminHandler>();
 builder.Services.AddScoped<GetBrandsHandler>();
 builder.Services.AddScoped<CreateBrandHandler>();
 builder.Services.AddScoped<UpdateBrandHandler>();
@@ -189,6 +189,7 @@ app.UseAuthorization();
 
 app.MapHealthEndpoints();
 app.MapAuthEndpoints();
+app.MapBootstrapEndpoints();
 app.MapBrandEndpoints();
 app.MapCategoryEndpoints();
 app.MapSellerTypeEndpoints();
@@ -204,6 +205,7 @@ app.MapImportEndpoints();
 app.MapUserEndpoints();
 
 await ApplyMigrationsAsync(app);
+await InitializeAdminBootstrapStateAsync(app);
 
 app.Run();
 
@@ -258,4 +260,12 @@ static async Task ApplyMigrationsAsync(WebApplication app)
         logger.LogCritical(ex, "Migration {Migration} failed: {Message}", pending, ex.Message);
         Environment.Exit(1);
     }
+}
+
+static async Task InitializeAdminBootstrapStateAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+    var state = scope.ServiceProvider.GetRequiredService<AdminBootstrapState>();
+    state.Initialize(await userRepository.AnyAsync());
 }
