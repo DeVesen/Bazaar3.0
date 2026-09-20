@@ -22,7 +22,7 @@ import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
 import { Numpad } from '../numpad/numpad';
 
 export type InputMode = 'keyboard' | 'camera' | 'numpad';
-export type InputGroupVariant = 'search' | 'price';
+export type InputGroupVariant = 'search' | 'price' | 'count';
 
 /** Fixed order per component doc, Abschnitt 3 "Sichtbarkeitsregel der Modus-Buttons". */
 const MODE_ORDER: InputMode[] = ['keyboard', 'camera', 'numpad'];
@@ -54,19 +54,27 @@ const SEARCH_DEBOUNCE_MS = 300;
  * are discrete events and bypass the debounce entirely, emitting immediately.
  *
  * `valueChange` typing: a single `output<string | number>()` — `string` for the search variant
- * (keyboard/camera/numpad-into-text-field) and `number` for the price variant. Kept as one
- * output rather than two so that a consumer only ever binds `(valueChange)` once; the variant
- * `input` already tells the consumer which member of the union to expect.
+ * (keyboard/camera/numpad-into-text-field) and `number` for the price and count variants. Kept
+ * as one output rather than two so that a consumer only ever binds `(valueChange)` once; the
+ * variant `input` already tells the consumer which member of the union to expect.
  *
  * Numpad wiring (doc's own Numpad Abschnitt 4 "Empfehlung: Integration im Parent"): for the
- * price variant, `p-inputnumber` has its own internal keydown handling that turns a dispatched
- * `KeyboardEvent` into buffer/locale-aware value updates — dispatching the numpad's key onto its
- * native `<input>` is sufficient, exactly as the numpad doc's pattern assumes. The search
- * variant's plain `pInputText` has no such internal buffer (a browser does not apply untrusted
- * synthetic keydown events to a plain `<input>`'s value) — this component therefore ALSO
- * maintains the search field's text buffer itself from the numpad's `key` values, while still
- * dispatching the synthetic event onto the native input for API/behavioral consistency with the
- * doc's pattern and with the price variant.
+ * price and count variants (both "single numeric value" — see `isNumericVariant()`),
+ * `p-inputnumber` has its own internal keydown handling that turns a dispatched `KeyboardEvent`
+ * into buffer/locale-aware value updates — dispatching the numpad's key onto its native `<input>`
+ * is sufficient, exactly as the numpad doc's pattern assumes. The search variant's plain
+ * `pInputText` has no such internal buffer (a browser does not apply untrusted synthetic keydown
+ * events to a plain `<input>`'s value) — this component therefore ALSO maintains the search
+ * field's text buffer itself from the numpad's `key` values, while still dispatching the
+ * synthetic event onto the native input for API/behavioral consistency with the doc's pattern
+ * and with the numeric variants.
+ *
+ * Round-25 Task 6a: the `count` variant (`ms`-addon, integer-only `p-inputnumber`, no camera
+ * mode) reuses every price-variant code path that is identical for both — `priceValue`,
+ * `onPriceTyped`, `onNumpadKey`, `onNumpadClear`, `dispatchTarget`, `onCodeDetected`,
+ * `applyExternalValue` — via the shared `isNumericVariant()` check, rather than duplicating a
+ * third parallel numeric code path. Only the template (addon text, fraction-digit config,
+ * numpad `showDecimal`, no camera branch) differs per variant.
  */
 @Component({
   selector: 'app-input-group',
@@ -132,7 +140,7 @@ const SEARCH_DEBOUNCE_MS = 300;
             (submitted)="onSubmit()"
           />
         }
-      } @else {
+      } @else if (variant() === 'price') {
         <p-inputgroup>
           @if (activeMode() === 'camera') {
             <app-barcode-scanner [active]="activeMode() === 'camera'" (codeDetected)="onCodeDetected($event)" />
@@ -158,6 +166,40 @@ const SEARCH_DEBOUNCE_MS = 300;
         @if (activeMode() === 'numpad') {
           <app-numpad
             [showDecimal]="true"
+            [showEnter]="true"
+            [enterDisabled]="priceValue() === null"
+            (keyPressed)="onNumpadKey($event)"
+            (cleared)="onNumpadClear()"
+            (submitted)="onSubmit()"
+          />
+        }
+      } @else {
+        <!-- count variant (Round-25 Task 6a): mirrors the price branch above — same
+             "addon + numpad, no camera, no clear/action button" shape — but no camera mode at
+             all (a millisecond pause is never barcode-scanned, doc Abschnitt 5a) and an
+             integer-only p-inputnumber (minFractionDigits/maxFractionDigits 0, no locale
+             fraction formatting concern since there are no decimals). -->
+        <p-inputgroup>
+          <p-inputnumber
+            #priceInput
+            [inputId]="inputId()"
+            mode="decimal"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="0"
+            [ngModel]="priceValue()"
+            (ngModelChange)="onPriceTyped($event)"
+            [readonly]="activeMode() === 'numpad'"
+          />
+          <p-inputgroup-addon>ms</p-inputgroup-addon>
+
+          @for (mode of visibleModes(); track mode) {
+            <p-button [icon]="iconForMode(mode)" [text]="true" [rounded]="true" (onClick)="switchMode(mode)" />
+          }
+        </p-inputgroup>
+
+        @if (activeMode() === 'numpad') {
+          <app-numpad
+            [showDecimal]="false"
             [showEnter]="true"
             [enterDisabled]="priceValue() === null"
             (keyPressed)="onNumpadKey($event)"
@@ -331,7 +373,7 @@ export class InputGroup {
   }
 
   onCodeDetected(value: string): void {
-    if (this.variant() === 'price') {
+    if (this.isNumericVariant()) {
       const parsed = this.parseGermanDecimal(value);
       this.priceValue.set(parsed);
       this.valueChange.emit(parsed ?? 0);
@@ -356,7 +398,7 @@ export class InputGroup {
    * transition itself (it knows the scan's result count; this component does not).
    */
   applyExternalValue(value: string): void {
-    if (this.variant() === 'price') {
+    if (this.isNumericVariant()) {
       const parsed = this.parseGermanDecimal(value);
       this.priceValue.set(parsed);
       this.valueChange.emit(parsed ?? 0);
@@ -384,12 +426,12 @@ export class InputGroup {
   }
 
   onNumpadClear(): void {
-    if (this.variant() === 'price') {
+    if (this.isNumericVariant()) {
       // Review fix (Round-16 Task 4, fix round 1): do NOT emit `valueChange` here. `null`/empty
-      // is "kein Wert eingegeben", which is not the same as a valid price of `0` — emitting `0`
+      // is "kein Wert eingegeben", which is not the same as a valid value of `0` — emitting `0`
       // would make the two indistinguishable for a later consumer (e.g. intake-wizard). The
-      // field simply becomes empty; a real price value is only emitted once one is actually
-      // entered again (typed, scanned, or via the numpad).
+      // field simply becomes empty; a real value is only emitted once one is actually entered
+      // again (typed, scanned, or via the numpad). Applies identically to price and count.
       this.priceValue.set(null);
     } else {
       this._rawValue.set('');
@@ -402,10 +444,16 @@ export class InputGroup {
   }
 
   private dispatchTarget(): HTMLInputElement | undefined {
-    if (this.variant() === 'price') {
+    if (this.isNumericVariant()) {
       return this.priceInputRef()?.input()?.nativeElement;
     }
     return this.searchInputRef()?.nativeElement;
+  }
+
+  /** Round-25 Task 6a: `price` and `count` are both "single numeric value, addon, numpad, no
+   * clear/action button" shapes that share every non-template code path — see class doc-comment. */
+  private isNumericVariant(): boolean {
+    return this.variant() === 'price' || this.variant() === 'count';
   }
 
   private applyNumpadKeyToSearchValue(key: string | undefined): void {

@@ -1,13 +1,13 @@
 ---
 id: C-012
 status: draft
-updated: 2026-08-18
+updated: 2026-09-20
 ---
 
 # Component: InputGroup
 
 **Bibliothek:** PrimeNG — `p-inputgroup` + `p-inputgroupaddon` + `pInputText`
-**Verwendung:** Beide Apps — alle Eingabefelder mit Such- oder Scan-Funktion sowie Preis-Eingaben.
+**Verwendung:** Beide Apps — alle Eingabefelder mit Such- oder Scan-Funktion sowie Preis- und Anzahl-Eingaben.
 
 ## Index
 
@@ -17,6 +17,7 @@ updated: 2026-08-18
 - 3. Eingabe-Modi — Tastatur, Kamera, Numpad
 - 4. Verhalten — Interaktionsregeln
 - 5. Preis-Variante — €-Addon
+- 5a. Anzahl-Variante — ms-Addon
 - 6. PrimeNG-Basis — Technische Basis
 - Akzeptanzkriterien — Prüfbare Kriterien
 - Tags & Piles — Thematische Einordnung
@@ -41,6 +42,9 @@ Standard-InputGroup (Such- / Scan-Feld):
 
 Preis-Variante:
 [ Preis eingeben (Kommazahl)    ][ € ][ Modus-A ]
+
+Anzahl-Variante:
+[ Wert eingeben (Ganzzahl) ][ ms ][ Modus-A ]
 ```
 
 ---
@@ -184,6 +188,29 @@ eigenständig zu formulieren.
 
 ---
 
+## 5a. Anzahl-Variante — ms-Addon
+
+```
+[ Wert eingeben (Ganzzahl) ][ ms ][ Modus-A ]
+```
+
+- Round-25 Task 6a: für Einstellungen mit einem Millisekunden-Wert (z. B. `ScannerPauseMs` im
+  [Settings-Form](../../requirements/bazaar-app/epics/Epic_Einstellungen/epic.md)).
+- Das `ms`-Textlabel erscheint als rechter Addon — dieselbe Baseline wie die Preis-Variante:
+  kein Left-Addon, kein Clear-Button, kein Action-Button.
+- **Ausnahme zur Regel „keine Buttons" — wie bei der Preis-Variante:** Bietet die
+  Verwendungsstelle neben der Tastatur auch den Numpad an, erscheint rechts des `ms`-Addons ein
+  einzelner Modus-Button. Clear- und Action-Button bleiben auch dann ausgeblendet.
+- **Kein Kamera-Modus.** Ein Millisekunden-Pausenwert wird nie per Barcode gescannt — anders als
+  bei der Preis-Variante bietet diese Ausprägung `camera` gar nicht erst als Modus an.
+- _Nur Haupt-App:_ Erlaubte Eingabe: **nur Ganzzahlen** (keine Kommazahl) — im Unterschied zur
+  Preis-Variante.
+- PrimeNG-Komponente: `p-inputnumber` ohne Nachkommastellen (`minFractionDigits="0"`,
+  `maxFractionDigits="0"` — Ganzzahl-Modus).
+- Numpad `showDecimal="false"` (kein Komma-Taste, passend zur Ganzzahl-Eingabe).
+
+---
+
 ## 6. PrimeNG-Basis
 
 ```
@@ -203,6 +230,9 @@ ein anderes Element (Abschnitt 3); im Numpad-Modus steht `app-numpad` unterhalb 
 
 Preis-Variante: `p-inputnumber` anstelle von `pInputText`; nur ein Addon (rechts, €).
 
+Anzahl-Variante (Abschnitt 5a): dieselbe `p-inputnumber`-Basis wie die Preis-Variante, aber
+ohne Nachkommastellen, mit `ms`-Addon statt `€` und ohne Kamera-Modus.
+
 ---
 
 ## Akzeptanzkriterien
@@ -216,11 +246,11 @@ Preis-Variante: `p-inputnumber` anstelle von `pInputText`; nur ein Addon (rechts
 7. **AC-7** — WHEN der Kamera-Modus verlassen wird, das umgebende Popup geschlossen oder die Route gewechselt wird, THEN SHALL das System `active = false` setzen, sodass alle MediaStream-Tracks freigegeben werden.
 8. **AC-8** — WHERE ein Left-Addon konfiguriert ist, SHALL das System das 🔍-Icon als `p-inputgroupaddon` links des Eingabefelds darstellen; ohne Konfiguration entfällt der Addon-Slot vollständig.
 9. **AC-9** — WHEN der Benutzer den Clear-Button betätigt, THEN SHALL das System das Eingabefeld leeren. _(Nur Haupt-App:)_ Zusätzlich SHALL das System den Fokus zurück ins Eingabefeld setzen.
-10. **AC-10** — THE SYSTEM SHALL in der Preis-Variante ein `p-inputnumber` mit `minFractionDigits="2"` und Locale DE verwenden; das €-Zeichen erscheint als rechter `p-inputgroupaddon`.
+10. **AC-10** — THE SYSTEM SHALL in der Preis-Variante ein `p-inputnumber` mit `minFractionDigits="2"` und Locale DE verwenden; das €-Zeichen erscheint als rechter `p-inputgroupaddon`. In der Anzahl-Variante (Abschnitt 5a) SHALL das System dasselbe `p-inputnumber` ohne Nachkommastellen (`minFractionDigits="0"`, `maxFractionDigits="0"`) verwenden; das `ms`-Textlabel erscheint als rechter `p-inputgroupaddon`, ohne Kamera-Modus.
 
 ---
 
 ## Tags & Piles
 
 **Piles:** #pile/shared-components
-**Tags:** #input-group #suchfeld #debounce #clear-button #action-button #preis #scan
+**Tags:** #input-group #suchfeld #debounce #clear-button #action-button #preis #anzahl #scan

@@ -31,7 +31,7 @@ describe('InputGroup', () => {
     }).compileComponents();
   });
 
-  function create(modes?: InputMode[], variant?: 'search' | 'price') {
+  function create(modes?: InputMode[], variant?: 'search' | 'price' | 'count') {
     const fixture = TestBed.createComponent(InputGroup);
     if (modes) fixture.componentRef.setInput('modes', modes);
     if (variant) fixture.componentRef.setInput('variant', variant);
@@ -413,6 +413,109 @@ describe('InputGroup', () => {
     it('shows no mode-button for a single-mode price field', () => {
       const fixture = create(['keyboard'], 'price');
       expect(fixture.componentInstance.visibleModes()).toEqual([]);
+    });
+  });
+
+  // Round-25 Task 6a: the count variant (`ms`-addon, integer p-inputnumber, no camera) reuses
+  // the price variant's numeric code paths — see `isNumericVariant()` in input-group.ts — so
+  // these tests mirror the 'price variant' describe block above, plus the count-specific
+  // integer/no-camera assertions from the task brief.
+  describe('count variant (Round-25 Task 6a)', () => {
+    it('renders the ms addon with no left-addon, no clear button and no action button', () => {
+      const fixture = create(['keyboard'], 'count');
+
+      expect(fixture.debugElement.query(By.css('p-inputnumber'))).toBeTruthy();
+      expect(fixture.debugElement.query(By.css('p-inputgroup-addon'))?.nativeElement.textContent.trim()).toBe('ms');
+      expect(fixture.debugElement.query(By.css('.pi-search'))).toBeFalsy();
+      expect(fixture.debugElement.query(By.css('p-button[icon="pi pi-times"]'))).toBeFalsy();
+      expect(fixture.debugElement.query(By.css('p-button[icon="pi pi-reply"]'))).toBeFalsy();
+    });
+
+    it('configures the p-inputnumber for integer-only input (no fraction digits)', () => {
+      const fixture = create(['keyboard'], 'count');
+
+      const inputNumber = fixture.debugElement.query(By.directive(InputNumber)).componentInstance as InputNumber;
+      expect(inputNumber.minFractionDigits()).toBe(0);
+      expect(inputNumber.maxFractionDigits()).toBe(0);
+    });
+
+    it('shows exactly one modus-button (numpad) when modes=[keyboard, numpad] and switches to a readonly p-inputnumber + app-numpad with showDecimal=false', () => {
+      const fixture = create(['keyboard', 'numpad'], 'count');
+      expect(fixture.componentInstance.visibleModes()).toEqual(['numpad']);
+
+      fixture.componentInstance.switchMode('numpad');
+      fixture.detectChanges();
+
+      const inputNumber = fixture.debugElement.query(By.directive(InputNumber)).componentInstance as InputNumber;
+      expect(inputNumber.input().nativeElement.readOnly).toBe(true);
+
+      const numpad = fixture.debugElement.query(By.directive(Numpad)).componentInstance as Numpad;
+      expect(numpad.showDecimal()).toBe(false);
+    });
+
+    it('shows no mode-button for a single-mode count field', () => {
+      const fixture = create(['keyboard'], 'count');
+      expect(fixture.componentInstance.visibleModes()).toEqual([]);
+    });
+
+    it('emits a number via valueChange when a value is typed', () => {
+      vi.useFakeTimers();
+      const fixture = create(['keyboard'], 'count');
+
+      const emitted: (string | number)[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
+
+      fixture.componentInstance.onPriceTyped(3000);
+      vi.advanceTimersByTime(300);
+
+      expect(emitted).toEqual([3000]);
+      vi.useRealTimers();
+    });
+
+    it('emits a number via valueChange immediately when entered via the numpad (no debounce)', () => {
+      const fixture = create(['keyboard', 'numpad'], 'count');
+      fixture.componentInstance.switchMode('numpad');
+      fixture.detectChanges();
+
+      const inputNumber = fixture.debugElement.query(By.directive(InputNumber)).componentInstance as InputNumber;
+      const nativeInput = inputNumber.input().nativeElement;
+      vi.spyOn(nativeInput, 'dispatchEvent').mockImplementation(() => {
+        fixture.componentInstance.onPriceTyped(3000);
+        return true;
+      });
+
+      const emitted: (string | number)[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
+
+      fixture.componentInstance.onNumpadKey({ key: '3' });
+
+      expect(emitted).toEqual([3000]);
+    });
+
+    // Not over-engineered per the task brief (OPTIONAL): the count variant's template has no
+    // camera `@if` branch at all (see input-group.ts), so no barcode-scanner can ever render for
+    // it regardless of a (type-system-forbidden) misconfigured `modes` array.
+    it('never renders a barcode-scanner for the count variant, even if modes were misconfigured to include camera', () => {
+      const fixture = create(['keyboard', 'camera', 'numpad'] as InputMode[], 'count');
+      fixture.componentInstance.switchMode('camera');
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.directive(BarcodeScanner))).toBeFalsy();
+    });
+
+    it('clears the field via the numpad cleared event without emitting a 0 valueChange', () => {
+      const fixture = create(['keyboard', 'numpad'], 'count');
+      fixture.componentInstance.switchMode('numpad');
+      fixture.componentInstance.priceValue.set(3000);
+      fixture.detectChanges();
+
+      const emitted: (string | number)[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
+
+      fixture.componentInstance.onNumpadClear();
+
+      expect(fixture.componentInstance.priceValue()).toBeNull();
+      expect(emitted).toEqual([]);
     });
   });
 });
