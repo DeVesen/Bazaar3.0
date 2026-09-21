@@ -15,12 +15,24 @@ import { StepperModule } from 'primeng/stepper';
 import { TextareaModule } from 'primeng/textarea';
 import { BootstrapApi, SetupSellerType } from '../../data/bootstrap-api';
 
-/** Splits a textarea's content into trimmed, non-empty lines — one line = one Marke/Kategorie. */
+/**
+ * Splits a textarea's content into trimmed, non-empty, de-duplicated (case-insensitive) lines —
+ * one line = one Marke/Kategorie. Backend rejects a duplicate name with a 409 that aborts the
+ * whole setup transaction, so a stray duplicate line would silently nuke admin/seller-types too;
+ * de-duping here is lossless (the list was never meant to have two rows for the same name).
+ */
 function linesOf(text: string): string[] {
-  return text
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (!line) continue;
+    const key = line.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(line);
+  }
+  return result;
 }
 
 /**
@@ -122,9 +134,16 @@ export class SetupPage {
         next: () => this.router.navigateByUrl('/login'),
         error: (error: unknown) => {
           this.submitting.set(false);
-          if (error instanceof HttpErrorResponse && error.status === 409) {
+          const errorCode = (error instanceof HttpErrorResponse ? error.error?.errorCode : null) as
+            | string
+            | null;
+          if (errorCode === 'bootstrap.already_done') {
             this.submitError.set('Setup wurde bereits abgeschlossen. Bitte melde dich an.');
             this.setupAlreadyDone.set(true);
+          } else if (error instanceof HttpErrorResponse && error.error?.detail) {
+            // Surfaces the real reason (e.g. "Verkäufer-Typ existiert bereits") instead of a
+            // blanket message — any of the reused Create*Handlers' 409/400s land here.
+            this.submitError.set(error.error.detail);
           } else {
             this.submitError.set('Setup konnte nicht abgeschlossen werden. Bitte erneut versuchen.');
           }

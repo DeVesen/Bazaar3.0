@@ -128,6 +128,21 @@ describe('SetupPage - finish', () => {
     });
   });
 
+  it('de-duplicates brand/category lines case-insensitively before submitting', () => {
+    bootstrapApi.completeSetup.mockReturnValue(of(undefined));
+    component.brandNamesText.set('Nike\nADIDAS\nnike\nAdidas');
+    component.categoryNamesText.set('Schuhe\nschuhe\nJacken');
+
+    component.finish();
+
+    expect(bootstrapApi.completeSetup).toHaveBeenCalledWith(
+      expect.objectContaining({
+        brandNames: ['Nike', 'ADIDAS'],
+        categoryNames: ['Schuhe', 'Jacken'],
+      }),
+    );
+  });
+
   it('navigates to /login on success', () => {
     bootstrapApi.completeSetup.mockReturnValue(of(undefined));
 
@@ -137,7 +152,11 @@ describe('SetupPage - finish', () => {
   });
 
   it('shows a conflict message when setup was already completed', () => {
-    bootstrapApi.completeSetup.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    bootstrapApi.completeSetup.mockReturnValue(
+      throwError(
+        () => new HttpErrorResponse({ status: 409, error: { errorCode: 'bootstrap.already_done' } }),
+      ),
+    );
 
     component.finish();
 
@@ -146,7 +165,24 @@ describe('SetupPage - finish', () => {
     expect(component.submitting()).toBe(false);
   });
 
-  it('shows a generic error message on other failures', () => {
+  it('shows the server-provided reason for any other conflict (e.g. a duplicate name)', () => {
+    bootstrapApi.completeSetup.mockReturnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: { errorCode: 'category.name_taken', detail: 'Kategorie existiert bereits' },
+          }),
+      ),
+    );
+
+    component.finish();
+
+    expect(component.submitError()).toBe('Kategorie existiert bereits');
+    expect(component.setupAlreadyDone()).toBe(false);
+  });
+
+  it('shows a generic error message when the server gives no detail', () => {
     bootstrapApi.completeSetup.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
 
     component.finish();

@@ -27,6 +27,11 @@
                     name="setup-password"
                     required
                   />
+                  @if (password()) {
+                    <p-inputicon (click)="password.set('')">
+                      <i class="pi pi-times"></i>
+                    </p-inputicon>
+                  }
                   <p-inputicon (click)="passwordMask.set(!passwordMask())">
                     <i [class]="passwordMask() ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
                   </p-inputicon>
@@ -45,6 +50,11 @@
                     name="setup-password-confirm"
                     required
                   />
+                  @if (passwordConfirm()) {
+                    <p-inputicon (click)="passwordConfirm.set('')">
+                      <i class="pi pi-times"></i>
+                    </p-inputicon>
+                  }
                   <p-inputicon (click)="passwordConfirmMask.set(!passwordConfirmMask())">
                     <i [class]="passwordConfirmMask() ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
                   </p-inputicon>

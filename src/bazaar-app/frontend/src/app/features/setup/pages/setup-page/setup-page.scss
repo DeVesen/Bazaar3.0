@@ -54,6 +54,37 @@
   text-align: right;
 }
 
+// Password fields have two trailing icons (Löschen + Sichtbarkeit) instead of PrimeNG's
+// default single trailing icon — space them out and give the input enough right-padding
+// for both instead of just one.
+.setup-page p-iconfield:has(p-inputicon + p-inputicon) {
+  input {
+    padding-right: 4.5rem;
+  }
+
+  p-inputicon:last-child {
+    right: 0.75rem;
+  }
+
+  p-inputicon:not(:last-child) {
+    right: 2.5rem;
+  }
+}
+
+// p-inputicon is just projected content (a plain <i>), PrimeNG gives it no cursor/hover of its
+// own — unlike p-button, which already themes both.
+.setup-page p-inputicon {
+  cursor: pointer;
+
+  i {
+    transition: color 0.15s;
+  }
+
+  &:hover i {
+    color: var(--p-primary-color);
+  }
+}
+
 .setup-page__actions {
   display: flex;
   justify-content: space-between;
