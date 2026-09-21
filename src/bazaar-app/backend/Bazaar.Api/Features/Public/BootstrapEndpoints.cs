@@ -19,6 +19,14 @@ public static class BootstrapEndpoints
         .AllowAnonymous()
         .AddEndpointFilter<ValidationFilter<BootstrapAdminCommand>>();
 
+        app.MapPost("/api/public/setup-complete", async (CompleteSetupCommand command, CompleteSetupHandler handler) =>
+        {
+            await handler.Handle(command);
+            return Results.NoContent();
+        })
+        .AllowAnonymous()
+        .AddEndpointFilter<ValidationFilter<CompleteSetupCommand>>();
+
         return app;
     }
 }

@@ -45,3 +45,11 @@ h1, h2, h3, .logo-block {
     border-radius: 0;
   }
 }
+
+// Workaround: PrimeNG p-motion (used internally by p-step-panel) sets
+// display:none on mount and can fail to reset it on the initial render
+// (async afterRenderEffect race, reproducible with the official PrimeNG
+// stepper example too). Forces the active panel visible unconditionally.
+.p-steppanel .p-motion {
+  display: grid !important;
+}

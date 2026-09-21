@@ -5,6 +5,7 @@ import { SettingsPage } from './settings-page';
 import { SettingsApi } from '../../data/settings-api';
 import { ImportApi } from '../../data/import-api';
 import { UsersApi } from '../../data/users-api';
+import { DevToolsApi } from '../../data/dev-tools-api';
 // Same sanctioned cross-feature import as import-panel.ts itself (see that file's comment).
 // eslint-disable-next-line boundaries/dependencies
 import { SellerTypesApi } from '../../../seller-types/data/seller-types-api';
@@ -18,6 +19,7 @@ describe('SettingsPage', () => {
         { provide: ImportApi, useValue: { preview: vi.fn(), run: vi.fn() } },
         { provide: SellerTypesApi, useValue: { getAll: vi.fn().mockReturnValue(of([])) } },
         { provide: UsersApi, useValue: { getAll: vi.fn().mockReturnValue(of([])) } },
+        { provide: DevToolsApi, useValue: { isDevelopment: vi.fn().mockReturnValue(of(false)) } },
         { provide: MessageService, useValue: { add: vi.fn() } },
         // Real ConfirmationService — see user-management.spec.ts's comment for why a bare
         // `useValue` mock crashes `p-confirmdialog`'s own constructor.

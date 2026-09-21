@@ -1,8 +1,61 @@
 .setup-page {
-  max-width: 480px;
+  max-width: 640px;
   margin: 48px auto;
 }
 
 .setup-page__error {
   color: var(--p-red-500);
+}
+
+.setup-page form,
+.setup-page p-card .p-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setup-page form > p-button:last-child {
+  align-self: flex-end;
+}
+
+.setup-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  input,
+  textarea,
+  p-iconfield,
+  p-inputgroup {
+    width: 100%;
+  }
+}
+
+.setup-page__row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .setup-page__field {
+    flex: 1 1 160px;
+  }
+
+  .setup-page__field--narrow {
+    flex: 0 1 130px;
+  }
+
+  p-button {
+    flex: 0 0 auto;
+  }
+}
+
+.setup-page__number {
+  text-align: right;
+}
+
+.setup-page__actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
 }

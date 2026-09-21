@@ -28,4 +28,30 @@ describe('BootstrapApi', () => {
 
     expect(result).toEqual({ accessToken: 'token-123' });
   });
+
+  it('posts the whole wizard payload to setup-complete', () => {
+    let completed = false;
+    api
+      .completeSetup({
+        username: 'admin',
+        password: 'changeme1',
+        sellerTypes: [{ name: 'Kleidung', commissionRate: 10, itemFee: 0.5 }],
+        brandNames: ['Nike'],
+        categoryNames: ['Schuhe'],
+      })
+      .subscribe(() => (completed = true));
+
+    const req = httpMock.expectOne('/api/public/setup-complete');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      username: 'admin',
+      password: 'changeme1',
+      sellerTypes: [{ name: 'Kleidung', commissionRate: 10, itemFee: 0.5 }],
+      brandNames: ['Nike'],
+      categoryNames: ['Schuhe'],
+    });
+    req.flush(null);
+
+    expect(completed).toBe(true);
+  });
 });

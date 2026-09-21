@@ -1,5 +1,6 @@
 using System.Text;
 using Bazaar.Api.ExceptionHandling;
+using Bazaar.Api.Features.Admin;
 using Bazaar.Api.Features.Articles;
 using Bazaar.Api.Features.Auth;
 using Bazaar.Api.Features.Brands;
@@ -97,6 +98,7 @@ builder.Services.AddSingleton<AdminBootstrapState>();
 builder.Services.AddScoped<LoginHandler>();
 builder.Services.AddScoped<ChangePasswordHandler>();
 builder.Services.AddScoped<BootstrapAdminHandler>();
+builder.Services.AddScoped<CompleteSetupHandler>();
 builder.Services.AddScoped<GetBrandsHandler>();
 builder.Services.AddScoped<CreateBrandHandler>();
 builder.Services.AddScoped<UpdateBrandHandler>();
@@ -172,6 +174,7 @@ if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddCors(o => o.AddPolicy(corsPolicy, p =>
         p.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod()));
+    builder.Services.AddScoped<DatabaseResetService>();
 }
 
 var app = builder.Build();
@@ -180,6 +183,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseCors(corsPolicy);
+    app.MapDevToolsEndpoints();
 }
 
 app.UseExceptionHandler();

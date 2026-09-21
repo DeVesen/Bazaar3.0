@@ -1,0 +1,16 @@
+.dev-tools-panel {
+  border: 1px solid var(--p-red-300);
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.dev-tools-panel__warning {
+  color: var(--p-red-600);
+}
+
+.dev-tools-panel__confirm {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
