@@ -256,22 +256,10 @@ describe('IntakeArticleEntry', () => {
       expect(component.numberTakenMessage()).toBe('Artikelnummer bereits vergeben');
     });
 
-    it('200, belongs to this seller and still registered (pre-announced): prefills all Stammfelder, no message, fields stay editable', async () => {
+    it('200, belongs to this seller and still registered (pre-announced): no message, but no auto-prefill either (only the renumber popup prefills)', async () => {
       const articlesApi = articlesApiStub();
       articlesApi.getByNumber.mockReturnValue(
-        of(
-          articleByNumberStub({
-            sellerId: SELLER_ID,
-            status: 'registered',
-            name: 'Sommerkleid',
-            brand: 'Vertbaudet',
-            category: 'Kleider',
-            price: 8,
-            size: '92',
-            color: 'Rot',
-            description: 'Kaum getragen',
-          }),
-        ),
+        of(articleByNumberStub({ sellerId: SELLER_ID, status: 'registered', name: 'Sommerkleid' })),
       );
       const { fixture } = await setup({ articlesApi });
       const component = fixture.componentInstance;
@@ -280,14 +268,7 @@ describe('IntakeArticleEntry', () => {
       await fixture.whenStable();
 
       expect(component.numberTakenMessage()).toBeNull();
-      expect(component.name()).toBe('Sommerkleid');
-      expect(component.category()).toBe('Kleider');
-      expect(component.brand()).toBe('Vertbaudet');
-      expect(component.size()).toBe('92');
-      expect(component.color()).toBe('Rot');
-      expect(component.description()).toBe('Kaum getragen');
-      expect(component.price()).toBe(8);
-      expect(priceInputGroup(fixture).priceValue()).toBe(8);
+      expect(component.name()).toBe('');
     });
 
     it('also triggers the check on submitted (Enter/↩), reading the field\'s current raw value', async () => {
@@ -301,36 +282,6 @@ describe('IntakeArticleEntry', () => {
       await fixture.whenStable();
 
       expect(articlesApi.getByNumber).toHaveBeenCalledWith(1099);
-    });
-
-    // Fix round 1 (reviewer Important 2).
-    it('clears stale prefilled Bezeichnung/Preis when the number changes to a different, free number', async () => {
-      const articlesApi = articlesApiStub();
-      // `mockImplementation` keyed on the requested number rather than positional
-      // `mockReturnValueOnce()` queuing: the constructor's own `prefillNextNumber()` already
-      // triggers one extra, implicit `getByNumber()` call (via `applyExternalValue()`'s
-      // `valueChange` round-trip, see this file's earlier "next suggested article number" test
-      // and the component's own doc comment on that) BEFORE this test's explicit calls — a
-      // positional queue would silently consume its first slot on that unrelated call.
-      articlesApi.getByNumber.mockImplementation((number: number) =>
-        number === 1042
-          ? of(articleByNumberStub({ sellerId: SELLER_ID, status: 'registered', name: 'Sommerkleid', price: 8 }))
-          : throwError(() => new HttpErrorResponse({ status: 404 })),
-      );
-      const { fixture } = await setup({ articlesApi });
-      const component = fixture.componentInstance;
-
-      numberInputGroup(fixture).valueChange.emit('1042');
-      await fixture.whenStable();
-      expect(component.name()).toBe('Sommerkleid');
-      expect(component.price()).toBe(8);
-
-      numberInputGroup(fixture).valueChange.emit('1099');
-      await fixture.whenStable();
-
-      expect(component.name()).toBe('');
-      expect(component.price()).toBe(0);
-      expect(priceInputGroup(fixture).priceValue()).toBeNull();
     });
 
     // Fix round 1 (reviewer Important 2): the flip side — a 404 must never wipe a genuinely

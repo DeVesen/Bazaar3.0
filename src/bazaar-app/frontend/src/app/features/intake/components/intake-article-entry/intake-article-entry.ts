@@ -140,19 +140,6 @@ export class IntakeArticleEntry {
    * overwrite it (which would also wrongly re-trigger a number-check for the wrong number).
    */
   private numberFieldSeq = 0;
-  /**
-   * Fix round 1 (reviewer Important 2), extended to all Stammfelder: true only while
-   * Bezeichnung/Kategorie/Marke/Preis/Größe/Farbe/Beschreibung hold values that came from
-   * `handleArticleFound()`'s own-seller-unreleased prefill branch, not from the user's own
-   * typing — cleared on any manual edit to one of those fields (`onNameChange()`/
-   * `onPriceChange()`/`onCategoryChange()`/`onBrandChange()`/`onSizeChange()`/`onColorChange()`/
-   * `onDescriptionChange()`) and consumed (cleared + fields reset) once the Artikelnummer field
-   * moves on to a DIFFERENT number whose lookup no longer confirms that same prefill
-   * (`clearPrefilledFields()`). Prevents article A's prefilled fields from silently leaking into
-   * a "fresh" entry for a different number B.
-   */
-  private prefillActive = false;
-
   readonly canSave = computed(
     () =>
       this.articleNumber().trim().length > 0 &&
@@ -211,41 +198,32 @@ export class IntakeArticleEntry {
     this.checkArticleNumber(raw);
   }
 
-  /** Manual edit to Bezeichnung — no longer counts as a lookup-prefilled value (fix round 1,
-   * reviewer Important 2). */
   onNameChange(value: string): void {
     this.name.set(value);
-    this.prefillActive = false;
   }
 
   onPriceChange(value: string | number): void {
     this.price.set(typeof value === 'number' ? value : Number(value));
-    this.prefillActive = false;
   }
 
   onCategoryChange(value: string): void {
     this.category.set(value);
-    this.prefillActive = false;
   }
 
   onBrandChange(value: string): void {
     this.brand.set(value);
-    this.prefillActive = false;
   }
 
   onSizeChange(value: string): void {
     this.size.set(value);
-    this.prefillActive = false;
   }
 
   onColorChange(value: string): void {
     this.color.set(value);
-    this.prefillActive = false;
   }
 
   onDescriptionChange(value: string): void {
     this.description.set(value);
-    this.prefillActive = false;
   }
 
   onCategoryCreated(name: string): void {
@@ -373,67 +351,22 @@ export class IntakeArticleEntry {
     });
   }
 
+  /** Reine Vergeben-Prüfung (Epic_Artikelannahme): die Nummer gehört einem anderen Verkäufer
+   * ODER ist bereits freigegeben. Kein Auto-Prefill mehr am Hauptfeld — das Laden eines
+   * vorregistrierten, noch nicht freigegebenen Artikels läuft ausschließlich über das
+   * `app-intake-renumber-lookup-popup` (`onArticleFoundViaRenumberPopup()`). */
   private handleArticleFound(article: ArticleByNumberResult): void {
     const belongsToThisSeller = article.sellerId === this.sellerId();
     // Round-15 status model: `'registered'` is the only not-yet-released state — anything else
     // (selling/sold/returned) means the number is already in active use.
     const alreadyReleased = article.status !== 'registered';
-
-    if (!belongsToThisSeller || alreadyReleased) {
-      // Fix round 1 (reviewer Important 2): this number is a DIFFERENT article than whatever
-      // the previous lookup may have prefilled — never leave that stale data sitting in
-      // Bezeichnung/Preis behind a "vergeben" message the user can't get past without first
-      // changing the number again.
-      this.clearPrefilledFields();
-      this.numberTakenMessage.set('Artikelnummer bereits vergeben');
-      return;
-    }
-
-    // Own seller, pre-announced, not yet released — prefill every Stammfeld and keep it all
-    // editable (Epic_Artikelannahme Abschnitt 2, "Sonderfall importierter Verkäufer").
-    this.numberTakenMessage.set(null);
-    this.name.set(article.name);
-    this.category.set(article.category);
-    this.brand.set(article.brand);
-    this.size.set(article.size ?? '');
-    this.color.set(article.color ?? '');
-    this.description.set(article.description ?? '');
-    this.price.set(article.price);
-    // Direct call rather than the generic `pendingPriceValue` signal/effect indirection: by the
-    // time a lookup can fire at all, the view (and `priceInputGroup`'s viewChild) is guaranteed
-    // already resolved, and going through `pendingPriceValue` here would let its own
-    // `applyExternalValue()` round-trip (which re-emits `valueChange` -> `onPriceChange()`, which
-    // clears `prefillActive`) race against setting `prefillActive = true` below in the wrong
-    // order.
-    this.priceInputGroup()?.applyExternalValue(String(article.price));
-    this.prefillActive = true;
+    this.numberTakenMessage.set(!belongsToThisSeller || alreadyReleased ? 'Artikelnummer bereits vergeben' : null);
   }
 
   private handleArticleLookupError(error: unknown): void {
     if (error instanceof HttpErrorResponse && error.status === 404) {
-      // Number is free — normal new-entry flow, clear any stale "vergeben" message AND any
-      // stale Bezeichnung/Preis a PREVIOUS number's found-article prefill left behind (fix round
-      // 1, reviewer Important 2) — this number was never confirmed to be that same article.
       this.numberTakenMessage.set(null);
-      this.clearPrefilledFields();
     }
-  }
-
-  /** Fix round 1 (reviewer Important 2), extended to all Stammfelder: resets them back to
-   * empty/default, but ONLY when they currently hold a previous lookup's prefilled values
-   * (`prefillActive`) — never clobbers values the user is genuinely hand-typing for a fresh
-   * entry that never went through a found-article prefill in the first place. */
-  private clearPrefilledFields(): void {
-    if (!this.prefillActive) return;
-    this.name.set('');
-    this.category.set('');
-    this.brand.set('');
-    this.size.set('');
-    this.color.set('');
-    this.description.set('');
-    this.price.set(0);
-    this.priceInputGroup()?.applyExternalValue('');
-    this.prefillActive = false;
   }
 
   private prefillNextNumber(): void {
@@ -459,7 +392,6 @@ export class IntakeArticleEntry {
     this.description.set('');
     this.numberTakenMessage.set(null);
     this.pendingPriceValue.set('');
-    this.prefillActive = false;
     this.numberFieldSeq++;
     this.prefillNextNumber();
   }
