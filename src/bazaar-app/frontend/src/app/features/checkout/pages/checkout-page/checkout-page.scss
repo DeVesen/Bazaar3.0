@@ -48,10 +48,19 @@
       color: #0d47a1;
     }
   }
+}
 
-  &__price-button {
-    width: 100%;
-  }
+// Kamera/Nummernblock-Aktiv-Markierung + Enter-Disabled (checkout-page.ts's `inputAddons()`) —
+// these classes land on `app-input`'s own internal `p-inputgroup-addon`, outside this
+// component's emulated-encapsulation scope, hence `::ng-deep` (same convention as
+// shared/components/kpi-tile/kpi-tile.scss).
+::ng-deep .checkout-page__addon--active {
+  background: var(--p-primary-100, #dbeafe);
+}
+
+::ng-deep .checkout-page__addon--disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 // Responsive Bezahlen-Dialog-Breite (docs/spec/2026-09-22-bezahlen-dialog-betrag-numpad.md):

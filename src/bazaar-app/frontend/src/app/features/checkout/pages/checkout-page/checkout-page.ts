@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { InputGroup } from '../../../../shared/components/input-group/input-group';
+import { Input, InputAddon } from '../../../../shared/components/input/input';
+import { Numpad } from '../../../../shared/components/numpad/numpad';
+import { BarcodeScanner } from '../../../../shared/components/barcode-scanner/barcode-scanner';
 import { PaymentConfirmedEvent, PaymentPanel } from '../../../../shared/components/payment-panel/payment-panel';
 import { Cart } from '../../components/cart/cart';
 import { SalesApi } from '../../data/sales-api';
@@ -14,9 +16,8 @@ import { ArticleByNumberResult, ArticlesApi } from '../../../articles/data/artic
 
 /**
  * A single article added to the checkout basket, held locally until "BUCHEN"
- * calls `SalesApi.bookSale()` (Task 5). Deliberately narrower than
- * `ArticleByNumberResult` — only the fields the cart (Task 4) needs to
- * render a row and this page needs to sum the total.
+ * calls `SalesApi.bookSale()`. Deliberately narrower than `ArticleByNumberResult` —
+ * only the fields the cart needs to render a row and this page needs to sum the total.
  */
 export interface CartItem {
   id: string;
@@ -32,18 +33,25 @@ interface InfoState {
   text: string;
 }
 
+type FieldMode = 'keyboard' | 'camera' | 'numpad';
+
+/** docs/spec/2026-09-22-verkauf-eingabe-enter-layout.md "Info-Text initial/leer": gelb, shown on
+ * fresh navigation and again whenever the page returns to an empty-cart baseline. */
+const INITIAL_INFO_STATE: InfoState = { type: 'warn', text: 'Bitte Artikelnummer eingeben' };
+
 /**
- * Kasse/Verkauf page (Epic_Verkauf) — left column: article-number `input-group`
- * (keyboard/camera/numpad), an inline InfoArea reporting the lookup result, and a
- * Preis-Button that adds the found article to the basket. Right column renders
- * `app-cart` (Task 4), which owns the remove/clear/checkout intents (this page still
- * owns `cartItems` mutation and refocusing). "BUCHEN" opens `app-payment-panel` in a
- * `p-dialog` overlay (Task 5); `SalesApi.bookSale()`/`undoSale()` back the booking and
- * Storno flow, mirroring `release-dialog.ts`'s own confirm→book→handle-409 shape.
+ * Kasse/Verkauf page (Epic_Verkauf) — left column: article-number `app-input` (keyboard,
+ * with camera/numpad as sibling panels below it) driven entirely by Enter (no auto-lookup),
+ * an inline InfoArea reporting the lookup result, no Preis-Button anymore — a second Enter on
+ * a "found" result adds it to the basket. Right column renders `app-cart`, which owns the
+ * remove/clear/checkout intents (this page still owns `cartItems` mutation and refocusing).
+ * "BUCHEN" opens `app-payment-panel` in a `p-dialog` overlay; `SalesApi.bookSale()`/`undoSale()`
+ * back the booking and Storno flow, mirroring `release-dialog.ts`'s own confirm→book→handle-409
+ * shape.
  */
 @Component({
   selector: 'app-checkout-page',
-  imports: [ButtonModule, DialogModule, InputGroup, Cart, PaymentPanel],
+  imports: [ButtonModule, DialogModule, Input, Numpad, BarcodeScanner, Cart, PaymentPanel],
   templateUrl: './checkout-page.html',
   styleUrl: './checkout-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,23 +61,23 @@ export class CheckoutPage {
   private readonly salesApi = inject(SalesApi);
   private readonly hostElement: ElementRef<HTMLElement> = inject(ElementRef);
 
-  private readonly numberGroup = viewChild<InputGroup>('numberGroup');
-
   readonly cartItems = signal<CartItem[]>([]);
-  readonly infoState = signal<InfoState>({ type: 'info', text: 'Ersten Artikel eingeben …' });
-  /** The currently looked-up, sellable-and-not-in-cart article; drives the Preis-Button's
-   * visibility/price/caption. `null` whenever the Preis-Button should be hidden. */
-  readonly foundArticle = signal<ArticleByNumberResult | null>(null);
-  /** Article ids of the last successfully booked sale — drives the "Letzten Vorgang
-   * stornieren" button's visibility; cleared as soon as the next lookup starts (epic.md §5). */
+  readonly infoState = signal<InfoState>(INITIAL_INFO_STATE);
   readonly lastSaleArticleIds = signal<string[]>([]);
-  /** `true` while the "Bezahlen" payment-panel `p-dialog` is open. */
   readonly paymentPanelVisible = signal(false);
-  /** Id of the cart row to mark after a booking 409 (`article.not_sellable`); `null` otherwise. */
   readonly highlightedItemId = signal<string | null>(null);
 
-  /** The page's own copy of the cart total for the payment-panel's `totalAmount` input —
-   * `cart.ts`'s own `total` computed is private to that component, see task-5-brief.md §1. */
+  readonly articleNumber = signal('');
+  readonly activeMode = signal<FieldMode>('keyboard');
+  readonly previousMode = signal<FieldMode>('keyboard');
+  readonly searching = signal(false);
+  /** The currently looked-up, sellable-and-not-in-cart article; non-null exactly while the field
+   * is in the "valide gefunden" state. */
+  readonly foundArticle = signal<ArticleByNumberResult | null>(null);
+  /** Raw field value at the moment `foundArticle` was set — typing away from it invalidates the
+   * find (spec.md "Tippen nach Valid": the next Enter becomes a new lookup, not a cart add). */
+  readonly resultNumber = signal<string | null>(null);
+
   readonly cartTotal = computed(() => this.cartItems().reduce((sum, item) => sum + item.price, 0));
 
   readonly infoIcon = computed<string>(() => {
@@ -85,53 +93,110 @@ export class CheckoutPage {
     }
   });
 
-  readonly priceLabel = computed<string>(() => {
-    const article = this.foundArticle();
-    if (!article) return '';
-    return article.price.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+  /** Kamera/Nummernblock-Umschalter + Clear/Enter; im "valide gefunden"-Zustand nur noch
+   * Clear/Enter (spec.md "Zustand valide"). Das Enter-Addon bekommt während `searching()` eine
+   * `--disabled`-Klasse (spec.md AC "Enter während Suche wirkungslos"; `InputAddon` selbst hat
+   * kein natives disabled-Feld). */
+  readonly inputAddons = computed<InputAddon[]>(() => {
+    const clearAndEnter: InputAddon[] = [
+      { type: 'icon', value: 'pi pi-times', key: 'clear' },
+      {
+        type: 'icon',
+        value: 'pi pi-reply',
+        key: 'enter',
+        class: this.searching() ? 'checkout-page__addon--disabled' : undefined,
+      },
+    ];
+    if (this.foundArticle()) return clearAndEnter;
+    return [
+      {
+        type: 'icon',
+        value: 'pi pi-camera',
+        key: 'camera',
+        class: this.activeMode() === 'camera' ? 'checkout-page__addon--active' : undefined,
+      },
+      {
+        type: 'icon',
+        value: 'pi pi-th-large',
+        key: 'numpad',
+        class: this.activeMode() === 'numpad' ? 'checkout-page__addon--active' : undefined,
+      },
+      ...clearAndEnter,
+    ];
   });
 
   constructor() {
     // Fokus-Verhalten (spec.md §7, AC-1): focus the article-number field on page entry.
-    // `input-group` exposes no public `focus()` method (documented, deliberate) — same
-    // best-effort host-querySelector pattern as `scan-dialog.ts`'s `onShown()`.
+    // `app-input` exposes no public `focus()` — same best-effort host-querySelector pattern as
+    // `scan-dialog.ts`'s `onShown()`.
     queueMicrotask(() => this.focusArticleNumberField());
   }
 
-  onArticleNumberChange(value: string | number): void {
-    const raw = String(value);
-    if (!raw.trim()) return;
-    this.checkArticleNumber(raw);
+  onTyped(value: string): void {
+    this.articleNumber.set(value);
+    if (this.foundArticle() && value !== this.resultNumber()) {
+      this.foundArticle.set(null);
+      this.resultNumber.set(null);
+    }
   }
 
-  /** Fallback trigger for Enter/the numpad's ⏎ — `submitted` does not necessarily carry the
-   * latest debounced value, so re-read `rawValue()` directly, same reasoning as
-   * `intake-article-entry.ts`'s own `onArticleNumberSubmit()`. */
-  onArticleNumberSubmit(): void {
-    const raw = this.numberGroup()?.rawValue() ?? '';
-    if (raw.trim()) this.checkArticleNumber(raw);
+  onAddonClick(key: string): void {
+    switch (key) {
+      case 'camera':
+        this.activeMode.set(this.activeMode() === 'camera' ? 'keyboard' : 'camera');
+        return;
+      case 'numpad':
+        this.activeMode.set(this.activeMode() === 'numpad' ? 'keyboard' : 'numpad');
+        return;
+      case 'clear':
+        this.onTyped('');
+        return;
+      case 'enter':
+        this.onEnterPressed();
+        return;
+    }
   }
 
-  onAddToCart(): void {
-    const article = this.foundArticle();
-    if (!article) return;
-    this.cartItems.update((items) => [
-      ...items,
-      { id: article.id, number: article.number, name: article.name, price: article.price },
-    ]);
-    this.foundArticle.set(null);
-    this.numberGroup()?.applyExternalValue('');
-    this.infoState.set({ type: 'success', text: 'Nächsten Artikel eingeben …' });
-    this.focusArticleNumberField();
+  /** Artikelnummer ist reine Ganzzahl — nur Ziffern und Backspace werden übernommen, gleiches
+   * Muster wie `intake-renumber-lookup-popup.ts`'s eigener `onNumpadKey`. */
+  onNumpadKey(init: KeyboardEventInit): void {
+    const key = init.key;
+    if (key === undefined) return;
+    if (key === 'Backspace') {
+      this.onTyped(this.articleNumber().slice(0, -1));
+      return;
+    }
+    if (/^[0-9]$/.test(key)) {
+      this.onTyped(this.articleNumber() + key);
+    }
   }
 
-  private checkArticleNumber(raw: string): void {
+  onNumpadClear(): void {
+    this.onTyped('');
+  }
+
+  onCodeDetected(code: string): void {
+    this.onTyped(code);
+    this.activeMode.set('keyboard');
+  }
+
+  onEnterPressed(): void {
+    if (this.searching()) return;
+    if (this.foundArticle() && this.articleNumber() === this.resultNumber()) {
+      this.addToCart();
+      return;
+    }
+    this.startLookup();
+  }
+
+  private startLookup(): void {
     // Storno-Button "verschwindet, sobald der nächste Artikel gescannt wird" (epic.md §5) — this
     // is the single entry point every keyboard/camera/numpad lookup funnels through, so one reset
     // here covers all input modes.
     this.lastSaleArticleIds.set([]);
 
-    const trimmed = raw.trim();
+    const trimmed = this.articleNumber().trim();
+    if (!trimmed) return;
     const number = Number.parseInt(trimmed, 10);
     if (!Number.isFinite(number)) return;
 
@@ -140,23 +205,31 @@ export class CheckoutPage {
     if (this.cartItems().some((item) => item.number === number)) {
       this.infoState.set({ type: 'warn', text: 'Artikel ist bereits im Warenkorb.' });
       this.foundArticle.set(null);
+      this.resultNumber.set(null);
+      this.focusArticleNumberField(true);
       return;
     }
 
+    this.searching.set(true);
     this.articlesApi.getByNumber(number).subscribe({
-      next: (article) => this.handleArticleFound(article, number),
+      next: (article) => this.handleArticleFound(article, number, trimmed),
       error: (error: unknown) => this.handleArticleLookupError(error, number),
     });
   }
 
-  private handleArticleFound(article: ArticleByNumberResult, number: number): void {
+  private handleArticleFound(article: ArticleByNumberResult, number: number, matchedRaw: string): void {
+    this.searching.set(false);
     switch (article.status) {
       case 'selling':
         this.infoState.set({
           type: 'success',
-          text: article.price.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
+          text: `Artikel gültig – ${article.price.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} – Enter zum Übernehmen`,
         });
         this.foundArticle.set(article);
+        this.resultNumber.set(matchedRaw);
+        this.previousMode.set(this.activeMode());
+        this.activeMode.set('keyboard');
+        this.focusArticleNumberField(true);
         return;
       case 'registered':
         this.infoState.set({
@@ -164,10 +237,12 @@ export class CheckoutPage {
           text: `Artikel ${number} ist noch nicht freigegeben — zuerst annehmen.`,
         });
         this.foundArticle.set(null);
+        this.focusArticleNumberField(true);
         return;
       case 'sold':
         this.infoState.set({ type: 'error', text: `Artikel ${number} ist bereits verkauft.` });
         this.foundArticle.set(null);
+        this.focusArticleNumberField(true);
         return;
       case 'returned':
         this.infoState.set({
@@ -175,6 +250,7 @@ export class CheckoutPage {
           text: `Artikel ${number} wurde an den Verkäufer zurückgegeben.`,
         });
         this.foundArticle.set(null);
+        this.focusArticleNumberField(true);
         return;
       default:
         // There is no `not_sellable`/settlement case reachable here — that only exists
@@ -185,13 +261,16 @@ export class CheckoutPage {
           text: 'Artikel-Suche fehlgeschlagen. Bitte erneut versuchen.',
         });
         this.foundArticle.set(null);
+        this.focusArticleNumberField(true);
     }
   }
 
   private handleArticleLookupError(error: unknown, number: number): void {
+    this.searching.set(false);
     if (error instanceof HttpErrorResponse && error.status === 404) {
       this.infoState.set({ type: 'error', text: `Artikelnummer ${number} ist nicht bekannt.` });
       this.foundArticle.set(null);
+      this.focusArticleNumberField(true);
       return;
     }
 
@@ -199,20 +278,36 @@ export class CheckoutPage {
     // generic error message rather than silently doing nothing.
     this.infoState.set({ type: 'error', text: 'Artikel-Suche fehlgeschlagen. Bitte erneut versuchen.' });
     this.foundArticle.set(null);
+    this.focusArticleNumberField(true);
+  }
+
+  private addToCart(): void {
+    const article = this.foundArticle();
+    if (!article) return;
+    this.cartItems.update((items) => [
+      ...items,
+      { id: article.id, number: article.number, name: article.name, price: article.price },
+    ]);
+    this.foundArticle.set(null);
+    this.resultNumber.set(null);
+    this.articleNumber.set('');
+    this.infoState.set({ type: 'success', text: 'Nächsten Artikel eingeben …' });
+    this.activeMode.set(this.previousMode());
+    this.focusArticleNumberField();
   }
 
   onCartRemoveItem(id: string): void {
     this.cartItems.update((items) => items.filter((item) => item.id !== id));
     this.highlightedItemId.set(null);
-    this.numberGroup()?.applyExternalValue('');
+    this.resetField();
     this.focusArticleNumberField();
   }
 
   onCartClear(): void {
     this.cartItems.set([]);
     this.highlightedItemId.set(null);
-    this.numberGroup()?.applyExternalValue('');
-    this.infoState.set({ type: 'info', text: 'Ersten Artikel eingeben …' });
+    this.resetField();
+    this.infoState.set(INITIAL_INFO_STATE);
     this.focusArticleNumberField();
   }
 
@@ -239,9 +334,9 @@ export class CheckoutPage {
         this.paymentPanelVisible.set(false);
         this.lastSaleArticleIds.set(articleIds);
         this.cartItems.set([]);
-        this.numberGroup()?.applyExternalValue('');
         this.highlightedItemId.set(null);
-        this.infoState.set({ type: 'info', text: 'Ersten Artikel eingeben …' });
+        this.resetField();
+        this.infoState.set(INITIAL_INFO_STATE);
         this.focusArticleNumberField();
       },
       error: (error: unknown) => this.handleBookingError(error),
@@ -305,9 +400,19 @@ export class CheckoutPage {
     this.infoState.set({ type: 'error', text: 'Storno fehlgeschlagen. Bitte erneut versuchen.' });
   }
 
-  /** Extracted since it is called from multiple places (init, after add-to-cart, after
-   * remove/clear/booking) — reused instead of duplicating the query. */
-  private focusArticleNumberField(): void {
-    this.hostElement.nativeElement.querySelector<HTMLInputElement>('input')?.focus();
+  private resetField(): void {
+    this.articleNumber.set('');
+    this.foundArticle.set(null);
+    this.resultNumber.set(null);
+  }
+
+  /** Extracted since it is called from multiple places (init, after found/error results,
+   * after add-to-cart, after remove/clear/booking) — reused instead of duplicating the query.
+   * `selectAll` selects the field's content too (spec.md: focus+select on every settled result
+   * except the freshly-cleared/init states). */
+  private focusArticleNumberField(selectAll = false): void {
+    const input = this.hostElement.nativeElement.querySelector<HTMLInputElement>('input');
+    input?.focus();
+    if (selectAll) input?.select();
   }
 }

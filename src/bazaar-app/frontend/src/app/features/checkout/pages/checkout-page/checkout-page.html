@@ -2,24 +2,33 @@
   <div class="checkout-page__column checkout-page__column--left">
     <div class="checkout-page__field">
       <label for="checkout-page-number">Artikelnummer</label>
-      <app-input-group
-        #numberGroup
+      <app-input
         inputId="checkout-page-number"
-        variant="search"
-        [modes]="['keyboard', 'camera', 'numpad']"
-        (valueChange)="onArticleNumberChange($event)"
-        (submitted)="onArticleNumberSubmit()"
+        [value]="articleNumber()"
+        [debounceMs]="0"
+        [addonRight]="inputAddons()"
+        (valueChange)="onTyped($event)"
+        (enter)="onEnterPressed()"
+        (addonClick)="onAddonClick($event)"
       />
     </div>
+
+    @if (activeMode() === 'camera') {
+      <app-barcode-scanner [active]="activeMode() === 'camera'" (codeDetected)="onCodeDetected($event)" />
+    }
+    @if (activeMode() === 'numpad') {
+      <app-numpad
+        [enterDisabled]="searching()"
+        (keyPressed)="onNumpadKey($event)"
+        (cleared)="onNumpadClear()"
+        (submitted)="onEnterPressed()"
+      />
+    }
 
     <div class="checkout-page__info-area checkout-page__info-area--{{ infoState().type }}">
       <i [class]="infoIcon()"></i>
       <span>{{ infoState().text }}</span>
     </div>
-
-    @if (foundArticle()) {
-      <p-button styleClass="checkout-page__price-button" [label]="priceLabel()" severity="success" (onClick)="onAddToCart()" />
-    }
 
     @if (lastSaleArticleIds().length > 0) {
       <p-button label="Letzten Vorgang stornieren" severity="secondary" [outlined]="true" (onClick)="onUndoSale()" />
