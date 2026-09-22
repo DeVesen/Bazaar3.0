@@ -7,9 +7,16 @@ function findKey(fixture: ReturnType<typeof TestBed.createComponent>, modifier: 
   return fixture.debugElement.query(By.css(`.numpad__key--${modifier}`));
 }
 
+// Clicks the real <button> nested one level inside the `.numpad__key--*`-classed <p-button> host
+// (that host element carries the grid-placement class for CSS Grid purposes — see numpad.scss —
+// but PrimeNG's own click handling lives on its internal <button>). A native `.click()` on the
+// outer host element never reaches that internal listener, since clicking an element only
+// bubbles up to ancestors, never down into descendants — so this mirrors what a real pointer
+// click actually hits (the internal <button>, which visually fills the whole grid cell).
 function clickKey(fixture: ReturnType<typeof TestBed.createComponent>, modifier: string): void {
   const el = findKey(fixture, modifier);
-  el.nativeElement.click();
+  const button = el.nativeElement.querySelector('button') as HTMLButtonElement;
+  button.click();
   fixture.detectChanges();
 }
 
@@ -62,35 +69,21 @@ describe('Numpad', () => {
     expect(keyPressed).toEqual([]);
   });
 
-  // AC-4 / AC-5
-  it('shows the comma key and emits key , when showDecimal is true, leaving C/0 positions unchanged', () => {
+  // AC-4 (numpad-scope): comma is always visible and always emits ','
+  it('emits keyPressed with key , when the comma key is clicked', () => {
     const fixture = TestBed.createComponent(Numpad);
-    fixture.componentRef.setInput('showDecimal', true);
     fixture.detectChanges();
     const emitted: KeyboardEventInit[] = [];
     fixture.componentInstance.keyPressed.subscribe((e) => emitted.push(e));
 
-    expect(findKey(fixture, 'comma')).toBeTruthy();
     clickKey(fixture, 'comma');
+
     expect(emitted).toEqual([{ key: ',' }]);
-
-    expect(findKey(fixture, 'clear')).toBeTruthy();
-    expect(findKey(fixture, '0')).toBeTruthy();
-  });
-
-  it('hides the comma key and leaves its grid slot empty when showDecimal is false', () => {
-    const fixture = TestBed.createComponent(Numpad);
-    fixture.detectChanges();
-
-    expect(findKey(fixture, 'comma')).toBeFalsy();
-    expect(findKey(fixture, 'clear')).toBeTruthy();
-    expect(findKey(fixture, '0')).toBeTruthy();
   });
 
   // AC-6
-  it('emits submitted and NOT keyPressed when ⏎ is clicked, only when showEnter is true', () => {
+  it('emits submitted and NOT keyPressed when ⏎ is clicked', () => {
     const fixture = TestBed.createComponent(Numpad);
-    fixture.componentRef.setInput('showEnter', true);
     fixture.detectChanges();
     const keyPressed: KeyboardEventInit[] = [];
     let submittedCount = 0;
@@ -103,39 +96,29 @@ describe('Numpad', () => {
     expect(keyPressed).toEqual([]);
   });
 
-  // AC-7
-  it('hides ⏎ when showEnter is false and spans ⌫ across all four rows', () => {
+  // Numpad-scope: all 14 keys are always present, regardless of any input.
+  it('renders all 14 keys unconditionally (0-9, C, ⌫, comma, ⏎)', () => {
     const fixture = TestBed.createComponent(Numpad);
     fixture.detectChanges();
 
-    expect(findKey(fixture, 'enter')).toBeFalsy();
-    expect(findKey(fixture, 'backspace').nativeElement.classList).toContain('numpad__key--backspace-full');
-  });
-
-  it('does not span ⌫ across all four rows when showEnter is true', () => {
-    const fixture = TestBed.createComponent(Numpad);
-    fixture.componentRef.setInput('showEnter', true);
-    fixture.detectChanges();
-
-    expect(findKey(fixture, 'backspace').nativeElement.classList).not.toContain('numpad__key--backspace-full');
+    for (const modifier of ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'clear', 'backspace', 'comma', 'enter']) {
+      expect(findKey(fixture, modifier)).toBeTruthy();
+    }
   });
 
   // AC-9
   it('does not emit submitted when ⏎ is clicked while enterDisabled is true', () => {
     const fixture = TestBed.createComponent(Numpad);
-    fixture.componentRef.setInput('showEnter', true);
     fixture.componentRef.setInput('enterDisabled', true);
     fixture.detectChanges();
     let submittedCount = 0;
     fixture.componentInstance.submitted.subscribe(() => submittedCount++);
 
-    const enterButton = findKey(fixture, 'enter').nativeElement as HTMLElement;
     // PrimeNG's own [disabled] binding already blocks the click at the DOM level; this
     // asserts the component-level guard in emitSubmit() as a second, independent safety net.
     fixture.componentInstance.emitSubmit();
 
     expect(submittedCount).toBe(0);
-    expect(enterButton).toBeTruthy();
   });
 
   // AC-8
@@ -161,5 +144,13 @@ describe('Numpad', () => {
 
     const grid = fixture.debugElement.query(By.css('.numpad')).nativeElement as HTMLElement;
     expect(getComputedStyle(grid).margin).toBe('16px 0px');
+  });
+
+  it('has no showDecimal/showEnter inputs', () => {
+    const fixture = TestBed.createComponent(Numpad);
+    fixture.detectChanges();
+
+    expect((fixture.componentInstance as unknown as Record<string, unknown>)['showDecimal']).toBeUndefined();
+    expect((fixture.componentInstance as unknown as Record<string, unknown>)['showEnter']).toBeUndefined();
   });
 });

@@ -27,8 +27,6 @@
 
   @if (mode() === 'numpad') {
     <app-numpad
-      [showDecimal]="true"
-      [showEnter]="true"
       [enterDisabled]="belowTotal()"
       (keyPressed)="onNumpadKey($event)"
       (cleared)="onNumpadClear()"

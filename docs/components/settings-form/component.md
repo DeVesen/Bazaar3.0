@@ -44,7 +44,7 @@ serverseitig — nie im `localStorage` (Epic_Einstellungen AC-1).
 ## 1. Feld — ScannerPauseMs
 
 - `input-group` Anzahl-Variante: `ms`-Addon rechts, `modes=['keyboard','numpad']` (kein
-  Kamera-Modus — ein Millisekunden-Pausenwert wird nie gescannt), Numpad `showDecimal="false"`.
+  Kamera-Modus — ein Millisekunden-Pausenwert wird nie gescannt).
 - Hilfstext unter dem Feld: „Wie lange das Scan-Ergebnis am Annahmetisch angezeigt wird, bevor
   automatisch weitergescannt werden kann. Gültige Werte: 500–15.000 ms."
 - Gültige Spanne: **500–15.000 ms** (serverseitig per FluentValidation erzwungen, `400` bei

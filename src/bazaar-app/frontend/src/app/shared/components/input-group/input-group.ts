@@ -167,8 +167,6 @@ const SEARCH_DEBOUNCE_MS = 300;
 
         @if (activeMode() === 'numpad') {
           <app-numpad
-            [showDecimal]="false"
-            [showEnter]="true"
             [enterDisabled]="rawValue().length === 0"
             (keyPressed)="onNumpadKey($event)"
             (cleared)="onNumpadClear()"
@@ -200,8 +198,6 @@ const SEARCH_DEBOUNCE_MS = 300;
 
         @if (activeMode() === 'numpad') {
           <app-numpad
-            [showDecimal]="true"
-            [showEnter]="true"
             [enterDisabled]="priceValue() === null"
             (keyPressed)="onNumpadKey($event)"
             (cleared)="onNumpadClear()"
@@ -235,8 +231,6 @@ const SEARCH_DEBOUNCE_MS = 300;
 
         @if (activeMode() === 'numpad') {
           <app-numpad
-            [showDecimal]="false"
-            [showEnter]="true"
             [enterDisabled]="priceValue() === null"
             (keyPressed)="onNumpadKey($event)"
             (cleared)="onNumpadClear()"

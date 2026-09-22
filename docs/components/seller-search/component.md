@@ -36,7 +36,7 @@ Button-Reihenfolge und Startmodus stehen dort in Abschnitt 3.
 |---|---|
 | Tastatur | Manuelle Eingabe von Name oder Nummer |
 | Kamera | QR-/Barcode-Erkennung; Kamerabild ersetzt die Trefferliste. Nur verfügbar, wenn `showScanButton` gesetzt ist |
-| Numpad | Für die Suche nach reiner Verkäufernummer; `showDecimal="false"`, `showEnter="true"`, `⏎` löst dieselbe Aktion aus wie `Enter` (Abschnitt 4) |
+| Numpad | Für die Suche nach reiner Verkäufernummer; `⏎` löst dieselbe Aktion aus wie `Enter` (Abschnitt 4) |
 
 Epic_Abrechnung beschreibt es explizit als „identische Suchfeld-Ansicht wie Artikelannahme". Einzige Unterschiede zwischen den Verwendungsstellen sind über Parameter steuerbar:
 

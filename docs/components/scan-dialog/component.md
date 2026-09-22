@@ -121,8 +121,7 @@ Kamera-Modus:
 
 ### Numpad-Modus
 
-Der Numpad läuft hier mit `showDecimal="false"` (Artikelnummern sind ganzzahlig) und
-`showEnter="true"`. `⏎` bestätigt die getippte Nummer — identisch zu `Enter` im
+Der Numpad zeigt hier wie überall alle Tasten. `⏎` bestätigt die getippte Nummer — identisch zu `Enter` im
 Tastatur-Modus (Tabelle oben).
 
 ---

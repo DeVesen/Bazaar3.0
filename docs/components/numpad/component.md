@@ -26,10 +26,10 @@ updated: 2026-08-18
 ## Überblick
 
 Der Numpad ist ein **zustandsloser Event-Relay** — er kennt keinen Wert und verwaltet keinen Buffer.
-Er zeigt zwölf bis vierzehn Buttons — je nachdem, ob Komma-Taste und `⏎` eingeblendet sind
-(Abschnitt 2) — und emittiert bei jedem Klick eines von drei Events: ein
-`KeyboardEventInit`-Objekt (für 0–9, Komma, Backspace), ein `cleared`-Event (für die
-C-Taste) oder ein `submitted`-Event (für `⏎`).
+Er zeigt vierzehn Buttons — immer alle, an jeder Verwendungsstelle
+(docs/spec/2026-09-22-bezahlen-dialog-betrag-numpad.md) — und emittiert bei jedem Klick eines
+von drei Events: ein `KeyboardEventInit`-Objekt (für 0–9, Komma, Backspace), ein `cleared`-Event
+(für die C-Taste) oder ein `submitted`-Event (für `⏎`).
 
 Das Parent dispatcht das empfangene Event auf das native `<input>`-Element des zugehörigen
 `p-inputnumber` — so übernimmt PrimeNG automatisch die gesamte Buffer-Logik, Locale-Formatierung
@@ -41,25 +41,20 @@ und die Behandlung des Dezimaltrennzeichens.
 
 ```
 ┌──────┬──────┬──────┬──────┐
-│  7   │  8   │  9   │      │
-├──────┼──────┼──────┤  ⌫   │
-│  4   │  5   │  6   │      │
+│  7   │  8   │  9   │  ⌫   │
+├──────┼──────┼──────┼──────┤
+│  4   │  5   │  6   │  C   │
 ├──────┼──────┼──────┼──────┤
 │  1   │  2   │  3   │      │
-├──────┼──────┼──────┤  ⏎   │
-│  C   │  ,   │  0   │      │
-└──────┴──────┴──────┴──────┘
+├──────┴──────┼──────┤  ⏎   │
+│      0      │  ,   │      │
+└─────────────┴──────┴──────┘
 ```
 
-Spalten 1–3 tragen die Ziffern, Spalte 4 die Aktionstasten: `⌫` über Zeile 1–2,
-`⏎` über Zeile 3–4.
-
-Alle Tasten sind gleich groß — touch-optimiert (min. 48 × 48 px).
-`C` (Clear), `⌫` (Backspace) und `⏎` (Enter) sind visuell dezent abgesetzt (Sekundär-Stil).
-
-**Optionale Tasten.** Komma und `⏎` sind je Verwendungsstelle abschaltbar (Abschnitt 2).
-Ist `⏎` ausgeblendet, spannt `⌫` alle vier Zeilen. Ist das Komma ausgeblendet, bleibt sein
-Slot leer — die `0` behält ihre Position, das Grid springt bei keinem Moduswechsel.
+Alle 14 Tasten sind immer sichtbar — die früheren `showDecimal`/`showEnter`-Umschalter sind
+ersatzlos entfallen (docs/spec/2026-09-22-bezahlen-dialog-betrag-numpad.md). `0` spannt zwei
+Spalten, `⏎` spannt Zeile 3–4 in Spalte 4. Alle Tasten sind gleich groß — touch-optimiert
+(min. 48 × 48 px). `C`, `⌫` und `⏎` sind visuell dezent abgesetzt (Sekundär-Stil).
 
 ---
 
@@ -67,8 +62,6 @@ Slot leer — die `0` behält ihre Position, das Grid springt bei keinem Moduswe
 
 | Input | Typ | Default | Wirkung |
 |---|---|---|---|
-| `showDecimal` | `boolean` | `false` | Blendet die Komma-Taste in der unteren Zeile ein |
-| `showEnter` | `boolean` | `false` | Blendet `⏎` in der Aktionsspalte ein |
 | `enterDisabled` | `boolean` | `false` | Setzt `⏎` auf deaktiviert |
 
 | Output | Typ | Beschreibung |
@@ -77,8 +70,8 @@ Slot leer — die `0` behält ihre Position, das Grid springt bei keinem Moduswe
 | `cleared` | `EventEmitter<void>` | Emittiert bei Klick auf C |
 | `submitted` | `EventEmitter<void>` | Emittiert bei Klick auf `⏎` |
 
-Der Numpad kennt weiterhin **keinen Wert**. Die drei Inputs steuern ausschließlich, welche
-Tasten sichtbar bzw. bedienbar sind.
+Der Numpad kennt weiterhin **keinen Wert**. Der einzige Input steuert ausschließlich, ob `⏎`
+bedienbar ist — nie, welche Tasten sichtbar sind (die sind immer alle sichtbar, Abschnitt 1).
 
 `⏎` emittiert bewusst **kein** `keyPressed` mit `key: 'Enter'`, sondern ein eigenes Event —
 analog zu `cleared`. Was „Enter" bedeutet, entscheidet das Parent: an einem Artikelnummer-Feld
@@ -92,10 +85,10 @@ würde diese Entscheidung in den Numpad verlagern.
 | Taste | Emittiert |
 |---|---|
 | `0`–`9` | `keyPressed` mit `key: '0'` – `'9'` |
-| `,` | `keyPressed` mit `key: ','` — nur wenn `showDecimal` |
+| `,` | `keyPressed` mit `key: ','` |
 | `⌫` | `keyPressed` mit `key: 'Backspace'` |
 | `C` | `cleared` |
-| `⏎` | `submitted` — nur wenn `showEnter` |
+| `⏎` | `submitted` |
 
 Das Komma wird als `','` emittiert — PrimeNG's `InputNumber` wandelt es anhand der
 konfigurierten Locale automatisch in den korrekten Dezimaltrenner um (DE: `,`, EN: `.`).
@@ -170,8 +163,6 @@ Das Parent bindet lediglich die drei Events:
 ```html
 <app-numpad
     *ngIf="mode === 'numpad'"
-    [showDecimal]="true"
-    [showEnter]="true"
     [enterDisabled]="!canSubmit"
     (keyPressed)="onNumpadKey($event)"
     (cleared)="onNumpadClear()"
@@ -198,7 +189,7 @@ Das Parent bindet lediglich die drei Events:
   p-button  severity="secondary"  [disabled]="enterDisabled"
             <svg data-p-icon="arrow-turn-down-left"></svg>              ← Spalte 4, Zeile 3–4
   p-button  label="C"   severity="secondary"
-  p-button  label=","   severity="secondary"  *ngIf="showDecimal"
+  p-button  label=","   severity="secondary"
   p-button  label="0"   (digit)
 ```
 
@@ -226,13 +217,11 @@ Abstand nicht erneut fest.
 1. **AC-1** — WHEN eine Zifferntaste (0–9) geklickt wird, THEN SHALL das System ein `keyPressed`-Event mit dem entsprechenden `key`-Wert emittieren.
 2. **AC-2** — WHEN die ⌫-Taste geklickt wird, THEN SHALL das System ein `keyPressed`-Event mit `key: 'Backspace'` emittieren.
 3. **AC-3** — WHEN die C-Taste geklickt wird, THEN SHALL das System das `cleared`-Event emittieren und kein `keyPressed`-Event.
-4. **AC-4** — WHILE `showDecimal` gesetzt ist, SHALL das System die Komma-Taste anzeigen und bei Klick ein `keyPressed`-Event mit `key: ','` emittieren, das PrimeNG's InputNumber zum korrekten Dezimaltrenner der konfigurierten Locale umwandelt.
-5. **AC-5** — WHILE `showDecimal` nicht gesetzt ist, SHALL das System die Komma-Taste ausblenden und ihren Grid-Slot leer lassen, sodass die Positionen von `C` und `0` unverändert bleiben.
-6. **AC-6** — WHEN `⏎` geklickt wird, THEN SHALL das System das `submitted`-Event emittieren und kein `keyPressed`-Event.
-7. **AC-7** — WHILE `showEnter` nicht gesetzt ist, SHALL das System `⏎` ausblenden und `⌫` über alle vier Zeilen der Aktionsspalte spannen.
-8. **AC-8** — THE SYSTEM SHALL keinen internen Wert-Buffer verwalten; jeder Klick resultiert ausschließlich in einem emittierten Event.
-9. **AC-9** — WHILE `enterDisabled` gesetzt ist, SHALL das System `⏎` deaktiviert darstellen und bei Klick kein `submitted`-Event emittieren.
-10. **AC-10** — THE SYSTEM SHALL das Grid mit `margin: 16px 0` darstellen, sodass jede Verwendungsstelle den Abstand nach oben zum Eingabefeld und nach unten zum Folgeelement selbst nicht erneut festlegt.
+4. **AC-4** — WHEN `⏎` geklickt wird, THEN SHALL das System das `submitted`-Event emittieren und kein `keyPressed`-Event.
+5. **AC-5** — THE SYSTEM SHALL keinen internen Wert-Buffer verwalten; jeder Klick resultiert ausschließlich in einem emittierten Event.
+6. **AC-6** — WHILE `enterDisabled` gesetzt ist, SHALL das System `⏎` deaktiviert darstellen und bei Klick kein `submitted`-Event emittieren.
+7. **AC-7** — THE SYSTEM SHALL das Grid mit `margin: 16px 0` darstellen, sodass jede Verwendungsstelle den Abstand nach oben zum Eingabefeld und nach unten zum Folgeelement selbst nicht erneut festlegt.
+8. **AC-8** — THE SYSTEM SHALL an jeder Verwendungsstelle unconditional alle 14 Tasten (0–9, C, ⌫, `,`, `⏎`) anzeigen.
 
 ## Tags & Piles
 

@@ -12,9 +12,12 @@
   width: 100%;
 }
 
-// Explicit grid placement per key (rather than relying on DOM-order auto-flow) keeps the
-// positions of C / 0 fixed regardless of whether the comma slot is rendered (AC-5), and keeps
-// the backspace/enter column spans exact (AC-7).
+// Explicit grid placement per key (rather than relying on DOM-order auto-flow). All 14 keys are
+// always rendered (docs/spec/2026-09-22-bezahlen-dialog-betrag-numpad.md) — layout:
+//   7  8  9  ⌫
+//   4  5  6  C
+//   1  2  3  ⏎
+//   0  0  ,  ⏎
 //
 // These classes sit on a plain `class`/`[class]` attribute on the <p-button> TAG itself (not
 // PrimeNG's `styleClass` input) because the actual CSS Grid item is that host element — PrimeNG
@@ -39,10 +42,6 @@
   &--backspace {
     grid-column: 4;
     grid-row: 1;
-
-    &-full {
-      grid-row: 1 / span 4;
-    }
   }
   &--4 {
     grid-column: 1;
@@ -88,8 +87,7 @@
 
 // Sizes PrimeNG's internal <button>, rendered one level below the `.numpad__key` host, to fill
 // the grid cell (component doc, Abschnitt 6). `height: 100%` (not just `min-height`) so a
-// spanned key (Backspace-full, Enter) fills its whole grid area instead of leaving a gap below
-// the button.
+// spanned key (0, Enter) fills its whole grid area instead of leaving a gap below the button.
 .numpad ::ng-deep .p-button {
   width: 100%;
   height: 100%;

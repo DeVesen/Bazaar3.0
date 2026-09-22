@@ -439,7 +439,7 @@ describe('InputGroup', () => {
       expect(inputNumber.maxFractionDigits()).toBe(0);
     });
 
-    it('shows exactly one modus-button (numpad) when modes=[keyboard, numpad] and switches to a readonly p-inputnumber + app-numpad with showDecimal=false', () => {
+    it('shows exactly one modus-button (numpad) when modes=[keyboard, numpad] and switches to a readonly p-inputnumber + app-numpad', () => {
       const fixture = create(['keyboard', 'numpad'], 'count');
       expect(fixture.componentInstance.visibleModes()).toEqual(['numpad']);
 
@@ -449,8 +449,8 @@ describe('InputGroup', () => {
       const inputNumber = fixture.debugElement.query(By.directive(InputNumber)).componentInstance as InputNumber;
       expect(inputNumber.input().nativeElement.readOnly).toBe(true);
 
-      const numpad = fixture.debugElement.query(By.directive(Numpad)).componentInstance as Numpad;
-      expect(numpad.showDecimal()).toBe(false);
+      const numpad = fixture.debugElement.query(By.directive(Numpad));
+      expect(numpad).toBeTruthy();
     });
 
     it('shows no mode-button for a single-mode count field', () => {

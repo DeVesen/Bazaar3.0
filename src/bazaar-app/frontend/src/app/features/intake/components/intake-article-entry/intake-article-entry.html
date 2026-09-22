@@ -71,7 +71,7 @@
           (addonClick)="onPriceAddonClick($event)"
         />
         @if (priceNumpadVisible()) {
-          <app-numpad [showDecimal]="true" (keyPressed)="onPriceNumpadKey($event)" (cleared)="onPriceNumpadClear()" />
+          <app-numpad (keyPressed)="onPriceNumpadKey($event)" (cleared)="onPriceNumpadClear()" />
         }
       </div>
 

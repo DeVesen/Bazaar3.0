@@ -207,7 +207,9 @@ eigenständig zu formulieren.
   Preis-Variante.
 - PrimeNG-Komponente: `p-inputnumber` ohne Nachkommastellen (`minFractionDigits="0"`,
   `maxFractionDigits="0"` — Ganzzahl-Modus).
-- Numpad `showDecimal="false"` (kein Komma-Taste, passend zur Ganzzahl-Eingabe).
+- Numpad zeigt wie an jeder anderen Verwendungsstelle alle Tasten inkl. Komma — die
+  `p-inputnumber`-Ganzzahl-Konfiguration (Zeile oben) verhindert eine Kommaeingabe unabhängig
+  vom Numpad.
 
 ---
 

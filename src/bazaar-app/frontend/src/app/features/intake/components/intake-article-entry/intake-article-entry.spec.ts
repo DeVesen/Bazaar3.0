@@ -731,14 +731,13 @@ describe('IntakeArticleEntry', () => {
       expect(fixture.debugElement.query(By.directive(Numpad))).toBeFalsy();
     });
 
-    it('numpad digits/comma/backspace/clear apply directly onto priceText, and it opens with decimal support', async () => {
+    it('numpad digits/comma/backspace/clear apply directly onto priceText', async () => {
       const { fixture } = await setup();
       const component = fixture.componentInstance;
       component.onPriceAddonClick('numpad');
       fixture.detectChanges();
 
       const numpad = fixture.debugElement.query(By.directive(Numpad)).componentInstance as Numpad;
-      expect(numpad.showDecimal()).toBe(true);
 
       numpad.keyPressed.emit({ key: '1' });
       numpad.keyPressed.emit({ key: '2' });
