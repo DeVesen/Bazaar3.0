@@ -135,12 +135,12 @@ Mechanik, Reihenfolge und Startmodus stehen in
 [InputGroup](../input-group/component.md) Abschnitt 3 und werden hier nicht wiederholt.
 Für das Panel heißt das: Es öffnet **immer** im Tastatur-Modus, auch auf einem Tablet.
 
-Im Numpad-Modus ist `p-inputnumber` auf `readonly` gesetzt, sodass keine native Tastatur
-erscheint.
+Im Numpad-Modus ist das Eingabefeld (`app-input`) auf `readOnly` gesetzt, sodass keine
+native Tastatur erscheint.
 
 ### Numpad-Integration
 
-Das Payment-Panel implementiert das Standard-Integrationsmuster aus
+Das Payment-Panel implementiert Muster A (Parent mit eigenem String-Wert) aus
 [`docs/components/numpad/component.md`](../numpad/component.md) — Abschnitt 4.
 
 ```typescript
@@ -163,6 +163,11 @@ Der Numpad zeigt hier wie überall alle Tasten (docs/spec/2026-09-22-bezahlen-di
 `enterDisabled` ist an dieselbe Bedingung gekoppelt wie der Bestätigen-Button:
 `receivedAmount < totalAmount`. Ein Tastendruck wird direkt in `receivedText` übernommen — kein
 `KeyboardEvent`-Dispatch.
+
+**Kein Autofokus beim Öffnen.** Das Feld „Betrag erhalten" fokussiert sich seit dem Wechsel
+auf `app-input` nicht mehr automatisch, wenn das Panel öffnet — `app-input` bietet kein
+Autofokus-Äquivalent zum früheren `p-inputnumber`/`pAutoFocus`. Bewusst akzeptiert: kein
+Akzeptanzkriterium fordert Autofokus, ein `autoFocus`-Input für `app-input` wäre neuer Scope.
 
 ### Bestätigen
 

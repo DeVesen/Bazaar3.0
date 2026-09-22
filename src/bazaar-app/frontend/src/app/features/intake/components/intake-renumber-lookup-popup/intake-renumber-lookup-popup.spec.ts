@@ -212,6 +212,17 @@ describe('IntakeRenumberLookupPopup', () => {
       component.onNumpadClear();
       expect(component.rawNumber()).toBe('');
     });
+
+    it('ignores a comma key press — Artikelnummer is integer-only, unlike the decimal Betrag-Felder', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+
+      component.onNumpadKey({ key: '1' });
+      component.onNumpadKey({ key: ',' });
+      component.onNumpadKey({ key: '4' });
+
+      expect(component.rawNumber()).toBe('14');
+    });
   });
 
   it('⏎ on the numpad triggers onLoad() when loading() is false, and is disabled while loading', async () => {

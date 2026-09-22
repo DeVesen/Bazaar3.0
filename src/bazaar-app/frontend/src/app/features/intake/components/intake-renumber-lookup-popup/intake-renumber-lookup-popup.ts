@@ -68,11 +68,19 @@ export class IntakeRenumberLookupPopup {
     }
   }
 
+  /** Artikelnummer ist reine Ganzzahl — anders als bei den Betrag-Feldern gibt es hier kein
+   * Komma/Dezimaltrennzeichen zu verarbeiten; nur Ziffern und Backspace werden übernommen. */
   onNumpadKey(init: KeyboardEventInit): void {
     const key = init.key;
     if (key === undefined) return;
     const current = this.rawNumber();
-    this.rawNumber.set(key === 'Backspace' ? current.slice(0, -1) : current + key);
+    if (key === 'Backspace') {
+      this.rawNumber.set(current.slice(0, -1));
+      return;
+    }
+    if (/^[0-9]$/.test(key)) {
+      this.rawNumber.set(current + key);
+    }
   }
 
   onNumpadClear(): void {

@@ -31,9 +31,17 @@ Er zeigt vierzehn Buttons — immer alle, an jeder Verwendungsstelle
 von drei Events: ein `KeyboardEventInit`-Objekt (für 0–9, Komma, Backspace), ein `cleared`-Event
 (für die C-Taste) oder ein `submitted`-Event (für `⏎`).
 
-Das Parent dispatcht das empfangene Event auf das native `<input>`-Element des zugehörigen
-`p-inputnumber` — so übernimmt PrimeNG automatisch die gesamte Buffer-Logik, Locale-Formatierung
-und die Behandlung des Dezimaltrennzeichens.
+Wie das Parent ein empfangenes `keyPressed`-Event verarbeitet, hängt von dessen eigenem
+Eingabefeld ab (Details und Beispiele in Abschnitt 4):
+
+- Besitzt das Parent ein `p-inputnumber` (z. B. [InputGroup](../input-group/component.md)s
+  Preis-/Anzahl-Varianten), dispatcht es die Taste auf das native `<input>`-Element darin — so
+  übernimmt PrimeNG automatisch die gesamte Buffer-Logik, Locale-Formatierung und die
+  Behandlung des Dezimaltrennzeichens.
+- Besitzt das Parent stattdessen einen eigenen String-Wert (z. B. `app-input`-basierte Felder
+  wie [Payment-Panel](../payment-panel/component.md) oder die Umnummerierungs-Suche), wendet es
+  die Taste direkt auf diesen String an — kein synthetisches `KeyboardEvent`, kein natives
+  `<input>` beteiligt.
 
 ---
 
@@ -97,18 +105,55 @@ konfigurierten Locale automatisch in den korrekten Dezimaltrenner um (DE: `,`, E
 
 ## 4. Empfehlung: Integration im Parent
 
-> Dieser Abschnitt beschreibt das empfohlene Muster für jede Parent-Komponente,
-> die den Numpad einsetzt. Ein Agent, der eine neue Verwendungsstelle implementiert,
-> sollte dieses Muster vollständig übernehmen.
+> Dieser Abschnitt beschreibt die zwei empfohlenen Muster für jede Parent-Komponente,
+> die den Numpad einsetzt — welches greift, hängt vom Eingabefeld-Typ des Parents ab
+> (Abschnitt "Überblick"). Ein Agent, der eine neue Verwendungsstelle implementiert,
+> sollte das passende Muster vollständig übernehmen.
 
-### Prinzip
+### Muster A — Parent besitzt einen eigenen String-Wert (empfohlen für neue Verwendungsstellen)
 
-Der Numpad steuert kein eigenes Eingabefeld. Das Parent besitzt ein `p-inputnumber`,
-das im Numpad-Modus auf `[readonly]="true"` gesetzt wird — so öffnet sich keine native
-Tastatur. Der Parent dispatcht die empfangenen Key-Events auf das native `<input>`-Element
-innerhalb des `p-inputnumber`.
+Hält das Parent seinen Wert ohnehin als String-Signal (z. B. ein `app-input`-Feld), wird
+die empfangene Taste direkt auf dieses Signal angewendet — kein `ViewChild`, kein
+synthetisches `KeyboardEvent`, kein natives `<input>` beteiligt. Kanonisches Beispiel:
+[Payment-Panel](../payment-panel/component.md)s `onNumpadKey()`/`onNumpadClear()`
+(`payment-panel.ts`):
 
-### Schritt 1 — ViewChild auf p-inputnumber
+```typescript
+onNumpadKey(init: KeyboardEventInit): void {
+    const key = init.key;
+    if (key === undefined) return;
+    if (key === 'Backspace') {
+        this.receivedText.update((text) => text.slice(0, -1));
+        return;
+    }
+    if (key === ',') {
+        if (!this.receivedText().includes(',')) this.receivedText.update((text) => text + ',');
+        return;
+    }
+    if (this.decimalsFull()) return;
+    this.receivedText.update((text) => text + key);
+}
+
+onNumpadClear(): void {
+    this.receivedText.set('');
+}
+```
+
+Ein Feld ohne Dezimalstellen (z. B. eine Artikelnummer) übernimmt aus diesem Beispiel nur
+die Ziffern- und Backspace-Behandlung und lässt die Komma-Verarbeitung ganz weg — ein Komma
+darf dort erst gar nicht in den Wert gelangen (siehe `intake-renumber-lookup-popup.ts`s
+eigenes `onNumpadKey()`).
+
+### Muster B — Parent besitzt ein p-inputnumber
+
+Besitzt das Parent stattdessen ein PrimeNG-`p-inputnumber` (z. B.
+[InputGroup](../input-group/component.md)s Preis-/Anzahl-Varianten), bleibt PrimeNG für
+Buffer-Logik, Locale-Formatierung und Dezimaltrennzeichen zuständig. Das `p-inputnumber`
+wird im Numpad-Modus auf `[readonly]="true"` gesetzt — so öffnet sich keine native
+Tastatur — und das Parent dispatcht die empfangenen Key-Events auf dessen natives
+`<input>`-Element.
+
+#### Schritt 1 — ViewChild auf p-inputnumber
 
 ```typescript
 @ViewChild('amountInput') amountInput!: InputNumber;
@@ -118,7 +163,7 @@ private get nativeInput(): HTMLInputElement {
 }
 ```
 
-### Schritt 2 — Numpad-Events verarbeiten
+#### Schritt 2 — Numpad-Events verarbeiten
 
 ```typescript
 onNumpadKey(init: KeyboardEventInit): void {
@@ -133,7 +178,7 @@ onNumpadClear(): void {
 }
 ```
 
-### Schritt 3 — Template
+#### Schritt 3 — Template
 
 ```html
 <p-inputnumber
@@ -151,7 +196,7 @@ onNumpadClear(): void {
 />
 ```
 
-### Schritt 4 — Ein- und Ausblenden
+### Ein- und Ausblenden (beide Muster)
 
 Der Numpad blendet sich nicht selbst ein. Welcher Eingabemodus aktiv ist und wie
 umgeschaltet wird, beschreibt ausschließlich
