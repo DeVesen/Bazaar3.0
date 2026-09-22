@@ -107,6 +107,18 @@ describe('CheckoutPage', () => {
     expect(component.infoState()).toEqual({ type: 'warn', text: 'Bitte Artikelnummer eingeben' });
   });
 
+  describe('Page-Header', () => {
+    it('renders a header with the title "Verkauf" and no actions', async () => {
+      const { fixture } = await setup();
+
+      const header = fixture.nativeElement.querySelector('.checkout-page__header');
+      const title = fixture.nativeElement.querySelector('.checkout-page__title');
+
+      expect(header).toBeTruthy();
+      expect(title?.textContent?.trim()).toBe('Verkauf');
+    });
+  });
+
   it('typing without Enter never triggers a lookup', async () => {
     const articlesApi = articlesApiStub();
     const { component } = await setup(articlesApi);
