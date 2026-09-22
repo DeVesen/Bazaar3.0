@@ -20,45 +20,45 @@ import { ButtonModule } from 'primeng/button';
   imports: [ButtonModule],
   template: `
     <div class="numpad">
-      <p-button label="7" styleClass="numpad__key numpad__key--7" (onClick)="emitDigit('7')" />
-      <p-button label="8" styleClass="numpad__key numpad__key--8" (onClick)="emitDigit('8')" />
-      <p-button label="9" styleClass="numpad__key numpad__key--9" (onClick)="emitDigit('9')" />
+      <p-button label="7" class="numpad__key numpad__key--7" (onClick)="emitDigit('7')" />
+      <p-button label="8" class="numpad__key numpad__key--8" (onClick)="emitDigit('8')" />
+      <p-button label="9" class="numpad__key numpad__key--9" (onClick)="emitDigit('9')" />
       <p-button
         icon="pi pi-delete-left"
         severity="secondary"
-        [styleClass]="
+        [class]="
           'numpad__key numpad__key--backspace' + (!showEnter() ? ' numpad__key--backspace-full' : '')
         "
         (onClick)="emitBackspace()"
       />
 
-      <p-button label="4" styleClass="numpad__key numpad__key--4" (onClick)="emitDigit('4')" />
-      <p-button label="5" styleClass="numpad__key numpad__key--5" (onClick)="emitDigit('5')" />
-      <p-button label="6" styleClass="numpad__key numpad__key--6" (onClick)="emitDigit('6')" />
+      <p-button label="4" class="numpad__key numpad__key--4" (onClick)="emitDigit('4')" />
+      <p-button label="5" class="numpad__key numpad__key--5" (onClick)="emitDigit('5')" />
+      <p-button label="6" class="numpad__key numpad__key--6" (onClick)="emitDigit('6')" />
 
-      <p-button label="1" styleClass="numpad__key numpad__key--1" (onClick)="emitDigit('1')" />
-      <p-button label="2" styleClass="numpad__key numpad__key--2" (onClick)="emitDigit('2')" />
-      <p-button label="3" styleClass="numpad__key numpad__key--3" (onClick)="emitDigit('3')" />
+      <p-button label="1" class="numpad__key numpad__key--1" (onClick)="emitDigit('1')" />
+      <p-button label="2" class="numpad__key numpad__key--2" (onClick)="emitDigit('2')" />
+      <p-button label="3" class="numpad__key numpad__key--3" (onClick)="emitDigit('3')" />
       @if (showEnter()) {
         <p-button
           icon="pi pi-reply"
           severity="secondary"
-          styleClass="numpad__key numpad__key--enter"
+          class="numpad__key numpad__key--enter"
           [disabled]="enterDisabled()"
           (onClick)="emitSubmit()"
         />
       }
 
-      <p-button label="C" severity="secondary" styleClass="numpad__key numpad__key--clear" (onClick)="emitClear()" />
+      <p-button label="C" severity="secondary" class="numpad__key numpad__key--clear" (onClick)="emitClear()" />
       @if (showDecimal()) {
         <p-button
           label=","
           severity="secondary"
-          styleClass="numpad__key numpad__key--comma"
+          class="numpad__key numpad__key--comma"
           (onClick)="emitComma()"
         />
       }
-      <p-button label="0" styleClass="numpad__key numpad__key--0" (onClick)="emitDigit('0')" />
+      <p-button label="0" class="numpad__key numpad__key--0" (onClick)="emitDigit('0')" />
     </div>
   `,
   styleUrl: './numpad.scss',

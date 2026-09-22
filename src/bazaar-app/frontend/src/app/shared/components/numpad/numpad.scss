@@ -9,13 +9,20 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin: 16px 0;
+  width: 100%;
 }
 
 // Explicit grid placement per key (rather than relying on DOM-order auto-flow) keeps the
 // positions of C / 0 fixed regardless of whether the comma slot is rendered (AC-5), and keeps
 // the backspace/enter column spans exact (AC-7).
+//
+// These classes sit on a plain `class`/`[class]` attribute on the <p-button> TAG itself (not
+// PrimeNG's `styleClass` input) because the actual CSS Grid item is that host element — PrimeNG
+// renders its own internal <button> one level below it, and grid-column/row on a non-grid-item
+// descendant has no layout effect at all.
 .numpad__key {
   width: 100%;
+  height: 100%;
 
   &--7 {
     grid-column: 1;
@@ -31,7 +38,7 @@
   }
   &--backspace {
     grid-column: 4;
-    grid-row: 1 / span 2;
+    grid-row: 1;
 
     &-full {
       grid-row: 1 / span 4;
@@ -47,6 +54,10 @@
   }
   &--6 {
     grid-column: 3;
+    grid-row: 2;
+  }
+  &--clear {
+    grid-column: 4;
     grid-row: 2;
   }
   &--1 {
@@ -65,25 +76,24 @@
     grid-column: 4;
     grid-row: 3 / span 2;
   }
-  &--clear {
-    grid-column: 1;
+  &--0 {
+    grid-column: 1 / span 2;
     grid-row: 4;
   }
   &--comma {
-    grid-column: 2;
-    grid-row: 4;
-  }
-  &--0 {
     grid-column: 3;
     grid-row: 4;
   }
+}
 
-  // Pierces PrimeNG's Button internals to apply the doc's fixed key sizing (Abschnitt 6) —
-  // `p-button` itself only receives the grid placement/width above.
-  ::ng-deep .p-button {
-    width: 100%;
-    min-height: 48px;
-    font-size: 20px;
-    font-weight: 600;
-  }
+// Sizes PrimeNG's internal <button>, rendered one level below the `.numpad__key` host, to fill
+// the grid cell (component doc, Abschnitt 6). `height: 100%` (not just `min-height`) so a
+// spanned key (Backspace-full, Enter) fills its whole grid area instead of leaving a gap below
+// the button.
+.numpad ::ng-deep .p-button {
+  width: 100%;
+  height: 100%;
+  min-height: 48px;
+  font-size: 20px;
+  font-weight: 600;
 }
