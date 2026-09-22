@@ -197,7 +197,17 @@ export class IntakeArticleEntry {
       this.pendingNumberValue.set(null);
       if (this.focusNumberFieldAfterApply) {
         this.focusNumberFieldAfterApply = false;
-        inputGroup.focusAndSelect();
+        // Fix round 2 (reviewer Important 1): `applyExternalValue()` only writes the `_rawValue`
+        // SIGNAL — `input-group`'s own native `<input>` is bound via `[ngModel]="rawValue()"` and
+        // is only actually updated in the DOM on Angular's NEXT change-detection pass (OnPush).
+        // Calling `focusAndSelect()` synchronously here would run `input.select()` while the DOM
+        // still shows the OLD value, collapsing the selection instead of highlighting the new
+        // one. `afterNextRender()` was tried first but never fires in this per-component
+        // `TestBed` fixture (it hooks `ApplicationRef`'s render hooks, which a bare
+        // `fixture.detectChanges()` does not drive) — a macrotask via `setTimeout` reliably runs
+        // after Angular's signal-triggered CD has flushed the DOM write, both in the browser and
+        // under `TestBed` (verified by the regression test below).
+        setTimeout(() => inputGroup.focusAndSelect());
       }
     });
 

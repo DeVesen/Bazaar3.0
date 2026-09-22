@@ -523,6 +523,22 @@ describe('IntakeArticleEntry', () => {
       expect(component.extraModeButtonConfig().badge).toBe('1');
     });
 
+    it('focuses the Artikelnummer field and selects its full text after a renumber popup hit, so the user can immediately overwrite it', async () => {
+      const { fixture } = await setup();
+
+      renumberPopup(fixture).articleFound.emit(articleByNumberStub({ number: 1 }));
+      await fixture.whenStable();
+      fixture.detectChanges();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      const input = fixture.nativeElement.querySelector('#intake-article-entry-number') as HTMLInputElement;
+      expect(document.activeElement).toBe(input);
+      expect(input.value).toBe('1');
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
+
     it('opening the popup is triggered by the number field\'s extraModeClicked', async () => {
       const { fixture } = await setup();
       const component = fixture.componentInstance;
