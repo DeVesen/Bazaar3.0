@@ -196,7 +196,7 @@ describe('Input', () => {
   });
 
   describe('standard attributes', () => {
-    it('forwards inputId, name, placeholder, type, required, disabled and readonly onto the native input', () => {
+    it('forwards inputId, name, placeholder, type, required, disabled and readonly onto the native input', async () => {
       const fixture = TestBed.createComponent(Input);
       fixture.componentRef.setInput('inputId', 'seller-email');
       fixture.componentRef.setInput('name', 'email');
@@ -205,6 +205,8 @@ describe('Input', () => {
       fixture.componentRef.setInput('required', true);
       fixture.componentRef.setInput('disabled', true);
       fixture.componentRef.setInput('readonly', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
       fixture.detectChanges();
 
       const input = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
