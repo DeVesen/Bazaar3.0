@@ -121,4 +121,37 @@ public class IntakeCommandValidatorTests
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName.EndsWith(nameof(IntakeArticleLine.Price)));
     }
+
+    [Fact]
+    public void DeleteArticleNumber_ZeroOrNegative_IsInvalid()
+    {
+        var command = ValidCommand();
+        command.Articles[0].DeleteArticleNumber = 0;
+
+        var result = _sut.Validate(command);
+
+        Assert.False(result.IsValid);
+    }
+
+    [Fact]
+    public void DeleteArticleNumber_Null_IsValid()
+    {
+        var command = ValidCommand();
+        command.Articles[0].DeleteArticleNumber = null;
+
+        var result = _sut.Validate(command);
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void DeleteArticleNumber_Positive_IsValid()
+    {
+        var command = ValidCommand();
+        command.Articles[0].DeleteArticleNumber = 1;
+
+        var result = _sut.Validate(command);
+
+        Assert.True(result.IsValid);
+    }
 }

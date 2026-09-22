@@ -22,4 +22,12 @@ public sealed class IntakeArticleLine
     public string? Size { get; set; }
     public string? Color { get; set; }
     public string? Description { get; set; }
+
+    /// <summary>
+    /// Gesetzt, wenn diese Zeile aus der Artikelannahme-Umnummerierung stammt (neuer
+    /// Renumber-Popup-Weg, Epic_Artikelannahme): die Ursprungsnummer des vorregistrierten,
+    /// noch nicht freigegebenen Artikels, der beim Buchen gelöscht werden soll, bevor
+    /// <see cref="Number"/> als neuer Artikel angelegt wird.
+    /// </summary>
+    public int? DeleteArticleNumber { get; set; }
 }

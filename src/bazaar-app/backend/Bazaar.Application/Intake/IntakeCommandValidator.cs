@@ -15,6 +15,7 @@ public sealed class IntakeCommandValidator : AbstractValidator<IntakeCommand>
             article.RuleFor(x => x.Brand).NotEmpty();
             article.RuleFor(x => x.Category).NotEmpty();
             article.RuleFor(x => x.Price).GreaterThan(0);
+            article.RuleFor(x => x.DeleteArticleNumber).GreaterThan(0).When(x => x.DeleteArticleNumber.HasValue);
         });
     }
 }
