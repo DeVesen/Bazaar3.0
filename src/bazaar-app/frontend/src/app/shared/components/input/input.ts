@@ -47,9 +47,26 @@ export class Input {
   readonly debounceMs = input<number>(800);
   readonly addonLeft = input<InputAddon[]>([]);
   readonly addonRight = input<InputAddon[]>([]);
+  readonly inputId = input<string | undefined>(undefined);
+  readonly name = input<string | undefined>(undefined);
+  readonly placeholder = input<string | undefined>(undefined);
+  readonly type = input<string>('text');
+  readonly required = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
+  /** Not `readonly readonly = ...`: the class-field modifier and the field name would collide. */
+  readonly isReadonly = input<boolean>(false, { alias: 'readonly' });
 
   readonly valueChange = output<string>();
   readonly addonClick = output<string>();
+  readonly enter = output<void>();
+  readonly keyUp = output<KeyboardEvent>();
+  readonly keyDown = output<KeyboardEvent>();
+  /**
+   * Named `blurred`, not `blur`: `eslint.config.js` extends `angular.configs.tsRecommended`,
+   * which enforces `@angular-eslint/no-output-native` — an `@Output` literally named after a
+   * native DOM event (`blur`) is rejected.
+   */
+  readonly blurred = output<FocusEvent>();
 
   private readonly _rawValue = signal<string>('');
   readonly rawValue = this._rawValue.asReadonly();
@@ -81,5 +98,21 @@ export class Input {
 
   onAddonClick(addon: InputAddon): void {
     this.addonClick.emit(addon.key);
+  }
+
+  onEnter(): void {
+    this.enter.emit();
+  }
+
+  onKeyUp(event: KeyboardEvent): void {
+    this.keyUp.emit(event);
+  }
+
+  onKeyDown(event: KeyboardEvent): void {
+    this.keyDown.emit(event);
+  }
+
+  onBlur(event: FocusEvent): void {
+    this.blurred.emit(event);
   }
 }

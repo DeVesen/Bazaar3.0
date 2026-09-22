@@ -146,4 +146,81 @@ describe('Input', () => {
       expect(addon.style.color).toBe('red');
     });
   });
+
+  describe('raw event passthrough', () => {
+    it('emits enter on Enter keydown, immediately, without waiting for the debounce', () => {
+      const fixture = create();
+      const entered = vi.fn();
+      fixture.componentInstance.enter.subscribe(entered);
+
+      const input = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+      expect(entered).toHaveBeenCalledTimes(1);
+    });
+
+    it('emits the native KeyboardEvent on keyUp', () => {
+      const fixture = create();
+      const emitted: KeyboardEvent[] = [];
+      fixture.componentInstance.keyUp.subscribe((e) => emitted.push(e));
+
+      const input = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
+      input.dispatchEvent(new KeyboardEvent('keyup', { key: 'a', bubbles: true }));
+
+      expect(emitted.length).toBe(1);
+      expect(emitted[0].key).toBe('a');
+    });
+
+    it('emits the native KeyboardEvent on keyDown', () => {
+      const fixture = create();
+      const emitted: KeyboardEvent[] = [];
+      fixture.componentInstance.keyDown.subscribe((e) => emitted.push(e));
+
+      const input = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', bubbles: true }));
+
+      expect(emitted.length).toBe(1);
+      expect(emitted[0].key).toBe('b');
+    });
+
+    it('emits the native FocusEvent on blur', () => {
+      const fixture = create();
+      const emitted: FocusEvent[] = [];
+      fixture.componentInstance.blurred.subscribe((e) => emitted.push(e));
+
+      const input = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
+      input.dispatchEvent(new FocusEvent('blur', { bubbles: true }));
+
+      expect(emitted.length).toBe(1);
+    });
+  });
+
+  describe('standard attributes', () => {
+    it('forwards inputId, name, placeholder, type, required, disabled and readonly onto the native input', () => {
+      const fixture = TestBed.createComponent(Input);
+      fixture.componentRef.setInput('inputId', 'seller-email');
+      fixture.componentRef.setInput('name', 'email');
+      fixture.componentRef.setInput('placeholder', 'name@example.com');
+      fixture.componentRef.setInput('type', 'email');
+      fixture.componentRef.setInput('required', true);
+      fixture.componentRef.setInput('disabled', true);
+      fixture.componentRef.setInput('readonly', true);
+      fixture.detectChanges();
+
+      const input = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
+      expect(input.id).toBe('seller-email');
+      expect(input.name).toBe('email');
+      expect(input.placeholder).toBe('name@example.com');
+      expect(input.type).toBe('email');
+      expect(input.required).toBe(true);
+      expect(input.disabled).toBe(true);
+      expect(input.readOnly).toBe(true);
+    });
+
+    it('defaults type to text when not set', () => {
+      const fixture = create();
+      const input = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
+      expect(input.type).toBe('text');
+    });
+  });
 });

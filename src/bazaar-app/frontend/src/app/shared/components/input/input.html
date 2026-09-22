@@ -1,5 +1,20 @@
 <ng-template #inputField>
-  <input pInputText [ngModel]="rawValue()" (ngModelChange)="onTyped($event)" />
+  <input
+    pInputText
+    [attr.id]="inputId() ?? null"
+    [attr.name]="name() ?? null"
+    [attr.placeholder]="placeholder() ?? null"
+    [type]="type()"
+    [disabled]="disabled()"
+    [required]="required()"
+    [readOnly]="isReadonly()"
+    [ngModel]="rawValue()"
+    (ngModelChange)="onTyped($event)"
+    (keyup)="onKeyUp($event)"
+    (keydown.enter)="onEnter()"
+    (keydown)="onKeyDown($event)"
+    (blur)="onBlur($event)"
+  />
 </ng-template>
 
 <ng-template #addon let-addon>
