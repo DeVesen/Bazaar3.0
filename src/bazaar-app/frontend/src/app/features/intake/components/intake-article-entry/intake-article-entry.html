@@ -10,8 +10,10 @@
           [modes]="['keyboard', 'camera', 'numpad']"
           [showLeftAddon]="false"
           [addonActionButtons]="true"
+          [extraModeButton]="extraModeButtonConfig()"
           (valueChange)="onArticleNumberChange($event)"
           (submitted)="onArticleNumberSubmit()"
+          (extraModeClicked)="onOpenRenumberPopup()"
         />
         @if (numberTakenMessage()) {
           <small class="intake-article-entry__error">{{ numberTakenMessage() }}</small>
@@ -124,4 +126,11 @@
       (brandCreated)="onBrandCreated($event)"
     />
   </div>
+
+  <app-intake-renumber-lookup-popup
+    [visible]="renumberPopupVisible()"
+    [sellerId]="sellerId()"
+    (visibleChange)="onRenumberPopupVisibleChange($event)"
+    (articleFound)="onArticleFoundViaRenumberPopup($event)"
+  />
 </div>

@@ -23,6 +23,7 @@ import { Brand, BrandsApi } from '../../../brands/data/brands-api';
 import { SellersApi } from '../../../sellers/data/sellers-api';
 import { BookingConflict, IntakeSessionList } from '../intake-session-list/intake-session-list';
 import { SessionItemFormValue } from '../session-item-popup/session-item-popup';
+import { IntakeRenumberLookupPopup } from '../intake-renumber-lookup-popup/intake-renumber-lookup-popup';
 
 /**
  * A single article entered into THIS intake session, held locally until the whole session is
@@ -45,6 +46,10 @@ export interface SessionArticle {
    * row's number as taken (`onBookingConflict()`) — cleared once the row is edited
    * (`onItemUpdated()`). Drives `intake-session-list`'s row highlight (AC-8). */
   conflict?: boolean;
+  /** Gesetzt, wenn dieser Eintrag über das Renumber-Popup geladen und die Artikelnummer
+   * anschließend geändert wurde — die Ursprungsnummer, deren Alt-Artikel beim finalen Buchen
+   * gelöscht werden soll (`IntakeArticleLine.deleteArticleNumber`, siehe `intake-session-list`). */
+  originalNumberToDelete?: number;
 }
 
 /**
@@ -67,6 +72,7 @@ export interface SessionArticle {
     AutocompleteCreate,
     InputGroup,
     IntakeSessionList,
+    IntakeRenumberLookupPopup,
   ],
   templateUrl: './intake-article-entry.html',
   styleUrl: './intake-article-entry.scss',
@@ -115,6 +121,17 @@ export class IntakeArticleEntry {
    * the inline "Artikelnummer bereits vergeben" message (spec.md, keyboard/numpad case). */
   readonly numberTakenMessage = signal<string | null>(null);
 
+  /** Gesetzt, sobald ein Artikel über das Renumber-Popup geladen wurde — die Ursprungsnummer,
+   * die als Badge am dritten Mode-Button angezeigt wird und beim finalen Buchen als
+   * `deleteArticleNumber` mitgeschickt wird, falls die Nummer danach geändert wird. */
+  readonly originalNumber = signal<number | null>(null);
+  readonly renumberPopupVisible = signal(false);
+
+  readonly extraModeButtonConfig = computed(() => ({
+    icon: 'pi pi-sync',
+    badge: this.originalNumber() !== null ? String(this.originalNumber()) : null,
+  }));
+
   /**
    * Owned here since this component is the container/orchestrator mounted at the wizard's
    * step-2 slot — Task 7's `intake-session-list` reads it as a plain `[items]` input
@@ -140,6 +157,12 @@ export class IntakeArticleEntry {
    * overwrite it (which would also wrongly re-trigger a number-check for the wrong number).
    */
   private numberFieldSeq = 0;
+
+  /** Steuert, ob der nächste `pendingNumberValue`-Apply-Effekt (siehe Konstruktor) zusätzlich
+   * Fokus + Volltext-Selektion ins Nummernfeld setzt — nur nach einem Renumber-Popup-Treffer,
+   * damit der Anwender die geladene Nummer sofort überschreiben kann, ohne erst zu markieren. */
+  private focusNumberFieldAfterApply = false;
+
   readonly canSave = computed(
     () =>
       this.articleNumber().trim().length > 0 &&
@@ -172,6 +195,10 @@ export class IntakeArticleEntry {
       if (!inputGroup || pending === null) return;
       inputGroup.applyExternalValue(pending);
       this.pendingNumberValue.set(null);
+      if (this.focusNumberFieldAfterApply) {
+        this.focusNumberFieldAfterApply = false;
+        inputGroup.focusAndSelect();
+      }
     });
 
     effect(() => {
@@ -186,6 +213,10 @@ export class IntakeArticleEntry {
   onArticleNumberChange(value: string | number): void {
     const raw = String(value);
     this.articleNumber.set(raw);
+    if (raw.trim().length === 0 && this.originalNumber() !== null) {
+      this.resetForm();
+      return;
+    }
     this.checkArticleNumber(raw);
   }
 
@@ -196,6 +227,34 @@ export class IntakeArticleEntry {
   onArticleNumberSubmit(): void {
     const raw = this.numberInputGroup()?.rawValue() ?? this.articleNumber();
     this.checkArticleNumber(raw);
+  }
+
+  onOpenRenumberPopup(): void {
+    this.renumberPopupVisible.set(true);
+  }
+
+  onRenumberPopupVisibleChange(visible: boolean): void {
+    this.renumberPopupVisible.set(visible);
+  }
+
+  /** `app-intake-renumber-lookup-popup`'s `articleFound` — befüllt alle Formularfelder inkl.
+   * der Artikelnummer selbst, setzt die Badge-Markierung (`originalNumber`) und rückt Fokus +
+   * Volltext-Selektion ins Nummernfeld, sobald der Wert dort angewendet wurde (siehe
+   * `focusNumberFieldAfterApply`-Effekt im Konstruktor) — direktes Überschreiben durch
+   * Tippen/Scannen ist damit ohne manuelles Markieren möglich. */
+  onArticleFoundViaRenumberPopup(article: ArticleByNumberResult): void {
+    this.originalNumber.set(article.number);
+    this.name.set(article.name);
+    this.category.set(article.category);
+    this.brand.set(article.brand);
+    this.size.set(article.size ?? '');
+    this.color.set(article.color ?? '');
+    this.description.set(article.description ?? '');
+    this.price.set(article.price);
+    this.priceInputGroup()?.applyExternalValue(String(article.price));
+    this.numberTakenMessage.set(null);
+    this.focusNumberFieldAfterApply = true;
+    this.pendingNumberValue.set(String(article.number));
   }
 
   onNameChange(value: string): void {
@@ -266,6 +325,7 @@ export class IntakeArticleEntry {
     if (!this.canSave()) return;
 
     const number = Number.parseInt(this.articleNumber().trim(), 10);
+    const originalNumberToDelete = this.originalNumber();
     this.items.update((items) => [
       ...items,
       {
@@ -278,6 +338,7 @@ export class IntakeArticleEntry {
         size: this.size().trim() || null,
         color: this.color().trim() || null,
         description: this.description().trim() || null,
+        ...(originalNumberToDelete !== null ? { originalNumberToDelete } : {}),
       },
     ]);
 
@@ -392,6 +453,7 @@ export class IntakeArticleEntry {
     this.description.set('');
     this.numberTakenMessage.set(null);
     this.pendingPriceValue.set('');
+    this.originalNumber.set(null);
     this.numberFieldSeq++;
     this.prefillNextNumber();
   }

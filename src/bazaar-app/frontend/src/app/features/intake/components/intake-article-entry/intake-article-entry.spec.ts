@@ -23,6 +23,7 @@ import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock
 import { PrintService } from '../../../../core/print/print.service';
 import { IntakeApi } from '../../data/intake-api';
 import { IntakeSessionList } from '../intake-session-list/intake-session-list';
+import { IntakeRenumberLookupPopup } from '../intake-renumber-lookup-popup/intake-renumber-lookup-popup';
 import { IntakeArticleEntry, SessionArticle } from './intake-article-entry';
 
 const SELLER_ID = 'SEL00001';
@@ -159,6 +160,10 @@ function numberInputGroup(fixture: ReturnType<typeof TestBed.createComponent<Int
 
 function priceInputGroup(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
   return fixture.debugElement.queryAll(By.directive(InputGroup))[1].componentInstance as InputGroup;
+}
+
+function renumberPopup(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
+  return fixture.debugElement.query(By.directive(IntakeRenumberLookupPopup)).componentInstance as IntakeRenumberLookupPopup;
 }
 
 describe('IntakeArticleEntry', () => {
@@ -496,6 +501,101 @@ describe('IntakeArticleEntry', () => {
 
       expect(component.items()).toEqual([]);
       expect(bookedSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Umnummerierung über das Renumber-Popup', () => {
+    it('prefills all Stammfelder, the number field, and sets the badge when the popup reports a found article', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+
+      renumberPopup(fixture).articleFound.emit(
+        articleByNumberStub({ number: 1, name: 'Sommerkleid', brand: 'Vertbaudet', category: 'Kleider', price: 8 }),
+      );
+      await fixture.whenStable();
+
+      expect(component.name()).toBe('Sommerkleid');
+      expect(component.brand()).toBe('Vertbaudet');
+      expect(component.category()).toBe('Kleider');
+      expect(component.price()).toBe(8);
+      expect(numberInputGroup(fixture).rawValue()).toBe('1');
+      expect(component.originalNumber()).toBe(1);
+      expect(component.extraModeButtonConfig().badge).toBe('1');
+    });
+
+    it('opening the popup is triggered by the number field\'s extraModeClicked', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      expect(component.renumberPopupVisible()).toBe(false);
+
+      numberInputGroup(fixture).extraModeClicked.emit();
+
+      expect(component.renumberPopupVisible()).toBe(true);
+    });
+
+    it('clearing the Artikelnummer field while a renumber badge is active resets every field and the badge', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      renumberPopup(fixture).articleFound.emit(articleByNumberStub({ number: 1, name: 'Sommerkleid' }));
+      await fixture.whenStable();
+
+      numberInputGroup(fixture).valueChange.emit('');
+      await fixture.whenStable();
+
+      expect(component.name()).toBe('');
+      expect(component.category()).toBe('');
+      expect(component.brand()).toBe('');
+      expect(component.price()).toBe(0);
+      expect(component.originalNumber()).toBeNull();
+      expect(component.extraModeButtonConfig().badge).toBeNull();
+    });
+
+    it('clearing the Artikelnummer field WITHOUT an active renumber badge does not wipe hand-typed fields', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.onNameChange('Handgetippt');
+      component.onPriceChange(19.9);
+
+      numberInputGroup(fixture).valueChange.emit('');
+      await fixture.whenStable();
+
+      expect(component.name()).toBe('Handgetippt');
+      expect(component.price()).toBe(19.9);
+    });
+
+    it('"Übernehmen" carries originalNumberToDelete into the session item and resets the badge', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      renumberPopup(fixture).articleFound.emit(articleByNumberStub({ number: 1, name: 'Sommerkleid', price: 8 }));
+      await fixture.whenStable();
+      numberInputGroup(fixture).valueChange.emit('6');
+      component.category.set('Kleider');
+      component.brand.set('Vertbaudet');
+      await fixture.whenStable();
+
+      component.onSubmitEntry();
+      await fixture.whenStable();
+
+      expect(component.items()).toEqual([
+        expect.objectContaining({ number: 6, name: 'Sommerkleid', originalNumberToDelete: 1 }),
+      ]);
+      expect(component.originalNumber()).toBeNull();
+      expect(component.extraModeButtonConfig().badge).toBeNull();
+    });
+
+    it('"Übernehmen" without ever using the popup does not add originalNumberToDelete', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.articleNumber.set('1043');
+      component.name.set('Winterjacke');
+      component.category.set('Kleidung');
+      component.brand.set('Lego');
+      component.price.set(12.5);
+
+      component.onSubmitEntry();
+      await fixture.whenStable();
+
+      expect(component.items()[0].originalNumberToDelete).toBeUndefined();
     });
   });
 });
