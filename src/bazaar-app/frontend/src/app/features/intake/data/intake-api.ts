@@ -16,6 +16,7 @@ export interface IntakeArticleLine {
   size?: string | null;
   color?: string | null;
   description?: string | null;
+  deleteArticleNumber?: number;
 }
 
 /** Response shape of POST /api/intake, matching the backend's `IntakeResponseDto`
