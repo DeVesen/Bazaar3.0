@@ -3,7 +3,7 @@ id: F-BA-001
 code: ANNAHME
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-09-22
 ---
 
 # Epic: Artikelannahme
@@ -131,7 +131,7 @@ Das Sofort-Anlegen ist nötig, weil Schritt 2 eine Verkäufer-ID braucht, um Art
 
 Pflichtfelder mit `*` markiert. **„Übernehmen"-Button** deaktiviert solange Pflichtfelder leer.
 
-**Sonderfall importierter Verkäufer:** Artikelnummer + ENTER → vorhandener Artikel aus Import-Liste wird geladen und Felder vorausgefüllt. Alle Felder bleiben bearbeitbar. Abgrenzung zum Freigabe-Scan → Abschnitt 5.
+**Sonderfall importierter Verkäufer:** Das Artikelnummer-Feld selbst lädt beim Tippen/Scannen **nicht** mehr automatisch vor — es prüft nur noch, ob die eingegebene Nummer vergeben ist (anderer Verkäufer oder bereits freigegeben → Fehlertext „bereits vergeben", „Übernehmen" bleibt disabled). Ein dritter Button neben Tastatur/Kamera am Artikelnummer-Feld öffnet stattdessen gezielt ein Popup, in dem eine bekannte, noch nicht freigegebene Artikelnummer dieses Verkäufers aus der Import-Liste gesucht und geladen werden kann. Nach einem Treffer füllt das Popup alle Felder inklusive der Artikelnummer selbst vor (alle Felder bleiben bearbeitbar) und der Button trägt ein Badge mit der ursprünglichen Nummer. Ändert der Anwender danach die Artikelnummer im Hauptfeld und klickt „Übernehmen", wird beim finalen Buchen der alte Datensatz unter der ursprünglichen Nummer gelöscht und der Artikel unter der neuen Nummer angelegt (Umnummerierung, kein Datensatz-Duplikat). Abgrenzung zum Freigabe-Scan → Abschnitt 5.
 
 **Sonderfall neue Nummer:** Artikelnummer wird auf **systemweite Eindeutigkeit** geprüft (Abschnitt 3).
 

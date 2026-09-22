@@ -346,6 +346,47 @@ public class IntakeHandlerTests
     }
 
     [Fact]
+    public async Task Handle_LineWithDeleteArticleNumber_TargetNumberCollidesWithAnotherPreRegisteredSameSellerArticle_ThrowsConflictAndDoesNotUpdateIt()
+    {
+        // Finding 1 (whole-branch review): renumbering article #1 onto #2, where #2 is
+        // ANOTHER pre-registered, not-yet-released article of the SAME seller, must be a
+        // genuine conflict — #2 belongs to a different article and must never be silently
+        // overwritten/released as if it were the "nachbuchen" in-place-update case.
+        var seller = CreateSeller(feePerItem: 3.00m);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+
+        var oldArticle = Article.Create(
+            "ARTICLE001", 1, "SELLER001", "Alter Name", "AlteMarke", "AlteKategorie", 5m,
+            null, null, null, DateTimeOffset.UtcNow.AddDays(-3), DateTimeOffset.UtcNow.AddDays(-3));
+        var otherPreRegistered = Article.Create(
+            "ARTICLE002", 2, "SELLER001", "Anderer Artikel", "AndereMarke", "AndereKategorie", 7m,
+            null, null, null, DateTimeOffset.UtcNow.AddDays(-2), DateTimeOffset.UtcNow.AddDays(-2));
+        Assert.Null(otherPreRegistered.ReleasedAt); // sanity check: also not yet released
+
+        _articleRepository.Setup(r => r.GetByNumber(1)).ReturnsAsync(oldArticle);
+        _articleRepository.Setup(r => r.GetByNumber(2)).ReturnsAsync(otherPreRegistered);
+        _articleRepository.Setup(r => r.GetMaxNumber()).ReturnsAsync(1287);
+
+        var line = Line(2, "Winterjacke Neu");
+        line.DeleteArticleNumber = 1;
+        var command = new IntakeCommand
+        {
+            SellerId = "SELLER001",
+            FeeAmount = 3.00m,
+            Articles = [line],
+        };
+        var sut = CreateSut();
+
+        var exception = await Assert.ThrowsAsync<ConflictException>(() => sut.Handle(command));
+
+        Assert.Equal("article.number_taken", exception.ErrorCode);
+        var takenNumbers = Assert.IsAssignableFrom<List<int>>(exception.Extensions["takenNumbers"]);
+        Assert.Equal([2], takenNumbers);
+        _articleRepository.Verify(r => r.Update(It.IsAny<Article>()), Times.Never);
+        Assert.Equal("Anderer Artikel", otherPreRegistered.Name); // untouched
+    }
+
+    [Fact]
     public async Task Handle_DeleteArticleNumber_AlreadyGoneInTheMeantime_SkipsDeleteSilently()
     {
         var seller = CreateSeller(feePerItem: 3.00m);

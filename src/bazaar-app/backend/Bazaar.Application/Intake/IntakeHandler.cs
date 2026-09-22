@@ -75,7 +75,7 @@ public sealed class IntakeHandler(
                     continue;
                 }
 
-                if (existing.SellerId == command.SellerId && existing.ReleasedAt is null)
+                if (line.DeleteArticleNumber is null && existing.SellerId == command.SellerId && existing.ReleasedAt is null)
                 {
                     toUpdate.Add((existing, line));
                     continue;

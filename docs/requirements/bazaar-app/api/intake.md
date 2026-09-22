@@ -1,7 +1,7 @@
 ---
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-09-22
 ---
 
 # API: Artikelannahme
@@ -31,7 +31,11 @@ POST /api/intake
       "size": "128", "color": "rot", "description": null },
     { "number": 1044, "name": "Gummistiefel", "brand": "Aigle",
       "category": "Schuhe", "price": 8.00,
-      "size": "30", "color": null, "description": null }
+      "size": "30", "color": null, "description": null },
+    { "number": 6, "name": "Winterjacke", "brand": "Nike",
+      "category": "Jacken", "price": 12.00,
+      "size": "128", "color": "rot", "description": null,
+      "deleteArticleNumber": 1 }
   ]
 }
 
@@ -51,6 +55,7 @@ POST /api/intake
 
 ### Was in der Transaktion passiert
 
+0. Für jeden Eintrag mit gesetztem `deleteArticleNumber` wird **zuerst** der alte Artikel unter dieser Nummer gelöscht — vorausgesetzt er gehört noch demselben Verkäufer und ist noch nicht freigegeben. Passt der Zustand nicht mehr (Artikel inzwischen freigegeben, anderem Verkäufer zugeordnet oder gar nicht mehr vorhanden — Race zwischen Übernehmen im Umnummerierungs-Popup und dem finalen Buchen), wird das Löschen **still übersprungen**; der Ziel-Eintrag wird trotzdem ganz normal weiterverarbeitet, der Vorgang bricht dafür nicht ab
 1. Für jeden Eintrag wird ein Artikel angelegt oder — bei vorangemeldeten Artikeln — der bestehende **aktualisiert**
 2. An jedem Artikel werden `acceptedAt` **und** `releasedAt` auf den Vorgangszeitpunkt gesetzt
 3. `feeAmount` wird auf `intakeFeePaid` des Verkäufers **addiert**
@@ -65,6 +70,12 @@ POST /api/intake
 Die Nummern werden **hier** verbindlich geprüft, nicht beim Tippen. `GET /api/articles/by-number/{number}` liefert dem Frontend eine Vorabprüfung, aber die Entscheidung fällt in der Transaktion — zwei Annahmeplätze können dieselbe freie Nummer gleichzeitig gesehen haben.
 
 Bei Kollision antwortet der Endpoint `409` mit **allen** betroffenen Nummern in `takenNumbers` und einem frischen `nextNumber`, damit das Frontend die Eingaben erhalten und nur die Nummern korrigieren kann. Ein Abbruch mit bloßem „Konflikt" würde die Sitzungsliste unbrauchbar machen.
+
+### Umnummerierung vorangemeldeter Artikel (`deleteArticleNumber`)
+
+Ein Eintrag kann optional `deleteArticleNumber` mitschicken: die Nummer des ursprünglich vorangemeldeten Artikels, den das Umnummerierungs-Popup der Artikelannahme geladen hat, bevor die Verkäuferin/der Verkäufer eine andere, freie Nummer vergeben hat (`number` trägt bereits die **neue** Zielnummer). Der alte Artikel wird dazu wie oben beschrieben vor dem eigentlichen Anlegen/Aktualisieren gelöscht.
+
+**Kollision am Ziel ist bei Umnummerierung immer ein Konflikt, nie ein Nachbuchen.** Trägt ein Eintrag `deleteArticleNumber`, zählt ein bereits existierender Artikel unter der Zielnummer `number` **immer** als vergeben (`409 article.number_taken`) — auch dann, wenn dieser Artikel selbst demselben Verkäufer gehört und noch nicht freigegeben ist und damit für einen gewöhnlichen Eintrag (ohne `deleteArticleNumber`) den normalen Nachbuchen-Fall („Sonderfall importierter Verkäufer", siehe oben) auslösen würde. Grund: dieser Artikel ist ein eigenständiger, vorangemeldeter Artikel eines anderen Vorgangs — nicht derselbe, der gerade umnummeriert wird — und darf beim Umnummerieren nicht mit dessen Daten überschrieben/freigegeben werden.
 
 ### Gebühr
 
