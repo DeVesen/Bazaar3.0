@@ -47,9 +47,7 @@ describe('AutocompleteCreate', () => {
     await fixture.whenStable();
 
     expect(component.isCreateMode()).toBe(true);
-    const button = (fixture.nativeElement as HTMLElement).querySelector(
-      '.autocomplete-create__create-button',
-    );
+    const button = (fixture.nativeElement as HTMLElement).querySelector('p-inputgroup-addon .p-button');
     expect(button).not.toBeNull();
   });
 
@@ -62,9 +60,7 @@ describe('AutocompleteCreate', () => {
     await fixture.whenStable();
 
     expect(component.isCreateMode()).toBe(false);
-    const button = (fixture.nativeElement as HTMLElement).querySelector(
-      '.autocomplete-create__create-button',
-    );
+    const button = (fixture.nativeElement as HTMLElement).querySelector('p-inputgroup-addon .p-button');
     expect(button).toBeNull();
   });
 

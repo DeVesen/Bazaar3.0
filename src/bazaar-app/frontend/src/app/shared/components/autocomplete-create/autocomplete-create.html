@@ -1,4 +1,4 @@
-<div class="autocomplete-create">
+<p-inputgroup class="autocomplete-create">
   <p-autocomplete
     [inputId]="inputId()"
     [ngModel]="typedValue()"
@@ -13,20 +13,22 @@
     [forceSelection]="false"
     [placeholder]="placeholder()"
     [disabled]="disabled()"
+    [showClear]="true"
     styleClass="autocomplete-create__field"
   />
 
   @if (isCreateMode()) {
-    <p-button
-      type="button"
-      icon="pi pi-plus"
-      severity="success"
-      styleClass="autocomplete-create__create-button"
-      [disabled]="disabled()"
-      (onClick)="openCreateModal()"
-    />
+    <p-inputgroup-addon>
+      <p-button
+        type="button"
+        icon="pi pi-plus"
+        severity="success"
+        [disabled]="disabled()"
+        (onClick)="openCreateModal()"
+      />
+    </p-inputgroup-addon>
   }
-</div>
+</p-inputgroup>
 
 <p-dialog
   [visible]="modalVisible()"

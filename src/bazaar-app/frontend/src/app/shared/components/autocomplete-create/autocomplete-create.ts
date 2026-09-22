@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { AutoCompleteCompleteEvent, AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputTextModule } from 'primeng/inputtext';
 
 /**
@@ -21,7 +23,15 @@ import { InputTextModule } from 'primeng/inputtext';
  */
 @Component({
   selector: 'app-autocomplete-create',
-  imports: [FormsModule, AutoCompleteModule, ButtonModule, DialogModule, InputTextModule],
+  imports: [
+    FormsModule,
+    AutoCompleteModule,
+    ButtonModule,
+    DialogModule,
+    InputGroupModule,
+    InputGroupAddonModule,
+    InputTextModule,
+  ],
   templateUrl: './autocomplete-create.html',
   styleUrl: './autocomplete-create.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,8 +81,20 @@ export class AutocompleteCreate {
     });
   }
 
-  onInput(text: string): void {
-    this.typedValue.set(text);
+  /**
+   * `text` is `null` when PrimeNG's own clear (`showClear` icon, or `clear()` internally)
+   * calls `updateModel(null)` — that reaches here via `(ngModelChange)`.
+   *
+   * Recomputes `filteredOptions` itself instead of relying on `onFilter`/`completeMethod`:
+   * PrimeNG's `AutoComplete.search()` skips emitting `completeMethod` whenever the typed
+   * text is blank (`source === 'input' && query.trim().length === 0` → early return), so
+   * without this the dropdown would keep showing whatever was filtered before the field was
+   * cleared instead of the full option list.
+   */
+  onInput(text: string | null): void {
+    const value = text ?? '';
+    this.typedValue.set(value);
+    this.filteredOptions.set(this.computeFilteredOptions(value));
   }
 
   /**
@@ -81,11 +103,13 @@ export class AutocompleteCreate {
    * shows all options, per doc Abschnitt 3 "Dropdown-Öffnungsverhalten".
    */
   onFilter(event: AutoCompleteCompleteEvent): void {
-    const query = event.query.trim().toLowerCase();
+    this.filteredOptions.set(this.computeFilteredOptions(event.query));
+  }
+
+  private computeFilteredOptions(query: string): string[] {
+    const trimmed = query.trim().toLowerCase();
     const options = this.options();
-    this.filteredOptions.set(
-      query ? options.filter((option) => option.toLowerCase().includes(query)) : [...options],
-    );
+    return trimmed ? options.filter((option) => option.toLowerCase().includes(trimmed)) : [...options];
   }
 
   /** AC-6: existing entry picked from the dropdown. */
