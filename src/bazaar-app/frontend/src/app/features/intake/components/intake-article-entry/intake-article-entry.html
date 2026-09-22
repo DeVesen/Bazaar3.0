@@ -71,7 +71,12 @@
           (addonClick)="onPriceAddonClick($event)"
         />
         @if (priceNumpadVisible()) {
-          <app-numpad (keyPressed)="onPriceNumpadKey($event)" (cleared)="onPriceNumpadClear()" />
+          <app-numpad
+            [enterDisabled]="!canSave()"
+            (keyPressed)="onPriceNumpadKey($event)"
+            (cleared)="onPriceNumpadClear()"
+            (submitted)="onSubmitEntry()"
+          />
         }
       </div>
 

@@ -756,5 +756,36 @@ describe('IntakeArticleEntry', () => {
       fixture.detectChanges();
       expect(component.priceText()).toBe('');
     });
+
+    it('⏎ on the price numpad triggers onSubmitEntry() when canSave() is true, and is disabled otherwise', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.onArticleNumberChange('123');
+      component.onNameChange('Pullover');
+      component.category.set('Kleidung');
+      component.brand.set('H&M');
+      component.onPriceChange('19,90');
+      component.onPriceAddonClick('numpad');
+      fixture.detectChanges();
+
+      const numpad = fixture.debugElement.query(By.directive(Numpad)).componentInstance as Numpad;
+      expect(component.canSave()).toBe(true);
+      expect(numpad.enterDisabled()).toBe(false);
+
+      const submitSpy = vi.spyOn(component, 'onSubmitEntry');
+      numpad.submitted.emit();
+      expect(submitSpy).toHaveBeenCalled();
+    });
+
+    it('⏎ on the price numpad is disabled while canSave() is false', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.onPriceAddonClick('numpad');
+      fixture.detectChanges();
+
+      const numpad = fixture.debugElement.query(By.directive(Numpad)).componentInstance as Numpad;
+      expect(component.canSave()).toBe(false);
+      expect(numpad.enterDisabled()).toBe(true);
+    });
   });
 });

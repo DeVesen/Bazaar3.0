@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 // eslint-disable-next-line boundaries/dependencies
 import { ArticleByNumberResult, ArticlesApi } from '../../../articles/data/articles-api';
+import { Numpad } from '../../../../shared/components/numpad/numpad';
 import { IntakeRenumberLookupPopup } from './intake-renumber-lookup-popup';
 
 const SELLER_ID = 'SEL00001';
@@ -210,5 +212,31 @@ describe('IntakeRenumberLookupPopup', () => {
       component.onNumpadClear();
       expect(component.rawNumber()).toBe('');
     });
+  });
+
+  it('⏎ on the numpad triggers onLoad() when loading() is false, and is disabled while loading', async () => {
+    const { fixture } = await setup();
+    const component = fixture.componentInstance;
+    component.onNumberAddonClick('numpad');
+    fixture.detectChanges();
+
+    const numpad = fixture.debugElement.query(By.directive(Numpad)).componentInstance as Numpad;
+    expect(component.loading()).toBe(false);
+    expect(numpad.enterDisabled()).toBe(false);
+
+    const loadSpy = vi.spyOn(component, 'onLoad');
+    numpad.submitted.emit();
+    expect(loadSpy).toHaveBeenCalled();
+  });
+
+  it('⏎ on the numpad is disabled while loading() is true', async () => {
+    const { fixture } = await setup();
+    const component = fixture.componentInstance;
+    component.onNumberAddonClick('numpad');
+    component.loading.set(true);
+    fixture.detectChanges();
+
+    const numpad = fixture.debugElement.query(By.directive(Numpad)).componentInstance as Numpad;
+    expect(numpad.enterDisabled()).toBe(true);
   });
 });

@@ -17,7 +17,12 @@
       (addonClick)="onNumberAddonClick($event)"
     />
     @if (numpadVisible()) {
-      <app-numpad (keyPressed)="onNumpadKey($event)" (cleared)="onNumpadClear()" />
+      <app-numpad
+        [enterDisabled]="loading()"
+        (keyPressed)="onNumpadKey($event)"
+        (cleared)="onNumpadClear()"
+        (submitted)="onLoad()"
+      />
     }
     @if (errorMessage()) {
       <small class="intake-renumber-lookup-popup__error">{{ errorMessage() }}</small>
