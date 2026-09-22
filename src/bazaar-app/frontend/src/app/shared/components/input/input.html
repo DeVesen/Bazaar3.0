@@ -2,7 +2,27 @@
   <input pInputText [ngModel]="rawValue()" (ngModelChange)="onTyped($event)" />
 </ng-template>
 
+<ng-template #addon let-addon>
+  <p-inputgroup-addon [class]="addon.class" [ngStyle]="addon.style" (click)="onAddonClick(addon)">
+    @switch (addon.type) {
+      @case ('icon') {
+        <i [class]="addon.value"></i>
+      }
+      @case ('button') {
+        <p-button [label]="addon.value" [text]="true" />
+      }
+      @default {
+        {{ addon.value }}
+      }
+    }
+  </p-inputgroup-addon>
+</ng-template>
+
 <p-inputgroup>
+  @for (a of addonLeft(); track a.key) {
+    <ng-container [ngTemplateOutlet]="addon" [ngTemplateOutletContext]="{ $implicit: a }" />
+  }
+
   @if (label(); as labelText) {
     <p-iftalabel>
       <ng-container [ngTemplateOutlet]="inputField" />
@@ -10,5 +30,9 @@
     </p-iftalabel>
   } @else {
     <ng-container [ngTemplateOutlet]="inputField" />
+  }
+
+  @for (a of addonRight(); track a.key) {
+    <ng-container [ngTemplateOutlet]="addon" [ngTemplateOutletContext]="{ $implicit: a }" />
   }
 </p-inputgroup>

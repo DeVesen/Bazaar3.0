@@ -1,11 +1,23 @@
 import { ChangeDetectionStrategy, Component, effect, input, output, signal } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
+import { NgStyle, NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { debounce, filter, of, timer } from 'rxjs';
+import { ButtonModule } from 'primeng/button';
 import { IftaLabelModule } from 'primeng/iftalabel';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputTextModule } from 'primeng/inputtext';
+
+export type InputAddonType = 'label' | 'icon' | 'button';
+
+export interface InputAddon {
+  type: InputAddonType;
+  value: string;
+  key: string;
+  class?: string;
+  style?: Record<string, string>;
+}
 
 /**
  * Eigenständige Text-Input-Komponente (docs/components/app-input/component.md), nach dem
@@ -14,7 +26,16 @@ import { InputTextModule } from 'primeng/inputtext';
  */
 @Component({
   selector: 'app-input',
-  imports: [FormsModule, NgTemplateOutlet, IftaLabelModule, InputGroupModule, InputTextModule],
+  imports: [
+    ButtonModule,
+    FormsModule,
+    InputGroupAddonModule,
+    InputGroupModule,
+    InputTextModule,
+    IftaLabelModule,
+    NgStyle,
+    NgTemplateOutlet,
+  ],
   templateUrl: './input.html',
   styleUrl: './input.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,8 +45,11 @@ export class Input {
   readonly value = input<string>('');
   /** Spec: default 800ms, 0 means no debounce. */
   readonly debounceMs = input<number>(800);
+  readonly addonLeft = input<InputAddon[]>([]);
+  readonly addonRight = input<InputAddon[]>([]);
 
   readonly valueChange = output<string>();
+  readonly addonClick = output<string>();
 
   private readonly _rawValue = signal<string>('');
   readonly rawValue = this._rawValue.asReadonly();
@@ -53,5 +77,9 @@ export class Input {
   onTyped(value: string): void {
     this._rawValue.set(value);
     this.typed.set(value);
+  }
+
+  onAddonClick(addon: InputAddon): void {
+    this.addonClick.emit(addon.key);
   }
 }

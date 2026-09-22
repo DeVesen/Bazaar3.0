@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { vi } from 'vitest';
-import { Input } from './input';
+import { Input, InputAddon } from './input';
 
 describe('Input', () => {
   beforeEach(async () => {
@@ -84,6 +84,66 @@ describe('Input', () => {
 
       await vi.advanceTimersByTimeAsync(0);
       expect(emitted).toEqual(['y']);
+    });
+  });
+
+  describe('addons', () => {
+    function createWithAddons(addonLeft: InputAddon[], addonRight: InputAddon[] = []) {
+      const fixture = TestBed.createComponent(Input);
+      fixture.componentRef.setInput('addonLeft', addonLeft);
+      fixture.componentRef.setInput('addonRight', addonRight);
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('renders no p-inputgroup-addon when both addonLeft and addonRight are empty', () => {
+      const fixture = create();
+      expect(fixture.debugElement.query(By.css('p-inputgroup-addon'))).toBeFalsy();
+    });
+
+    it('renders one p-inputgroup-addon per entry, left before the input, right after', () => {
+      const fixture = createWithAddons(
+        [{ type: 'icon', value: 'pi pi-search', key: 'search-icon' }],
+        [{ type: 'label', value: 'kg', key: 'unit' }],
+      );
+      const addons = fixture.debugElement.queryAll(By.css('p-inputgroup-addon'));
+      expect(addons.length).toBe(2);
+      expect(addons[0].query(By.css('i.pi-search'))).toBeTruthy();
+      expect(addons[1].nativeElement.textContent.trim()).toBe('kg');
+    });
+
+    it('renders a p-button for an addon of type button', () => {
+      const fixture = createWithAddons([{ type: 'button', value: 'Los', key: 'go' }]);
+      expect(fixture.debugElement.query(By.css('p-button'))).toBeTruthy();
+    });
+
+    it('emits addonClick with the addon key when a left addon is clicked, regardless of type', () => {
+      const fixture = createWithAddons([{ type: 'label', value: '€', key: 'currency' }]);
+      const emitted: string[] = [];
+      fixture.componentInstance.addonClick.subscribe((k) => emitted.push(k));
+
+      fixture.debugElement.query(By.css('p-inputgroup-addon')).nativeElement.click();
+
+      expect(emitted).toEqual(['currency']);
+    });
+
+    it('emits addonClick with the addon key when a right addon is clicked', () => {
+      const fixture = createWithAddons([], [{ type: 'icon', value: 'pi pi-times', key: 'clear' }]);
+      const emitted: string[] = [];
+      fixture.componentInstance.addonClick.subscribe((k) => emitted.push(k));
+
+      fixture.debugElement.query(By.css('p-inputgroup-addon')).nativeElement.click();
+
+      expect(emitted).toEqual(['clear']);
+    });
+
+    it('applies the addon class and style onto the p-inputgroup-addon element', () => {
+      const fixture = createWithAddons([
+        { type: 'label', value: 'x', key: 'x', class: 'my-addon', style: { color: 'red' } },
+      ]);
+      const addon = fixture.debugElement.query(By.css('p-inputgroup-addon')).nativeElement as HTMLElement;
+      expect(addon.classList).toContain('my-addon');
+      expect(addon.style.color).toBe('red');
     });
   });
 });
