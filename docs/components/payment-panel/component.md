@@ -17,7 +17,7 @@ updated: 2026-08-18
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
-**Bibliothek:** PrimeNG-Komposition — `p-inputgroup` + `p-inputnumber` + `app-numpad`  
+**Bibliothek:** PrimeNG-Komposition — `app-input` + `app-numpad`  
 **Verwendung:** Bazaar Haupt-App — überall dort, wo ein Geldbetrag entgegengenommen und das Rückgeld live berechnet wird.
 
 ---
@@ -144,38 +144,25 @@ Das Payment-Panel implementiert das Standard-Integrationsmuster aus
 [`docs/components/numpad/component.md`](../numpad/component.md) — Abschnitt 4.
 
 ```typescript
-@ViewChild('amountInput') amountInput!: InputNumber;
-
-private get nativeInput(): HTMLInputElement {
-    return this.amountInput.input.nativeElement;
-}
-
 onNumpadKey(init: KeyboardEventInit): void {
-    this.nativeInput.focus();
-    this.nativeInput.dispatchEvent(
-        new KeyboardEvent('keydown', { ...init, bubbles: true })
-    );
+    const key = init.key;
+    if (key === undefined) return;
+    if (key === 'Backspace') {
+        this.receivedText.update((text) => text.slice(0, -1));
+        return;
+    }
+    // ... comma/digit handling, see payment-panel.ts
 }
 
 onNumpadClear(): void {
-    this.receivedAmount = null;
-}
-
-onNumpadSubmit(): void {
-    this.confirm();
+    this.receivedText.set('');
 }
 ```
 
-Der Numpad läuft hier mit `showDecimal="true"` (Beträge haben Nachkommastellen) und
-`showEnter="true"`. `enterDisabled` ist an dieselbe Bedingung gekoppelt wie der
-Bestätigen-Button: `receivedAmount < totalAmount`. Damit bleibt der Kassiervorgang
-einhändig am Numpad, und `⏎` tut nie etwas anderes als der sichtbare Button.
-
-### Fokus beim Öffnen
-
-Das Panel öffnet im Tastatur-Modus; `p-inputnumber` erhält automatisch den Fokus
-(`pAutoFocus`). Wechselt der Nutzer in den Numpad-Modus, entfällt der Fokusbedarf — er
-tippt direkt über den Numpad.
+Der Numpad zeigt hier wie überall alle Tasten (docs/spec/2026-09-22-bezahlen-dialog-betrag-numpad.md).
+`enterDisabled` ist an dieselbe Bedingung gekoppelt wie der Bestätigen-Button:
+`receivedAmount < totalAmount`. Ein Tastendruck wird direkt in `receivedText` übernommen — kein
+`KeyboardEvent`-Dispatch.
 
 ### Bestätigen
 
@@ -204,24 +191,14 @@ Klick auf `[Abbrechen]` emittiert `cancelled`. Das Panel setzt `receivedAmount` 
 ## 5. PrimeNG-Basis
 
 ```
-p-inputgroup
-  p-inputnumber   #amountInput
-    [(ngModel)]="receivedAmount"
-    [minFractionDigits]="2"
-    [maxFractionDigits]="2"
-    [readonly]="mode === 'numpad'"
-    [pAutoFocus]="mode === 'keyboard'"
-  p-inputgroupaddon  "€"
-  p-button  severity="secondary"  [rounded]="true"  [text]="true"  ← Modus-Button
-    svg  [pIcon]="mode === 'numpad' ? 'keyboard' : 'th-large'"
-                                       ← programmatischer Icon-Wechsel statt Einzelimport,
-                                         siehe PrimeNG-22-Guide „Icons" § Programmatic
-                                         (`import { PIcon } from '@primeicons/angular/p-icon'`)
+app-input
+  [value]="receivedText()"
+  [debounceMs]="0"
+  [addonRight]="amountAddonRight()"
+  [readOnly]="mode === 'numpad'"
 
 app-numpad
   *ngIf="mode === 'numpad'"
-  [showDecimal]="true"
-  [showEnter]="true"
   [enterDisabled]="receivedAmount < totalAmount"
   (keyPressed)="onNumpadKey($event)"
   (cleared)="onNumpadClear()"
@@ -240,7 +217,7 @@ p-button  [label]="confirmLabel"  severity="primary"
 2. **AC-2** — WHILE der eingegebene Betrag kleiner als `totalAmount` ist, SHALL das System die Rückgeld-Box ausblenden und den Bestätigen-Button deaktiviert halten.
 3. **AC-3** — WHEN der Bestätigen-Button geklickt wird, THEN SHALL das System das `confirmed`-Event mit `{ totalAmount, receivedAmount, change }` emittieren.
 4. **AC-4** — WHEN das Panel geöffnet wird, THEN SHALL das System den Tastatur-Modus aktivieren, unabhängig vom Eingabegerät.
-5. **AC-5** — WHEN der Modus-Button geklickt wird, THEN SHALL das System zwischen Tastatur- und Numpad-Modus wechseln, das Icon auf den jeweils inaktiven Modus setzen und im Numpad-Modus `p-inputnumber` auf `readonly` schalten.
+5. **AC-5** — WHEN der Modus-Button geklickt wird, THEN SHALL das System zwischen Tastatur- und Numpad-Modus wechseln, das Icon auf den jeweils inaktiven Modus setzen und im Numpad-Modus das Eingabefeld auf `readonly` schalten.
 6. **AC-6** — WHEN „Abbrechen" geklickt wird, THEN SHALL das System das `cancelled`-Event emittieren und `receivedAmount` auf `null` zurücksetzen.
 7. **AC-7** — WHEN `⏎` auf dem Numpad geklickt wird, THEN SHALL das System denselben Vorgang auslösen wie der Bestätigen-Button.
 8. **AC-8** — WHILE `receivedAmount < totalAmount` gilt, SHALL das System sowohl den Bestätigen-Button als auch `⏎` deaktiviert halten.

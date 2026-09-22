@@ -7,22 +7,16 @@
 
   <div class="payment-panel__received">
     <label for="payment-panel-amount">Betrag erhalten</label>
-    <p-inputgroup>
-      <p-inputnumber
-        #amountInput
-        inputId="payment-panel-amount"
-        mode="decimal"
-        locale="de-DE"
-        [minFractionDigits]="2"
-        [maxFractionDigits]="2"
-        [ngModel]="receivedAmount()"
-        (ngModelChange)="onAmountChange($event)"
-        [readonly]="mode() === 'numpad'"
-        [pAutoFocus]="mode() === 'keyboard'"
-      />
-      <p-inputgroup-addon>€</p-inputgroup-addon>
-      <p-button [icon]="modeButtonIcon()" severity="secondary" [rounded]="true" [text]="true" (onClick)="toggleMode()" />
-    </p-inputgroup>
+    <app-input
+      inputId="payment-panel-amount"
+      [value]="receivedText()"
+      [debounceMs]="0"
+      [addonRight]="amountAddonRight()"
+      [readOnly]="mode() === 'numpad'"
+      (valueChange)="onAmountTyped($event)"
+      (keyDown)="onAmountKeyDown($event)"
+      (addonClick)="onAmountAddonClick($event)"
+    />
   </div>
 
   @if (mode() === 'numpad') {

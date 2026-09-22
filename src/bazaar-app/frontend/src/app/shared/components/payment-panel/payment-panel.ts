@@ -1,11 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, output, input, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { AutoFocusModule } from 'primeng/autofocus';
 import { ButtonModule } from 'primeng/button';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputNumber, InputNumberModule } from 'primeng/inputnumber';
+import { Input, InputAddon } from '../input/input';
 import { Numpad } from '../numpad/numpad';
 
 /** docs/components/payment-panel/component.md §2 — emitted on "Bestätigen"/⏎. */
@@ -21,36 +17,25 @@ function round2(value: number): number {
 
 /**
  * Shared, reusable payment/change component (docs/components/payment-panel/component.md) —
- * used both for Artikelannahme's "Speichern"-Popup (Round-17 Task 7) and, later, for Verkauf's
- * Bezahlpopup (only `totalLabel`/`totalAmount`/`confirmLabel` differ between the two callers, per
- * the doc's own Überblick table). This component is DIALOG CONTENT ONLY — it never renders its
- * own `p-dialog` (the doc's interface table, §2, gives it no `visible` input at all); the caller
- * owns the `p-dialog` wrapper around `<app-payment-panel>` (see `intake-session-list`).
+ * used both for Artikelannahme's "Speichern"-Popup and Verkauf's Bezahlpopup (only
+ * `totalLabel`/`totalAmount`/`confirmLabel` differ). This component is DIALOG CONTENT ONLY — it
+ * never renders its own `p-dialog`; the caller owns the `p-dialog` wrapper.
  *
- * Numpad-Integration (doc §3, mirroring `input-group.ts`'s own established
- * `onNumpadKey`/`dispatchTarget` pattern for the price variant): a numpad key press is dispatched
- * as a synthetic `KeyboardEvent` onto `p-inputnumber`'s native `<input>`, which owns its own
- * internal keydown-buffer handling — no separate text buffer needs to be maintained here (unlike
- * `input-group.ts`'s search variant, which has no such internal buffer).
+ * "Betrag erhalten" is an `app-input` (docs/spec/2026-09-22-bezahlen-dialog-betrag-numpad.md),
+ * following `intake-article-entry.ts`'s own established Preis-Feld pattern: `receivedText` is
+ * the raw string source of truth, `receivedAmount` is derived from it via
+ * `parseGermanDecimal()`, and numpad keys are applied directly onto `receivedText` — no native
+ * `KeyboardEvent` is ever dispatched.
  *
- * Only two modes exist here — `keyboard`/`numpad`, no camera (doc §3) — so unlike `input-group`
- * there is no `visibleModes()` list to compute; the single mode-button just toggles between the
- * two and swaps its icon, following `input-group.ts`'s own `iconForMode()` PrimeIcons convention
+ * Only two modes exist here — `keyboard`/`numpad`, no camera — so unlike `input-group` there is
+ * no `visibleModes()` list to compute; the single mode-button just toggles between the two and
+ * swaps its icon, following `input-group.ts`'s own `iconForMode()` PrimeIcons convention
  * (`pi-text` for "switch to keyboard" — no keyboard icon exists in the installed PrimeIcons
  * version — `pi-th-large` for "switch to numpad").
  */
 @Component({
   selector: 'app-payment-panel',
-  imports: [
-    FormsModule,
-    CurrencyPipe,
-    AutoFocusModule,
-    ButtonModule,
-    InputGroupModule,
-    InputGroupAddonModule,
-    InputNumberModule,
-    Numpad,
-  ],
+  imports: [CurrencyPipe, ButtonModule, Input, Numpad],
   templateUrl: './payment-panel.html',
   styleUrl: './payment-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,11 +48,13 @@ export class PaymentPanel {
   readonly confirmed = output<PaymentConfirmedEvent>();
   readonly cancelled = output<void>();
 
-  private readonly amountInput = viewChild<InputNumber>('amountInput');
-
   /** Always starts in keyboard mode (doc §3/AC-4), independent of device. */
   readonly mode = signal<'keyboard' | 'numpad'>('keyboard');
-  readonly receivedAmount = signal<number | null>(null);
+
+  /** Raw text of the "Betrag erhalten" `app-input` field — source of truth for what's on
+   * screen; `receivedAmount()` below is derived from it. */
+  readonly receivedText = signal('');
+  readonly receivedAmount = computed(() => this.parseGermanDecimal(this.receivedText()));
 
   /** `receivedAmount − totalAmount`, rounded to 2 decimals (doc §3). Only meaningful once
    * `showChange()` is true; kept computed unconditionally so the template can bind it directly. */
@@ -88,27 +75,61 @@ export class PaymentPanel {
 
   readonly modeButtonIcon = computed(() => (this.mode() === 'numpad' ? 'pi pi-text' : 'pi pi-th-large'));
 
-  private get nativeInput(): HTMLInputElement | undefined {
-    return this.amountInput()?.input()?.nativeElement;
+  /** € label + mode-toggle icon, in that order (docs/spec/2026-09-22-bezahlen-dialog-betrag-numpad.md
+   * AC "Addon-Layout") — same icon-addon convention `intake-article-entry.ts`'s `priceAddonRight`
+   * already uses for its own Nummernblock-toggle. */
+  readonly amountAddonRight = computed<InputAddon[]>(() => [
+    { type: 'label', value: '€', key: 'currency' },
+    { type: 'icon', value: this.modeButtonIcon(), key: 'mode' },
+  ]);
+
+  onAmountTyped(value: string): void {
+    this.receivedText.set(value);
   }
 
-  onAmountChange(value: number | null): void {
-    this.receivedAmount.set(value);
+  /** Tastatur-Tippen: nur Ziffern und ein Komma, max. 2 Nachkommastellen — alles andere wird
+   * per `preventDefault()` gar nicht erst ins Feld übernommen (spec AC "Tipp-Validierung"). */
+  onAmountKeyDown(event: KeyboardEvent): void {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (this.isControlKey(event.key)) return;
+    if (event.key === ',') {
+      if (this.receivedText().includes(',')) event.preventDefault();
+      return;
+    }
+    if (/^[0-9]$/.test(event.key)) {
+      if (this.decimalsFull()) event.preventDefault();
+      return;
+    }
+    event.preventDefault();
+  }
+
+  onAmountAddonClick(key: string): void {
+    if (key === 'mode') this.toggleMode();
   }
 
   toggleMode(): void {
     this.mode.set(this.mode() === 'numpad' ? 'keyboard' : 'numpad');
   }
 
+  /** Numpad-Dispatch (spec AC "Numpad-Modus"): the key is applied directly onto `receivedText`,
+   * never dispatched as a synthetic `KeyboardEvent` onto a native input. */
   onNumpadKey(init: KeyboardEventInit): void {
-    const target = this.nativeInput;
-    if (!target) return;
-    target.focus();
-    target.dispatchEvent(new KeyboardEvent('keydown', { ...init, bubbles: true }));
+    const key = init.key;
+    if (key === undefined) return;
+    if (key === 'Backspace') {
+      this.receivedText.update((text) => text.slice(0, -1));
+      return;
+    }
+    if (key === ',') {
+      if (!this.receivedText().includes(',')) this.receivedText.update((text) => text + ',');
+      return;
+    }
+    if (this.decimalsFull()) return;
+    this.receivedText.update((text) => text + key);
   }
 
   onNumpadClear(): void {
-    this.receivedAmount.set(null);
+    this.receivedText.set('');
   }
 
   onNumpadSubmit(): void {
@@ -124,10 +145,29 @@ export class PaymentPanel {
     });
   }
 
-  /** AC-6: resets `receivedAmount`/mode and emits `cancelled`. */
+  /** AC-6: resets receivedText/mode and emits cancelled. */
   cancel(): void {
-    this.receivedAmount.set(null);
+    this.receivedText.set('');
     this.mode.set('keyboard');
     this.cancelled.emit();
+  }
+
+  private isControlKey(key: string): boolean {
+    return ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'].includes(key);
+  }
+
+  private decimalsFull(): boolean {
+    const text = this.receivedText();
+    const commaIndex = text.indexOf(',');
+    return commaIndex !== -1 && text.length - commaIndex - 1 >= 2;
+  }
+
+  /** Same parsing as `intake-article-entry.ts`'s identically named private method and
+   * `input-group.ts`'s own copy — kept as its own copy here rather than extracted to a shared
+   * util, matching the existing convention in this codebase for this small a helper. */
+  private parseGermanDecimal(raw: string): number | null {
+    const normalized = raw.replace(',', '.').trim();
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) && normalized.length > 0 ? parsed : null;
   }
 }
