@@ -1,0 +1,15 @@
+.intake-renumber-lookup-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.intake-renumber-lookup-popup__error {
+  color: var(--p-red-700, #b91c1c);
+}
+
+.intake-renumber-lookup-popup__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

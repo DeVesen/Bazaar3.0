@@ -1,0 +1,29 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  header="Artikel per Nummer laden"
+  [style]="{ width: '22rem' }"
+>
+  <div class="intake-renumber-lookup-popup">
+    <label for="intake-renumber-lookup-number">Artikelnummer</label>
+    <app-input-group
+      inputId="intake-renumber-lookup-number"
+      variant="search"
+      [modes]="['keyboard', 'numpad']"
+      [showLeftAddon]="false"
+      (valueChange)="onNumberChange($event)"
+      (submitted)="onLoad()"
+    />
+    @if (errorMessage()) {
+      <small class="intake-renumber-lookup-popup__error">{{ errorMessage() }}</small>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="intake-renumber-lookup-popup__footer">
+      <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
+      <p-button [text]="true" [disabled]="loading()" label="Laden" (onClick)="onLoad()" />
+    </div>
+  </ng-template>
+</p-dialog>
