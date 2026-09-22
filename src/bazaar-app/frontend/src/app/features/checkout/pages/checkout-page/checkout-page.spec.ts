@@ -137,6 +137,16 @@ describe('CheckoutPage', () => {
     expect(articlesApi.getByNumber).not.toHaveBeenCalled();
   });
 
+  it('Enter with an empty field leaves a non-empty lastSaleArticleIds untouched (Storno button stays visible)', async () => {
+    const articlesApi = articlesApiStub();
+    const { component } = await setup(articlesApi);
+    component.lastSaleArticleIds.set(['ART00001']);
+
+    component.onEnterPressed();
+
+    expect(component.lastSaleArticleIds()).toEqual(['ART00001']);
+  });
+
   it('Enter triggers the lookup, a second Enter while it is still pending is a no-op', async () => {
     const articlesApi = articlesApiStub();
     const subject = new Subject<ArticleByNumberResult>();
@@ -295,6 +305,21 @@ describe('CheckoutPage', () => {
       expect(component.articleNumber()).toBe('');
       expect(component.infoState()).toEqual({ type: 'success', text: 'Nächsten Artikel eingeben …' });
       expect(component.activeMode()).toBe('numpad');
+      expect(articlesApi.getByNumber).toHaveBeenCalledTimes(1);
+    });
+
+    it('trailing whitespace in the raw field value still counts as unchanged — second Enter adds to cart, not a re-lookup', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ status: 'selling' })));
+      const { component } = await setup(articlesApi);
+      component.onTyped('1042 ');
+      component.onEnterPressed();
+      expect(component.foundArticle()).not.toBeNull();
+
+      component.onEnterPressed();
+
+      expect(component.cartItems()).toEqual([{ id: 'ART00001', number: 1042, name: 'Winterjacke', price: 12.5 }]);
+      expect(component.foundArticle()).toBeNull();
       expect(articlesApi.getByNumber).toHaveBeenCalledTimes(1);
     });
 

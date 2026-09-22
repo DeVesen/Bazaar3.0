@@ -182,7 +182,11 @@ export class CheckoutPage {
 
   onEnterPressed(): void {
     if (this.searching()) return;
-    if (this.foundArticle() && this.articleNumber() === this.resultNumber()) {
+    // `.trim()`-insensitive: a barcode-scanner keyboard-wedge can append whitespace to the raw
+    // field value before its own Enter keystroke, and `resultNumber` is always the trimmed value
+    // (set from `trimmed` in `handleArticleFound`) — comparing untrimmed here would otherwise
+    // re-trigger a lookup instead of adding to cart on the primary "2nd Enter" path.
+    if (this.foundArticle() && this.articleNumber().trim() === this.resultNumber()) {
       this.addToCart();
       return;
     }
@@ -190,15 +194,16 @@ export class CheckoutPage {
   }
 
   private startLookup(): void {
-    // Storno-Button "verschwindet, sobald der nächste Artikel gescannt wird" (epic.md §5) — this
-    // is the single entry point every keyboard/camera/numpad lookup funnels through, so one reset
-    // here covers all input modes.
-    this.lastSaleArticleIds.set([]);
-
     const trimmed = this.articleNumber().trim();
     if (!trimmed) return;
     const number = Number.parseInt(trimmed, 10);
     if (!Number.isFinite(number)) return;
+
+    // Storno-Button "verschwindet, sobald der nächste Artikel gescannt wird" (epic.md §5) — this
+    // is the single entry point every keyboard/camera/numpad lookup funnels through, so one reset
+    // here covers all input modes. Placed after the empty/invalid guards above so a reflex Enter
+    // on an empty or non-numeric field does not silently clear "Letzten Vorgang stornieren".
+    this.lastSaleArticleIds.set([]);
 
     // Local duplicate check first, no network call (Epic_Verkauf §2 "Bereits im Warenkorb",
     // cart.md AC-2).

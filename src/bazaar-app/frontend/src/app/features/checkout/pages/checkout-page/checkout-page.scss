@@ -7,9 +7,16 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+
+  @media (min-width: 769px) {
+    max-width: 75vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 .checkout-page__title {
+  margin: 0;
   font-size: 20px;
   font-weight: 800;
   color: #0f1f30;
@@ -28,11 +35,13 @@
 
   &__column--right {
     @media (min-width: 769px) {
-      // Viewport-Höhe minus Shell-Padding (shell.scss: 26px oben+unten) minus Page-Header-Block
-      // (Titel ~28px + margin-bottom 20px) — spec.md "Warenkorb-Höhenbegrenzung". Schätzwert,
-      // beim Implementieren gegen den echten gerenderten Header visuell abgleichen (design doc
-      // "Offene technische Annahme"); bei Abweichung hier den Pixel-Wert anpassen.
-      max-height: calc(100vh - 100px);
+      // Viewport-Höhe minus Shell-Padding (shell.scss: 26px oben+unten = 52px) minus
+      // Page-Header-Block (Titel-Zeilenhöhe 24px bei 20px/font-weight 800 mit `margin: 0` +
+      // margin-bottom 20px = 44px) — spec.md "Warenkorb-Höhenbegrenzung". 52px + 44px = 96px,
+      // gemessen am gerenderten Header-Markup (isolierter Messaufbau mit identischem CSS, da der
+      // Titel zuvor ohne `margin: 0` einen falschen ~48px-Schätzwert nahelegte — siehe
+      // final-fix-report.md).
+      max-height: calc(100vh - 96px);
       overflow: hidden;
       display: flex;
       flex-direction: column;
