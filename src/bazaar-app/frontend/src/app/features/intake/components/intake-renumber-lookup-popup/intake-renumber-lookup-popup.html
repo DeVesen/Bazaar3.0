@@ -7,14 +7,18 @@
 >
   <div class="intake-renumber-lookup-popup">
     <label for="intake-renumber-lookup-number">Artikelnummer</label>
-    <app-input-group
+    <app-input
       inputId="intake-renumber-lookup-number"
-      variant="search"
-      [modes]="['keyboard', 'numpad']"
-      [showLeftAddon]="false"
+      [value]="rawNumber()"
+      [debounceMs]="0"
+      [addonRight]="numberAddonRight()"
       (valueChange)="onNumberChange($event)"
-      (submitted)="onLoad()"
+      (enter)="onLoad()"
+      (addonClick)="onNumberAddonClick($event)"
     />
+    @if (numpadVisible()) {
+      <app-numpad (keyPressed)="onNumpadKey($event)" (cleared)="onNumpadClear()" />
+    }
     @if (errorMessage()) {
       <small class="intake-renumber-lookup-popup__error">{{ errorMessage() }}</small>
     }

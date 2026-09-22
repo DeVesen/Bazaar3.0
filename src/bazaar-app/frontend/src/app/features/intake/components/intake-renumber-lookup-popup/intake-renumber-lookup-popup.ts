@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { InputGroup } from '../../../../shared/components/input-group/input-group';
+import { Input, InputAddon } from '../../../../shared/components/input/input';
+import { Numpad } from '../../../../shared/components/numpad/numpad';
 // Cross-feature import, read-only: `ArticlesApi.getByNumber()` — same sanctioned pattern
 // `intake-article-entry.ts` already uses for the same API.
 // eslint-disable-next-line boundaries/dependencies
@@ -17,7 +18,7 @@ import { ArticleByNumberResult, ArticlesApi } from '../../../articles/data/artic
  */
 @Component({
   selector: 'app-intake-renumber-lookup-popup',
-  imports: [DialogModule, ButtonModule, InputGroup],
+  imports: [DialogModule, ButtonModule, Input, Numpad],
   templateUrl: './intake-renumber-lookup-popup.html',
   styleUrl: './intake-renumber-lookup-popup.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,11 +32,19 @@ export class IntakeRenumberLookupPopup {
   readonly visibleChange = output<boolean>();
   readonly articleFound = output<ArticleByNumberResult>();
 
-  private readonly numberInputGroup = viewChild(InputGroup);
-
   readonly rawNumber = signal('');
   readonly errorMessage = signal<string | null>(null);
   readonly loading = signal(false);
+  readonly numpadVisible = signal(false);
+
+  /** Submit (↩, matches `app-input-group`'s old `submitted`/Enter behaviour) + Nummernblock-Toggle
+   * — `app-input` embeds no other `app-...` component itself, so the numpad panel is rendered
+   * here in the parent and its keys applied directly onto `rawNumber()` (same pattern as
+   * `intake-article-entry.ts`'s Preis-Nummernblock). */
+  readonly numberAddonRight = computed<InputAddon[]>(() => [
+    { type: 'icon', value: 'pi pi-reply', key: 'submit' },
+    { type: 'icon', value: 'pi pi-th-large', key: 'numpad' },
+  ]);
 
   constructor() {
     effect(() => {
@@ -43,12 +52,31 @@ export class IntakeRenumberLookupPopup {
       this.rawNumber.set('');
       this.errorMessage.set(null);
       this.loading.set(false);
-      this.numberInputGroup()?.applyExternalValue('');
+      this.numpadVisible.set(false);
     });
   }
 
-  onNumberChange(value: string | number): void {
-    this.rawNumber.set(String(value));
+  onNumberChange(value: string): void {
+    this.rawNumber.set(value);
+  }
+
+  onNumberAddonClick(key: string): void {
+    if (key === 'submit') {
+      this.onLoad();
+    } else if (key === 'numpad') {
+      this.numpadVisible.update((visible) => !visible);
+    }
+  }
+
+  onNumpadKey(init: KeyboardEventInit): void {
+    const key = init.key;
+    if (key === undefined) return;
+    const current = this.rawNumber();
+    this.rawNumber.set(key === 'Backspace' ? current.slice(0, -1) : current + key);
+  }
+
+  onNumpadClear(): void {
+    this.rawNumber.set('');
   }
 
   onLoad(): void {

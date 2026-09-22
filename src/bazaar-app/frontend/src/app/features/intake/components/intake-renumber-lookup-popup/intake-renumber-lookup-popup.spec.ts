@@ -3,7 +3,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 // eslint-disable-next-line boundaries/dependencies
 import { ArticleByNumberResult, ArticlesApi } from '../../../articles/data/articles-api';
-import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { IntakeRenumberLookupPopup } from './intake-renumber-lookup-popup';
 
 const SELLER_ID = 'SEL00001';
@@ -160,5 +159,56 @@ describe('IntakeRenumberLookupPopup', () => {
 
     expect(visibleChange).toHaveBeenCalledWith(false);
     expect(articlesApi.getByNumber).not.toHaveBeenCalled();
+  });
+
+  describe('app-input addons (submit + Nummernblock)', () => {
+    it('the submit addon triggers onLoad, same as Enter used to', async () => {
+      const articlesApi = { getByNumber: vi.fn().mockReturnValue(of(articleStub())) };
+      const { fixture } = await setup(articlesApi);
+      const component = fixture.componentInstance;
+      component.onNumberChange('1');
+
+      component.onNumberAddonClick('submit');
+      await fixture.whenStable();
+
+      expect(articlesApi.getByNumber).toHaveBeenCalledWith(1);
+    });
+
+    it('the Nummernblock addon toggles a numpad panel, hidden by default and reset on reopen', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      expect(component.numpadVisible()).toBe(false);
+
+      component.onNumberAddonClick('numpad');
+      expect(component.numpadVisible()).toBe(true);
+
+      component.onNumberAddonClick('numpad');
+      expect(component.numpadVisible()).toBe(false);
+
+      component.onNumberAddonClick('numpad');
+      fixture.componentRef.setInput('visible', false);
+      fixture.detectChanges();
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+
+      expect(component.numpadVisible()).toBe(false);
+    });
+
+    it('numpad digits and backspace apply directly onto rawNumber', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+
+      component.onNumpadKey({ key: '1' });
+      component.onNumpadKey({ key: '0' });
+      component.onNumpadKey({ key: '4' });
+      component.onNumpadKey({ key: '3' });
+      expect(component.rawNumber()).toBe('1043');
+
+      component.onNumpadKey({ key: 'Backspace' });
+      expect(component.rawNumber()).toBe('104');
+
+      component.onNumpadClear();
+      expect(component.rawNumber()).toBe('');
+    });
   });
 });
