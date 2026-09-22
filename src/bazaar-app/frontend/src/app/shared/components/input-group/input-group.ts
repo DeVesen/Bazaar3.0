@@ -144,7 +144,7 @@ const SEARCH_DEBOUNCE_MS = 300;
           }
         </p-inputgroup>
 
-        @if (addonActionButtons() && visibleModes().length > 0) {
+        @if ((addonActionButtons() && visibleModes().length > 0) || extraModeButton()) {
           <div class="input-group__mode-row">
             @for (mode of visibleModes(); track mode) {
               <p-button
@@ -153,6 +153,14 @@ const SEARCH_DEBOUNCE_MS = 300;
                 [text]="true"
                 (onClick)="switchMode(mode)"
               />
+            }
+            @if (extraModeButton(); as extra) {
+              <div class="input-group__mode-button input-group__mode-button--extra">
+                <p-button [icon]="extra.icon" [text]="true" (onClick)="extraModeClicked.emit()" />
+                @if (extra.badge) {
+                  <span class="input-group__mode-badge">{{ extra.badge }}</span>
+                }
+              </div>
             }
           </div>
         }
@@ -289,6 +297,16 @@ export class InputGroup {
    * internal input), so a parent `<label for="…">` can associate with the field (a11y —
    * `@angular-eslint/template/label-has-associated-control`). */
   readonly inputId = input<string | undefined>(undefined);
+  /**
+   * Optionaler dritter Mode-Button, zusätzlich zu den regulären Tastatur/Kamera/Nummernblock-
+   * Buttons — Artikelannahmes Umnummerierungs-Popup (Epic_Artikelannahme). `null` (Default):
+   * kein zusätzlicher Button, jeder bestehende Verwender (Checkout, Verkäufer-Suche,
+   * `session-item-popup`, `artikel-dialog`) bleibt unverändert. Nur in der
+   * `addonActionButtons()`-Mode-Row gerendert — die einzige Stelle, an der ein dritter,
+   * gleichwertiger Button optisch Sinn ergibt.
+   */
+  readonly extraModeButton = input<{ icon: string; badge: string | null } | null>(null);
+  readonly extraModeClicked = output<void>();
 
   readonly valueChange = output<string | number>();
   readonly submitted = output<void>();
@@ -478,6 +496,19 @@ export class InputGroup {
 
   onSubmit(): void {
     this.submitted.emit();
+  }
+
+  /**
+   * Public entry point for a parent that just prefilled this field's value externally
+   * (`applyExternalValue()`) and wants the user able to immediately overwrite it by
+   * typing/scanning — Artikelannahme's Umnummerierungs-Popup. Only meaningful for the search
+   * variant's native `<input>`.
+   */
+  focusAndSelect(): void {
+    const input = this.searchInputRef()?.nativeElement;
+    if (!input) return;
+    input.focus();
+    input.select();
   }
 
   private dispatchTarget(): HTMLInputElement | undefined {

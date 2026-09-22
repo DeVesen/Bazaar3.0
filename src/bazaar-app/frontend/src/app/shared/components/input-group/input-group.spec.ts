@@ -530,4 +530,55 @@ describe('InputGroup', () => {
       expect(emitted).toEqual([13]);
     });
   });
+
+  describe('extra mode button (Artikelannahme Umnummerierung)', () => {
+    function createWithExtra(extra: { icon: string; badge: string | null } | null) {
+      const fixture = TestBed.createComponent(InputGroup);
+      fixture.componentRef.setInput('modes', ['keyboard', 'camera', 'numpad']);
+      fixture.componentRef.setInput('variant', 'search');
+      fixture.componentRef.setInput('addonActionButtons', true);
+      fixture.componentRef.setInput('extraModeButton', extra);
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('renders no extra button when extraModeButton is null (every existing consumer)', () => {
+      const fixture = createWithExtra(null);
+      expect(fixture.nativeElement.querySelector('.input-group__mode-button--extra')).toBeNull();
+    });
+
+    it('renders the extra button with its icon and emits extraModeClicked on click', () => {
+      const fixture = createWithExtra({ icon: 'pi pi-sync', badge: null });
+      const clicked = vi.fn();
+      fixture.componentInstance.extraModeClicked.subscribe(clicked);
+
+      const button = fixture.nativeElement.querySelector('.input-group__mode-button--extra button');
+      button.click();
+
+      expect(clicked).toHaveBeenCalled();
+    });
+
+    it('renders the badge text when set, and no badge element when null', () => {
+      const withBadge = createWithExtra({ icon: 'pi pi-sync', badge: '6' });
+      expect(withBadge.nativeElement.querySelector('.input-group__mode-badge').textContent.trim()).toBe('6');
+
+      const withoutBadge = createWithExtra({ icon: 'pi pi-sync', badge: null });
+      expect(withoutBadge.nativeElement.querySelector('.input-group__mode-badge')).toBeNull();
+    });
+  });
+
+  describe('focusAndSelect()', () => {
+    it('focuses the native search input and selects its text', () => {
+      const fixture = create(['keyboard'], 'search');
+      fixture.componentInstance.applyExternalValue('1234');
+      fixture.detectChanges();
+      const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+      const selectSpy = vi.spyOn(input, 'select');
+
+      fixture.componentInstance.focusAndSelect();
+
+      expect(document.activeElement).toBe(input);
+      expect(selectSpy).toHaveBeenCalled();
+    });
+  });
 });

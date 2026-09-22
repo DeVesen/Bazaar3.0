@@ -18,13 +18,32 @@
 }
 
 .input-group__mode-button {
-  flex: 1 1 50%;
-  width: 50%;
+  flex: 1 1 0;
+  min-width: 0;
 
   ::ng-deep .p-button {
     width: 100%;
     border-radius: 0;
   }
+}
+
+.input-group__mode-button--extra {
+  position: relative;
+}
+
+.input-group__mode-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 14px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--p-primary-color);
+  color: var(--p-primary-contrast-color);
+  font-size: 10px;
+  line-height: 14px;
+  text-align: center;
+  pointer-events: none;
 }
 
 // Doc Abschnitt 3 "Kamera nicht verfügbar oder Zugriff verweigert" — exact wording is
