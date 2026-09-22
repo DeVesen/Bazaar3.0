@@ -1,14 +1,16 @@
-<p-card header="🛒 Warenkorb">
+<p-card class="cart" header="🛒 Warenkorb">
   @if (items().length === 0) {
     <div class="cart__empty">Warenkorb ist leer</div>
   } @else {
-    @for (item of items(); track item.id) {
-      <div class="cart__item" [class.cart__item--highlighted]="item.id === highlightedItemId()">
-        <span>{{ item.number }} {{ item.name }}</span>
-        <span>{{ item.price | currency: 'EUR' }}</span>
-        <p-button icon="pi pi-trash" [text]="true" [rounded]="true" (onClick)="onRemove(item.id)" />
-      </div>
-    }
+    <div class="cart__items">
+      @for (item of items(); track item.id) {
+        <div class="cart__item" [class.cart__item--highlighted]="item.id === highlightedItemId()">
+          <span>{{ item.number }} {{ item.name }}</span>
+          <span>{{ item.price | currency: 'EUR' }}</span>
+          <p-button icon="pi pi-trash" [text]="true" [rounded]="true" (onClick)="onRemove(item.id)" />
+        </div>
+      }
+    </div>
     <div class="cart__total">Gesamt: {{ total() | currency: 'EUR' }}</div>
     <div class="cart__footer">
       <p-button label="Leeren" icon="pi pi-trash" severity="secondary" [outlined]="true" (onClick)="onClear()" />

@@ -17,8 +17,34 @@
 
 .checkout-page {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 24px;
+
+  @media (min-width: 769px) {
+    max-width: 75vw;
+    margin: 0 auto;
+    grid-template-columns: 1fr 2fr;
+  }
+
+  &__column--right {
+    @media (min-width: 769px) {
+      // Viewport-Höhe minus Shell-Padding (shell.scss: 26px oben+unten) minus Page-Header-Block
+      // (Titel ~28px + margin-bottom 20px) — spec.md "Warenkorb-Höhenbegrenzung". Schätzwert,
+      // beim Implementieren gegen den echten gerenderten Header visuell abgleichen (design doc
+      // "Offene technische Annahme"); bei Abweichung hier den Pixel-Wert anpassen.
+      max-height: calc(100vh - 100px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+
+      app-cart {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
 
   &__column {
     display: flex;
