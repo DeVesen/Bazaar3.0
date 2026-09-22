@@ -37,7 +37,7 @@
   </div>
 </div>
 
-<p-dialog [(visible)]="paymentPanelVisible" [modal]="true" header="Bezahlen">
+<p-dialog styleClass="payment-dialog" [(visible)]="paymentPanelVisible" [modal]="true" header="Bezahlen">
   <app-payment-panel
     totalLabel="Gesamtbetrag"
     [totalAmount]="cartTotal()"

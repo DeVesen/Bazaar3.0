@@ -45,3 +45,22 @@
     color: var(--p-red-500);
   }
 }
+
+// Responsive Bezahlen-Dialog-Breite (docs/spec/2026-09-22-bezahlen-dialog-betrag-numpad.md):
+// `p-dialog`'s rendered root is outside this component's emulated-encapsulation scope, hence
+// `::ng-deep` — same convention as `scan-dialog.scss`. Breakpoints match `kpi-grid.scss`.
+::ng-deep .payment-dialog {
+  width: 25%;
+}
+
+@media (max-width: 1023px) {
+  ::ng-deep .payment-dialog {
+    width: 50%;
+  }
+}
+
+@media (max-width: 767px) {
+  ::ng-deep .payment-dialog {
+    width: 95%;
+  }
+}

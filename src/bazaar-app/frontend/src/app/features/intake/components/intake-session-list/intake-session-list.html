@@ -40,7 +40,7 @@
   (brandCreated)="brandCreated.emit($event)"
 />
 
-<p-dialog [(visible)]="paymentPanelVisible" [modal]="true" header="Bezahlen">
+<p-dialog styleClass="payment-dialog" [(visible)]="paymentPanelVisible" [modal]="true" header="Bezahlen">
   <app-payment-panel
     totalLabel="Gesamtgebühr"
     [totalAmount]="fee()"
