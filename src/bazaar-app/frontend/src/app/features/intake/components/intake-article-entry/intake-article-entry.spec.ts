@@ -12,6 +12,8 @@ import { Brand, BrandsApi } from '../../../brands/data/brands-api';
 import { SellerDetail, SellersApi } from '../../../sellers/data/sellers-api';
 import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
+import { Input } from '../../../../shared/components/input/input';
+import { Numpad } from '../../../../shared/components/numpad/numpad';
 // `InputGroup` depends on `BarcodeScanner`/`@zxing/browser` — importing the ONE shared mock
 // (see that file's own comment for why it must be centralized, and why every spec that
 // transitively loads `BarcodeScanner` must import it, not just the ones asserting on it) so
@@ -158,12 +160,16 @@ function numberInputGroup(fixture: ReturnType<typeof TestBed.createComponent<Int
   return fixture.debugElement.queryAll(By.directive(InputGroup))[0].componentInstance as InputGroup;
 }
 
-function priceInputGroup(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
-  return fixture.debugElement.queryAll(By.directive(InputGroup))[1].componentInstance as InputGroup;
-}
-
 function renumberPopup(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
   return fixture.debugElement.query(By.directive(IntakeRenumberLookupPopup)).componentInstance as IntakeRenumberLookupPopup;
+}
+
+function appInputById(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>, inputId: string) {
+  const match = fixture.debugElement
+    .queryAll(By.directive(Input))
+    .find((de) => (de.componentInstance as Input).inputId() === inputId);
+  if (!match) throw new Error(`app-input with inputId="${inputId}" not found`);
+  return match.componentInstance as Input;
 }
 
 describe('IntakeArticleEntry', () => {
@@ -194,7 +200,7 @@ describe('IntakeArticleEntry', () => {
       component.brand.set('Lego');
       expect(component.canSave()).toBe(false);
 
-      component.price.set(12.5);
+      component.onPriceChange(12.5);
       expect(component.canSave()).toBe(true);
     });
 
@@ -205,7 +211,7 @@ describe('IntakeArticleEntry', () => {
       component.name.set('Winterjacke');
       component.category.set('Kleidung');
       component.brand.set('Lego');
-      component.price.set(0);
+      component.onPriceChange(0);
 
       expect(component.canSave()).toBe(false);
     });
@@ -235,7 +241,7 @@ describe('IntakeArticleEntry', () => {
       component.name.set('X');
       component.category.set('Kleidung');
       component.brand.set('Lego');
-      component.price.set(5);
+      component.onPriceChange(5);
 
       numberInputGroup(fixture).valueChange.emit('1042');
       await fixture.whenStable();
@@ -347,7 +353,7 @@ describe('IntakeArticleEntry', () => {
       component.name.set('Winterjacke');
       component.category.set('Kleidung');
       component.brand.set('Lego');
-      component.price.set(12.5);
+      component.onPriceChange(12.5);
       component.size.set('104');
       component.color.set('Blau');
       component.description.set('Kaum getragen');
@@ -395,7 +401,7 @@ describe('IntakeArticleEntry', () => {
       component.name.set('Winterjacke');
       component.category.set('Kleidung');
       component.brand.set('Lego');
-      component.price.set(12.5);
+      component.onPriceChange(12.5);
 
       component.onSubmitEntry();
       await fixture.whenStable();
@@ -606,12 +612,150 @@ describe('IntakeArticleEntry', () => {
       component.name.set('Winterjacke');
       component.category.set('Kleidung');
       component.brand.set('Lego');
-      component.price.set(12.5);
+      component.onPriceChange(12.5);
 
       component.onSubmitEntry();
       await fixture.whenStable();
 
       expect(component.items()[0].originalNumberToDelete).toBeUndefined();
+    });
+  });
+
+  describe('Bezeichnung/Preis/Größe/Farbe as app-input (clear button, Nummernblock, no debounce)', () => {
+    it('wires debounceMs=0 on all four fields (no server call behind any of them)', async () => {
+      const { fixture } = await setup();
+      const ids = [
+        'intake-article-entry-name',
+        'intake-article-entry-price',
+        'intake-article-entry-size',
+        'intake-article-entry-color',
+      ];
+      for (const id of ids) {
+        expect(appInputById(fixture, id).debounceMs()).toBe(0);
+      }
+    });
+
+    it('shows no clear button while Bezeichnung is empty, and one once a keyup reports a value', async () => {
+      const { fixture } = await setup();
+      const nameInput = appInputById(fixture, 'intake-article-entry-name');
+      expect(nameInput.addonRight()).toEqual([]);
+
+      fixture.componentInstance.onNameKeyUp({ target: { value: 'Jacke' } } as unknown as KeyboardEvent);
+      fixture.detectChanges();
+
+      expect(nameInput.addonRight()).toEqual([{ type: 'icon', value: 'pi pi-times', key: 'clear' }]);
+    });
+
+    it('clicking the Bezeichnung clear addon empties the field and hides the button again', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      const nameInput = appInputById(fixture, 'intake-article-entry-name');
+      component.onNameChange('Jacke');
+      fixture.detectChanges();
+      expect(nameInput.addonRight().length).toBe(1);
+
+      component.onNameAddonClick('clear');
+      fixture.detectChanges();
+
+      expect(component.name()).toBe('');
+      expect(nameInput.addonRight()).toEqual([]);
+    });
+
+    it('Größe and Farbe clear buttons behave the same way', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.onSizeChange('104');
+      component.onColorChange('Blau');
+      fixture.detectChanges();
+
+      expect(appInputById(fixture, 'intake-article-entry-size').addonRight().length).toBe(1);
+      expect(appInputById(fixture, 'intake-article-entry-color').addonRight().length).toBe(1);
+
+      component.onSizeAddonClick('clear');
+      component.onColorAddonClick('clear');
+      fixture.detectChanges();
+
+      expect(component.size()).toBe('');
+      expect(component.color()).toBe('');
+      expect(appInputById(fixture, 'intake-article-entry-size').addonRight()).toEqual([]);
+      expect(appInputById(fixture, 'intake-article-entry-color').addonRight()).toEqual([]);
+    });
+
+    it('Preis always shows the €-label and Nummernblock addons, plus a clear addon once a value is entered', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      const priceInput = appInputById(fixture, 'intake-article-entry-price');
+
+      expect(priceInput.addonRight()).toEqual([
+        { type: 'label', value: '€', key: 'currency' },
+        { type: 'icon', value: 'pi pi-th-large', key: 'numpad' },
+      ]);
+
+      component.onPriceChange(12.5);
+      fixture.detectChanges();
+
+      expect(priceInput.addonRight()).toEqual([
+        { type: 'icon', value: 'pi pi-times', key: 'clear' },
+        { type: 'label', value: '€', key: 'currency' },
+        { type: 'icon', value: 'pi pi-th-large', key: 'numpad' },
+      ]);
+    });
+
+    it('clicking the Preis clear addon empties price and hides the clear addon', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.onPriceChange(12.5);
+      fixture.detectChanges();
+
+      component.onPriceAddonClick('clear');
+      fixture.detectChanges();
+
+      expect(component.price()).toBe(0);
+      expect(component.priceText()).toBe('');
+      expect(appInputById(fixture, 'intake-article-entry-price').addonRight()).toEqual([
+        { type: 'label', value: '€', key: 'currency' },
+        { type: 'icon', value: 'pi pi-th-large', key: 'numpad' },
+      ]);
+    });
+
+    it('clicking the Nummernblock addon toggles a numpad panel, hidden by default', async () => {
+      const { fixture } = await setup();
+      expect(fixture.debugElement.query(By.directive(Numpad))).toBeFalsy();
+
+      fixture.componentInstance.onPriceAddonClick('numpad');
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.directive(Numpad))).toBeTruthy();
+
+      fixture.componentInstance.onPriceAddonClick('numpad');
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.directive(Numpad))).toBeFalsy();
+    });
+
+    it('numpad digits/comma/backspace/clear apply directly onto priceText, and it opens with decimal support', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.onPriceAddonClick('numpad');
+      fixture.detectChanges();
+
+      const numpad = fixture.debugElement.query(By.directive(Numpad)).componentInstance as Numpad;
+      expect(numpad.showDecimal()).toBe(true);
+
+      numpad.keyPressed.emit({ key: '1' });
+      numpad.keyPressed.emit({ key: '2' });
+      numpad.keyPressed.emit({ key: ',' });
+      numpad.keyPressed.emit({ key: '5' });
+      fixture.detectChanges();
+
+      expect(component.priceText()).toBe('12,5');
+      expect(component.price()).toBe(12.5);
+
+      numpad.keyPressed.emit({ key: 'Backspace' });
+      fixture.detectChanges();
+      expect(component.priceText()).toBe('12,');
+
+      numpad.cleared.emit();
+      fixture.detectChanges();
+      expect(component.priceText()).toBe('');
     });
   });
 });

@@ -22,14 +22,15 @@
 
       <div class="intake-article-entry__field intake-article-entry__field--full">
         <label for="intake-article-entry-name">Bezeichnung <span class="intake-article-entry__required">*</span></label>
-        <input
-          id="intake-article-entry-name"
-          pInputText
-          [ngModel]="name()"
-          (ngModelChange)="onNameChange($event)"
-          name="name"
-          type="text"
-          required
+        <app-input
+          inputId="intake-article-entry-name"
+          [value]="name()"
+          [debounceMs]="0"
+          [addonRight]="nameClearAddon()"
+          [required]="true"
+          (valueChange)="onNameChange($event)"
+          (keyUp)="onNameKeyUp($event)"
+          (addonClick)="onNameAddonClick($event)"
         />
       </div>
 
@@ -59,36 +60,44 @@
 
       <div class="intake-article-entry__field intake-article-entry__field--full">
         <label for="intake-article-entry-price">Preis <span class="intake-article-entry__required">*</span></label>
-        <app-input-group
-          #priceGroup
+        <app-input
           inputId="intake-article-entry-price"
-          variant="price"
-          [modes]="['keyboard', 'numpad']"
+          [value]="priceText()"
+          [debounceMs]="0"
+          [addonRight]="priceAddonRight()"
+          [required]="true"
           (valueChange)="onPriceChange($event)"
+          (keyUp)="onPriceKeyUp($event)"
+          (addonClick)="onPriceAddonClick($event)"
         />
+        @if (priceNumpadVisible()) {
+          <app-numpad [showDecimal]="true" (keyPressed)="onPriceNumpadKey($event)" (cleared)="onPriceNumpadClear()" />
+        }
       </div>
 
       <div class="intake-article-entry__field">
         <label for="intake-article-entry-size">Größe</label>
-        <input
-          id="intake-article-entry-size"
-          pInputText
-          [ngModel]="size()"
-          (ngModelChange)="onSizeChange($event)"
-          name="size"
-          type="text"
+        <app-input
+          inputId="intake-article-entry-size"
+          [value]="size()"
+          [debounceMs]="0"
+          [addonRight]="sizeClearAddon()"
+          (valueChange)="onSizeChange($event)"
+          (keyUp)="onSizeKeyUp($event)"
+          (addonClick)="onSizeAddonClick($event)"
         />
       </div>
 
       <div class="intake-article-entry__field">
         <label for="intake-article-entry-color">Farbe</label>
-        <input
-          id="intake-article-entry-color"
-          pInputText
-          [ngModel]="color()"
-          (ngModelChange)="onColorChange($event)"
-          name="color"
-          type="text"
+        <app-input
+          inputId="intake-article-entry-color"
+          [value]="color()"
+          [debounceMs]="0"
+          [addonRight]="colorClearAddon()"
+          (valueChange)="onColorChange($event)"
+          (keyUp)="onColorKeyUp($event)"
+          (addonClick)="onColorAddonClick($event)"
         />
       </div>
 

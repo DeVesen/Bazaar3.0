@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, ou
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
+import { Input, InputAddon } from '../../../../shared/components/input/input';
+import { Numpad } from '../../../../shared/components/numpad/numpad';
 // Cross-feature import, read-only: `ArticlesApi.getByNumber()`/`.getNextNumber()` back the
 // Artikelnummer-Prüfung/Nummernvorschlag — same sanctioned pattern as the other cross-feature
 // imports below (`CategoriesApi`/`BrandsApi`/`SellersApi`).
@@ -67,10 +68,11 @@ export interface SessionArticle {
   imports: [
     FormsModule,
     ButtonModule,
-    InputTextModule,
     TextareaModule,
     AutocompleteCreate,
     InputGroup,
+    Input,
+    Numpad,
     IntakeSessionList,
     IntakeRenumberLookupPopup,
   ],
@@ -94,13 +96,12 @@ export class IntakeArticleEntry {
   readonly booked = output<void>();
 
   /**
-   * `input-group`'s search/price variants have no reactive `value` input as of Round-16/17
-   * (established gap, see `artikel-dialog.ts`'s identical `priceInputGroup` viewChild) — these
-   * two viewChilds let the seeding/reset effects below push a value into the rendered
-   * component imperatively via `applyExternalValue()`.
+   * `input-group`'s search variant has no reactive `value` input as of Round-16/17 (established
+   * gap, see `artikel-dialog.ts`'s identical viewChild) — lets the seeding/reset effect below
+   * push a value into the rendered component imperatively via `applyExternalValue()`. Preis now
+   * uses `app-input` instead (reactive `[value]` binding), so it needs no such viewChild anymore.
    */
   private readonly numberInputGroup = viewChild<InputGroup>('numberGroup');
-  private readonly priceInputGroup = viewChild<InputGroup>('priceGroup');
 
   readonly categoriesList = signal<Category[]>([]);
   readonly brandsList = signal<Brand[]>([]);
@@ -111,10 +112,43 @@ export class IntakeArticleEntry {
   readonly name = signal('');
   readonly category = signal('');
   readonly brand = signal('');
-  readonly price = signal(0);
+  /** Raw text of the Preis `app-input` field — source of truth for what's on screen; `price()`
+   * below is derived from it. Kept separate from `price` so a re-formatted value never gets fed
+   * back into the field the user is actively typing in (would fight the cursor mid-entry). */
+  readonly priceText = signal('');
+  readonly price = computed(() => this.parseGermanDecimal(this.priceText()) ?? 0);
   readonly size = signal('');
   readonly color = signal('');
   readonly description = signal('');
+
+  /** Drive the clear-button (✕) `addonRight` on the Bezeichnung/Preis/Größe/Farbe `app-input`
+   * fields — see their `onXKeyUp()`/`onXChange()` handlers below for what updates them. */
+  readonly nameIsEmpty = signal(true);
+  readonly priceIsEmpty = signal(true);
+  readonly sizeIsEmpty = signal(true);
+  readonly colorIsEmpty = signal(true);
+
+  /** Toggled by the Preis field's Nummernblock addon button. */
+  readonly priceNumpadVisible = signal(false);
+
+  readonly nameClearAddon = computed<InputAddon[]>(() =>
+    this.nameIsEmpty() ? [] : [{ type: 'icon', value: 'pi pi-times', key: 'clear' }],
+  );
+  readonly sizeClearAddon = computed<InputAddon[]>(() =>
+    this.sizeIsEmpty() ? [] : [{ type: 'icon', value: 'pi pi-times', key: 'clear' }],
+  );
+  readonly colorClearAddon = computed<InputAddon[]>(() =>
+    this.colorIsEmpty() ? [] : [{ type: 'icon', value: 'pi pi-times', key: 'clear' }],
+  );
+  /** Order: clear (if not empty), €-label, Nummernblock-Toggle — `app-input` has no built-in
+   * numpad integration (unlike `app-input-group`), so its keys are applied onto `priceText`
+   * by `onPriceNumpadKey()`/`onPriceNumpadClear()` below, the same way `input-group.ts`'s own
+   * internal numpad wiring works, just owned here in the parent instead. */
+  readonly priceAddonRight = computed<InputAddon[]>(() => [
+    ...(this.priceIsEmpty() ? [] : [{ type: 'icon', value: 'pi pi-times', key: 'clear' } as InputAddon]),
+    { type: 'label', value: '€', key: 'currency' },
+    { type: 'icon', value: 'pi pi-th-large', key: 'numpad' },
+  ]);
 
   /** Set once a `getByNumber()` lookup finds the number already taken (belongs to a different
    * seller, or belongs to this seller but is already released) — disables "Übernehmen" and shows
@@ -146,7 +180,6 @@ export class IntakeArticleEntry {
   readonly feePerItem = signal(0);
 
   private readonly pendingNumberValue = signal<string | null>(null);
-  private readonly pendingPriceValue = signal<string | null>(null);
 
   /**
    * Fix round 1 (reviewer Important 1): bumped on every REAL Artikelnummer-field interaction
@@ -210,14 +243,6 @@ export class IntakeArticleEntry {
         setTimeout(() => inputGroup.focusAndSelect());
       }
     });
-
-    effect(() => {
-      const inputGroup = this.priceInputGroup();
-      const pending = this.pendingPriceValue();
-      if (!inputGroup || pending === null) return;
-      inputGroup.applyExternalValue(pending);
-      this.pendingPriceValue.set(null);
-    });
   }
 
   onArticleNumberChange(value: string | number): void {
@@ -254,14 +279,13 @@ export class IntakeArticleEntry {
    * Tippen/Scannen ist damit ohne manuelles Markieren möglich. */
   onArticleFoundViaRenumberPopup(article: ArticleByNumberResult): void {
     this.originalNumber.set(article.number);
-    this.name.set(article.name);
+    this.onNameChange(article.name);
     this.category.set(article.category);
     this.brand.set(article.brand);
-    this.size.set(article.size ?? '');
-    this.color.set(article.color ?? '');
+    this.onSizeChange(article.size ?? '');
+    this.onColorChange(article.color ?? '');
     this.description.set(article.description ?? '');
-    this.price.set(article.price);
-    this.priceInputGroup()?.applyExternalValue(String(article.price));
+    this.onPriceChange(article.price);
     this.numberTakenMessage.set(null);
     this.focusNumberFieldAfterApply = true;
     this.pendingNumberValue.set(String(article.number));
@@ -269,10 +293,13 @@ export class IntakeArticleEntry {
 
   onNameChange(value: string): void {
     this.name.set(value);
+    this.nameIsEmpty.set(value.trim().length === 0);
   }
 
   onPriceChange(value: string | number): void {
-    this.price.set(typeof value === 'number' ? value : Number(value));
+    const text = typeof value === 'number' ? String(value).replace('.', ',') : value;
+    this.priceText.set(text);
+    this.priceIsEmpty.set(text.trim().length === 0);
   }
 
   onCategoryChange(value: string): void {
@@ -285,10 +312,68 @@ export class IntakeArticleEntry {
 
   onSizeChange(value: string): void {
     this.size.set(value);
+    this.sizeIsEmpty.set(value.trim().length === 0);
   }
 
   onColorChange(value: string): void {
     this.color.set(value);
+    this.colorIsEmpty.set(value.trim().length === 0);
+  }
+
+  /** Reactive fast-path for the clear-button (✕) visibility — reads the native input's raw
+   * value directly off the keyup event, independent of the (already near-instant, `debounceMs=0`)
+   * `valueChange` pipeline. `onXChange()` above also keeps these in sync for programmatic sets
+   * (renumber popup, tests) that never dispatch a real keyup. */
+  onNameKeyUp(event: KeyboardEvent): void {
+    this.nameIsEmpty.set(((event.target as HTMLInputElement).value ?? '').trim().length === 0);
+  }
+
+  onPriceKeyUp(event: KeyboardEvent): void {
+    this.priceIsEmpty.set(((event.target as HTMLInputElement).value ?? '').trim().length === 0);
+  }
+
+  onSizeKeyUp(event: KeyboardEvent): void {
+    this.sizeIsEmpty.set(((event.target as HTMLInputElement).value ?? '').trim().length === 0);
+  }
+
+  onColorKeyUp(event: KeyboardEvent): void {
+    this.colorIsEmpty.set(((event.target as HTMLInputElement).value ?? '').trim().length === 0);
+  }
+
+  onNameAddonClick(key: string): void {
+    if (key === 'clear') this.onNameChange('');
+  }
+
+  onSizeAddonClick(key: string): void {
+    if (key === 'clear') this.onSizeChange('');
+  }
+
+  onColorAddonClick(key: string): void {
+    if (key === 'clear') this.onColorChange('');
+  }
+
+  onPriceAddonClick(key: string): void {
+    if (key === 'clear') {
+      this.onPriceChange('');
+    } else if (key === 'numpad') {
+      this.priceNumpadVisible.update((visible) => !visible);
+    }
+  }
+
+  /** Preis-Nummernblock (Recommended aus dem Umbau-Brainstorming): `app-input` bettet selbst
+   * keine andere `app-...`-Komponente ein, daher wird `app-numpad` hier im Parent gerendert und
+   * seine Tasten direkt auf `priceText` angewendet — dieselbe Append/Backspace-Logik wie
+   * `input-group.ts`s eigene interne Numpad-Verdrahtung (`applyNumpadKeyToSearchValue`), nur
+   * hier im Feature-Component statt in der Shared-Komponente selbst. */
+  onPriceNumpadKey(init: KeyboardEventInit): void {
+    const key = init.key;
+    if (key === undefined) return;
+    const current = this.priceText();
+    this.onPriceChange(key === 'Backspace' ? current.slice(0, -1) : current + key);
+  }
+
+  onPriceNumpadClear(): void {
+    this.onPriceChange('');
   }
 
   onDescriptionChange(value: string): void {
@@ -454,17 +539,26 @@ export class IntakeArticleEntry {
 
   private resetForm(): void {
     this.articleNumber.set('');
-    this.name.set('');
+    this.onNameChange('');
     this.category.set('');
     this.brand.set('');
-    this.price.set(0);
-    this.size.set('');
-    this.color.set('');
+    this.onPriceChange('');
+    this.onSizeChange('');
+    this.onColorChange('');
     this.description.set('');
+    this.priceNumpadVisible.set(false);
     this.numberTakenMessage.set(null);
-    this.pendingPriceValue.set('');
     this.originalNumber.set(null);
     this.numberFieldSeq++;
     this.prefillNextNumber();
+  }
+
+  /** Same parsing as `input-group.ts`'s identically named private method — kept as its own copy
+   * here rather than extracted to a shared util, since `app-input` is deliberately text-only and
+   * this is the only other place in the codebase that needs German-decimal parsing. */
+  private parseGermanDecimal(raw: string): number | null {
+    const normalized = raw.replace(',', '.').trim();
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) && normalized.length > 0 ? parsed : null;
   }
 }
