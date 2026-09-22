@@ -55,7 +55,12 @@ function articleByNumberStub(overrides: Partial<ArticleByNumberResult> = {}): Ar
     id: 'ART00001',
     number: 1042,
     name: 'Winterjacke',
+    brand: 'Jack Wolfskin',
+    category: 'Jacken',
     price: 12.5,
+    size: '128',
+    color: 'Blau',
+    description: null,
     status: 'registered',
     sellerId: SELLER_ID,
     sellerName: 'Max Mustermann',
@@ -251,10 +256,22 @@ describe('IntakeArticleEntry', () => {
       expect(component.numberTakenMessage()).toBe('Artikelnummer bereits vergeben');
     });
 
-    it('200, belongs to this seller and still registered (pre-announced): prefills Bezeichnung/Preis, no message, fields stay editable', async () => {
+    it('200, belongs to this seller and still registered (pre-announced): prefills all Stammfelder, no message, fields stay editable', async () => {
       const articlesApi = articlesApiStub();
       articlesApi.getByNumber.mockReturnValue(
-        of(articleByNumberStub({ sellerId: SELLER_ID, status: 'registered', name: 'Sommerkleid', price: 8 })),
+        of(
+          articleByNumberStub({
+            sellerId: SELLER_ID,
+            status: 'registered',
+            name: 'Sommerkleid',
+            brand: 'Vertbaudet',
+            category: 'Kleider',
+            price: 8,
+            size: '92',
+            color: 'Rot',
+            description: 'Kaum getragen',
+          }),
+        ),
       );
       const { fixture } = await setup({ articlesApi });
       const component = fixture.componentInstance;
@@ -264,6 +281,11 @@ describe('IntakeArticleEntry', () => {
 
       expect(component.numberTakenMessage()).toBeNull();
       expect(component.name()).toBe('Sommerkleid');
+      expect(component.category()).toBe('Kleider');
+      expect(component.brand()).toBe('Vertbaudet');
+      expect(component.size()).toBe('92');
+      expect(component.color()).toBe('Rot');
+      expect(component.description()).toBe('Kaum getragen');
       expect(component.price()).toBe(8);
       expect(priceInputGroup(fixture).priceValue()).toBe(8);
     });

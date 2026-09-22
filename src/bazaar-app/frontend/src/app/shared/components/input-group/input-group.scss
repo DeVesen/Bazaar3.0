@@ -12,6 +12,21 @@
   height: 1.5rem;
 }
 
+.input-group__mode-row {
+  display: flex;
+  width: 100%;
+}
+
+.input-group__mode-button {
+  flex: 1 1 50%;
+  width: 50%;
+
+  ::ng-deep .p-button {
+    width: 100%;
+    border-radius: 0;
+  }
+}
+
 // Doc Abschnitt 3 "Kamera nicht verfügbar oder Zugriff verweigert" — exact wording is
 // binding, only the visual treatment ("rote InfoArea") is this component's own choice.
 .input-group__camera-error {

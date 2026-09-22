@@ -8,7 +8,12 @@ public sealed record ArticleByNumberDto(
     string Id,
     int Number,
     string Name,
+    string Brand,
+    string Category,
     decimal Price,
+    string? Size,
+    string? Color,
+    string? Description,
     string Status,
     string SellerId,
     string SellerName);

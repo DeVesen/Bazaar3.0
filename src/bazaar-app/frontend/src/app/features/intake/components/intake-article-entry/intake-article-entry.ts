@@ -6,7 +6,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
-import { ScanFeedback } from '../../../../shared/components/scan-feedback/scan-feedback';
 // Cross-feature import, read-only: `ArticlesApi.getByNumber()`/`.getNextNumber()` back the
 // Artikelnummer-Prüfung/Nummernvorschlag — same sanctioned pattern as the other cross-feature
 // imports below (`CategoriesApi`/`BrandsApi`/`SellersApi`).
@@ -51,7 +50,7 @@ export interface SessionArticle {
 /**
  * Wizard Schritt-2 container (Epic_Artikelannahme Abschnitt 2) — replaces the Round-16
  * `intake-step-two-placeholder`. Left column (70%): the article entry form (Artikelnummer with
- * camera/scan-feedback, Bezeichnung, Kategorie/Marke, Preis, Größe/Farbe, Beschreibung,
+ * camera, Bezeichnung, Kategorie/Marke, Preis, Größe/Farbe, Beschreibung,
  * "Übernehmen"). Right column (30%): `app-intake-session-list` (Round-17 Task 7) — click-to-edit
  * via `session-item-popup`, delete, and the payment panel that actually books the session
  * (`POST /api/intake`). This component owns `items()`/`feePerItem()` and applies the mutations
@@ -67,7 +66,6 @@ export interface SessionArticle {
     TextareaModule,
     AutocompleteCreate,
     InputGroup,
-    ScanFeedback,
     IntakeSessionList,
   ],
   templateUrl: './intake-article-entry.html',
@@ -116,9 +114,6 @@ export class IntakeArticleEntry {
    * seller, or belongs to this seller but is already released) — disables "Übernehmen" and shows
    * the inline "Artikelnummer bereits vergeben" message (spec.md, keyboard/numpad case). */
   readonly numberTakenMessage = signal<string | null>(null);
-  /** Camera-originated lookups additionally drive `scan-feedback`'s countdown/tone/vibration
-   * (spec.md); keyboard/numpad lookups never touch this — see `checkArticleNumber()`. */
-  readonly scanFeedbackResult = signal<'success' | 'already-set' | 'unknown' | null>(null);
 
   /**
    * Owned here since this component is the container/orchestrator mounted at the wizard's
@@ -146,13 +141,15 @@ export class IntakeArticleEntry {
    */
   private numberFieldSeq = 0;
   /**
-   * Fix round 1 (reviewer Important 2): true only while `name`/`price` hold values that came
-   * from `handleArticleFound()`'s own-seller-unreleased prefill branch, not from the user's own
-   * typing — cleared on any manual edit to those two fields (`onNameChange()`/`onPriceChange()`)
-   * and consumed (cleared + fields reset) once the Artikelnummer field moves on to a DIFFERENT
-   * number whose lookup no longer confirms that same prefill (`clearPrefilledFields()`). Prevents
-   * article A's prefilled Bezeichnung/Preis from silently leaking into a "fresh" entry for a
-   * different number B.
+   * Fix round 1 (reviewer Important 2), extended to all Stammfelder: true only while
+   * Bezeichnung/Kategorie/Marke/Preis/Größe/Farbe/Beschreibung hold values that came from
+   * `handleArticleFound()`'s own-seller-unreleased prefill branch, not from the user's own
+   * typing — cleared on any manual edit to one of those fields (`onNameChange()`/
+   * `onPriceChange()`/`onCategoryChange()`/`onBrandChange()`/`onSizeChange()`/`onColorChange()`/
+   * `onDescriptionChange()`) and consumed (cleared + fields reset) once the Artikelnummer field
+   * moves on to a DIFFERENT number whose lookup no longer confirms that same prefill
+   * (`clearPrefilledFields()`). Prevents article A's prefilled fields from silently leaking into
+   * a "fresh" entry for a different number B.
    */
   private prefillActive = false;
 
@@ -223,6 +220,31 @@ export class IntakeArticleEntry {
 
   onPriceChange(value: string | number): void {
     this.price.set(typeof value === 'number' ? value : Number(value));
+    this.prefillActive = false;
+  }
+
+  onCategoryChange(value: string): void {
+    this.category.set(value);
+    this.prefillActive = false;
+  }
+
+  onBrandChange(value: string): void {
+    this.brand.set(value);
+    this.prefillActive = false;
+  }
+
+  onSizeChange(value: string): void {
+    this.size.set(value);
+    this.prefillActive = false;
+  }
+
+  onColorChange(value: string): void {
+    this.color.set(value);
+    this.prefillActive = false;
+  }
+
+  onDescriptionChange(value: string): void {
+    this.description.set(value);
     this.prefillActive = false;
   }
 
@@ -336,7 +358,6 @@ export class IntakeArticleEntry {
     const trimmed = raw.trim();
     if (!trimmed) {
       this.numberTakenMessage.set(null);
-      this.scanFeedbackResult.set(null);
       return;
     }
 
@@ -346,18 +367,13 @@ export class IntakeArticleEntry {
       return;
     }
 
-    // Captured before the async call resolves — `input-group`'s `onCodeDetected` emits
-    // `valueChange` (synchronously handled here) BEFORE it switches back to keyboard mode, so
-    // `activeMode()` still reads `'camera'` at this point for a camera-originated hit.
-    const isCameraOrigin = this.numberInputGroup()?.activeMode() === 'camera';
-
     this.articlesApi.getByNumber(number).subscribe({
-      next: (article: ArticleByNumberResult) => this.handleArticleFound(article, isCameraOrigin),
-      error: (error: unknown) => this.handleArticleLookupError(error, isCameraOrigin),
+      next: (article: ArticleByNumberResult) => this.handleArticleFound(article),
+      error: (error: unknown) => this.handleArticleLookupError(error),
     });
   }
 
-  private handleArticleFound(article: ArticleByNumberResult, isCameraOrigin: boolean): void {
+  private handleArticleFound(article: ArticleByNumberResult): void {
     const belongsToThisSeller = article.sellerId === this.sellerId();
     // Round-15 status model: `'registered'` is the only not-yet-released state — anything else
     // (selling/sold/returned) means the number is already in active use.
@@ -370,16 +386,18 @@ export class IntakeArticleEntry {
       // changing the number again.
       this.clearPrefilledFields();
       this.numberTakenMessage.set('Artikelnummer bereits vergeben');
-      if (isCameraOrigin) this.scanFeedbackResult.set('already-set');
       return;
     }
 
-    // Own seller, pre-announced, not yet released — "faktisch nie erreichbar" this round per
-    // spec.md, but implemented correctly: prefill and keep every field editable. The by-number
-    // DTO (`ArticleByNumberResult`) carries only `name`/`price` beyond the identifying fields —
-    // no `brand`/`category`/`size`/`color`/`description` — so only those two are prefilled here.
+    // Own seller, pre-announced, not yet released — prefill every Stammfeld and keep it all
+    // editable (Epic_Artikelannahme Abschnitt 2, "Sonderfall importierter Verkäufer").
     this.numberTakenMessage.set(null);
     this.name.set(article.name);
+    this.category.set(article.category);
+    this.brand.set(article.brand);
+    this.size.set(article.size ?? '');
+    this.color.set(article.color ?? '');
+    this.description.set(article.description ?? '');
     this.price.set(article.price);
     // Direct call rather than the generic `pendingPriceValue` signal/effect indirection: by the
     // time a lookup can fire at all, the view (and `priceInputGroup`'s viewChild) is guaranteed
@@ -389,33 +407,30 @@ export class IntakeArticleEntry {
     // order.
     this.priceInputGroup()?.applyExternalValue(String(article.price));
     this.prefillActive = true;
-    if (isCameraOrigin) this.scanFeedbackResult.set('success');
   }
 
-  private handleArticleLookupError(error: unknown, isCameraOrigin: boolean): void {
+  private handleArticleLookupError(error: unknown): void {
     if (error instanceof HttpErrorResponse && error.status === 404) {
       // Number is free — normal new-entry flow, clear any stale "vergeben" message AND any
       // stale Bezeichnung/Preis a PREVIOUS number's found-article prefill left behind (fix round
       // 1, reviewer Important 2) — this number was never confirmed to be that same article.
       this.numberTakenMessage.set(null);
       this.clearPrefilledFields();
-      if (isCameraOrigin) this.scanFeedbackResult.set('success');
-      return;
     }
-
-    // Any other failure (network error, 5xx, …) — do not claim the number is taken, but also
-    // don't silently treat it as free; surface it via `scan-feedback`'s neutral variant for the
-    // camera flow only, per spec.md tying that feedback to the camera path.
-    if (isCameraOrigin) this.scanFeedbackResult.set('unknown');
   }
 
-  /** Fix round 1 (reviewer Important 2): resets Bezeichnung/Preis back to empty/default, but
-   * ONLY when they currently hold a previous lookup's prefilled values (`prefillActive`) — never
-   * clobbers values the user is genuinely hand-typing for a fresh entry that never went through a
-   * found-article prefill in the first place. */
+  /** Fix round 1 (reviewer Important 2), extended to all Stammfelder: resets them back to
+   * empty/default, but ONLY when they currently hold a previous lookup's prefilled values
+   * (`prefillActive`) — never clobbers values the user is genuinely hand-typing for a fresh
+   * entry that never went through a found-article prefill in the first place. */
   private clearPrefilledFields(): void {
     if (!this.prefillActive) return;
     this.name.set('');
+    this.category.set('');
+    this.brand.set('');
+    this.size.set('');
+    this.color.set('');
+    this.description.set('');
     this.price.set(0);
     this.priceInputGroup()?.applyExternalValue('');
     this.prefillActive = false;
@@ -443,7 +458,6 @@ export class IntakeArticleEntry {
     this.color.set('');
     this.description.set('');
     this.numberTakenMessage.set(null);
-    this.scanFeedbackResult.set(null);
     this.pendingPriceValue.set('');
     this.prefillActive = false;
     this.numberFieldSeq++;

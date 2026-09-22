@@ -24,6 +24,12 @@
     &--full {
       grid-column: 1 / -1;
     }
+
+    &--number {
+      @media (min-width: 768px) {
+        width: 25%;
+      }
+    }
   }
 
   &__required {

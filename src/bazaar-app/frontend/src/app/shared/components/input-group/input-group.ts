@@ -114,21 +114,48 @@ const SEARCH_DEBOUNCE_MS = 300;
           @if (searching()) {
             <p-progressspinner styleClass="input-group__spinner" />
           } @else if (rawValue().length > 0) {
-            <p-button icon="pi pi-times" [text]="true" [rounded]="true" (onClick)="onClear()" />
+            @if (addonActionButtons()) {
+              <p-inputgroup-addon>
+                <p-button icon="pi pi-times" [text]="true" (onClick)="onClear()" />
+              </p-inputgroup-addon>
+            } @else {
+              <p-button icon="pi pi-times" [text]="true" [rounded]="true" (onClick)="onClear()" />
+            }
           }
 
-          <p-button
-            icon="pi pi-reply"
-            [text]="true"
-            [rounded]="true"
-            [disabled]="rawValue().length === 0"
-            (onClick)="onSubmit()"
-          />
+          @if (addonActionButtons()) {
+            <p-inputgroup-addon>
+              <p-button icon="pi pi-reply" [text]="true" [disabled]="rawValue().length === 0" (onClick)="onSubmit()" />
+            </p-inputgroup-addon>
+          } @else {
+            <p-button
+              icon="pi pi-reply"
+              [text]="true"
+              [rounded]="true"
+              [disabled]="rawValue().length === 0"
+              (onClick)="onSubmit()"
+            />
+          }
 
-          @for (mode of visibleModes(); track mode) {
-            <p-button [icon]="iconForMode(mode)" [text]="true" [rounded]="true" (onClick)="switchMode(mode)" />
+          @if (!addonActionButtons()) {
+            @for (mode of visibleModes(); track mode) {
+              <p-button [icon]="iconForMode(mode)" [text]="true" [rounded]="true" (onClick)="switchMode(mode)" />
+            }
           }
         </p-inputgroup>
+
+        @if (addonActionButtons() && visibleModes().length > 0) {
+          <div class="input-group__mode-row">
+            @for (mode of visibleModes(); track mode) {
+              <p-button
+                class="input-group__mode-button"
+                [icon]="iconForMode(mode)"
+                [text]="true"
+                (onClick)="switchMode(mode)"
+              />
+            }
+          </div>
+        }
 
         @if (activeMode() === 'numpad') {
           <app-numpad
@@ -249,6 +276,15 @@ export class InputGroup {
    * Abschnitt 5). Set to `false` when a search-variant consumer needs the field without one.
    */
   readonly showLeftAddon = input<boolean>(true);
+  /**
+   * Search variant only, Intake Artikelnummer's compact layout: renders the clear (X) and
+   * submit (Enter/↩) buttons wrapped in `p-inputgroup-addon`, flush with the field's border,
+   * instead of the default floating rounded icon buttons — AND moves the mode-switch buttons
+   * (camera/numpad) out of the `p-inputgroup` entirely, into a full-width row below the field,
+   * split 50/50 with no gap. Opt-in, default `false` — every existing consumer (Checkout) keeps
+   * its unchanged look.
+   */
+  readonly addonActionButtons = input<boolean>(false);
   /** Forwarded onto the variant's native input (search: `<input>`, price: `p-inputnumber`'s
    * internal input), so a parent `<label for="…">` can associate with the field (a11y —
    * `@angular-eslint/template/label-has-associated-control`). */

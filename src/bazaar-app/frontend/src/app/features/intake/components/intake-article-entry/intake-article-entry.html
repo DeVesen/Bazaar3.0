@@ -1,7 +1,7 @@
 <div class="intake-article-entry">
   <div class="intake-article-entry__form">
     <div class="intake-article-entry__grid">
-      <div class="intake-article-entry__field intake-article-entry__field--full">
+      <div class="intake-article-entry__field intake-article-entry__field--full intake-article-entry__field--number">
         <label for="intake-article-entry-number">Artikelnummer <span class="intake-article-entry__required">*</span></label>
         <app-input-group
           #numberGroup
@@ -9,10 +9,10 @@
           variant="search"
           [modes]="['keyboard', 'camera', 'numpad']"
           [showLeftAddon]="false"
+          [addonActionButtons]="true"
           (valueChange)="onArticleNumberChange($event)"
           (submitted)="onArticleNumberSubmit()"
         />
-        <app-scan-feedback [result]="scanFeedbackResult()" />
         @if (numberTakenMessage()) {
           <small class="intake-article-entry__error">{{ numberTakenMessage() }}</small>
         }
@@ -37,7 +37,7 @@
           inputId="intake-article-entry-category"
           [options]="categoryNames()"
           [value]="category()"
-          (valueChange)="category.set($event)"
+          (valueChange)="onCategoryChange($event)"
           entityLabel="Kategorie"
           (entryCreated)="onCategoryCreated($event)"
         />
@@ -49,7 +49,7 @@
           inputId="intake-article-entry-brand"
           [options]="brandNames()"
           [value]="brand()"
-          (valueChange)="brand.set($event)"
+          (valueChange)="onBrandChange($event)"
           entityLabel="Marke"
           (entryCreated)="onBrandCreated($event)"
         />
@@ -72,7 +72,7 @@
           id="intake-article-entry-size"
           pInputText
           [ngModel]="size()"
-          (ngModelChange)="size.set($event)"
+          (ngModelChange)="onSizeChange($event)"
           name="size"
           type="text"
         />
@@ -84,7 +84,7 @@
           id="intake-article-entry-color"
           pInputText
           [ngModel]="color()"
-          (ngModelChange)="color.set($event)"
+          (ngModelChange)="onColorChange($event)"
           name="color"
           type="text"
         />
@@ -96,7 +96,7 @@
           id="intake-article-entry-description"
           pTextarea
           [ngModel]="description()"
-          (ngModelChange)="description.set($event)"
+          (ngModelChange)="onDescriptionChange($event)"
           name="description"
           rows="3"
         ></textarea>

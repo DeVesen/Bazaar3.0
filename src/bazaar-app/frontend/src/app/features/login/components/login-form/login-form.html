@@ -8,6 +8,7 @@
         <input
           id="login-username"
           pInputText
+          fluid
           [ngModel]="username()"
           (ngModelChange)="username.set($event)"
           name="username"
@@ -23,11 +24,11 @@
         <input
           id="login-password"
           pInputPassword
+          fluid
           [(mask)]="mask"
           [ngModel]="password()"
           (ngModelChange)="password.set($event)"
           name="password"
-          type="password"
           required
         />
         <p-inputicon (click)="mask.set(!mask())">

@@ -1,9 +1,22 @@
 <div class="intake-wizard">
   <p-tabs [value]="activeStep()" (valueChange)="onTabChange($event)">
-    <p-tablist>
-      <p-tab value="step1" [disabled]="!canGoToStep1()">Schritt 1 — Verkäufer</p-tab>
-      <p-tab value="step2" [disabled]="!canGoToStep2()">Schritt 2 — Artikelannahme</p-tab>
-    </p-tablist>
+    <div class="intake-wizard__tablist-row">
+      @if (activeStep() === 'step2') {
+        <p-button
+          class="intake-wizard__back-button"
+          [text]="true"
+          severity="secondary"
+          icon="pi pi-angle-left"
+          styleClass="p-button-icon-only"
+          ariaLabel="Zurück zur Verkäuferwahl"
+          (onClick)="onCancel()"
+        />
+      }
+      <p-tablist>
+        <p-tab value="step1" [disabled]="!canGoToStep1()">Schritt 1 — Verkäufer</p-tab>
+        <p-tab value="step2" [disabled]="!canGoToStep2()">Schritt 2 — Artikelannahme</p-tab>
+      </p-tablist>
+    </div>
 
     <p-tabpanels>
       <p-tabpanel value="step1">
@@ -170,8 +183,8 @@
   </p-tabs>
 
   <div class="intake-wizard__footer">
-    <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
     @if (activeStep() === 'step1') {
+      <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
       <p-button severity="primary" label="Weiter →" [disabled]="!canSave()" (onClick)="onNext()" />
     }
   </div>

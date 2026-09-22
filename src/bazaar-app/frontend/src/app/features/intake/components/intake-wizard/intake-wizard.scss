@@ -10,8 +10,6 @@
 ::ng-deep .intake-wizard .p-tablist-tab-list {
   display: flex;
   flex-direction: row;
-  border-bottom: 2px solid var(--p-content-border-color);
-  margin-bottom: 20px;
 }
 
 ::ng-deep .intake-wizard .p-tab {
@@ -29,6 +27,27 @@
 }
 
 .intake-wizard {
+  &__tablist-row {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    background: var(--p-tabs-tablist-background);
+    border-bottom: 2px solid var(--p-content-border-color);
+  }
+
+  &__back-button {
+    display: flex;
+    align-items: center;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+
+    ::ng-deep .p-button-icon {
+      font-size: 22px;
+      font-weight: 700;
+    }
+  }
+
   &__panel {
     display: flex;
     flex-direction: column;

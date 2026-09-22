@@ -7,7 +7,9 @@ namespace Bazaar.Application.Intake;
 /// <summary>
 /// Backs GET /api/articles/by-number/{number} (api/articles.md §2) — used
 /// by the cash desk for article recognition and by intake for the
-/// number-uniqueness preview. Mirrors
+/// number-uniqueness preview, including full-field prefill of a pre-announced,
+/// not-yet-released article belonging to the same seller (Epic_Artikelannahme
+/// Abschnitt 2, "Sonderfall importierter Verkäufer"). Mirrors
 /// Bazaar.Application.Articles.GetArticleByIdHandler's shape: the Api-layer
 /// response carries sellerName too, so this loads the seller alongside the
 /// article in one round-trip rather than making the Api layer do a second

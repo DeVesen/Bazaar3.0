@@ -88,16 +88,20 @@ export interface UpdateArticleTimestampsRequest {
 /**
  * Response shape for `GET /api/articles/by-number/{number}` (api/articles.md §2, Round-17 Task
  * 3's `ArticleByNumberDto`) — used by intake's Artikelnummer-Prüfung (`intake-article-entry`)
- * and, in a later round, by the cash desk for article recognition. Deliberately narrower than
- * `ArticleDetail`: matches the real backend DTO exactly (`Bazaar.Api/Features/Articles/Dtos.cs`
- * `ArticleByNumberDto`), which carries only `id`/`number`/`name`/`price`/`status`/`sellerId`/
- * `sellerName` — no `brand`/`category`/`size`/`color`/`description`.
+ * and, in a later round, by the cash desk for article recognition. Matches the real backend DTO
+ * (`Bazaar.Api/Features/Articles/Dtos.cs` `ArticleByNumberDto`), which carries the full set of
+ * Stammfelder so a pre-announced, not-yet-released article can be prefilled completely.
  */
 export interface ArticleByNumberResult {
   id: string;
   number: number;
   name: string;
+  brand: string;
+  category: string;
   price: number;
+  size: string | null;
+  color: string | null;
+  description: string | null;
   status: string;
   sellerId: string;
   sellerName: string;

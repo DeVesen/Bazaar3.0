@@ -46,7 +46,8 @@ public static class ArticleEndpoints
         {
             var (article, sellerName) = await handler.Handle(number);
             var dto = new ArticleByNumberDto(
-                article.Id, article.Number, article.Name, article.Price,
+                article.Id, article.Number, article.Name, article.Brand, article.Category, article.Price,
+                article.Size, article.Color, article.Description,
                 article.Status.ToString().ToLowerInvariant(),
                 article.SellerId, sellerName);
             return Results.Ok(dto);
