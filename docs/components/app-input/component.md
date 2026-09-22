@@ -23,6 +23,12 @@ Quelle: [docs/spec/2026-09-22-app-input.md](../../spec/2026-09-22-app-input.md).
   `debounceMs` (`0` = kein Debounce).
 - `enter`, `keyUp`, `keyDown`, `blurred` reichen das native Browser-Event sofort und ungedämpft
   durch.
+- Enter im Feld löst sowohl `(keydown.enter)` als auch `(keydown)` auf demselben nativen Event
+  aus, damit erzeugt eine Enter-Taste sowohl `enter` als auch `keyDown` — ein Consumer, der auf
+  beide hört, bekommt zwei Emissionen pro Enter-Anschlag.
+- `disabled` wirkt erst einen Microtask nach dem Setzen des Werts (Angular-Forms-/`NgModel`-
+  Implementierungsdetail — `NgModel` synchronisiert seinen Disabled-Status über ein aufgelöstes
+  Promise), das gilt auch in Produktion, nicht nur in Tests.
 - Pflichtfeld-Stern (`*`) und Feldfehler-Text (`docs/components/form` R-1) bleiben Aufgabe des
   Parent-Templates, außerhalb dieser Komponente.
 
@@ -41,7 +47,7 @@ Quelle: [docs/spec/2026-09-22-app-input.md](../../spec/2026-09-22-app-input.md).
 | `type` | `string` | `'text'` | nativer `type` (`text`/`email`/`tel` …) |
 | `required` | `boolean` | `false` | HTML-`required` |
 | `disabled` | `boolean` | `false` | HTML-`disabled` |
-| `readonly` | `boolean` | `false` | HTML-`readonly` |
+| `readOnly` | `boolean` | `false` | HTML-`readonly` |
 
 `InputAddon`: `{ type: 'label' \| 'icon' \| 'button'; value: string; key: string; class?: string; style?: Record<string, string>; }`.
 Icon-Werte folgen der Projekt-Konvention `pi pi-...`-CSS-Klasse.

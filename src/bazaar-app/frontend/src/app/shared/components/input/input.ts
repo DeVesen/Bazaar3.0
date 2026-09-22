@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 import { NgStyle, NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +8,8 @@ import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputTextModule } from 'primeng/inputtext';
+
+let nextId = 0;
 
 export type InputAddonType = 'label' | 'icon' | 'button';
 
@@ -53,8 +55,12 @@ export class Input {
   readonly type = input<string>('text');
   readonly required = input<boolean>(false);
   readonly disabled = input<boolean>(false);
-  /** Not `readonly readonly = ...`: the class-field modifier and the field name would collide. */
-  readonly isReadonly = input<boolean>(false, { alias: 'readonly' });
+  /**
+   * Not `readonly readonly = ...`: the class-field modifier and the field name would collide.
+   * Template uses `[readOnly]` (capital O) because that's the real DOM IDL property name — a
+   * lowercase `[readonly]` binding would silently fail to set it.
+   */
+  readonly readOnly = input<boolean>(false);
 
   readonly valueChange = output<string>();
   readonly addonClick = output<string>();
@@ -67,6 +73,9 @@ export class Input {
    * native DOM event (`blur`) is rejected.
    */
   readonly blurred = output<FocusEvent>();
+
+  private readonly generatedId = `app-input-${nextId++}`;
+  readonly resolvedId = computed(() => this.inputId() ?? this.generatedId);
 
   private readonly _rawValue = signal<string>('');
   readonly rawValue = this._rawValue.asReadonly();
@@ -82,6 +91,8 @@ export class Input {
     toObservable(this.typed)
       .pipe(
         filter((v): v is string => v !== undefined),
+        // `of(undefined)` emits synchronously; `timer(0)` still schedules via a macrotask (a
+        // real, if tiny, delay) — the spec requires debounceMs=0 to emit immediately, no delay.
         debounce(() => {
           const ms = this.debounceMs();
           return ms === 0 ? of(undefined) : timer(ms);

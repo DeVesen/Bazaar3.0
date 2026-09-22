@@ -1,13 +1,18 @@
 <ng-template #inputField>
+  <!--
+    [attr.x] + `?? null` instead of plain [x]: [name] on an element with [ngModel] would bind to
+    NgModel's own `name` @Input() instead of the native DOM attribute, and [id]="undefined" would
+    literally render the string "undefined" as the id when unset.
+  -->
   <input
     pInputText
-    [attr.id]="inputId() ?? null"
+    [attr.id]="resolvedId()"
     [attr.name]="name() ?? null"
     [attr.placeholder]="placeholder() ?? null"
     [type]="type()"
     [disabled]="disabled()"
     [required]="required()"
-    [readOnly]="isReadonly()"
+    [readOnly]="readOnly()"
     [ngModel]="rawValue()"
     (ngModelChange)="onTyped($event)"
     (keyup)="onKeyUp($event)"
@@ -41,7 +46,7 @@
   @if (label(); as labelText) {
     <p-iftalabel>
       <ng-container [ngTemplateOutlet]="inputField" />
-      <label>{{ labelText }}</label>
+      <label [attr.for]="resolvedId()">{{ labelText }}</label>
     </p-iftalabel>
   } @else {
     <ng-container [ngTemplateOutlet]="inputField" />

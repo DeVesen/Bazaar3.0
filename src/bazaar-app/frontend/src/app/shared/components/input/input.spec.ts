@@ -39,6 +39,14 @@ describe('Input', () => {
       const fixture = create(undefined, 'Ab3dEf7G');
       expect(fixture.componentInstance.rawValue()).toBe('Ab3dEf7G');
     });
+
+    it('reflects the value input in the real DOM input element', async () => {
+      const fixture = create(undefined, 'Ab3dEf7G');
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const input = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
+      expect(input.value).toBe('Ab3dEf7G');
+    });
   });
 
   describe('debounced valueChange', () => {
@@ -84,6 +92,20 @@ describe('Input', () => {
 
       await vi.advanceTimersByTimeAsync(0);
       expect(emitted).toEqual(['y']);
+    });
+
+    it('feeds the debounced valueChange stream from real DOM input events', async () => {
+      const fixture = create();
+      const emitted: string[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => emitted.push(v));
+
+      const input = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
+      input.value = 'typed';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      await vi.advanceTimersByTimeAsync(800);
+      expect(emitted).toEqual(['typed']);
     });
   });
 
@@ -135,6 +157,16 @@ describe('Input', () => {
       fixture.debugElement.query(By.css('p-inputgroup-addon')).nativeElement.click();
 
       expect(emitted).toEqual(['clear']);
+    });
+
+    it('emits addonClick exactly once when a button-type addon is clicked', () => {
+      const fixture = createWithAddons([{ type: 'button', value: 'Los', key: 'go' }]);
+      const emitted: string[] = [];
+      fixture.componentInstance.addonClick.subscribe((k) => emitted.push(k));
+
+      fixture.debugElement.query(By.css('p-inputgroup-addon')).nativeElement.click();
+
+      expect(emitted).toEqual(['go']);
     });
 
     it('applies the addon class and style onto the p-inputgroup-addon element', () => {
@@ -204,7 +236,7 @@ describe('Input', () => {
       fixture.componentRef.setInput('type', 'email');
       fixture.componentRef.setInput('required', true);
       fixture.componentRef.setInput('disabled', true);
-      fixture.componentRef.setInput('readonly', true);
+      fixture.componentRef.setInput('readOnly', true);
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();

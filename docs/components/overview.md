@@ -70,7 +70,7 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Countdown** | Live-Countdown (Tage + HH:MM:SS) bis zu einem Zieldatum; Varianten für KPI-Tile und Info-Box | [countdown/](countdown/component.md) |
 | **Activity-Heatmap** | 12-Wochen-Aktivitäts-Grid (GitHub-Style) mit Farb-Levels und Hover-Tooltip | [activity-heatmap/](activity-heatmap/component.md) |
 | **InputGroup** | Kombiniertes Eingabefeld mit Prefix-/Suffix-Add-on (`p-inputgroup` + `p-inputgroupaddon`) | [input-group/](input-group/component.md) |
-| **app-input** | Eigenständige Text-Eingabe mit `p-iftalabel`-Float-Label und optionalen Links-/Rechts-Addons | [app-input/](app-input/component.md) |
+| **Input** | Eigenständige Text-Eingabe mit `p-iftalabel`-Float-Label und optionalen Links-/Rechts-Addons | [app-input/](app-input/component.md) |
 | **Info-Area** | Kontextbezogene Hinweis- und Statusfläche (Info-Box) für Seiten und Panels | [info-area/](info-area/component.md) |
 | **Badge** | Status-Badge für Artikel- und Verkäufer-Zustände (success/danger/warn/info/sec/original/neu) | [badge/](badge/component.md) |
 | **Modal** | Modaler Dialog auf Basis von `p-dialog [modal]="true"` (via `DialogService`) | [modal/](modal/component.md) |
