@@ -10,6 +10,10 @@ namespace Bazaar.Application.Intake;
 /// the same seller and not yet released is updated in place ("nachgebucht");
 /// any other collision aborts the whole request with 409, since two intake
 /// desks can race for the same free number the frontend saw a moment ago.
+/// A line with <see cref="IntakeArticleLine.DeleteArticleNumber"/> set (Artikelannahme
+/// renumber flow) first deletes that old pre-registered article — always, even if it equals
+/// the line's own target number — before the usual create/update/conflict logic runs; a
+/// stale/mismatched delete target is skipped silently rather than aborting the booking.
 /// The fee is validated before the transaction (fail fast), everything else
 /// — number resolution, writes, fee booking — runs inside one
 /// IUnitOfWork transaction so a mid-loop failure never leaves a partially
@@ -41,6 +45,22 @@ public sealed class IntakeHandler(
         await unitOfWork.ExecuteInTransactionAsync(async _ =>
         {
             articleIds.Clear();
+
+            foreach (var line in command.Articles)
+            {
+                if (line.DeleteArticleNumber is not { } deleteNumber) continue;
+
+                var oldArticle = await articleRepository.GetByNumber(deleteNumber);
+                if (oldArticle is null || oldArticle.SellerId != command.SellerId || oldArticle.ReleasedAt is not null)
+                {
+                    // Race zwischen "Übernehmen" und dem finalen Buchen (Zustand hat sich geändert oder
+                    // Artikel existiert nicht mehr) — Löschen wird bewusst still übersprungen, siehe
+                    // Spec "Backend" Abschnitt. Der Ziel-Artikel wird trotzdem normal angelegt.
+                    continue;
+                }
+
+                await articleRepository.Remove(oldArticle);
+            }
 
             var toCreate = new List<IntakeArticleLine>();
             var toUpdate = new List<(Article Existing, IntakeArticleLine Line)>();

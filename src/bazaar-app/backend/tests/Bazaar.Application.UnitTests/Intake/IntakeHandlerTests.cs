@@ -245,4 +245,128 @@ public class IntakeHandlerTests
         _idGenerator.Verify(g => g.Generate(), Times.Never);
         Assert.Equal(3.00m, seller.IntakeFeePaid);
     }
+
+    [Fact]
+    public async Task Handle_LineWithDeleteArticleNumber_RemovesOldArticleAndCreatesNewOneUnderTargetNumber()
+    {
+        var seller = CreateSeller(feePerItem: 3.00m);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+
+        var oldArticle = Article.Create(
+            "ARTICLE001", 1, "SELLER001", "Alter Name", "AlteMarke", "AlteKategorie", 5m,
+            null, null, null, DateTimeOffset.UtcNow.AddDays(-3), DateTimeOffset.UtcNow.AddDays(-3));
+        Assert.Null(oldArticle.ReleasedAt);
+
+        _articleRepository.Setup(r => r.GetByNumber(1)).ReturnsAsync(oldArticle);
+        _articleRepository.Setup(r => r.GetByNumber(6)).ReturnsAsync((Article?)null);
+        _idGenerator.Setup(g => g.Generate()).Returns("ARTICLE002");
+
+        var line = Line(6, "Winterjacke Neu");
+        line.DeleteArticleNumber = 1;
+        var command = new IntakeCommand
+        {
+            SellerId = "SELLER001",
+            FeeAmount = 3.00m,
+            Articles = [line],
+        };
+        var sut = CreateSut();
+
+        var result = await sut.Handle(command);
+
+        Assert.Equal(["ARTICLE002"], result.ArticleIds);
+        _articleRepository.Verify(r => r.Remove(oldArticle), Times.Once);
+        _articleRepository.Verify(r => r.Add(It.Is<Article>(a => a.Number == 6 && a.Id == "ARTICLE002")), Times.Once);
+        _articleRepository.Verify(r => r.Update(It.IsAny<Article>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_LineWithDeleteArticleNumberEqualToTargetNumber_DeletesThenRecreatesRatherThanUpdatingInPlace()
+    {
+        // Bewusste Design-Entscheidung (Spec: "kein Sonderfall Nummer unverändert") — auch wenn
+        // Ziel- und Ursprungsnummer identisch sind, wird gelöscht + neu angelegt, nicht in-place
+        // aktualisiert. Neue Artikel-ID beweist das (kein `Update()`-Aufruf auf den Alt-Artikel).
+        var seller = CreateSeller(feePerItem: 3.00m);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+
+        var oldArticle = Article.Create(
+            "ARTICLE001", 1, "SELLER001", "Alter Name", "AlteMarke", "AlteKategorie", 5m,
+            null, null, null, DateTimeOffset.UtcNow.AddDays(-3), DateTimeOffset.UtcNow.AddDays(-3));
+        _articleRepository.SetupSequence(r => r.GetByNumber(1))
+            .ReturnsAsync(oldArticle)
+            .ReturnsAsync((Article?)null); // nach dem Remove() ist Nummer 1 wieder frei
+
+        _idGenerator.Setup(g => g.Generate()).Returns("ARTICLE002");
+
+        var line = Line(1, "Winterjacke Neu");
+        line.DeleteArticleNumber = 1;
+        var command = new IntakeCommand
+        {
+            SellerId = "SELLER001",
+            FeeAmount = 3.00m,
+            Articles = [line],
+        };
+        var sut = CreateSut();
+
+        var result = await sut.Handle(command);
+
+        Assert.Equal(["ARTICLE002"], result.ArticleIds);
+        _articleRepository.Verify(r => r.Remove(oldArticle), Times.Once);
+        _articleRepository.Verify(r => r.Add(It.Is<Article>(a => a.Number == 1 && a.Id == "ARTICLE002")), Times.Once);
+        _articleRepository.Verify(r => r.Update(It.IsAny<Article>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_DeleteArticleNumber_AlreadyReleasedInTheMeantime_SkipsDeleteSilentlyAndStillBooksTarget()
+    {
+        var seller = CreateSeller(feePerItem: 3.00m);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+
+        var oldArticle = Article.Create(
+            "ARTICLE001", 1, "SELLER001", "Alter Name", "AlteMarke", "AlteKategorie", 5m,
+            null, null, null, DateTimeOffset.UtcNow.AddDays(-3), DateTimeOffset.UtcNow.AddDays(-3));
+        oldArticle.MarkAcceptedAndReleased(DateTimeOffset.UtcNow); // Race: inzwischen freigegeben
+        _articleRepository.Setup(r => r.GetByNumber(1)).ReturnsAsync(oldArticle);
+        _articleRepository.Setup(r => r.GetByNumber(6)).ReturnsAsync((Article?)null);
+        _idGenerator.Setup(g => g.Generate()).Returns("ARTICLE002");
+
+        var line = Line(6);
+        line.DeleteArticleNumber = 1;
+        var command = new IntakeCommand
+        {
+            SellerId = "SELLER001",
+            FeeAmount = 3.00m,
+            Articles = [line],
+        };
+        var sut = CreateSut();
+
+        var result = await sut.Handle(command);
+
+        Assert.Equal(["ARTICLE002"], result.ArticleIds);
+        _articleRepository.Verify(r => r.Remove(It.IsAny<Article>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_DeleteArticleNumber_AlreadyGoneInTheMeantime_SkipsDeleteSilently()
+    {
+        var seller = CreateSeller(feePerItem: 3.00m);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+        _articleRepository.Setup(r => r.GetByNumber(1)).ReturnsAsync((Article?)null);
+        _articleRepository.Setup(r => r.GetByNumber(6)).ReturnsAsync((Article?)null);
+        _idGenerator.Setup(g => g.Generate()).Returns("ARTICLE002");
+
+        var line = Line(6);
+        line.DeleteArticleNumber = 1;
+        var command = new IntakeCommand
+        {
+            SellerId = "SELLER001",
+            FeeAmount = 3.00m,
+            Articles = [line],
+        };
+        var sut = CreateSut();
+
+        var result = await sut.Handle(command);
+
+        Assert.Equal(["ARTICLE002"], result.ArticleIds);
+        _articleRepository.Verify(r => r.Remove(It.IsAny<Article>()), Times.Never);
+    }
 }
