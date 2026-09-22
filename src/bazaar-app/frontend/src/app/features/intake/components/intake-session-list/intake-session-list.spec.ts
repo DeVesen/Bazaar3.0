@@ -174,6 +174,43 @@ describe('IntakeSessionList', () => {
     ]);
   });
 
+  it('maps originalNumberToDelete to deleteArticleNumber when booking, and omits it when absent', async () => {
+    const { component, intakeApi } = await setup({
+      items: [
+        itemStub({ number: 6, originalNumberToDelete: 1 }),
+        itemStub({ localId: 'b', number: 1099 }),
+      ],
+      feePerItem: 0.5,
+    });
+
+    component.onPaymentConfirmed({ totalAmount: 1, receivedAmount: 1, change: 0 });
+
+    expect(intakeApi.bookIntake).toHaveBeenCalledWith(SELLER_ID, 1, [
+      {
+        number: 6,
+        name: 'Winterjacke',
+        brand: 'Lego',
+        category: 'Kleidung',
+        price: 12.5,
+        size: null,
+        color: null,
+        description: null,
+        deleteArticleNumber: 1,
+      },
+      {
+        number: 1099,
+        name: 'Winterjacke',
+        brand: 'Lego',
+        category: 'Kleidung',
+        price: 12.5,
+        size: null,
+        color: null,
+        description: null,
+        deleteArticleNumber: undefined,
+      },
+    ]);
+  });
+
   it('success: calls PrintService.printIntakeReceipt, closes the dialog, and emits booked', async () => {
     const { component, printService } = await setup({ items: [itemStub()] });
     const bookedSpy = vi.fn();

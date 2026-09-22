@@ -113,6 +113,7 @@ export class IntakeSessionList {
       size: item.size,
       color: item.color,
       description: item.description,
+      deleteArticleNumber: item.originalNumberToDelete,
     }));
 
     this.intakeApi.bookIntake(this.sellerId(), event.totalAmount, articles).subscribe({
