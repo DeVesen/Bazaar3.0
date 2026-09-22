@@ -1,0 +1,14 @@
+<ng-template #inputField>
+  <input pInputText [ngModel]="rawValue()" (ngModelChange)="onTyped($event)" />
+</ng-template>
+
+<p-inputgroup>
+  @if (label(); as labelText) {
+    <p-iftalabel>
+      <ng-container [ngTemplateOutlet]="inputField" />
+      <label>{{ labelText }}</label>
+    </p-iftalabel>
+  } @else {
+    <ng-container [ngTemplateOutlet]="inputField" />
+  }
+</p-inputgroup>
