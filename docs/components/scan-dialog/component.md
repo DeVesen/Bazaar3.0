@@ -36,9 +36,13 @@ Der Scan-Dialog deckt zwei Anwendungsfälle ab, die **strukturell identisch** si
 | Artikel freigeben | `releasedAt = jetzt` |
 | Artikel zurückgeben | `returnedAt = jetzt` |
 
-Das Artikelnummer-Feld des Dialogs ist eine [InputGroup](../input-group/component.md) mit
-`modes = ['keyboard', 'camera', 'numpad']`. Umschaltmechanik, Button-Reihenfolge,
-Startmodus und Kamera-Freigabe stehen dort in Abschnitt 3 und werden hier nicht wiederholt.
+Das Artikelnummer-Feld des Dialogs ist ein [Input](../app-input/component.md) (`app-input`) mit
+dem Label „Artikelnummer" im Feldrahmen, ohne Lupe. Rechts bündig am Feld sitzen die Buttons
+Kamera, Nummernblock, Löschen und Übernehmen — Reihenfolge und Optik wie das Verkauf-Feld.
+Kamera und Nummernblock klappen unter dem Feld auf. Zwischen Feld und Artikelliste liegen 24 px.
+
+**Breite:** ≥ 1024 px höchstens 50 %, 768–1023 px höchstens 80 %, ≤ 767 px 100 %, horizontal
+zentriert (globale Klasse `dialog-responsive`), max. Höhe 90vh.
 
 | Modus | Besonderheit im Scan-Dialog |
 |---|---|
@@ -149,10 +153,8 @@ Erscheint nach jedem Scan für `pauseMs` Millisekunden, dann wird das Kamerabild
 
 ### Verlassen des Kamera-Modus
 
-Über die Modus-Buttons unterhalb des Kamerabilds — `⌨ Tastatur` und `⊞ Numpad`. Ein eigener
-„Zurück"-Button entfällt; das Zurückschalten *ist* der Moduswechsel. Beim Wechsel gibt das
-System die Kamera frei ([InputGroup](../input-group/component.md) Abschnitt 3,
-Kamera-Lebensdauer).
+Über den Kamera-Button am Feld (erneuter Klick) oder den Nummernblock-Button. Beim Wechsel gibt
+das System die Kamera frei ([Barcode-Scanner](../barcode-scanner/component.md)).
 
 ---
 
@@ -174,7 +176,7 @@ p-dialog
   [modal]="true"
   [closable]="true"
 
-p-inputgroup       ← Artikelnummer-Feld mit ↩- und Modus-Buttons (siehe input-group)
+app-input          ← Artikelnummer-Feld (label im Rahmen) mit Kamera/Numpad/Löschen/Übernehmen-Addons
 app-numpad         ← nur im Numpad-Modus
 p-listbox          ← AutoComplete-Liste der ausstehenden Artikel
 ```

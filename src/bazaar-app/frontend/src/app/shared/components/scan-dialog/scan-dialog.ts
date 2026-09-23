@@ -8,12 +8,13 @@ import {
   input,
   output,
   signal,
-  viewChild,
 } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DialogModule } from 'primeng/dialog';
 import { ListboxModule } from 'primeng/listbox';
-import { InputGroup } from '../input-group/input-group';
+import { Input, InputAddon } from '../input/input';
+import { FieldModeState, applyNumpadKey, fieldModeAddons } from '../input/field-mode';
+import { Numpad } from '../numpad/numpad';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
 import { ScanFeedback } from '../scan-feedback/scan-feedback';
 // Sanctioned `shared` -> `core` boundary crossing (Round-25 Task 5, review-fix decision):
@@ -90,8 +91,9 @@ function filterPending(articles: PendingArticle[], query: string): PendingArticl
 /**
  * Shared popup for setting an article timestamp (`releasedAt`/`returnedAt`) by typed number,
  * numpad, camera scan, or picking from the pending-articles list
- * (docs/components/scan-dialog/component.md), composing `app-input-group` +
- * `app-barcode-scanner` + `app-scan-feedback` + `p-listbox`, mirroring `seller-search.ts`/`.html`.
+ * (docs/components/scan-dialog/component.md), composing `app-input` (Modi über `field-mode.ts`) +
+ * `app-numpad` + `app-barcode-scanner` + `app-scan-feedback` + `p-listbox`, mirroring
+ * `seller-search.ts`/`.html`.
  *
  * Architectural ruling (Task-3 brief, binding, do not re-litigate): this project's
  * `boundaries/dependencies` ESLint rule allows `shared -> shared` only, never `shared -> feature`.
@@ -112,7 +114,7 @@ function filterPending(articles: PendingArticle[], query: string): PendingArticl
  */
 @Component({
   selector: 'app-scan-dialog',
-  imports: [DialogModule, ListboxModule, InputGroup, BarcodeScanner, ScanFeedback],
+  imports: [DialogModule, ListboxModule, Input, Numpad, BarcodeScanner, ScanFeedback],
   templateUrl: './scan-dialog.html',
   styleUrl: './scan-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -151,7 +153,11 @@ export class ScanDialog {
    * doc comment). Never fires in 'batch' mode (see sessionArticleIds/scanComplete for that path). */
   readonly articleConfirmed = output<string>();
 
-  private readonly inputGroupRef = viewChild<InputGroup>('inputGroup');
+  readonly mode = new FieldModeState();
+  readonly articleNumber = signal('');
+  readonly inputAddons = computed<InputAddon[]>(() =>
+    fieldModeAddons(['keyboard', 'camera', 'numpad'], this.mode.active()),
+  );
 
   private readonly pendingArticles = signal<PendingArticle[]>([]);
   /** Internal session state — the component's own single source of truth for "already validated
@@ -168,7 +174,7 @@ export class ScanDialog {
 
   readonly scanFeedbackResult = signal<'success' | 'already-set' | 'unknown' | null>(null);
 
-  readonly isCameraActive = computed<boolean>(() => this.inputGroupRef()?.activeMode() === 'camera');
+  readonly isCameraActive = computed<boolean>(() => this.mode.active() === 'camera');
 
   /** The full "still pending" set for the current `targetField()`, minus anything already
    * validated in this session — BEFORE the typed-text filter. */
@@ -178,13 +184,11 @@ export class ScanDialog {
     return this.pendingArticles().filter((a) => a.status === status && !sessionIds.has(a.id));
   });
 
-  /** `basePendingList()` further filtered by the field's current raw text — read directly off
-   * `input-group`'s own (public, read-only) `rawValue` signal, same pattern as `seller-search.ts`'s
+  /** `basePendingList()` further filtered by the field's own `articleNumber` signal, updated on
+   * every keystroke because `debounceMs` is 0 — same pattern as `seller-search.ts`'s
    * `searchText`/`filteredSellers`, so filtering reacts to every keystroke, not just the debounced
    * `valueChange`. */
-  readonly pendingList = computed<PendingArticle[]>(() =>
-    filterPending(this.basePendingList(), this.inputGroupRef()?.rawValue() ?? ''),
-  );
+  readonly pendingList = computed<PendingArticle[]>(() => filterPending(this.basePendingList(), this.articleNumber()));
 
   /** "Artikel nicht bekannt" text (doc Abschnitt 3 table): there ARE pending articles for this
    * seller/targetField, but the current typed text matches none of them. Distinct from "all done"
@@ -209,24 +213,37 @@ export class ScanDialog {
     });
   }
 
-  /** Bound to `input-group`'s `(valueChange)` per the brief's composition. Intentionally a no-op:
-   * unlike `seller-search`, this component has no `searchChanged`-style output of its own, and the
-   * live filter (`pendingList()` above) already reads `input-group`'s `rawValue()` signal directly,
-   * which updates synchronously on every keystroke — before this (debounced) event would even
-   * fire. Kept as an explicit handler (rather than omitting the binding) to match the brief's
-   * documented composition exactly. */
-  onTypedOrNumpad(value: string | number): void {
-    // Intentionally empty — see doc comment above. `void` keeps the parameter referenced so lint's
-    // no-unused-vars rule (no underscore-prefix exemption configured in this project) stays quiet
-    // without pretending the value is actually used.
-    void value;
+  onTyped(value: string): void {
+    this.articleNumber.set(value);
   }
 
-  /** Fires on Enter (keyboard) and on the numpad's own `⏎` (both surface through `input-group`'s
-   * `submitted` output) — re-reads the field's current raw value directly, same reasoning as
-   * `intake-article-entry.ts`'s `onArticleNumberSubmit()`. */
+  onAddonClick(key: string): void {
+    switch (key) {
+      case 'camera':
+      case 'numpad':
+        this.mode.toggle(key);
+        return;
+      case 'clear':
+        this.articleNumber.set('');
+        return;
+      case 'enter':
+        this.onSubmit();
+        return;
+    }
+  }
+
+  onNumpadKey(init: KeyboardEventInit): void {
+    this.articleNumber.set(applyNumpadKey(this.articleNumber(), init));
+  }
+
+  onNumpadClear(): void {
+    this.articleNumber.set('');
+  }
+
+  /** Fires on Enter (keyboard) and on the numpad's own `⏎` — re-reads the field's current raw
+   * value directly, same reasoning as `intake-article-entry.ts`'s `onArticleNumberSubmit()`. */
   onSubmit(): void {
-    const raw = this.inputGroupRef()?.rawValue() ?? '';
+    const raw = this.articleNumber();
     if (!raw.trim()) return;
     this.checkArticleNumber(raw, false);
   }
@@ -246,12 +263,12 @@ export class ScanDialog {
 
   /** `p-dialog`'s own `(visibleChange)` fires on both the ✕ button and Escape — forwarded to this
    * component's own `visibleChange` output. Before forwarding a close, if the camera is still
-   * active, switch back to keyboard mode first so `barcode-scanner`'s `active` input goes `false`
-   * and its own `effect()` releases the MediaStream tracks (AC-5) — `p-dialog` hiding does not
-   * itself touch `input-group`'s internal `activeMode` signal. */
+   * active, switch the field mode back to keyboard first so `barcode-scanner`'s `active` input
+   * goes `false` and its own `effect()` releases the MediaStream tracks (AC-5) — `p-dialog` hiding
+   * does not itself touch the field mode. */
   onVisibleChange(value: boolean): void {
-    if (!value && this.inputGroupRef()?.activeMode() === 'camera') {
-      this.inputGroupRef()?.switchMode('keyboard');
+    if (!value && this.mode.active() === 'camera') {
+      this.mode.switchTo('keyboard');
     }
     this.visibleChange.emit(value);
   }
@@ -300,7 +317,7 @@ export class ScanDialog {
       // sammeln") — instead drop the match straight out of the already-loaded pending list so
       // the AutoComplete reflects it without a reload, and let the parent do the actual write.
       this.pendingArticles.update((articles) => articles.filter((a) => a.id !== article.id));
-      this.inputGroupRef()?.applyExternalValue('');
+      this.articleNumber.set('');
       this.articleConfirmed.emit(article.id);
       this.emitResult(article.id, 'success', isCameraOrigin);
       return;
@@ -320,7 +337,7 @@ export class ScanDialog {
     // entry starts fresh (doc's "Feld leert sich").
     this.sessionIds.update((ids) => new Set(ids).add(article.id));
     this.sessionArticleIds.emit(Array.from(this.sessionIds()));
-    this.inputGroupRef()?.applyExternalValue('');
+    this.articleNumber.set('');
     this.emitResult(article.id, 'success', isCameraOrigin);
   }
 

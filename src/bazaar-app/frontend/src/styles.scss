@@ -46,6 +46,25 @@ h1, h2, h3, .logo-block {
   }
 }
 
+// Gestufte Dialogbreite (docs/spec/2026-09-23-layout-vereinheitlichung.md Teil 2/3):
+// ≥1024px 50 %, 768–1023px 80 %, ≤767px 100 %. Breakpoints wie der Bezahlen-Dialog.
+// Doppelte Klasse schlägt die globale `.p-dialog`-Breite oben; max-height/border-radius bleiben.
+.p-dialog.dialog-responsive {
+  width: 50%;
+}
+
+@media (max-width: 1023px) {
+  .p-dialog.dialog-responsive {
+    width: 80%;
+  }
+}
+
+@media (max-width: 767px) {
+  .p-dialog.dialog-responsive {
+    width: 100%;
+  }
+}
+
 // Workaround: PrimeNG p-motion (used internally by p-step-panel) sets
 // display:none on mount and can fail to reset it on the initial render
 // (async afterRenderEffect race, reproducible with the official PrimeNG

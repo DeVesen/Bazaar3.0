@@ -1,5 +1,5 @@
 <p-dialog
-  styleClass="scan-dialog"
+  styleClass="scan-dialog dialog-responsive"
   [header]="title()"
   [visible]="visible()"
   [modal]="true"
@@ -7,13 +7,29 @@
   (visibleChange)="onVisibleChange($event)"
   (onShow)="onShown()"
 >
-  <app-input-group
-    #inputGroup
-    [modes]="['keyboard', 'camera', 'numpad']"
-    [cameraReplacesInput]="false"
-    (valueChange)="onTypedOrNumpad($event)"
-    (submitted)="onSubmit()"
+  <app-input
+    label="Artikelnummer"
+    inputId="scan-dialog-number"
+    [value]="articleNumber()"
+    [debounceMs]="0"
+    [addonRight]="inputAddons()"
+    (valueChange)="onTyped($event)"
+    (enter)="onSubmit()"
+    (addonClick)="onAddonClick($event)"
   />
+
+  @if (mode.active() === 'numpad') {
+    <app-numpad
+      class="scan-dialog__numpad"
+      (keyPressed)="onNumpadKey($event)"
+      (cleared)="onNumpadClear()"
+      (submitted)="onSubmit()"
+    />
+  }
+
+  @if (mode.cameraDenied()) {
+    <p class="scan-dialog__camera-error">Kamerazugriff nicht möglich</p>
+  }
 
   @if (isCameraActive()) {
     <app-barcode-scanner class="scan-dialog__camera" [active]="isCameraActive()" (codeDetected)="onScanDetected($event)" />

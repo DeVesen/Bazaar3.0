@@ -4,11 +4,10 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScanCompleteEvent, ScanDialog } from './scan-dialog';
-import { InputGroup } from '../input-group/input-group';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
 // eslint-disable-next-line boundaries/dependencies -- see scan-dialog.ts's own justification
 import { SettingsService } from '../../../core/settings/settings.service';
-// `InputGroup` (a real dependency of `ScanDialog`) itself depends on `BarcodeScanner` — this
+// `BarcodeScanner` (a real dependency of `ScanDialog`) itself depends on `@zxing/browser` — this
 // imports the ONE shared `@zxing/browser` mock (see that file's own comment for why it must be
 // centralized) so camera-mode tests never touch real device APIs (unavailable in jsdom).
 import { getDecodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
@@ -105,12 +104,8 @@ describe('ScanDialog', () => {
     return fixture;
   }
 
-  function inputGroupOf(fixture: Awaited<ReturnType<typeof create>>): InputGroup {
-    return fixture.debugElement.query(By.directive(InputGroup)).componentInstance as InputGroup;
-  }
-
   function typeInto(fixture: Awaited<ReturnType<typeof create>>, text: string) {
-    inputGroupOf(fixture).onTyped(text);
+    fixture.componentInstance.onTyped(text);
     fixture.detectChanges();
   }
 
@@ -214,7 +209,7 @@ describe('ScanDialog', () => {
       fixture.componentInstance.onSubmit();
       fixture.detectChanges();
 
-      expect(inputGroupOf(fixture).rawValue()).toBe('');
+      expect(fixture.componentInstance.articleNumber()).toBe('');
     });
   });
 
@@ -224,7 +219,7 @@ describe('ScanDialog', () => {
     }
 
     function enterCameraMode(fixture: Awaited<ReturnType<typeof create>>) {
-      inputGroupOf(fixture).switchMode('camera');
+      fixture.componentInstance.onAddonClick('camera');
       fixture.detectChanges();
     }
 
@@ -372,6 +367,55 @@ describe('ScanDialog', () => {
 
       expect(scanCompletes).toEqual([{ articleId: 'A1', result: 'success' }]);
       expect(sessionSnapshots.at(-1)).toEqual(['A1']);
+    });
+  });
+
+  describe('field and layout (Layout-Vereinheitlichung Teil 2)', () => {
+    it('renders app-input with the label "Artikelnummer" in the frame and no search icon', async () => {
+      const fixture = await create(httpClientMock({ pending: [] }));
+      const el: HTMLElement = fixture.nativeElement;
+
+      expect(el.querySelector('app-input p-iftalabel label')?.textContent).toContain('Artikelnummer');
+      expect(el.querySelector('.pi-search')).toBeNull();
+      expect(el.querySelector('app-input-group')).toBeNull();
+    });
+
+    it('offers camera, numpad, clear and enter addons like Verkauf', async () => {
+      const fixture = await create(httpClientMock({ pending: [] }));
+      expect(fixture.componentInstance.inputAddons().map((a) => a.key)).toEqual(['camera', 'numpad', 'clear', 'enter']);
+    });
+
+    it('opens the numpad below the field and submits the typed number from its enter key', async () => {
+      const article = { id: 'A1', number: 101, name: 'Jacke', sellerId: 'SEL1', status: 'registered' };
+      const http = httpClientMock({ pending: [{ id: 'A1', number: 101, name: 'Jacke', status: 'registered' }], byNumber: { 101: article } });
+      const fixture = await create(http);
+      const confirmed: string[] = [];
+      fixture.componentInstance.sessionArticleIds.subscribe((ids) => confirmed.push(...ids));
+
+      fixture.componentInstance.onAddonClick('numpad');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('app-numpad')).not.toBeNull();
+
+      fixture.componentInstance.onNumpadKey({ key: '1' });
+      fixture.componentInstance.onNumpadKey({ key: '0' });
+      fixture.componentInstance.onNumpadKey({ key: '1' });
+      fixture.componentInstance.onSubmit();
+
+      expect(confirmed).toContain('A1');
+    });
+
+    it('clears the field from the clear addon', async () => {
+      const fixture = await create(httpClientMock({ pending: [] }));
+      typeInto(fixture, '12');
+
+      fixture.componentInstance.onAddonClick('clear');
+
+      expect(fixture.componentInstance.articleNumber()).toBe('');
+    });
+
+    it('uses the responsive dialog width class', async () => {
+      const fixture = await create(httpClientMock({ pending: [] }));
+      expect(fixture.nativeElement.querySelector('p-dialog[styleClass="scan-dialog dialog-responsive"]')).not.toBeNull();
     });
   });
 });

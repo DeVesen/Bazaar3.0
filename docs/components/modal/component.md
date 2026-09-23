@@ -48,7 +48,8 @@ Das Modal ist die einheitliche Lösung für alle modalen Interaktionen in beiden
 | Größe | Max-Breite | Einsatz Bazaar-App | Einsatz Voranmelde-App |
 |---|---|---|---|
 | `sm` | 420 px | Checkout, Marke, Kategorie, Typ | Marke, Kategorie, Typ |
-| Standard | 80 % / max 700 px | Seller-Edit, Freigabe, Rückgabe | Artikel-Dialog |
+| Standard | 80 % / max 700 px | — | Artikel-Dialog |
+| Gestuft (`dialog-responsive`) | ≥ 1024 px 50 %, 768–1023 px 80 %, ≤ 767 px 100 % — keine Pixel-Obergrenze | Verkäufer anlegen/bearbeiten, Artikel freigeben, Artikel zurückgeben | — |
 | `lg` | max 940 px | — | Admin-Seller-Dialog |
 
 > `lg` wird ausschließlich in der Voranmelde-App verwendet.
@@ -100,7 +101,7 @@ Split-Button-Menü.
 ## Akzeptanzkriterien
 
 1. **AC-1** — THE SYSTEM SHALL den Backdrop mit `rgba(0,0,0,0.52)` und den Dialog-Schatten mit `0 20px 60px rgba(0,0,0,0.3)` rendern.
-2. **AC-2** — THE SYSTEM SHALL die Größenvarianten `sm` (max 420 px), Standard (80 % / max 700 px) und `lg` (max 940 px) unterstützen.
+2. **AC-2** — THE SYSTEM SHALL die Größenvarianten `sm` (max 420 px), Standard (80 % / max 700 px), Gestuft (≥ 1024 px 50 %, 768–1023 px 80 %, ≤ 767 px 100 %) und `lg` (max 940 px) unterstützen.
 3. **AC-3** — THE SYSTEM SHALL den Header mit Padding 17 px 20 px, Titel in 700 / 16 px und einem Schließen-Button ohne Hintergrund (22 px, muted) rendern.
 4. **AC-4** — THE SYSTEM SHALL den Body mit Padding 20 px und `overflow-y: auto` rendern.
 5. **AC-5** — THE SYSTEM SHALL den Footer im Muster „Standard" als `flex-end` mit gap 8 px rendern (Abbrechen `secondary text`, Speichern `primary`), im Muster „Mit Löschen" als `space-between` mit dem Löschen-Button (danger) links und Abbrechen/Speichern rechts.
