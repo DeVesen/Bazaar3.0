@@ -46,7 +46,12 @@
   @if (label(); as labelText) {
     <p-iftalabel>
       <ng-container [ngTemplateOutlet]="inputField" />
-      <label [attr.for]="resolvedId()">{{ labelText }}</label>
+      <label [attr.for]="resolvedId()">
+        {{ labelText }}
+        @if (required()) {
+          <span class="app-input__required">*</span>
+        }
+      </label>
     </p-iftalabel>
   } @else {
     <ng-container [ngTemplateOutlet]="inputField" />

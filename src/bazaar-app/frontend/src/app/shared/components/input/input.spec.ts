@@ -32,6 +32,20 @@ describe('Input', () => {
       expect(fixture.debugElement.query(By.css('p-iftalabel'))).toBeFalsy();
       expect(fixture.debugElement.query(By.css('input[pInputText]'))).toBeTruthy();
     });
+
+    it('shows a required star inside the label when required is set', () => {
+      const fixture = create('Vorname');
+      fixture.componentRef.setInput('required', true);
+      fixture.detectChanges();
+
+      const star = fixture.debugElement.query(By.css('p-iftalabel label .app-input__required'));
+      expect(star?.nativeElement.textContent.trim()).toBe('*');
+    });
+
+    it('shows no star when required is not set', () => {
+      const fixture = create('Anschrift');
+      expect(fixture.debugElement.query(By.css('.app-input__required'))).toBeFalsy();
+    });
   });
 
   describe('value binding', () => {
