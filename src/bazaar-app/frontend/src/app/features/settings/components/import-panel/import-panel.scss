@@ -3,6 +3,10 @@
   flex-direction: column;
   gap: 1rem;
   max-width: 520px;
+  // Panel behält seine Breite und steht horizontal zentriert in der 75vw-Fläche
+  // (docs/spec/2026-09-23-layout-vereinheitlichung.md Teil 1 "Einstellungen").
+  margin-left: auto;
+  margin-right: auto;
 
   &__title {
     margin: 0;

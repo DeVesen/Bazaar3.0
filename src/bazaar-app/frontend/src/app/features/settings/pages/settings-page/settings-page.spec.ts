@@ -51,4 +51,14 @@ describe('SettingsPage', () => {
     const userManagement = fixture.nativeElement.querySelector('app-user-management');
     expect(userManagement).not.toBeNull();
   });
+
+  it('renders "Einstellungen" as page title with all panels inside the page content', () => {
+    const fixture = TestBed.createComponent(SettingsPage);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Einstellungen');
+    expect(el.querySelector('app-page .page__content app-settings-form')).not.toBeNull();
+    expect(el.querySelector('app-page .page__content app-import-panel')).not.toBeNull();
+  });
 });
