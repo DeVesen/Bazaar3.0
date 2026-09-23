@@ -148,6 +148,14 @@ describe('ArticlesPage', () => {
     expect(load).toHaveBeenCalled();
   });
 
+  it('renders "Artikel" as page title around filters and table', async () => {
+    const { fixture } = await createPage();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Artikel');
+    expect(el.querySelector('app-page .page__content app-table')).not.toBeNull();
+  });
+
   it('loads brand/category dropdown options from BrandsApi/CategoriesApi', async () => {
     const { component } = await createPage();
 

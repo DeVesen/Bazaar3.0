@@ -8,6 +8,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
+import { Page } from '../../../../shared/components/page/page';
 import {
   ActionClickEvent,
   ActionColumnConfig,
@@ -136,6 +137,7 @@ interface ProblemDetailsBody {
     Table,
     ArtikelDialog,
     ArticleStatusPopup,
+    Page,
   ],
   templateUrl: './articles-page.html',
   styleUrl: './articles-page.scss',
