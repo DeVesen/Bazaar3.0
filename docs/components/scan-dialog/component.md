@@ -160,7 +160,7 @@ das System die Kamera frei ([Barcode-Scanner](../barcode-scanner/component.md)).
 
 ## 5. Dialog-Verhalten
 
-- Größe: Standard (`md`)
+- Größe: Gestuft (`dialog-responsive`): ≥ 1024 px 50 %, 768–1023 px 80 %, ≤ 767 px 100 %
 - Schließen über ✕-Button oder `Escape` emittiert `visibleChange: false`
 - Beim Öffnen: Fokus automatisch auf Artikelnummer-Eingabefeld
 - Beim Schließen: Kamera wird gestoppt (MediaStream-Tracks werden released)
