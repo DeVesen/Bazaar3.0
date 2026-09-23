@@ -1,15 +1,20 @@
-<app-table
-  title="Marken"
-  [columns]="columns"
-  [data]="rows()"
-  [loading]="loading()"
-  [actionColumn]="actionColumn()"
-  [emptyText]="emptyText"
-  [canAdd]="canAdd()"
-  (sortChange)="onSortChange($event)"
-  (actionClick)="onActionClick($event)"
-  (rowAdd)="onRowAdd()"
-/>
+<app-page title="Marken">
+  <ng-container ngProjectAs="[pageActions]">
+    @if (canAdd()) {
+      <p-button label="+ Neu" (onClick)="onRowAdd()" />
+    }
+  </ng-container>
+
+  <app-table
+    [columns]="columns"
+    [data]="rows()"
+    [loading]="loading()"
+    [actionColumn]="actionColumn()"
+    [emptyText]="emptyText"
+    (sortChange)="onSortChange($event)"
+    (actionClick)="onActionClick($event)"
+  />
+</app-page>
 
 <app-master-data-popup
   [visible]="popupVisible()"

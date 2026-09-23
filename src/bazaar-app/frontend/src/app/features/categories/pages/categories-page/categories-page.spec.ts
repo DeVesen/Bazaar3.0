@@ -215,4 +215,32 @@ describe('CategoriesPage', () => {
       expect(component.popupInitialValue()).toBeNull();
     });
   });
+
+  describe('page header', () => {
+    it('shows "Kategorien" as page title and "+ Neu" in the header, with no table title', () => {
+      isAdminSignal.set(true);
+      const { fixture } = createPage();
+      const el: HTMLElement = fixture.nativeElement;
+
+      expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Kategorien');
+      expect(el.querySelector('.page__actions p-button[label="+ Neu"]')).not.toBeNull();
+      expect(el.querySelector('.app-table__toolbar')).toBeNull();
+    });
+
+    it('hides "+ Neu" for non-admins', () => {
+      isAdminSignal.set(false);
+      const { fixture } = createPage();
+      expect(fixture.nativeElement.querySelector('.page__actions p-button')).toBeNull();
+    });
+
+    it('opens the create popup from the header "+ Neu" button', () => {
+      isAdminSignal.set(true);
+      const { fixture, component } = createPage();
+
+      (fixture.nativeElement.querySelector('.page__actions p-button button') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(component.popupVisible()).toBe(true);
+    });
+  });
 });

@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { Page } from '../../../../shared/components/page/page';
 import { RoleService } from '../../../../core/auth/role.service';
 import {
   ActionClickEvent,
@@ -30,7 +32,7 @@ interface ProblemDetailsBody {
 
 @Component({
   selector: 'app-categories-page',
-  imports: [Table, MasterDataPopup],
+  imports: [Table, MasterDataPopup, Page, ButtonModule],
   templateUrl: './categories-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

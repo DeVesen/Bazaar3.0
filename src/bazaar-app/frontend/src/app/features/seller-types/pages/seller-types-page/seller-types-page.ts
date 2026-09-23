@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { Page } from '../../../../shared/components/page/page';
 import { RoleService } from '../../../../core/auth/role.service';
 import {
   ActionClickEvent,
@@ -31,7 +33,7 @@ interface ProblemDetailsBody {
 
 @Component({
   selector: 'app-seller-types-page',
-  imports: [Table, TypPopup],
+  imports: [Table, TypPopup, Page, ButtonModule],
   templateUrl: './seller-types-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
