@@ -2,7 +2,7 @@
 
 **Intent:** Zentrale Stammdaten- und Statusverwaltung für Verkäufer im laufenden Basar-Betrieb — anlegen, bearbeiten, Artikel freigeben, Abrechnungsstatus einsehen und (als Admin) zurücksetzen.
 **Coverage:** partial
-**Last reviewed:** 2026-09-21
+**Last reviewed:** 2026-09-23
 
 ## Capabilities
 - User can search sellers by name/city (debounced 300ms) — `pages/sellers-page/sellers-page.ts` (`onQInputChange`)
@@ -18,6 +18,7 @@
 - User sees a specific error when deleting a seller who still has articles — `sellers-page.ts` (`seller.has_articles`)
 - User can open a seller's detail modal (QR code + article table) by clicking its card — `components/seller-detail-modal/seller-detail-modal.ts`
 - User can open the "Artikel freigeben" (release) scan flow from a seller's card — `components/release-dialog/release-dialog.ts` (reuses shared `app-scan-dialog` + `app-payment-panel`)
+- User sees den Bezahlen-Dialog im Freigabe-Flow responsiv breit (25 % / unter 1024px 50 % / unter 768px 95 %) — `components/release-dialog/release-dialog.scss` (`.payment-dialog`)
 - User can click a seller's status badge to see settlement details (settled date or "not yet settled") — `sellers-page.html` (`statusPopupCard`)
 - User can reset a seller's settlement (admin only, with confirm dialog) — `sellers-page.ts` (`onResetSettlement`, `DELETE /api/sellers/{id}/settlement`)
 - User is paginated through the seller list — `sellers-page.html` (`p-paginator`)

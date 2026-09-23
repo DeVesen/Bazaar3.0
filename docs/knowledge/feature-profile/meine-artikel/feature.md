@@ -2,7 +2,7 @@
 
 **Intent:** Verkäufer erfasst und pflegt die eigenen zum Basar angemeldeten Artikel — das eigentliche "Anmelden" in der Voranmelde-App.
 **Coverage:** inventoried
-**Last reviewed:** 2026-09-17
+**Last reviewed:** 2026-09-23
 
 ## Capabilities
 - Seller can list own articles, server-side paginated — `src/advance-registration/frontend/BAR.App/src/app/features/registration/my-articles/pages/MyArticlesPage.ts`
@@ -18,11 +18,14 @@
 - Seller can download a blank CSV template (Vorlage — numbers only, never article data) — `MyArticlesPage.ts` (`onTemplate`), `articles-import-export-api.service.ts` (`template`)
 - Seller can bulk import own articles via CSV/XLSX upload (create/update/delete per row, derived from number + existing article + row content) — `MyArticlesPage.ts` (`onFileSelected`), `articles-import-export-api.service.ts` (`import`)
 - Seller sees a row-level error dialog when an import file has any invalid row (all-or-nothing — nothing is saved) — `components/import-result-dialog.ts`
+- Seller sees import row errors as translated messages (backend `errorCode` → i18n key `myArticles.import.errors.*`, row number interpolated), falling back to the raw backend `detail` for unknown codes — `components/import-result-dialog.ts` (`errorMessageKey`)
 - Seller sees a created/updated/deleted summary and gets the list reloaded after a successful import — `components/import-result-dialog.ts`, `MyArticlesPage.ts` (`onImportDialogClosed`)
+- User sees an error toast when the CSV export or the Vorlage download fails — `MyArticlesPage.ts` (`myArticles.import.exportError` / `myArticles.import.templateError`)
+- Seller can round-trip values containing `;`, `"` or line breaks through CSV export/import (RFC-4180 quoting, `;` separator, parser quote-aware) — `src/advance-registration/backend/BAR.Modules.Registration/Application/Articles/ImportExport/ArticleCsvWriter.cs` (`QuoteIfNeeded`), `ArticleImportFileParser.cs`
 - Unknown brands/categories in an import file are auto-created as master data — backend, `ImportArticlesCommandHandler`
 
 ## Spans
-- **Frontend:** `registration/my-articles/pages/MyArticlesPage.ts`, `registration/my-articles/components/article-dialog.ts`, `registration/my-articles/articles-api.service.ts`, `registration/my-articles/articles-import-export-api.service.ts`, `registration/my-articles/components/import-result-dialog.ts`, `shared/filter-panel/filter-panel.ts` (`splitButtonItems` input)
+- **Frontend:** `registration/my-articles/pages/MyArticlesPage.ts`, `registration/my-articles/components/article-dialog.ts` + `.html`, `registration/my-articles/articles-api.service.ts`, `registration/my-articles/articles-import-export-api.service.ts`, `registration/my-articles/components/import-result-dialog.ts`, `shared/filter-panel/filter-panel.ts` (`splitButtonItems` input)
 - **Backend:** `BAR.Modules.Registration.Contracts.IRegistrationModuleApi` (`CreateArticleAsync`, `UpdateArticleAsync`, `GetMyArticlesAsync`, `GetNextNumberAsync`, `GetArticleExportCsvAsync`, `GetArticleTemplateCsvAsync`, `ImportArticlesAsync`), `BAR.Host/Features/Articles/ArticleImportExportEndpoints.cs`
 
 ## Notes

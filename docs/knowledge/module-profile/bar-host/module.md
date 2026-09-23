@@ -5,9 +5,11 @@
 **Purpose:** Der einzige deploybare Backend-Prozess der Voranmelde-App. Verdrahtet alle Fach-Module über deren eigene `Add<Modul>Module()`-Extension, mappt sämtliche HTTP-Endpoints, betreibt JWT-Auth/Autorisierung und führt beim Start die Migrationen aller Modul-DbContexts aus.
 **Identity:** Composition Root des modularen Monolithen — kennt alle Module, aber keine Abteilung kennt ihn zurück (außer über die Contracts-Facade, die es aufruft).
 **Maturity:** reviewed
-**Last updated:** 2026-09-15
+**Last updated:** 2026-09-23
 
 **Container-Image:** wird per `.github/workflows/advance-registration-docker.yml` gebaut und als `devesen/bazaar-advance-registration-backend` auf Docker Hub veröffentlicht (Trigger: Push auf `master` mit Änderung in `src/advance-registration/**`, oder manuell).
+
+**Compose-Deployment:** `src/advance-registration/compose.yaml` (seit `ea5c9b0`) zieht die Docker-Hub-Images `devesen/bazaar-advance-registration-{backend,frontend}:latest` statt lokal zu bauen. Ports: `6890` api, `6891` frontend, `6892` db. Pflicht-Env-Vars: `POSTGRES_PASSWORD`, `JWT_SIGNING_KEY` (Compose bricht ohne sie ab). Referenz-Anforderung: `docs/requirements/advance-registration/epics/Epic_Projektanlage/stories/VPROJ-S03-docker-compose-setup.md`.
 
 ## Responsibilities
 - HTTP-Endpoint-Mapping je Feature-Ordner (`Features/Articles`, `Features/Auth`, `Features/Blocks`, `Features/Export`, `Features/Home`, `Features/MasterData`, `Features/Profile`, `Features/Public`, `Features/Sellers`, `Features/SellerTypes`, `Features/Settings`)

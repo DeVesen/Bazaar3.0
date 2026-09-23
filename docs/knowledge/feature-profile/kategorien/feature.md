@@ -2,7 +2,7 @@
 
 **Intent:** Admin pflegt die Liste erlaubter Kategorien, aus der Verkäufer beim Artikel-Anlegen wählen. Strukturell identisch zu Marken, fachlich eigenständig.
 **Coverage:** inventoried
-**Last reviewed:** 2026-09-15
+**Last reviewed:** 2026-09-23
 
 ## Capabilities
 - Admin can list all categories — `src/advance-registration/frontend/BAR.App/src/app/features/master-data/categories/pages/CategoriesPage.ts`
@@ -12,6 +12,7 @@
 - Admin can delete a category — `CategoriesPage.ts`
 - Admin sees article count per category — `CategoriesPage.ts`
 - Admin sees "in use, cannot delete" (HTTP 409) distinctly from a generic delete failure — `CategoriesPage.ts`
+- User sees, below the Tablet breakpoint (< 768px), the filter fields (inside a `p-toolbar`) collapsed behind a "Filter" button that toggles a `p-popover` dropdown overlay with the same fields — `src/advance-registration/frontend/BAR.App/src/app/shared/master-data-filter-toolbar/master-data-filter-toolbar.ts` (`isMobile()`), used by `CategoriesPage.ts`
 
 ## Spans
 - **Frontend:** `master-data/categories/pages/CategoriesPage.ts`, `master-data/master-data-api.service.ts`, shared `@shared/master-data-popup`, `@shared/master-data-filter-toolbar`

@@ -5,7 +5,7 @@
 **Purpose:** Authentifizierung (Login/Register/Refresh/SetPassword), Verkäufer-Stammdaten (Sellers) und Verkäufer-Profil-Verwaltung.
 **Identity:** Einziges Modul mit eigener Security-Infrastruktur (Passwort-Hashing, JWT-Ausstellung) — der Rest des Systems verlässt sich auf seine ausgestellten Tokens.
 **Maturity:** reviewed
-**Last updated:** 2026-09-15
+**Last updated:** 2026-09-23
 
 ## Responsibilities
 - Auth: Register, Login, Refresh, SetPassword, BootstrapAdmin (JWT-Ausstellung via `JwtTokenIssuer`, Hashing via `BCryptPasswordHasher`)
@@ -34,3 +34,5 @@ Kein eigener Vertrag über die Modulgrenze — Vertrag ist `ISellerManagementMod
 ## Notes
 - `SellerManagementModuleApi` injiziert `IMasterDataModuleApi` direkt im Konstruktor statt lazy — laut Code-Kommentar unproblematisch, weil diese Abhängigkeit einseitig ist (MasterData ruft nicht zurück in SellerManagement in dieser Konstellation).
 - Last-Admin-Schutz (`ISellerRepository.CountAdminsAsync`) sitzt nicht mehr nur im Delete-Handler: `GetSellersQueryHandler` berechnet daraus pro Zeile das `CanDelete`-Flag (auch `false` für den eigenen Account), `UpdateSellerCommandHandler` berechnet es separat (ohne Self-Check, weil seine Response nicht in der Tabelle landet), `CreateSellerCommandHandler` liefert für frisch angelegte Verkäufer immer `true`.
+- `UpdateSellerCommandHandler` lehnt seit `bef7ff2` das Degradieren des letzten Admins ab (`IsAdmin` true → false bei `CountAdminsAsync() <= 1`) → `ConflictException` `seller.last_admin` → `409` (`Application/Sellers/Update/UpdateSellerCommandHandler.cs`).
+- Migrations-Historie zurückgesetzt (`2673ddc`): einzige Migration ist jetzt `Infrastructure/Persistence/Migrations/20260915150023_InitialCreate`, der fest verdrahtete Admin-Seed ist entfernt (erster Admin nur noch über Bootstrap). **Ops-Hinweis:** eine bestehende DB mit der alten Migrations-ID muss neu angelegt werden — EF erkennt die neue `InitialCreate` sonst nicht als angewendet.

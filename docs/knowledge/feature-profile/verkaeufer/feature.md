@@ -2,13 +2,15 @@
 
 **Intent:** Admin verwaltet die Liste registrierter Verkäufer — anlegen (statt Self-Service-Registrierung), bearbeiten, löschen, und die Passwort-Erstvergabe nach einer Admin-Einladung.
 **Coverage:** inventoried
-**Last reviewed:** 2026-09-16
+**Last reviewed:** 2026-09-23
 
 ## Capabilities
 - Admin can search sellers by name, server-side paginated/sorted — `src/advance-registration/frontend/BAR.App/src/app/features/seller-management/sellers/pages/SellersPage.ts`
+- Admin can filter sellers by Verkäufer-Typ (Dropdown im FilterPanel, serverseitig per `sellerTypeId`-Query auf `GET /api/sellers`) — `SellersPage.ts` (`[sellerTypeOptions]`, geladen über `seller-management/seller-type-options-api.service.ts`), `sellers-api.service.ts`, `src/advance-registration/backend/BAR.Host/Features/Sellers/SellersEndpoints.cs`
 - Admin can create a seller directly (without seller self-registration) — `SellersPage.ts`, `components/seller-create-dialog.ts`
 - Admin can edit a seller — `SellersPage.ts`, `components/seller-edit-dialog.ts`
 - Admin can delete a seller, außer sich selbst und außer dem letzten verbliebenen Admin (Lösch-Button per `canDelete`-Flag auf dem `SellerDto` ausgeblendet, serverseitig via `seller.last_admin`/`seller.self_delete_via_profile` erzwungen) — `SellersPage.ts`, `components/seller-edit-dialog.ts` (`onDeleteSeller()`, gleiches Flag/Endpoint, Danger-Button im Dialog-Footer), `GetSellersQueryHandler.cs`
+- User sees a rejection when demoting the last remaining admin to seller (HTTP 409 `seller.last_admin`, "Der letzte Admin kann nicht degradiert werden") — `src/advance-registration/backend/BAR.Modules.SellerManagement/Application/Sellers/Update/UpdateSellerCommandHandler.cs`
 - Admin sees seller type name, commission rate, item fee, article count per seller (flattened from nested `sellerType`) — `SellersPage.ts`
 - User can set an initial password via an admin invite link (public route, token as query param) — `seller-management/set-password/pages/SetPasswordPage.ts`
 - User sees distinct errors for expired/used invite token vs. weak password — `SetPasswordPage.ts`

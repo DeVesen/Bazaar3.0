@@ -2,20 +2,23 @@
 
 **Intent:** Erlaubt die Erstinbetriebnahme der Haupt-App, ohne fest verdrahteten Seed-Account — solange keine Datenbank-Admin existiert, kann die erste Person sich selbst als Admin anlegen und dabei gleich die Basis-Stammdaten (Händlertypen, optional Marken/Kategorien) hinterlegen, bevor der Basar-Betrieb beginnt.
 **Coverage:** inventoried
-**Last reviewed:** 2026-09-21
+**Last reviewed:** 2026-09-23
 
 ## Capabilities
 - User is redirected from `/setup` to `/login` once an admin already exists — `frontend/src/app/core/bootstrap/admin-exists.guard.ts` (`adminExistsGuard`, permanent lock)
 - User is redirected from `/login` and from the Shell's root routes to `/setup` when no admin exists yet — `frontend/src/app/core/bootstrap/no-admin.guard.ts` (`noAdminGuard`), wired on `/login` and on the `Shell`-Route in `app.routes.ts`
 - User steps through a 3-step linear `p-stepper` ("Admin-Konto" → "Händlertypen" → "Marken & Kategorien") — `frontend/src/app/features/setup/pages/setup-page/setup-page.html`
 - User enters Benutzername/Passwort/Passwort-Bestätigung with a per-field eye-icon visibility toggle (`p-iconfield`/`p-inputicon`, `[(mask)]`) — `setup-page.html` step 1
+- User can clear Passwort und Passwort-Bestätigung per ✕-Icon (nur sichtbar, wenn das Feld nicht leer ist) — `setup-page.html` step 1 (`p-inputicon` mit `pi pi-times`)
 - User cannot advance from step 1 until username is non-empty, password ≥8 Zeichen and matches confirmation — `setup-page.ts` `canSubmitAdmin`
 - User adds Händlertypen one at a time (Name/Provision %/Gebühr €, in einer Zeile mit p-inputgroup-addon) purely client-side, no request per Typ — `setup-page.ts` `addSellerType()`, `setup-page.html` step 2
 - User sees a local error when adding a duplicate seller-type name (case-insensitive) — `setup-page.ts` `sellerTypeError`
 - User cannot proceed past step 2 with zero seller types — `setup-page.ts` `canProceedPastSellerTypes`
 - User enters Marken and Kategorien as one-name-per-line text areas (`pTextarea`), optional — `setup-page.html` step 3
+- User can enter doppelte Marken-/Kategorie-Zeilen ohne Fehler — Leerzeilen und case-insensitive Duplikate werden vor dem Absenden entfernt (erste Schreibweise gewinnt) — `setup-page.ts` `linesOf()`
 - User completes the whole setup with a single "Setup abschließen" click — everything collected across all three steps (admin credentials, seller types, brand/category lines) is submitted in one `POST /api/public/setup-complete` call, not persisted before that — `setup-page.ts` `finish()`
-- User sees a conflict message with a "Zum Login"-Link when setup was already completed by someone else in the meantime (409) — `setup-page.ts` `finish()` error handler, `setupAlreadyDone`
+- User sees a conflict message with a "Zum Login"-Link when setup was already completed by someone else in the meantime — ausgelöst durch `errorCode` `bootstrap.already_done`, nicht pauschal durch jeden 409 — `setup-page.ts` `finish()` error handler, `setupAlreadyDone`
+- User sees bei anderen Fehlern beim Abschließen die Server-Meldung (`detail`, z. B. "Verkäufer-Typ existiert bereits"), sonst eine generische Fehlermeldung — `setup-page.ts` `finish()` error handler
 - User is sent to `/login` on successful completion (no auto-login) — `setup-page.ts` `finish()` → `router.navigateByUrl('/login')`
 - User can navigate back through the wizard at any step ("Zurück") without side effects — nothing is persisted before "Setup abschließen", so back-navigation is always safe
 

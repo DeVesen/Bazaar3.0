@@ -5,7 +5,7 @@
 **Purpose:** Use-case layer — one Command+Validator+Handler group per application operation (CQRS-flavored, not full CQRS: reads are plain `Get*Handler`s, no separate read model beyond the `Ports` query interfaces already in Domain).
 **Identity:** The "Application" hexagon ring — depends only on `Bazaar.Domain`, talks to persistence exclusively through `Ports` interfaces it doesn't implement.
 **Maturity:** sketch (structure/grouping read directly from every filename; individual handler bodies not opened)
-**Last updated:** 2026-09-21
+**Last updated:** 2026-09-23
 
 ## Responsibilities
 - One folder per bounded capability area, each holding `*Command`, `*CommandValidator` (FluentValidation), `*Handler`: `Articles`, `Auth` (Login/BootstrapAdmin/ChangePassword/CompleteSetup), `Brands`, `Categories`, `Import`, `Intake`, `Release`, `Sales`, `SellerTypes`, `Sellers`, `Settings`, `Settlement`, `Statistics`, `Users`
@@ -30,4 +30,5 @@ Flat: one directory per capability, no further nesting. Command/Validator/Handle
 
 ## Notes
 - `CompleteSetupHandler`/`CompleteSetupCommand`/`CompleteSetupCommandValidator` (`Auth/`) are the setup wizard's single atomic "create admin + seller types + brands + categories" call, added alongside the pre-existing `BootstrapAdminHandler` (which the wizard no longer calls but which stays for backward compatibility/tests).
+- `Intake/`: `IntakeArticleLine.DeleteArticleNumber` (optional, `IntakeCommand.cs`) trägt den Renumber-Weg der Artikelannahme — `IntakeHandler` löscht in einem Vorab-Schritt innerhalb derselben Transaktion den alten vorregistrierten Artikel, bevor die umnummerierte Zeile gebucht wird; ein veralteter Kandidat (nicht vorhanden, fremder Verkäufer, schon freigegeben) wird still übersprungen; kollidiert die Zielnummer mit einem anderen eigenen vorregistrierten Artikel, gibt es `409` (`article.number_taken`) statt stillem Nachbuchen. Validator-Regel `DeleteArticleNumber > 0` (`IntakeCommandValidator.cs`). Commits `d0e960c`, `5101edc`, `b608ecf`.
 - Sketch only — didn't verify whether every handler in fact stays free of direct Infrastructure/Api concerns; that's an assumption from the layering, not a read of every method body.

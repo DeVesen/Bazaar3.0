@@ -5,7 +5,7 @@
 **Purpose:** Operativer Basar-Betrieb für Basar-Mitarbeiter/-Admins — Verkäufer-Intake, Checkout, Abrechnung, Stammdatenverwaltung, Statistik, Einstellungen. Das Bedien-Frontend der Haupt-App (CLAUDE.md: Bazaar Suite).
 **Identity:** Angular-22-Standalone-SPA, einziges Frontend-Projekt in diesem Workspace (`angular.json` hat nur einen Eintrag: `bazaar-app`), Feature-First-Struktur wie in CLAUDE.md vorgegeben.
 **Maturity:** sketch (opportunistischer Durchlauf — Routing, Ordnerstruktur, package.json gelesen; nicht jede Komponente einzeln gewalkt)
-**Last updated:** 2026-09-21
+**Last updated:** 2026-09-23
 
 ## Responsibilities
 - Gesamtes Bedien-UI der Haupt-App: Setup-Wizard, Login, Intake, Checkout, Settlement, Sellers, Articles, Brands, Categories, Seller-Types, Statistics, Settings (inkl. User-Management, Import, Dev-Tools)
@@ -25,10 +25,15 @@
 - `src/app/core/` — `auth/` (Guards: `auth.guard`, `admin.guard`, `guest.guard`, `password-change.guard`), `bootstrap/` (`no-admin.guard`, `admin-exists.guard` — Setup-Wizard-Routing), `shell/` (App-Rahmen), `theme/`, `print/`
 - `src/app/features/<name>/` — je Feature: `pages/`, `components/`, `data/` (API-Clients), eigene `<name>.routes.ts`; 13 Features: articles, brands, categories, change-password, checkout, intake, login, seller-types, sellers, settings, settlement, setup, statistics (+ `not-found` als Fallback-Route)
 - `src/app/shared/components/` — cross-feature UI-Bausteine (z. B. `barcode-scanner`)
+  - `input/` (`app-input`) — eigenständiges Text-Input nach dem PrimeNG-`p-iftalabel`-Muster (`input.ts`); `addonLeft`/`addonRight` mit `addonClick(key)`, entprelltes `valueChange` (`debounceMs`, Default 800 ms, `0` = sofort), Outputs `enter`/`keyUp`/`keyDown`/`blurred`. Konsumenten: `features/intake/components/intake-article-entry/`, `features/intake/components/intake-renumber-lookup-popup/`, `features/checkout/pages/checkout-page/`, `shared/components/payment-panel/`
+  - `input-group/` (`app-input-group`) — zusätzlich `addonActionButtons`, `extraModeButton` (`{icon, badge}`, optionaler dritter Mode-Button mit Badge) + Output `extraModeClicked`, Methode `focusAndSelect()` (`input-group.ts`, seit `94734ed`)
+  - `numpad/` — zeigt immer alle Tasten, `showDecimal`/`showEnter` entfernt (`3238a31`); Grid-Platzierung über `class` am `p-button`-Host statt `styleClass` (`9c786a2`)
+  - `autocomplete-create/` — Plus-Button als `p-inputgroup-addon` innerhalb `p-inputgroup`, `showClear` aktiv (`autocomplete-create.html`, `24965ca`)
 - Cross-Feature-Imports werden laut CLAUDE.md per `eslint-plugin-boundaries` erzwungen (in `package.json` devDependency vorhanden, Regeln selbst nicht gelesen)
 
 ## Notes
 - Angular 22.1 (signal-basiert, Standalone Components, `@angular/build` esbuild-Pipeline), PrimeNG 22.1.1 als einzige UI-Bibliothek (CLAUDE.md-Vorgabe, kein natives HTML)
 - Testrunner: Vitest über `@angular/build:unit-test` (nicht Karma) — `ng test` ruft intern Vitest auf
 - `proxy.conf.json` fest auf Port 7006 (Backend-Dev-Port) verdrahtet — nicht per Env konfigurierbar
+- `primeicons.css` steht seit `67cbe11` in `angular.json` → `styles` — vorher wurden die Icons nie geladen (alle `pi pi-*`-Klassen unsichtbar)
 - Nicht verifiziert: Produktions-Deployment-Mechanismus (Docker? Reverse-Proxy-Config?)

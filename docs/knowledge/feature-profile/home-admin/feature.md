@@ -2,10 +2,11 @@
 
 **Intent:** Admin-Startseite nach dem Login — Überblick über den aktuellen Basar-Stand (wie viele Verkäufer, Artikel, Kategorien, Marken) und die zeitliche Aktivität, ohne erst in Einzelbereiche wechseln zu müssen.
 **Coverage:** partial
-**Last reviewed:** 2026-09-15
+**Last reviewed:** 2026-09-23
 
 ## Capabilities
 - Admin sees seller count, article count, category count, brand count — `src/advance-registration/frontend/BAR.App/src/app/features/home/pages/HomePage.ts` (`adminHome` via `HomeApiService.getAdminHome()`)
+- Admin can click a KPI tile to jump to its area: Verkäufer → `/sellers`, Artikel → `/articles`, Kategorien → `/categories`, Marken → `/brands` — `src/advance-registration/frontend/BAR.App/src/app/features/home/pages/HomePage.html` (`routerLink` around each `app-kpi-tile`)
 - Admin sees an activity heatmap (article created/updated dates) — `HomePage.ts` (`ActivityHeatmap` component)
 - Admin sees countdown to registration deadline, drop-off window, bazaar window (all phases) — `HomePage.ts` (`adminPhases`)
 - Admin sees the public info text if configured — `HomePage.ts` (`showInfoPanel`)
@@ -17,4 +18,4 @@
 ## Notes
 - **Teilt sich eine Komponente (`HomePage.ts`) mit `home-verkaeufer`** — Rollenumschaltung über `RoleService.activeRole()`. Als zwei Feature-Profile erfasst, weil es zwei separate Epics sind (`Epic_Home_Admin`, `Epic_Home_Verkaeufer`), auch wenn der Code sie nicht trennt.
 - User sees eine große Countdown-Kachel über 2 Zeilen neben einem 2×2-KPI-Kachel-Grid (≥ 768 px); < 768 px stapelt sich alles einspaltig — `HomePage.html` + `HomePage.scss` (`.admin-dashboard`, `.admin-dashboard__kpis`). Eigenes CSS-Grid, nicht die shared `KpiGrid`-Component.
-- Coverage `partial`: nur `HomePage.ts` gelesen, nicht `HomePage.html` im Detail (Template kann weitere sichtbare Zustände enthalten, z.B. Ladezustände/Leerzustände).
+- Coverage `partial`: `HomePage.ts`, `HomePage.html` und `HomePage.scss` gelesen (Admin-Zweig: Countdown-Kachel mit "keine Frist gesetzt"-Fallback, 4 KPI-Kacheln, Heatmap, Info-Panel). Nicht im Detail geprüft: die Kind-Komponenten (`ActivityHeatmap`, `KpiTile`, `Countdown`) und die Backend-Komposition — dort können weitere sichtbare Zustände (z.B. Lade-/Leerzustände) liegen.
