@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { Input, InputAddon } from '../../../../shared/components/input/input';
+import { Page } from '../../../../shared/components/page/page';
 import { Numpad } from '../../../../shared/components/numpad/numpad';
 import { BarcodeScanner } from '../../../../shared/components/barcode-scanner/barcode-scanner';
 import { PaymentConfirmedEvent, PaymentPanel } from '../../../../shared/components/payment-panel/payment-panel';
@@ -51,7 +52,7 @@ const INITIAL_INFO_STATE: InfoState = { type: 'warn', text: 'Bitte Artikelnummer
  */
 @Component({
   selector: 'app-checkout-page',
-  imports: [ButtonModule, DialogModule, Input, Numpad, BarcodeScanner, Cart, PaymentPanel],
+  imports: [ButtonModule, DialogModule, Input, Page, Numpad, BarcodeScanner, Cart, PaymentPanel],
   templateUrl: './checkout-page.html',
   styleUrl: './checkout-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

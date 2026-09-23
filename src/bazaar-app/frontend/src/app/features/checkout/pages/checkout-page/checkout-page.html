@@ -1,54 +1,52 @@
-<div class="checkout-page__header">
-  <h1 class="checkout-page__title">Verkauf</h1>
-</div>
+<app-page title="Verkauf">
+  <div class="checkout-page">
+    <div class="checkout-page__column checkout-page__column--left">
+      <div class="checkout-page__field">
+        <label for="checkout-page-number">Artikelnummer</label>
+        <app-input
+          inputId="checkout-page-number"
+          [value]="articleNumber()"
+          [debounceMs]="0"
+          [addonRight]="inputAddons()"
+          (valueChange)="onTyped($event)"
+          (enter)="onEnterPressed()"
+          (addonClick)="onAddonClick($event)"
+        />
+      </div>
 
-<div class="checkout-page">
-  <div class="checkout-page__column checkout-page__column--left">
-    <div class="checkout-page__field">
-      <label for="checkout-page-number">Artikelnummer</label>
-      <app-input
-        inputId="checkout-page-number"
-        [value]="articleNumber()"
-        [debounceMs]="0"
-        [addonRight]="inputAddons()"
-        (valueChange)="onTyped($event)"
-        (enter)="onEnterPressed()"
-        (addonClick)="onAddonClick($event)"
-      />
+      @if (activeMode() === 'camera') {
+        <app-barcode-scanner [active]="activeMode() === 'camera'" (codeDetected)="onCodeDetected($event)" />
+      }
+      @if (activeMode() === 'numpad') {
+        <app-numpad
+          [enterDisabled]="searching()"
+          (keyPressed)="onNumpadKey($event)"
+          (cleared)="onNumpadClear()"
+          (submitted)="onEnterPressed()"
+        />
+      }
+
+      <div class="checkout-page__info-area checkout-page__info-area--{{ infoState().type }}">
+        <i [class]="infoIcon()"></i>
+        <span>{{ infoState().text }}</span>
+      </div>
+
+      @if (lastSaleArticleIds().length > 0) {
+        <p-button label="Letzten Vorgang stornieren" severity="secondary" [outlined]="true" (onClick)="onUndoSale()" />
+      }
     </div>
 
-    @if (activeMode() === 'camera') {
-      <app-barcode-scanner [active]="activeMode() === 'camera'" (codeDetected)="onCodeDetected($event)" />
-    }
-    @if (activeMode() === 'numpad') {
-      <app-numpad
-        [enterDisabled]="searching()"
-        (keyPressed)="onNumpadKey($event)"
-        (cleared)="onNumpadClear()"
-        (submitted)="onEnterPressed()"
+    <div class="checkout-page__column checkout-page__column--right">
+      <app-cart
+        [items]="cartItems()"
+        [highlightedItemId]="highlightedItemId()"
+        (removeItem)="onCartRemoveItem($event)"
+        (clear)="onCartClear()"
+        (checkout)="onCartCheckout()"
       />
-    }
-
-    <div class="checkout-page__info-area checkout-page__info-area--{{ infoState().type }}">
-      <i [class]="infoIcon()"></i>
-      <span>{{ infoState().text }}</span>
     </div>
-
-    @if (lastSaleArticleIds().length > 0) {
-      <p-button label="Letzten Vorgang stornieren" severity="secondary" [outlined]="true" (onClick)="onUndoSale()" />
-    }
   </div>
-
-  <div class="checkout-page__column checkout-page__column--right">
-    <app-cart
-      [items]="cartItems()"
-      [highlightedItemId]="highlightedItemId()"
-      (removeItem)="onCartRemoveItem($event)"
-      (clear)="onCartClear()"
-      (checkout)="onCartCheckout()"
-    />
-  </div>
-</div>
+</app-page>
 
 <p-dialog styleClass="payment-dialog" [(visible)]="paymentPanelVisible" [modal]="true" header="Bezahlen">
   <app-payment-panel

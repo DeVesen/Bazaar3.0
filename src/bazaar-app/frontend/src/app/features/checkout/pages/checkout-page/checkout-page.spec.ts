@@ -91,14 +91,13 @@ describe('CheckoutPage', () => {
   });
 
   describe('Page-Header', () => {
-    it('renders a header with the title "Verkauf" and no actions', async () => {
+    it('renders the shared app-page header with the title "Verkauf" and no actions', async () => {
       const { fixture } = await setup();
+      const el: HTMLElement = fixture.nativeElement;
 
-      const header = fixture.nativeElement.querySelector('.checkout-page__header');
-      const title = fixture.nativeElement.querySelector('.checkout-page__title');
-
-      expect(header).toBeTruthy();
-      expect(title?.textContent?.trim()).toBe('Verkauf');
+      expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Verkauf');
+      expect(el.querySelector('app-page .page__actions')?.children.length).toBe(0);
+      expect(el.querySelector('app-page .page__content .checkout-page')).not.toBeNull();
     });
   });
 
