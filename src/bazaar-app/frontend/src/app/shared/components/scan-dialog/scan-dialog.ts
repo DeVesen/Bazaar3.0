@@ -240,8 +240,9 @@ export class ScanDialog {
     this.articleNumber.set('');
   }
 
-  /** Fires on Enter (keyboard) and on the numpad's own `⏎` — re-reads the field's current raw
-   * value directly, same reasoning as `intake-article-entry.ts`'s `onArticleNumberSubmit()`. */
+  /** Fires on Enter (keyboard) and on the numpad's own `⏎` — reads the field's current value from
+   * the `articleNumber()` signal, same reasoning as `intake-article-entry.ts`'s
+   * `onArticleNumberSubmit()`. */
   onSubmit(): void {
     const raw = this.articleNumber();
     if (!raw.trim()) return;
@@ -274,7 +275,7 @@ export class ScanDialog {
   }
 
   /** AC-1, best-effort only (documented limitation, same spirit as `input-group.ts`'s own
-   * documented camera-permission-detection limitation): `input-group` exposes no public `focus()`
+   * documented camera-permission-detection limitation): `app-input` exposes no public `focus()`
    * method and this component never modifies either component's own public API, so focus is
    * applied directly to the rendered native `<input>` via a host `querySelector`. An imperfect
    * result (e.g. the input not yet in the DOM, or a browser blocking programmatic focus) is not
@@ -369,6 +370,12 @@ export class ScanDialog {
   private resetSession(): void {
     this.sessionIds.set(new Set());
     this.sessionArticleIds.emit([]);
+    // Regressionsfix: die Komponente bleibt zwischen Schließen und erneutem Öffnen gemountet —
+    // ohne dieses Zurücksetzen überleben getippter Feldwert und Modus (Kamera/Nummernblock) den
+    // Reopen, filtern die Liste für einen neuen Verkäufer fälschlich und zeigen Numpad/Kamera
+    // sofort wieder an.
+    this.articleNumber.set('');
+    this.mode.switchTo('keyboard');
   }
 
   private loadPendingArticles(): void {

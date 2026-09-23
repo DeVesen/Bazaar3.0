@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
  * Pure CSS-grid layout wrapper for `app-kpi-tile` children
  * (docs/components/kpi-tile/component.md). Content is projected as-is —
  * this component owns no data, only the grid column count and its
- * responsive collapse (implemented via media queries in kpi-grid.scss).
+ * responsive collapse (implemented via container queries in kpi-grid.scss).
  */
 @Component({
   selector: 'app-kpi-grid',

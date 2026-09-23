@@ -50,7 +50,8 @@ export function applyNumpadKey(current: string, init: KeyboardEventInit): string
 export class FieldModeState {
   private readonly _active = signal<FieldMode>('keyboard');
   readonly active = this._active.asReadonly();
-  readonly cameraDenied = signal(false);
+  private readonly _cameraDenied = signal(false);
+  readonly cameraDenied = this._cameraDenied.asReadonly();
 
   private previous: FieldMode = 'keyboard';
   private permissionStatus: PermissionStatus | undefined;
@@ -58,7 +59,7 @@ export class FieldModeState {
   constructor() {
     effect(() => {
       if (this._active() === 'camera') {
-        this.cameraDenied.set(false);
+        this._cameraDenied.set(false);
         void this.checkCameraAccess();
       } else {
         this.teardownPermissionWatch();
@@ -110,7 +111,7 @@ export class FieldModeState {
   }
 
   private flagCameraDenied(): void {
-    this.cameraDenied.set(true);
+    this._cameraDenied.set(true);
     this._active.set('keyboard');
   }
 

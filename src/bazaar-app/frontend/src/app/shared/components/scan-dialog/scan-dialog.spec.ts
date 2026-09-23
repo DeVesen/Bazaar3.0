@@ -418,4 +418,26 @@ describe('ScanDialog', () => {
       expect(fixture.nativeElement.querySelector('p-dialog[styleClass="scan-dialog dialog-responsive"]')).not.toBeNull();
     });
   });
+
+  describe('resetSession on reopen (I2)', () => {
+    it('clears the typed field value and switches back to keyboard mode when the dialog reopens', async () => {
+      const fixture = await create(httpClientMock({ pending: [] }));
+
+      typeInto(fixture, '12');
+      fixture.componentInstance.onAddonClick('numpad');
+      fixture.detectChanges();
+      expect(fixture.componentInstance.articleNumber()).toBe('12');
+      expect(fixture.componentInstance.mode.active()).toBe('numpad');
+
+      fixture.componentRef.setInput('visible', false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(fixture.componentInstance.articleNumber()).toBe('');
+      expect(fixture.componentInstance.mode.active()).toBe('keyboard');
+    });
+  });
 });
