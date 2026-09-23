@@ -58,6 +58,7 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 
 | Komponente | Beschreibung | Verzeichnis |
 |---|---|---|
+| **Page** | Seitenrahmen der Haupt-App: Page-Header (Titel + Actions) und 75vw-Begrenzung ab 769 px | [page/](page/component.md) |
 | **Table** | Listenansicht für Datensätze mit Sortierung, Paginierung, Aktionsspalte und Toolbar | [table/](table/component.md) |
 | **Barcode-Scanner** | Schlanker Kamera-Wrapper: Live-Videostream + kontinuierliche Barcode-/QR-Dekodierung via `@zxing/browser`; kein eigenes UI, kein Feedback | [barcode-scanner/](barcode-scanner/component.md) |
 | **QR-Code** | Erzeugt aus einem Rohstring einen scanbaren QR-Code als Inline-SVG (`@zxing/library`, clientseitig); Gegenstück zum Barcode-Scanner | [qr-code/](qr-code/component.md) |
@@ -162,6 +163,9 @@ Gilt app-übergreifend — die App-Specs führen diese Abstände nicht mehr eige
 | Content-Hintergrund | `#f0f2f5` (Haupt-App) / `#f0f4f7` (Voranmelde-App) | — |
 
 ### Page-Header-Format
+
+Umsetzung in der Haupt-App: [Page](page/component.md) (`app-page`) — jede Hauptseite nutzt sie,
+kein seiteneigenes Header-CSS.
 
 ```css
 display: flex;

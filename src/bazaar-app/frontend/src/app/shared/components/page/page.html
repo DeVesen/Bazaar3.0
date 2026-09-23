@@ -1,0 +1,10 @@
+<header class="page__header">
+  <h1 class="page__title">{{ title() }}</h1>
+  <div class="page__actions">
+    <ng-content select="[pageActions]" />
+  </div>
+</header>
+
+<div class="page__content">
+  <ng-content />
+</div>

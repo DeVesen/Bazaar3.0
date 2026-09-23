@@ -1,0 +1,54 @@
+:host {
+  display: block;
+}
+
+// Page-Header-Format (docs/components/overview.md) — Werte 1:1 aus dem bisherigen
+// checkout-page.scss übernommen, damit Verkauf unverändert aussieht.
+.page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.page__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f1f30;
+}
+
+.page__actions {
+  display: flex;
+  gap: 8px;
+}
+
+// Breite Kinder (z. B. die Artikel-Tabelle) scrollen in sich selbst statt die Seite zu verbreitern.
+.page__content {
+  min-width: 0;
+}
+
+@media (min-width: 769px) {
+  .page__header,
+  .page__content {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 75vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  // 52px = shell.scss `.content-body`-Padding oben + unten (26px + 26px).
+  :host(.page--fill) {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 52px);
+  }
+
+  :host(.page--fill) .page__content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
