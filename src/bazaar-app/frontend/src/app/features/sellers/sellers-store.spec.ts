@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { SellersStore } from './sellers-store';
 import { SellerCard, SellersApi } from './data/sellers-api';
 
@@ -165,6 +165,76 @@ describe('SellersStore', () => {
       store.loadMore();
 
       expect(getCards).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('stale response guard (request sequence)', () => {
+    const card = (id: string) => ({ id }) as unknown as SellerCard;
+
+    it('ignores a loadMore response that resolves after a newer setFilters-triggered load', () => {
+      getCards.mockReturnValueOnce(of({ items: [card('a')], totalCount: 2, page: 1, pageSize: 60 }));
+      const store = createStore();
+      store.load();
+
+      const loadMoreResponse = new Subject<{
+        items: SellerCard[];
+        totalCount: number;
+        page: number;
+        pageSize: number;
+      }>();
+      getCards.mockReturnValueOnce(loadMoreResponse);
+      store.loadMore();
+
+      getCards.mockReturnValueOnce(
+        of({ items: [card('x')], totalCount: 1, page: 1, pageSize: 60 }),
+      );
+      store.setFilters({ q: 'x' });
+
+      // Stale loadMore response for the OLD filters arrives after the newer load() won.
+      loadMoreResponse.next({ items: [card('b')], totalCount: 2, page: 2, pageSize: 60 });
+      loadMoreResponse.complete();
+
+      expect(store.items().map((c) => c.id)).toEqual(['x']);
+      expect(store.totalCount()).toBe(1);
+      expect(store.page()).toBe(1);
+      expect(store.loading()).toBe(false);
+    });
+
+    it('ignores a loadMore response that resolves after a newer mutation-triggered load', () => {
+      getCards.mockReturnValueOnce(of({ items: [card('a')], totalCount: 2, page: 1, pageSize: 60 }));
+      const store = createStore();
+      store.load();
+
+      const loadMoreResponse = new Subject<{
+        items: SellerCard[];
+        totalCount: number;
+        page: number;
+        pageSize: number;
+      }>();
+      getCards.mockReturnValueOnce(loadMoreResponse);
+      store.loadMore();
+
+      getCards.mockReturnValueOnce(
+        of({ items: [card('a'), card('c')], totalCount: 2, page: 1, pageSize: 60 }),
+      );
+      update.mockReturnValue(of(undefined));
+      store.update('c', {
+        firstName: 'Anna',
+        lastName: 'Meier',
+        email: 'a@x.de',
+        sellerTypeId: 't1',
+        salesCommission: 10,
+        feePerItem: 0.5,
+      }).subscribe();
+
+      // Stale loadMore response arrives after the mutation's load() already won.
+      loadMoreResponse.next({ items: [card('b')], totalCount: 2, page: 2, pageSize: 60 });
+      loadMoreResponse.complete();
+
+      expect(store.items().map((c) => c.id)).toEqual(['a', 'c']);
+      expect(store.totalCount()).toBe(2);
+      expect(store.page()).toBe(1);
+      expect(store.loading()).toBe(false);
     });
   });
 

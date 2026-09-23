@@ -40,8 +40,19 @@ export class SellersStore {
 
   readonly hasMore = computed(() => this.items().length < this.totalCount());
 
+  /**
+   * Sequenznummer des jeweils jüngsten `load()`/`loadMore()`-Requests. Ein `loadMore()`, das
+   * z. B. wegen eines langsamen Netzwerks erst nach einem inzwischen ausgelösten `load()`
+   * (neue Filter, oder eine Mutation) antwortet, würde sonst dessen frisch geladene Liste mit
+   * veralteten Daten überschreiben und `page` auf einen falschen Wert zurücksetzen. Jeder
+   * Request merkt sich seine eigene Nummer und wendet die Antwort nur an, wenn sie beim
+   * Eintreffen noch die aktuellste ist.
+   */
+  private requestSequence = 0;
+
   /** Lädt alle bisher nachgeladenen Seiten in einem Request neu (Seite 1, pageSize × page). */
   load(): void {
+    const sequence = ++this.requestSequence;
     this.loading.set(true);
     this.sellersApi
       .getCards({
@@ -53,11 +64,13 @@ export class SellersStore {
       })
       .subscribe({
         next: (response) => {
+          if (sequence !== this.requestSequence) return;
           this.items.set(response.items);
           this.totalCount.set(response.totalCount);
           this.loading.set(false);
         },
         error: () => {
+          if (sequence !== this.requestSequence) return;
           this.loading.set(false);
         },
       });
@@ -67,6 +80,7 @@ export class SellersStore {
   loadMore(): void {
     if (this.loading() || !this.hasMore()) return;
     const nextPage = this.page() + 1;
+    const sequence = ++this.requestSequence;
     this.loading.set(true);
     this.sellersApi
       .getCards({
@@ -78,12 +92,14 @@ export class SellersStore {
       })
       .subscribe({
         next: (response) => {
+          if (sequence !== this.requestSequence) return;
           this.items.update((items) => [...items, ...response.items]);
           this.totalCount.set(response.totalCount);
           this.page.set(nextPage);
           this.loading.set(false);
         },
         error: () => {
+          if (sequence !== this.requestSequence) return;
           this.loading.set(false);
         },
       });
