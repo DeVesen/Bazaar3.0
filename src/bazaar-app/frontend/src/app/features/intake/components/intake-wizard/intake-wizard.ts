@@ -1,9 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AutoFocusModule } from 'primeng/autofocus';
 import { ButtonModule } from 'primeng/button';
+import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TabsModule } from 'primeng/tabs';
 // Cross-feature import, read-only: `SellersApi.create()`/`SellersApi.remove()` — same pattern
@@ -14,6 +24,7 @@ import { CreateSellerRequest, SellersApi } from '../../../sellers/data/sellers-a
 // same pattern `verkaeufer-dialog.ts` uses.
 // eslint-disable-next-line boundaries/dependencies
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
+import { Input } from '../../../../shared/components/input/input';
 import { IntakeArticleEntry } from '../intake-article-entry/intake-article-entry';
 
 type WizardStep = 'step1' | 'step2';
@@ -44,10 +55,10 @@ function splitPendingSearchText(text: string): { firstName: string; lastName: st
     FormsModule,
     TabsModule,
     ButtonModule,
-    InputTextModule,
     InputNumberModule,
     SelectModule,
-    AutoFocusModule,
+    IftaLabelModule,
+    Input,
     IntakeArticleEntry,
   ],
   templateUrl: './intake-wizard.html',
@@ -57,6 +68,7 @@ function splitPendingSearchText(text: string): { firstName: string; lastName: st
 export class IntakeWizard {
   private readonly sellersApi = inject(SellersApi);
   private readonly sellerTypesApi = inject(SellerTypesApi);
+  private readonly hostElement: ElementRef<HTMLElement> = inject(ElementRef);
 
   readonly sellerId = input<string | null>(null);
   readonly pendingSearchText = input<string | null>(null);
@@ -156,6 +168,12 @@ export class IntakeWizard {
         this.lastName.set(lastName);
         this.activeStep.set('step1');
       }
+    });
+
+    // Ersatz für `pAutoFocus` am Vorname-Feld (ANNAHME-S02): app-input hat kein öffentliches
+    // focus() — gleiches Host-querySelector-Muster wie scan-dialog.ts `onShown()`.
+    afterNextRender(() => {
+      this.hostElement.nativeElement.querySelector<HTMLInputElement>('#intake-wizard-first-name')?.focus();
     });
   }
 

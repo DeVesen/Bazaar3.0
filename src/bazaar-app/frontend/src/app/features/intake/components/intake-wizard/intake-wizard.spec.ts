@@ -402,4 +402,46 @@ describe('IntakeWizard', () => {
     expect(remove).not.toHaveBeenCalled();
     expect(closedSpy).toHaveBeenCalled();
   });
+
+  describe('step-1 layout (Layout-Vereinheitlichung Teil 3)', () => {
+    const SPANS: [string, string][] = [
+      ['intake-wizard-first-name', 'half'],
+      ['intake-wizard-last-name', 'half'],
+      ['intake-wizard-address', 'full'],
+      ['intake-wizard-postal-code', 'third'],
+      ['intake-wizard-city', 'two-thirds'],
+      ['intake-wizard-phone', 'half'],
+      ['intake-wizard-email', 'half'],
+      ['intake-wizard-seller-type', 'third'],
+      ['intake-wizard-fee-per-item', 'third'],
+      ['intake-wizard-sales-commission', 'third'],
+    ];
+
+    function fieldOf(el: HTMLElement, id: string): Element | null | undefined {
+      return el.querySelector(`#${id}`)?.closest('.intake-wizard__field');
+    }
+
+    it('arranges the fields exactly like the Verkäufer dialog', async () => {
+      const el = (await setup()).fixture.nativeElement as HTMLElement;
+      for (const [id, span] of SPANS) {
+        expect(fieldOf(el, id)?.classList, id).toContain(`intake-wizard__field--${span}`);
+      }
+    });
+
+    it('stars exactly Vorname, Nachname, E-Mail and Verkäufer-Typ, labels in the frame', async () => {
+      const el = (await setup()).fixture.nativeElement as HTMLElement;
+      const starred = SPANS.map(([id]) => id).filter((id) =>
+        fieldOf(el, id)?.querySelector('.app-input__required, .intake-wizard__required'),
+      );
+      expect(starred).toEqual([
+        'intake-wizard-first-name',
+        'intake-wizard-last-name',
+        'intake-wizard-email',
+        'intake-wizard-seller-type',
+      ]);
+      for (const [id] of SPANS) {
+        expect(fieldOf(el, id)?.querySelector('p-iftalabel label'), id).not.toBeNull();
+      }
+    });
+  });
 });

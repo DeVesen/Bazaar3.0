@@ -67,9 +67,10 @@
     color: #4a6080;
   }
 
+  // Gleiches 6er-Raster wie verkaeufer-dialog.scss (Epic verlangt Identität).
   &__grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 12px;
   }
 
@@ -77,26 +78,29 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    min-width: 0;
+    grid-column: 1 / -1;
 
-    &--full {
-      grid-column: 1 / -1;
+    @media (min-width: 768px) {
+      &--half {
+        grid-column: span 3;
+      }
+
+      &--third {
+        grid-column: span 2;
+      }
+
+      &--two-thirds {
+        grid-column: span 4;
+      }
     }
   }
 
-  // `p-select`/`p-inputnumber` render their own root element outside this component's
-  // encapsulation scope — force them to fill their grid cell like the plain `pInputText`
-  // inputs next to them.
+  &__field ::ng-deep p-iftalabel,
   &__field ::ng-deep .p-select,
   &__field ::ng-deep .p-inputnumber {
+    display: block;
     width: 100%;
-  }
-
-  &__field label {
-    font-size: 11.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    color: var(--p-text-muted-color);
   }
 
   &__required {

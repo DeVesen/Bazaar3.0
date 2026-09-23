@@ -23,64 +23,60 @@
         <div class="intake-wizard__panel">
           <h3 class="intake-wizard__panel-title">Personendaten</h3>
           <div class="intake-wizard__grid">
-            <div class="intake-wizard__field">
-              <label for="intake-wizard-first-name">Vorname <span class="intake-wizard__required">*</span></label>
-              <input
-                id="intake-wizard-first-name"
-                pInputText
-                [pAutoFocus]="true"
-                [ngModel]="firstName()"
-                (ngModelChange)="firstName.set($event)"
+            <div class="intake-wizard__field intake-wizard__field--half">
+              <app-input
+                label="Vorname"
+                inputId="intake-wizard-first-name"
                 name="firstName"
-                type="text"
+                [required]="true"
+                [debounceMs]="0"
+                [value]="firstName()"
+                (valueChange)="firstName.set($event)"
               />
             </div>
 
-            <div class="intake-wizard__field">
-              <label for="intake-wizard-last-name">Nachname <span class="intake-wizard__required">*</span></label>
-              <input
-                id="intake-wizard-last-name"
-                pInputText
-                [ngModel]="lastName()"
-                (ngModelChange)="lastName.set($event)"
+            <div class="intake-wizard__field intake-wizard__field--half">
+              <app-input
+                label="Nachname"
+                inputId="intake-wizard-last-name"
                 name="lastName"
-                type="text"
+                [required]="true"
+                [debounceMs]="0"
+                [value]="lastName()"
+                (valueChange)="lastName.set($event)"
               />
             </div>
 
             <div class="intake-wizard__field intake-wizard__field--full">
-              <label for="intake-wizard-address">Anschrift</label>
-              <input
-                id="intake-wizard-address"
-                pInputText
-                [ngModel]="address()"
-                (ngModelChange)="address.set($event)"
+              <app-input
+                label="Anschrift"
+                inputId="intake-wizard-address"
                 name="address"
-                type="text"
+                [debounceMs]="0"
+                [value]="address()"
+                (valueChange)="address.set($event)"
               />
             </div>
 
-            <div class="intake-wizard__field">
-              <label for="intake-wizard-postal-code">PLZ</label>
-              <input
-                id="intake-wizard-postal-code"
-                pInputText
-                [ngModel]="postalCode()"
-                (ngModelChange)="postalCode.set($event)"
+            <div class="intake-wizard__field intake-wizard__field--third">
+              <app-input
+                label="PLZ"
+                inputId="intake-wizard-postal-code"
                 name="postalCode"
-                type="text"
+                [debounceMs]="0"
+                [value]="postalCode()"
+                (valueChange)="postalCode.set($event)"
               />
             </div>
 
-            <div class="intake-wizard__field">
-              <label for="intake-wizard-city">Ort</label>
-              <input
-                id="intake-wizard-city"
-                pInputText
-                [ngModel]="city()"
-                (ngModelChange)="city.set($event)"
+            <div class="intake-wizard__field intake-wizard__field--two-thirds">
+              <app-input
+                label="Ort"
+                inputId="intake-wizard-city"
                 name="city"
-                type="text"
+                [debounceMs]="0"
+                [value]="city()"
+                (valueChange)="city.set($event)"
               />
             </div>
           </div>
@@ -89,27 +85,28 @@
         <div class="intake-wizard__panel">
           <h3 class="intake-wizard__panel-title">Kontakt</h3>
           <div class="intake-wizard__grid">
-            <div class="intake-wizard__field">
-              <label for="intake-wizard-phone">Telefon</label>
-              <input
-                id="intake-wizard-phone"
-                pInputText
-                [ngModel]="phone()"
-                (ngModelChange)="phone.set($event)"
+            <div class="intake-wizard__field intake-wizard__field--half">
+              <app-input
+                label="Telefon"
+                inputId="intake-wizard-phone"
                 name="phone"
-                type="text"
+                type="tel"
+                [debounceMs]="0"
+                [value]="phone()"
+                (valueChange)="phone.set($event)"
               />
             </div>
 
-            <div class="intake-wizard__field">
-              <label for="intake-wizard-email">E-Mail <span class="intake-wizard__required">*</span></label>
-              <input
-                id="intake-wizard-email"
-                pInputText
-                [ngModel]="email()"
-                (ngModelChange)="email.set($event)"
+            <div class="intake-wizard__field intake-wizard__field--half">
+              <app-input
+                label="E-Mail"
+                inputId="intake-wizard-email"
                 name="email"
                 type="email"
+                [required]="true"
+                [debounceMs]="0"
+                [value]="email()"
+                (valueChange)="email.set($event)"
               />
               @if (emailFormatError()) {
                 <small class="intake-wizard__error">{{ emailFormatError() }}</small>
@@ -121,50 +118,58 @@
         <div class="intake-wizard__panel">
           <h3 class="intake-wizard__panel-title">Konditionen</h3>
           <div class="intake-wizard__grid">
-            <div class="intake-wizard__field intake-wizard__field--full">
-              <label for="intake-wizard-seller-type">Verkäufer-Typ <span class="intake-wizard__required">*</span></label>
-              <p-select
-                inputId="intake-wizard-seller-type"
-                [options]="sellerTypesList()"
-                optionLabel="name"
-                optionValue="id"
-                [ngModel]="sellerTypeId()"
-                (ngModelChange)="onTypeChange($event)"
-                name="sellerTypeId"
-              />
+            <div class="intake-wizard__field intake-wizard__field--third">
+              <p-iftalabel>
+                <p-select
+                  inputId="intake-wizard-seller-type"
+                  [options]="sellerTypesList()"
+                  optionLabel="name"
+                  optionValue="id"
+                  [ngModel]="sellerTypeId()"
+                  (ngModelChange)="onTypeChange($event)"
+                  name="sellerTypeId"
+                />
+                <label for="intake-wizard-seller-type">
+                  Verkäufer-Typ <span class="intake-wizard__required">*</span>
+                </label>
+              </p-iftalabel>
             </div>
 
-            <div class="intake-wizard__field">
-              <label for="intake-wizard-fee-per-item">Gebühr je Stück</label>
-              <p-inputnumber
-                inputId="intake-wizard-fee-per-item"
-                [ngModel]="feePerItem()"
-                (ngModelChange)="feePerItem.set($event)"
-                name="feePerItem"
-                mode="currency"
-                currency="EUR"
-                locale="de-DE"
-                [min]="0"
-                [disabled]="!conditionsEditable()"
-              />
+            <div class="intake-wizard__field intake-wizard__field--third">
+              <p-iftalabel>
+                <p-inputnumber
+                  inputId="intake-wizard-fee-per-item"
+                  [ngModel]="feePerItem()"
+                  (ngModelChange)="feePerItem.set($event)"
+                  name="feePerItem"
+                  mode="currency"
+                  currency="EUR"
+                  locale="de-DE"
+                  [min]="0"
+                  [disabled]="!conditionsEditable()"
+                />
+                <label for="intake-wizard-fee-per-item">Gebühr je Stück</label>
+              </p-iftalabel>
             </div>
 
-            <div class="intake-wizard__field">
-              <label for="intake-wizard-sales-commission">Provision</label>
-              <p-inputnumber
-                inputId="intake-wizard-sales-commission"
-                [ngModel]="salesCommission()"
-                (ngModelChange)="salesCommission.set($event)"
-                name="salesCommission"
-                mode="decimal"
-                locale="de-DE"
-                [minFractionDigits]="0"
-                [maxFractionDigits]="2"
-                suffix=" %"
-                [min]="0"
-                [max]="100"
-                [disabled]="!conditionsEditable()"
-              />
+            <div class="intake-wizard__field intake-wizard__field--third">
+              <p-iftalabel>
+                <p-inputnumber
+                  inputId="intake-wizard-sales-commission"
+                  [ngModel]="salesCommission()"
+                  (ngModelChange)="salesCommission.set($event)"
+                  name="salesCommission"
+                  mode="decimal"
+                  locale="de-DE"
+                  [minFractionDigits]="0"
+                  [maxFractionDigits]="2"
+                  suffix=" %"
+                  [min]="0"
+                  [max]="100"
+                  [disabled]="!conditionsEditable()"
+                />
+                <label for="intake-wizard-sales-commission">Provision</label>
+              </p-iftalabel>
             </div>
           </div>
         </div>
