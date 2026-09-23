@@ -63,9 +63,9 @@ Die Verkäufer-Seite zeigt alle Verkäufer als Karten-Grid. Von hier aus wird de
 
 **Aktive Filter** werden als `p-chip`-Tags unterhalb des Filter-Panels angezeigt (mit × zum Entfernen).
 
-**Suche, Filter, Sortierung und Paginierung laufen serverseitig** — das Frontend hält nur die aktuelle Seite. **60 Karten pro Seite** (`p-paginator` unter dem Grid).
+**Suche, Filter, Sortierung und Paging laufen serverseitig.** Kein Paginator: Am Listenende lädt das System automatisch die nächsten **60 Karten** nach. Über 768 px scrollt nur die Kachelliste in einem eigenen Bereich (Fensterhöhe abzüglich Shell-Abstand, Page-Header und Filter), die Filterzeilen bleiben stehen; bis 768 px scrollt die Seite normal.
 
-Grund: Jede Karte trägt sieben Aggregate, und sortiert wird nach Summen, die nur der Server kennt. Paginierung statt endlosem Scrollen, weil am Annahmetisch gesucht und nicht gestöbert wird — wer scrollt, hat die Suche nicht benutzt. 60 deckt etwa drei Bildschirmhöhen ab und bleibt auf einem Tablet flüssig.
+Grund: Jede Karte trägt sieben Aggregate, und sortiert wird nach Summen, die nur der Server kennt. 60 je Nachladen decken etwa drei Bildschirmhöhen ab und bleiben auf einem Tablet flüssig.
 
 ---
 
@@ -255,7 +255,7 @@ Kein `IQueryable` über die Portgrenze, ein Repository pro Aggregate — die Agg
 4. **AC-4** — WHEN „Edit" bei einem Verkäufer geklickt wird, THEN SHALL das System das Popup mit den vorausgefüllten Verkäuferdaten öffnen.
 5. **AC-5** — WHEN auf eine Verkäufer-Karte geklickt wird (nicht auf Edit oder Scanner), THEN SHALL das System das Detail-Modal mit der Verkäufernummer im Klartext, demselben Wert als QR-Code (Shared-Component [`qr-code`](../../../../components/qr-code/component.md), Inhalt = Verkäufer-`id`) und der Artikelliste mit Status je Artikel anzeigen.
 6. **AC-6** — IF beim Speichern ein Pflichtfeld leer ist, THEN SHALL das System eine Fehlermeldung unter dem jeweiligen Feld anzeigen und nicht speichern.
-7. **AC-7** — THE SYSTEM SHALL Suche, Statusfilter, Sortierung und Paginierung serverseitig auflösen und je Seite höchstens 60 Karten liefern; die Karten-Aggregate SHALL aus einer einzigen Abfrage stammen.
+7. **AC-7** — THE SYSTEM SHALL Suche, Statusfilter, Sortierung und Paging serverseitig auflösen und je Nachladen höchstens 60 Karten liefern; WHEN das Listenende erreicht wird und weitere Verkäufer existieren, THEN SHALL das System die nächsten 60 ohne Paginator anhängen. Die Karten-Aggregate SHALL aus einer einzigen Abfrage stammen.
 8. **AC-8** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL das System die Konditionsfelder schreibgeschützt anzeigen, den Löschen-Button im Bearbeiten-Dialog nicht rendern und den Löschen-Button im Abrechnungs-Popup nicht rendern; entsprechende Requests SHALL mit `403` abgelehnt werden.
 9. **AC-9** — IF ein Verkäufer gelöscht werden soll, der noch Artikel hat, THEN SHALL das System die Löschung mit `409` ablehnen und die Anzahl der Artikel nennen.
 10. **AC-10** — WHEN der Löschen-Button im Abrechnungs-Popup geklickt wird, THEN SHALL das System einen Bestätigungsdialog mit dem Text „Auszahlung vom ‹Zeitstempel› wird verworfen" anzeigen und `settledAt` erst nach Bestätigung zurücksetzen.

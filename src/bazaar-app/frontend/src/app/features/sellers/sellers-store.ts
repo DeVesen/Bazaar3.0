@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import {
   ArticleSummary,
@@ -19,10 +19,9 @@ export interface SellersFilters {
 
 /**
  * Feature-local store for Sellers (Round-14). Unlike `SellerTypesStore`, this store keeps
- * NO in-memory list logic: search, status filter, sort and pagination are all resolved
- * server-side. Every filter/page change — and every successful mutation — re-calls `load()`
- * against `GET /api/sellers` with the current `q`/`status`/`sort`/`page`/`pageSize`, rather
- * than sorting/filtering/splicing the already-loaded `items` array client-side.
+ * NO in-memory list logic: search, status filter and sort are resolved server-side; paging is
+ * "Nachladen am Listenende" (`loadMore()`, 60 per request) instead of a paginator — `load()`
+ * re-fetches all already loaded pages in one request so mutations keep the scroll position.
  *
  * `create`/`update`/`remove`/`resetSettlement` return the underlying `Observable` (rather
  * than swallowing success/error here) so the page can react itself — closing a dialog,
@@ -39,12 +38,15 @@ export class SellersStore {
   readonly loading = signal(false);
   readonly filters = signal<SellersFilters>({ q: '', status: null, sort: 'name' });
 
+  readonly hasMore = computed(() => this.items().length < this.totalCount());
+
+  /** Lädt alle bisher nachgeladenen Seiten in einem Request neu (Seite 1, pageSize × page). */
   load(): void {
     this.loading.set(true);
     this.sellersApi
       .getCards({
-        page: this.page(),
-        pageSize: this.pageSize(),
+        page: 1,
+        pageSize: this.page() * this.pageSize(),
         q: this.filters().q,
         status: this.filters().status ?? undefined,
         sort: this.filters().sort,
@@ -61,14 +63,35 @@ export class SellersStore {
       });
   }
 
+  /** Nächste 60 Verkäufer ans Listenende anhängen (Epic_Verkaeufer: Nachladen statt Paginator). */
+  loadMore(): void {
+    if (this.loading() || !this.hasMore()) return;
+    const nextPage = this.page() + 1;
+    this.loading.set(true);
+    this.sellersApi
+      .getCards({
+        page: nextPage,
+        pageSize: this.pageSize(),
+        q: this.filters().q,
+        status: this.filters().status ?? undefined,
+        sort: this.filters().sort,
+      })
+      .subscribe({
+        next: (response) => {
+          this.items.update((items) => [...items, ...response.items]);
+          this.totalCount.set(response.totalCount);
+          this.page.set(nextPage);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+        },
+      });
+  }
+
   setFilters(partial: Partial<SellersFilters>): void {
     this.filters.set({ ...this.filters(), ...partial });
     this.page.set(1);
-    this.load();
-  }
-
-  setPage(page: number): void {
-    this.page.set(page);
     this.load();
   }
 

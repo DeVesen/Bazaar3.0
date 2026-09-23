@@ -19,9 +19,10 @@ import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SelectModule } from 'primeng/select';
 import { RoleService } from '../../../../core/auth/role.service';
+import { Page } from '../../../../shared/components/page/page';
+import { LoadMoreSentinel } from '../../components/load-more-sentinel/load-more-sentinel';
 import {
   CreateSellerRequest,
   SellerCard as SellerCardModel,
@@ -98,12 +99,13 @@ interface ProblemDetailsBody {
     IconFieldModule,
     InputIconModule,
     InputTextModule,
-    PaginatorModule,
     SelectModule,
     SellerCard,
     VerkaeuferDialog,
     SellerDetailModal,
     ReleaseDialog,
+    Page,
+    LoadMoreSentinel,
   ],
   templateUrl: './sellers-page.html',
   styleUrl: './sellers-page.scss',
@@ -118,8 +120,7 @@ export class SellersPage {
 
   readonly items = this.sellersStore.items;
   readonly totalCount = this.sellersStore.totalCount;
-  readonly page = this.sellersStore.page;
-  readonly pageSize = this.sellersStore.pageSize;
+  readonly hasMore = this.sellersStore.hasMore;
   readonly loading = this.sellersStore.loading;
   readonly filters = this.sellersStore.filters;
   readonly isAdmin = this.roleService.isAdmin;
@@ -217,11 +218,10 @@ export class SellersPage {
     this.sellersStore.setFilters({ q: '', status: null, sort: 'name' });
   }
 
-  onPageChange(event: PaginatorState): void {
-    const rows = event.rows ?? this.pageSize();
-    const first = event.first ?? 0;
-    const page = rows > 0 ? Math.floor(first / rows) + 1 : 1;
-    this.sellersStore.setPage(page);
+  /** Listenende sichtbar (LoadMoreSentinel) — nächste 60 Verkäufer anhängen. */
+  onLoadMore(): void {
+    if (this.loading() || !this.hasMore()) return;
+    this.sellersStore.loadMore();
   }
 
   onScan(card: SellerCardModel): void {

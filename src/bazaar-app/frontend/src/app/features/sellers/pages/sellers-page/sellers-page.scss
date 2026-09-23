@@ -2,7 +2,25 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 1rem;
+
+  // Ab 769px füllt die Seite die Resthöhe von app-page [fill]; Filter bleiben stehen, nur die
+  // Kachelliste scrollt (docs/spec/2026-09-23-layout-vereinheitlichung.md Teil 3).
+  @media (min-width: 769px) {
+    flex: 1;
+    min-height: 0;
+  }
+
+  &__list {
+    @media (min-width: 769px) {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+  }
+
+  &__sentinel {
+    height: 1px;
+  }
 
   &__filter-row {
     display: flex;

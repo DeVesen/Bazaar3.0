@@ -100,7 +100,7 @@ describe('SellersStore', () => {
     it('merges filters, resets page to 1 and triggers reload', () => {
       getCards.mockReturnValue(of({ items: [], totalCount: 0, page: 1, pageSize: 60 }));
       const store = createStore();
-      store.setPage(3);
+      store.page.set(3);
       getCards.mockClear();
 
       store.setFilters({ q: 'meier', status: 'selling' });
@@ -117,18 +117,54 @@ describe('SellersStore', () => {
     });
   });
 
-  describe('setPage', () => {
-    it('sets page and triggers reload with the new page', () => {
-      getCards.mockReturnValue(of({ items: [], totalCount: 0, page: 1, pageSize: 60 }));
+  describe('load (reload of all loaded pages)', () => {
+    it('re-fetches every already loaded page in one request, starting at page 1', () => {
+      getCards.mockReturnValue(of({ items: [], totalCount: 0, page: 1, pageSize: 180 }));
       const store = createStore();
+      store.page.set(3);
+
+      store.load();
+
+      expect(getCards).toHaveBeenCalledWith(expect.objectContaining({ page: 1, pageSize: 180 }));
+    });
+  });
+
+  describe('loadMore', () => {
+    const card = (id: string) => ({ id }) as unknown as SellerCard;
+
+    it('fetches the next page and appends it to the loaded items', () => {
+      getCards.mockReturnValueOnce(of({ items: [card('a')], totalCount: 2, page: 1, pageSize: 60 }));
+      const store = createStore();
+      store.load();
+      getCards.mockReturnValueOnce(of({ items: [card('b')], totalCount: 2, page: 2, pageSize: 60 }));
+
+      store.loadMore();
+
+      expect(getCards).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2, pageSize: 60 }));
+      expect(store.items().map((c) => c.id)).toEqual(['a', 'b']);
+      expect(store.page()).toBe(2);
+      expect(store.hasMore()).toBe(false);
+    });
+
+    it('does nothing when everything is loaded', () => {
+      getCards.mockReturnValueOnce(of({ items: [card('a')], totalCount: 1, page: 1, pageSize: 60 }));
+      const store = createStore();
+      store.load();
       getCards.mockClear();
 
-      store.setPage(2);
+      store.loadMore();
 
-      expect(store.page()).toBe(2);
-      expect(getCards).toHaveBeenCalledWith(
-        expect.objectContaining({ page: 2 }),
-      );
+      expect(getCards).not.toHaveBeenCalled();
+    });
+
+    it('does nothing while a request is running', () => {
+      const store = createStore();
+      store.totalCount.set(120);
+      store.loading.set(true);
+
+      store.loadMore();
+
+      expect(getCards).not.toHaveBeenCalled();
     });
   });
 

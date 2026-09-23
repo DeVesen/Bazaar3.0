@@ -74,7 +74,8 @@ describe('SellersPage', () => {
   let isAdminSignal: ReturnType<typeof signal<boolean>>;
   let load: ReturnType<typeof vi.fn>;
   let setFilters: ReturnType<typeof vi.fn>;
-  let setPage: ReturnType<typeof vi.fn>;
+  let loadMore: ReturnType<typeof vi.fn>;
+  let hasMoreSignal: ReturnType<typeof signal<boolean>>;
   let create: ReturnType<typeof vi.fn>;
   let update: ReturnType<typeof vi.fn>;
   let remove: ReturnType<typeof vi.fn>;
@@ -95,7 +96,8 @@ describe('SellersPage', () => {
     setFilters = vi.fn((partial: Partial<SellersFilters>) => {
       filtersSignal.set({ ...filtersSignal(), ...partial });
     });
-    setPage = vi.fn((page: number) => pageSignal.set(page));
+    loadMore = vi.fn();
+    hasMoreSignal = signal(false);
     create = vi.fn();
     update = vi.fn();
     remove = vi.fn();
@@ -122,7 +124,8 @@ describe('SellersPage', () => {
             filters: filtersSignal,
             load,
             setFilters,
-            setPage,
+            loadMore,
+            hasMore: hasMoreSignal,
             create,
             update,
             remove,
@@ -362,6 +365,51 @@ describe('SellersPage', () => {
       component.onStatusClick(buildCard({ settledAt: '2026-01-01T10:00:00Z' }));
 
       expect(() => component.onResetSettlement()).not.toThrow();
+    });
+  });
+
+  describe('layout and infinite loading (Layout-Vereinheitlichung Teil 1/3)', () => {
+    it('renders "Verkäufer" as page title in fill mode and keeps "+ Neu" in the filter row', async () => {
+      const { fixture } = await createPage();
+      const el: HTMLElement = fixture.nativeElement;
+
+      expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Verkäufer');
+      expect(el.querySelector('app-page')?.classList).toContain('page--fill');
+      expect(el.querySelector('.page__actions')?.children.length).toBe(0);
+      expect(el.querySelector('.sellers-page__filter-row p-button[label="+ Neu"]')).not.toBeNull();
+    });
+
+    it('renders the tiles inside the scrolling list without a paginator', async () => {
+      itemsSignal.set([buildCard()]);
+      totalCountSignal.set(1);
+      const { fixture } = await createPage();
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+
+      expect(el.querySelector('.sellers-page__list .sellers-page__grid app-seller-card')).not.toBeNull();
+      expect(el.querySelector('.sellers-page__list [appLoadMoreSentinel]')).not.toBeNull();
+      expect(el.querySelector('p-paginator')).toBeNull();
+    });
+
+    it('loads more when the list end is reached and more sellers exist', async () => {
+      hasMoreSignal.set(true);
+      const { component } = await createPage();
+
+      component.onLoadMore();
+
+      expect(loadMore).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not load more while loading or when everything is loaded', async () => {
+      const { component } = await createPage();
+
+      hasMoreSignal.set(false);
+      component.onLoadMore();
+      hasMoreSignal.set(true);
+      loadingSignal.set(true);
+      component.onLoadMore();
+
+      expect(loadMore).not.toHaveBeenCalled();
     });
   });
 });

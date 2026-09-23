@@ -1,3 +1,4 @@
+<app-page title="Verkäufer" [fill]="true">
 <div class="sellers-page">
   <div class="sellers-page__filter-row">
     <p-iconfield class="sellers-page__search">
@@ -64,26 +65,32 @@
       <p-button label="Filter zurücksetzen" [text]="true" (onClick)="resetAllFilters()" />
     </div>
   } @else {
-    <div class="sellers-page__grid">
-      @for (card of items(); track card.id) {
-        <app-seller-card
-          [card]="card"
-          (edit)="onEdit($event)"
-          (scan)="onScan($event)"
-          (statusClick)="onStatusClick($event)"
-          (cardClick)="onCardClick($event)"
-        />
-      }
+    <div class="sellers-page__list">
+      <div class="sellers-page__grid">
+        @for (card of items(); track card.id) {
+          <app-seller-card
+            [card]="card"
+            (edit)="onEdit($event)"
+            (scan)="onScan($event)"
+            (statusClick)="onStatusClick($event)"
+            (cardClick)="onCardClick($event)"
+          />
+        }
+      </div>
+      <!-- Property binding drives the directive's `trigger` input (re-observe on count change);
+           the extra attr. binding reflects the same value as a real DOM attribute so tests can
+           locate the sentinel via `[appLoadMoreSentinel]` — plain property bindings never show
+           up in the rendered HTML. -->
+      <div
+        class="sellers-page__sentinel"
+        [appLoadMoreSentinel]="items().length"
+        [attr.appLoadMoreSentinel]="items().length"
+        (reached)="onLoadMore()"
+      ></div>
     </div>
-
-    <p-paginator
-      [first]="(page() - 1) * pageSize()"
-      [rows]="pageSize()"
-      [totalRecords]="totalCount()"
-      (onPageChange)="onPageChange($event)"
-    />
   }
 </div>
+</app-page>
 
 <app-verkaeufer-dialog
   [visible]="dialogVisible()"
