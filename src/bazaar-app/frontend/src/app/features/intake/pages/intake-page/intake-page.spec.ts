@@ -98,6 +98,24 @@ describe('IntakePage', () => {
     return fixture;
   }
 
+  it('shows "Artikelannahme" as page title in the seller-search state', () => {
+    const fixture = create();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Artikelannahme');
+    expect(el.querySelector('app-page .page__content app-seller-search')).not.toBeNull();
+  });
+
+  it('keeps "Artikelannahme" as page title in the wizard state', () => {
+    const fixture = create();
+    fixture.componentInstance.onCreateRequested('Anna Meier');
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('app-page .page__content app-intake-wizard')).not.toBeNull();
+    expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Artikelannahme');
+  });
+
   it('loads all sellers on init via SellersApi.search(\'\')', () => {
     create();
     expect(search).toHaveBeenCalledWith('');

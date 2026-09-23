@@ -1,17 +1,17 @@
-@if (state() === 'search') {
-  <!-- `app-seller-search` already renders its own `p-card` (max-width 500px, centered) per
-       docs/components/seller-search/component.md Abschnitt 7 — no extra wrapping card here. -->
-  <app-seller-search
-    [sellers]="sellers()"
-    [hint]="hint"
-    [showCreateButton]="true"
-    (sellerSelected)="onSellerSelected($event)"
-    (createRequested)="onCreateRequested($event)"
-  />
-} @else {
-  <app-intake-wizard
-    [sellerId]="resolvedSellerId()"
-    [pendingSearchText]="pendingSearchText()"
-    (closed)="onWizardClosed()"
-  />
-}
+<app-page title="Artikelannahme">
+  @if (state() === 'search') {
+    <app-seller-search
+      [sellers]="sellers()"
+      [hint]="hint"
+      [showCreateButton]="true"
+      (sellerSelected)="onSellerSelected($event)"
+      (createRequested)="onCreateRequested($event)"
+    />
+  } @else {
+    <app-intake-wizard
+      [sellerId]="resolvedSellerId()"
+      [pendingSearchText]="pendingSearchText()"
+      (closed)="onWizardClosed()"
+    />
+  }
+</app-page>

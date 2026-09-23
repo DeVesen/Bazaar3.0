@@ -161,6 +161,25 @@ function selectSeller(component: SettlementPage, overrides: Partial<SellerSummar
 }
 
 describe('SettlementPage', () => {
+  it('shows "Abrechnung" as page title before a seller is selected', async () => {
+    const { fixture } = await setup();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Abrechnung');
+    expect(el.querySelector('app-page .page__content app-seller-search')).not.toBeNull();
+  });
+
+  it('keeps "Abrechnung" above the seller header after a seller is selected', async () => {
+    const { fixture, component } = await setup();
+    selectSeller(component);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Abrechnung');
+    expect(el.querySelector('app-page .page__content .settlement-page__header')).not.toBeNull();
+  });
+
   it('starts in the "selection" state and renders app-seller-search (AC-1)', async () => {
     const { fixture, component } = await setup();
 

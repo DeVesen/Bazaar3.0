@@ -10,6 +10,7 @@ import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialo
 import { KpiGrid } from '../../../../shared/components/kpi-tile/kpi-grid';
 import { KpiTile } from '../../../../shared/components/kpi-tile/kpi-tile';
 import { SettlementPanel } from '../../components/settlement-panel/settlement-panel';
+import { Page } from '../../../../shared/components/page/page';
 // Cross-feature import, read-only: `SellersApi.search('')` loads the full seller list for
 // seller-search to filter in-memory, and `SellersApi.getArticles(id)` loads the read-only
 // article table — same sanctioned pattern `intake-page.ts` already uses for the first call
@@ -56,6 +57,7 @@ const ARTICLE_STATUS_LABELS: Record<string, string> = {
     KpiGrid,
     KpiTile,
     SettlementPanel,
+    Page,
   ],
   templateUrl: './settlement-page.html',
   styleUrl: './settlement-page.scss',

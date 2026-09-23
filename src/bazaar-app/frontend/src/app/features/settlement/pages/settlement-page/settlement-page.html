@@ -1,3 +1,4 @@
+<app-page title="Abrechnung">
 @if (state() === 'selection') {
   <app-seller-search [sellers]="sellers()" [hint]="hint" [showCreateButton]="false" (sellerSelected)="onSellerSelected($event)" />
 } @else if (settlement(); as s) {
@@ -67,3 +68,4 @@
     />
   }
 }
+</app-page>

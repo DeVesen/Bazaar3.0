@@ -7,6 +7,7 @@ import { SellerSearch, SellerSummary } from '../../../../shared/components/selle
 // eslint-disable-next-line boundaries/dependencies
 import { SellersApi } from '../../../sellers/data/sellers-api';
 import { IntakeWizard } from '../../components/intake-wizard/intake-wizard';
+import { Page } from '../../../../shared/components/page/page';
 
 /**
  * Round-16 Task 7 wiring for Epic_Artikelannahme's entry point: search-for-seller, then hand
@@ -16,7 +17,7 @@ type IntakeState = 'search' | 'wizard';
 
 @Component({
   selector: 'app-intake-page',
-  imports: [SellerSearch, IntakeWizard],
+  imports: [SellerSearch, IntakeWizard, Page],
   templateUrl: './intake-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
