@@ -1,3 +1,12 @@
+// `.p-sidebar-main` ist ein Flex-Item in `.p-sidebar-layout` (row) OHNE `min-width: 0` — sein
+// Min-Width ist deshalb standardmäßig seine Inhaltsbreite, wodurch die Seite unterhalb von ca.
+// 1088px waagerecht scrollt, egal was `.page__content { min-width: 0 }` (page.scss) darunter
+// setzt (dort greift `min-width: 0` nicht, weil das kein eigenes Flex-Item ist). Spec Teil 1:
+// „Die Seite selbst scrollt nie waagerecht" — nur die Tabelle darin soll scrollen.
+.p-sidebar-main {
+  min-width: 0;
+}
+
 .content-body {
   padding: 26px 22px; // Desktop
 }
