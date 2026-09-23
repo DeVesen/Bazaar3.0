@@ -2,11 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { vi } from 'vitest';
 import { SellerSearch, SellerSummary } from './seller-search';
-import { InputGroup } from '../input-group/input-group';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
-// `InputGroup` (a real dependency of `SellerSearch`) itself depends on `BarcodeScanner` — this
-// imports the ONE shared `@zxing/browser` mock (see that file's own comment for why it must be
-// centralized) so camera-mode tests never touch real device APIs (unavailable in jsdom).
+// `BarcodeScanner` (direct dependency of `SellerSearch`) — the ONE shared `@zxing/browser` mock
+// (see that file's own comment) so camera-mode tests never touch real device APIs.
 import { getDecodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
 
 const decodeFromVideoDeviceMock = getDecodeFromVideoDeviceMock();
@@ -48,14 +46,47 @@ describe('SellerSearch', () => {
     return fixture;
   }
 
-  function inputGroupOf(fixture: ReturnType<typeof create>): InputGroup {
-    return fixture.debugElement.query(By.directive(InputGroup)).componentInstance as InputGroup;
-  }
-
   function typeInto(fixture: ReturnType<typeof create>, text: string) {
-    inputGroupOf(fixture).onTyped(text);
+    fixture.componentInstance.onTyped(text);
     fixture.detectChanges();
   }
+
+  function enterMode(fixture: ReturnType<typeof create>, mode: 'camera' | 'numpad') {
+    fixture.componentInstance.onAddonClick(mode);
+    fixture.detectChanges();
+  }
+
+  function scannerOf(fixture: ReturnType<typeof create>): BarcodeScanner {
+    return fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
+  }
+
+  // Layout-Vereinheitlichung Teil 4
+  it('renders app-input with the label "Verkäufer" in the frame and no search icon', () => {
+    const fixture = create([seller()]);
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('app-input p-iftalabel label')?.textContent).toContain('Verkäufer');
+    expect(el.querySelector('.pi-search')).toBeNull();
+    expect(el.querySelector('app-input-group')).toBeNull();
+  });
+
+  it('keeps the hint directly below the field, before the result list', () => {
+    const fixture = create([seller()]);
+    const card: HTMLElement = fixture.nativeElement;
+    const order = Array.from(card.querySelectorAll('app-input, .seller-search__hint, p-listbox')).map((n) => n.tagName.toLowerCase() === 'p' ? 'hint' : n.tagName.toLowerCase());
+
+    expect(order).toEqual(['app-input', 'hint', 'p-listbox']);
+  });
+
+  it('offers numpad, clear and enter addons, plus camera only with showScanButton', () => {
+    expect(create([seller()]).componentInstance.inputAddons().map((a) => a.key)).toEqual(['numpad', 'clear', 'enter']);
+    expect(create([seller()], { showScanButton: true }).componentInstance.inputAddons().map((a) => a.key)).toEqual([
+      'camera',
+      'numpad',
+      'clear',
+      'enter',
+    ]);
+  });
 
   // AC-1
   it('shows all sellers when the search field is empty', () => {
@@ -91,6 +122,18 @@ describe('SellerSearch', () => {
     expect(emitted).toEqual([target]);
   });
 
+  it('treats the enter addon like a keyboard Enter', () => {
+    const target = seller({ id: 'SEL00001' });
+    const fixture = create([target]);
+    const emitted: SellerSummary[] = [];
+    fixture.componentInstance.sellerSelected.subscribe((s) => emitted.push(s));
+
+    typeInto(fixture, 'SEL00001');
+    fixture.componentInstance.onAddonClick('enter');
+
+    expect(emitted).toEqual([target]);
+  });
+
   it('does nothing on Enter when more than one result matches', () => {
     const fixture = create([seller({ id: 'SEL1', lastName: 'Meier' }), seller({ id: 'SEL2', lastName: 'Meierhof' })]);
     const emitted: SellerSummary[] = [];
@@ -114,6 +157,18 @@ describe('SellerSearch', () => {
     expect(emitted).toEqual(['Unbekannt']);
   });
 
+  it('does not emit createRequested on Enter with 0 results when showCreateButton is off (Abrechnung)', () => {
+    const fixture = create([], { showCreateButton: false });
+    const emitted: string[] = [];
+    fixture.componentInstance.createRequested.subscribe((text) => emitted.push(text));
+
+    typeInto(fixture, 'Unbekannt');
+    fixture.componentInstance.onKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+    expect(emitted).toEqual([]);
+    expect(fixture.debugElement.query(By.css('p-button[label="+ Neuen Verkäufer anlegen"]'))).toBeFalsy();
+  });
+
   it('shows the "+ Neuen Verkäufer anlegen" button only when showCreateButton is set and results are empty', () => {
     const createButton = () => fixture.debugElement.query(By.css('p-button[label="+ Neuen Verkäufer anlegen"]'));
     const fixture = create([], { showCreateButton: true });
@@ -127,28 +182,20 @@ describe('SellerSearch', () => {
     expect(createButton()).toBeFalsy();
   });
 
-  // AC-5 (fix round 1, reviewer Critical 1: verify the field itself really stays, not just
-  // that "some BarcodeScanner exists somewhere")
-  it('offers the camera mode and swaps the RESULT LIST (not the input field) for the video feed when active', () => {
+  // AC-5
+  it('swaps the RESULT LIST (not the input field) for the video feed in camera mode', () => {
     const fixture = create([seller()], { showScanButton: true });
 
     expect(fixture.componentInstance.modes()).toEqual(['keyboard', 'camera', 'numpad']);
     expect(fixture.debugElement.query(By.css('p-listbox'))).toBeTruthy();
-    expect(fixture.debugElement.query(By.css('input[pInputText]'))).toBeTruthy();
 
-    inputGroupOf(fixture).switchMode('camera');
-    fixture.detectChanges();
+    enterMode(fixture, 'camera');
 
-    // The result list is gone, the video feed takes its place...
     expect(fixture.debugElement.query(By.css('p-listbox'))).toBeFalsy();
     const scanners = fixture.debugElement.queryAll(By.directive(BarcodeScanner));
     expect(scanners.length).toBe(1);
     expect(scanners[0].nativeElement.classList).toContain('seller-search__camera');
-    // ...but the search field itself is still there and still the one input-group renders
-    // (input-group's own `cameraReplacesInput=false` keeps rendering it instead of swapping it
-    // for an internal scanner of its own — there is exactly one BarcodeScanner in the whole
-    // tree, seller-search's own).
-    expect(fixture.debugElement.query(By.css('input[pInputText]'))).toBeTruthy();
+    expect(fixture.debugElement.query(By.css('app-input input[pInputText]'))).toBeTruthy();
   });
 
   it('does not offer the camera mode when showScanButton is false (default)', () => {
@@ -156,39 +203,28 @@ describe('SellerSearch', () => {
     expect(fixture.componentInstance.modes()).toEqual(['keyboard', 'numpad']);
   });
 
-  // AC-6 + scan flow (doc Abschnitt 6)
+  // AC-6 + scan flow
   it('auto-selects on scan when exactly one result matches, and the camera stops', () => {
     const target = seller({ id: 'SEL00001' });
     const fixture = create([target], { showScanButton: true });
     const emitted: SellerSummary[] = [];
     fixture.componentInstance.sellerSelected.subscribe((s) => emitted.push(s));
 
-    const inputGroup = inputGroupOf(fixture);
-    inputGroup.switchMode('camera');
-    fixture.detectChanges();
-    const scanner = fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
-
-    scanner.codeDetected.emit('SEL00001');
+    enterMode(fixture, 'camera');
+    scannerOf(fixture).codeDetected.emit('SEL00001');
     fixture.detectChanges();
 
     expect(emitted).toEqual([target]);
-    expect(inputGroup.activeMode()).toBe('keyboard');
+    expect(fixture.componentInstance.mode.active()).toBe('keyboard');
   });
 
-  // fix round 2: onScanDetected() used to emit searchChanged itself IN ADDITION to the emission
-  // already forwarded from input-group's own valueChange (triggered by applyExternalValue()),
-  // firing it twice per scan.
-  it('emits searchChanged exactly once per scan, not twice', () => {
+  it('emits searchChanged exactly once per scan', () => {
     const fixture = create([seller({ id: 'SEL00001' })], { showScanButton: true });
     const emitted: string[] = [];
     fixture.componentInstance.searchChanged.subscribe((v) => emitted.push(v));
 
-    const inputGroup = inputGroupOf(fixture);
-    inputGroup.switchMode('camera');
-    fixture.detectChanges();
-    const scanner = fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
-
-    scanner.codeDetected.emit('SEL00001');
+    enterMode(fixture, 'camera');
+    scannerOf(fixture).codeDetected.emit('SEL00001');
     fixture.detectChanges();
 
     expect(emitted).toEqual(['SEL00001']);
@@ -197,73 +233,38 @@ describe('SellerSearch', () => {
   it('keeps the camera active when a scan matches 0 sellers', () => {
     const fixture = create([seller({ id: 'SEL00001' })], { showScanButton: true });
 
-    const inputGroup = inputGroupOf(fixture);
-    inputGroup.switchMode('camera');
-    fixture.detectChanges();
-    const scanner = fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
-
-    // Synchronous now (fix round 1, reviewer Important 3): seller-search's own scanner bypasses
-    // input-group's internal onCodeDetected() entirely, so there is no auto-reset to override
-    // and no microtask/timing dependency left.
-    scanner.codeDetected.emit('NOPE');
+    enterMode(fixture, 'camera');
+    scannerOf(fixture).codeDetected.emit('NOPE');
     fixture.detectChanges();
 
-    expect(inputGroup.activeMode()).toBe('camera');
+    expect(fixture.componentInstance.mode.active()).toBe('camera');
   });
 
-  it('stops the camera and returns to the previously active mode when a scan matches more than one seller', () => {
+  it('returns to the previously active mode when a scan matches more than one seller', () => {
     const fixture = create(
       [seller({ id: 'SEL1', lastName: 'Meier' }), seller({ id: 'SEL2', lastName: 'Meierhof' })],
       { showScanButton: true },
     );
 
-    const inputGroup = inputGroupOf(fixture);
-    // previously active mode was 'keyboard' (the default) before switching to camera
-    inputGroup.switchMode('camera');
-    fixture.detectChanges();
-    const scanner = fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
-
-    scanner.codeDetected.emit('Meier');
+    enterMode(fixture, 'numpad');
+    enterMode(fixture, 'camera');
+    scannerOf(fixture).codeDetected.emit('Meier');
     fixture.detectChanges();
 
-    expect(inputGroup.activeMode()).toBe('keyboard');
+    expect(fixture.componentInstance.mode.active()).toBe('numpad');
     expect(fixture.debugElement.query(By.css('p-listbox'))).toBeTruthy();
-  });
-
-  // reviewer Important 3: the interesting case with a non-keyboard previous mode
-  it('returns to numpad (not keyboard) after a multi-hit scan when numpad was active before the camera', () => {
-    const fixture = create(
-      [seller({ id: 'SEL1', lastName: 'Meier' }), seller({ id: 'SEL2', lastName: 'Meierhof' })],
-      { showScanButton: true },
-    );
-
-    const inputGroup = inputGroupOf(fixture);
-    inputGroup.switchMode('numpad');
-    fixture.detectChanges();
-    inputGroup.switchMode('camera');
-    fixture.detectChanges();
-    const scanner = fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
-
-    scanner.codeDetected.emit('Meier');
-    fixture.detectChanges();
-
-    expect(inputGroup.activeMode()).toBe('numpad');
   });
 
   // AC-7
   it('stops the camera and returns to the previously active mode on Escape', () => {
     const fixture = create([seller()], { showScanButton: true });
-    const inputGroup = inputGroupOf(fixture);
 
-    inputGroup.switchMode('numpad');
-    fixture.detectChanges();
-    inputGroup.switchMode('camera');
-    fixture.detectChanges();
-
+    enterMode(fixture, 'numpad');
+    enterMode(fixture, 'camera');
     fixture.componentInstance.onKeydown(new KeyboardEvent('keydown', { key: 'Escape' }));
     fixture.detectChanges();
 
-    expect(inputGroup.activeMode()).toBe('numpad');
+    expect(fixture.componentInstance.mode.active()).toBe('numpad');
   });
 
   it('clears the field and shows all sellers on Escape in keyboard mode', () => {
@@ -278,35 +279,32 @@ describe('SellerSearch', () => {
   });
 
   // AC-8
-  it("treats the numpad's submitted event the same as a keyboard Enter", () => {
-    const target = seller({ id: 'SEL00001' });
-    const fixture = create([target], { showScanButton: false });
+  it('types via the numpad and treats its submit like a keyboard Enter', () => {
+    const target = seller({ id: '42', lastName: 'Zahl' });
+    const fixture = create([target, seller({ id: '7', lastName: 'Andere' })]);
     const emitted: SellerSummary[] = [];
     fixture.componentInstance.sellerSelected.subscribe((s) => emitted.push(s));
 
-    const inputGroup = inputGroupOf(fixture);
-    inputGroup.switchMode('numpad');
-    typeInto(fixture, 'SEL00001');
-    fixture.detectChanges();
+    enterMode(fixture, 'numpad');
+    expect(fixture.nativeElement.querySelector('app-numpad')).not.toBeNull();
+    fixture.componentInstance.onNumpadKey({ key: '4' });
+    fixture.componentInstance.onNumpadKey({ key: '2' });
+    fixture.componentInstance.onSubmit();
 
-    inputGroup.submitted.emit();
-
+    expect(fixture.componentInstance.searchText()).toBe('42');
     expect(emitted).toEqual([target]);
   });
 
-  // AC-9 — delegated to input-group, verify seller-search doesn't duplicate/break it
-  it('delegates the camera-denied red info area to input-group without adding its own', () => {
+  // AC-9
+  it('shows one camera-denied hint and falls back to keyboard when no camera API exists', async () => {
     Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true });
     const fixture = create([seller()], { showScanButton: true });
 
-    const inputGroup = inputGroupOf(fixture);
-    inputGroup.switchMode('camera');
+    enterMode(fixture, 'camera');
+    await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(inputGroup.activeMode()).toBe('keyboard');
-    expect(inputGroup.cameraDenied()).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('Kamerazugriff nicht möglich');
-    // Only one such message exists — seller-search does not render a second one of its own.
+    expect(fixture.componentInstance.mode.active()).toBe('keyboard');
     const occurrences = (fixture.nativeElement.textContent.match(/Kamerazugriff nicht möglich/g) ?? []).length;
     expect(occurrences).toBe(1);
   });

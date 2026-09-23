@@ -6,16 +6,11 @@
 // input on them lands on THEIR own rendered root, outside this component's emulated-encapsulation
 // scope, so those rules need `::ng-deep`. Elements this component's own template owns directly
 // (the hint/blocked-hint `<p>`, the item `<div>`s and their children) stay plain scoped rules.
-::ng-deep .seller-search {
-  max-width: 500px;
-  margin: 0 auto;
-}
-
 ::ng-deep .seller-search__list {
   display: block;
   width: 100%;
   border: none;
-  margin-top: 0.75rem;
+  margin-top: 24px;
 }
 
 ::ng-deep .seller-search__item-tag {
@@ -38,7 +33,18 @@
   &__camera {
     display: block;
     width: 100%;
-    margin-top: 0.75rem;
+    margin-top: 24px;
+  }
+
+  &__numpad {
+    display: block;
+    margin-top: 12px;
+  }
+
+  &__camera-error {
+    margin: 10px 0 0;
+    font-size: 0.875rem;
+    color: var(--p-red-500, #ef4444);
   }
 
   &__item {

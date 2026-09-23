@@ -65,7 +65,7 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Scan-Dialog** | Barcode-/Kamera-Scanner-Popup zum Setzen von Artikel-Zeitstempeln (Freigeben / Zurückgeben) | [scan-dialog/](scan-dialog/component.md) |
 | **KPI-Tile** | Einzelne Kennzahl-Kachel mit Label, Wert und optionalem Severity-Akzent; wird im KPI-Grid (`c3`–`c6`) eingesetzt | [kpi-tile/](kpi-tile/component.md) |
 | **AutoComplete-Create** | Erweitertes AutoComplete mit ▾-Auswahl-Modus und +-Anlegen-Modus (inkl. Anlegen-Modal) | [autocomplete-create/](autocomplete-create/component.md) |
-| **Seller-Search** | Verkäufer-Suchfeld-Panel (InputGroup in Card mit Trefferliste und optionalem Anlegen-Button) | [seller-search/](seller-search/component.md) |
+| **Seller-Search** | Verkäufer-Suchfeld-Panel (app-input in Card mit Trefferliste und optionalem Anlegen-Button) | [seller-search/](seller-search/component.md) |
 | **Payment-Panel** | Kassier-Panel: Gesamtbetrag + „Betrag erhalten"-Eingabe + live Rückgeld-Berechnung | [payment-panel/](payment-panel/component.md) |
 | **Numpad** | Zustandsloser In-App-Ziffernblock für touch-freundliche Zahleneingabe ohne native Tastatur | [numpad/](numpad/component.md) |
 | **Countdown** | Live-Countdown (Tage + HH:MM:SS) bis zu einem Zieldatum; Varianten für KPI-Tile und Info-Box | [countdown/](countdown/component.md) |

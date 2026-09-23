@@ -20,7 +20,7 @@ updated: 2026-08-18
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
-**Bibliothek:** PrimeNG-Komposition — [InputGroup](../input-group/component.md) + `p-card` + `p-listbox`
+**Bibliothek:** PrimeNG-Komposition — [Input](../app-input/component.md) + `p-card` + `p-listbox` (+ `app-numpad`, `app-barcode-scanner`)
 **Verwendung:** Bazaar Haupt-App — überall dort, wo ein Verkäufer per Suche ausgewählt werden muss, bevor ein weiterer Schritt möglich ist.
 
 ---
@@ -29,8 +29,7 @@ updated: 2026-08-18
 
 Das Seller-Search-Panel ist die einheitliche Einstiegs-Ansicht für Prozesse, die einen einzelnen Verkäufer erfordern. Es besteht aus einem Suchfeld in einer Card sowie einer Trefferliste darunter.
 
-Das Suchfeld ist eine [InputGroup](../input-group/component.md); Umschaltmechanik,
-Button-Reihenfolge und Startmodus stehen dort in Abschnitt 3.
+Das Suchfeld ist ein [Input](../app-input/component.md) mit dem Label „Verkäufer" im Feldrahmen, ohne Lupe. Rechts bündig am Feld: Kamera (nur mit `showScanButton`), Nummernblock, Löschen, Übernehmen — wie das Verkauf-Feld. Startmodus Tastatur; erneuter Klick auf Kamera/Nummernblock schaltet zurück auf Tastatur.
 
 | Modus | Besonderheit in der Verkäufersuche |
 |---|---|
@@ -127,7 +126,7 @@ Bei nicht gesetztem `showScanButton` sind nur zwei Modi konfiguriert (Tastatur, 
 | `sellers` | `SellerSummary[]` | `@Input` | Vollständige Verkäufer-Liste (Filterung erfolgt in der Komponente) |
 | `hint` | `string` | `@Input` | Hinweistext unterhalb des Suchfelds |
 | `showCreateButton` | `boolean` | `@Input` | Zeigt den „+ Neu anlegen"-Button wenn `true` und 0 Treffer vorhanden (Default: `false`) |
-| `showScanButton` | `boolean` | `@Input` | Steuert, ob der Kamera-Modus im Suchfeld verfügbar ist — siehe [InputGroup](../input-group/component.md) Abschnitt 3 (Default: `false`) |
+| `showScanButton` | `boolean` | `@Input` | Steuert, ob der Kamera-Modus im Suchfeld verfügbar ist — Kamera-Button am Feld (Default: `false`) |
 | `sellerSelected` | `SellerSummary` | `@Output` | Emittiert wenn ein Verkäufer angeklickt, per ENTER bestätigt oder per Scan erkannt wird |
 | `createRequested` | `string` | `@Output` | Emittiert wenn „+ Neu anlegen" geklickt wird; übergibt den aktuellen Suchtext |
 | `searchChanged` | `string` | `@Output` | Emittiert bei jeder Texteingabe (debounced, für optionales Parent-Tracking) |
@@ -217,10 +216,10 @@ Kapselt `@zxing/browser` + `@zxing/library`; MediaStream-Tracks werden beim Deak
 
 ## 7. Layout
 
-- Äußere Card: `max-width: 500px`, zentriert auf der Seite
-- Suchfeld: [InputGroup](../input-group/component.md) (volle Breite)
+- Äußere Card: volle Breite der Seitenfläche (höchstens 75vw, zentriert über [Page](../page/component.md)), bündig mit dem Seitentitel
+- Suchfeld: [Input](../app-input/component.md) (volle Breite, Label „Verkäufer" im Rahmen)
 - Hinweistext: 12.5 px, muted, margin-top 10 px
-- Trefferliste: `p-listbox` ohne Border, direkt unterhalb — kein eigener Card-Rahmen
+- Trefferliste: `p-listbox` ohne Border, 24 px unter dem Hinweistext — kein eigener Card-Rahmen
 - Kamera-View: [Barcode-Scanner](../barcode-scanner/component.md), volle Breite, ersetzt `p-listbox` im Kamera-Modus
 - Numpad: erscheint unterhalb des Suchfelds im Numpad-Modus (siehe [Numpad](../numpad/component.md))
 - Anlegen-Button: margin-top 12 px, volle Breite
@@ -230,11 +229,11 @@ Kapselt `@zxing/browser` + `@zxing/library`; MediaStream-Tracks werden beim Deak
 ## 8. PrimeNG-Basis
 
 ```
-p-card              ← Außenrahmen (max-width 500 px)
+p-card              ← Außenrahmen (volle Breite)
 
-app-input-group     ← Suchfeld inkl. Eingabemodi
-                    ← → siehe: docs/components/input-group/component.md
-  [modes]="showScanButton ? ['keyboard','camera','numpad'] : ['keyboard','numpad']"
+app-input           ← Suchfeld, label="Verkäufer", Addons aus field-mode.ts
+  [addonRight]="showScanButton ? [Kamera, Numpad, Löschen, Übernehmen] : [Numpad, Löschen, Übernehmen]"
+app-numpad          ← nur im Numpad-Modus, unter dem Hinweistext
 
 p-listbox           ← Trefferliste (ausgeblendet im Kamera-Modus)
   [options]="filteredSellers"

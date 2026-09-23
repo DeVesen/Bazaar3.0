@@ -1,20 +1,33 @@
 <p-card styleClass="seller-search" (keydown)="onKeydown($event)">
-  <app-input-group
-    #inputGroup
-    [modes]="modes()"
-    [cameraReplacesInput]="false"
-    (valueChange)="onValueChange($event)"
-    (submitted)="onSubmit()"
+  <!-- Enter wird über das Card-(keydown) behandelt, nicht über app-input (enter) — sonst
+       würde ein Enter zweimal ausgewertet. -->
+  <app-input
+    label="Verkäufer"
+    inputId="seller-search-input"
+    [value]="searchText()"
+    [debounceMs]="0"
+    [addonRight]="inputAddons()"
+    (valueChange)="onTyped($event)"
+    (addonClick)="onAddonClick($event)"
   />
 
   <p class="seller-search__hint">{{ hint() }}</p>
 
+  @if (mode.cameraDenied()) {
+    <p class="seller-search__camera-error">Kamerazugriff nicht möglich</p>
+  }
+
+  @if (mode.active() === 'numpad') {
+    <app-numpad
+      class="seller-search__numpad"
+      (keyPressed)="onNumpadKey($event)"
+      (cleared)="onNumpadClear()"
+      (submitted)="onSubmit()"
+    />
+  }
+
   @if (isCameraActive()) {
-    <!-- Camera replaces the RESULT LIST here, not the input field (`[cameraReplacesInput]="false"`
-         above keeps input-group's own `<input>` in place) — seller-search's own override of
-         input-group's general "camera replaces the input field" default, per input-group's doc
-         Abschnitt 3 note about Seller-Search. This is seller-search's OWN `app-barcode-scanner`
-         instance, not input-group's (which renders none while `cameraReplacesInput=false`). -->
+    <!-- Kamera ersetzt die TREFFERLISTE, nicht das Suchfeld (component.md Abschnitt 6). -->
     <app-barcode-scanner
       class="seller-search__camera"
       [active]="isCameraActive()"
