@@ -65,7 +65,18 @@ export class SellersStore {
       .subscribe({
         next: (response) => {
           if (sequence !== this.requestSequence) return;
-          this.items.set(response.items);
+          if (response.items.length < response.totalCount) {
+            // Backend deckelt eine Seite auf `SellerCardsQuery.MaxPageSize = 200`
+            // (Bazaar.Infrastructure/Persistence/Repositories/SellerCardsQuery.cs). Eine Anfrage
+            // über 200 hinaus liefert also weniger Items als angefordert zurück — nur volle
+            // `pageSize`-Seiten behalten, sonst würden die fehlenden Karten beim nächsten
+            // `loadMore()` klaffend übersprungen (die nächste Seite fängt hinter dem Cap an).
+            const fullPages = Math.max(1, Math.floor(response.items.length / this.pageSize()));
+            this.items.set(response.items.slice(0, fullPages * this.pageSize()));
+            this.page.set(fullPages);
+          } else {
+            this.items.set(response.items);
+          }
           this.totalCount.set(response.totalCount);
           this.loading.set(false);
         },

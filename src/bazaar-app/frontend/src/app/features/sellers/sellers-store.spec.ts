@@ -96,6 +96,52 @@ describe('SellersStore', () => {
     });
   });
 
+  describe('load (backend page-size cap)', () => {
+    const card = (id: string) => ({ id }) as unknown as SellerCard;
+
+    it('truncates to full pages when the backend caps the response below the requested pageSize', () => {
+      const items = Array.from({ length: 200 }, (_, i) => card(`c${i}`));
+      getCards.mockReturnValueOnce(
+        of({ items, totalCount: 500, page: 1, pageSize: 240 }),
+      );
+      const store = createStore();
+      store.page.set(4);
+
+      store.load();
+
+      expect(getCards).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 1, pageSize: 240 }),
+      );
+      expect(store.items().length).toBe(180);
+      expect(store.page()).toBe(3);
+      expect(store.hasMore()).toBe(true);
+
+      getCards.mockReturnValueOnce(
+        of({ items: [card('next')], totalCount: 500, page: 4, pageSize: 60 }),
+      );
+      store.loadMore();
+
+      expect(getCards).toHaveBeenLastCalledWith(
+        expect.objectContaining({ page: 4, pageSize: 60 }),
+      );
+    });
+
+    it('keeps everything as returned when the backend delivers the full response', () => {
+      const items = Array.from({ length: 190 }, (_, i) => card(`c${i}`));
+      getCards.mockReturnValueOnce(
+        of({ items, totalCount: 190, page: 1, pageSize: 240 }),
+      );
+      const store = createStore();
+      store.page.set(4);
+
+      store.load();
+
+      expect(store.items().length).toBe(190);
+      expect(store.page()).toBe(4);
+      expect(store.hasMore()).toBe(false);
+    });
+  });
+
   describe('setFilters', () => {
     it('merges filters, resets page to 1 and triggers reload', () => {
       getCards.mockReturnValue(of({ items: [], totalCount: 0, page: 1, pageSize: 60 }));
