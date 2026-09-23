@@ -7,6 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { MessageService } from 'primeng/api';
 import { KpiGrid } from '../../../../shared/components/kpi-tile/kpi-grid';
 import { KpiTile } from '../../../../shared/components/kpi-tile/kpi-tile';
+import { Page } from '../../../../shared/components/page/page';
 import { Leaderboard } from '../../components/leaderboard/leaderboard';
 // Cross-feature import, read-only: `SellerTypesApi.getAll()` loads the type list for the
 // leaderboard's type-filter dropdown — same sanctioned pattern `settlement-page.ts` already
@@ -30,7 +31,7 @@ interface TypeFilterOption {
  */
 @Component({
   selector: 'app-statistics-page',
-  imports: [CurrencyPipe, FormsModule, CardModule, MeterGroupModule, SelectModule, KpiGrid, KpiTile, Leaderboard],
+  imports: [CurrencyPipe, FormsModule, CardModule, MeterGroupModule, SelectModule, KpiGrid, KpiTile, Leaderboard, Page],
   templateUrl: './statistics-page.html',
   styleUrl: './statistics-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

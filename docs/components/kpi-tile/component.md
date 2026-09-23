@@ -127,11 +127,14 @@ Der KPI-Grid-Wrapper ist ein reines Layout-Element (`display: grid; grid-templat
 
 ### Responsive
 
-| Viewport | Verhalten |
+Das Grid bricht nach **seiner eigenen Breite** um (CSS-Container-Query), nicht nach der
+Fensterbreite — so bleiben die Kacheln auch in der 75vw-Fläche neben der Sidebar lesbar.
+
+| Grid-Breite | Verhalten |
 |---|---|
-| Desktop (≥ 1024 px) | Konfigurierte Spaltenanzahl |
-| Tablet (768–1023 px) | Max. 3 Spalten |
-| Mobil (< 768 px) | 2 Spalten |
+| ≥ 900 px | Konfigurierte Spaltenanzahl |
+| 444–899 px | Max. 3 Spalten |
+| < 444 px | 2 Spalten |
 
 ### Grid-Klassen
 
@@ -173,7 +176,7 @@ Kein weiteres PrimeNG-Element — Layout und Typografie per CSS.
 2. **AC-2** — WHEN `value` übergeben wird, THEN SHALL das System den Wert in 28 px und `font-weight: 800` anzeigen; ist `subLabel` gesetzt, erscheint dieser in 12 px muted darunter.
 3. **AC-3** — WHERE `severity` auf `'success'`, `'warning'`, `'danger'` oder `'info'` gesetzt ist, SHALL das System einen 3 px breiten Streifen in der entsprechenden Severity-Farbe am oberen Rand der Kachel rendern.
 4. **AC-4** — WHEN `value` nicht übergeben wird oder `null` ist, THEN SHALL das System „—" an Stelle der Zahl anzeigen.
-5. **AC-5** — WHEN der Viewport weniger als 768 px breit ist, THEN SHALL das System das Grid auf 2 Spalten reduzieren, unabhängig von der konfigurierten Spaltenanzahl.
+5. **AC-5** — WHEN das Grid schmaler als 900 px ist, THEN SHALL das System höchstens 3 Spalten anzeigen; WHEN es schmaler als 444 px ist, THEN SHALL das System 2 Spalten anzeigen, jeweils unabhängig von der konfigurierten Spaltenanzahl.
 
 ## Tags & Piles
 

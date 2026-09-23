@@ -102,6 +102,14 @@ describe('StatisticsPage', () => {
     expect(sellerTypesApi.getAll).toHaveBeenCalledTimes(1);
   });
 
+  it('renders "Statistik" as page title above the KPI sections', async () => {
+    const { fixture } = await setup();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Statistik');
+    expect(el.querySelector('app-page .page__content .statistics-page')).not.toBeNull();
+  });
+
   it('renders KPI values from the stubbed response', async () => {
     const { component } = await setup();
 

@@ -1,5 +1,9 @@
+// Container statt Viewport: die Kacheln brechen nach der tatsächlich verfügbaren Breite um
+// (75vw-Fläche neben der Sidebar), damit sie nie gequetscht werden
+// (docs/spec/2026-09-23-layout-vereinheitlichung.md Teil 1 "Statistik").
 :host {
   display: block;
+  container-type: inline-size;
 }
 
 .kpi-grid {
@@ -23,16 +27,15 @@
   grid-template-columns: repeat(6, 1fr);
 }
 
-// AC-5: below 1024px the configured column count no longer applies — these overrides target
-// the base `.kpi-grid` selector so they come after (and win the cascade over) the `--cN`
-// modifier rules above, regardless of which modifier class is present.
-@media (max-width: 1023px) {
+// ≈140px Mindestbreite je Kachel + 12px Gap: 6 Kacheln brauchen 900px, 3 Kacheln 444px.
+// Zielt auf `.kpi-grid` ohne Modifier, damit es nach den `--cN`-Regeln kommt und gewinnt.
+@container (max-width: 899px) {
   .kpi-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (max-width: 767px) {
+@container (max-width: 443px) {
   .kpi-grid {
     grid-template-columns: repeat(2, 1fr);
   }
