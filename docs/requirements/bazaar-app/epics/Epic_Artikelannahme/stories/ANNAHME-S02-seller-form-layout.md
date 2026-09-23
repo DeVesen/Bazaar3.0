@@ -55,8 +55,7 @@ Typ-Wechsel, Aktivierungslogik des „Weiter"-Buttons, DB-Anlage bei „Weiter".
 Padding 15 px 16 px · Abstand 12 px.
 Panel-Titel: 11 px · 700 · uppercase · 0.8 px letter-spacing · `#4a6080` · mb 12 px.
 
-**Form-Grid:** 6er-Raster (50 % = 3, 33 % = 2, 67 % = 4 Spalten), gap 12 px; bis 767 px ein Feld pro Zeile. Labels im Feldrahmen (`app-input` / `p-iftalabel`). Pflichtmarker `*` in Danger-Farbe.
-Label: 11.5 px, 700, uppercase, 0.4 px letter-spacing, `--muted`.
+**Form-Grid:** 6er-Raster (50 % = 3, 33 % = 2, 67 % = 4 Spalten), gap 12 px; bis 767 px ein Feld pro Zeile. Labels sitzen im Feldrahmen (`app-input` / `p-iftalabel`-Optik, kein eigener uppercase-Labelstil darüber). Pflichtmarker `*` in Danger-Farbe.
 
 ### Felder im Detail
 

@@ -43,7 +43,7 @@ Entry-Page für den Annahme-Prozess. Verkäufer werden gesucht oder neu angelegt
 
 → Komponente: [Seller-Search](../../../../components/seller-search/component.md) — `showCreateButton="true"`
 
-InputGroup in Card, **max-width 500 px**.
+[Input](../../../../components/app-input/component.md) mit Label „Verkäufer" im Feldrahmen, Card in voller Breite der 75vw-Seitenfläche (siehe [Seller-Search](../../../../components/seller-search/component.md)).
 Hinweistext darunter: `ENTER bei 1 Treffer öffnet Wizard · Kein Treffer: Anlegen-Button erscheint` (12.5 px, muted, mt 10 px).
 
 ### Suchfeld-Verhalten
@@ -198,7 +198,7 @@ Ohne diese Abgrenzung erfinden zwei Teams zwei Verfahren für denselben Vorgang.
 
 ## 6. Visual Specs
 
-**Such-Ansicht:** InputGroup in Standard-Card, max-width 500 px.
+**Such-Ansicht:** [Input](../../../../components/app-input/component.md) mit Label „Verkäufer" im Feldrahmen, Card in voller Breite der 75vw-Seitenfläche (siehe [Seller-Search](../../../../components/seller-search/component.md)).
 
 **Wizard-Layout (Schritt 2):**
 - Outer-Grid: `7fr 3fr`, gap 14 px

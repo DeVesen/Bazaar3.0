@@ -42,7 +42,7 @@ Die Abrechnung-Seite verwaltet Rückgabe nicht verkaufter Artikel und die finanz
 
 → Komponente: [Seller-Search](../../../../components/seller-search/component.md) — `showCreateButton="false"`
 
-Identische Suchfeld-Ansicht wie Artikelannahme — InputGroup in Card, max-width 500 px.
+Identische Suchfeld-Ansicht wie Artikelannahme — [Input](../../../../components/app-input/component.md) mit Label „Verkäufer" im Feldrahmen, Card in voller Breite der 75vw-Seitenfläche (siehe [Seller-Search](../../../../components/seller-search/component.md)).
 Hinweistext: „ENTER bei 1 Treffer oder direkt klicken" (12.5 px, muted, mt 8 px).
 
 Die Seite funktioniert als **Wizard**: Selektion ausblenden → Abrechnungs-Ansicht einblenden.

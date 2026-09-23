@@ -64,9 +64,9 @@ Anzahl-Variante:
 
 | Name | Typ | Richtung | Beschreibung |
 |---|---|---|---|
-| `showLeftAddon` | `boolean` | `@Input` | Steuert den Left-Addon-Slot (🔍) der Such-Variante. Bei `false` entfällt der Slot vollständig (kein Element im DOM, nicht nur ausgeblendet) — siehe AC-8. Default: `true`, damit bestehende Verwendungsstellen (z. B. [Seller-Search](../seller-search/component.md)) unverändert bleiben. Ohne Wirkung auf die Preis-Variante, die ohnehin keinen Left-Addon kennt (Abschnitt 5). |
+| `showLeftAddon` | `boolean` | `@Input` | Steuert den Left-Addon-Slot (🔍) der Such-Variante. Bei `false` entfällt der Slot vollständig (kein Element im DOM, nicht nur ausgeblendet) — siehe AC-8. Default: `true`, damit bestehende Verwendungsstellen unverändert bleiben. Ohne Wirkung auf die Preis-Variante, die ohnehin keinen Left-Addon kennt (Abschnitt 5). |
 | `searching` | `boolean` | `@Input` | Ersetzt den Clear-Button durch `p-progressspinner`, solange `true` (Abschnitt 4 „Spinner"). Default: `false`. |
-| `cameraReplacesInput` | `boolean` | `@Input` | Steuert, ob der Kamera-Modus das Eingabefeld selbst ersetzt (Standardfall, Abschnitt 3) oder stattdessen ein anderes Element der Verwendungsstelle (z. B. die Trefferliste im [Seller-Search](../seller-search/component.md)) — dort rendert die Verwendungsstelle dann ihren eigenen Barcode-Scanner und schreibt erkannte Werte über `applyExternalValue()` zurück. Default: `true`. |
+| `cameraReplacesInput` | `boolean` | `@Input` | Steuert, ob der Kamera-Modus das Eingabefeld selbst ersetzt (Standardfall, Abschnitt 3) oder stattdessen ein anderes Element der Verwendungsstelle — dort rendert die Verwendungsstelle dann ihren eigenen Barcode-Scanner und schreibt erkannte Werte über `applyExternalValue()` zurück. Default: `true`. |
 | `applyExternalValue(value)` | `(value: string) => void` | Methode | Öffentlicher Schreibzugriff für eine Verwendungsstelle mit `cameraReplacesInput=false`: setzt den Feldwert und emittiert `valueChange`, wie ein interner Scan-Treffer — lässt aber, anders als der interne Scan-Pfad, den Moduswechsel bewusst der Verwendungsstelle. |
 | `getPreviousMode()` | `() => InputMode` | Methode | Liefert den Modus, der unmittelbar vor dem aktuellen/letzten Wechsel in den Kamera-Modus aktiv war (Abschnitt 3 „zuvor aktiver Modus"). Default `'keyboard'`, solange der Kamera-Modus noch nie aktiviert wurde. |
 
@@ -86,15 +86,14 @@ type InputMode = 'keyboard' | 'camera' | 'numpad';
 | Modus | Verhalten |
 |---|---|
 | `keyboard` | Normales Eingabefeld mit `pAutoFocus`. Ein **USB-Barcode-Scanner** arbeitet per Tastatur-Emulation und tippt in genau dieses Feld — er ist deshalb kein eigener Modus. |
-| `camera` | Live-Kamerabild **an der Position des Eingabefeldes** ([Barcode-Scanner](../barcode-scanner/component.md)), kein Modal und kein Backdrop. Die Modus-Buttons bleiben dadurch bedienbar (Ausprägung je Verwendungsstelle — in [Seller-Search](../seller-search/component.md) ersetzt das Kamerabild stattdessen die **Trefferliste**, weil das Suchfeld den erkannten Wert weiterhin anzeigen muss). |
+| `camera` | Live-Kamerabild **an der Position des Eingabefeldes** ([Barcode-Scanner](../barcode-scanner/component.md)), kein Modal und kein Backdrop. Die Modus-Buttons bleiben dadurch bedienbar (Ausprägung je Verwendungsstelle — bei `cameraReplacesInput=false` ersetzt das Kamerabild stattdessen ein anderes Element der Verwendungsstelle, weil das Eingabefeld den erkannten Wert weiterhin anzeigen muss). |
 | `numpad` | Feld auf `readonly`, damit keine native Tastatur erscheint. [Numpad](../numpad/component.md) unter dem Feld. Dessen `⏎` löst dieselbe Aktion aus wie der ↩-Button; das Parent bindet `submitted` an dieselbe Methode. Ein **USB-Barcode-Scanner** kann hier nicht tippen — er arbeitet per Tastatur-Emulation auf ein fokussierbares `<input>`, und das `readonly`-Feld nimmt keine Eingabe an. Rückweg ist der Tastatur-Modus. |
 
 **Position der Modus-Buttons im Kamera-Modus.** Ersetzt das Kamerabild das Eingabefeld
 selbst (Standardfall), rutschen die Modus-Buttons unter das Bild — dort stehen sie in einer
-eigenen Zeile, wie im [Scan-Dialog](../scan-dialog/component.md). Bleibt das Eingabefeld
-dagegen stehen und ersetzt das Kamerabild nur ein anderes Element (z. B. die Trefferliste
-im [Seller-Search](../seller-search/component.md)), bleiben die Modus-Buttons an ihrer
-gewohnten Position in der `p-inputgroup`.
+eigenen Zeile. Bleibt das Eingabefeld dagegen stehen und ersetzt das Kamerabild nur ein
+anderes Element der Verwendungsstelle (`cameraReplacesInput=false`), bleiben die Modus-Buttons
+an ihrer gewohnten Position in der `p-inputgroup`.
 
 ### Sichtbarkeitsregel der Modus-Buttons
 
@@ -137,9 +136,8 @@ könnte. Das System setzt `active = false` und gibt alle MediaStream-Tracks frei
 **Kamera nicht verfügbar oder Zugriff verweigert.** In diesem Fall SHALL das System in den
 Tastatur-Modus zurückkehren und eine rote InfoArea mit dem Text „Kamerazugriff nicht möglich"
 anzeigen. Diese Formulierung ist die einzige Quelle für diesen Fehlerfall — alle
-Verwendungsstellen ([Scan-Dialog](../scan-dialog/component.md),
-[Seller-Search](../seller-search/component.md) u. a.) verweisen hierher, statt die Regel
-eigenständig zu formulieren.
+Verwendungsstellen mit Kamera-Modus verweisen hierher, statt die Regel eigenständig zu
+formulieren.
 
 ---
 

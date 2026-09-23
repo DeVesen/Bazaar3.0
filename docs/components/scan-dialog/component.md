@@ -47,7 +47,7 @@ zentriert (globale Klasse `dialog-responsive`), max. Höhe 90vh.
 | Modus | Besonderheit im Scan-Dialog |
 |---|---|
 | Tastatur | AutoComplete-Liste der ausstehenden Artikel unter dem Feld |
-| Kamera | Kamerabild ersetzt Feld **und** Liste; Dauerscan mit Feedback-Overlay (Abschnitt 4) |
+| Kamera | Kamerabild ersetzt die Liste; Dauerscan mit Feedback-Overlay (Abschnitt 4). Das Feld selbst bleibt stehen |
 | Numpad | AutoComplete-Liste bleibt sichtbar; `⏎` bestätigt die getippte Nummer |
 
 ---
