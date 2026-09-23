@@ -1,80 +1,74 @@
 <p-dialog
+  styleClass="dialog-responsive"
   [visible]="visible()"
   (visibleChange)="visibleChange.emit($event)"
   [modal]="true"
   [header]="dialogTitle()"
-  [style]="{ width: '32rem' }"
 >
   <div class="verkaeufer-dialog">
     <section class="verkaeufer-dialog__panel">
       <h3 class="verkaeufer-dialog__panel-title">Personendaten</h3>
+      <div class="verkaeufer-dialog__grid">
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--half">
+          <app-input
+            label="Vorname"
+            inputId="verkaeufer-dialog-first-name"
+            name="firstName"
+            [required]="true"
+            [debounceMs]="0"
+            [value]="firstName()"
+            (valueChange)="firstName.set($event)"
+          />
+          @if (serverErrors()?.firstName) {
+            <small class="verkaeufer-dialog__error">{{ serverErrors()?.firstName }}</small>
+          }
+        </div>
 
-      <div class="verkaeufer-dialog__field">
-        <label for="verkaeufer-dialog-first-name">Vorname</label>
-        <input
-          id="verkaeufer-dialog-first-name"
-          pInputText
-          [ngModel]="firstName()"
-          (ngModelChange)="firstName.set($event)"
-          name="firstName"
-          type="text"
-          required
-        />
-        @if (serverErrors()?.firstName) {
-          <small class="verkaeufer-dialog__error">{{ serverErrors()?.firstName }}</small>
-        }
-      </div>
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--half">
+          <app-input
+            label="Nachname"
+            inputId="verkaeufer-dialog-last-name"
+            name="lastName"
+            [required]="true"
+            [debounceMs]="0"
+            [value]="lastName()"
+            (valueChange)="lastName.set($event)"
+          />
+          @if (serverErrors()?.lastName) {
+            <small class="verkaeufer-dialog__error">{{ serverErrors()?.lastName }}</small>
+          }
+        </div>
 
-      <div class="verkaeufer-dialog__field">
-        <label for="verkaeufer-dialog-last-name">Nachname</label>
-        <input
-          id="verkaeufer-dialog-last-name"
-          pInputText
-          [ngModel]="lastName()"
-          (ngModelChange)="lastName.set($event)"
-          name="lastName"
-          type="text"
-          required
-        />
-        @if (serverErrors()?.lastName) {
-          <small class="verkaeufer-dialog__error">{{ serverErrors()?.lastName }}</small>
-        }
-      </div>
-
-      <div class="verkaeufer-dialog__field">
-        <label for="verkaeufer-dialog-address">Anschrift</label>
-        <input
-          id="verkaeufer-dialog-address"
-          pInputText
-          [ngModel]="address()"
-          (ngModelChange)="address.set($event)"
-          name="address"
-          type="text"
-        />
-      </div>
-
-      <div class="verkaeufer-dialog__row">
-        <div class="verkaeufer-dialog__field">
-          <label for="verkaeufer-dialog-postal-code">PLZ</label>
-          <input
-            id="verkaeufer-dialog-postal-code"
-            pInputText
-            [ngModel]="postalCode()"
-            (ngModelChange)="postalCode.set($event)"
-            name="postalCode"
-            type="text"
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--full">
+          <app-input
+            label="Anschrift"
+            inputId="verkaeufer-dialog-address"
+            name="address"
+            [debounceMs]="0"
+            [value]="address()"
+            (valueChange)="address.set($event)"
           />
         </div>
 
-        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--grow">
-          <label for="verkaeufer-dialog-city">Ort</label>
-          <input
-            id="verkaeufer-dialog-city"
-            pInputText
-            [ngModel]="city()"
-            (ngModelChange)="city.set($event)"
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--third">
+          <app-input
+            label="PLZ"
+            inputId="verkaeufer-dialog-postal-code"
+            name="postalCode"
+            [debounceMs]="0"
+            [value]="postalCode()"
+            (valueChange)="postalCode.set($event)"
+          />
+        </div>
+
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--two-thirds">
+          <app-input
+            label="Ort"
+            inputId="verkaeufer-dialog-city"
             name="city"
-            type="text"
+            [debounceMs]="0"
+            [value]="city()"
+            (valueChange)="city.set($event)"
           />
         </div>
       </div>
@@ -82,87 +76,95 @@
 
     <section class="verkaeufer-dialog__panel">
       <h3 class="verkaeufer-dialog__panel-title">Kontakt</h3>
+      <div class="verkaeufer-dialog__grid">
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--half">
+          <app-input
+            label="Telefon"
+            inputId="verkaeufer-dialog-phone"
+            name="phone"
+            type="tel"
+            [debounceMs]="0"
+            [value]="phone()"
+            (valueChange)="phone.set($event)"
+          />
+        </div>
 
-      <div class="verkaeufer-dialog__field">
-        <label for="verkaeufer-dialog-phone">Telefon</label>
-        <input
-          id="verkaeufer-dialog-phone"
-          pInputText
-          [ngModel]="phone()"
-          (ngModelChange)="phone.set($event)"
-          name="phone"
-          type="text"
-        />
-      </div>
-
-      <div class="verkaeufer-dialog__field">
-        <label for="verkaeufer-dialog-email">E-Mail</label>
-        <input
-          id="verkaeufer-dialog-email"
-          pInputText
-          [ngModel]="email()"
-          (ngModelChange)="email.set($event)"
-          name="email"
-          type="email"
-          required
-        />
-        @if (serverErrors()?.email) {
-          <small class="verkaeufer-dialog__error">{{ serverErrors()?.email }}</small>
-        }
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--half">
+          <app-input
+            label="E-Mail"
+            inputId="verkaeufer-dialog-email"
+            name="email"
+            type="email"
+            [required]="true"
+            [debounceMs]="0"
+            [value]="email()"
+            (valueChange)="email.set($event)"
+          />
+          @if (serverErrors()?.email) {
+            <small class="verkaeufer-dialog__error">{{ serverErrors()?.email }}</small>
+          }
+        </div>
       </div>
     </section>
 
     <section class="verkaeufer-dialog__panel">
       <h3 class="verkaeufer-dialog__panel-title">Konditionen</h3>
-
-      <div class="verkaeufer-dialog__field">
-        <label for="verkaeufer-dialog-seller-type">Verkäufer-Typ</label>
-        <p-select
-          inputId="verkaeufer-dialog-seller-type"
-          [options]="sellerTypesList()"
-          optionLabel="name"
-          optionValue="id"
-          [ngModel]="sellerTypeId()"
-          (ngModelChange)="onTypeChange($event)"
-          name="sellerTypeId"
-        />
-        @if (serverErrors()?.sellerTypeId) {
-          <small class="verkaeufer-dialog__error">{{ serverErrors()?.sellerTypeId }}</small>
-        }
-      </div>
-
-      <div class="verkaeufer-dialog__row">
-        <div class="verkaeufer-dialog__field">
-          <label for="verkaeufer-dialog-fee-per-item">Gebühr/Stück (€)</label>
-          <p-inputnumber
-            inputId="verkaeufer-dialog-fee-per-item"
-            [ngModel]="feePerItem()"
-            (ngModelChange)="feePerItem.set($event)"
-            name="feePerItem"
-            mode="currency"
-            currency="EUR"
-            locale="de-DE"
-            [min]="0"
-            [disabled]="!conditionsEditable()"
-          />
+      <div class="verkaeufer-dialog__grid">
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--third">
+          <p-iftalabel>
+            <p-select
+              inputId="verkaeufer-dialog-seller-type"
+              [options]="sellerTypesList()"
+              optionLabel="name"
+              optionValue="id"
+              [ngModel]="sellerTypeId()"
+              (ngModelChange)="onTypeChange($event)"
+              name="sellerTypeId"
+            />
+            <label for="verkaeufer-dialog-seller-type">
+              Verkäufer-Typ <span class="verkaeufer-dialog__required">*</span>
+            </label>
+          </p-iftalabel>
+          @if (serverErrors()?.sellerTypeId) {
+            <small class="verkaeufer-dialog__error">{{ serverErrors()?.sellerTypeId }}</small>
+          }
         </div>
 
-        <div class="verkaeufer-dialog__field">
-          <label for="verkaeufer-dialog-sales-commission">Provision (%)</label>
-          <p-inputnumber
-            inputId="verkaeufer-dialog-sales-commission"
-            [ngModel]="salesCommission()"
-            (ngModelChange)="salesCommission.set($event)"
-            name="salesCommission"
-            mode="decimal"
-            locale="de-DE"
-            [minFractionDigits]="0"
-            [maxFractionDigits]="2"
-            suffix=" %"
-            [min]="0"
-            [max]="100"
-            [disabled]="!conditionsEditable()"
-          />
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--third">
+          <p-iftalabel>
+            <p-inputnumber
+              inputId="verkaeufer-dialog-fee-per-item"
+              [ngModel]="feePerItem()"
+              (ngModelChange)="feePerItem.set($event)"
+              name="feePerItem"
+              mode="currency"
+              currency="EUR"
+              locale="de-DE"
+              [min]="0"
+              [disabled]="!conditionsEditable()"
+            />
+            <label for="verkaeufer-dialog-fee-per-item">Gebühr/Stück (€)</label>
+          </p-iftalabel>
+        </div>
+
+        <div class="verkaeufer-dialog__field verkaeufer-dialog__field--third">
+          <p-iftalabel>
+            <p-inputnumber
+              inputId="verkaeufer-dialog-sales-commission"
+              [ngModel]="salesCommission()"
+              (ngModelChange)="salesCommission.set($event)"
+              name="salesCommission"
+              mode="decimal"
+              locale="de-DE"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="2"
+              suffix=" %"
+              [min]="0"
+              [max]="100"
+              [disabled]="!conditionsEditable()"
+            />
+            <label for="verkaeufer-dialog-sales-commission">Provision (%)</label>
+          </p-iftalabel>
         </div>
       </div>
     </section>

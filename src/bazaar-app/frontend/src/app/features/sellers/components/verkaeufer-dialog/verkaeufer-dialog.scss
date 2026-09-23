@@ -16,20 +16,47 @@
     color: var(--p-text-muted-color);
   }
 
+  // 6er-Raster: 50 % = 3 Spalten, 33 % = 2, 67 % = 4, 100 % = alle
+  // (docs/spec/2026-09-23-layout-vereinheitlichung.md Teil 3). Bis 767px: jedes Feld 100 %.
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+  }
+
   &__field {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    flex: 1;
+    min-width: 0;
+    grid-column: 1 / -1;
 
-    &--grow {
-      flex: 2;
+    @media (min-width: 768px) {
+      &--half {
+        grid-column: span 3;
+      }
+
+      &--third {
+        grid-column: span 2;
+      }
+
+      &--two-thirds {
+        grid-column: span 4;
+      }
     }
   }
 
-  &__row {
-    display: flex;
-    gap: 1rem;
+  // `p-iftalabel`/`p-select`/`p-inputnumber` rendern außerhalb dieses Encapsulation-Scopes —
+  // volle Zellbreite wie die `app-input`-Felder daneben.
+  &__field ::ng-deep p-iftalabel,
+  &__field ::ng-deep .p-select,
+  &__field ::ng-deep .p-inputnumber {
+    display: block;
+    width: 100%;
+  }
+
+  &__required {
+    color: var(--p-red-500, #ef4444);
   }
 
   &__error {

@@ -36,20 +36,19 @@ eines neuen Verkäufers.
 ## UI-Spezifikation
 
 ```
-┌─ Dialog (80% / max 700px) ──────────────────────┐
+┌─ Dialog (gestuft: 50 % / 80 % / 100 %) ─────────┐
 │  Verkäufer bearbeiten                       [✕]  │
 ├─────────────────────────────────────────────────┤
 │ ┌─ PERSONENDATEN ───────────────────────────┐   │
 │ │ [Vorname *    50%] [Nachname *        50%] │   │
 │ │ [Anschrift                          100%] │   │
-│ │ [PLZ          50%] [Ort               50%] │   │
+│ │ [PLZ      33%] [Ort                   67%] │   │
 │ └───────────────────────────────────────────┘   │
 │ ┌─ KONTAKT ─────────────────────────────────┐   │
 │ │ [Telefon      50%] [E-Mail *          50%] │   │
 │ └───────────────────────────────────────────┘   │
 │ ┌─ KONDITIONEN ─────────────────────────────┐   │
-│ │ [Verkäufer-Typ                      100%] │   │
-│ │ [Gebühr j.St. 50%] [Provision        50%] │   │  ← vorausgefüllt bei Typ-Wechsel (AC-5)
+│ │ [Typ * 33%] [Gebühr j.St. 33%] [Prov. 33%] │   │  ← vorausgefüllt bei Typ-Wechsel (AC-5)
 │ └───────────────────────────────────────────┘   │
 │ ┌─ SONSTIGES ───────────────────────────────┐   │
 │ │ Abgerechnet am: 06.10.2026 14:22          │   │
@@ -60,8 +59,11 @@ eines neuen Verkäufers.
 └─────────────────────────────────────────────────┘
 ```
 
-**Dialog-Größe:** Desktop ≥ 768 px: 80 % Breite / 90 % Höhe. Mobile < 768 px: 100 % / 100 %,
-kein border-radius.
+**Dialog-Größe:** ≥ 1024 px höchstens 50 % Breite, 768–1023 px höchstens 80 %, ≤ 767 px 100 %;
+horizontal zentriert, max. 90 % Höhe, mobil ohne border-radius (Modal-Variante „Gestuft").
+Bis 767 px stehen alle Felder untereinander, jedes 100 % breit. Labels stehen im Feldrahmen
+(`app-input` mit `label`, `p-iftalabel` für Auswahl- und Zahlenfelder); Pflichtfelder tragen
+einen roten `*`.
 
 **Panel-Stil und Form-Grid:** identisch zu ANNAHME-S02.
 

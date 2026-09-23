@@ -37,7 +37,7 @@ Typ-Wechsel, Aktivierungslogik des „Weiter"-Buttons, DB-Anlage bei „Weiter".
 ┌─ PERSONENDATEN ─────────────────────────┐
 │ [Vorname *      50%] [Nachname *    50%] │
 │ [Anschrift                        100%] │
-│ [PLZ            50%] [Ort           50%] │
+│ [PLZ            33%] [Ort           67%] │
 └─────────────────────────────────────────┘
 
 ┌─ KONTAKT ───────────────────────────────┐
@@ -45,8 +45,7 @@ Typ-Wechsel, Aktivierungslogik des „Weiter"-Buttons, DB-Anlage bei „Weiter".
 └─────────────────────────────────────────┘
 
 ┌─ KONDITIONEN ───────────────────────────┐
-│ [Verkäufer-Typ                    100%] │
-│ [Gebühr je Stück 50%] [Provision   50%] │  ← vorausgefüllt bei Typ-Wechsel (AC-6)
+│ [Typ * 33%] [Gebühr je St. 33%] [Prov. 33%] │  ← vorausgefüllt bei Typ-Wechsel (AC-6)
 └─────────────────────────────────────────┘
 
                          [  Weiter →  ]   ← inaktiv bis AC-5
@@ -56,23 +55,23 @@ Typ-Wechsel, Aktivierungslogik des „Weiter"-Buttons, DB-Anlage bei „Weiter".
 Padding 15 px 16 px · Abstand 12 px.
 Panel-Titel: 11 px · 700 · uppercase · 0.8 px letter-spacing · `#4a6080` · mb 12 px.
 
-**Form-Grid:** 2 Spalten, gap 12 px. Pflichtmarker `*` in Danger-Farbe.
+**Form-Grid:** 6er-Raster (50 % = 3, 33 % = 2, 67 % = 4 Spalten), gap 12 px; bis 767 px ein Feld pro Zeile. Labels im Feldrahmen (`app-input` / `p-iftalabel`). Pflichtmarker `*` in Danger-Farbe.
 Label: 11.5 px, 700, uppercase, 0.4 px letter-spacing, `--muted`.
 
 ### Felder im Detail
 
 | Panel | Feld | Entity-Feld | Breite | Pflicht | PrimeNG-Komponente |
 |---|---|---|---|---|---|
-| 01 PERSONENDATEN | Vorname | `firstName` | 50 % | ✅ | `pInputText`, `pAutoFocus` |
-| 01 PERSONENDATEN | Nachname | `lastName` | 50 % | ✅ | `pInputText` |
-| 01 PERSONENDATEN | Anschrift | `address` | 100 % | ❌ | `pInputText` |
-| 01 PERSONENDATEN | PLZ | `postalCode` | 50 % | ❌ | `pInputText` |
-| 01 PERSONENDATEN | Ort | `city` | 50 % | ❌ | `pInputText` |
-| 02 KONTAKT | Telefon | `phone` | 50 % | ❌ | `pInputText` |
-| 02 KONTAKT | E-Mail | `email` | 50 % | ✅ | `pInputText` |
-| 03 KONDITIONEN | Verkäufer-Typ | `sellerTypeId` | 100 % | ✅ | `p-select` (nur bestehende Typen) |
-| 03 KONDITIONEN | Gebühr je Stück | `feePerItem` | 50 % | ❌ | `p-inputnumber` (€, 2 Dez.) |
-| 03 KONDITIONEN | Provision | `salesCommission` | 50 % | ❌ | `p-inputnumber` (%, 2 Dez.) |
+| 01 PERSONENDATEN | Vorname | `firstName` | 50 % | ✅ | `app-input`, Autofokus |
+| 01 PERSONENDATEN | Nachname | `lastName` | 50 % | ✅ | `app-input` |
+| 01 PERSONENDATEN | Anschrift | `address` | 100 % | ❌ | `app-input` |
+| 01 PERSONENDATEN | PLZ | `postalCode` | 33 % | ❌ | `app-input` |
+| 01 PERSONENDATEN | Ort | `city` | 67 % | ❌ | `app-input` |
+| 02 KONTAKT | Telefon | `phone` | 50 % | ❌ | `app-input` |
+| 02 KONTAKT | E-Mail | `email` | 50 % | ✅ | `app-input` |
+| 03 KONDITIONEN | Verkäufer-Typ | `sellerTypeId` | 33 % | ✅ | `p-select` (nur bestehende Typen) |
+| 03 KONDITIONEN | Gebühr je Stück | `feePerItem` | 33 % | ❌ | `p-inputnumber` (€, 2 Dez.) |
+| 03 KONDITIONEN | Provision | `salesCommission` | 33 % | ❌ | `p-inputnumber` (%, 2 Dez.) |
 
 **Pflichtfelder insgesamt:** Vorname, Nachname, E-Mail, Verkäufer-Typ.
 
@@ -86,9 +85,9 @@ sich dieses Formular von dem der Voranmelde-App.
 
 ## Akzeptanzkriterien
 
-- [ ] **AC-1** — THE SYSTEM SHALL die Felder Vorname (50 %), Nachname (50 %), Anschrift (100 %), PLZ (50 %) und Ort (50 %) in Panel 01 (PERSONENDATEN) in einem 2-Spalten-Grid anzeigen.
-- [ ] **AC-2** — THE SYSTEM SHALL die Felder Telefon (50 %) und E-Mail (50 %) in Panel 02 (KONTAKT) in einem 2-Spalten-Grid anzeigen.
-- [ ] **AC-3** — THE SYSTEM SHALL die Felder Verkäufer-Typ (100 %), Gebühr je Stück (50 %) und Provision (50 %) in Panel 03 (KONDITIONEN) anzeigen.
+- [ ] **AC-1** — THE SYSTEM SHALL die Felder Vorname (50 %), Nachname (50 %), Anschrift (100 %), PLZ (33 %) und Ort (67 %) in Panel 01 (PERSONENDATEN) anzeigen.
+- [ ] **AC-2** — THE SYSTEM SHALL die Felder Telefon (50 %) und E-Mail (50 %) in Panel 02 (KONTAKT) anzeigen.
+- [ ] **AC-3** — THE SYSTEM SHALL die Felder Verkäufer-Typ (33 %), Gebühr je Stück (33 %) und Provision (33 %) in einer Zeile in Panel 03 (KONDITIONEN) anzeigen.
 - [ ] **AC-4** — WHEN der Wizard über einen Sucheingabe-Text geöffnet wird, THEN SHALL das System den Text vor dem ersten Leerzeichen als Vorname und den Rest als Nachname vorbelegen.
 - [ ] **AC-5** — WHILE mindestens eines der Pflichtfelder (Vorname, Nachname, E-Mail, Verkäufer-Typ) leer ist, SHALL das System den „Weiter"-Button deaktiviert halten.
 - [ ] **AC-6** — WHEN der Nutzer einen Verkäufer-Typ wählt, THEN SHALL das System `feePerItem` und `salesCommission` mit den Werten (`itemFee`, `commissionRate`) des gewählten Typs vorausfüllen.

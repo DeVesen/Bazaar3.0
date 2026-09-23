@@ -289,4 +289,77 @@ describe('VerkaeuferDialog', () => {
       'E-Mail bereits vergeben.',
     );
   });
+
+  describe('layout (Layout-Vereinheitlichung Teil 3)', () => {
+    async function open(mode: 'create' | 'edit', isAdmin = true) {
+      const { fixture } = await setup({ isAdmin });
+      fixture.componentRef.setInput('visible', true);
+      fixture.componentRef.setInput('mode', mode);
+      if (mode === 'edit') fixture.componentRef.setInput('initialValue', EDIT_SELLER);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      return fixture.nativeElement as HTMLElement;
+    }
+
+    function fieldOf(el: HTMLElement, id: string): Element | null | undefined {
+      return el.querySelector(`#${id}`)?.closest('.verkaeufer-dialog__field');
+    }
+
+    const SPANS: [string, string][] = [
+      ['verkaeufer-dialog-first-name', 'half'],
+      ['verkaeufer-dialog-last-name', 'half'],
+      ['verkaeufer-dialog-address', 'full'],
+      ['verkaeufer-dialog-postal-code', 'third'],
+      ['verkaeufer-dialog-city', 'two-thirds'],
+      ['verkaeufer-dialog-phone', 'half'],
+      ['verkaeufer-dialog-email', 'half'],
+      ['verkaeufer-dialog-seller-type', 'third'],
+      ['verkaeufer-dialog-fee-per-item', 'third'],
+      ['verkaeufer-dialog-sales-commission', 'third'],
+    ];
+
+    it.each(['create', 'edit'] as const)('arranges every field in its documented grid span (%s)', async (mode) => {
+      const el = await open(mode);
+      for (const [id, span] of SPANS) {
+        expect(fieldOf(el, id)?.classList, id).toContain(`verkaeufer-dialog__field--${span}`);
+      }
+    });
+
+    it('keeps the three panel headings', async () => {
+      const el = await open('create');
+      const headings = Array.from(el.querySelectorAll('.verkaeufer-dialog__panel-title')).map((h) => h.textContent?.trim());
+      expect(headings).toEqual(['Personendaten', 'Kontakt', 'Konditionen']);
+    });
+
+    it('shows a red star exactly on Vorname, Nachname, E-Mail and Verkäufer-Typ', async () => {
+      const el = await open('create');
+      const starred = SPANS.map(([id]) => id).filter((id) =>
+        fieldOf(el, id)?.querySelector('.app-input__required, .verkaeufer-dialog__required'),
+      );
+      expect(starred).toEqual([
+        'verkaeufer-dialog-first-name',
+        'verkaeufer-dialog-last-name',
+        'verkaeufer-dialog-email',
+        'verkaeufer-dialog-seller-type',
+      ]);
+    });
+
+    it('puts every label inside the field frame (iftalabel)', async () => {
+      const el = await open('create');
+      for (const [id] of SPANS) {
+        expect(fieldOf(el, id)?.querySelector('p-iftalabel label'), id).not.toBeNull();
+      }
+    });
+
+    it('uses the responsive dialog width class', async () => {
+      const el = await open('create');
+      expect(el.querySelector('p-dialog[styleClass="dialog-responsive"]')).not.toBeNull();
+    });
+
+    it('still locks fee and commission for a non-admin', async () => {
+      const el = await open('edit', false);
+      expect((el.querySelector('#verkaeufer-dialog-fee-per-item') as HTMLInputElement).disabled).toBe(true);
+      expect((el.querySelector('#verkaeufer-dialog-sales-commission') as HTMLInputElement).disabled).toBe(true);
+    });
+  });
 });

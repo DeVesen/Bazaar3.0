@@ -4,10 +4,11 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
+import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { RoleService } from '../../../../core/auth/role.service';
+import { Input } from '../../../../shared/components/input/input';
 // Cross-feature import, read-only: `SellerTypesApi.getAll()` populates the type dropdown.
 // Sanctioned explicitly by plan.md ("hier read-only importiert") — see Round-14 Task 8 brief.
 // eslint-disable-next-line boundaries/dependencies
@@ -54,7 +55,8 @@ export interface SellerDialogServerErrors {
     FormsModule,
     DialogModule,
     ConfirmDialogModule,
-    InputTextModule,
+    IftaLabelModule,
+    Input,
     InputNumberModule,
     SelectModule,
     ButtonModule,
