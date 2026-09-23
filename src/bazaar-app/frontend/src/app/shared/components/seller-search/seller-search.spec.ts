@@ -7,7 +7,9 @@ import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
 // `InputGroup` (a real dependency of `SellerSearch`) itself depends on `BarcodeScanner` — this
 // imports the ONE shared `@zxing/browser` mock (see that file's own comment for why it must be
 // centralized) so camera-mode tests never touch real device APIs (unavailable in jsdom).
-import { decodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
+import { getDecodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
+
+const decodeFromVideoDeviceMock = getDecodeFromVideoDeviceMock();
 
 function seller(overrides: Partial<SellerSummary> = {}): SellerSummary {
   return {

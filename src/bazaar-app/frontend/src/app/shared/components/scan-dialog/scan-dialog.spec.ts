@@ -11,7 +11,9 @@ import { SettingsService } from '../../../core/settings/settings.service';
 // `InputGroup` (a real dependency of `ScanDialog`) itself depends on `BarcodeScanner` — this
 // imports the ONE shared `@zxing/browser` mock (see that file's own comment for why it must be
 // centralized) so camera-mode tests never touch real device APIs (unavailable in jsdom).
-import { decodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
+import { getDecodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
+
+const decodeFromVideoDeviceMock = getDecodeFromVideoDeviceMock();
 
 interface PendingArticleFixture {
   id: string;

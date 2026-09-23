@@ -9,7 +9,9 @@ import { Numpad } from '../numpad/numpad';
 // `@zxing/browser` mock (see that file's own comment for why it must be centralized) so
 // camera-mode tests never touch real device APIs (unavailable in jsdom) while still exercising
 // the actual wiring between the two components.
-import { decodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
+import { getDecodeFromVideoDeviceMock } from '../barcode-scanner/testing/zxing-browser.mock';
+
+const decodeFromVideoDeviceMock = getDecodeFromVideoDeviceMock();
 
 describe('InputGroup', () => {
   beforeEach(async () => {

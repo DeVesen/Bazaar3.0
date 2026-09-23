@@ -1,13 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { BarcodeScanner } from './barcode-scanner';
-// Shared `@zxing/browser` mock (see that file for why this must be centralized rather than
-// each spec declaring its own `vi.mock('@zxing/browser', ...)`): Angular's vitest unit-test
-// builder runs spec files in a non-isolated environment, so `barcode-scanner.ts` is evaluated
-// only once per worker. Registration is now unconditional (Round-25 review fix: the mock file is
-// also a global Vitest `setupFiles` entry in `angular.json`), so this import is only for the
-// `decodeFromVideoDeviceMock` binding this file asserts on, not for winning any registration race.
-import { decodeFromVideoDeviceMock } from './testing/zxing-browser.mock';
+// Shared `@zxing/browser` mock, registered globally via a Vitest `setupFiles` entry in
+// `angular.json` (see that file's own comment for the full history and why the mock fn must be
+// reached through `getDecodeFromVideoDeviceMock()` rather than a plain named export).
+import { getDecodeFromVideoDeviceMock } from './testing/zxing-browser.mock';
+
+const decodeFromVideoDeviceMock = getDecodeFromVideoDeviceMock();
 
 describe('BarcodeScanner', () => {
   beforeEach(async () => {

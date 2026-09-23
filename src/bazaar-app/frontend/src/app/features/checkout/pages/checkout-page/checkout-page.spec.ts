@@ -10,29 +10,12 @@ import { BarcodeScanner } from '../../../../shared/components/barcode-scanner/ba
 // `BarcodeScanner` is now a direct dependency (Task 1) — importing the ONE shared mock (see that
 // file's own comment for why it must be centralized) so this test never touches real device
 // camera APIs (unavailable in jsdom).
-import { decodeFromVideoDeviceMock } from '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
+import { getDecodeFromVideoDeviceMock } from '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { PaymentConfirmedEvent } from '../../../../shared/components/payment-panel/payment-panel';
 import { SalesApi } from '../../data/sales-api';
 import { CheckoutPage } from './checkout-page';
 
-// Redundant, but safe, local re-registration of the SAME shared `@zxing/browser` mock (reusing
-// the imported `decodeFromVideoDeviceMock` above, not a second/competing mock): this is the only
-// spec file directly exercising `BarcodeScanner` that can run as the sole spec file in its own
-// Vitest worker (this task's own scoped test run — `test_angular_project` scoped to just this
-// file). In that case there is no earlier spec file's import graph to "warm up" the global
-// Vitest `setupFiles` registration (see zxing-browser.mock.ts's own extensive comment on this
-// module-resolution race) before `BarcodeScanner`'s own static `@zxing/browser` import resolves.
-// `vi.mock()` calls are hoisted by Vitest above every import in THIS file (including the
-// `decodeFromVideoDeviceMock` import above and the `BarcodeScanner` import below), which
-// guarantees this file's own module graph always sees the mocked module, regardless of
-// setupFiles timing.
-vi.mock('@zxing/browser', () => ({
-  BrowserMultiFormatReader: vi.fn().mockImplementation(function (this: {
-    decodeFromVideoDevice: typeof decodeFromVideoDeviceMock;
-  }) {
-    this.decodeFromVideoDevice = decodeFromVideoDeviceMock;
-  }),
-}));
+const decodeFromVideoDeviceMock = getDecodeFromVideoDeviceMock();
 
 function articleByNumberStub(overrides: Partial<ArticleByNumberResult> = {}): ArticleByNumberResult {
   return {
