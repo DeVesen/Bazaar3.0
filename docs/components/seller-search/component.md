@@ -129,7 +129,7 @@ Bei nicht gesetztem `showScanButton` sind nur zwei Modi konfiguriert (Tastatur, 
 | `showScanButton` | `boolean` | `@Input` | Steuert, ob der Kamera-Modus im Suchfeld verfügbar ist — Kamera-Button am Feld (Default: `false`) |
 | `sellerSelected` | `SellerSummary` | `@Output` | Emittiert wenn ein Verkäufer angeklickt, per ENTER bestätigt oder per Scan erkannt wird |
 | `createRequested` | `string` | `@Output` | Emittiert wenn „+ Neu anlegen" geklickt wird; übergibt den aktuellen Suchtext |
-| `searchChanged` | `string` | `@Output` | Emittiert bei jeder Texteingabe (debounced, für optionales Parent-Tracking) |
+| `searchChanged` | `string` | `@Output` | Feuert sofort bei jeder Änderung des Feldwerts (Tippen, Nummernblock, Scan, Löschen) — ohne Debounce, für optionales Parent-Tracking |
 
 ### SellerSummary-Typ
 
