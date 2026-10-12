@@ -45,3 +45,19 @@ Messung im Dev-Server des Worktrees, abgerechneter Verkäufer mit langem Namen u
 
 - AC-16: erfüllt. AC-08: erfüllt.
 - AC-05: bei langem Inhalt verletzt (Mitte nicht mittig, ab Umbruchpunkt aufwärts). Bei kurzem Inhalt exakt mittig. Ursache: Mitte belegt volle Textbreite, „Ende" (3 Buttons) braucht mehr als die Hälfte des Rests, „Start" bekommt nur den Rest. Behebung per Followup (siehe unten).
+
+## Fix AC-05 und Nachmessung 2026-10-13
+Commit 5dd318c1: `.settlement-page__bar-start` und `__bar-end` mit gleicher Untergrenze `min-width: 18.5rem` (Container-Query < 52 rem setzt `min-width: 0`), Tag mit `max-width: 100%` und `white-space: normal`. Re-Review: alle behoben, keine neuen 🔴.
+
+Nachmessung im Browser, gleiche Bedingungen (langer Name/Adresse, abgerechnet):
+
+| Container | Layout | Versatz Mitte | Horizontaler Scroll | Tag überlappt | Tag-Zeilen |
+|---|---|---|---|---|---|
+| 40 rem | umgebrochen | 0 | nein | nein | 1 |
+| 51,8 rem | umgebrochen | 0 | nein | nein | 1 |
+| 53,4 rem | eine Zeile | 0 | nein | nein | 2 (Umbruch) |
+| 54,8 rem | eine Zeile | 0 | nein | nein | 1 |
+| 57,8 rem | eine Zeile | 0 | nein | nein | 1 |
+| 70 rem | eine Zeile | 0 | nein | nein | 1 |
+
+AC-05, AC-08, AC-16 damit im Browser belegt. Start und Ende gleich breit (296 px).
