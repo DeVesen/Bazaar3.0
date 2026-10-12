@@ -219,7 +219,8 @@ describe('SellersPage', () => {
       const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
       expect(text).toContain('Noch keine Verkäufer.');
       expect(text).toContain('Einstellungen → Import');
-      expect(text).toContain('+ Neu');
+      expect(text).toContain('+-Button');
+      expect(text).not.toContain('+ Neu');
       expect(text).not.toContain('Keine Verkäufer für die gewählten Filter.');
     });
 
