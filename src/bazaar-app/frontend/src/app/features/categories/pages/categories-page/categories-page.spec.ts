@@ -1,7 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { By } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
+import { Select } from 'primeng/select';
+import { Tooltip } from 'primeng/tooltip';
 import { of, throwError } from 'rxjs';
 import { CategoriesPage } from './categories-page';
 import { CategoriesStore } from '../../categories-store';
@@ -388,30 +391,219 @@ describe('CategoriesPage', () => {
   });
 
   describe('page header', () => {
-    it('shows "Kategorien" as page title and "+ Neu" in the header, with no table title', () => {
+    it('pageHeader_adminOpensPage_showsTitleButNoNewButtonInTitleRow', () => {
+      // Arrange
       isAdminSignal.set(true);
+
+      // Act
       const { fixture } = createPage();
       const el: HTMLElement = fixture.nativeElement;
 
+      // Assert
       expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Kategorien');
-      expect(el.querySelector('.page__actions p-button[label="+ Neu"]')).not.toBeNull();
+      expect(el.querySelector('.page__actions p-button')).toBeNull();
+      expect(el.querySelector('.page__actions')?.textContent?.trim()).toBe('');
       expect(el.querySelector('.app-table__toolbar')).toBeNull();
     });
+  });
 
-    it('hides "+ Neu" for non-admins', () => {
-      isAdminSignal.set(false);
+  describe('filter toolbar', () => {
+    function toolbarOf(fixture: ReturnType<typeof createPage>['fixture']): HTMLElement {
+      return fixture.nativeElement.querySelector('p-toolbar') as HTMLElement;
+    }
+
+    it('toolbar_pageOpened_isSingleToolbarAboveTheTable', () => {
+      // Arrange / Act
       const { fixture } = createPage();
-      expect(fixture.nativeElement.querySelector('.page__actions p-button')).toBeNull();
+      const el: HTMLElement = fixture.nativeElement;
+      const toolbar = toolbarOf(fixture);
+      const table = el.querySelector('app-table') as HTMLElement;
+
+      // Assert
+      expect(el.querySelectorAll('p-toolbar').length).toBe(1);
+      expect(toolbar.querySelector('p-select')).not.toBeNull();
+      expect(toolbar.querySelector('input[type="text"]')).not.toBeNull();
+      expect(toolbar.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 
-    it('opens the create popup from the header "+ Neu" button', () => {
+    it('toolbar_adminOpensPage_hasExactlyOneIconOnlyPlusButtonAtLeftEdge', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const toolbar = toolbarOf(fixture);
+      const buttons = toolbar.querySelectorAll('p-button');
+
+      // Assert
+      expect(buttons.length).toBe(1);
+      expect(toolbar.firstElementChild?.tagName.toLowerCase()).toBe('p-button');
+      expect(buttons[0].querySelector('.pi-plus')).not.toBeNull();
+      expect(buttons[0].textContent?.trim()).toBe('');
+    });
+
+    it('toolbar_adminOpensPage_plusButtonHasNewCategoryTooltipAndAriaLabel', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const tooltip = fixture.debugElement
+        .query(By.directive(Tooltip))
+        .injector.get(Tooltip);
+
+      // Assert
+      expect(tooltip.content()).toBe('Neue Kategorie');
+      expect(
+        toolbarOf(fixture).querySelector('p-button button')?.getAttribute('aria-label'),
+      ).toBe('Neue Kategorie');
+    });
+
+    it('toolbar_adminClicksPlusButton_opensCreatePopup', () => {
+      // Arrange
       isAdminSignal.set(true);
       const { fixture, component } = createPage();
 
-      (fixture.nativeElement.querySelector('.page__actions p-button button') as HTMLButtonElement).click();
+      // Act
+      (toolbarOf(fixture).querySelector('p-button button') as HTMLButtonElement).click();
       fixture.detectChanges();
 
+      // Assert
       expect(component.popupVisible()).toBe(true);
+      expect(component.popupMode()).toBe('create');
+    });
+
+    it('toolbar_nonAdminOpensPage_hasNoCreateButtonAndSearchStartsAtLeftEdge', () => {
+      // Arrange
+      isAdminSignal.set(false);
+
+      // Act
+      const { fixture } = createPage();
+      const el: HTMLElement = fixture.nativeElement;
+      const toolbar = toolbarOf(fixture);
+
+      // Assert
+      expect(toolbar.querySelector('p-button')).toBeNull();
+      expect(el.querySelector('.page__actions p-button')).toBeNull();
+      expect(toolbar.firstElementChild?.tagName.toLowerCase()).toBe('p-iconfield');
+    });
+
+    it('toolbar_pageOpened_searchFieldShowsPlaceholder', () => {
+      // Arrange / Act
+      const { fixture } = createPage();
+      const input = toolbarOf(fixture).querySelector('input[type="text"]') as HTMLInputElement;
+
+      // Assert
+      expect(input.getAttribute('placeholder')).toBe('Suche nach Name …');
+    });
+
+    it('toolbar_pageOpened_selectIsLastItemWithAllPlaceholderClearIconAndOriginalName', () => {
+      // Arrange / Act
+      const { fixture } = createPage();
+      const toolbar = toolbarOf(fixture);
+      const select = fixture.debugElement.query(By.directive(Select)).componentInstance as Select;
+
+      // Assert
+      expect(toolbar.querySelectorAll('p-select').length).toBe(1);
+      expect(toolbar.lastElementChild?.tagName.toLowerCase()).toBe('p-select');
+      expect(select.placeholder()).toBe('Alle');
+      expect(select.showClear()).toBe(true);
+      expect(toolbar.querySelector('p-select [aria-label="Original"]')).not.toBeNull();
+    });
+
+    it('toolbar_pageOpened_hasNoVisibleLabels', () => {
+      // Arrange / Act
+      const { fixture } = createPage();
+
+      // Assert
+      expect(toolbarOf(fixture).querySelector('label')).toBeNull();
+    });
+
+    it('toolbar_pageOpened_selectOffersOriginalAndNewValues', () => {
+      // Arrange / Act
+      const { fixture, component } = createPage();
+      const select = fixture.debugElement.query(By.directive(Select)).componentInstance as Select;
+
+      // Assert
+      expect(component.originalOptions.map((option) => option.label)).toEqual(['✓ Original', 'Neu']);
+      expect(select.options()).toEqual(component.originalOptions);
+    });
+
+    it('toolbar_userTypesIntoSearchField_filtersRowsImmediately', () => {
+      // Arrange
+      categoriesSignal.set([
+        category({ id: 'c1', name: 'Hosen' }),
+        category({ id: 'c2', name: 'Jacken' }),
+      ]);
+      const { fixture, component } = createPage();
+      const input = toolbarOf(fixture).querySelector('input[type="text"]') as HTMLInputElement;
+
+      // Act
+      input.value = 'HO';
+      input.dispatchEvent(new Event('input'));
+
+      // Assert
+      expect(component.searchTerm()).toBe('HO');
+      expect(component.rows().map((row) => row.name)).toEqual(['Hosen']);
+    });
+
+    it('toolbar_activeFilter_showsNoFilterChips', () => {
+      // Arrange
+      const { fixture, component } = createPage();
+
+      // Act
+      component.onSearchChange('Spiel');
+      component.onOriginalFilterChange('new');
+      fixture.detectChanges();
+
+      // Assert
+      expect(fixture.nativeElement.querySelector('p-chip')).toBeNull();
+    });
+
+    it('toolbar_pageOpened_searchFieldGrowsIntoRemainingSpace', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const search = toolbarOf(fixture).querySelector('p-iconfield') as HTMLElement;
+      const style = getComputedStyle(search);
+
+      // Assert
+      expect(search.classList.contains('categories-page__search')).toBe(true);
+      expect(style.flexGrow).toBe('1');
+      expect(style.flexShrink).toBe('1');
+    });
+
+    it('toolbar_pageOpened_selectKeepsMinWidth150AndDoesNotShrink', () => {
+      // Arrange / Act
+      const { fixture } = createPage();
+      const select = toolbarOf(fixture).querySelector('p-select') as HTMLElement;
+      const style = getComputedStyle(select);
+
+      // Assert
+      expect(select.classList.contains('categories-page__original')).toBe(true);
+      expect(style.minWidth).toBe('150px');
+      expect(style.flexGrow).toBe('0');
+      expect(style.flexShrink).toBe('0');
+    });
+
+    it('toolbar_narrowWindow_wrapsOntoFurtherLinesWithoutHorizontalOverflow', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const toolbar = toolbarOf(fixture);
+      const toolbarStyle = getComputedStyle(toolbar);
+      const selectStyle = getComputedStyle(toolbar.querySelector('p-select') as HTMLElement);
+
+      // Assert
+      expect(toolbar.classList.contains('categories-page__toolbar')).toBe(true);
+      expect(toolbarStyle.display).toBe('flex');
+      expect(toolbarStyle.flexWrap).toBe('wrap');
+      expect(toolbarStyle.maxWidth).toBe('100%');
+      expect(selectStyle.maxWidth).toBe('100%');
     });
   });
 });

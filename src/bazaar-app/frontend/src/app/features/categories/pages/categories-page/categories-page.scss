@@ -1,0 +1,42 @@
+.categories-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+
+  // `p-toolbar` bringt Rahmen und Innenabstand mit. Umbruch ausdrücklich hier gesetzt:
+  // bei schmalem Fenster brechen die Elemente auf weitere Zeilen um, die Leiste wird
+  // nie breiter als die Seite, also keine waagerechte Bildlaufleiste (AC-18).
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  // Füllt den Platz zwischen Anlegen-Button (bzw. linkem Rand) und Auswahlfeld (AC-06);
+  // 16rem ist die Umbruchschwelle, `min-width: 0` lässt das Feld unter seine Inhaltsbreite schrumpfen.
+  &__search {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 16rem;
+    min-width: 0;
+  }
+
+  // Mindestbreite 150 px; das Label kürzt nicht, sondern vergrößert das Feld (AC-07).
+  // `max-width: 100%` hält das Feld auf eigener Zeile innerhalb der Leiste (AC-18).
+  // `.p-select-label` ist ein Innenelement von PrimeNG, daher `::ng-deep`.
+  &__original {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    min-width: 150px;
+    max-width: 100%;
+
+    ::ng-deep .p-select-label {
+      width: auto;
+      overflow: visible;
+      text-overflow: clip;
+    }
+  }
+}

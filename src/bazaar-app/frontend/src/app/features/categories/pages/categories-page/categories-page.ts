@@ -1,7 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
 import { Page } from '../../../../shared/components/page/page';
 import { RoleService } from '../../../../core/auth/role.service';
 import {
@@ -35,8 +42,21 @@ interface ProblemDetailsBody {
 
 @Component({
   selector: 'app-categories-page',
-  imports: [Table, MasterDataPopup, Page, ButtonModule],
+  imports: [
+    FormsModule,
+    Table,
+    MasterDataPopup,
+    Page,
+    ButtonModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    SelectModule,
+    ToolbarModule,
+    TooltipModule,
+  ],
   templateUrl: './categories-page.html',
+  styleUrl: './categories-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoriesPage {
