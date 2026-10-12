@@ -4,6 +4,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { SellerSearch, SellerSummary } from '../../../../shared/components/seller-search/seller-search';
 import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialog';
@@ -52,6 +54,8 @@ const ARTICLE_STATUS_LABELS: Record<string, string> = {
     ButtonModule,
     TableModule,
     TagModule,
+    ToolbarModule,
+    TooltipModule,
     SellerSearch,
     ScanDialog,
     KpiGrid,

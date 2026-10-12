@@ -1,9 +1,10 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { MessageService } from 'primeng/api';
+import { Tooltip } from 'primeng/tooltip';
 import { SettlementPage } from './settlement-page';
 import { SellerSearch, SellerSummary } from '../../../../shared/components/seller-search/seller-search';
 import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialog';
@@ -169,7 +170,7 @@ describe('SettlementPage', () => {
     expect(el.querySelector('app-page .page__content app-seller-search')).not.toBeNull();
   });
 
-  it('keeps "Abrechnung" above the seller header after a seller is selected', async () => {
+  it('keeps "Abrechnung" above the action bar after a seller is selected', async () => {
     const { fixture, component } = await setup();
     selectSeller(component);
     fixture.detectChanges();
@@ -177,7 +178,7 @@ describe('SettlementPage', () => {
     const el: HTMLElement = fixture.nativeElement;
 
     expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Abrechnung');
-    expect(el.querySelector('app-page .page__content .settlement-page__header')).not.toBeNull();
+    expect(el.querySelector('app-page .page__content .settlement-page__actionbar')).not.toBeNull();
   });
 
   it('starts in the "selection" state and renders app-seller-search (AC-1)', async () => {
@@ -226,6 +227,205 @@ describe('SettlementPage', () => {
     selectSeller(component);
 
     expect(component.articles().map((a) => a.number)).toEqual([5, 17, 30]);
+  });
+
+  describe('action bar', () => {
+    async function renderActionBar(
+      settlementOverrides: Partial<SellerSettlement> = {},
+    ): Promise<{
+      fixture: ComponentFixture<SettlementPage>;
+      component: SettlementPage;
+      el: HTMLElement;
+      bar: HTMLElement;
+      start: HTMLElement;
+      center: HTMLElement;
+      end: HTMLElement;
+      backButton: HTMLButtonElement;
+    }> {
+      const settlementApi = settlementApiStub();
+      settlementApi.getSettlement.mockReturnValue(of(settlement(settlementOverrides)));
+      const { fixture, component } = await setup({ settlementApi });
+      selectSeller(component);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const el: HTMLElement = fixture.nativeElement;
+      const bar = el.querySelector<HTMLElement>('.settlement-page > p-toolbar.settlement-page__actionbar');
+      const start = bar?.querySelector<HTMLElement>(':scope > .settlement-page__bar-start');
+      const center = bar?.querySelector<HTMLElement>(':scope > .settlement-page__bar-center');
+      const end = bar?.querySelector<HTMLElement>(':scope > .settlement-page__bar-end');
+      const backButton = start?.querySelector<HTMLButtonElement>('p-button button');
+      if (!bar || !start || !center || !end || !backButton) {
+        throw new Error('settlement-page__actionbar not rendered');
+      }
+      return { fixture, component, el, bar, start, center, end, backButton };
+    }
+
+    function containerRule(): CSSRule {
+      const rules = Array.from(document.styleSheets).flatMap((sheet) => Array.from(sheet.cssRules));
+      const rule = rules.find((r) => r.cssText.startsWith('@container (max-width: 52rem)') && r.cssText.includes('settlement-page__bar-center'));
+      if (!rule) throw new Error('@container (max-width: 52rem) rule for the action bar not found');
+      return rule;
+    }
+
+    it('template_sellerSelected_rendersOneToolbarWithThreeAreasBetweenTitleAndKpiGrid', async () => {
+      // Arrange
+      // Act
+      const { el, bar } = await renderActionBar();
+
+      // Assert
+      const title = el.querySelector('app-page .page__title') as HTMLElement;
+      expect(title.compareDocumentPosition(bar) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(el.querySelectorAll('p-toolbar').length).toBe(1);
+      expect(Array.from(bar.children).map((c) => c.className)).toEqual([
+        'settlement-page__bar-start',
+        'settlement-page__bar-center',
+        'settlement-page__bar-end',
+      ]);
+      const content = Array.from(el.querySelector('.settlement-page')?.children ?? []).map((c) => c.tagName.toLowerCase());
+      expect(content).toEqual(['p-toolbar', 'app-kpi-grid', 'p-table']);
+      expect(el.querySelectorAll('.settlement-page__header').length).toBe(0);
+    });
+
+    it('template_sellerSelected_rendersOnlyIconBackButtonOnTheLeftAndNoActionsLeftOfTheName', async () => {
+      // Arrange
+      // Act
+      const { start, backButton } = await renderActionBar();
+
+      // Assert
+      expect(start.querySelectorAll('p-button').length).toBe(1);
+      expect(backButton.textContent?.trim()).toBe('');
+      expect(backButton.querySelector('.pi-angle-left')).not.toBeNull();
+      expect(start.textContent?.trim()).toBe('');
+    });
+
+    it('template_sellerSelected_labelsBackButtonZurueckZurVerkaeuferwahlForHoverAndScreenreader', async () => {
+      // Arrange
+      // Act
+      const { fixture, backButton } = await renderActionBar();
+
+      // Assert
+      expect(backButton.getAttribute('aria-label')).toBe('Zurück zur Verkäuferwahl');
+      const host = fixture.debugElement.query(By.css('.settlement-page__bar-start p-button'));
+      expect(host.injector.get(Tooltip).content()).toBe('Zurück zur Verkäuferwahl');
+    });
+
+    it('onBack_backButtonClicked_showsSellerSelectionWithoutActionBar', async () => {
+      // Arrange
+      const { fixture, component, el, backButton } = await renderActionBar();
+
+      // Act
+      backButton.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Assert
+      expect(component.state()).toBe('selection');
+      expect(el.querySelector('app-seller-search')).not.toBeNull();
+      expect(el.querySelector('p-toolbar')).toBeNull();
+    });
+
+    it('template_selectionStateShown_rendersNoActionBar', async () => {
+      // Arrange
+      // Act
+      const { fixture } = await setup();
+      const el: HTMLElement = fixture.nativeElement;
+
+      // Assert
+      expect(el.querySelector('app-seller-search')).not.toBeNull();
+      expect(el.querySelector('p-toolbar')).toBeNull();
+      expect(el.querySelector('.settlement-page__actionbar')).toBeNull();
+    });
+
+    it('template_unsettledSeller_rendersNameThenAddressInCenterAndNoSettledTag', async () => {
+      // Arrange
+      // Act
+      const { center } = await renderActionBar({ settledAt: null });
+
+      // Assert
+      expect(Array.from(center.children).map((c) => c.className)).toEqual([
+        'settlement-page__name',
+        'settlement-page__address',
+      ]);
+      expect(center.querySelector('.settlement-page__name')?.textContent?.trim()).toBe('Anna Meier');
+      expect(center.querySelector('.settlement-page__address')?.textContent?.trim()).toBe(
+        'Hauptstr. 1, 76133 Karlsruhe',
+      );
+      expect(center.textContent).not.toContain('Abgerechnet am');
+      expect(center.querySelector('p-tag')).toBeNull();
+    });
+
+    it('template_settledSeller_rendersNameAddressAndSettledTagInCenterInOrder', async () => {
+      // Arrange
+      // Act
+      const { center } = await renderActionBar({
+        settledAt: '2026-01-15T10:00:00Z',
+        payoutAmount: 332.94,
+      });
+
+      // Assert
+      expect(Array.from(center.children).map((c) => c.tagName.toLowerCase())).toEqual([
+        'span',
+        'span',
+        'p-tag',
+      ]);
+      const tag = center.querySelector('p-tag') as HTMLElement;
+      expect(tag.textContent).toContain('Abgerechnet am');
+      expect(tag.textContent).toContain('332.94');
+    });
+
+    it('template_sellerSelected_rendersActionsInOrderDruckenZurueckgebenAbrechnen', async () => {
+      // Arrange
+      // Act
+      const { end } = await renderActionBar();
+
+      // Assert
+      const labels = Array.from(end.querySelectorAll('p-button button')).map((b) => b.textContent?.trim());
+      expect(labels).toEqual(['🖨️ Drucken', '↩ Zurückgeben', '✓ Abrechnen']);
+    });
+
+    it('styles_sellerSelected_startAndEndGrowEquallyCenterDoesNotAndBarDoesNotWrapWhenWide', async () => {
+      // Arrange
+      // Act
+      const { bar, start, center, end } = await renderActionBar();
+
+      // Assert
+      expect(getComputedStyle(bar).flexWrap).toBe('nowrap');
+      expect(getComputedStyle(start).flexGrow).toBe('1');
+      expect(getComputedStyle(end).flexGrow).toBe('1');
+      expect(getComputedStyle(center).flexGrow).toBe('0');
+      expect(getComputedStyle(end).justifyContent).toBe('flex-end');
+    });
+
+    it('styles_sellerSelected_centerIsCenteredAndNameAndAddressTruncateWithEllipsis', async () => {
+      // Arrange
+      // Act
+      const { center } = await renderActionBar({ settledAt: '2026-01-15T10:00:00Z', payoutAmount: 332.94 });
+
+      // Assert
+      expect(getComputedStyle(center).textAlign).toBe('center');
+      expect(getComputedStyle(center).alignItems).toBe('center');
+      for (const selector of ['.settlement-page__name', '.settlement-page__address']) {
+        const style = getComputedStyle(center.querySelector(selector) as HTMLElement);
+        expect(style.overflow).toBe('hidden');
+        expect(style.textOverflow).toBe('ellipsis');
+        expect(style.whiteSpace).toBe('nowrap');
+      }
+      expect(getComputedStyle(center.querySelector('p-tag') as HTMLElement).textOverflow).not.toBe('ellipsis');
+    });
+
+    it('styles_narrowContainer_wrapsAndPutsCenterIntoItsOwnFullWidthRow', async () => {
+      // Arrange
+      await renderActionBar();
+
+      // Act
+      const css = containerRule().cssText;
+
+      // Assert
+      expect(css).toContain('flex-wrap: wrap');
+      expect(css).toMatch(/settlement-page__bar-center[^}]*flex: 0 0 100%/);
+      expect(css).toMatch(/settlement-page__bar-center[^}]*order: 3/);
+      expect(css).toMatch(/settlement-page__bar-end[^}]*flex-wrap: wrap/);
+    });
   });
 
   describe('canReturn / canSettleClick', () => {
