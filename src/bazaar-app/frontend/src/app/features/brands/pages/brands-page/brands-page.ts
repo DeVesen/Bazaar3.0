@@ -1,7 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
+import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TooltipModule } from 'primeng/tooltip';
 import { Page } from '../../../../shared/components/page/page';
 import { RoleService } from '../../../../core/auth/role.service';
 import {
@@ -35,8 +41,20 @@ interface ProblemDetailsBody {
 
 @Component({
   selector: 'app-brands-page',
-  imports: [Table, MasterDataPopup, Page, ButtonModule],
+  imports: [
+    Table,
+    MasterDataPopup,
+    Page,
+    ButtonModule,
+    FormsModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    SelectModule,
+    TooltipModule,
+  ],
   templateUrl: './brands-page.html',
+  styleUrl: './brands-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BrandsPage {

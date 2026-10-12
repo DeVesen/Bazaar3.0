@@ -1,7 +1,9 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
+import { Select } from 'primeng/select';
 import { of, throwError } from 'rxjs';
 import { BrandsPage } from './brands-page';
 import { BrandsStore } from '../../brands-store';
@@ -351,31 +353,213 @@ describe('BrandsPage', () => {
     });
   });
 
-  describe('page header', () => {
-    it('shows "Marken" as page title and "+ Neu" in the header, with no table title', () => {
+  describe('filter toolbar', () => {
+    function toolbarOf(fixture: ComponentFixture<BrandsPage>): HTMLElement {
+      return fixture.nativeElement.querySelector('.brands-page__toolbar') as HTMLElement;
+    }
+
+    function selectOf(fixture: ComponentFixture<BrandsPage>): Select {
+      return fixture.debugElement.query(By.directive(Select)).componentInstance as Select;
+    }
+
+    it('render_pageOpened_showsSingleToolbarAboveTableAndNoHeaderButton', () => {
+      // Arrange
       isAdminSignal.set(true);
+
+      // Act
       const { fixture } = createPage();
       const el: HTMLElement = fixture.nativeElement;
 
+      // Assert
+      expect(el.querySelectorAll('.brands-page__toolbar').length).toBe(1);
+      expect(toolbarOf(fixture).nextElementSibling?.tagName).toBe('APP-TABLE');
       expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Marken');
-      expect(el.querySelector('.page__actions p-button[label="+ Neu"]')).not.toBeNull();
+      expect(el.querySelector('.page__actions p-button')).toBeNull();
       expect(el.querySelector('.app-table__toolbar')).toBeNull();
+      expect(el.querySelector('p-chip')).toBeNull();
     });
 
-    it('hides "+ Neu" for non-admins', () => {
-      isAdminSignal.set(false);
+    it('render_admin_showsPlusIconButtonWithoutTextAsFirstToolbarElement', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
       const { fixture } = createPage();
-      expect(fixture.nativeElement.querySelector('.page__actions p-button')).toBeNull();
+      const toolbar = toolbarOf(fixture);
+      const addButton = toolbar.firstElementChild as HTMLElement;
+
+      // Assert
+      expect(toolbar.querySelectorAll('p-button').length).toBe(1);
+      expect(addButton.matches('p-button.brands-page__add')).toBe(true);
+      expect(addButton.querySelector('button')?.textContent?.trim()).toBe('');
+      expect(addButton.querySelector('.pi-plus')).not.toBeNull();
     });
 
-    it('opens the create popup from the header "+ Neu" button', () => {
+    it('render_admin_plusButtonHasHintNeueMarke', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const addButton = toolbarOf(fixture).querySelector('p-button.brands-page__add') as HTMLElement;
+
+      // Assert
+      expect(addButton.querySelector('button')?.getAttribute('aria-label')).toBe('Neue Marke');
+      expect(addButton.getAttribute('pTooltip')).toBe('Neue Marke');
+    });
+
+    it('plusButtonClick_admin_opensCreatePopup', () => {
+      // Arrange
       isAdminSignal.set(true);
       const { fixture, component } = createPage();
 
-      (fixture.nativeElement.querySelector('.page__actions p-button button') as HTMLButtonElement).click();
+      // Act
+      (
+        toolbarOf(fixture).querySelector('p-button.brands-page__add button') as HTMLButtonElement
+      ).click();
       fixture.detectChanges();
 
+      // Assert
       expect(component.popupVisible()).toBe(true);
+      expect(component.popupMode()).toBe('create');
+    });
+
+    it('render_nonAdmin_hasNoCreateButtonAndSearchStartsAtLeftEdge', () => {
+      // Arrange
+      isAdminSignal.set(false);
+
+      // Act
+      const { fixture } = createPage();
+      const el: HTMLElement = fixture.nativeElement;
+
+      // Assert
+      expect(toolbarOf(fixture).querySelector('p-button')).toBeNull();
+      expect(el.querySelector('.page__actions p-button')).toBeNull();
+      expect(toolbarOf(fixture).firstElementChild?.tagName).toBe('P-ICONFIELD');
+    });
+
+    it('render_always_searchFieldFillsRemainingSpaceWithPlaceholder', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const search = toolbarOf(fixture).querySelector('.brands-page__search') as HTMLElement;
+      const input = search.querySelector('input') as HTMLInputElement;
+
+      // Assert
+      expect(input.getAttribute('placeholder')).toBe('Suche nach Name …');
+      expect(getComputedStyle(search).flexGrow).toBe('1');
+      expect(getComputedStyle(search).minWidth).toBe('0px');
+    });
+
+    it('render_always_selectIsLastToolbarElementWithMinWidth150AndNoShrink', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const toolbar = toolbarOf(fixture);
+      const select = toolbar.lastElementChild as HTMLElement;
+
+      // Assert
+      expect(toolbar.querySelectorAll('p-select').length).toBe(1);
+      expect(select.matches('p-select.brands-page__original')).toBe(true);
+      expect(getComputedStyle(select).minWidth).toBe('150px');
+      expect(getComputedStyle(select).flexShrink).toBe('0');
+    });
+
+    it('render_always_hasNoVisibleLabelAndSelectHasScreenReaderName', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+
+      // Assert
+      expect(toolbarOf(fixture).querySelectorAll('label').length).toBe(0);
+      expect(selectOf(fixture).ariaLabel()).toBe('Original');
+    });
+
+    it('render_noValueChosen_selectShowsAllPlaceholderAndOffersBothValues', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const select = selectOf(fixture);
+
+      // Assert
+      expect(select.placeholder()).toBe('Alle');
+      expect(select.showClear()).toBe(true);
+      expect(select.options()).toEqual([
+        { label: '✓ Original', value: 'original' },
+        { label: 'Neu', value: 'new' },
+      ]);
+    });
+
+    it('optionSelect_neuChosen_tableShowsOnlyNewBrands', () => {
+      // Arrange
+      brandsSignal.set([
+        brand({ id: 'b1', name: 'Nike', original: true }),
+        brand({ id: 'b2', name: 'Adidas', original: false }),
+      ]);
+      const { fixture, component } = createPage();
+
+      // Act
+      selectOf(fixture).onOptionSelect(new Event('click'), { label: 'Neu', value: 'new' });
+
+      // Assert
+      expect(component.originalFilter()).toBe('new');
+      expect(component.rows().map((row) => row.name)).toEqual(['Adidas']);
+    });
+
+    it('clear_valueChosen_resetsFilterAndShowsBrandsOfBothKinds', () => {
+      // Arrange
+      brandsSignal.set([
+        brand({ id: 'b1', name: 'Nike', original: true }),
+        brand({ id: 'b2', name: 'Adidas', original: false }),
+      ]);
+      const { fixture, component } = createPage();
+      selectOf(fixture).onOptionSelect(new Event('click'), { label: 'Neu', value: 'new' });
+
+      // Act
+      selectOf(fixture).clear(new Event('click'));
+
+      // Assert
+      expect(component.originalFilter()).toBeNull();
+      expect(component.rows().map((row) => row.name)).toEqual(['Nike', 'Adidas']);
+    });
+
+    it('typing_niInSearchField_tableShowsOnlyNikeImmediately', () => {
+      // Arrange
+      brandsSignal.set([
+        brand({ id: 'b1', name: 'Nike' }),
+        brand({ id: 'b2', name: 'Adidas' }),
+      ]);
+      const { fixture, component } = createPage();
+      const input = toolbarOf(fixture).querySelector('.brands-page__search input') as HTMLInputElement;
+
+      // Act
+      input.value = 'NI';
+      input.dispatchEvent(new Event('input'));
+
+      // Assert
+      expect(component.searchTerm()).toBe('NI');
+      expect(component.rows().map((row) => row.name)).toEqual(['Nike']);
+    });
+
+    it('render_always_toolbarWrapsOntoFurtherLinesInNarrowWindows', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const toolbar = toolbarOf(fixture);
+
+      // Assert
+      expect(getComputedStyle(toolbar).display).toBe('flex');
+      expect(getComputedStyle(toolbar).flexWrap).toBe('wrap');
     });
   });
 });

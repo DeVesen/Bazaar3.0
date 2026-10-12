@@ -1,0 +1,33 @@
+.brands-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid var(--p-content-border-color);
+    border-radius: var(--p-content-border-radius);
+  }
+
+  &__search {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 14rem;
+    min-width: 0;
+
+    input {
+      width: 100%;
+    }
+  }
+
+  &__original {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    min-width: 150px;
+  }
+}

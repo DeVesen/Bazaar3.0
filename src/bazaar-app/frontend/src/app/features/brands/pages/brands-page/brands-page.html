@@ -1,19 +1,50 @@
 <app-page title="Marken">
-  <ng-container ngProjectAs="[pageActions]">
-    @if (canAdd()) {
-      <p-button label="+ Neu" (onClick)="onRowAdd()" />
-    }
-  </ng-container>
+  <div class="brands-page">
+    <div class="brands-page__toolbar">
+      @if (canAdd()) {
+        <p-button
+          class="brands-page__add"
+          icon="pi pi-plus"
+          ariaLabel="Neue Marke"
+          pTooltip="Neue Marke"
+          (onClick)="onRowAdd()"
+        />
+      }
 
-  <app-table
-    [columns]="columns"
-    [data]="rows()"
-    [loading]="loading()"
-    [actionColumn]="actionColumn()"
-    [emptyText]="emptyText()"
-    (sortChange)="onSortChange($event)"
-    (actionClick)="onActionClick($event)"
-  />
+      <p-iconfield class="brands-page__search">
+        <p-inputicon class="pi pi-search" />
+        <input
+          pInputText
+          type="text"
+          placeholder="Suche nach Name …"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+        />
+      </p-iconfield>
+
+      <p-select
+        class="brands-page__original"
+        [options]="originalOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="originalFilter()"
+        (ngModelChange)="onOriginalChange($event)"
+        [showClear]="true"
+        placeholder="Alle"
+        ariaLabel="Original"
+      />
+    </div>
+
+    <app-table
+      [columns]="columns"
+      [data]="rows()"
+      [loading]="loading()"
+      [actionColumn]="actionColumn()"
+      [emptyText]="emptyText()"
+      (sortChange)="onSortChange($event)"
+      (actionClick)="onActionClick($event)"
+    />
+  </div>
 </app-page>
 
 <app-master-data-popup
