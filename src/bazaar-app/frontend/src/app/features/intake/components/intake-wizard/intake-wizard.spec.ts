@@ -21,22 +21,6 @@ import { BrandsApi } from '../../../brands/data/brands-api';
 import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { IntakeArticleEntry } from '../intake-article-entry/intake-article-entry';
 
-// `p-tabs`'s `TabList` observes its own size via `ResizeObserver` (for the scrollable-tabs
-// nav buttons) — unavailable in jsdom. Same kind of environment stub `intake-page.spec.ts`
-// already does for `navigator.mediaDevices`/`BarcodeScanner`.
-class ResizeObserverStub {
-  observe(): void {
-    // no-op: not exercised by these tests, only needed so PrimeNG's TabList doesn't throw.
-  }
-  unobserve(): void {
-    // no-op, see observe().
-  }
-  disconnect(): void {
-    // no-op, see observe().
-  }
-}
-(globalThis as unknown as { ResizeObserver: typeof ResizeObserverStub }).ResizeObserver = ResizeObserverStub;
-
 // eslint-disable-next-line boundaries/dependencies -- see intake-wizard.ts's own justification
 import { Seller, SellersApi } from '../../../sellers/data/sellers-api';
 // eslint-disable-next-line boundaries/dependencies -- see intake-wizard.ts's own justification

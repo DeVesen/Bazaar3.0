@@ -3,8 +3,11 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   signal,
+  untracked,
+  viewChild,
 } from '@angular/core';
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
@@ -20,6 +23,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { ScrollArea, ScrollAreaModule } from 'primeng/scrollarea';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { RoleService } from '../../../../core/auth/role.service';
@@ -106,6 +110,7 @@ interface ProblemDetailsBody {
     InputIconModule,
     InputTextModule,
     SelectModule,
+    ScrollAreaModule,
     ToolbarModule,
     TooltipModule,
     SellerCard,
@@ -154,6 +159,17 @@ export class SellersPage {
     () => this.totalCount() === 0 && !this.loading() && this.hasActiveFilters(),
   );
 
+  private readonly scrollArea = viewChild(ScrollArea);
+
+  /** Ändert sich bei Suche, Status oder Sortierung — nicht beim Nachladen. */
+  private readonly filterKey = computed<string>(() => {
+    const { q, status, sort } = this.filters();
+    return JSON.stringify([q, status, sort]);
+  });
+
+  private lastFilterKey = this.filterKey();
+  private scrollResetPending = false;
+
   // Detail modal.
   readonly detailModalVisible = signal(false);
   readonly selectedCardForDetail = signal<SellerCardModel | null>(null);
@@ -193,6 +209,23 @@ export class SellersPage {
 
   constructor() {
     this.sellersStore.load();
+
+    // Neue Liste nach Filterwechsel beginnt oben: erst den Wechsel merken, dann beim Eintreffen
+    // (loading false) den Viewport der ScrollArea zurücksetzen. Nachladen ändert den Key nicht.
+    effect(() => {
+      const key = this.filterKey();
+      const loading = this.loading();
+      untracked(() => {
+        if (key !== this.lastFilterKey) {
+          this.lastFilterKey = key;
+          this.scrollResetPending = true;
+        }
+        if (this.scrollResetPending && !loading) {
+          this.scrollResetPending = false;
+          this.resetScrollToTop();
+        }
+      });
+    });
 
     toObservable(this.qInput)
       .pipe(debounceTime(DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
@@ -507,5 +540,12 @@ export class SellersPage {
       email: firstMessage('email'),
       sellerTypeId: firstMessage('sellerTypeId'),
     };
+  }
+
+  private resetScrollToTop(): void {
+    const viewport = this.scrollArea()?.viewportEl;
+    if (viewport) {
+      viewport.scrollTop = 0;
+    }
   }
 }

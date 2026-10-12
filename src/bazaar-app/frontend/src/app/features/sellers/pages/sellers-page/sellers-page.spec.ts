@@ -4,6 +4,7 @@ import { By } from '@angular/platform-browser';
 import { Tooltip } from 'primeng/tooltip';
 import { of, throwError } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { ScrollArea } from 'primeng/scrollarea';
 import { SellersPage } from './sellers-page';
 // `SellersPage` renders `ReleaseDialog`, which renders `ScanDialog` -> `InputGroup` ->
 // `BarcodeScanner`/`@zxing/browser` — importing the ONE shared mock (see that file's own
@@ -809,16 +810,212 @@ describe('SellersPage', () => {
       });
     });
 
-    it('renders the tiles inside the scrolling list without a paginator', async () => {
+    /** Regeln der Component-Styles für `.sellers-page__list`, jeweils mit ihrer Media-Query (oder null). */
+    function listStyleRules(): { media: string | null; style: CSSStyleDeclaration }[] {
+      const found: { media: string | null; style: CSSStyleDeclaration }[] = [];
+      const collect = (rules: CSSRuleList, media: string | null): void => {
+        for (const rule of Array.from(rules)) {
+          if ('media' in rule && 'cssRules' in rule) {
+            const mediaRule = rule as CSSMediaRule;
+            collect(mediaRule.cssRules, mediaRule.media.mediaText);
+          } else if (
+            'selectorText' in rule &&
+            (rule as CSSStyleRule).selectorText.includes('.sellers-page__list')
+          ) {
+            found.push({ media, style: (rule as CSSStyleRule).style });
+          }
+        }
+      };
+      for (const sheet of Array.from(document.styleSheets)) {
+        collect(sheet.cssRules, null);
+      }
+      return found;
+    }
+
+    async function renderWithViewportSize(
+      clientHeight: number,
+      scrollHeight: number,
+    ): Promise<HTMLElement> {
       itemsSignal.set([buildCard()]);
       totalCountSignal.set(1);
       const { fixture } = await createPage();
       fixture.detectChanges();
       const el: HTMLElement = fixture.nativeElement;
+      const viewport = el.querySelector('p-scrollarea-viewport') as HTMLElement;
+      Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: clientHeight });
+      Object.defineProperty(viewport, 'scrollHeight', { configurable: true, value: scrollHeight });
+      (
+        fixture.debugElement.query(By.directive(ScrollArea)).componentInstance as ScrollArea
+      ).refresh();
+      fixture.detectChanges();
+      return el;
+    }
 
-      expect(el.querySelector('.sellers-page__list .sellers-page__grid app-seller-card')).not.toBeNull();
-      expect(el.querySelector('.sellers-page__list [appLoadMoreSentinel]')).not.toBeNull();
+    it('styles_from769px_giveKachellisteRemainingHeightWithoutNativeOverflow', async () => {
+      // Arrange
+      itemsSignal.set([buildCard()]);
+      totalCountSignal.set(1);
+
+      // Act
+      await createPage();
+      const desktopRules = listStyleRules().filter(
+        (rule) => (rule.media ?? '').replace(/\s/g, '') === '(min-width:769px)',
+      );
+
+      // Assert
+      expect(desktopRules.length).toBeGreaterThan(0);
+      expect(
+        desktopRules.some((rule) => rule.style.getPropertyValue('flex').trim().startsWith('1')),
+      ).toBe(true);
+      expect(
+        desktopRules.some((rule) =>
+          ['0', '0px'].includes(rule.style.getPropertyValue('min-height').trim()),
+        ),
+      ).toBe(true);
+      expect(desktopRules.every((rule) => rule.style.getPropertyValue('overflow-y') === '')).toBe(
+        true,
+      );
+      expect(desktopRules.every((rule) => rule.style.getPropertyValue('overflow') === '')).toBe(
+        true,
+      );
+    });
+
+    it('styles_upTo768px_giveKachellisteNoOwnScrollHeight', async () => {
+      // Arrange
+      itemsSignal.set([buildCard()]);
+      totalCountSignal.set(1);
+
+      // Act
+      await createPage();
+      const rules = listStyleRules();
+      const baseRules = rules.filter((rule) => rule.media === null);
+      const mediaRules = rules.filter((rule) => rule.media !== null);
+
+      // Assert
+      expect(rules.length).toBeGreaterThan(0);
+      expect(
+        mediaRules.every((rule) => (rule.media ?? '').replace(/\s/g, '') === '(min-width:769px)'),
+      ).toBe(true);
+      for (const rule of baseRules) {
+        for (const property of [
+          'height',
+          'max-height',
+          'min-height',
+          'flex',
+          'flex-grow',
+          'overflow',
+          'overflow-y',
+        ]) {
+          expect(rule.style.getPropertyValue(property)).toBe('');
+        }
+      }
+    });
+
+    it('refresh_withMoreTilesThanSpace_showsVerticalScrollbar', async () => {
+      // Arrange
+      const el = await renderWithViewportSize(600, 2000);
+
+      // Act
+      const scrollbar = el.querySelector(
+        'p-scrollarea.sellers-page__list p-scrollarea-scrollbar[data-orientation="vertical"]',
+      ) as HTMLElement;
+      const viewport = el.querySelector(
+        'p-scrollarea.sellers-page__list p-scrollarea-viewport',
+      ) as HTMLElement;
+
+      // Assert
+      expect(scrollbar.style.display).not.toBe('none');
+      expect(viewport.hasAttribute('data-scroll-y-after')).toBe(true);
+    });
+
+    it('refresh_withFewerTilesThanSpace_hidesVerticalScrollbar', async () => {
+      // Arrange
+      const el = await renderWithViewportSize(600, 300);
+
+      // Act
+      const scrollbar = el.querySelector(
+        'p-scrollarea.sellers-page__list p-scrollarea-scrollbar[data-orientation="vertical"]',
+      ) as HTMLElement;
+      const viewport = el.querySelector(
+        'p-scrollarea.sellers-page__list p-scrollarea-viewport',
+      ) as HTMLElement;
+
+      // Assert
+      expect(scrollbar.style.display).toBe('none');
+      expect(viewport.hasAttribute('data-scroll-y-after')).toBe(false);
+    });
+
+    it('render_withSellers_putsGridAndSentinelIntoScrollAreaContentWithoutPaginator', async () => {
+      // Arrange
+      itemsSignal.set([buildCard()]);
+      totalCountSignal.set(1);
+
+      // Act
+      const { fixture } = await createPage();
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+
+      // Assert
+      const content = el.querySelector(
+        'p-scrollarea.sellers-page__list p-scrollarea-viewport p-scrollarea-content',
+      );
+      expect(content?.querySelector('.sellers-page__grid app-seller-card')).not.toBeNull();
+      expect(content?.querySelector('[appLoadMoreSentinel]')).not.toBeNull();
+      expect(el.querySelector('div.sellers-page__list')).toBeNull();
       expect(el.querySelector('p-paginator')).toBeNull();
+    });
+
+    it('render_withSellers_usesAutoScrollbarWithoutFadeMask', async () => {
+      // Arrange
+      itemsSignal.set([buildCard()]);
+      totalCountSignal.set(1);
+
+      // Act
+      const { fixture } = await createPage();
+      fixture.detectChanges();
+      const root = (fixture.nativeElement as HTMLElement).querySelector(
+        'p-scrollarea.sellers-page__list',
+      );
+
+      // Assert
+      expect(root?.getAttribute('data-variant')).toBe('auto');
+      expect(root?.classList.contains('p-scrollarea-mask')).toBe(false);
+      expect(
+        root?.querySelector(
+          'p-scrollarea-scrollbar[data-orientation="vertical"] p-scrollarea-handle',
+        ),
+      ).not.toBeNull();
+    });
+
+    it('render_withSellers_keepsToolbarOutsideScrollArea', async () => {
+      // Arrange
+      itemsSignal.set([buildCard()]);
+      totalCountSignal.set(1);
+
+      // Act
+      const { fixture } = await createPage();
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+
+      // Assert
+      expect(el.querySelectorAll('p-toolbar').length).toBe(1);
+      expect(el.querySelector('p-scrollarea p-toolbar')).toBeNull();
+    });
+
+    it('cardClick_onTileInsideScrollArea_opensDetailModal', async () => {
+      // Arrange
+      itemsSignal.set([buildCard()]);
+      totalCountSignal.set(1);
+      const { fixture, component } = await createPage();
+      fixture.detectChanges();
+      const tile = fixture.debugElement.query(By.css('p-scrollarea app-seller-card'));
+
+      // Act
+      tile.triggerEventHandler('cardClick', buildCard());
+
+      // Assert
+      expect(component.detailModalVisible()).toBe(true);
+      expect(component.selectedCardForDetail()?.id).toBe('s1');
     });
 
     it('loads more when the list end is reached and more sellers exist', async () => {
@@ -840,6 +1037,117 @@ describe('SellersPage', () => {
       component.onLoadMore();
 
       expect(loadMore).not.toHaveBeenCalled();
+    });
+
+    it('render_loadingWithoutSellers_showsSkeletonTilesInsideScrollAreaAndKeepsToolbar', async () => {
+      // Arrange
+      loadingSignal.set(true);
+      showSkeletonSignal.set(true);
+
+      // Act
+      const { fixture } = await createPage();
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+
+      // Assert
+      expect(
+        el.querySelectorAll('p-scrollarea p-scrollarea-content app-seller-card-skeleton').length,
+      ).toBe(6);
+      expect(el.querySelector('app-seller-card')).toBeNull();
+      expect(el.querySelector('.sellers-page__sentinel')).toBeNull();
+      expect(el.querySelectorAll('p-toolbar').length).toBe(1);
+    });
+
+    it('render_loadingWithExistingSellers_keepsTilesAndShowsNoSkeleton', async () => {
+      // Arrange
+      itemsSignal.set([buildCard()]);
+      totalCountSignal.set(1);
+      loadingSignal.set(true);
+
+      // Act
+      const { fixture } = await createPage();
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+
+      // Assert
+      expect(el.querySelector('app-seller-card-skeleton')).toBeNull();
+      expect(el.querySelector('p-scrollarea app-seller-card')).not.toBeNull();
+    });
+
+    describe('scroll position', () => {
+      async function renderScrolledList(): Promise<{
+        fixture: Awaited<ReturnType<typeof createPage>>['fixture'];
+        scrollTop: () => number;
+      }> {
+        itemsSignal.set([buildCard()]);
+        totalCountSignal.set(1);
+        const { fixture } = await createPage();
+        fixture.detectChanges();
+        const viewport = (fixture.nativeElement as HTMLElement).querySelector(
+          'p-scrollarea-viewport',
+        ) as HTMLElement;
+        let top = 500;
+        Object.defineProperty(viewport, 'scrollTop', {
+          configurable: true,
+          get: () => top,
+          set: (value: number) => {
+            top = value;
+          },
+        });
+        return { fixture, scrollTop: () => top };
+      }
+
+      it('filterChange_afterNewListArrives_scrollsKachellisteToTop', async () => {
+        // Arrange
+        const { fixture, scrollTop } = await renderScrolledList();
+
+        // Act
+        filtersSignal.set({ ...filtersSignal(), q: 'meier' });
+        loadingSignal.set(true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        const topWhileLoading = scrollTop();
+        loadingSignal.set(false);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        // Assert
+        expect(topWhileLoading).toBe(500);
+        expect(scrollTop()).toBe(0);
+      });
+
+      it('sortChange_afterNewListArrives_scrollsKachellisteToTop', async () => {
+        // Arrange
+        const { fixture, scrollTop } = await renderScrolledList();
+
+        // Act
+        filtersSignal.set({ ...filtersSignal(), sort: 'revenue' });
+        loadingSignal.set(true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        loadingSignal.set(false);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        // Assert
+        expect(scrollTop()).toBe(0);
+      });
+
+      it('loadMore_withoutFilterChange_keepsScrollPosition', async () => {
+        // Arrange
+        const { fixture, scrollTop } = await renderScrolledList();
+
+        // Act
+        loadingSignal.set(true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        loadingSignal.set(false);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        // Assert
+        expect(scrollTop()).toBe(500);
+      });
     });
   });
 });

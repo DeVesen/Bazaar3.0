@@ -26,7 +26,7 @@ Basis: ae7a010
 
 ## Akzeptanzkriterien
 - **AC-01** Gegeben die Verkäufer-Seite bei 1440px mit mehr Kacheln als Platz, wenn der Anwender in der Kachelliste scrollt, dann bewegen sich nur die Kacheln, die Filterzeilen bleiben sichtbar und die Seite selbst scrollt nicht. · Aussage
-- **AC-03** Gegeben die Verkäufer-Seite bei 1440px mit mehr Kacheln als Platz, dann ist die PrimeNG-Scrollbar der Kachelliste sichtbar; gegeben weniger Kacheln als Platz, dann ist keine Scrollbar sichtbar. *(Randfall)* · Aussage
+- **AC-03** Gegeben die Verkäufer-Seite bei 1440px mit mehr Kacheln als Platz, dann ist die PrimeNG-Scrollbar der Kachelliste vorhanden und wird bei Interaktion (Hover, Scrollen) eingeblendet; gegeben weniger Kacheln als Platz, dann ist keine Scrollbar vorhanden. *(Randfall)* · Aussage
 - **AC-04** Gegeben die Verkäufer-Seite bei 768px mit mehr Kacheln als Platz, wenn der Anwender scrollt, dann scrollt die ganze Seite und die Kachelliste hat keinen eigenen Scrollbereich. · Aussage
 - **AC-05** Gegeben mehr als 60 Verkäufer bei 1440px, wenn der Anwender das Ende der Kachelliste im Scrollbereich erreicht, dann erscheinen die nächsten 60 Kacheln und die bisherigen Kacheln bleiben an ihrer Position. · Aussage
 - **AC-06** Gegeben die Kachelliste ist weit nach unten gescrollt, wenn der Anwender Suche, Status oder Sortierung ändert und die neue Liste eintrifft, dann steht die Kachelliste ganz oben. · Aussage
@@ -46,3 +46,4 @@ Basis: ae7a010
 - **W · Rand-Fade** · Aussage — Kein Fade.
 - **F · AC-02** — geändert — Vorschlag 1: AC-02 gestrichen, weil es die Bauweise statt beobachtbares Verhalten prüfte. Die Komponentenvorgabe bleibt in den Soll-Vorgaben („ausschließlich PrimeNG ScrollArea“); das beobachtbare Verhalten (themefähige Scrollbar sichtbar bzw. nicht sichtbar) prüft AC-03.
 - **F · Soll-Vorgaben** — geändert — Vorschlag 1: Zeile zum Code-Namen der Verkäufer-Kachel aus den Soll-Vorgaben gestrichen, weil ein Code-Bezeichner kein Verhalten beschreibt; die Namensstabilität gehört in den Plan.
+- **F · AC-03** — geändert — Vorschlag 2: „auto“ beibehalten; „sichtbar“ präzisiert zu „vorhanden und bei Interaktion eingeblendet“, weil die Variante „auto“ als Overlay-Scrollbar erst bei Hover/Scrollen erscheint. Änderung an der Spec, nicht am Code.

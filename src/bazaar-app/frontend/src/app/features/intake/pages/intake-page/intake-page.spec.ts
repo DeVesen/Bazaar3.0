@@ -27,21 +27,6 @@ import { RoleService } from '../../../../core/auth/role.service';
 // not because it is still load-bearing for the mock to win the race.)
 import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 
-// `p-tabs`'s `TabList` (rendered by `IntakeWizard` in the 'wizard' state) observes its own size
-// via `ResizeObserver` — unavailable in jsdom. See `intake-wizard.spec.ts` for the same stub.
-class ResizeObserverStub {
-  observe(): void {
-    // no-op: not exercised by these tests, only needed so PrimeNG's TabList doesn't throw.
-  }
-  unobserve(): void {
-    // no-op, see observe().
-  }
-  disconnect(): void {
-    // no-op, see observe().
-  }
-}
-(globalThis as unknown as { ResizeObserver: typeof ResizeObserverStub }).ResizeObserver = ResizeObserverStub;
-
 function searchResult(overrides: Partial<SellerSearchResult> = {}): SellerSearchResult {
   return {
     id: 'SEL00001',
