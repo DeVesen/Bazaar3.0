@@ -31,3 +31,17 @@ Offene Punkte:
 ## Stand
 - Stand: d4afc55e
 - Gesamtlauf: keiner
+
+## Sichtprüfung 2026-10-13 (Browser, Mock-API)
+Messung im Dev-Server des Worktrees, abgerechneter Verkäufer mit langem Namen und langer Adresse.
+
+| Container | Layout | Horizontaler Scroll | Tag überlappt „Drucken" | Mitte vs. Leistenzentrum |
+|---|---|---|---|---|
+| 40 rem | umgebrochen | nein | nein | mittig |
+| 51,8 rem | umgebrochen | nein | nein | mittig |
+| 54,8 rem | eine Zeile | nein | nein | 122 px links versetzt |
+| 57,8 rem | eine Zeile | nein | nein | 122 px links versetzt |
+| 70 rem | eine Zeile | nein | nein | 122 px links versetzt |
+
+- AC-16: erfüllt. AC-08: erfüllt.
+- AC-05: bei langem Inhalt verletzt (Mitte nicht mittig, ab Umbruchpunkt aufwärts). Bei kurzem Inhalt exakt mittig. Ursache: Mitte belegt volle Textbreite, „Ende" (3 Buttons) braucht mehr als die Hälfte des Rests, „Start" bekommt nur den Rest. Behebung per Followup (siehe unten).
