@@ -47,3 +47,4 @@ Der Anwender wählt auf der Seite „Abrechnung" einen Verkäufer. Unter dem Sei
 - **W · Seitentitel und Inhalt** · Aussage — Seitentitel „Abrechnung", KPI-Kacheln und Artikeltabelle bleiben unverändert.
 - **W · Reichweite** · Aussage — Nur der Abrechnungs-Zustand; Auswahlschritt und Wizard der Artikelannahme bleiben unverändert; das Layout ist Vorbild für spätere Aufträge.
 - **W · Begriff** · Aussage — „Aktionsleiste" ist der kanonische Begriff und steht im Glossar; „Filterleiste" bleibt den Listenseiten vorbehalten.
+- **F · Entscheidungen** — nicht geändert — Vorschlag 2: Der Vorschlag ersetzt Text im Eintrag „W · Schmale Fenster“; W-Einträge sind bindende Entscheidungen des Menschen und werden nie geändert. W-Eintrag ist bindend. Das Verhalten bei schmalen Fenstern ist unabhängig davon in AC-16 prüfbar festgelegt.
