@@ -20,6 +20,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { ScrollAreaModule } from 'primeng/scrollarea';
 import { RoleService } from '../../../../core/auth/role.service';
 import { Page } from '../../../../shared/components/page/page';
 import { LoadMoreSentinel } from '../../components/load-more-sentinel/load-more-sentinel';
@@ -100,6 +101,7 @@ interface ProblemDetailsBody {
     InputIconModule,
     InputTextModule,
     SelectModule,
+    ScrollAreaModule,
     SellerCard,
     VerkaeuferDialog,
     SellerDetailModal,

@@ -11,10 +11,12 @@
   }
 
   &__list {
+    border: 0;
+    background: transparent;
+
     @media (min-width: 769px) {
       flex: 1;
       min-height: 0;
-      overflow-y: auto;
     }
   }
 

@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { of, throwError } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { ScrollArea } from 'primeng/scrollarea';
 import { SellersPage } from './sellers-page';
 // `SellersPage` renders `ReleaseDialog`, which renders `ScanDialog` -> `InputGroup` ->
 // `BarcodeScanner`/`@zxing/browser` — importing the ONE shared mock (see that file's own
@@ -18,6 +20,22 @@ import { RoleService } from '../../../../core/auth/role.service';
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
 import { SellerCard, SellerDetail, SellersApi } from '../../data/sellers-api';
 import { ReleaseApi } from '../../data/release-api';
+
+// PrimeNG `ScrollArea` observes its viewport via `ResizeObserver` (setupResizeObserver in
+// primeng-scrollarea.mjs) — unavailable in jsdom. Same stub as `intake-page.spec.ts` and
+// `intake-wizard.spec.ts`; tests that need overflow call `ScrollArea.refresh()` directly.
+class ResizeObserverStub {
+  observe(): void {
+    // no-op: not exercised by these tests, only needed so PrimeNG's ScrollArea doesn't throw.
+  }
+  unobserve(): void {
+    // no-op, see observe().
+  }
+  disconnect(): void {
+    // no-op, see observe().
+  }
+}
+(globalThis as unknown as { ResizeObserver: typeof ResizeObserverStub }).ResizeObserver = ResizeObserverStub;
 
 function buildDetail(overrides: Partial<SellerDetail> = {}): SellerDetail {
   return {
@@ -379,17 +397,184 @@ describe('SellersPage', () => {
       expect(el.querySelector('.sellers-page__filter-row p-button[label="+ Neu"]')).not.toBeNull();
     });
 
-    it('renders the tiles inside the scrolling list without a paginator', async () => {
-      itemsSignal.set([buildCard()]);
-      totalCountSignal.set(1);
-      const { fixture } = await createPage();
-      fixture.detectChanges();
-      const el: HTMLElement = fixture.nativeElement;
+  /** Regeln der Component-Styles für `.sellers-page__list`, jeweils mit ihrer Media-Query (oder null). */
+  function listStyleRules(): { media: string | null; style: CSSStyleDeclaration }[] {
+    const found: { media: string | null; style: CSSStyleDeclaration }[] = [];
+    const collect = (rules: CSSRuleList, media: string | null): void => {
+      for (const rule of Array.from(rules)) {
+        if ('media' in rule && 'cssRules' in rule) {
+          const mediaRule = rule as CSSMediaRule;
+          collect(mediaRule.cssRules, mediaRule.media.mediaText);
+        } else if (
+          'selectorText' in rule &&
+          (rule as CSSStyleRule).selectorText.includes('.sellers-page__list')
+        ) {
+          found.push({ media, style: (rule as CSSStyleRule).style });
+        }
+      }
+    };
+    for (const sheet of Array.from(document.styleSheets)) {
+      collect(sheet.cssRules, null);
+    }
+    return found;
+  }
 
-      expect(el.querySelector('.sellers-page__list .sellers-page__grid app-seller-card')).not.toBeNull();
-      expect(el.querySelector('.sellers-page__list [appLoadMoreSentinel]')).not.toBeNull();
-      expect(el.querySelector('p-paginator')).toBeNull();
-    });
+  async function renderWithViewportSize(clientHeight: number, scrollHeight: number): Promise<HTMLElement> {
+    itemsSignal.set([buildCard()]);
+    totalCountSignal.set(1);
+    const { fixture } = await createPage();
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    const viewport = el.querySelector('p-scrollarea-viewport') as HTMLElement;
+    Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: clientHeight });
+    Object.defineProperty(viewport, 'scrollHeight', { configurable: true, value: scrollHeight });
+    (fixture.debugElement.query(By.directive(ScrollArea)).componentInstance as ScrollArea).refresh();
+    fixture.detectChanges();
+    return el;
+  }
+
+  it('styles_from769px_giveKachellisteRemainingHeightWithoutNativeOverflow', async () => {
+    // Arrange
+    itemsSignal.set([buildCard()]);
+    totalCountSignal.set(1);
+
+    // Act
+    await createPage();
+    const desktopRules = listStyleRules().filter(
+      (rule) => (rule.media ?? '').replace(/\s/g, '') === '(min-width:769px)',
+    );
+
+    // Assert
+    expect(desktopRules.length).toBeGreaterThan(0);
+    expect(desktopRules.some((rule) => rule.style.getPropertyValue('flex').trim().startsWith('1'))).toBe(true);
+    expect(
+      desktopRules.some((rule) => ['0', '0px'].includes(rule.style.getPropertyValue('min-height').trim())),
+    ).toBe(true);
+    expect(desktopRules.every((rule) => rule.style.getPropertyValue('overflow-y') === '')).toBe(true);
+    expect(desktopRules.every((rule) => rule.style.getPropertyValue('overflow') === '')).toBe(true);
+  });
+
+  it('styles_upTo768px_giveKachellisteNoOwnScrollHeight', async () => {
+    // Arrange
+    itemsSignal.set([buildCard()]);
+    totalCountSignal.set(1);
+
+    // Act
+    await createPage();
+    const rules = listStyleRules();
+    const baseRules = rules.filter((rule) => rule.media === null);
+    const mediaRules = rules.filter((rule) => rule.media !== null);
+
+    // Assert
+    expect(rules.length).toBeGreaterThan(0);
+    expect(
+      mediaRules.every((rule) => (rule.media ?? '').replace(/\s/g, '') === '(min-width:769px)'),
+    ).toBe(true);
+    for (const rule of baseRules) {
+      for (const property of ['height', 'max-height', 'min-height', 'flex', 'flex-grow', 'overflow', 'overflow-y']) {
+        expect(rule.style.getPropertyValue(property)).toBe('');
+      }
+    }
+  });
+
+  it('refresh_withMoreTilesThanSpace_showsVerticalScrollbar', async () => {
+    // Arrange
+    const el = await renderWithViewportSize(600, 2000);
+
+    // Act
+    const scrollbar = el.querySelector(
+      'p-scrollarea.sellers-page__list p-scrollarea-scrollbar[data-orientation="vertical"]',
+    ) as HTMLElement;
+    const viewport = el.querySelector('p-scrollarea.sellers-page__list p-scrollarea-viewport') as HTMLElement;
+
+    // Assert
+    expect(scrollbar.style.display).not.toBe('none');
+    expect(viewport.hasAttribute('data-scroll-y-after')).toBe(true);
+  });
+
+  it('refresh_withFewerTilesThanSpace_hidesVerticalScrollbar', async () => {
+    // Arrange
+    const el = await renderWithViewportSize(600, 300);
+
+    // Act
+    const scrollbar = el.querySelector(
+      'p-scrollarea.sellers-page__list p-scrollarea-scrollbar[data-orientation="vertical"]',
+    ) as HTMLElement;
+    const viewport = el.querySelector('p-scrollarea.sellers-page__list p-scrollarea-viewport') as HTMLElement;
+
+    // Assert
+    expect(scrollbar.style.display).toBe('none');
+    expect(viewport.hasAttribute('data-scroll-y-after')).toBe(false);
+  });
+
+  it('render_withSellers_putsGridAndSentinelIntoScrollAreaContentWithoutPaginator', async () => {
+    // Arrange
+    itemsSignal.set([buildCard()]);
+    totalCountSignal.set(1);
+
+    // Act
+    const { fixture } = await createPage();
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+
+    // Assert
+    const content = el.querySelector(
+      'p-scrollarea.sellers-page__list p-scrollarea-viewport p-scrollarea-content',
+    );
+    expect(content?.querySelector('.sellers-page__grid app-seller-card')).not.toBeNull();
+    expect(content?.querySelector('[appLoadMoreSentinel]')).not.toBeNull();
+    expect(el.querySelector('div.sellers-page__list')).toBeNull();
+    expect(el.querySelector('p-paginator')).toBeNull();
+  });
+
+  it('render_withSellers_usesAutoScrollbarWithoutFadeMask', async () => {
+    // Arrange
+    itemsSignal.set([buildCard()]);
+    totalCountSignal.set(1);
+
+    // Act
+    const { fixture } = await createPage();
+    fixture.detectChanges();
+    const root = (fixture.nativeElement as HTMLElement).querySelector('p-scrollarea.sellers-page__list');
+
+    // Assert
+    expect(root?.getAttribute('data-variant')).toBe('auto');
+    expect(root?.classList.contains('p-scrollarea-mask')).toBe(false);
+    expect(
+      root?.querySelector('p-scrollarea-scrollbar[data-orientation="vertical"] p-scrollarea-handle'),
+    ).not.toBeNull();
+  });
+
+  it('render_withSellers_keepsFilterRowsOutsideScrollArea', async () => {
+    // Arrange
+    itemsSignal.set([buildCard()]);
+    totalCountSignal.set(1);
+
+    // Act
+    const { fixture } = await createPage();
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+
+    // Assert
+    expect(el.querySelectorAll('.sellers-page__filter-row').length).toBe(2);
+    expect(el.querySelector('p-scrollarea .sellers-page__filter-row')).toBeNull();
+  });
+
+  it('cardClick_onTileInsideScrollArea_opensDetailModal', async () => {
+    // Arrange
+    itemsSignal.set([buildCard()]);
+    totalCountSignal.set(1);
+    const { fixture, component } = await createPage();
+    fixture.detectChanges();
+    const tile = fixture.debugElement.query(By.css('p-scrollarea app-seller-card'));
+
+    // Act
+    tile.triggerEventHandler('cardClick', buildCard());
+
+    // Assert
+    expect(component.detailModalVisible()).toBe(true);
+    expect(component.selectedCardForDetail()?.id).toBe('s1');
+  });
 
     it('loads more when the list end is reached and more sellers exist', async () => {
       hasMoreSignal.set(true);
