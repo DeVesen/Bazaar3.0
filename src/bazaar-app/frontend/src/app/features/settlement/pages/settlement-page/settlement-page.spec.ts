@@ -347,25 +347,21 @@ describe('SettlementPage', () => {
       expect(el.querySelector('.settlement-page__actionbar')).toBeNull();
     });
 
-    it('template_unsettledSeller_rendersNameThenAddressInCenterAndNoSettledTag', async () => {
+    it('template_unsettledSeller_rendersNameAddressAndCityInOneLineAndNoSettledTag', async () => {
       // Arrange
       // Act
       const { center } = await renderActionBar({ settledAt: null });
 
       // Assert
-      expect(Array.from(center.children).map((c) => c.className)).toEqual([
-        'settlement-page__name',
-        'settlement-page__address',
-      ]);
-      expect(center.querySelector('.settlement-page__name')?.textContent?.trim()).toBe('Anna Meier');
-      expect(center.querySelector('.settlement-page__address')?.textContent?.trim()).toBe(
-        'Hauptstr. 1, 76133 Karlsruhe',
+      expect(Array.from(center.children).map((c) => c.className)).toEqual(['settlement-page__name']);
+      expect(center.querySelector('.settlement-page__name')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+        'Anna Meier | Hauptstr. 1 | 76133 Karlsruhe',
       );
       expect(center.textContent).not.toContain('Abgerechnet am');
       expect(center.querySelector('p-tag')).toBeNull();
     });
 
-    it('template_settledSeller_rendersNameAddressAndSettledTagInCenterInOrder', async () => {
+    it('template_settledSeller_rendersSellerLineAndSettledTagInCenterInOrder', async () => {
       // Arrange
       // Act
       const { center } = await renderActionBar({
@@ -374,11 +370,7 @@ describe('SettlementPage', () => {
       });
 
       // Assert
-      expect(Array.from(center.children).map((c) => c.tagName.toLowerCase())).toEqual([
-        'span',
-        'span',
-        'p-tag',
-      ]);
+      expect(Array.from(center.children).map((c) => c.tagName.toLowerCase())).toEqual(['span', 'p-tag']);
       const tag = center.querySelector('p-tag') as HTMLElement;
       expect(tag.textContent).toContain('Abgerechnet am');
       expect(tag.textContent).toContain('332.94');
@@ -429,12 +421,10 @@ describe('SettlementPage', () => {
       // Assert
       expect(getComputedStyle(center).textAlign).toBe('center');
       expect(getComputedStyle(center).alignItems).toBe('center');
-      for (const selector of ['.settlement-page__name', '.settlement-page__address']) {
-        const style = getComputedStyle(center.querySelector(selector) as HTMLElement);
-        expect(style.overflow).toBe('hidden');
-        expect(style.textOverflow).toBe('ellipsis');
-        expect(style.whiteSpace).toBe('nowrap');
-      }
+      const style = getComputedStyle(center.querySelector('.settlement-page__name') as HTMLElement);
+      expect(style.overflow).toBe('hidden');
+      expect(style.textOverflow).toBe('ellipsis');
+      expect(style.whiteSpace).toBe('nowrap');
       expect(getComputedStyle(center.querySelector('p-tag') as HTMLElement).textOverflow).not.toBe('ellipsis');
     });
 

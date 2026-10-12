@@ -18,8 +18,11 @@
       </div>
 
       <div class="settlement-page__bar-center">
-        <span class="settlement-page__name">{{ s.seller.firstName }} {{ s.seller.lastName }}</span>
-        <span class="settlement-page__address">{{ s.seller.address }}, {{ s.seller.postalCode }} {{ s.seller.city }}</span>
+        <span class="settlement-page__name">
+          {{ s.seller.firstName }} {{ s.seller.lastName }}
+          @if (s.seller.address) { | {{ s.seller.address }} }
+          @if (s.seller.postalCode || s.seller.city) { | {{ s.seller.postalCode }} {{ s.seller.city }} }
+        </span>
         @if (isSettled()) {
           <p-tag
             severity="success"

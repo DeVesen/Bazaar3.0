@@ -49,8 +49,7 @@
     text-align: center;
   }
 
-  &__name,
-  &__address {
+  &__name {
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -67,10 +66,6 @@
   &__name {
     font-weight: 600;
     font-size: 1.125rem;
-  }
-
-  &__address {
-    color: var(--p-text-muted-color);
   }
 }
 
