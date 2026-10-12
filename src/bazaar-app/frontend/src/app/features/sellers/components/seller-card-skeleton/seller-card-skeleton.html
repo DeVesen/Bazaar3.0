@@ -1,0 +1,31 @@
+<div class="seller-card-skeleton">
+  <div class="seller-card-skeleton__name">
+    <p-skeleton width="60%" height="1.25rem" />
+  </div>
+
+  <div class="seller-card-skeleton__address">
+    <p-skeleton width="45%" height="0.875rem" />
+  </div>
+
+  <div class="seller-card-skeleton__status">
+    <p-skeleton width="5rem" height="1.5rem" borderRadius="1rem" />
+  </div>
+
+  <div class="seller-card-skeleton__stats">
+    @for (slot of statSlots; track slot) {
+      <div class="seller-card-skeleton__stat">
+        <p-skeleton width="50%" height="0.75rem" />
+        <p-skeleton width="30%" height="1rem" />
+      </div>
+    }
+  </div>
+
+  <div class="seller-card-skeleton__footer">
+    @for (slot of footerSlots; track slot) {
+      <div class="seller-card-skeleton__footer-item">
+        <p-skeleton width="70%" height="0.75rem" />
+        <p-skeleton width="50%" height="1rem" />
+      </div>
+    }
+  </div>
+</div>
