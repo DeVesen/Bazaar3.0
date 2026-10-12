@@ -1,4 +1,4 @@
-# Filterleiste der Verkäuferseite als einzeilige Leiste
+# Filterleiste der Verkäuferseite als gerahmte Leiste
 
 Status: bestätigt am 2026-10-12
 Art: verankert
