@@ -162,6 +162,23 @@ function selectSeller(component: SettlementPage, overrides: Partial<SellerSummar
 }
 
 describe('SettlementPage', () => {
+  async function renderSelectedSeller(
+    settlementOverrides: Partial<SellerSettlement> = {},
+    printService?: ReturnType<typeof printServiceStub>,
+  ) {
+    const settlementApi = settlementApiStub();
+    settlementApi.getSettlement.mockReturnValue(of(settlement(settlementOverrides)));
+    const { fixture, component, printService: usedPrintService } = await setup({
+      settlementApi,
+      ...(printService ? { printService } : {}),
+    });
+    selectSeller(component);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const el: HTMLElement = fixture.nativeElement;
+    return { fixture, component, el, printService: usedPrintService };
+  }
+
   it('shows "Abrechnung" as page title before a seller is selected', async () => {
     const { fixture } = await setup();
     const el: HTMLElement = fixture.nativeElement;
@@ -242,13 +259,7 @@ describe('SettlementPage', () => {
       end: HTMLElement;
       backButton: HTMLButtonElement;
     }> {
-      const settlementApi = settlementApiStub();
-      settlementApi.getSettlement.mockReturnValue(of(settlement(settlementOverrides)));
-      const { fixture, component } = await setup({ settlementApi });
-      selectSeller(component);
-      fixture.detectChanges();
-      await fixture.whenStable();
-      const el: HTMLElement = fixture.nativeElement;
+      const { fixture, component, el } = await renderSelectedSeller(settlementOverrides);
       const bar = el.querySelector<HTMLElement>('.settlement-page > p-toolbar.settlement-page__actionbar');
       const start = bar?.querySelector<HTMLElement>(':scope > .settlement-page__bar-start');
       const center = bar?.querySelector<HTMLElement>(':scope > .settlement-page__bar-center');
@@ -433,13 +444,7 @@ describe('SettlementPage', () => {
       settlementOverrides: Partial<SellerSettlement>,
       printService = printServiceStub(),
     ) {
-      const settlementApi = settlementApiStub();
-      settlementApi.getSettlement.mockReturnValue(of(settlement(settlementOverrides)));
-      const { fixture, component } = await setup({ settlementApi, printService });
-      selectSeller(component);
-      fixture.detectChanges();
-      await fixture.whenStable();
-      const el: HTMLElement = fixture.nativeElement;
+      const { fixture, component, el } = await renderSelectedSeller(settlementOverrides, printService);
       const [print, giveBack, settle] = Array.from(
         el.querySelectorAll<HTMLButtonElement>('.settlement-page__bar-end p-button button'),
       );
