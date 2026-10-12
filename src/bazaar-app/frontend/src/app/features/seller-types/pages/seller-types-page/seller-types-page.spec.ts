@@ -72,9 +72,104 @@ describe('SellerTypesPage', () => {
 
   it('passes the exact emptyText through', () => {
     const { component } = createPage();
-    expect(component.emptyText).toBe(
-      'Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit + Neu beginnen.',
+    sellerTypesSignal.set([]);
+
+    expect(component.emptyText()).toBe(
+      'Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit „+" beginnen.',
     );
+  });
+
+  describe('search', () => {
+    function threeTypes(): SellerType[] {
+      return [
+        sellerType({ id: '1', name: 'Anna' }),
+        sellerType({ id: '2', name: 'Berta' }),
+        sellerType({ id: '3', name: 'Carla' }),
+      ];
+    }
+
+    it('onSearchChange_partialTermInOtherCase_showsOnlyMatchingNames', () => {
+      // Arrange
+      sellerTypesSignal.set([
+        sellerType({ id: '1', name: 'Privat' }),
+        sellerType({ id: '2', name: 'Händler' }),
+      ]);
+      const { component } = createPage();
+
+      // Act
+      component.onSearchChange('HÄ');
+
+      // Assert
+      expect(component.rows().map((row) => row.name)).toEqual(['Händler']);
+    });
+
+    it('onSearchChange_termCleared_showsAllSellerTypesAgain', () => {
+      // Arrange
+      sellerTypesSignal.set(threeTypes());
+      const { component } = createPage();
+      component.onSearchChange('berta');
+
+      // Act
+      component.onSearchChange('');
+
+      // Assert
+      expect(component.rows().map((row) => row.name)).toEqual(['Anna', 'Berta', 'Carla']);
+    });
+
+    it('onSearchChange_activeSort_keepsChosenSortOrder', () => {
+      // Arrange
+      sellerTypesSignal.set(threeTypes());
+      const { component } = createPage();
+      component.onSortChange([{ field: 'name', order: 'desc' }]);
+
+      // Act
+      component.onSearchChange('r');
+      const afterFirstTerm = component.rows().map((row) => row.name);
+      component.onSearchChange('a');
+      const afterSecondTerm = component.rows().map((row) => row.name);
+
+      // Assert
+      expect(afterFirstTerm).toEqual(['Carla', 'Berta']);
+      expect(afterSecondTerm).toEqual(['Carla', 'Berta', 'Anna']);
+    });
+
+    it('onSearchChange_anyTerm_doesNotReloadFromStore', () => {
+      // Arrange
+      const { component } = createPage();
+
+      // Act
+      component.onSearchChange('xyz');
+
+      // Assert
+      expect(load).toHaveBeenCalledTimes(1);
+    });
+
+    it('emptyText_termWithoutMatchWhileTypesExist_returnsNoResultsText', () => {
+      // Arrange
+      sellerTypesSignal.set(threeTypes());
+      const { component } = createPage();
+
+      // Act
+      component.onSearchChange('zzz');
+
+      // Assert
+      expect(component.rows()).toEqual([]);
+      expect(component.emptyText()).toBe('Keine Verkäufer-Typen gefunden.');
+    });
+
+    it('emptyText_noSellerTypesAndNoTerm_returnsEmptyListText', () => {
+      // Arrange
+      sellerTypesSignal.set([]);
+      isAdminSignal.set(false);
+
+      // Act
+      const { component } = createPage();
+
+      // Assert
+      expect(component.emptyText()).toBe(
+        'Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit „+" beginnen.',
+      );
+    });
   });
 
   it('marks every column as not filterable', () => {

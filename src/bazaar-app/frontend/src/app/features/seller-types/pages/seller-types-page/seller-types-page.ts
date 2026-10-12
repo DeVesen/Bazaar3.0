@@ -21,7 +21,8 @@ import { SellerType } from '../../data/seller-types-api';
 import { SellerTypesStore } from '../../seller-types-store';
 
 const EMPTY_TEXT =
-  'Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit + Neu beginnen.';
+  'Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit „+" beginnen.';
+const NO_RESULTS_TEXT = 'Keine Verkäufer-Typen gefunden.';
 
 interface ValidationProblemBody {
   errors?: Record<string, string[]>;
@@ -43,13 +44,13 @@ export class SellerTypesPage {
   private readonly messageService = inject(MessageService);
 
   readonly loading = this.sellerTypesStore.loading;
-  readonly emptyText = EMPTY_TEXT;
 
   readonly popupVisible = signal(false);
   readonly popupMode = signal<'create' | 'edit'>('create');
   readonly editingSellerType = signal<SellerType | null>(null);
   readonly saving = signal(false);
   readonly serverErrors = signal<TypPopupServerErrors | null>(null);
+  readonly searchTerm = signal('');
   private readonly sortState = signal<SortEvent[]>([]);
 
   readonly columns: ColumnConfig[] = [
@@ -60,10 +61,19 @@ export class SellerTypesPage {
   ];
 
   readonly rows = computed<SellerType[]>(() => {
-    const rows = this.sellerTypesStore.sellerTypes();
+    const term = this.searchTerm().toLocaleLowerCase();
+    const matching = this.sellerTypesStore
+      .sellerTypes()
+      .filter((sellerType) => sellerType.name.toLocaleLowerCase().includes(term));
     const sort = this.sortState();
-    return sort.length === 0 ? rows : [...rows].sort((a, b) => this.compareBySort(a, b, sort));
+    return sort.length === 0 ? matching : matching.sort((a, b) => this.compareBySort(a, b, sort));
   });
+
+  readonly emptyText = computed(() =>
+    this.sellerTypesStore.sellerTypes().length > 0 && this.rows().length === 0
+      ? NO_RESULTS_TEXT
+      : EMPTY_TEXT,
+  );
 
   readonly actionColumn = computed<ActionColumnConfig | null>(() =>
     this.roleService.isAdmin()
@@ -95,6 +105,10 @@ export class SellerTypesPage {
 
   onSortChange(sort: SortEvent[]): void {
     this.sortState.set(sort);
+  }
+
+  onSearchChange(term: string): void {
+    this.searchTerm.set(term);
   }
 
   onRowAdd(): void {
