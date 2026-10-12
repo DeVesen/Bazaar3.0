@@ -57,3 +57,7 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 
 - Epic = Verzeichnis `docs/requirements/<app>/epics/<Epic-Name>/` (`epic.md`, `stories/`).
 - Fachliches Epic = vollständiger Durchstich FE+BE (Ausnahme: `Epic_Projektanlage`, `Epic_App_Shell`); Details: Spec §10.0.2 / §7.0.2.
+
+## dv-forge
+
+- Worktree: ja
