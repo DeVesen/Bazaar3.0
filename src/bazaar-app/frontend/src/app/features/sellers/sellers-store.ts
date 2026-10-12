@@ -93,17 +93,20 @@ export class SellersStore {
             this.items.set(response.items);
           }
           this.totalCount.set(response.totalCount);
-          this.loading.set(false);
-          this.loadedOnce = true;
-          this.skeletonVisible.set(false);
+          this.finishLoad();
         },
         error: () => {
           if (sequence !== this.requestSequence) return;
-          this.loading.set(false);
-          this.loadedOnce = true;
-          this.skeletonVisible.set(false);
+          this.finishLoad();
         },
       });
+  }
+
+  /** Gemeinsamer Abschluss eines `load()`: Ladezustand beenden, Skeleton ausblenden. */
+  private finishLoad(): void {
+    this.loading.set(false);
+    this.loadedOnce = true;
+    this.skeletonVisible.set(false);
   }
 
   /** Nächste 60 Verkäufer ans Listenende anhängen (Epic_Verkaeufer: Nachladen statt Paginator). */
