@@ -1,0 +1,47 @@
+# Angular InputNumber Component — Numerals
+
+## Numerals
+
+InputNumber supports decimal numbers with precision control.
+
+```typescript
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { FluidModule } from 'primeng/fluid';
+import { LabelModule } from 'primeng/label';
+
+@Component({
+    template: `
+        <p-fluid class="flex flex-wrap gap-4">
+            <div class="flex-auto">
+                <label pLabel class="font-bold! block mb-2" for="integeronly">Integer Only</label>
+                <p-inputnumber inputId="integeronly" [(ngModel)]="value1" fluid />
+            </div>
+            <div class="flex-auto">
+                <label pLabel class="font-bold! block mb-2" for="withoutgrouping">Without Grouping</label>
+                <p-inputnumber [(ngModel)]="value2" mode="decimal" inputId="withoutgrouping" [useGrouping]="false" fluid />
+            </div>
+            <div class="flex-auto">
+                <label pLabel class="font-bold! block mb-2" for="minmaxfraction">Min-Max Fraction Digits</label>
+                <p-inputnumber [(ngModel)]="value3" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5" fluid />
+            </div>
+            <div class="flex-auto">
+                <label pLabel class="font-bold! block mb-2" for="minmax">Min-Max Boundaries</label>
+                <p-inputnumber [(ngModel)]="value4" inputId="minmax" mode="decimal" [min]="0" [max]="100" fluid />
+            </div>
+        </p-fluid>
+    `,
+    standalone: true,
+    imports: [InputNumberModule, FluidModule, LabelModule, FormsModule]
+})
+export class InputNumberNumeralsDemo {
+    value1: number = 42723;
+
+    value2: number = 58151;
+
+    value3: number = 2351.35;
+
+    value4: number = 50;
+}
+```

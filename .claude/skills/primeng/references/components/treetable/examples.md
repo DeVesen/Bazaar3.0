@@ -1,0 +1,41 @@
+# Angular TreeTable Component — Beispiele (Index)
+
+Nur die benötigte Datei lesen.
+
+- `examples-advanced.md` — Advanced: Sort, filter (per-column + global), and cell editing composed in a single tree.
+- `examples-basic.md` — Basic: TreeTable requires a collection of TreeNode instances as a value with ttRow rows and the toggler placed on the
+- `examples-column-group.md` — Column Group: Columns can be grouped at header and footer using rowspan and colspan properties.
+- `examples-columnresizeexpand.md` — Columnresizeexpand: Setting columnResizeMode as expand changes the table width as well.
+- `examples-columnresizefit.md` — Columnresizefit: Columns can be resized with drag and drop when resizableColumns is enabled.
+- `examples-columnresizescrollable.md` — Columnresizescrollable: To utilize the column resize modes with a scrollable TreeTable, a colgroup template must be defined.
+- `examples-column-toggle.md` — Column Toggle: Show/hide columns dynamically.
+- `examples-conditional-style.md` — Conditional Style: Particular rows and cells can be styled based on conditions.
+- `examples-context-menu.md` — Context Menu: TreeTable has exclusive integration with contextmenu component.
+- `examples-controlled.md` — Controlled: Expansion state is controlled with expandedKeys property.
+- `examples-dynamic-columns.md` — Dynamic Columns: Columns can be created programmatically.
+- `examples-edit.md` — Edit: Incell editing is enabled by defining input elements with treeTableCellEditor .
+- `examples-empty-state.md` — Empty State: Use the emptymessage template for a custom empty-state view.
+- `examples-filterbasic.md` — Filterbasic: Per-column row filters with a global keyword search.
+- `examples-flexiblescroll.md` — Flexiblescroll: Flex scroll feature makes the scrollable viewport section dynamic instead of a fixed value so that it can grow
+- `examples-grid-lines.md` — Grid Lines: Enable the showGridlines property to render borders between cells.
+- `examples-lazy-load.md` — Lazy Load: Children can be loaded on demand using onNodeExpand callback to implement lazy loading.
+- `examples-loadingmask.md` — Loadingmask: The loading property displays a mask layer to indicate busy state.
+- `examples-loadingskeleton.md` — Loadingskeleton: Skeleton placeholders are displayed during the loading process.
+- `examples-multiplepresort.md` — Multiplepresort: Apply an initial multi-column sort on mount by setting sortMode to multiple together with multiSortMeta .
+- `examples-basic-2.md` — Basic: Pagination is enabled by adding paginator property and defining rows per page.
+- `examples-template.md` — Template: Paginator UI is customized using the paginatorleft and paginatorright templates.
+- `examples-presort.md` — Presort: Apply an initial sort on mount using sortField and sortOrder .
+- `examples-reorder.md` — Reorder: Drag and drop column headers to reorder columns with reorderableColumns .
+- `examples-row-edit.md` — Row Edit: Row editing toggles the visibility of all editors in the row at once, providing save and cancel actions.
+- `examples-scrollfrozencolumns.md` — Scrollfrozencolumns: A column can be fixed during horizontal scrolling by enabling the frozenColumns property.
+- `examples-scrollhorizontal.md` — Scrollhorizontal: Horizontal scrolling is enabled when the total width of columns exceeds table width.
+- `examples-scrollvertical.md` — Scrollvertical: Vertical scrolling with fixed headers is enabled by setting scrollable and scrollHeight properties.
+- `examples-selectioncheckbox.md` — Selectioncheckbox: Checkbox column with propagating selection — toggling a parent selects all descendants, partial state renders 
+- `examples-selectionevents.md` — Selectionevents: TreeTable provides onNodeSelect and onNodeUnselect events to listen selection events.
+- `examples-multiple.md` — Multiple: More than one node is selectable by setting selectionMode to multiple .
+- `examples-single.md` — Single: Single node selection is configured by setting selectionMode as single .
+- `examples-size.md` — Size: Use the size property with small or large to adjust cell padding.
+- `examples-multiple-columns.md` — Multiple Columns: Multiple columns can be sorted by defining sortMode as multiple .
+- `examples-sortremovable.md` — Sortremovable: The third consecutive click on a sorted column removes the sorting and restores the original order.
+- `examples-single-column.md` — Single Column: Sorting is evaluated per tree level — siblings are sorted against each other while the hierarchy stays intact.
+- `examples-template-2.md` — Template: Custom content at caption , header , body and summary sections are supported via templating.

@@ -1,0 +1,84 @@
+# Angular Select Component — Customfilter
+
+## Customfilter
+
+Custom filter can be applied with the filterTemplate .
+
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { SelectModule } from 'primeng/select';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { Country } from '@/domain/customer';
+
+interface City {
+    name: string;
+    code: string;
+}
+
+@Component({
+    template: `
+        <div class="flex justify-center">
+            <p-select [options]="countries" [(ngModel)]="selectedCountry" optionLabel="name" [filter]="true" filterBy="name" [showClear]="true" placeholder="Select a Country">
+                <ng-template #filter let-options="options">
+                    <div class="flex gap-1">
+                        <p-inputgroup (click)="$event.stopPropagation()">
+                            <p-inputgroup-addon><i class="pi pi-search"></i></p-inputgroup-addon>
+                            <input type="text" pInputText placeholder="Filter" [(ngModel)]="filterValue" (keyup)="customFilterFunction($event, options)" />
+                        </p-inputgroup>
+                        <button type="button" pButton iconOnly (click)="resetFunction(options)" severity="secondary"><i class="pi pi-times"></i></button>
+                    </div>
+                </ng-template>
+                <ng-template #selectedItem let-selectedOption>
+                    <div class="flex items-center gap-2">
+                        <img src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png" [class]="'flag flag-' + selectedCountry.code.toLowerCase()" style="width: 18px" />
+                        <div>{{ selectedOption.name }}</div>
+                    </div>
+                </ng-template>
+                <ng-template #item let-country>
+                    <div class="flex items-center gap-2">
+                        <img src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png" [class]="'flag flag-' + country.code.toLowerCase()" style="width: 18px" />
+                        <div>{{ country.name }}</div>
+                    </div>
+                </ng-template>
+            </p-select>
+        </div>
+    `,
+    standalone: true,
+    imports: [SelectModule, InputGroupModule, InputGroupAddonModule, ButtonModule, InputTextModule, FormsModule]
+})
+export class SelectCustomFilterDemo implements OnInit {
+    countries: City[] | undefined;
+
+    selectedCountry: string | undefined;
+
+    filterValue: string | undefined = '';
+
+    ngOnInit() {
+        this.countries = [
+            { name: 'Australia', code: 'AU' },
+            { name: 'Brazil', code: 'BR' },
+            { name: 'China', code: 'CN' },
+            { name: 'Egypt', code: 'EG' },
+            { name: 'France', code: 'FR' },
+            { name: 'Germany', code: 'DE' },
+            { name: 'India', code: 'IN' },
+            { name: 'Japan', code: 'JP' },
+            { name: 'Spain', code: 'ES' },
+            { name: 'United States', code: 'US' }
+        ];
+    }
+
+    resetFunction(options: SelectFilterOptions) {
+        options.reset();
+        this.filterValue = '';
+    }
+
+    customFilterFunction(event: KeyboardEvent, options: SelectFilterOptions) {
+        options.filter(event);
+    }
+}
+```

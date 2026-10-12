@@ -1,0 +1,58 @@
+# Angular Table Component — Beispiele (Index)
+
+Nur die benötigte Datei lesen.
+
+- `examples-advanced.md` — Advanced: Sorting, per-column and global filtering, and cell editing composed in a single table.
+- `examples-basic.md` — Basic: DataTable requires a collection to display along with column components for the representation of the data.
+- `examples-celledit.md` — Celledit: Inline cell editing with pEditableColumn directive and p-cell-editor component that provides input and output 
+- `examples-celleditselection.md` — Celleditselection: Cell editing composes with row selection.
+- `examples-checkboxselection.md` — Checkboxselection: Checkbox-based multiple selection with a header select-all checkbox.
+- `examples-columngroup.md` — Columngroup: Multi-level headers with rowspan and colspan.
+- `examples-columngroupfiltersort.md` — Columngroupfiltersort: Sort and filter work on any leaf header cell in a grouped layout.
+- `examples-columnresizeexpandmode.md` — Columnresizeexpandmode: Dragging grows or shrinks the whole table; adjacent columns keep their widths.
+- `examples-columnresizefitmode.md` — Columnresizefitmode: Dragging a column takes width from the adjacent column so the total table width stays the same.
+- `examples-columnresizescrollablemode.md` — Columnresizescrollablemode: ```typescript import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/
+- `examples-columnselection.md` — Columnselection: Row selection with an element inside a column is implemented with templating.
+- `examples-columntoggle.md` — Columntoggle: Show/hide columns dynamically.
+- `examples-contextmenu.md` — Contextmenu: Table has exclusive integration with contextmenu component.
+- `examples-databaseeditor.md` — Databaseeditor: A spreadsheet-style table editor composed from Table , Menu , Checkbox , Drawer and Select : typed column head
+- `examples-dynamic-columns.md` — Dynamic Columns: Columns can be defined dynamically using the &#64;for block.
+- `examples-emptystate.md` — Emptystate: Custom empty state when no data is available, using the emptymessage template.
+- `examples-expandablerowgroup.md` — Expandablerowgroup: When expandableRowGroups is present in subheader based row grouping, groups can be expanded and collapsed.
+- `examples-export.md` — Export: Export table data to CSV with customizable fields and headers.
+- `examples-advanced-2.md` — Advanced: display="menu" swaps the inline input for a trigger icon that opens a popover.
+- `examples-filterbasic.md` — Filterbasic: Data filtering is enabled by defining the filters property referring to a DataTableFilterMeta instance.
+- `examples-flexiblescroll.md` — Flexiblescroll: scrollHeight="flex" lets the viewport grow and shrink with its flex parent — handy inside resizable dialogs or
+- `examples-frozencolumns.md` — Frozencolumns: Certain columns can be frozen by using the pFrozenColumn directive.
+- `examples-frozencolumnsmultiple.md` — Frozencolumnsmultiple: Multiple columns can be frozen on either side of the table.
+- `examples-frozenrows.md` — Frozenrows: Frozen rows are used to fix certain rows while scrolling, this data is defined with the frozenValue property.
+- `examples-grid-lines.md` — Grid Lines: Enabling showGridlines displays borders between cells.
+- `examples-horizontalscroll.md` — Horizontalscroll: When the combined column widths exceed the container, the table scrolls horizontally.
+- `examples-keyboard.md` — Keyboard: Arrow Up/Down moves focus between rows, Space or Enter toggles the focused row, and Shift + Arrow extends a ra
+- `examples-loadingmask.md` — Loadingmask: Set the loading prop to display a mask layer over the table while data is being fetched.
+- `examples-loadingskeleton.md` — Loadingskeleton: Render placeholder rows filled with Skeleton elements while the request is in flight.
+- `examples-multiplecolumnssort.md` — Multiplecolumnssort: Hold Ctrl/Cmd and click multiple column headers to sort by several fields at once.
+- `examples-multipleselection.md` — Multipleselection: Multiple rows without a dedicated column.
+- `examples-paginatorbasic.md` — Paginatorbasic: Pagination is enabled by setting paginator property to true and defining a rows property to specify the number
+- `examples-paginatorprogrammatic.md` — Paginatorprogrammatic: Paginator can also be controlled via model using a binding to the first property where changes trigger a pagin
+- `examples-presort.md` — Presort: Apply an initial sort on mount using sortField and sortOrder .
+- `examples-radiobuttonselection.md` — Radiobuttonselection: Radio-based single selection.
+- `examples-removablesort.md` — Removablesort: The removable sort can be implemented using the customSort property.
+- `examples-reorder.md` — Reorder: Drag and drop column headers to reorder columns.
+- `examples-rowedit.md` — Rowedit: Row-level editing with pEditableRow , pInitEditableRow , pSaveEditableRow and pCancelEditableRow directives.
+- `examples-rowexpansion.md` — Rowexpansion: Expand rows to show additional detail content.
+- `examples-rowreorder.md` — Rowreorder: Drag and drop rows to reorder data.
+- `examples-rowspangrouping.md` — Rowspangrouping: When rowGroupMode is configured to be rowspan , the grouping column spans multiple rows.
+- `examples-selectionevents.md` — Selectionevents: Table provides onRowSelect and onRowUnselect events to listen selection events.
+- `examples-singlecolumnsort.md` — Singlecolumnsort: Clicking a column header cycles through ascending, descending, and unsorted.
+- `examples-singleselection.md` — Singleselection: One row at a time.
+- `examples-size.md` — Size: Use the size property with small or large to adjust cell padding.
+- `examples-stateful.md` — Stateful: Stateful table allows keeping the state such as page, sort and filtering either at local storage or session st
+- `examples-striped-rows.md` — Striped Rows: Alternating rows are displayed when stripedRows property is present.
+- `examples-style.md` — Style: Certain rows or cells can easily be styled based on conditions.
+- `examples-styling.md` — Styling: ```typescript import { Component } from '@angular/core';  @Component({     template: `         <div class="doc
+- `examples-subheadergrouping.md` — Subheadergrouping: Rows are grouped with the groupRowsBy property.
+- `examples-template.md` — Template: Custom content at header , body and footer sections are supported via templating.
+- `examples-verticalscroll.md` — Verticalscroll: A fixed scrollHeight enables vertical scrolling with a sticky header.
+- `examples-virtualscroll.md` — Virtualscroll: Virtual Scrolling is an efficient way to render large amount data.
+- `examples-virtualscrolllazy.md` — Virtualscrolllazy: VirtualScroller is a performance-approach to handle huge data efficiently.

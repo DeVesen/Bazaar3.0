@@ -1,0 +1,174 @@
+# Angular ContextMenu Component — Template
+
+## Template
+
+ContextMenu offers item customization with the item template that receives the menuitem instance from the model as a parameter.
+
+```typescript
+import { Component, OnInit, viewChild } from '@angular/core';
+import { BadgeModule } from 'primeng/badge';
+import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
+import { RippleModule } from 'primeng/ripple';
+import { MenuItem } from 'primeng/api';
+import { Product } from '@/domain/product';
+
+@Component({
+    template: `
+        <div class="flex md:justify-center">
+            <ul class="m-0 list-none border border-surface-200 dark:border-surface-700 rounded-sm p-3 flex flex-col gap-2 w-full md:w-120">
+                @for (product of data; track product.id) {
+                    <li
+                        class="p-2 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-sm border border-transparent transition-all transition-duration-200"
+                        [class.border-primary]="selectedId === product.id"
+                        (contextmenu)="onContextMenu($event)"
+                    >
+                        <div class="flex flex-wrap p-2 items-center gap-4">
+                            <img class="w-16 shrink-0 rounded-sm" src="https://primefaces.org/cdn/primeng/images/demo/product/{{ product.image }}" [alt]="product.name" />
+                            <div class="flex-1 flex flex-col gap-1">
+                                <span class="font-bold text-sm">{{ product.name }}</span>
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-tag text-sm"></i>
+                                    <span class="text-sm">{{ product.category }}</span>
+                                </div>
+                            </div>
+                            <span class="font-bold ml-8 text-sm">&#36;{{ product.price }}</span>
+                        </div>
+                    </li>
+                }
+            </ul>
+            <p-contextmenu #cm [model]="items" (onHide)="onHide()">
+                <ng-template #item let-item>
+                    <a pRipple class="flex items-center px-3 py-2 cursor-pointer">
+                        <span [class]="item.icon"></span>
+                        <span class="ms-2">{{ item.label }}</span>
+                        @if (item.badge) {
+                            <p-badge class="ms-auto" [value]="item.badge" />
+                        }
+                        @if (item.shortcut) {
+                            <span class="ms-auto border border-surface rounded-sm bg-emphasis text-muted-color text-xs p-1">{{ item.shortcut }}</span>
+                        }
+                        @if (item.items) {
+                            <i class="pi pi-angle-right ms-auto rotate-90 lg:rotate-0"></i>
+                        }
+                    </a>
+                </ng-template>
+            </p-contextmenu>
+        </div>
+    `,
+    standalone: true,
+    imports: [BadgeModule, ContextMenuModule, RippleModule]
+})
+export class ContextMenuTemplateDemo implements OnInit {
+    items: MenuItem[] | undefined;
+
+    cm = viewChild<ContextMenu>('cm');
+
+    selectedId!: string;
+
+    data = [
+        {
+            id: '1000',
+            code: 'f230fh0g3',
+            name: 'Bamboo Watch',
+            description: 'Product Description',
+            image: 'bamboo-watch.jpg',
+            price: 65,
+            category: 'Accessories',
+            quantity: 24,
+            inventoryStatus: 'INSTOCK',
+            rating: 5
+        },
+        {
+            id: '1001',
+            code: 'nvklal433',
+            name: 'Black Watch',
+            description: 'Product Description',
+            image: 'black-watch.jpg',
+            price: 72,
+            category: 'Accessories',
+            quantity: 61,
+            inventoryStatus: 'INSTOCK',
+            rating: 4
+        },
+        {
+            id: '1002',
+            code: 'zz21cz3c1',
+            name: 'Blue Band',
+            description: 'Product Description',
+            image: 'blue-band.jpg',
+            price: 79,
+            category: 'Fitness',
+            quantity: 2,
+            inventoryStatus: 'LOWSTOCK',
+            rating: 3
+        },
+        {
+            id: '1003',
+            code: '244wgerg2',
+            name: 'Blue T-Shirt',
+            description: 'Product Description',
+            image: 'blue-t-shirt.jpg',
+            price: 29,
+            category: 'Clothing',
+            quantity: 25,
+            inventoryStatus: 'INSTOCK',
+            rating: 5
+        },
+        {
+            id: '1004',
+            code: 'h456wer53',
+            name: 'Bracelet',
+            description: 'Product Description',
+            image: 'bracelet.jpg',
+            price: 15,
+            category: 'Accessories',
+            quantity: 73,
+            inventoryStatus: 'INSTOCK',
+            rating: 4
+        }
+    ];
+
+    ngOnInit() {
+        this.items = [
+            {
+                label: 'Favorite',
+                icon: 'pi pi-star',
+                shortcut: '⌘+D'
+            },
+            {
+                label: 'Add',
+                icon: 'pi pi-shopping-cart',
+                shortcut: '⌘+A'
+            },
+            {
+                separator: true
+            },
+            {
+                label: 'Share',
+                icon: 'pi pi-share-alt',
+                items: [
+                    {
+                        label: 'Whatsapp',
+                        icon: 'pi pi-whatsapp',
+                        badge: '2'
+                    },
+                    {
+                        label: 'Instagram',
+                        icon: 'pi pi-instagram',
+                        badge: '3'
+                    }
+                ]
+            }
+        ];
+    }
+
+    onContextMenu(event) {
+        this.cm().target = event.currentTarget;
+        this.cm().show(event);
+    }
+
+    onHide() {
+        this.selectedId = undefined;
+    }
+}
+```
