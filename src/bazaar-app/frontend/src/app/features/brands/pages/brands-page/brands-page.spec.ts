@@ -64,8 +64,9 @@ describe('BrandsPage', () => {
   });
 
   it('passes the exact emptyText through', () => {
+    brandsSignal.set([]);
     const { component } = createPage();
-    expect(component.emptyText).toBe(
+    expect(component.emptyText()).toBe(
       'Noch keine Marken. Beim Import aus der Voranmelde-App werden sie mit übernommen.',
     );
   });
@@ -77,6 +78,143 @@ describe('BrandsPage', () => {
     for (const column of component.columns) {
       expect(column.filterable).toBe(false);
     }
+  });
+
+  describe('filter', () => {
+    const nike = brand({ id: 'b1', name: 'Nike', original: true, articleCount: 5 });
+    const adidas = brand({ id: 'b2', name: 'Adidas', original: false, articleCount: 2 });
+    const nikita = brand({ id: 'b3', name: 'Nikita', original: false, articleCount: 9 });
+
+    function namesOf(component: BrandsPage): string[] {
+      return component.rows().map((row) => row.name);
+    }
+
+    it('rows_noFilterSet_showsAllBrands', () => {
+      // Arrange
+      brandsSignal.set([nike, adidas]);
+      const { component } = createPage();
+
+      // Act
+      const names = namesOf(component);
+
+      // Assert
+      expect(names).toEqual(['Nike', 'Adidas']);
+    });
+
+    it('rows_searchTermInUpperCase_showsOnlyBrandsContainingItIgnoringCase', () => {
+      // Arrange
+      brandsSignal.set([nike, adidas]);
+      const { component } = createPage();
+
+      // Act
+      component.onSearchChange('NI');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Nike']);
+    });
+
+    it('rows_searchTermIsPartOfName_matchesInTheMiddleOfTheName', () => {
+      // Arrange
+      brandsSignal.set([nike, adidas]);
+      const { component } = createPage();
+
+      // Act
+      component.onSearchChange('did');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Adidas']);
+    });
+
+    it('rows_originalFilterNew_showsOnlyNewBrands', () => {
+      // Arrange
+      brandsSignal.set([nike, adidas]);
+      const { component } = createPage();
+
+      // Act
+      component.onOriginalChange('new');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Adidas']);
+    });
+
+    it('rows_originalFilterOriginal_showsOnlyOriginalBrands', () => {
+      // Arrange
+      brandsSignal.set([nike, adidas]);
+      const { component } = createPage();
+
+      // Act
+      component.onOriginalChange('original');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Nike']);
+    });
+
+    it('onOriginalChange_valueCleared_showsBrandsOfBothKindsAgain', () => {
+      // Arrange
+      brandsSignal.set([nike, adidas]);
+      const { component } = createPage();
+      component.onOriginalChange('new');
+
+      // Act
+      component.onOriginalChange(null);
+
+      // Assert
+      expect(component.originalFilter()).toBeNull();
+      expect(namesOf(component)).toEqual(['Nike', 'Adidas']);
+    });
+
+    it('rows_searchTermAndOriginalFilterSet_showsOnlyBrandsMatchingBoth', () => {
+      // Arrange
+      brandsSignal.set([nike, adidas, nikita]);
+      const { component } = createPage();
+
+      // Act
+      component.onSearchChange('ni');
+      component.onOriginalChange('new');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Nikita']);
+    });
+
+    it('rows_filterChangedAfterSortChosen_keepsChosenSort', () => {
+      // Arrange
+      brandsSignal.set([nike, adidas, nikita]);
+      const { component } = createPage();
+      component.onSortChange([{ field: 'articleCount', order: 'desc' }]);
+
+      // Act
+      component.onSearchChange('ni');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Nikita', 'Nike']);
+    });
+
+    it('emptyText_brandsExistButFilterMatchesNone_isNotFoundHint', () => {
+      // Arrange
+      brandsSignal.set([nike, adidas]);
+      const { component } = createPage();
+
+      // Act
+      component.onSearchChange('zzz');
+
+      // Assert
+      expect(component.rows()).toEqual([]);
+      expect(component.emptyText()).toBe('Keine Marken gefunden.');
+    });
+
+    it('emptyText_noBrandsAndNoFilter_isEmptyListHint', () => {
+      // Arrange
+      brandsSignal.set([]);
+      const { component } = createPage();
+
+      // Act
+      const text = component.emptyText();
+
+      // Assert
+      expect(text).toBe(
+        'Noch keine Marken. Beim Import aus der Voranmelde-App werden sie mit übernommen.',
+      );
+    });
   });
 
   describe('role-based visibility', () => {

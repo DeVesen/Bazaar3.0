@@ -21,6 +21,9 @@ import { BrandsStore } from '../../brands-store';
 
 const EMPTY_TEXT =
   'Noch keine Marken. Beim Import aus der Voranmelde-App werden sie mit übernommen.';
+const NOT_FOUND_TEXT = 'Keine Marken gefunden.';
+
+export type OriginalFilter = 'original' | 'new';
 
 interface BrandRow extends Brand {
   originalLabel: string;
@@ -42,7 +45,16 @@ export class BrandsPage {
   private readonly messageService = inject(MessageService);
 
   readonly loading = this.brandsStore.loading;
-  readonly emptyText = EMPTY_TEXT;
+  readonly searchTerm = signal('');
+  readonly originalFilter = signal<OriginalFilter | null>(null);
+  readonly originalOptions: { label: string; value: OriginalFilter }[] = [
+    { label: '✓ Original', value: 'original' },
+    { label: 'Neu', value: 'new' },
+  ];
+
+  readonly emptyText = computed(() =>
+    this.brandsStore.brands().length > 0 ? NOT_FOUND_TEXT : EMPTY_TEXT,
+  );
 
   readonly popupVisible = signal(false);
   readonly popupMode = signal<'create' | 'edit'>('create');
@@ -63,12 +75,21 @@ export class BrandsPage {
   ];
 
   readonly rows = computed<BrandRow[]>(() => {
-    const rows = this.brandsStore.brands().map(
-      (brand): BrandRow => ({
-        ...brand,
-        originalLabel: brand.original ? '✓ Original' : 'Neu',
-      }),
-    );
+    const term = this.searchTerm().toLocaleLowerCase();
+    const originalFilter = this.originalFilter();
+    const rows = this.brandsStore
+      .brands()
+      .filter(
+        (brand) =>
+          brand.name.toLocaleLowerCase().includes(term) &&
+          (originalFilter === null || brand.original === (originalFilter === 'original')),
+      )
+      .map(
+        (brand): BrandRow => ({
+          ...brand,
+          originalLabel: brand.original ? '✓ Original' : 'Neu',
+        }),
+      );
     const sort = this.sortState();
     return sort.length === 0 ? rows : [...rows].sort((a, b) => this.compareBySort(a, b, sort));
   });
@@ -93,6 +114,14 @@ export class BrandsPage {
 
   constructor() {
     this.brandsStore.load();
+  }
+
+  onSearchChange(value: string | null): void {
+    this.searchTerm.set(value ?? '');
+  }
+
+  onOriginalChange(value: OriginalFilter | null | undefined): void {
+    this.originalFilter.set(value ?? null);
   }
 
   onSortChange(sort: SortEvent[]): void {
