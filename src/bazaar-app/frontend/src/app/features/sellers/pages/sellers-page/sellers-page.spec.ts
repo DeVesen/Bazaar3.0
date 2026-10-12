@@ -424,14 +424,24 @@ describe('SellersPage', () => {
       expect((fixture.nativeElement as HTMLElement).textContent).toContain('Noch keine Verkäufer.');
     });
 
-    it('render_skeletonVisible_announcesLoadingStatusAndDropsItWithPlaceholders', async () => {
+    it('render_noSkeleton_hasPermanentEmptyLiveRegion', async () => {
+      // Arrange + Act
+      const { fixture } = await createPage();
+
+      // Assert
+      const regions = (fixture.nativeElement as HTMLElement).querySelectorAll('[role="status"]');
+      expect(regions.length).toBe(1);
+      expect(regions[0].classList.contains('sellers-page__sr-only')).toBe(true);
+      expect(regions[0].textContent?.trim()).toBe('');
+    });
+
+    it('render_skeletonVisible_liveRegionAnnouncesLoadingAndEmptiesAgain', async () => {
       // Arrange
       showSkeletonSignal.set(true);
       loadingSignal.set(true);
       const { fixture } = await createPage();
       const host = fixture.nativeElement as HTMLElement;
-      const status = host.querySelector('[role="status"]');
-      expect(status?.textContent).toContain('Verkäufer werden geladen');
+      expect(host.querySelector('[role="status"]')?.textContent?.trim()).toBe('Verkäufer werden geladen');
 
       // Act
       showSkeletonSignal.set(false);
@@ -439,8 +449,39 @@ describe('SellersPage', () => {
       await settle(fixture);
 
       // Assert
-      expect(host.querySelector('[role="status"]')).toBeNull();
+      expect(host.querySelectorAll('[role="status"]').length).toBe(1);
+      expect(host.querySelector('[role="status"]')?.textContent?.trim()).toBe('');
       expect(host.textContent).not.toContain('Verkäufer werden geladen');
+    });
+
+    it('render_skeletonToggles_liveRegionStaysSameDomElement', async () => {
+      // Arrange
+      const { fixture } = await createPage();
+      const host = fixture.nativeElement as HTMLElement;
+      const before = host.querySelector('[role="status"]');
+
+      // Act
+      showSkeletonSignal.set(true);
+      await settle(fixture);
+      const during = host.querySelector('[role="status"]');
+      showSkeletonSignal.set(false);
+      await settle(fixture);
+
+      // Assert
+      expect(during).toBe(before);
+      expect(host.querySelector('[role="status"]')).toBe(before);
+    });
+
+    it('render_skeletonVisible_skeletonContainerHasNoOwnStatusRole', async () => {
+      // Arrange
+      showSkeletonSignal.set(true);
+      const { fixture } = await createPage();
+      const host = fixture.nativeElement as HTMLElement;
+
+      // Assert
+      expect(host.querySelectorAll('[role="status"]').length).toBe(1);
+      expect(host.querySelector('.sellers-page__list [role="status"]')).toBeNull();
+      expect(host.querySelector('.sellers-page__list .sellers-page__sr-only')).toBeNull();
     });
   });
 
