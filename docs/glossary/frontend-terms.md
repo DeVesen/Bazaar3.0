@@ -64,3 +64,8 @@
 - **Maps to:** `src/advance-registration/frontend/BAR.App/src/app/core/shell/page-layout/` — zentrale Titel-Leiste über jeder eingeloggten Route (`<h1 class="page-title">`, aus `route.data['title']`); ersetzt die früher pro Feature-Seite gepflegte eigene `<h1>`. In den Epics durchgängig als „(Seitentitel)" referenziert, wenn ein Button/Element dort statt in der Feature-Toolbar sitzt.
 - **Confidence:** confirmed
 - **First seen:** 2026-09-15
+
+### Aktionsleiste
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/settlement/pages/settlement-page/settlement-page.html` — gerahmte Leiste (`p-toolbar.settlement-page__actionbar`) auf einer Seite mit einem Gegenstand und Aktionen: Zurück links als reines „<"-Icon, Name des Gegenstands mittig (mit Adresse bzw. Zusatzzeile darunter), Aktionen rechts. Erste Ausprägung: Abrechnungsseite der Haupt-App im Zustand „Verkäufer abrechnen"; Vorbild für weitere Seiten dieser Art. Nicht verwenden: „Filterleiste" — dieser Begriff bleibt den Listenseiten (Suche, Sortierung, Status) vorbehalten.
+- **Confidence:** user-confirmed
+- **First seen:** 2026-10-12
