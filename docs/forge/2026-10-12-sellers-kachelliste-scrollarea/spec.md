@@ -26,7 +26,6 @@ Basis: ae7a010
 
 ## Akzeptanzkriterien
 - **AC-01** Gegeben die Verkäufer-Seite bei 1440px mit mehr Kacheln als Platz, wenn der Anwender in der Kachelliste scrollt, dann bewegen sich nur die Kacheln, die Filterzeilen bleiben sichtbar und die Seite selbst scrollt nicht. · Aussage
-- **AC-02** (entfällt, siehe Entscheidungen)
 - **AC-03** Gegeben die Verkäufer-Seite bei 1440px mit mehr Kacheln als Platz, dann ist die PrimeNG-Scrollbar der Kachelliste sichtbar; gegeben weniger Kacheln als Platz, dann ist keine Scrollbar sichtbar. *(Randfall)* · Aussage
 - **AC-04** Gegeben die Verkäufer-Seite bei 768px mit mehr Kacheln als Platz, wenn der Anwender scrollt, dann scrollt die ganze Seite und die Kachelliste hat keinen eigenen Scrollbereich. · Aussage
 - **AC-05** Gegeben mehr als 60 Verkäufer bei 1440px, wenn der Anwender das Ende der Kachelliste im Scrollbereich erreicht, dann erscheinen die nächsten 60 Kacheln und die bisherigen Kacheln bleiben an ihrer Position. · Aussage
