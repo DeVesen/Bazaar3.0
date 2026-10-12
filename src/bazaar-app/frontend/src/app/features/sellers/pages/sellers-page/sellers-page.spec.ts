@@ -21,23 +21,6 @@ import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-ty
 import { SellerCard, SellerDetail, SellersApi } from '../../data/sellers-api';
 import { ReleaseApi } from '../../data/release-api';
 
-// PrimeNG `ScrollArea` observes its viewport via `ResizeObserver` (setupResizeObserver in
-// primeng-scrollarea.mjs) — unavailable in jsdom. Same stub as `intake-page.spec.ts` and
-// `intake-wizard.spec.ts`; tests that need overflow call `ScrollArea.refresh()` directly.
-class ResizeObserverStub {
-  observe(): void {
-    // no-op: not exercised by these tests, only needed so PrimeNG's ScrollArea doesn't throw.
-  }
-  unobserve(): void {
-    // no-op, see observe().
-  }
-  disconnect(): void {
-    // no-op, see observe().
-  }
-}
-(globalThis as unknown as { ResizeObserver: typeof ResizeObserverStub }).ResizeObserver =
-  ResizeObserverStub;
-
 function buildDetail(overrides: Partial<SellerDetail> = {}): SellerDetail {
   return {
     id: 's1',
