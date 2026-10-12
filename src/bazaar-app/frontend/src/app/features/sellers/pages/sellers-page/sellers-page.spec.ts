@@ -76,6 +76,7 @@ describe('SellersPage', () => {
   let setFilters: ReturnType<typeof vi.fn>;
   let loadMore: ReturnType<typeof vi.fn>;
   let hasMoreSignal: ReturnType<typeof signal<boolean>>;
+  let showSkeletonSignal: ReturnType<typeof signal<boolean>>;
   let create: ReturnType<typeof vi.fn>;
   let update: ReturnType<typeof vi.fn>;
   let remove: ReturnType<typeof vi.fn>;
@@ -98,6 +99,7 @@ describe('SellersPage', () => {
     });
     loadMore = vi.fn();
     hasMoreSignal = signal(false);
+    showSkeletonSignal = signal(false);
     create = vi.fn();
     update = vi.fn();
     remove = vi.fn();
@@ -126,6 +128,7 @@ describe('SellersPage', () => {
             setFilters,
             loadMore,
             hasMore: hasMoreSignal,
+            showSkeleton: showSkeletonSignal,
             create,
             update,
             remove,
@@ -233,6 +236,211 @@ describe('SellersPage', () => {
       setFilters.mockClear();
       component.resetAllFilters();
       expect(setFilters).toHaveBeenCalledWith({ q: '', status: null, sort: 'name' });
+    });
+  });
+
+  describe('loading skeleton', () => {
+    const SKELETON = 'app-seller-card-skeleton';
+    const CARD = 'app-seller-card';
+
+    function count(fixture: { nativeElement: unknown }, selector: string): number {
+      return (fixture.nativeElement as HTMLElement).querySelectorAll(selector).length;
+    }
+
+    async function settle(fixture: { detectChanges(): void; whenStable(): Promise<unknown> }) {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+
+    function twoCards(): void {
+      itemsSignal.set([buildCard({ id: 's1' }), buildCard({ id: 's2' })]);
+      totalCountSignal.set(2);
+    }
+
+    it('render_firstOpenWhileLoading_showsSixPlaceholderCardsAndNoCards', async () => {
+      // Arrange
+      showSkeletonSignal.set(true);
+      loadingSignal.set(true);
+
+      // Act
+      const { fixture } = await createPage();
+
+      // Assert
+      expect(count(fixture, SKELETON)).toBe(6);
+      expect(count(fixture, CARD)).toBe(0);
+    });
+
+    it('render_listLoaded_replacesPlaceholdersWithCards', async () => {
+      // Arrange
+      showSkeletonSignal.set(true);
+      loadingSignal.set(true);
+      const { fixture } = await createPage();
+
+      // Act
+      twoCards();
+      loadingSignal.set(false);
+      showSkeletonSignal.set(false);
+      await settle(fixture);
+
+      // Assert
+      expect(count(fixture, SKELETON)).toBe(0);
+      expect(count(fixture, CARD)).toBe(2);
+    });
+
+    it('render_filterChangeWithCardsShown_replacesCardsWithSixPlaceholders', async () => {
+      // Arrange
+      twoCards();
+      const { fixture } = await createPage();
+      expect(count(fixture, CARD)).toBe(2);
+
+      // Act
+      loadingSignal.set(true);
+      showSkeletonSignal.set(true);
+      await settle(fixture);
+
+      // Assert
+      expect(count(fixture, SKELETON)).toBe(6);
+      expect(count(fixture, CARD)).toBe(0);
+    });
+
+    it('render_backgroundRefreshWithoutSkeleton_keepsSameCardsAndListElement', async () => {
+      // Arrange
+      twoCards();
+      const { fixture } = await createPage();
+      const host = fixture.nativeElement as HTMLElement;
+      const listBefore = host.querySelector('.sellers-page__list');
+      const cardBefore = host.querySelector(CARD);
+
+      // Act
+      loadingSignal.set(true);
+      await settle(fixture);
+
+      // Assert
+      expect(count(fixture, SKELETON)).toBe(0);
+      expect(count(fixture, CARD)).toBe(2);
+      expect(host.querySelector('.sellers-page__list')).toBe(listBefore);
+      expect(host.querySelector(CARD)).toBe(cardBefore);
+    });
+
+    it('onLoadMore_atListEnd_keepsExistingCardsAndShowsNoPlaceholders', async () => {
+      // Arrange
+      twoCards();
+      hasMoreSignal.set(true);
+      const { component, fixture } = await createPage();
+      const cardBefore = (fixture.nativeElement as HTMLElement).querySelector(CARD);
+
+      // Act
+      component.onLoadMore();
+      loadingSignal.set(true);
+      await settle(fixture);
+
+      // Assert
+      expect(loadMore).toHaveBeenCalledTimes(1);
+      expect(count(fixture, SKELETON)).toBe(0);
+      expect(count(fixture, CARD)).toBe(2);
+      expect((fixture.nativeElement as HTMLElement).querySelector(CARD)).toBe(cardBefore);
+    });
+
+    it('render_emptyResultWithoutFilters_showsNoSellersHintInsteadOfPlaceholders', async () => {
+      // Arrange
+      showSkeletonSignal.set(true);
+      loadingSignal.set(true);
+      const { fixture } = await createPage();
+      expect(count(fixture, SKELETON)).toBe(6);
+
+      // Act
+      totalCountSignal.set(0);
+      loadingSignal.set(false);
+      showSkeletonSignal.set(false);
+      await settle(fixture);
+
+      // Assert
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+      expect(count(fixture, SKELETON)).toBe(0);
+      expect(text).toContain('Noch keine Verkäufer.');
+    });
+
+    it('render_emptyResultWithActiveFilter_showsNoResultsHintInsteadOfPlaceholders', async () => {
+      // Arrange
+      filtersSignal.set({ q: 'xyz', status: null, sort: 'name' });
+      showSkeletonSignal.set(true);
+      loadingSignal.set(true);
+      const { fixture } = await createPage();
+      expect(count(fixture, SKELETON)).toBe(6);
+
+      // Act
+      totalCountSignal.set(0);
+      loadingSignal.set(false);
+      showSkeletonSignal.set(false);
+      await settle(fixture);
+
+      // Assert
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+      expect(count(fixture, SKELETON)).toBe(0);
+      expect(text).toContain('Keine Verkäufer für die gewählten Filter.');
+    });
+
+    it('render_skeletonVisible_keepsFilterControlsUsableAndSearchFieldFocused', async () => {
+      // Arrange
+      showSkeletonSignal.set(true);
+      loadingSignal.set(true);
+      const { component, fixture } = await createPage();
+      const host = fixture.nativeElement as HTMLElement;
+      const search = host.querySelector('input[type="text"]') as HTMLInputElement;
+      search.focus();
+
+      // Act
+      search.value = 'ma';
+      search.dispatchEvent(new Event('input'));
+      await settle(fixture);
+
+      // Assert
+      expect(host.querySelector('input[type="text"]')).toBe(search);
+      expect(document.activeElement).toBe(search);
+      expect(component.qInput()).toBe('ma');
+      expect(host.querySelectorAll('.sellers-page p-select').length).toBe(2);
+      const newButton = Array.from(host.querySelectorAll('button')).find((b) =>
+        b.textContent?.includes('+ Neu'),
+      );
+      expect(newButton).toBeDefined();
+      newButton?.click();
+      expect(component.dialogVisible()).toBe(true);
+    });
+
+    it('render_loadFailsWhileSkeletonShown_removesPlaceholdersWithoutNewMessage', async () => {
+      // Arrange
+      showSkeletonSignal.set(true);
+      loadingSignal.set(true);
+      const { fixture } = await createPage();
+
+      // Act
+      loadingSignal.set(false);
+      showSkeletonSignal.set(false);
+      await settle(fixture);
+
+      // Assert
+      expect(count(fixture, SKELETON)).toBe(0);
+      expect(messageServiceAdd).not.toHaveBeenCalled();
+      expect((fixture.nativeElement as HTMLElement).textContent).toContain('Noch keine Verkäufer.');
+    });
+
+    it('render_skeletonVisible_announcesLoadingStatusAndDropsItWithPlaceholders', async () => {
+      // Arrange
+      showSkeletonSignal.set(true);
+      loadingSignal.set(true);
+      const { fixture } = await createPage();
+      const host = fixture.nativeElement as HTMLElement;
+      const status = host.querySelector('[role="status"]');
+      expect(status?.textContent).toContain('Verkäufer werden geladen');
+
+      // Act
+      showSkeletonSignal.set(false);
+      loadingSignal.set(false);
+      await settle(fixture);
+
+      // Assert
+      expect(host.querySelector('[role="status"]')).toBeNull();
+      expect(host.textContent).not.toContain('Verkäufer werden geladen');
     });
   });
 

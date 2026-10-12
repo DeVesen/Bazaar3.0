@@ -23,6 +23,7 @@ import { SelectModule } from 'primeng/select';
 import { RoleService } from '../../../../core/auth/role.service';
 import { Page } from '../../../../shared/components/page/page';
 import { LoadMoreSentinel } from '../../components/load-more-sentinel/load-more-sentinel';
+import { SellerCardSkeleton } from '../../components/seller-card-skeleton/seller-card-skeleton';
 import {
   CreateSellerRequest,
   SellerCard as SellerCardModel,
@@ -41,6 +42,9 @@ import { SellerDetailModal } from '../../components/seller-detail-modal/seller-d
 import { ReleaseDialog } from '../../components/release-dialog/release-dialog';
 
 const DEBOUNCE_MS = 300;
+
+/** Anzahl Platzhalter-Karten, solange die Liste lädt (Spec: feste Zahl 6). */
+const SKELETON_CARD_COUNT = 6;
 
 const SORT_OPTIONS = [
   { label: 'Name', value: 'name' },
@@ -101,6 +105,7 @@ interface ProblemDetailsBody {
     InputTextModule,
     SelectModule,
     SellerCard,
+    SellerCardSkeleton,
     VerkaeuferDialog,
     SellerDetailModal,
     ReleaseDialog,
@@ -122,6 +127,8 @@ export class SellersPage {
   readonly totalCount = this.sellersStore.totalCount;
   readonly hasMore = this.sellersStore.hasMore;
   readonly loading = this.sellersStore.loading;
+  readonly showSkeleton = this.sellersStore.showSkeleton;
+  readonly skeletonSlots = Array.from({ length: SKELETON_CARD_COUNT }, (_, index) => index);
   readonly filters = this.sellersStore.filters;
   readonly isAdmin = this.roleService.isAdmin;
 
