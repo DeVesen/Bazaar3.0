@@ -48,11 +48,23 @@
 
   // `p-iftalabel`/`p-select`/`p-inputnumber` rendern außerhalb dieses Encapsulation-Scopes —
   // volle Zellbreite wie die `app-input`-Felder daneben.
-  &__field ::ng-deep p-iftalabel,
-  &__field ::ng-deep .p-select,
-  &__field ::ng-deep .p-inputnumber {
+  // `.p-select`/`.p-inputnumber` bleiben Flex-Container (PrimeNG: inline-flex), sonst rutscht
+  // der Chevron unter den Wert und das Innenfeld füllt die Zelle nicht.
+  &__field ::ng-deep p-iftalabel {
     display: block;
     width: 100%;
+  }
+
+  &__field ::ng-deep .p-select,
+  &__field ::ng-deep .p-inputnumber {
+    display: flex;
+    width: 100%;
+  }
+
+  &__field ::ng-deep .p-inputnumber .p-inputnumber-input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
   }
 
   &__required {
