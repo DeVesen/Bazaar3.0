@@ -35,20 +35,27 @@
     border: 0;
   }
 
-  &__filter-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+  &__toolbar {
+    flex-shrink: 0;
     flex-wrap: wrap;
   }
 
   &__search {
-    min-width: 16rem;
-    flex: 1 1 16rem;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 16rem;
+    min-width: 12rem;
+
+    input {
+      width: 100%;
+    }
   }
 
-  &__spacer {
-    flex: 1 1 auto;
+  &__select {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    min-width: 150px;
   }
 
   &__chips {

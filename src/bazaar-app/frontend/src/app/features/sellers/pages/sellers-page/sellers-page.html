@@ -1,6 +1,14 @@
 <app-page title="Verkäufer" [fill]="true">
 <div class="sellers-page">
-  <div class="sellers-page__filter-row">
+  <p-toolbar class="sellers-page__toolbar">
+    <p-button
+      icon="pi pi-plus"
+      ariaLabel="Neuer Verkäufer"
+      pTooltip="Neuer Verkäufer"
+      tooltipPosition="bottom"
+      (onClick)="onNewClick()"
+    />
+
     <p-iconfield class="sellers-page__search">
       <p-inputicon class="pi pi-search" />
       <input
@@ -13,29 +21,25 @@
     </p-iconfield>
 
     <p-select
+      class="sellers-page__select"
       [options]="sortOptions"
       optionLabel="label"
       optionValue="value"
       [ngModel]="filters().sort"
       (ngModelChange)="onSortChange($event)"
-      aria-label="Sortierung"
+      ariaLabel="Sortierung"
     />
 
-    <div class="sellers-page__spacer"></div>
-
-    <p-button label="+ Neu" (onClick)="onNewClick()" />
-  </div>
-
-  <div class="sellers-page__filter-row">
     <p-select
+      class="sellers-page__select"
       [options]="statusOptions"
       optionLabel="label"
       optionValue="value"
       [ngModel]="filters().status"
       (ngModelChange)="onStatusChange($event)"
-      aria-label="Status"
+      ariaLabel="Status"
     />
-  </div>
+  </p-toolbar>
 
   @if (hasActiveFilters()) {
     <div class="sellers-page__chips">
@@ -66,7 +70,7 @@
     <div class="sellers-page__empty">
       <p>
         Noch keine Verkäufer. Über <strong>Einstellungen → Import</strong> die Voranmeldedaten
-        einlesen oder mit <strong>+ Neu</strong> einen Verkäufer anlegen.
+        einlesen oder mit dem <strong>+</strong>-Button einen Verkäufer anlegen.
       </p>
     </div>
   } @else if (noResultsForFilter()) {
