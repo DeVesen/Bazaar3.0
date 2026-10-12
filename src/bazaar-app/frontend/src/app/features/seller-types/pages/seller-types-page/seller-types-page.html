@@ -1,9 +1,26 @@
 <app-page title="Verkäufer-Typen">
-  <ng-container ngProjectAs="[pageActions]">
+  <div class="seller-types-page__toolbar">
     @if (canAdd()) {
-      <p-button label="+ Neu" (onClick)="onRowAdd()" />
+      <p-button
+        icon="pi pi-plus"
+        ariaLabel="Neuer Verkäufer-Typ"
+        pTooltip="Neuer Verkäufer-Typ"
+        (onClick)="onRowAdd()"
+      />
     }
-  </ng-container>
+
+    <p-iconfield class="seller-types-page__search">
+      <p-inputicon class="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        placeholder="Suche nach Name …"
+        aria-label="Suche nach Name"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="onSearchChange($event)"
+      />
+    </p-iconfield>
+  </div>
 
   <app-table
     [columns]="columns"

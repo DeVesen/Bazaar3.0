@@ -1,0 +1,22 @@
+.seller-types-page {
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    // Rand als Einzelwerte statt Kurzform: jsdom (cssstyle) zerlegt eine Kurzform mit var() nicht,
+    // borderTopStyle/borderTopWidth blieben im Test sonst leer.
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--p-content-border-color);
+    border-radius: var(--p-content-border-radius);
+  }
+
+  // Füllt den übrigen Platz bis zum rechten Rand; bricht unter 16rem in eine eigene Zeile um.
+  &__search {
+    flex: 1 1 16rem;
+    min-width: 0;
+  }
+}

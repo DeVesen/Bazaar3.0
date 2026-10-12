@@ -1,7 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
 import { Page } from '../../../../shared/components/page/page';
 import { RoleService } from '../../../../core/auth/role.service';
 import {
@@ -34,8 +39,19 @@ interface ProblemDetailsBody {
 
 @Component({
   selector: 'app-seller-types-page',
-  imports: [Table, TypPopup, Page, ButtonModule],
+  imports: [
+    Table,
+    TypPopup,
+    Page,
+    ButtonModule,
+    FormsModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    TooltipModule,
+  ],
   templateUrl: './seller-types-page.html',
+  styleUrl: './seller-types-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SellerTypesPage {

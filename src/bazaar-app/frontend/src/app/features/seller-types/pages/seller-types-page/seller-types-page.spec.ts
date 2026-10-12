@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { By } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
+import { Tooltip } from 'primeng/tooltip';
 import { of, throwError } from 'rxjs';
 import { SellerTypesPage } from './seller-types-page';
 import { SellerTypesStore } from '../../seller-types-store';
@@ -350,32 +352,188 @@ describe('SellerTypesPage', () => {
   });
 
   describe('page header', () => {
-    it('shows "Verkäufer-Typen" as page title and "+ Neu" in the header, with no table title', () => {
+    it('shows "Verkäufer-Typen" as page title, no "+ Neu" in the header and no table title', () => {
+      // Arrange
       isAdminSignal.set(true);
+
+      // Act
       const { fixture } = createPage();
       const el: HTMLElement = fixture.nativeElement;
 
+      // Assert
       expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe(
         'Verkäufer-Typen',
       );
-      expect(el.querySelector('.page__actions p-button[label="+ Neu"]')).not.toBeNull();
+      expect(el.querySelector('.page__actions p-button')).toBeNull();
+      expect(el.textContent).not.toContain('+ Neu');
       expect(el.querySelector('.app-table__toolbar')).toBeNull();
     });
+  });
 
-    it('hides "+ Neu" for non-admins', () => {
-      isAdminSignal.set(false);
+  describe('toolbar', () => {
+    function toolbarOf(fixture: { nativeElement: HTMLElement }): HTMLElement {
+      return fixture.nativeElement.querySelector('.seller-types-page__toolbar') as HTMLElement;
+    }
+
+    it('toolbar_pageShown_rendersOneToolbarWithSearchAboveTheTable', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
       const { fixture } = createPage();
-      expect(fixture.nativeElement.querySelector('.page__actions p-button')).toBeNull();
+      const el: HTMLElement = fixture.nativeElement;
+      const toolbar = toolbarOf(fixture);
+      const table = el.querySelector('app-table') as HTMLElement;
+
+      // Assert
+      expect(el.querySelectorAll('.seller-types-page__toolbar').length).toBe(1);
+      expect(toolbar.querySelector('input')).not.toBeNull();
+      expect(toolbar.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 
-    it('opens the create popup from the header "+ Neu" button', () => {
+    it('toolbar_asAdmin_showsOneIconOnlyPlusButtonWithHint', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const toolbar = toolbarOf(fixture);
+      const buttons = toolbar.querySelectorAll('p-button');
+      const plusButton = fixture.debugElement.query(By.css('.seller-types-page__toolbar p-button'));
+
+      // Assert
+      expect(buttons.length).toBe(1);
+      expect(buttons[0].querySelector('.pi-plus')).not.toBeNull();
+      expect(buttons[0].querySelector('button')?.textContent?.trim()).toBe('');
+      expect(buttons[0].querySelector('button')?.getAttribute('aria-label')).toBe(
+        'Neuer Verkäufer-Typ',
+      );
+      expect(plusButton.injector.get(Tooltip).content()).toBe('Neuer Verkäufer-Typ');
+      expect(toolbar.firstElementChild).toBe(buttons[0]);
+    });
+
+    it('toolbar_asAdminPlusClicked_opensCreatePopup', () => {
+      // Arrange
       isAdminSignal.set(true);
       const { fixture, component } = createPage();
 
-      (fixture.nativeElement.querySelector('.page__actions p-button button') as HTMLButtonElement).click();
+      // Act
+      (toolbarOf(fixture).querySelector('p-button button') as HTMLButtonElement).click();
       fixture.detectChanges();
 
+      // Assert
       expect(component.popupVisible()).toBe(true);
+      expect(component.popupMode()).toBe('create');
+    });
+
+    it('toolbar_asNonAdmin_hasNoAddButtonAndSearchStartsAtLeftEdge', () => {
+      // Arrange
+      isAdminSignal.set(false);
+
+      // Act
+      const { fixture } = createPage();
+      const el: HTMLElement = fixture.nativeElement;
+      const toolbar = toolbarOf(fixture);
+
+      // Assert
+      expect(toolbar.querySelector('p-button')).toBeNull();
+      expect(el.querySelector('.page__actions p-button')).toBeNull();
+      expect(toolbar.firstElementChild?.classList).toContain('seller-types-page__search');
+    });
+
+    it('toolbar_search_hasPlaceholderNoVisibleLabelAndNoSelect', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const toolbar = toolbarOf(fixture);
+      const input = toolbar.querySelector('input') as HTMLInputElement;
+
+      // Assert
+      expect(input.getAttribute('placeholder')).toBe('Suche nach Name …');
+      expect(toolbar.querySelector('label')).toBeNull();
+      expect(toolbar.querySelector('p-select')).toBeNull();
+      expect(toolbar.querySelector('p-chip')).toBeNull();
+    });
+
+    it('toolbar_styles_wrapsFramedAndLetsSearchGrow', () => {
+      // Arrange
+      isAdminSignal.set(true);
+
+      // Act
+      const { fixture } = createPage();
+      const toolbar = toolbarOf(fixture);
+      const search = toolbar.querySelector('.seller-types-page__search') as HTMLElement;
+      const toolbarStyle = getComputedStyle(toolbar);
+
+      // Assert
+      expect(toolbarStyle.display).toBe('flex');
+      expect(toolbarStyle.flexWrap).toBe('wrap');
+      expect(toolbarStyle.borderTopStyle).toBe('solid');
+      expect(toolbarStyle.borderTopWidth).toBe('1px');
+      expect(getComputedStyle(search).flexGrow).toBe('1');
+    });
+
+    it('search_termTyped_showsOnlyMatchingRowsAndNoChips', async () => {
+      // Arrange
+      sellerTypesSignal.set([
+        sellerType({ id: '1', name: 'Privat' }),
+        sellerType({ id: '2', name: 'Händler' }),
+      ]);
+      const { fixture } = createPage();
+      const input = toolbarOf(fixture).querySelector('input') as HTMLInputElement;
+
+      // Act
+      input.value = 'HÄ';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // Assert
+      const rowTexts = Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr'),
+      ).map((row) => row.textContent ?? '');
+      expect(rowTexts.length).toBe(1);
+      expect(rowTexts[0]).toContain('Händler');
+      expect(rowTexts[0]).not.toContain('Privat');
+      expect((fixture.nativeElement as HTMLElement).querySelector('p-chip')).toBeNull();
+    });
+
+    it('search_termWithoutMatch_showsNoResultsHintInTable', async () => {
+      // Arrange
+      sellerTypesSignal.set([sellerType({ id: '1', name: 'Privat' })]);
+      const { fixture } = createPage();
+      const input = toolbarOf(fixture).querySelector('input') as HTMLInputElement;
+
+      // Act
+      input.value = 'zzz';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // Assert
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector('.app-table__empty')?.textContent?.trim(),
+      ).toBe('Keine Verkäufer-Typen gefunden.');
+    });
+
+    it('table_noSellerTypesForNonAdmin_showsEmptyListHintMentioningPlus', () => {
+      // Arrange
+      sellerTypesSignal.set([]);
+      isAdminSignal.set(false);
+
+      // Act
+      const { fixture } = createPage();
+
+      // Assert
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector('.app-table__empty')?.textContent?.trim(),
+      ).toBe(
+        'Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit „+" beginnen.',
+      );
     });
   });
 });
