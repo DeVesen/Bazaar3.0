@@ -658,5 +658,81 @@ describe('SellersPage', () => {
       expect(el.querySelector('p-skeleton')).toBeNull();
       expect(el.querySelector('p-scrollarea app-seller-card')).not.toBeNull();
     });
+
+    describe('scroll position', () => {
+      async function renderScrolledList(): Promise<{
+        fixture: Awaited<ReturnType<typeof createPage>>['fixture'];
+        scrollTop: () => number;
+      }> {
+        itemsSignal.set([buildCard()]);
+        totalCountSignal.set(1);
+        const { fixture } = await createPage();
+        fixture.detectChanges();
+        const viewport = (fixture.nativeElement as HTMLElement).querySelector(
+          'p-scrollarea-viewport',
+        ) as HTMLElement;
+        let top = 500;
+        Object.defineProperty(viewport, 'scrollTop', {
+          configurable: true,
+          get: () => top,
+          set: (value: number) => {
+            top = value;
+          },
+        });
+        return { fixture, scrollTop: () => top };
+      }
+
+      it('filterChange_afterNewListArrives_scrollsKachellisteToTop', async () => {
+        // Arrange
+        const { fixture, scrollTop } = await renderScrolledList();
+
+        // Act
+        filtersSignal.set({ ...filtersSignal(), q: 'meier' });
+        loadingSignal.set(true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        const topWhileLoading = scrollTop();
+        loadingSignal.set(false);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        // Assert
+        expect(topWhileLoading).toBe(500);
+        expect(scrollTop()).toBe(0);
+      });
+
+      it('sortChange_afterNewListArrives_scrollsKachellisteToTop', async () => {
+        // Arrange
+        const { fixture, scrollTop } = await renderScrolledList();
+
+        // Act
+        filtersSignal.set({ ...filtersSignal(), sort: 'revenue' });
+        loadingSignal.set(true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        loadingSignal.set(false);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        // Assert
+        expect(scrollTop()).toBe(0);
+      });
+
+      it('loadMore_withoutFilterChange_keepsScrollPosition', async () => {
+        // Arrange
+        const { fixture, scrollTop } = await renderScrolledList();
+
+        // Act
+        loadingSignal.set(true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        loadingSignal.set(false);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        // Assert
+        expect(scrollTop()).toBe(500);
+      });
+    });
   });
 });
