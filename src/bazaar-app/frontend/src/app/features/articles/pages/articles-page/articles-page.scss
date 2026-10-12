@@ -3,23 +3,51 @@
   flex-direction: column;
   gap: 1rem;
 
-  &__filter-row {
-    display: flex;
-    align-items: center;
+  // Rahmen, Innenabstand und Hintergrund kommen wie auf der Verkäuferseite nur aus den
+  // p-toolbar-Tokens. Umbruch bei schmalem Fenster steht ausdrücklich an der Leiste.
+  &__filterbar {
+    flex-wrap: wrap;
+  }
+
+  // Suchfeld füllt den Restplatz. `.p-toolbar-*` sind Elemente innerhalb von p-toolbar, daher
+  // `::ng-deep` (Konvention wie checkout-page.scss), verankert an der eigenen Klasse.
+  // Einzel-Eigenschaften statt `flex`-Kurzform, damit der Style-Test sie lesen kann.
+  &__filterbar ::ng-deep .p-toolbar-center {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 16rem;
+    min-width: 16rem;
+  }
+
+  &__filterbar ::ng-deep .p-toolbar-end {
+    flex-wrap: wrap;
     gap: 0.75rem;
+    max-width: 100%;
   }
 
   &__search {
+    display: block;
     width: 100%;
+
+    input {
+      width: 100%;
+    }
   }
 
-  &__filter-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+  // Mindestbreite 200px, wächst mit dem gewählten Text: PrimeNG setzt `.p-select-label` auf
+  // `width: 1%` + `overflow: hidden`, wodurch ein auto-breites Select auf min-width kollabiert.
+  // `flex-shrink: 0`, damit das Feld nicht unter die Breite seines Textes schrumpft.
+  &__select {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    min-width: 200px;
+    max-width: 100%;
+  }
 
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-    }
+  &__select ::ng-deep .p-select-label {
+    width: auto;
+    overflow: visible;
+    text-overflow: clip;
   }
 }

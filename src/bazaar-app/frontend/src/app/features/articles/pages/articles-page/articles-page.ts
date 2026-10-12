@@ -8,6 +8,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
+import { ToolbarModule } from 'primeng/toolbar';
 import { Page } from '../../../../shared/components/page/page';
 import {
   ActionClickEvent,
@@ -104,10 +105,10 @@ interface ProblemDetailsBody {
 
 /**
  * Orchestration page for Round-15 "Artikel-Übersicht & Korrektur" (Task 6, wired up in the
- * Round-15 review fix) — replaces the Round-7 placeholder. Filter panel is the Haupt-App
- * "Sonderfall zweizeilig" (two-row) layout: row 1 is a full-width free-text search (debounced,
- * no sort-select/"+ Neu" — sort here comes from clicking column headers, and spec.md is explicit
- * there's no create action on this page), row 2 is a 3-column Brand/Category/Status filter grid
+ * Round-15 review fix) — replaces the Round-7 placeholder. Filterleiste is one framed
+ * `p-toolbar` above the table: the free-text search (debounced, no sort-select/create button —
+ * sort here comes from clicking column headers, and spec.md is explicit there's no create action
+ * on this page) fills the remaining width, the Brand/Category/Status selects sit on the right
  * (immediate, no debounce). The table itself is `<app-table [lazy]="true">` (Round-15 Task 6 also
  * extended `Table` with this mode — see its class doc comment), driven by `ArticlesStore`
  * (Task 6), which resolves search/filter/sort/pagination entirely server-side.
@@ -134,6 +135,7 @@ interface ProblemDetailsBody {
     InputIconModule,
     InputTextModule,
     SelectModule,
+    ToolbarModule,
     Table,
     ArtikelDialog,
     ArticleStatusPopup,

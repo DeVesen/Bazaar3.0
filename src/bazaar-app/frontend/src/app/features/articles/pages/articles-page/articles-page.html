@@ -1,50 +1,54 @@
 <app-page title="Artikel">
 <div class="articles-page">
-  <div class="articles-page__filter-row">
-    <p-iconfield class="articles-page__search">
-      <p-inputicon class="pi pi-search" />
-      <input
-        pInputText
-        type="text"
-        placeholder="Suche nach Nr., Bezeichnung …"
-        [ngModel]="qInput()"
-        (ngModelChange)="onQInputChange($event)"
+  <p-toolbar class="articles-page__filterbar">
+    <ng-template #center>
+      <p-iconfield class="articles-page__search">
+        <p-inputicon class="pi pi-search" />
+        <input
+          pInputText
+          type="text"
+          placeholder="Suche nach Nr., Bezeichnung …"
+          [ngModel]="qInput()"
+          (ngModelChange)="onQInputChange($event)"
+        />
+      </p-iconfield>
+    </ng-template>
+    <ng-template #end>
+      <p-select
+        class="articles-page__select"
+        [options]="brandOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filters().brand"
+        (ngModelChange)="onBrandChange($event)"
+        [showClear]="true"
+        placeholder="Alle"
+        aria-label="Marke"
       />
-    </p-iconfield>
-  </div>
-
-  <div class="articles-page__filter-grid">
-    <p-select
-      [options]="brandOptions()"
-      optionLabel="label"
-      optionValue="value"
-      [ngModel]="filters().brand"
-      (ngModelChange)="onBrandChange($event)"
-      [showClear]="true"
-      placeholder="Alle"
-      aria-label="Marke"
-    />
-    <p-select
-      [options]="categoryOptions()"
-      optionLabel="label"
-      optionValue="value"
-      [ngModel]="filters().category"
-      (ngModelChange)="onCategoryChange($event)"
-      [showClear]="true"
-      placeholder="Alle"
-      aria-label="Kategorie"
-    />
-    <p-select
-      [options]="statusOptions"
-      optionLabel="label"
-      optionValue="value"
-      [ngModel]="filters().status"
-      (ngModelChange)="onStatusChange($event)"
-      [showClear]="true"
-      placeholder="Alle"
-      aria-label="Status"
-    />
-  </div>
+      <p-select
+        class="articles-page__select"
+        [options]="categoryOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filters().category"
+        (ngModelChange)="onCategoryChange($event)"
+        [showClear]="true"
+        placeholder="Alle"
+        aria-label="Kategorie"
+      />
+      <p-select
+        class="articles-page__select"
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="filters().status"
+        (ngModelChange)="onStatusChange($event)"
+        [showClear]="true"
+        placeholder="Alle"
+        aria-label="Status"
+      />
+    </ng-template>
+  </p-toolbar>
 
   <app-table
     [lazy]="true"
