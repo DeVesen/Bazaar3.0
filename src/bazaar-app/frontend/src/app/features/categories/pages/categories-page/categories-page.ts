@@ -1,7 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
 import { Page } from '../../../../shared/components/page/page';
 import { RoleService } from '../../../../core/auth/role.service';
 import {
@@ -21,6 +28,9 @@ import { CategoriesStore } from '../../categories-store';
 
 const EMPTY_TEXT =
   'Noch keine Kategorien. Beim Import aus der Voranmelde-App werden sie mit übernommen.';
+const NO_RESULTS_TEXT = 'Keine Kategorien gefunden.';
+
+export type OriginalFilterValue = 'original' | 'new';
 
 interface CategoryRow extends Category {
   originalLabel: string;
@@ -32,8 +42,21 @@ interface ProblemDetailsBody {
 
 @Component({
   selector: 'app-categories-page',
-  imports: [Table, MasterDataPopup, Page, ButtonModule],
+  imports: [
+    FormsModule,
+    Table,
+    MasterDataPopup,
+    Page,
+    ButtonModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    SelectModule,
+    ToolbarModule,
+    TooltipModule,
+  ],
   templateUrl: './categories-page.html',
+  styleUrl: './categories-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoriesPage {
@@ -42,7 +65,23 @@ export class CategoriesPage {
   private readonly messageService = inject(MessageService);
 
   readonly loading = this.categoriesStore.loading;
-  readonly emptyText = EMPTY_TEXT;
+  readonly originalOptions: { label: string; value: OriginalFilterValue }[] = [
+    { label: '✓ Original', value: 'original' },
+    { label: 'Neu', value: 'new' },
+  ];
+
+  readonly searchTerm = signal('');
+  readonly originalFilter = signal<OriginalFilterValue | null>(null);
+
+  private readonly filterActive = computed(
+    () => this.searchTerm() !== '' || this.originalFilter() !== null,
+  );
+
+  readonly emptyText = computed(() =>
+    this.filterActive() && this.categoriesStore.categories().length > 0
+      ? NO_RESULTS_TEXT
+      : EMPTY_TEXT,
+  );
 
   readonly popupVisible = signal(false);
   readonly popupMode = signal<'create' | 'edit'>('create');
@@ -63,12 +102,21 @@ export class CategoriesPage {
   ];
 
   readonly rows = computed<CategoryRow[]>(() => {
-    const rows = this.categoriesStore.categories().map(
-      (category): CategoryRow => ({
-        ...category,
-        originalLabel: category.original ? '✓ Original' : 'Neu',
-      }),
-    );
+    const term = this.searchTerm().toLowerCase();
+    const originalFilter = this.originalFilter();
+    const rows = this.categoriesStore
+      .categories()
+      .filter((category) => category.name.toLowerCase().includes(term))
+      .filter(
+        (category) =>
+          originalFilter === null || category.original === (originalFilter === 'original'),
+      )
+      .map(
+        (category): CategoryRow => ({
+          ...category,
+          originalLabel: category.original ? '✓ Original' : 'Neu',
+        }),
+      );
     const sort = this.sortState();
     return sort.length === 0 ? rows : [...rows].sort((a, b) => this.compareBySort(a, b, sort));
   });
@@ -97,6 +145,14 @@ export class CategoriesPage {
 
   onSortChange(sort: SortEvent[]): void {
     this.sortState.set(sort);
+  }
+
+  onSearchChange(value: string | null): void {
+    this.searchTerm.set(value ?? '');
+  }
+
+  onOriginalFilterChange(value: OriginalFilterValue | null): void {
+    this.originalFilter.set(value);
   }
 
   onRowAdd(): void {

@@ -1,19 +1,50 @@
 <app-page title="Kategorien">
-  <ng-container ngProjectAs="[pageActions]">
-    @if (canAdd()) {
-      <p-button label="+ Neu" (onClick)="onRowAdd()" />
-    }
-  </ng-container>
+  <div class="categories-page">
+    <p-toolbar class="categories-page__toolbar">
+      @if (canAdd()) {
+        <p-button
+          icon="pi pi-plus"
+          pTooltip="Neue Kategorie"
+          ariaLabel="Neue Kategorie"
+          (onClick)="onRowAdd()"
+        />
+      }
 
-  <app-table
-    [columns]="columns"
-    [data]="rows()"
-    [loading]="loading()"
-    [actionColumn]="actionColumn()"
-    [emptyText]="emptyText"
-    (sortChange)="onSortChange($event)"
-    (actionClick)="onActionClick($event)"
-  />
+      <p-iconfield class="categories-page__search">
+        <p-inputicon class="pi pi-search" />
+        <input
+          pInputText
+          type="text"
+          placeholder="Suche nach Name …"
+          aria-label="Suche nach Name"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+        />
+      </p-iconfield>
+
+      <p-select
+        class="categories-page__original"
+        [options]="originalOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="originalFilter()"
+        (ngModelChange)="onOriginalFilterChange($event)"
+        [showClear]="true"
+        placeholder="Alle"
+        ariaLabel="Original"
+      />
+    </p-toolbar>
+
+    <app-table
+      [columns]="columns"
+      [data]="rows()"
+      [loading]="loading()"
+      [actionColumn]="actionColumn()"
+      [emptyText]="emptyText()"
+      (sortChange)="onSortChange($event)"
+      (actionClick)="onActionClick($event)"
+    />
+  </div>
 </app-page>
 
 <app-master-data-popup
