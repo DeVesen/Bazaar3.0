@@ -284,6 +284,163 @@ describe('SellersStore', () => {
     });
   });
 
+  describe('showSkeleton', () => {
+    interface CardsResponse {
+      items: SellerCard[];
+      totalCount: number;
+      page: number;
+      pageSize: number;
+    }
+
+    function response(ids: string[], totalCount = ids.length): CardsResponse {
+      return {
+        items: ids.map((id) => sellerCard({ id })),
+        totalCount,
+        page: 1,
+        pageSize: 60,
+      };
+    }
+
+    it('load_firstLoadPending_showsSkeletonUntilResponseArrives', () => {
+      // Arrange
+      const response$ = new Subject<CardsResponse>();
+      getCards.mockReturnValue(response$.asObservable());
+      const store = createStore();
+
+      // Act
+      store.load();
+      const whilePending = store.showSkeleton();
+      response$.next(response(['s1']));
+
+      // Assert
+      expect(whilePending).toBe(true);
+      expect(store.showSkeleton()).toBe(false);
+      expect(store.items().map((s) => s.id)).toEqual(['s1']);
+    });
+
+    it('load_firstLoadFails_hidesSkeletonWithoutItems', () => {
+      // Arrange
+      const response$ = new Subject<CardsResponse>();
+      getCards.mockReturnValue(response$.asObservable());
+      const store = createStore();
+      store.load();
+
+      // Act
+      response$.error(new Error('boom'));
+
+      // Assert
+      expect(store.showSkeleton()).toBe(false);
+      expect(store.loading()).toBe(false);
+      expect(store.items()).toEqual([]);
+    });
+
+    it('load_emptyResultAfterFirstLoad_hidesSkeleton', () => {
+      // Arrange
+      getCards.mockReturnValue(of(response([], 0)));
+      const store = createStore();
+
+      // Act
+      store.load();
+
+      // Assert
+      expect(store.showSkeleton()).toBe(false);
+      expect(store.totalCount()).toBe(0);
+    });
+
+    it('setFilters_afterInitialLoad_showsSkeletonUntilNewListArrives', () => {
+      // Arrange
+      getCards.mockReturnValueOnce(of(response(['s1', 's2'])));
+      const store = createStore();
+      store.load();
+      const reload$ = new Subject<CardsResponse>();
+      getCards.mockReturnValueOnce(reload$.asObservable());
+
+      // Act
+      store.setFilters({ q: 'mei' });
+      const whilePending = store.showSkeleton();
+      reload$.next(response(['s9']));
+
+      // Assert
+      expect(whilePending).toBe(true);
+      expect(store.showSkeleton()).toBe(false);
+      expect(store.items().map((s) => s.id)).toEqual(['s9']);
+    });
+
+    it('setFilters_reloadFails_hidesSkeleton', () => {
+      // Arrange
+      getCards.mockReturnValueOnce(of(response(['s1'])));
+      const store = createStore();
+      store.load();
+      const reload$ = new Subject<CardsResponse>();
+      getCards.mockReturnValueOnce(reload$.asObservable());
+      store.setFilters({ status: 'open' });
+
+      // Act
+      reload$.error(new Error('boom'));
+
+      // Assert
+      expect(store.showSkeleton()).toBe(false);
+      expect(store.loading()).toBe(false);
+    });
+
+    it('load_reloadAfterInitialLoad_keepsSkeletonHiddenAndItemsVisible', () => {
+      // Arrange
+      getCards.mockReturnValueOnce(of(response(['s1', 's2'])));
+      const store = createStore();
+      store.load();
+      const reload$ = new Subject<CardsResponse>();
+      getCards.mockReturnValueOnce(reload$.asObservable());
+
+      // Act
+      store.load();
+
+      // Assert
+      expect(store.loading()).toBe(true);
+      expect(store.showSkeleton()).toBe(false);
+      expect(store.items().map((s) => s.id)).toEqual(['s1', 's2']);
+    });
+
+    it('loadMore_afterInitialLoad_keepsSkeletonHidden', () => {
+      // Arrange
+      getCards.mockReturnValueOnce(of(response(['s1'], 2)));
+      const store = createStore();
+      store.load();
+      const more$ = new Subject<CardsResponse>();
+      getCards.mockReturnValueOnce(more$.asObservable());
+
+      // Act
+      store.loadMore();
+
+      // Assert
+      expect(store.loading()).toBe(true);
+      expect(store.showSkeleton()).toBe(false);
+      expect(store.items().map((s) => s.id)).toEqual(['s1']);
+    });
+
+    it('load_filterChangeSupersededByReload_keepsSkeletonUntilLatestResponse', () => {
+      // Arrange
+      getCards.mockReturnValueOnce(of(response(['s1'])));
+      const store = createStore();
+      store.load();
+      const filtered$ = new Subject<CardsResponse>();
+      const reload$ = new Subject<CardsResponse>();
+      getCards.mockReturnValueOnce(filtered$.asObservable());
+      getCards.mockReturnValueOnce(reload$.asObservable());
+      store.setFilters({ q: 'x' });
+
+      // Act
+      store.load();
+      filtered$.next(response(['stale']));
+      const afterStaleResponse = store.showSkeleton();
+      reload$.next(response(['fresh']));
+
+      // Assert
+      expect(afterStaleResponse).toBe(true);
+      expect(store.showSkeleton()).toBe(false);
+      expect(store.items().map((s) => s.id)).toEqual(['fresh']);
+    });
+  });
+
   describe('create', () => {
     it('calls the API and triggers a reload on success without mutating items', () => {
       getCards.mockReturnValue(of({ items: [sellerCard()], totalCount: 1, page: 1, pageSize: 60 }));
