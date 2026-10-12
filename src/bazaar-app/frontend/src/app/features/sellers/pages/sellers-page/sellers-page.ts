@@ -20,6 +20,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { SkeletonModule } from 'primeng/skeleton';
 import { ScrollAreaModule } from 'primeng/scrollarea';
 import { RoleService } from '../../../../core/auth/role.service';
 import { Page } from '../../../../shared/components/page/page';
@@ -42,6 +43,7 @@ import { SellerDetailModal } from '../../components/seller-detail-modal/seller-d
 import { ReleaseDialog } from '../../components/release-dialog/release-dialog';
 
 const DEBOUNCE_MS = 300;
+const SKELETON_TILE_COUNT = 6;
 
 const SORT_OPTIONS = [
   { label: 'Name', value: 'name' },
@@ -102,6 +104,7 @@ interface ProblemDetailsBody {
     InputTextModule,
     SelectModule,
     ScrollAreaModule,
+    SkeletonModule,
     SellerCard,
     VerkaeuferDialog,
     SellerDetailModal,
@@ -144,6 +147,11 @@ export class SellersPage {
   readonly noResultsForFilter = computed(
     () => this.totalCount() === 0 && !this.loading() && this.hasActiveFilters(),
   );
+
+  /** Erstladen: noch keine Kacheln, Request läuft — Skeleton statt leerem Grid. */
+  readonly showSkeleton = computed(() => this.loading() && this.items().length === 0);
+
+  readonly skeletonTiles = Array.from({ length: SKELETON_TILE_COUNT }, (_, i) => i);
 
   // Detail modal.
   readonly detailModalVisible = signal(false);

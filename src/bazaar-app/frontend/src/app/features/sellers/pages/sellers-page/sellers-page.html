@@ -68,27 +68,35 @@
     <p-scrollarea class="sellers-page__list" variant="auto" [mask]="false">
       <p-scrollarea-viewport>
         <p-scrollarea-content>
-          <div class="sellers-page__grid">
-            @for (card of items(); track card.id) {
-              <app-seller-card
-                [card]="card"
-                (edit)="onEdit($event)"
-                (scan)="onScan($event)"
-                (statusClick)="onStatusClick($event)"
-                (cardClick)="onCardClick($event)"
-              />
-            }
-          </div>
-          <!-- Property binding drives the directive's `trigger` input (re-observe on count change);
-               the extra attr. binding reflects the same value as a real DOM attribute so tests can
-               locate the sentinel via `[appLoadMoreSentinel]` — plain property bindings never show
-               up in the rendered HTML. -->
-          <div
-            class="sellers-page__sentinel"
-            [appLoadMoreSentinel]="items().length"
-            [attr.appLoadMoreSentinel]="items().length"
-            (reached)="onLoadMore()"
-          ></div>
+          @if (showSkeleton()) {
+            <div class="sellers-page__grid" aria-busy="true">
+              @for (tile of skeletonTiles; track tile) {
+                <p-skeleton height="9rem" />
+              }
+            </div>
+          } @else {
+            <div class="sellers-page__grid">
+              @for (card of items(); track card.id) {
+                <app-seller-card
+                  [card]="card"
+                  (edit)="onEdit($event)"
+                  (scan)="onScan($event)"
+                  (statusClick)="onStatusClick($event)"
+                  (cardClick)="onCardClick($event)"
+                />
+              }
+            </div>
+            <!-- Property binding drives the directive's `trigger` input (re-observe on count change);
+                 the extra attr. binding reflects the same value as a real DOM attribute so tests can
+                 locate the sentinel via `[appLoadMoreSentinel]` — plain property bindings never show
+                 up in the rendered HTML. -->
+            <div
+              class="sellers-page__sentinel"
+              [appLoadMoreSentinel]="items().length"
+              [attr.appLoadMoreSentinel]="items().length"
+              (reached)="onLoadMore()"
+            ></div>
+          }
         </p-scrollarea-content>
       </p-scrollarea-viewport>
       <p-scrollarea-scrollbar orientation="vertical">
