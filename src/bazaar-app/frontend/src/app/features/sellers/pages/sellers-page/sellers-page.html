@@ -52,7 +52,17 @@
     </div>
   }
 
-  @if (noSellersAtAll()) {
+  <div class="sellers-page__sr-only" role="status">{{ showSkeleton() ? 'Verkäufer werden geladen' : '' }}</div>
+
+  @if (showSkeleton()) {
+    <div class="sellers-page__list">
+      <div class="sellers-page__grid">
+        @for (slot of skeletonSlots; track slot) {
+          <app-seller-card-skeleton />
+        }
+      </div>
+    </div>
+  } @else if (noSellersAtAll()) {
     <div class="sellers-page__empty">
       <p>
         Noch keine Verkäufer. Über <strong>Einstellungen → Import</strong> die Voranmeldedaten

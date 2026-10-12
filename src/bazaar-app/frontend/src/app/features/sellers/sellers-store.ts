@@ -50,10 +50,25 @@ export class SellersStore {
    */
   private requestSequence = 0;
 
+  private readonly skeletonVisible = signal(false);
+
+  /**
+   * Platzhalter-Karten statt Kartenliste: nur beim allerersten Laden und bei einer komplett
+   * neu geholten Liste nach `setFilters` (Suche/Sortierung/Statusfilter). Reloads nach
+   * Mutationen und `loadMore()` lassen ihn aus, damit die Karten und die Scroll-Position
+   * stehen bleiben. Die jeweils jüngste Antwort (Erfolg oder Fehler) schaltet ihn aus.
+   */
+  readonly showSkeleton = this.skeletonVisible.asReadonly();
+
+  private loadedOnce = false;
+
   /** Lädt alle bisher nachgeladenen Seiten in einem Request neu (Seite 1, pageSize × page). */
-  load(): void {
+  load(options: { skeleton?: boolean } = {}): void {
     const sequence = ++this.requestSequence;
     this.loading.set(true);
+    if (options.skeleton || !this.loadedOnce) {
+      this.skeletonVisible.set(true);
+    }
     this.sellersApi
       .getCards({
         page: 1,
@@ -78,13 +93,20 @@ export class SellersStore {
             this.items.set(response.items);
           }
           this.totalCount.set(response.totalCount);
-          this.loading.set(false);
+          this.finishLoad();
         },
         error: () => {
           if (sequence !== this.requestSequence) return;
-          this.loading.set(false);
+          this.finishLoad();
         },
       });
+  }
+
+  /** Gemeinsamer Abschluss eines `load()`: Ladezustand beenden, Skeleton ausblenden. */
+  private finishLoad(): void {
+    this.loading.set(false);
+    this.loadedOnce = true;
+    this.skeletonVisible.set(false);
   }
 
   /** Nächste 60 Verkäufer ans Listenende anhängen (Epic_Verkaeufer: Nachladen statt Paginator). */
@@ -119,7 +141,7 @@ export class SellersStore {
   setFilters(partial: Partial<SellersFilters>): void {
     this.filters.set({ ...this.filters(), ...partial });
     this.page.set(1);
-    this.load();
+    this.load({ skeleton: true });
   }
 
   create(request: CreateSellerRequest): Observable<Seller> {
