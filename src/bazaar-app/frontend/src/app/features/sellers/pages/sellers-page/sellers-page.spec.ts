@@ -211,6 +211,53 @@ describe('SellersPage', () => {
     });
   });
 
+  describe('sort filter', () => {
+    it('onSortChange_sortSelected_callsSetFiltersImmediatelyWithoutDebounce', async () => {
+      // Arrange
+      const { component } = await createPage();
+      setFilters.mockClear();
+
+      // Act
+      component.onSortChange('acceptedValue');
+
+      // Assert
+      expect(setFilters).toHaveBeenCalledWith({ sort: 'acceptedValue' });
+    });
+  });
+
+  describe('filter chips', () => {
+    it('template_noFilterActive_rendersNoChips', async () => {
+      // Arrange
+      filtersSignal.set({ q: '', status: null, sort: 'name' });
+
+      // Act
+      const { fixture } = await createPage();
+
+      // Assert
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('.sellers-page__chips')).toBeNull();
+      expect(el.querySelectorAll('p-chip').length).toBe(0);
+    });
+
+    it('template_searchAndStatusActive_rendersRemovableChipsDirectlyBelowToolbar', async () => {
+      // Arrange
+      filtersSignal.set({ q: 'mei', status: 'open', sort: 'name' });
+
+      // Act
+      const { fixture } = await createPage();
+
+      // Assert
+      const el: HTMLElement = fixture.nativeElement;
+      const toolbar = el.querySelector('p-toolbar.sellers-page__toolbar');
+      const chips = el.querySelector('.sellers-page__chips');
+      expect(toolbar?.nextElementSibling).toBe(chips);
+      expect(chips?.querySelectorAll('p-chip').length).toBe(2);
+      expect(chips?.textContent).toContain('Suche: mei');
+      expect(chips?.textContent).toContain('Status: Offen');
+      expect(chips?.querySelectorAll('.p-chip-remove-icon').length).toBe(2);
+    });
+  });
+
   describe('empty states', () => {
     it('shows the "no sellers at all" copy when totalCount is 0 and no filters are active', async () => {
       totalCountSignal.set(0);
