@@ -88,7 +88,8 @@ export class CategoriesPage {
       .categories()
       .filter((category) => category.name.toLowerCase().includes(term))
       .filter(
-        (category) => originalFilter === null || category.original === (originalFilter === 'original'),
+        (category) =>
+          originalFilter === null || category.original === (originalFilter === 'original'),
       )
       .map(
         (category): CategoryRow => ({

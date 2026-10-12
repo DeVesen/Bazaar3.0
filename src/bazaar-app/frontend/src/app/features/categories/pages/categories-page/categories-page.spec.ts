@@ -187,8 +187,8 @@ describe('CategoriesPage', () => {
     it('rows_filterChangedWhileSortActive_keepsChosenSortOrder', () => {
       // Arrange
       categoriesSignal.set([
-        category({ id: 'c1', name: 'Hosen' }),
-        category({ id: 'c2', name: 'Hemden' }),
+        category({ id: 'c1', name: 'Hemden' }),
+        category({ id: 'c2', name: 'Hosen' }),
         category({ id: 'c3', name: 'Jacken' }),
       ]);
       const { component } = createPage();
