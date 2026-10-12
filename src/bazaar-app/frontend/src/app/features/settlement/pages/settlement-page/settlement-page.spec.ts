@@ -428,6 +428,150 @@ describe('SettlementPage', () => {
     });
   });
 
+  describe('action bar actions (unchanged behaviour)', () => {
+    async function renderWithActions(
+      settlementOverrides: Partial<SellerSettlement>,
+      printService = printServiceStub(),
+    ) {
+      const settlementApi = settlementApiStub();
+      settlementApi.getSettlement.mockReturnValue(of(settlement(settlementOverrides)));
+      const { fixture, component } = await setup({ settlementApi, printService });
+      selectSeller(component);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const el: HTMLElement = fixture.nativeElement;
+      const [print, giveBack, settle] = Array.from(
+        el.querySelectorAll<HTMLButtonElement>('.settlement-page__bar-end p-button button'),
+      );
+      return { fixture, component, el, print, giveBack, settle, printService };
+    }
+
+    it('template_unsettledSellerWithOpenArticles_enablesZurueckgeben', async () => {
+      // Arrange
+      // Act
+      const { giveBack } = await renderWithActions({ openCount: 3, canSettle: false });
+
+      // Assert
+      expect(giveBack.disabled).toBe(false);
+    });
+
+    it('template_unsettledSellerWithoutOpenArticles_disablesZurueckgeben', async () => {
+      // Arrange
+      // Act
+      const { giveBack } = await renderWithActions({ openCount: 0, canSettle: true });
+
+      // Assert
+      expect(giveBack.disabled).toBe(true);
+    });
+
+    it('template_settledSeller_disablesZurueckgebenAndAbrechnen', async () => {
+      // Arrange
+      // Act
+      const { giveBack, settle } = await renderWithActions({
+        openCount: 3,
+        canSettle: true,
+        settledAt: '2026-01-15T10:00:00Z',
+        payoutAmount: 332.94,
+      });
+
+      // Assert
+      expect(giveBack.disabled).toBe(true);
+      expect(settle.disabled).toBe(true);
+    });
+
+    it('template_unsettledSellerServerAllowsSettlement_enablesAbrechnen', async () => {
+      // Arrange
+      // Act
+      const { settle } = await renderWithActions({ openCount: 0, canSettle: true });
+
+      // Assert
+      expect(settle.disabled).toBe(false);
+    });
+
+    it('template_unsettledSellerServerDeniesSettlement_disablesAbrechnen', async () => {
+      // Arrange
+      // Act
+      const { settle } = await renderWithActions({ openCount: 0, canSettle: false });
+
+      // Assert
+      expect(settle.disabled).toBe(true);
+    });
+
+    it('onReturnClick_zurueckgebenClicked_opensScanDialog', async () => {
+      // Arrange
+      const { fixture, component, giveBack } = await renderWithActions({ openCount: 3 });
+
+      // Act
+      giveBack.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Assert
+      expect(component.scanDialogVisible()).toBe(true);
+    });
+
+    it('onSettleClick_abrechnenClicked_opensSettlementPanel', async () => {
+      // Arrange
+      const { fixture, component, settle } = await renderWithActions({ openCount: 0, canSettle: true });
+
+      // Act
+      settle.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Assert
+      expect(component.settlePanelVisible()).toBe(true);
+    });
+
+    it('onPrint_unsettledSeller_printsPreliminarySummary', async () => {
+      // Arrange
+      const printService = printServiceStub();
+      const { fixture, print } = await renderWithActions({ openCount: 3 }, printService);
+
+      // Act
+      print.click();
+      await fixture.whenStable();
+
+      // Assert
+      expect(printService.printSellerSummary).toHaveBeenCalledWith({
+        sellerId: 'SEL00001',
+        phase: 'preliminary',
+      });
+    });
+
+    it('onPrint_settledSeller_printsFinalSummary', async () => {
+      // Arrange
+      const printService = printServiceStub();
+      const { fixture, print } = await renderWithActions(
+        { settledAt: '2026-01-15T10:00:00Z', payoutAmount: 332.94 },
+        printService,
+      );
+
+      // Act
+      print.click();
+      await fixture.whenStable();
+
+      // Assert
+      expect(printService.printSellerSummary).toHaveBeenCalledWith({
+        sellerId: 'SEL00001',
+        phase: 'final',
+      });
+    });
+
+    it('template_sellerSelected_keepsPageTitleKpiTilesAndArticleTableBelowTheBar', async () => {
+      // Arrange
+      // Act
+      const { el } = await renderWithActions({ openCount: 4, soldCount: 31, revenue: 380.5 });
+
+      // Assert
+      expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Abrechnung');
+      expect(el.querySelectorAll('app-kpi-tile').length).toBe(3);
+      expect(el.querySelector('.settlement-page > p-table')).not.toBeNull();
+      const headers = Array.from(el.querySelectorAll('p-table th')).map((th) => th.textContent?.trim());
+      expect(headers).toEqual(['Nummer', 'Bezeichnung', 'Preis', 'Status']);
+    });
+  });
+
   describe('canReturn / canSettleClick', () => {
     it('no open articles, canSettle=false: both disabled', async () => {
       const settlementApi = settlementApiStub();
