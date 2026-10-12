@@ -9,11 +9,15 @@ import { IndustryPreset } from './core/theme/industry-preset';
 import { AuthService } from './core/auth/auth.service';
 import { jwtInterceptor } from './core/auth/jwt.interceptor';
 import { SettingsService } from './core/settings/settings.service';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    providePrimeNG({ theme: { preset: IndustryPreset, options: { darkModeSelector: false } } }),
+    providePrimeNG({
+      theme: { preset: IndustryPreset, options: { darkModeSelector: false } },
+      license: environment.primeUiLicenseKey
+    }),
     provideLucideConfig({ strokeWidth: 1.5 }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([jwtInterceptor])),
