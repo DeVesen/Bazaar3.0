@@ -21,6 +21,11 @@
     flex-shrink: 1;
     flex-basis: 16rem;
     min-width: 0;
+
+    // `.p-inputtext` hat keine eigene Breite; ohne das bliebe das Feld bei Standardbreite (AC-06).
+    input {
+      width: 100%;
+    }
   }
 
   // Mindestbreite 150 px; das Label kürzt nicht, sondern vergrößert das Feld (AC-07).

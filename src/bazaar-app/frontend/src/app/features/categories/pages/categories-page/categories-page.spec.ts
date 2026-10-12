@@ -423,7 +423,9 @@ describe('CategoriesPage', () => {
       expect(el.querySelectorAll('p-toolbar').length).toBe(1);
       expect(toolbar.querySelector('p-select')).not.toBeNull();
       expect(toolbar.querySelector('input[type="text"]')).not.toBeNull();
-      expect(toolbar.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(
+        toolbar.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
     });
 
     it('toolbar_adminOpensPage_hasExactlyOneIconOnlyPlusButtonAtLeftEdge', () => {
@@ -525,7 +527,10 @@ describe('CategoriesPage', () => {
       const select = fixture.debugElement.query(By.directive(Select)).componentInstance as Select;
 
       // Assert
-      expect(component.originalOptions.map((option) => option.label)).toEqual(['✓ Original', 'Neu']);
+      expect(component.originalOptions.map((option) => option.label)).toEqual([
+        '✓ Original',
+        'Neu',
+      ]);
       expect(select.options()).toEqual(component.originalOptions);
     });
 
@@ -568,11 +573,13 @@ describe('CategoriesPage', () => {
       const { fixture } = createPage();
       const search = toolbarOf(fixture).querySelector('p-iconfield') as HTMLElement;
       const style = getComputedStyle(search);
+      const inputStyle = getComputedStyle(search.querySelector('input') as HTMLInputElement);
 
       // Assert
       expect(search.classList.contains('categories-page__search')).toBe(true);
       expect(style.flexGrow).toBe('1');
       expect(style.flexShrink).toBe('1');
+      expect(inputStyle.width).toBe('100%');
     });
 
     it('toolbar_pageOpened_selectKeepsMinWidth150AndDoesNotShrink', () => {
