@@ -30,3 +30,16 @@ Keine `Urteil:`-Zeilen (0).
 ## Stand
 - Stand: a0026185
 - Gesamtlauf: a002618 grün (857 Tests; Spec-Datei 31/31 im Final-Review)
+
+## Nachtrag Review-Followup: Sichtprüfung AC-07 / AC-11 (offen)
+
+Stand: **nicht durchgeführt, ausdrücklich offener manueller Prüfschritt.** Im Dev-Server ist die Verkäuferseite ohne Login und Backend nicht erreichbar; eine Sichtprüfung war in dieser Umsetzung daher nicht möglich. Belegt ist nur die Regel-Ebene (Test `styles_pageOpened_searchGrowsSelectsKeepMinWidthAndToolbarWraps`: `min-width`, `flex-grow`, `flex-shrink`, `flex-wrap`). Das Wachsen des Auswahlfelds und der ungekürzte Text (AC-07) sowie das Fehlen einer waagerechten Bildlaufleiste (AC-11) sind **nicht** belegt.
+
+Manuell zu prüfen (Desktop und Mobil, z. B. 1280 px und 375 px Breite):
+1. Sortierung „Angenommener Warenwert" wählen: Das Auswahlfeld wird breiter als 150 px und zeigt den Text ohne Ellipsis.
+2. Dasselbe für den längsten Status-Eintrag.
+3. Bei schmalem Fenster bricht die Leiste um, keine waagerechte Bildlaufleiste.
+
+Falls der Text gekürzt wird: In `sellers-page.scss` die Breite des Select-Elements auf `fit-content` bzw. `width: auto` setzen und das innere Label ohne Ellipsis darstellen. Diese Stiländerung ist bewusst noch nicht umgesetzt, weil sie ohne Sichtprüfung ungeprüft wäre.
+
+Ergebnis der Prüfung: _ausstehend_ (Datum, Prüfer, Befund hier eintragen).
