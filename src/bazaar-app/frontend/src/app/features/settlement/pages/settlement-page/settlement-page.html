@@ -3,8 +3,20 @@
   <app-seller-search [sellers]="sellers()" [hint]="hint" [showCreateButton]="false" (sellerSelected)="onSellerSelected($event)" />
 } @else if (settlement(); as s) {
   <div class="settlement-page">
-    <div class="settlement-page__header">
-      <div class="settlement-page__identity">
+    <p-toolbar class="settlement-page__actionbar">
+      <div class="settlement-page__bar-start">
+        <p-button
+          icon="pi pi-angle-left"
+          severity="secondary"
+          [text]="true"
+          ariaLabel="Zurück zur Verkäuferwahl"
+          pTooltip="Zurück zur Verkäuferwahl"
+          tooltipPosition="bottom"
+          (onClick)="onBack()"
+        />
+      </div>
+
+      <div class="settlement-page__bar-center">
         <span class="settlement-page__name">{{ s.seller.firstName }} {{ s.seller.lastName }}</span>
         <span class="settlement-page__address">{{ s.seller.address }}, {{ s.seller.postalCode }} {{ s.seller.city }}</span>
         @if (isSettled()) {
@@ -14,13 +26,13 @@
           />
         }
       </div>
-      <div class="settlement-page__actions">
-        <p-button label="← Zurück" severity="secondary" [outlined]="true" (onClick)="onBack()" />
+
+      <div class="settlement-page__bar-end">
         <p-button label="🖨️ Drucken" (onClick)="onPrint()" />
         <p-button label="↩ Zurückgeben" [disabled]="!canReturn()" (onClick)="onReturnClick()" />
         <p-button label="✓ Abrechnen" [disabled]="!canSettleClick()" (onClick)="onSettleClick()" />
       </div>
-    </div>
+    </p-toolbar>
 
     <app-kpi-grid [columns]="3">
       <app-kpi-tile label="Offene Artikel" [value]="s.openCount" severity="warning" />

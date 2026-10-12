@@ -74,3 +74,8 @@
 - **Maps to:** `src/bazaar-app/frontend/src/app/features/sellers/pages/sellers-page/sellers-page.html` — Block `.sellers-page__list` mit Kachel-Grid und Nachlade-Sentinel; der Listenbereich der Verkäufer-Seite (Haupt-App), der ab 769px in einem eigenen Bereich scrollt.
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-12
+
+### Aktionsleiste
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/settlement/pages/settlement-page/settlement-page.html` — gerahmte Leiste (`p-toolbar.settlement-page__actionbar`) auf einer Seite mit einem Gegenstand und Aktionen: Zurück links als reines „<"-Icon, Name des Gegenstands mittig (mit Adresse bzw. Zusatzzeile darunter), Aktionen rechts. Erste Ausprägung: Abrechnungsseite der Haupt-App im Zustand „Verkäufer abrechnen"; Vorbild für weitere Seiten dieser Art. Nicht verwenden: „Filterleiste" — dieser Begriff bleibt den Listenseiten (Suche, Sortierung, Status) vorbehalten.
+- **Confidence:** user-confirmed
+- **First seen:** 2026-10-12
