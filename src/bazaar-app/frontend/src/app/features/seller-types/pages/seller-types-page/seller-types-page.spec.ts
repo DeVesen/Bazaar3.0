@@ -473,6 +473,7 @@ describe('SellerTypesPage', () => {
       expect(toolbarStyle.borderTopStyle).toBe('solid');
       expect(toolbarStyle.borderTopWidth).toBe('1px');
       expect(getComputedStyle(search).flexGrow).toBe('1');
+      expect(getComputedStyle(search.querySelector('input') as HTMLElement).width).toBe('100%');
     });
 
     it('search_termTyped_showsOnlyMatchingRowsAndNoChips', async () => {

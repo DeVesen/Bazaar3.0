@@ -18,5 +18,9 @@
   &__search {
     flex: 1 1 16rem;
     min-width: 0;
+
+    input {
+      width: 100%;
+    }
   }
 }
