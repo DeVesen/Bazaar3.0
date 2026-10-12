@@ -407,6 +407,20 @@ describe('SettlementPage', () => {
       expect(getComputedStyle(end).justifyContent).toBe('flex-end');
     });
 
+    it('styles_sellerSelected_startAndEndShareSameMinWidthAndCenterShrinksInsteadOfShifting', async () => {
+      // Arrange
+      // Act
+      const { start, center, end } = await renderActionBar({ settledAt: '2026-01-15T10:00:00Z', payoutAmount: 332.94 });
+
+      // Assert
+      const startMin = getComputedStyle(start).minWidth;
+      expect(startMin).toMatch(/^\d+(\.\d+)?rem$/);
+      expect(getComputedStyle(end).minWidth).toBe(startMin);
+      expect(getComputedStyle(center).flexShrink).toBe('1');
+      expect(getComputedStyle(center).minWidth).toMatch(/^0(px)?$/);
+      expect(getComputedStyle(center.querySelector('p-tag') as HTMLElement).maxWidth).toBe('100%');
+    });
+
     it('styles_sellerSelected_centerIsCenteredAndNameAndAddressTruncateWithEllipsis', async () => {
       // Arrange
       // Act

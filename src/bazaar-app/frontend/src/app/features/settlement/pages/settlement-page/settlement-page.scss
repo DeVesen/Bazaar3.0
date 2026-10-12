@@ -23,6 +23,9 @@
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: 0;
+    // Gleiche Untergrenze, mindestens so breit wie die drei Buttons im Ende-Bereich:
+    // Start und Ende bleiben dadurch immer gleich breit, die Mitte schrumpft statt zu rutschen.
+    min-width: 18.5rem;
   }
 
   &__bar-start {
@@ -54,6 +57,13 @@
     white-space: nowrap;
   }
 
+  // Tag bleibt vollständig lesbar: bei knapper Mitte umbrechen statt überlappen.
+  &__bar-center p-tag {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+
   &__name {
     font-weight: 600;
     font-size: 1.125rem;
@@ -73,10 +83,12 @@
 
   .settlement-page__bar-start {
     order: 1;
+    min-width: 0;
   }
 
   .settlement-page__bar-end {
     order: 2;
+    min-width: 0;
     flex-wrap: wrap;
   }
 
