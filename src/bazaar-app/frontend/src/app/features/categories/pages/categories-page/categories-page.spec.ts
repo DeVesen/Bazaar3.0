@@ -65,9 +65,180 @@ describe('CategoriesPage', () => {
 
   it('passes the exact emptyText through', () => {
     const { component } = createPage();
-    expect(component.emptyText).toBe(
+    expect(component.emptyText()).toBe(
       'Noch keine Kategorien. Beim Import aus der Voranmelde-App werden sie mit übernommen.',
     );
+  });
+
+  describe('Filter', () => {
+    function namesOf(component: CategoriesPage): string[] {
+      return component.rows().map((row) => row.name);
+    }
+
+    it('rows_noFilterSet_showsAllCategories', () => {
+      // Arrange
+      categoriesSignal.set([
+        category({ id: 'c1', name: 'Hosen' }),
+        category({ id: 'c2', name: 'Jacken' }),
+      ]);
+      const { component } = createPage();
+
+      // Act
+      const names = namesOf(component);
+
+      // Assert
+      expect(names).toEqual(['Hosen', 'Jacken']);
+    });
+
+    it('rows_searchTermHoUppercase_showsOnlyHosen', () => {
+      // Arrange
+      categoriesSignal.set([
+        category({ id: 'c1', name: 'Hosen' }),
+        category({ id: 'c2', name: 'Jacken' }),
+      ]);
+      const { component } = createPage();
+
+      // Act
+      component.onSearchChange('HO');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Hosen']);
+    });
+
+    it('rows_searchTermClearedToNull_showsAllCategoriesAgain', () => {
+      // Arrange
+      categoriesSignal.set([
+        category({ id: 'c1', name: 'Hosen' }),
+        category({ id: 'c2', name: 'Jacken' }),
+      ]);
+      const { component } = createPage();
+      component.onSearchChange('HO');
+
+      // Act
+      component.onSearchChange(null);
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Hosen', 'Jacken']);
+    });
+
+    it('rows_originalFilterNew_showsOnlyNewCategories', () => {
+      // Arrange
+      categoriesSignal.set([
+        category({ id: 'c1', name: 'Hosen', original: true }),
+        category({ id: 'c2', name: 'Jacken', original: false }),
+      ]);
+      const { component } = createPage();
+
+      // Act
+      component.onOriginalFilterChange('new');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Jacken']);
+    });
+
+    it('rows_originalFilterOriginal_showsOnlyOriginalCategories', () => {
+      // Arrange
+      categoriesSignal.set([
+        category({ id: 'c1', name: 'Hosen', original: true }),
+        category({ id: 'c2', name: 'Jacken', original: false }),
+      ]);
+      const { component } = createPage();
+
+      // Act
+      component.onOriginalFilterChange('original');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Hosen']);
+    });
+
+    it('rows_originalFilterClearedToNull_showsBothKinds', () => {
+      // Arrange
+      categoriesSignal.set([
+        category({ id: 'c1', name: 'Hosen', original: true }),
+        category({ id: 'c2', name: 'Jacken', original: false }),
+      ]);
+      const { component } = createPage();
+      component.onOriginalFilterChange('new');
+
+      // Act
+      component.onOriginalFilterChange(null);
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Hosen', 'Jacken']);
+    });
+
+    it('rows_searchTermAndOriginalFilterSet_showsOnlyCategoriesMatchingBoth', () => {
+      // Arrange
+      categoriesSignal.set([
+        category({ id: 'c1', name: 'Hosen', original: true }),
+        category({ id: 'c2', name: 'Hosentaschen', original: false }),
+        category({ id: 'c3', name: 'Jacken', original: false }),
+      ]);
+      const { component } = createPage();
+
+      // Act
+      component.onSearchChange('hose');
+      component.onOriginalFilterChange('new');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Hosentaschen']);
+    });
+
+    it('rows_filterChangedWhileSortActive_keepsChosenSortOrder', () => {
+      // Arrange
+      categoriesSignal.set([
+        category({ id: 'c1', name: 'Hosen' }),
+        category({ id: 'c2', name: 'Hemden' }),
+        category({ id: 'c3', name: 'Jacken' }),
+      ]);
+      const { component } = createPage();
+      component.onSortChange([{ field: 'name', order: 'desc' }]);
+
+      // Act
+      component.onSearchChange('h');
+
+      // Assert
+      expect(namesOf(component)).toEqual(['Hosen', 'Hemden']);
+    });
+
+    it('emptyText_filterMatchesNothingButCategoriesExist_isNoResultsText', () => {
+      // Arrange
+      categoriesSignal.set([category({ id: 'c1', name: 'Hosen' })]);
+      const { component } = createPage();
+
+      // Act
+      component.onSearchChange('xyz');
+
+      // Assert
+      expect(component.rows()).toEqual([]);
+      expect(component.emptyText()).toBe('Keine Kategorien gefunden.');
+    });
+
+    it('emptyText_originalFilterMatchesNothingButCategoriesExist_isNoResultsText', () => {
+      // Arrange
+      categoriesSignal.set([category({ id: 'c1', name: 'Hosen', original: false })]);
+      const { component } = createPage();
+
+      // Act
+      component.onOriginalFilterChange('original');
+
+      // Assert
+      expect(component.emptyText()).toBe('Keine Kategorien gefunden.');
+    });
+
+    it('emptyText_noCategoriesAndNoFilter_isEmptyListText', () => {
+      // Arrange
+      categoriesSignal.set([]);
+      const { component } = createPage();
+
+      // Act
+      const text = component.emptyText();
+
+      // Assert
+      expect(text).toBe(
+        'Noch keine Kategorien. Beim Import aus der Voranmelde-App werden sie mit übernommen.',
+      );
+    });
   });
 
   it('marks every column as not filterable (no column filtering in Round-11)', () => {
