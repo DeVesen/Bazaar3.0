@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { NgModel } from '@angular/forms';
+import { By } from '@angular/platform-browser';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -211,6 +213,212 @@ describe('ArticlesPage', () => {
     });
   });
 
+  describe('Filterleiste', () => {
+    function filterbar(fixture: { nativeElement: HTMLElement }): HTMLElement | null {
+      return (fixture.nativeElement as HTMLElement).querySelector('p-toolbar.articles-page__filterbar');
+    }
+
+    it('render_pageOpened_putsSearchAndThreeSelectsInOneToolbarAboveTable', async () => {
+      // Arrange
+      const { fixture } = await createPage();
+      const el: HTMLElement = fixture.nativeElement;
+
+      // Act
+      const bar = filterbar(fixture);
+
+      // Assert
+      expect(bar).not.toBeNull();
+      expect(el.querySelectorAll('p-toolbar')).toHaveLength(1);
+      expect(bar!.querySelector('input[pInputText], input.p-inputtext')).not.toBeNull();
+      expect(bar!.querySelectorAll('p-select')).toHaveLength(3);
+      expect(el.querySelectorAll('p-select')).toHaveLength(3);
+      const table = el.querySelector('app-table')!;
+      expect(
+        bar!.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(el.querySelector('.articles-page__filter-row, .articles-page__filter-grid')).toBeNull();
+    });
+
+    it('render_pageOpened_hasNoElementBeforeSearchField', async () => {
+      // Arrange
+      const { fixture } = await createPage();
+      const bar = filterbar(fixture)!;
+
+      // Act
+      const children = Array.from(bar.children);
+
+      // Assert
+      expect(children[0].classList.contains('p-toolbar-center')).toBe(true);
+      expect(bar.querySelector('.p-toolbar-start')).toBeNull();
+      expect(bar.querySelector('button')).toBeNull();
+      expect(
+        children[0].querySelector('input')?.getAttribute('placeholder'),
+      ).toBe('Suche nach Nr., Bezeichnung …');
+    });
+
+    it('render_pageOpened_putsSelectsOnTheRightInOrderBrandCategoryStatus', async () => {
+      // Arrange
+      const { fixture } = await createPage();
+      const bar = filterbar(fixture)!;
+
+      // Act
+      const names = Array.from(bar.querySelectorAll('.p-toolbar-end p-select')).map((s) =>
+        s.getAttribute('aria-label'),
+      );
+
+      // Assert
+      expect(names).toEqual(['Marke', 'Kategorie', 'Status']);
+      expect(bar.querySelectorAll('.p-toolbar-center p-select')).toHaveLength(0);
+    });
+
+    it('render_pageOpened_hasNoVisibleLabelsAndShowsAllePlaceholderInEverySelect', async () => {
+      // Arrange
+      const { fixture } = await createPage();
+      const bar = filterbar(fixture)!;
+
+      // Act
+      const labels = Array.from(bar.querySelectorAll('p-select .p-select-label')).map((l) =>
+        l.textContent?.trim(),
+      );
+
+      // Assert
+      expect(bar.querySelector('label')).toBeNull();
+      expect(labels).toEqual(['Alle', 'Alle', 'Alle']);
+    });
+
+    it('render_filterActive_showsNoFilterChips', async () => {
+      // Arrange
+      filtersSignal.set({ q: 'x', brand: 'Playmobil', category: 'Kleidung', status: 'sold', sort: 'number:asc' });
+      const { fixture } = await createPage();
+
+      // Act
+      const chips = (fixture.nativeElement as HTMLElement).querySelectorAll('p-chip');
+
+      // Assert
+      expect(chips).toHaveLength(0);
+    });
+
+    it('styles_pageOpened_searchAreaFillsRemainingWidth', async () => {
+      // Arrange
+      const { fixture } = await createPage();
+      const bar = filterbar(fixture)!;
+
+      // Act
+      const center = getComputedStyle(bar.querySelector<HTMLElement>('.p-toolbar-center')!);
+      const search = getComputedStyle(
+        bar.querySelector<HTMLElement>('.p-toolbar-center p-iconfield.articles-page__search')!,
+      );
+      const input = getComputedStyle(bar.querySelector<HTMLElement>('.p-toolbar-center input')!);
+
+      // Assert
+      expect(center.flexGrow).toBe('1');
+      expect(center.flexShrink).toBe('1');
+      expect(center.flexBasis).toBe('16rem');
+      expect(center.minWidth).toBe('16rem');
+      expect(search.display).toBe('block');
+      expect(search.width).toBe('100%');
+      expect(input.width).toBe('100%');
+    });
+
+    it('styles_pageOpened_selectsHaveMinWidth200AndGrowWithSelectedText', async () => {
+      // Arrange
+      const { fixture } = await createPage();
+      const bar = filterbar(fixture)!;
+
+      // Act
+      const selects = Array.from(bar.querySelectorAll<HTMLElement>('.p-toolbar-end p-select'));
+
+      // Assert
+      expect(selects).toHaveLength(3);
+      for (const select of selects) {
+        expect(select.classList).toContain('articles-page__select');
+        const style = getComputedStyle(select);
+        expect(style.minWidth).toBe('200px');
+        expect(style.flexGrow).toBe('0');
+        expect(style.flexShrink).toBe('0');
+        expect(style.flexBasis).toBe('auto');
+        const label = getComputedStyle(select.querySelector<HTMLElement>('.p-select-label')!);
+        expect(label.width).toBe('auto');
+        expect(label.overflow).toBe('visible');
+        expect(label.textOverflow).toBe('clip');
+      }
+    });
+
+    it('styles_narrowWindow_toolbarWrapsWithoutHorizontalOverflow', async () => {
+      // Arrange
+      const { fixture } = await createPage();
+      const bar = filterbar(fixture)!;
+
+      // Act
+      const toolbar = getComputedStyle(bar);
+      const end = getComputedStyle(bar.querySelector<HTMLElement>('.p-toolbar-end')!);
+      const selects = Array.from(bar.querySelectorAll<HTMLElement>('.p-toolbar-end p-select')).map(
+        (s) => getComputedStyle(s),
+      );
+
+      // Assert
+      expect(toolbar.flexWrap).toBe('wrap');
+      expect(end.flexWrap).toBe('wrap');
+      expect(end.maxWidth).toBe('100%');
+      expect(selects).toHaveLength(3);
+      for (const select of selects) {
+        expect(select.maxWidth).toBe('100%');
+      }
+    });
+
+    it('onBrandChange_selectsInToolbarEmitChange_callSetFiltersImmediately', async () => {
+      // Arrange
+      const { fixture } = await createPage();
+      const selects = fixture.debugElement.queryAll(
+        By.css('p-toolbar.articles-page__filterbar .p-toolbar-end p-select'),
+      );
+      setFilters.mockClear();
+
+      // Act
+      selects[0].injector.get(NgModel).viewToModelUpdate('Playmobil');
+      selects[1].injector.get(NgModel).viewToModelUpdate('Kleidung');
+      selects[2].injector.get(NgModel).viewToModelUpdate('sold');
+
+      // Assert
+      expect(selects).toHaveLength(3);
+      expect(setFilters).toHaveBeenCalledTimes(3);
+      expect(setFilters).toHaveBeenNthCalledWith(1, { brand: 'Playmobil' });
+      expect(setFilters).toHaveBeenNthCalledWith(2, { category: 'Kleidung' });
+      expect(setFilters).toHaveBeenNthCalledWith(3, { status: 'sold' });
+    });
+
+    describe('Suche mit Tipppause', () => {
+      beforeEach(() => {
+        vi.useFakeTimers();
+      });
+
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it('onQInputChange_typingInToolbarSearch_callsSetFiltersOnlyAfterPause', async () => {
+        // Arrange
+        const { fixture } = await createPage();
+        const input = filterbar(fixture)!.querySelector<HTMLInputElement>('.p-toolbar-center input')!;
+        setFilters.mockClear();
+
+        // Act
+        input.value = 'sch';
+        input.dispatchEvent(new Event('input'));
+        await vi.advanceTimersByTimeAsync(100);
+        await fixture.whenStable();
+        const callsBeforePause = setFilters.mock.calls.length;
+        await vi.advanceTimersByTimeAsync(300);
+        await fixture.whenStable();
+
+        // Assert
+        expect(callsBeforePause).toBe(0);
+        expect(setFilters).toHaveBeenCalledTimes(1);
+        expect(setFilters).toHaveBeenCalledWith({ q: 'sch' });
+      });
+    });
+  });
+
   describe('brand/category/status filters', () => {
     it('trigger setFilters immediately, without any debounce delay', async () => {
       const { component } = await createPage();
@@ -224,6 +432,22 @@ describe('ArticlesPage', () => {
 
       component.onStatusChange('sold');
       expect(setFilters).toHaveBeenCalledWith({ status: 'sold' });
+    });
+
+    it('onBrandChange_clearIconEmitsNull_callsSetFiltersWithNullForEachSelect', async () => {
+      // Arrange
+      const { component } = await createPage();
+      setFilters.mockClear();
+
+      // Act
+      component.onBrandChange(null);
+      component.onCategoryChange(null);
+      component.onStatusChange(null);
+
+      // Assert
+      expect(setFilters).toHaveBeenCalledWith({ brand: null });
+      expect(setFilters).toHaveBeenCalledWith({ category: null });
+      expect(setFilters).toHaveBeenCalledWith({ status: null });
     });
   });
 
