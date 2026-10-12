@@ -8,7 +8,7 @@ Basis: a758a32
 Die Filterleiste der Seite „Verkäufer" in der Haupt-App besteht heute aus zwei losen Zeilen: Suche, Sortierung und „+ Neu" oben, der Statusfilter allein darunter. Sie wird zu einer einzigen, gerahmten Leiste mit drei Bereichen: links ein reiner „+"-Button zum Anlegen, dazwischen die Freitextsuche, die den gesamten Platz zwischen Button und Auswahlfeldern füllt, rechts die zwei Auswahlfelder für Sortierung und Status. Diese Spec dient zugleich als Referenz für die Filterleisten weiterer Listenseiten der Haupt-App. · Aussage
 
 ## Theoretisches Verhalten nach Umsetzung
-Der Anwender sieht oberhalb der Verkäuferkarten eine gerahmte Leiste. Links steht ein „+"-Symbol, das den Dialog zum Anlegen eines Verkäufers öffnet. Dazwischen füllt das Suchfeld den gesamten Platz zwischen dem „+"-Symbol und den Auswahlfeldern. Rechts stehen nebeneinander Sortierung und Status. Alle Felder funktionieren wie bisher. Darunter erscheinen bei aktiven Filtern weiterhin die entfernbaren Filter-Chips. · Aussage
+Der Anwender sieht oberhalb der Verkäufer-Kacheln eine gerahmte Leiste. Links steht ein „+"-Symbol, das den Dialog zum Anlegen eines Verkäufers öffnet. Dazwischen füllt das Suchfeld den gesamten Platz zwischen dem „+"-Symbol und den Auswahlfeldern. Rechts stehen nebeneinander Sortierung und Status. Alle Felder funktionieren wie bisher. Darunter erscheinen bei aktiven Filtern weiterhin die entfernbaren Filter-Chips. · Aussage
 
 ## Soll-Vorgaben
 - Umgesetzt wird nur die Seite „Verkäufer" der Haupt-App. Die Voranmelde-App und andere Listenseiten bleiben unverändert. · Aussage
@@ -17,7 +17,7 @@ Der Anwender sieht oberhalb der Verkäuferkarten eine gerahmte Leiste. Links ste
 - Die Eingabefelder erhalten keine sichtbaren Labels. · Aussage
 
 ## Akzeptanzkriterien
-- **AC-01** Gegeben die Seite „Verkäufer" der Haupt-App wird geöffnet, wenn sie angezeigt wird, dann stehen Anlegen-Button, Suchfeld, Sortierung und Status in einer einzigen gerahmten Leiste oberhalb der Verkäuferkarten und der Statusfilter steht nicht mehr in einer eigenen Zeile darunter. · Aussage
+- **AC-01** Gegeben die Seite „Verkäufer" der Haupt-App wird geöffnet, wenn sie angezeigt wird, dann stehen Anlegen-Button, Suchfeld, Sortierung und Status in einer einzigen gerahmten Leiste oberhalb der Verkäufer-Kacheln und der Statusfilter steht nicht mehr in einer eigenen Zeile darunter. · Aussage
 - **AC-02** Gegeben die Leiste ist sichtbar, wenn der Anwender sie betrachtet, dann ist am linken Rand genau ein Button mit „+"-Symbol und ohne Text. · Aussage
 - **AC-03** Gegeben die Leiste ist sichtbar, wenn der Anwender den „+"-Button mit der Maus berührt oder ein Screenreader ihn vorliest, dann lautet der Hinweis „Neuer Verkäufer". · Aussage
 - **AC-04** Gegeben die Leiste ist sichtbar, wenn der Anwender auf den „+"-Button klickt, dann öffnet sich der Dialog zum Anlegen eines Verkäufers wie bisher bei „+ Neu". · Aussage
@@ -40,4 +40,6 @@ Der Anwender sieht oberhalb der Verkäuferkarten eine gerahmte Leiste. Links ste
 - **W · Verhältnis zur Lade-Spec** · Aussage — Die Lade-Platzhalter der Verkäuferseite sind eine getrennte, abgeschlossene Spec.
 - **F · AC-05** — geändert — Vorschlag 1: Das Suchfeld füllt jetzt den gesamten Platz zwischen „+"-Button und Auswahlfeldern statt „mittig" zu stehen; die Formulierung ist im einleitenden Abschnitt, im Verhaltensabschnitt und in der Muster-Vorgabe entsprechend angepasst.
 - **F · Entscheidungen** — nicht geändert — Vorschlag 1: Der Vorschlag zielt auf den Wortlaut von „W · Elemente“; W-Eintrag ist bindend. Aussehen und Anordnung sind unabhängig davon in Soll-Vorgaben und Akzeptanzkriterien vollständig beschrieben.
-- **F · Soll-Vorgaben** — geändert — Vorschlag 1: Die Vorgabe zur Framework-Komponente ist gestrichen, der Titel lautet jetzt „Filterleiste der Verkäuferseite als einzeilige Leiste“, und der einleitende Abschnitt spricht von einer gerahmten Leiste; die Komponentenwahl bleibt dem Plan überlassen.
+- **F · Soll-Vorgaben** — geändert — Vorschlag 1: Die Vorgabe zur Framework-Komponente ist gestrichen, der Titel lautet jetzt „Filterleiste der Verkäuferseite als gerahmte Leiste“, und der einleitende Abschnitt spricht von einer gerahmten Leiste; die Komponentenwahl bleibt dem Plan überlassen.
+- **R1 · Entscheidungen** — geändert — Klarstellung: Der Eintrag zur Änderung der Soll-Vorgaben nannte als Titel „… als einzeilige Leiste“, der tatsächliche Titel lautet „… als gerahmte Leiste“. Der Titel im Eintrag ist an den Spec-Titel angeglichen; das Umbruchverhalten bei schmalem Fenster (AC-11, W · Chips und schmale Fenster) bleibt unverändert, die Leiste ist also nicht zwingend einzeilig.
+- **F · AC-01** — geändert — Vorschlag 1: „oberhalb der Verkäuferkarten“ ist in AC-01 und im Abschnitt „Theoretisches Verhalten nach Umsetzung“ durch „oberhalb der Verkäufer-Kacheln“ ersetzt; die Spec nutzt damit den eingeführten Fachbegriff.
