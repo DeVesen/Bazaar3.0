@@ -1,5 +1,7 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
+import { Tooltip } from 'primeng/tooltip';
 import { of, throwError } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SellersPage } from './sellers-page';
@@ -369,14 +371,147 @@ describe('SellersPage', () => {
   });
 
   describe('layout and infinite loading (Layout-Vereinheitlichung Teil 1/3)', () => {
-    it('renders "Verkäufer" as page title in fill mode and keeps "+ Neu" in the filter row', async () => {
+    it('renders "Verkäufer" as page title in fill mode with an empty actions area', async () => {
       const { fixture } = await createPage();
       const el: HTMLElement = fixture.nativeElement;
 
       expect(el.querySelector('app-page .page__title')?.textContent?.trim()).toBe('Verkäufer');
       expect(el.querySelector('app-page')?.classList).toContain('page--fill');
       expect(el.querySelector('.page__actions')?.children.length).toBe(0);
-      expect(el.querySelector('.sellers-page__filter-row p-button[label="+ Neu"]')).not.toBeNull();
+    });
+
+    describe('filter toolbar', () => {
+      async function renderToolbar(): Promise<{
+        fixture: ComponentFixture<SellersPage>;
+        component: SellersPage;
+        el: HTMLElement;
+        toolbar: HTMLElement;
+      }> {
+        const { fixture, component } = await createPage();
+        const el: HTMLElement = fixture.nativeElement;
+        const toolbar = el.querySelector<HTMLElement>('.sellers-page > p-toolbar.sellers-page__toolbar');
+        if (!toolbar) throw new Error('sellers-page__toolbar not rendered');
+        return { fixture, component, el, toolbar };
+      }
+
+      it('template_pageOpened_rendersAllControlsInOneToolbarInOrder', async () => {
+        // Arrange
+        // Act
+        const { el, toolbar } = await renderToolbar();
+
+        // Assert
+        const children = Array.from(toolbar.children).map((child) => child.tagName.toLowerCase());
+        expect(children).toEqual(['p-button', 'p-iconfield', 'p-select', 'p-select']);
+        expect(el.querySelectorAll('.sellers-page__filter-row').length).toBe(0);
+        expect(el.querySelectorAll('p-toolbar').length).toBe(1);
+      });
+
+      it('template_pageOpened_rendersIconOnlyAddButtonWithoutText', async () => {
+        // Arrange
+        // Act
+        const { toolbar } = await renderToolbar();
+
+        // Assert
+        const button = toolbar.querySelector<HTMLButtonElement>('p-button button');
+        expect(button).not.toBeNull();
+        expect(button?.textContent?.trim()).toBe('');
+        expect(button?.querySelector('.pi-plus')).not.toBeNull();
+      });
+
+      it('template_pageOpened_labelsAddButtonNeuerVerkaeuferForHoverAndScreenreader', async () => {
+        // Arrange
+        // Act
+        const { fixture, toolbar } = await renderToolbar();
+
+        // Assert
+        expect(
+          toolbar.querySelector('p-button button')?.getAttribute('aria-label'),
+        ).toBe('Neuer Verkäufer');
+        const buttonHost = fixture.debugElement.query(By.css('p-toolbar p-button'));
+        expect(buttonHost.injector.get(Tooltip).content()).toBe('Neuer Verkäufer');
+      });
+
+      it('onNewClick_addButtonClicked_opensCreateDialog', async () => {
+        // Arrange
+        const { fixture, component, toolbar } = await renderToolbar();
+
+        // Act
+        toolbar.querySelector<HTMLButtonElement>('p-button button')?.click();
+        await fixture.whenStable();
+
+        // Assert
+        expect(component.dialogVisible()).toBe(true);
+        expect(component.dialogMode()).toBe('create');
+      });
+
+      it('template_pageOpened_showsSearchPlaceholderInsideToolbar', async () => {
+        // Arrange
+        // Act
+        const { toolbar } = await renderToolbar();
+
+        // Assert
+        const input = toolbar.querySelector<HTMLInputElement>('p-iconfield input');
+        expect(input?.getAttribute('placeholder')).toBe('Suche nach Name, Ort …');
+      });
+
+      it('template_pageOpened_namesSelectsSortierungThenStatusForScreenreader', async () => {
+        // Arrange
+        // Act
+        const { toolbar } = await renderToolbar();
+
+        // Assert
+        const names = Array.from(toolbar.querySelectorAll('p-select [role="combobox"]')).map(
+          (combobox) => combobox.getAttribute('aria-label'),
+        );
+        expect(names).toEqual(['Sortierung', 'Status']);
+      });
+
+      it('template_pageOpened_rendersNoVisibleLabels', async () => {
+        // Arrange
+        // Act
+        const { toolbar } = await renderToolbar();
+
+        // Assert
+        expect(toolbar.querySelectorAll('label').length).toBe(0);
+        expect(toolbar.querySelector('p-button .p-button-label')).toBeNull();
+      });
+
+      it('template_pageOpened_marksSearchAndBothSelectsWithLayoutClasses', async () => {
+        // Arrange
+        // Act
+        const { toolbar } = await renderToolbar();
+
+        // Assert
+        const search = toolbar.querySelector('p-iconfield');
+        const selects = Array.from(toolbar.querySelectorAll(':scope > p-select'));
+        expect(search?.classList).toContain('sellers-page__search');
+        expect(selects.length).toBe(2);
+        for (const select of selects) {
+          expect(select.classList).toContain('sellers-page__select');
+        }
+      });
+
+      it('styles_pageOpened_searchGrowsSelectsKeepMinWidthAndToolbarWraps', async () => {
+        // Arrange
+        // Act
+        const { toolbar } = await renderToolbar();
+
+        // Assert
+        expect(getComputedStyle(toolbar).flexWrap).toBe('wrap');
+        const search = toolbar.querySelector<HTMLElement>('p-iconfield.sellers-page__search');
+        if (!search) throw new Error('sellers-page__search not rendered');
+        expect(getComputedStyle(search).flexGrow).toBe('1');
+        const selects = Array.from(
+          toolbar.querySelectorAll<HTMLElement>(':scope > p-select.sellers-page__select'),
+        );
+        expect(selects.length).toBe(2);
+        for (const select of selects) {
+          const style = getComputedStyle(select);
+          expect(style.minWidth).toBe('150px');
+          expect(style.flexGrow).toBe('0');
+          expect(style.flexShrink).toBe('0');
+        }
+      });
     });
 
     it('renders the tiles inside the scrolling list without a paginator', async () => {
