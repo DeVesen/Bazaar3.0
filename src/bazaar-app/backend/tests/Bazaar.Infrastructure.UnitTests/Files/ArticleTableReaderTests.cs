@@ -195,6 +195,44 @@ public class ArticleTableReaderTests
     }
 
     [Fact]
+    public void ReadRows_XlsxWithMoreRowsThanLimit_NamesLimitFromConstantInMessage()
+    {
+        // Arrange
+        var sut = new ArticleTableReader();
+        using var stream = Workbook(book =>
+        {
+            var sheet = book.AddWorksheet("Artikel");
+            sheet.Cell(ArticleTableReader.MaxRows + 1, 1).Value = 3001;
+        });
+
+        // Act & Assert
+        var exception = Assert.Throws<BadRequestException>(() => sut.ReadRows(stream, "artikel.xlsx"));
+        Assert.Equal("Die Datei konnte nicht gelesen werden (mehr als 100.000 Zeilen)", exception.Message);
+    }
+
+    [Fact]
+    public void ReadRows_XlsxWithMoreColumnsThanParserNeeds_ReturnsOnlyFirstSixCells()
+    {
+        // Arrange
+        var sut = new ArticleTableReader();
+        using var stream = Workbook(book =>
+        {
+            var sheet = book.AddWorksheet("Artikel");
+            for (var column = 1; column <= 20; column++)
+            {
+                sheet.Cell(2, column).Value = column;
+            }
+        });
+
+        // Act
+        var rows = sut.ReadRows(stream, "artikel.xlsx");
+
+        // Assert
+        Assert.Equal(ArticleTableReader.MaxColumns, rows[1].Count);
+        Assert.Equal(6d, rows[1][5]);
+    }
+
+    [Fact]
     public void ReadRows_PdfExtension_ThrowsInvalidFileType()
     {
         // Arrange

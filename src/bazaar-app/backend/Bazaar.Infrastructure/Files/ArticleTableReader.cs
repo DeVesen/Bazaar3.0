@@ -17,7 +17,16 @@ public sealed class ArticleTableReader : IArticleTableReader
     /// </summary>
     public const int MaxRows = 100_000;
 
+    /// <summary>
+    /// Anzahl der Spalten, die der Parser auswertet (Artikelnummer bis Preis). Weitere Zellen werden nicht
+    /// gelesen, damit eine sehr breite Mappe nicht je Zeile Tausende Zellen in den Speicher legt.
+    /// </summary>
+    public const int MaxColumns = 6;
+
     private const char CsvSeparator = ';';
+
+    // Feste Kultur, damit der Punkt als Tausendertrenner unabhängig von der Servereinstellung erhalten bleibt.
+    private static readonly CultureInfo MessageCulture = CultureInfo.GetCultureInfo("de-DE");
 
     static ArticleTableReader()
     {
@@ -98,13 +107,13 @@ public sealed class ArticleTableReader : IArticleTableReader
         if (rowsRead < MaxRows) return;
 
         throw new BadRequestException(
-            "Die Datei konnte nicht gelesen werden (mehr als 100.000 Zeilen)",
+            string.Create(MessageCulture, $"Die Datei konnte nicht gelesen werden (mehr als {MaxRows:N0} Zeilen)"),
             "import.unreadable_file");
     }
 
     private static object?[] ReadCurrentRow(IExcelDataReader reader)
     {
-        var cells = new object?[reader.FieldCount];
+        var cells = new object?[Math.Min(reader.FieldCount, MaxColumns)];
         for (var column = 0; column < cells.Length; column++)
         {
             cells[column] = NormalizeCell(reader.GetValue(column));
