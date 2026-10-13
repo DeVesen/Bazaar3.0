@@ -11,6 +11,7 @@ public class CreateSellerCommandValidatorTests
         FirstName = "Anna",
         LastName = "Meier",
         Email = "anna@example.org",
+        City = "Karlsruhe",
         SellerTypeId = "SELLERTYPE001"
     };
 
@@ -46,16 +47,29 @@ public class CreateSellerCommandValidatorTests
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateSellerCommand.LastName));
     }
 
-    [Fact]
-    public void Validate_EmptyEmail_HasValidationError()
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void Validate_MissingEmail_IsValid(string? email)
     {
         var command = ValidCommand();
-        command.Email = "";
+        command.Email = email;
+
+        var result = _sut.Validate(command);
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void Validate_EmptyCity_HasValidationError()
+    {
+        var command = ValidCommand();
+        command.City = "";
 
         var result = _sut.Validate(command);
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateSellerCommand.Email));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateSellerCommand.City));
     }
 
     [Fact]

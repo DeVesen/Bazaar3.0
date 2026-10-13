@@ -48,6 +48,28 @@ public class CreateSellerHandlerTests
     }
 
     [Fact]
+    public async Task Handle_CommandWithoutEmail_AddsSellerWithoutEmailAndWithConditionsFromSellerType()
+    {
+        var sellerType = SellerType.Create("SELLERTYPE001", "Standard", 10m, 0.5m);
+        _sellerTypeRepository.Setup(r => r.GetById("SELLERTYPE001")).ReturnsAsync(sellerType);
+        _idGenerator.Setup(g => g.Generate()).Returns("SELLER001");
+        var sut = CreateSut();
+
+        var seller = await sut.Handle(new CreateSellerCommand
+        {
+            FirstName = "Anna",
+            LastName = "Meier",
+            City = "Karlsruhe",
+            SellerTypeId = "SELLERTYPE001"
+        });
+
+        Assert.Null(seller.Email);
+        Assert.Equal(10m, seller.SalesCommission);
+        Assert.Equal(0.5m, seller.FeePerItem);
+        _sellerRepository.Verify(r => r.Add(It.Is<Seller>(s => s.Id == "SELLER001")), Times.Once);
+    }
+
+    [Fact]
     public async Task Handle_UnknownSellerType_ThrowsNotFoundWithSellerTypeNotFoundCode()
     {
         _sellerTypeRepository.Setup(r => r.GetById("MISSING")).ReturnsAsync((SellerType?)null);

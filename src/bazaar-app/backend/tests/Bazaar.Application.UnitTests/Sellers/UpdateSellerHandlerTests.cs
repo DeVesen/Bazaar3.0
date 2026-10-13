@@ -88,6 +88,21 @@ public class UpdateSellerHandlerTests
     }
 
     [Fact]
+    public async Task Handle_CommandWithoutEmail_ClearsEmailOfSeller()
+    {
+        var seller = CreateSeller();
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+        var sut = CreateSut();
+
+        var command = CreateCommand();
+        command.Email = null;
+        await sut.Handle(command);
+
+        Assert.Null(seller.Email);
+        _sellerRepository.Verify(r => r.Update(seller), Times.Once);
+    }
+
+    [Fact]
     public async Task Handle_AdminChangesConditions_AppliesNewConditionsAndDetails()
     {
         var seller = CreateSeller(salesCommission: 10m, feePerItem: 0.5m);
