@@ -16,7 +16,7 @@ import { ArticlesPage } from './articles-page';
 // not because it is still load-bearing for the mock to win the race.)
 import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { ArticlesStore, ArticlesFilters } from '../../articles-store';
-import { ArticleDetail, ArticleListItem } from '../../data/articles-api';
+import { ArticleDetail, ArticleListItem, ArticlesApi } from '../../data/articles-api';
 import { RoleService } from '../../../../core/auth/role.service';
 // eslint-disable-next-line boundaries/dependencies
 import { Brand, BrandsApi } from '../../../brands/data/brands-api';
@@ -133,6 +133,12 @@ describe('ArticlesPage', () => {
         { provide: MessageService, useValue: { add: messageServiceAdd } },
         { provide: BrandsApi, useValue: { getAll: () => of(BRANDS) } },
         { provide: CategoriesApi, useValue: { getAll: () => of(CATEGORIES) } },
+        {
+          provide: ArticlesApi,
+          useValue: {
+            getByNumber: () => throwError(() => new HttpErrorResponse({ status: 404 })),
+          },
+        },
         ConfirmationService,
       ],
     }).compileComponents();
@@ -633,6 +639,7 @@ describe('ArticlesPage', () => {
       expect(getById).toHaveBeenCalledWith('a1');
       expect(component.dialogVisible()).toBe(true);
       expect(component.dialogInitialValue()).toEqual({
+        number: detail.number,
         name: detail.name,
         brand: detail.brand,
         category: detail.category,
@@ -680,6 +687,7 @@ describe('ArticlesPage', () => {
       getById.mockReturnValue(of(buildDetail()));
       component.onEdit(buildItem());
       const formResult = {
+        number: 1001,
         name: 'Neuer Name',
         brand: 'Playmobil',
         category: 'Kleidung',
@@ -710,6 +718,7 @@ describe('ArticlesPage', () => {
       );
 
       component.onDialogSave({
+        number: 1001,
         name: '',
         brand: 'Playmobil',
         category: 'Kleidung',

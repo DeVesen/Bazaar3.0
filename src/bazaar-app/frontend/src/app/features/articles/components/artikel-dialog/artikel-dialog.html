@@ -14,8 +14,24 @@
     }
 
     <div class="artikel-dialog__field">
-      <span class="artikel-dialog__readonly-label">Artikelnummer</span>
-      <span class="artikel-dialog__readonly-value">{{ articleNumber() }}</span>
+      <label for="artikel-dialog-number">Artikelnummer</label>
+      <input
+        id="artikel-dialog-number"
+        pInputText
+        inputmode="numeric"
+        [ngModel]="numberText()"
+        (ngModelChange)="numberText.set($event)"
+        (blur)="onNumberBlur()"
+        name="number"
+        type="text"
+        required
+        [disabled]="fieldsDisabled()"
+      />
+      @if (numberError()) {
+        <small class="artikel-dialog__error">{{ numberError() }}</small>
+      } @else if (showLabelHint()) {
+        <small class="artikel-dialog__hint">Etikett neu drucken und anbringen.</small>
+      }
     </div>
 
     <div class="artikel-dialog__field">

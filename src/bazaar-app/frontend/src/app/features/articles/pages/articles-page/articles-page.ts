@@ -228,6 +228,7 @@ export class ArticlesPage {
     const detail = this.editingDetail();
     if (!detail) return null;
     return {
+      number: detail.number,
       name: detail.name,
       brand: detail.brand,
       category: detail.category,

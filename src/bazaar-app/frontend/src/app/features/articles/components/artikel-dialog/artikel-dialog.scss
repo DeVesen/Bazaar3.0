@@ -24,15 +24,6 @@
     gap: 1rem;
   }
 
-  &__readonly-label {
-    font-size: 0.875rem;
-    color: var(--p-text-muted-color);
-  }
-
-  &__readonly-value {
-    font-weight: 600;
-  }
-
   &__error {
     color: var(--p-red-500);
   }
