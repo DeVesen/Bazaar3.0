@@ -15,7 +15,7 @@ Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) 
 | Feld | Typ | Pflicht | Bemerkung |
 |---|---|---|---|
 | `id` | string (8 Zeichen) | ✅ | Alphanumerisch, unique. Beim Import aus der Voranmelde-App übernommen |
-| `number` | int | ✅ | Artikelnummer, Grundlage für Barcode/QR |
+| `number` | int | ✅ | Artikelnummer, Grundlage für Barcode/QR; systemweit eindeutig, im Artikel-Dialog änderbar |
 | `sellerId` | string (8 Zeichen) | ✅ | ID-Referenz auf den Verkäufer. Basis für Abrechnung und Verkäufer-Filter |
 | `name` | string | ✅ | Bezeichnung des Artikels |
 | `brand` | string | ✅ | Marke — denormalisierter String, kein FK (AutoComplete-Create, Freitext möglich) |
