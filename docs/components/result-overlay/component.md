@@ -52,6 +52,7 @@ Der Konsument setzt `position: relative` auf die Fläche und platziert `<app-res
 - Die Einblendung blockiert keine Eingabe (`pointer-events: none`), nimmt keinen Fokus.
 - Screenreader: Textmeldung (`role="status"`) „Fehlgeschlagen", „Erfolgreich", „Bereits erledigt" bzw. „Im Warenkorb".
 - „Bewegung reduzieren" ändert nichts.
+- Ein Event, das beim Mounten nicht `null` ist, wird sofort abgespielt. Bleibt der Konsument über einen Sichtbarkeitswechsel hinweg gemountet (z. B. Dialog), setzt er das Event dabei auf `null` zurück.
 
 ## Akzeptanzkriterien
 

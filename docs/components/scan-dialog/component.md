@@ -47,7 +47,7 @@ zentriert (globale Klasse `dialog-responsive`), max. Höhe 90vh.
 | Modus | Besonderheit im Scan-Dialog |
 |---|---|
 | Tastatur | AutoComplete-Liste der ausstehenden Artikel unter dem Feld |
-| Kamera | Kamerabild ersetzt die Liste; Dauerscan mit Feedback-Overlay (Abschnitt 4). Das Feld selbst bleibt stehen |
+| Kamera | Kamerabild ersetzt die Liste; Dauerscan mit Ergebnis-Einblendung (Abschnitt 4). Das Feld selbst bleibt stehen |
 | Numpad | AutoComplete-Liste bleibt sichtbar; `⏎` bestätigt die getippte Nummer |
 
 ---
@@ -83,11 +83,9 @@ Kamera-Modus:
 │  │                                     │   │
 │  │         [ Kamerabild ]              │   │
 │  │                                     │   │
-│  │  ┌───────────────────────────────┐  │   │
-│  │  │  ✓  Freigegeben   (grün)      │  │   │  ← Feedback-Overlay
-│  │  │  ⚠  Bereits gesetzt (gelb)    │  │   │    (nur eines sichtbar)
-│  │  │  ✕  Nicht bekannt  (rot)      │  │   │
-│  │  └───────────────────────────────┘  │   │
+│  │             ✓ / ✓ / ✕               │   │  ← Ergebnis-Einblendung: nur Icon,
+│  │   (grün / gelb / rot), zentriert,   │   │    1,5 s, ohne Schleier
+│  │   mit Ton und Vibration             │   │
 │  └─────────────────────────────────────┘   │
 │                                             │
 │  [⌨ Tastatur]  [⊞ Numpad]                  │
@@ -105,7 +103,7 @@ Kamera-Modus:
 | `title` | `string` | `@Input` | Dialog-Überschrift (z. B. „Artikel freigeben") |
 | `sellerId` | `string` | `@Input` | ID des Verkäufers — begrenzt die AutoComplete-Liste auf dessen ausstehende Artikel |
 | `targetField` | `'releasedAt' \| 'returnedAt'` | `@Input` | Welcher Zeitstempel gesetzt wird |
-| `pauseMs` | `number` | `@Input` | Anzeigedauer des Scan-Feedbacks in ms (Default: aus App-Einstellungen `scannerPauseMs`) |
+| `pauseMs` | `number` | `@Input` | Scan-Pause im Kamera-Modus in ms (dasselbe Bild wird währenddessen nicht erneut ausgewertet; Default unverändert: aus App-Einstellungen `scannerPauseMs`) |
 | `scanComplete` | `ScanResultEvent` | `@Output` | Emittiert nach erfolgreichem Scan: `{ articleId, result: 'success' \| 'already-set' \| 'unknown' }` |
 | `visibleChange` | `boolean` | `@Output` | Two-way-Binding — emittiert `false` wenn Dialog geschlossen wird |
 

@@ -192,10 +192,10 @@ export class ScanDialog {
    * `visible() === true` (a fresh open starts a fresh session, see the `constructor()` effect). */
   private readonly sessionIds = signal<ReadonlySet<string>>(new Set());
 
-  /** Camera dauerscan lock (Task-3 brief): `barcode-scanner` has no internal debounce, so while
-   * `scan-feedback`'s countdown is visually running, further `codeDetected` emissions for the same
-   * still-pointed-at code are ignored. Set on every scan start, cleared via `setTimeout(pauseMs)` —
-   * mirrors `scan-feedback.ts`'s own `startCountdown`/timeout pattern. */
+  /** Camera dauerscan lock: `barcode-scanner` has no internal debounce, so for `pauseMs` after
+   * every scan further `codeDetected` emissions for the same still-pointed-at code are ignored
+   * (the Ergebnis-Einblendung itself runs a fixed 1.5 s, independent of `pauseMs`). Set on every
+   * scan start, cleared via `setTimeout(pauseMs)`. */
   private readonly scanLocked = signal(false);
 
   /** Latest result to show over the dialog content (`app-result-overlay`); always a fresh event per lookup result. */
@@ -386,6 +386,8 @@ export class ScanDialog {
   private resetSession(): void {
     this.sessionIds.set(new Set());
     this.sessionArticleIds.emit([]);
+    // Ein beim Öffnen noch gesetztes Event würde vom neu gemounteten Overlay erneut abgespielt.
+    this.resultEvent.set(null);
     // Regressionsfix: die Komponente bleibt zwischen Schließen und erneutem Öffnen gemountet —
     // ohne dieses Zurücksetzen überleben getippter Feldwert und Modus (Kamera/Nummernblock) den
     // Reopen, filtern die Liste für einen neuen Verkäufer fälschlich und zeigen Numpad/Kamera

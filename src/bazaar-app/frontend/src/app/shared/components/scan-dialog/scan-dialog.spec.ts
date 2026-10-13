@@ -686,5 +686,24 @@ describe('ScanDialog', () => {
       expect(fixture.componentInstance.articleNumber()).toBe('');
       expect(fixture.componentInstance.mode.active()).toBe('keyboard');
     });
+
+    it('reopen_AfterResultWasShown_ShowsNoStaleResultIcon', async () => {
+      // Arrange
+      const fixture = await create(httpClientMock({ pending: [], byNumber: {} }), { pauseMs: 0 });
+      typeInto(fixture, '999');
+      fixture.componentInstance.onSubmit();
+      fixture.detectChanges();
+      fixture.componentRef.setInput('visible', false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Act
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Assert
+      expect(fixture.debugElement.query(By.css('.result-overlay__icon'))).toBeNull();
+    });
   });
 });
