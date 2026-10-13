@@ -297,16 +297,16 @@ describe('SettlementPage', () => {
       expect(el.querySelectorAll('.settlement-page__header').length).toBe(0);
     });
 
-    it('template_sellerSelected_rendersOnlyIconBackButtonOnTheLeftAndNoActionsLeftOfTheName', async () => {
+    it('template_sellerSelected_rendersOnlyLabelledBackButtonOnTheLeftAndNoActionsLeftOfTheName', async () => {
       // Arrange
       // Act
       const { start, backButton } = await renderActionBar();
 
       // Assert
       expect(start.querySelectorAll('p-button').length).toBe(1);
-      expect(backButton.textContent?.trim()).toBe('');
+      expect(backButton.textContent?.trim()).toBe('Zurück');
       expect(backButton.querySelector('.pi-angle-left')).not.toBeNull();
-      expect(start.textContent?.trim()).toBe('');
+      expect(start.textContent?.trim()).toBe('Zurück');
     });
 
     it('template_sellerSelected_labelsBackButtonZurueckZurVerkaeuferwahlForHoverAndScreenreader', async () => {
