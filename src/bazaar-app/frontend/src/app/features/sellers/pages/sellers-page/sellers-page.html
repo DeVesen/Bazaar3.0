@@ -87,6 +87,8 @@
                   [card]="card"
                   (edit)="onEdit($event)"
                   (scan)="onScan($event)"
+                  [importVisible]="isAdmin()"
+                  (importArticles)="onImportArticles($event)"
                   (statusClick)="onStatusClick($event)"
                   (cardClick)="onCardClick($event)"
                 />
@@ -137,6 +139,13 @@
   [sellerId]="releaseDialogSellerId() ?? ''"
   (visibleChange)="onReleaseDialogVisibleChange($event)"
   (released)="onReleased()"
+/>
+
+<app-article-import-dialog
+  [visible]="articleImportVisible()"
+  [sellerId]="articleImportSellerId() ?? ''"
+  (visibleChange)="onArticleImportVisibleChange($event)"
+  (imported)="onArticlesImported($event)"
 />
 
 <p-dialog

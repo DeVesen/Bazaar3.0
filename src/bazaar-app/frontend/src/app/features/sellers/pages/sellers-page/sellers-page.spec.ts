@@ -21,6 +21,7 @@ import { RoleService } from '../../../../core/auth/role.service';
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
 import { SellerCard, SellerDetail, SellersApi } from '../../data/sellers-api';
 import { ReleaseApi } from '../../data/release-api';
+import { ArticleImportApi } from '../../data/article-import-api';
 
 function buildDetail(overrides: Partial<SellerDetail> = {}): SellerDetail {
   return {
@@ -145,6 +146,7 @@ describe('SellersPage', () => {
         { provide: SellerTypesApi, useValue: { getAll: () => of(SELLER_TYPES) } },
         { provide: SellersApi, useValue: { getById: vi.fn().mockReturnValue(of(buildDetail())) } },
         { provide: ReleaseApi, useValue: { bookRelease: vi.fn() } },
+        { provide: ArticleImportApi, useValue: { importArticles: vi.fn() } },
         ConfirmationService,
       ],
     }).compileComponents();
@@ -565,6 +567,77 @@ describe('SellersPage', () => {
       expect(load).toHaveBeenCalled();
       expect(messageServiceAdd).toHaveBeenCalledWith(
         expect.objectContaining({ severity: 'success', summary: '✓ Artikel freigegeben' }),
+      );
+    });
+  });
+
+  describe('article import', () => {
+    const IMPORT_BUTTON = 'button[aria-label="Importieren"]';
+
+    it('render_AdminWithCard_ShowsImportButtonOnCard', async () => {
+      // Arrange
+      isAdminSignal.set(true);
+      itemsSignal.set([buildCard()]);
+      totalCountSignal.set(1);
+
+      // Act
+      const { fixture } = await createPage();
+
+      // Assert
+      expect((fixture.nativeElement as HTMLElement).querySelector(IMPORT_BUTTON)).not.toBeNull();
+    });
+
+    it('render_NonAdminWithCard_ShowsNoImportButton', async () => {
+      // Arrange
+      isAdminSignal.set(false);
+      itemsSignal.set([buildCard()]);
+      totalCountSignal.set(1);
+
+      // Act
+      const { fixture } = await createPage();
+
+      // Assert
+      expect((fixture.nativeElement as HTMLElement).querySelector(IMPORT_BUTTON)).toBeNull();
+    });
+
+    it('onImportArticles_Card_OpensImportDialogForThatSellerWithoutOpeningDetailModal', async () => {
+      // Arrange
+      const { component } = await createPage();
+
+      // Act
+      component.onImportArticles(buildCard({ id: 's1' }));
+
+      // Assert
+      expect(component.articleImportVisible()).toBe(true);
+      expect(component.articleImportSellerId()).toBe('s1');
+      expect(component.detailModalVisible()).toBe(false);
+    });
+
+    it('onArticleImportVisibleChange_False_ClosesDialogAndClearsSellerId', async () => {
+      // Arrange
+      const { component } = await createPage();
+      component.onImportArticles(buildCard({ id: 's1' }));
+
+      // Act
+      component.onArticleImportVisibleChange(false);
+
+      // Assert
+      expect(component.articleImportVisible()).toBe(false);
+      expect(component.articleImportSellerId()).toBeNull();
+    });
+
+    it('onArticlesImported_Count_ReloadsListAndShowsCountInToast', async () => {
+      // Arrange
+      const { component } = await createPage();
+      load.mockClear();
+
+      // Act
+      component.onArticlesImported(3);
+
+      // Assert
+      expect(load).toHaveBeenCalled();
+      expect(messageServiceAdd).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'success', summary: '✓ 3 Artikel importiert' }),
       );
     });
   });

@@ -46,6 +46,7 @@ import {
 } from '../../components/verkaeufer-dialog/verkaeufer-dialog';
 import { SellerDetailModal } from '../../components/seller-detail-modal/seller-detail-modal';
 import { ReleaseDialog } from '../../components/release-dialog/release-dialog';
+import { ArticleImportDialog } from '../../components/article-import-dialog/article-import-dialog';
 
 const DEBOUNCE_MS = 300;
 
@@ -118,6 +119,7 @@ interface ProblemDetailsBody {
     VerkaeuferDialog,
     SellerDetailModal,
     ReleaseDialog,
+    ArticleImportDialog,
     Page,
     LoadMoreSentinel,
   ],
@@ -207,6 +209,10 @@ export class SellersPage {
   readonly releaseDialogVisible = signal(false);
   readonly releaseDialogSellerId = signal<string | null>(null);
 
+  // Artikel-Import-Modal.
+  readonly articleImportVisible = signal(false);
+  readonly articleImportSellerId = signal<string | null>(null);
+
   constructor() {
     this.sellersStore.load();
 
@@ -283,6 +289,23 @@ export class SellersPage {
   onReleased(): void {
     this.sellersStore.load();
     this.messageService.add({ severity: 'success', summary: '✓ Artikel freigegeben' });
+  }
+
+  onImportArticles(card: SellerCardModel): void {
+    this.articleImportSellerId.set(card.id);
+    this.articleImportVisible.set(true);
+  }
+
+  onArticleImportVisibleChange(visible: boolean): void {
+    this.articleImportVisible.set(visible);
+    if (!visible) {
+      this.articleImportSellerId.set(null);
+    }
+  }
+
+  onArticlesImported(count: number): void {
+    this.sellersStore.load();
+    this.messageService.add({ severity: 'success', summary: `✓ ${count} Artikel importiert` });
   }
 
   onCardClick(card: SellerCardModel): void {
