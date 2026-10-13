@@ -74,3 +74,16 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 - Lint:
 - Suche: dev-mcp
 - Commit-Konvention: Conventional Commits (type(scope): Beschreibung), Text deutsch
+
+<!-- dv-dotnet:start -->
+## dv-dotnet
+
+- Bauen, Testen, Linten: Skill `dv-dotnet:toolchain` aufrufen, bevor gebaut, getestet oder gelintet wird.
+<!-- dv-dotnet:end -->
+
+<!-- dv-mcp:start -->
+## MCP-Server
+
+- Bei Fragen zur Microsoft- und .NET-Dokumentation den MCP `microsoft-learn` nutzen. <!-- dv-mcp:microsoft-learn -->
+- Bei Fragen zu Bibliotheken und Frameworks den MCP `context7` nutzen. <!-- dv-mcp:context7 -->
+<!-- dv-mcp:end -->
