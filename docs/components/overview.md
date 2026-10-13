@@ -82,6 +82,7 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Master-Data-Filter-Toolbar** | Schlanke Live-Filter-Leiste für clientseitig gefilterte Master-Data-Listen (Freitext, optional Original/Neu) inkl. „+ Neu"-Button | [master-data-filter-toolbar/](master-data-filter-toolbar/component.md) |
 | **Master-Data-Popup** | Anlege-/Bearbeiten-Popup für einfache Stammdaten (Name + optionales Original-Flag) | [master-data-popup/](master-data-popup/component.md) |
 | **Typ-Popup** | Anlege-/Bearbeiten-Popup für Verkäufer-Typen (Name, Provision, Gebühr) | [typ-popup/](typ-popup/component.md) |
+| **File-Dropzone** | Ablagefläche für Drag & Drop und Dateidialog; meldet nur die Auswahl, Typ/Anzahl/Größe prüft der Aufrufer (Wrapper, weil `p-fileupload` Mehrfach-Ablagen ohne `multiple` still verwirft und mit `multiple` eine eigene Dateiliste führt) | [file-dropzone/](file-dropzone/component.md) |
 
 ### Querschnitts-Regeln
 
@@ -126,6 +127,7 @@ Konsolidiertes Mapping aus beiden Apps — die App-Specs führen dieses Mapping 
 | Datum / Uhrzeit | `p-datepicker` | Nur Voranmelde-App (Einstellungen) |
 | Checkbox | `p-checkbox` | Nur Voranmelde-App (Export-Optionen) |
 | Datei-Upload | `p-fileupload mode="basic"` | Nur Haupt-App (Import JSON) |
+| Datei-Ablage mit eigenen Hinweisen | `app-file-dropzone` (Wrapper, [File-Dropzone](file-dropzone/component.md)) | Nur Haupt-App (Artikel-Import an der Verkäufer-Kachel) |
 | Toggle-Schalter | `p-toggleswitch` | „Original"-Flag, Admin-Rechte |
 
 ### Buttons

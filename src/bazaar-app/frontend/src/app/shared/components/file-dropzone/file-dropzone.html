@@ -1,0 +1,27 @@
+<div
+  class="file-dropzone"
+  [class.file-dropzone--active]="dragOver()"
+  [class.file-dropzone--disabled]="disabled()"
+  role="button"
+  tabindex="0"
+  [attr.aria-disabled]="disabled()"
+  (click)="openFileDialog()"
+  (keydown.enter)="openFileDialog()"
+  (keydown.space)="openFileDialog(); $event.preventDefault()"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave()"
+  (drop)="onDrop($event)"
+>
+  <i class="pi pi-upload file-dropzone__icon" aria-hidden="true"></i>
+  <ng-content />
+  <input
+    #fileInput
+    class="file-dropzone__input"
+    type="file"
+    tabindex="-1"
+    [accept]="accept()"
+    [disabled]="disabled()"
+    (click)="$event.stopPropagation()"
+    (change)="onInputChange($event)"
+  />
+</div>
