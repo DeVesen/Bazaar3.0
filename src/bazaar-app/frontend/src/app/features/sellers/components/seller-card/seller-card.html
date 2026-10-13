@@ -28,6 +28,18 @@
         ariaLabel="Scannen"
         (onClick)="onScan(); $event.stopPropagation()"
       />
+      @if (importVisible()) {
+        <p-button
+          icon="pi pi-upload"
+          [text]="true"
+          [rounded]="true"
+          severity="secondary"
+          ariaLabel="Importieren"
+          [disabled]="card().status === 'settled'"
+          (click)="$event.stopPropagation()"
+          (onClick)="onImportArticles(); $event.stopPropagation()"
+        />
+      }
     </div>
   </div>
 

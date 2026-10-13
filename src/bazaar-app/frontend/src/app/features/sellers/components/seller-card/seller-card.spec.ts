@@ -141,4 +141,103 @@ describe('SellerCard', () => {
 
     expect(cardClickSpy).toHaveBeenCalledWith(card);
   });
+
+  describe('import button', () => {
+    const IMPORT_BUTTON = 'button[aria-label="Importieren"]';
+
+    it('render_ImportVisibleAndNotSettled_ShowsEnabledIconOnlyButtonAfterCameraButton', async () => {
+      // Arrange
+      const fixture = TestBed.createComponent(SellerCard);
+      fixture.componentRef.setInput('card', buildCard());
+      fixture.componentRef.setInput('importVisible', true);
+
+      // Act
+      await fixture.whenStable();
+
+      // Assert
+      const buttons = Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll('.seller-card__actions button'),
+      );
+      expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual([
+        'Bearbeiten',
+        'Scannen',
+        'Importieren',
+      ]);
+    });
+
+    it('render_ImportButton_HasNoTextLabel', async () => {
+      // Arrange
+      const fixture = TestBed.createComponent(SellerCard);
+      fixture.componentRef.setInput('card', buildCard());
+      fixture.componentRef.setInput('importVisible', true);
+
+      // Act
+      await fixture.whenStable();
+
+      // Assert
+      const button = (fixture.nativeElement as HTMLElement).querySelector(IMPORT_BUTTON);
+      expect(button?.textContent?.trim()).toBe('');
+    });
+
+    it('render_ImportNotVisible_HasNoImportButton', async () => {
+      // Arrange
+      const fixture = TestBed.createComponent(SellerCard);
+      fixture.componentRef.setInput('card', buildCard());
+
+      // Act
+      await fixture.whenStable();
+
+      // Assert
+      expect((fixture.nativeElement as HTMLElement).querySelector(IMPORT_BUTTON)).toBeNull();
+    });
+
+    it('render_SettledSeller_DisablesImportButton', async () => {
+      // Arrange
+      const fixture = TestBed.createComponent(SellerCard);
+      fixture.componentRef.setInput('card', buildCard({ status: 'settled' }));
+      fixture.componentRef.setInput('importVisible', true);
+
+      // Act
+      await fixture.whenStable();
+
+      // Assert
+      const button = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(IMPORT_BUTTON);
+      expect(button?.disabled).toBe(true);
+    });
+
+    it('render_OpenSeller_KeepsImportButtonEnabled', async () => {
+      // Arrange
+      const fixture = TestBed.createComponent(SellerCard);
+      fixture.componentRef.setInput('card', buildCard({ status: 'open' }));
+      fixture.componentRef.setInput('importVisible', true);
+
+      // Act
+      await fixture.whenStable();
+
+      // Assert
+      const button = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(IMPORT_BUTTON);
+      expect(button?.disabled).toBe(false);
+    });
+
+    it('onImportArticles_ButtonClick_EmitsCardWithoutEmittingCardClick', async () => {
+      // Arrange
+      const fixture = TestBed.createComponent(SellerCard);
+      const card = buildCard();
+      fixture.componentRef.setInput('card', card);
+      fixture.componentRef.setInput('importVisible', true);
+      const importSpy = vi.fn();
+      const cardClickSpy = vi.fn();
+      fixture.componentInstance.importArticles.subscribe(importSpy);
+      fixture.componentInstance.cardClick.subscribe(cardClickSpy);
+      await fixture.whenStable();
+      const button = (fixture.nativeElement as HTMLElement).querySelector(IMPORT_BUTTON) as HTMLButtonElement;
+
+      // Act
+      button.click();
+
+      // Assert
+      expect(importSpy).toHaveBeenCalledWith(card);
+      expect(cardClickSpy).not.toHaveBeenCalled();
+    });
+  });
 });

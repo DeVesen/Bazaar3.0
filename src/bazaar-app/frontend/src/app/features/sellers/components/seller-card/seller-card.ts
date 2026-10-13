@@ -38,9 +38,12 @@ const STATUS_SEVERITIES: Record<string, 'secondary' | 'info' | 'success'> = {
 })
 export class SellerCard {
   readonly card = input.required<SellerCardModel>();
+  /** Nur Admins sehen den Artikel-Import (Entscheidung trifft die Seite, die Kachel rendert nur). */
+  readonly importVisible = input<boolean>(false);
 
   readonly edit = output<SellerCardModel>();
   readonly scan = output<SellerCardModel>();
+  readonly importArticles = output<SellerCardModel>();
   readonly statusClick = output<SellerCardModel>();
   readonly cardClick = output<SellerCardModel>();
 
@@ -72,6 +75,10 @@ export class SellerCard {
 
   onScan(): void {
     this.scan.emit(this.card());
+  }
+
+  onImportArticles(): void {
+    this.importArticles.emit(this.card());
   }
 
   onStatusClick(): void {
