@@ -1,6 +1,7 @@
 using System.Text;
 using Bazaar.Api.ExceptionHandling;
 using Bazaar.Api.Features.Admin;
+using Bazaar.Api.Features.ArticleImport;
 using Bazaar.Api.Features.Articles;
 using Bazaar.Api.Features.Auth;
 using Bazaar.Api.Features.Brands;
@@ -210,6 +211,7 @@ app.MapSalesEndpoints();
 app.MapSettlementEndpoints();
 app.MapStatisticsEndpoints();
 app.MapImportEndpoints();
+app.MapArticleImportEndpoints();
 app.MapUserEndpoints();
 
 await ApplyMigrationsAsync(app);
