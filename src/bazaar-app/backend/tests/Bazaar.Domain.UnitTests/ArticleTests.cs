@@ -158,6 +158,33 @@ public class ArticleTests
     }
 
     [Fact]
+    public void Renumber_ValidNumber_SetsNumberAndUpdatedAt()
+    {
+        // Arrange
+        var article = CreateValidArticle();
+        var now = new DateTimeOffset(2026, 9, 2, 12, 0, 0, TimeSpan.Zero);
+
+        // Act
+        article.Renumber(2000, now);
+
+        // Assert
+        Assert.Equal(2000, article.Number);
+        Assert.Equal(now, article.UpdatedAt);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-5)]
+    public void Renumber_ZeroOrNegativeNumber_ThrowsArgumentException(int invalidNumber)
+    {
+        // Arrange
+        var article = CreateValidArticle();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => article.Renumber(invalidNumber, UpdatedAt));
+    }
+
+    [Fact]
     public void SetTimestamps_WhenSoldAtAndReturnedAtBothSet_ThrowsSoldAndReturnedConflict()
     {
         var article = CreateValidArticle();
