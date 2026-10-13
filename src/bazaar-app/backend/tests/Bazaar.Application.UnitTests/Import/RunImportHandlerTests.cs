@@ -144,6 +144,18 @@ public class RunImportHandlerTests
     }
 
     [Fact]
+    public async Task Handle_SellerWithoutEmail_CreatesSellerWithNullEmail()
+    {
+        var json = JsonWithSellers(SellerJson(id: "SELLER001").Replace("\"email\": \"anna@example.org\",", string.Empty));
+        var sut = CreateSut();
+
+        var result = await sut.Handle(ToStream(json), Options(), TestContext.Current.CancellationToken);
+
+        Assert.Equal(1, result.ImportedSellers);
+        _sellerRepository.Verify(r => r.Add(It.Is<Seller>(s => s.Id == "SELLER001" && s.Email == null)), Times.Once);
+    }
+
+    [Fact]
     public async Task Handle_SellerExistsNotSoldNotSettled_RemovesOldSellerAndArticlesAndAddsNewOnes()
     {
         var json = JsonWithSellers(SellerJson(id: "SELLER001", articlesJson: ArticleJson("ARTICLE-NEW", 1)));

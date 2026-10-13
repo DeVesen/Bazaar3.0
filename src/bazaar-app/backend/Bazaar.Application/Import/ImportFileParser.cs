@@ -72,7 +72,7 @@ public static class ImportFileParser
         if (string.IsNullOrWhiteSpace(seller.Id) ||
             string.IsNullOrWhiteSpace(seller.FirstName) ||
             string.IsNullOrWhiteSpace(seller.LastName) ||
-            string.IsNullOrWhiteSpace(seller.Email) ||
+            string.IsNullOrWhiteSpace(seller.City) ||
             string.IsNullOrWhiteSpace(seller.SellerType))
         {
             throw InvalidFormat();

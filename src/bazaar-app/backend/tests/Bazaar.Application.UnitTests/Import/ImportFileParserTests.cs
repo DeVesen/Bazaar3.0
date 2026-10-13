@@ -109,7 +109,7 @@ public class ImportFileParserTests
                   "id": "Ab3dEf7G",
                   "firstName": "Max",
                   "lastName": "Mustermann",
-                  "email": "",
+                  "city": "",
                   "sellerType": "Privat",
                   "articles": []
                 }
@@ -136,6 +136,7 @@ public class ImportFileParserTests
                   "id": "Ab3dEf7G",
                   "firstName": "Max",
                   "lastName": "Mustermann",
+                  "city": "Musterstadt",
                   "email": "max@example.com",
                   "sellerType": "Privat",
                   "articles": []
@@ -162,6 +163,7 @@ public class ImportFileParserTests
                   "id": "Ab3dEf7G",
                   "firstName": "Max",
                   "lastName": "Mustermann",
+                  "city": "Musterstadt",
                   "email": "max@example.com",
                   "sellerType": "Privat",
                   "articles": [
@@ -201,6 +203,7 @@ public class ImportFileParserTests
                   "id": "Ab3dEf7G",
                   "firstName": "Max",
                   "lastName": "Mustermann",
+                  "city": "Musterstadt",
                   "email": "max@example.com",
                   "sellerType": "Privat",
                   "articles": [
@@ -236,7 +239,7 @@ public class ImportFileParserTests
                   "id": "Ab3dEf7G",
                   "firstName": "Max",
                   "lastName": "Mustermann",
-                  "email": "max@example.com",
+                  "city": "Musterstadt",
                   "sellerType": "Privat",
                   "articles": []
                 }
@@ -251,9 +254,36 @@ public class ImportFileParserTests
         var seller = Assert.Single(dto.Sellers!);
         Assert.Null(seller.Address);
         Assert.Null(seller.PostalCode);
-        Assert.Null(seller.City);
+        Assert.Equal("Musterstadt", seller.City);
         Assert.Null(seller.Phone);
+        Assert.Null(seller.Email);
         Assert.Empty(seller.Articles!);
+    }
+
+    [Fact]
+    public async Task Parse_SellerWithoutCityProperty_ThrowsBadRequestWithInvalidFormatErrorCode()
+    {
+        const string json = """
+            {
+              "exportedAt": "2026-06-14T08:00:00Z",
+              "sellers": [
+                {
+                  "id": "Ab3dEf7G",
+                  "firstName": "Max",
+                  "lastName": "Mustermann",
+                  "email": "max@example.com",
+                  "sellerType": "Privat",
+                  "articles": []
+                }
+              ],
+              "brands": [],
+              "categories": []
+            }
+            """;
+
+        var exception = await Assert.ThrowsAsync<BadRequestException>(() => ImportFileParser.Parse(ToStream(json), TestContext.Current.CancellationToken));
+
+        Assert.Equal("import.invalid_format", exception.ErrorCode);
     }
 
     [Fact]
