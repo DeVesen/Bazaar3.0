@@ -63,7 +63,7 @@ Modal Standard-Größe. Feldanordnung identisch zur Artikeleingabe im [`intake-w
 
 | Feld | Pflicht | Bemerkung |
 |---|---|---|
-| Artikelnummer | ✅ | oben; ganze Zahl ab 1, nur frei oder die eigene Nummer. Prüfung beim Verlassen des Feldes (Fehler „Artikelnummer <n> ist bereits vergeben.“), bei geänderter gültiger Nummer Hinweis „Etikett neu drucken und anbringen.“ |
+| Artikelnummer | ✅ | oben; ganze Zahl ab 1, nur frei oder die eigene Nummer. Prüfung beim Verlassen des Feldes (Fehler „Artikelnummer *n* ist bereits vergeben.“), bei geänderter gültiger Nummer Hinweis „Etikett neu drucken und anbringen.“ |
 | Bezeichnung | ✅ | |
 | Kategorie, Marke | ✅ | [`autocomplete-create`](../../../components/autocomplete-create/component.md) — neue Werte anlegbar |
 | Preis | ✅ | [`input-group`](../../../components/input-group/component.md), €-Addon rechts, `modes = ['keyboard', 'numpad']`, Numpad mit `showDecimal="true"` — analog zur Preis-Zeile im [`intake-wizard`](intake-wizard.md) |
@@ -108,7 +108,7 @@ Ein verkaufter Artikel ist ein Geldvorgang, kein Datensatz. Für Fehleingaben vo
 5. **AC-5** — IF `soldAt` gesetzt ist, THEN SHALL das System das Löschen ablehnen.
 6. **AC-6** — THE SYSTEM SHALL beim Speichern eines Pflichtfelds ohne Wert eine Feldmeldung anzeigen und nicht speichern.
 7. **AC-7** — THE SYSTEM SHALL das Preisfeld mit `modes = ['keyboard', 'numpad']` anbieten und im Numpad-Modus `showDecimal="true"` verwenden.
-8. **AC-8** — IF die eingegebene Artikelnummer an einem anderen Artikel hängt, THEN SHALL das Feld „Artikelnummer <n> ist bereits vergeben.“ zeigen und das Speichern verhindern.
+8. **AC-8** — IF die eingegebene Artikelnummer an einem anderen Artikel hängt, THEN SHALL das Feld „Artikelnummer *n* ist bereits vergeben.“ zeigen und das Speichern verhindern.
 9. **AC-9** — IF die Artikelnummer leer, 0, negativ oder keine ganze Zahl ist, THEN SHALL das Feld einen Fehler zeigen und das Speichern verhindern.
 10. **AC-10** — WHEN die Artikelnummer geändert und gültig ist, THE SYSTEM SHALL unter dem Feld den Hinweis „Etikett neu drucken und anbringen.“ zeigen.
 11. **AC-11** — THE SYSTEM SHALL eine Nummernänderung serverseitig ablehnen, wenn die Nummer an einem anderen Artikel hängt (`409`, `article.number_taken`) oder der Verkäufer abgerechnet ist (`409`, `settlement.locked`).

@@ -1,7 +1,7 @@
 ---
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-10-13
 ---
 
 # Entity: Artikel
