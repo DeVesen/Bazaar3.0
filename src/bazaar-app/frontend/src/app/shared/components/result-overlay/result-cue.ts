@@ -69,6 +69,7 @@ function startTones(tones: Tone[]): AudioContext | undefined {
   const context = createAudioContext();
   if (!context) return undefined;
 
+  resumeIfSuspended(context);
   try {
     const now = context.currentTime;
     const oscillators = tones.map((tone) => scheduleTone(context, tone, now));
@@ -92,6 +93,12 @@ function createAudioContext(): AudioContext | undefined {
   } catch {
     return undefined;
   }
+}
+
+/** Created outside a user gesture (e.g. in an HTTP response) a context may start suspended; a rejection just means no sound. */
+function resumeIfSuspended(context: AudioContext): void {
+  if (context.state !== 'suspended') return;
+  Promise.resolve(context.resume()).catch(() => undefined);
 }
 
 function scheduleTone(context: AudioContext, tone: Tone, now: number): OscillatorNode {

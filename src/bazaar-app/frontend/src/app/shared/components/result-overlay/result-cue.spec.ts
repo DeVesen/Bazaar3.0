@@ -11,6 +11,8 @@ interface FakeOscillator {
 
 const oscillators: FakeOscillator[] = [];
 const closeContext = vi.fn();
+const resumeContext = vi.fn();
+let contextState: AudioContextState = 'running';
 
 /** jsdom has no audio pipeline — stubbing the constructor is the only way to assert the tone pattern. */
 function createAudioContextMock() {
@@ -18,6 +20,8 @@ function createAudioContextMock() {
     Object.assign(this, {
       currentTime: 0,
       destination: {},
+      state: contextState,
+      resume: resumeContext,
       close: closeContext,
       createGain: vi.fn(() => ({ connect: vi.fn() })),
       createOscillator: vi.fn(() => {
@@ -43,6 +47,9 @@ describe('playResultCue', () => {
   beforeEach(() => {
     oscillators.length = 0;
     closeContext.mockClear();
+    resumeContext.mockReset();
+    resumeContext.mockResolvedValue(undefined);
+    contextState = 'running';
     vi.stubGlobal('AudioContext', createAudioContextMock());
     stubVibrate(vi.fn());
   });
@@ -135,6 +142,39 @@ describe('playResultCue', () => {
 
     // Act & Assert
     expect(() => playResultCue('success')).not.toThrow();
+    expect(navigator.vibrate).toHaveBeenCalledWith([100]);
+  });
+
+  it('playResultCue_ContextSuspended_ResumesContext', () => {
+    // Arrange
+    contextState = 'suspended';
+
+    // Act
+    playResultCue('success');
+
+    // Assert
+    expect(resumeContext).toHaveBeenCalledTimes(1);
+  });
+
+  it('playResultCue_ContextRunning_DoesNotResumeContext', () => {
+    // Arrange
+    contextState = 'running';
+
+    // Act
+    playResultCue('success');
+
+    // Assert
+    expect(resumeContext).not.toHaveBeenCalled();
+  });
+
+  it('playResultCue_ResumeRejects_StillVibratesWithoutThrowing', async () => {
+    // Arrange
+    contextState = 'suspended';
+    resumeContext.mockRejectedValue(new Error('autoplay blocked'));
+
+    // Act & Assert
+    expect(() => playResultCue('success')).not.toThrow();
+    await Promise.resolve();
     expect(navigator.vibrate).toHaveBeenCalledWith([100]);
   });
 

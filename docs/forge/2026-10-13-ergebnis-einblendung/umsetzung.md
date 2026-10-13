@@ -10,7 +10,7 @@ Tasks: 4 (alle fertig), 1 Final-Fix-Welle (73008ae)
 - Urteil: Task-1-Finding 🔴 (PING/ZONK-Duplikat zu scan-feedback.ts) geparkt — Spec-Maßstab: Randbedingung „app-scan-feedback bleibt für Wareneingang unverändert", Plan-Entscheidungen E/R1/F legen Trennung bewusst fest, kein W-Eintrag widerspricht — Kosten falls falsch: Drift zwischen Tonmustern, spätere Konsolidierung.
 
 ## Offene Punkte
-- settlement-page.spec `template_sellerSelected_rendersOnlyIconBackButtonOnTheLeftAndNoActionsLeftOfTheName` rot, laut allen Läufen unberührt von diesem Diff; Beleg auf Basis 54b6105 steht aus.
+- settlement-page.spec `template_sellerSelected_rendersOnlyIconBackButtonOnTheLeftAndNoActionsLeftOfTheName` rot, laut allen Läufen unberührt von diesem Diff; Beleg erbracht: auf Basis 54b6105 einzeln gelaufen (Inhalt der Dateien mit 54b6105 verglichen), derselbe Test rot (`AssertionError: expected 'Zurück' to be ''`, 1 failed | 39 passed), also vorbestehend; wird als eigener Fix außerhalb dieses Merges geführt.
 - 🟡 Anforderungs-Doku nicht nachgezogen: Epic_Verkaeufer/epic.md:205, Epic_Verkauf/stories/VERKAUF-S01-eingabemodi.md:24, Epic_Abrechnung/epic.md:123 sprechen noch von Countdown-Feedback.
 - 🟢 Feature-Profile bazaar-app-sellers / bazaar-app-settlement beschreiben noch Ring-Countdown (Profile-Update nach Merge).
 - 🟢 ScanCompleteEvent-Doc: `'already-set'` jetzt auch für frühere `'unknown'`-Fälle.
@@ -31,3 +31,6 @@ Tasks: 4 (alle fertig), 1 Final-Fix-Welle (73008ae)
 ## Stand
 - Stand: 73008aea
 - Gesamtlauf: 0a4ffde grün (1050 Tests, 1 vorbestehend rot: settlement-page)
+
+## Planabweichungen
+- Task 3: `resetSession` setzt `resultEvent` zusätzlich auf null (Fix 73008aea, verhindert veraltete Einblendung beim erneuten Öffnen), und `result-overlay/component.md` trägt dazu eine Zeile; beides steht nicht im Plan. Keine Wirkung auf Namen, Signaturen oder Constraints.
