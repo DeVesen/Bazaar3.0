@@ -562,4 +562,21 @@ describe('BrandsPage', () => {
       expect(getComputedStyle(toolbar).flexWrap).toBe('wrap');
     });
   });
+
+  describe('badge Neu', () => {
+    it('rows_brandNotOriginal_labelsRowNeuWithWarnBadge', () => {
+      // Arrange
+      brandsSignal.set([brand({ id: 'b9', name: 'Icepeak', original: false })]);
+      const { component } = createPage();
+      const badgeColumn = component.columns.find((column) => column.field === 'originalLabel');
+
+      // Act
+      const label = component.rows()[0].originalLabel;
+
+      // Assert
+      expect(label).toBe('Neu');
+      expect(badgeColumn?.type).toBe('badge');
+      expect(badgeColumn?.badgeSeverity?.(label)).toBe('warn');
+    });
+  });
 });

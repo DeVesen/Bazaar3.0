@@ -613,4 +613,21 @@ describe('CategoriesPage', () => {
       expect(selectStyle.maxWidth).toBe('100%');
     });
   });
+
+  describe('badge Neu', () => {
+    it('rows_categoryNotOriginal_labelsRowNeuWithWarnBadge', () => {
+      // Arrange
+      categoriesSignal.set([category({ id: 'c9', name: 'Ski Jacke', original: false })]);
+      const { component } = createPage();
+      const badgeColumn = component.columns.find((column) => column.field === 'originalLabel');
+
+      // Act
+      const label = component.rows()[0].originalLabel;
+
+      // Assert
+      expect(label).toBe('Neu');
+      expect(badgeColumn?.type).toBe('badge');
+      expect(badgeColumn?.badgeSeverity?.(label)).toBe('warn');
+    });
+  });
 });
