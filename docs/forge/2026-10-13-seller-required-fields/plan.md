@@ -49,6 +49,8 @@
 - Test: `src/bazaar-app/backend/tests/Bazaar.Application.UnitTests/Sellers/UpdateSellerHandlerTests.cs` · `UpdateSellerHandlerTests.CreateSeller`, `UpdateSellerHandlerTests.CreateCommand`
 - Test: `src/bazaar-app/backend/tests/Bazaar.Infrastructure.UnitTests/Persistence/Queries/StatisticsQueryTests.cs` · `StatisticsQueryTests` (mehrzeilige `Seller.Create(`-Aufrufe)
 - Test (mechanisch, nur Ort ergänzen): alle weiteren `*.cs` unter `src/bazaar-app/backend/tests/`, die `Seller.Create(…)`, `Seller.CreateFromImport(…)` oder `.UpdateDetails(…)` mit vier aufeinanderfolgenden `null` vor der E-Mail-Adresse aufrufen (Befehl in Schritt 4)
+- Test (mechanisch, Ort im Import-JSON ergänzen): `src/bazaar-app/backend/tests/Bazaar.Application.UnitTests/Import/RunImportHandlerTests.cs` · `"email": "anna@example.org",` (in `SellerJson`)
+- Test (mechanisch, Ort im Import-JSON ergänzen): `src/bazaar-app/backend/tests/Bazaar.Application.UnitTests/Import/PreviewImportHandlerTests.cs` · `"email": "anna@example.org",` (in `SellerJson`)
 
 **Interfaces:**
 - Consumes: —
@@ -455,8 +457,10 @@
   ```bash
   grep -rl --include=*.cs 'null, null, null, null, "[^"]*@' . | xargs sed -i 's/null, null, null, null, \("[^"]*@\)/null, null, "Karlsruhe", null, \1/'
   sed -i 's/null, null, null, null,$/null, null, "Karlsruhe", null,/' Bazaar.Infrastructure.UnitTests/Persistence/Queries/StatisticsQueryTests.cs Bazaar.Application.UnitTests/Sellers/UpdateSellerHandlerTests.cs
+  sed -i -E 's/^( *)"email": "anna@example\.org",$/\1"city": "Karlsruhe",\n\1"email": "anna@example.org",/' Bazaar.Application.UnitTests/Import/RunImportHandlerTests.cs Bazaar.Application.UnitTests/Import/PreviewImportHandlerTests.cs
   git diff --stat | cat
   ```
+  Die dritte Zeile ergänzt den Ort in den Import-JSONs der Handler-Tests (`SellerJson`): `RunImportHandler` übergibt `fileSeller.City!` an `Seller.CreateFromImport`, das jetzt bei leerem Ort wirft; ohne Ort im JSON scheiterten die `Handle_*`-Tests schon in diesem Task. Der Parser verlangt in diesem Task weiter `email`, das JSON enthält beides. Erwartet: `git diff --stat` listet `RunImportHandlerTests.cs` und `PreviewImportHandlerTests.cs` mit je einer eingefügten Zeile; `grep -c '"city": "Karlsruhe",' Bazaar.Application.UnitTests/Import/RunImportHandlerTests.cs Bazaar.Application.UnitTests/Import/PreviewImportHandlerTests.cs` zeigt je `1`.
   Danach drei gezielte Edits:
   - `src/bazaar-app/backend/tests/Bazaar.Infrastructure.UnitTests/Persistence/Repositories/ArticleListQueryTests.cs`: Alt `private static Seller CreateSeller(string id, string firstName, string lastName, string? city = "Karlsruhe") =>`, neu `private static Seller CreateSeller(string id, string firstName, string lastName, string city = "Karlsruhe") =>`.
   - `src/bazaar-app/backend/tests/Bazaar.Application.UnitTests/Sellers/UpdateSellerHandlerTests.cs`, in `CreateCommand`: Alt
@@ -755,10 +759,9 @@
 - Modify: `src/bazaar-app/backend/Bazaar.Application/Import/ImportFileParser.cs:70-79` · `ImportFileParser.ValidateSeller`
 - Test: `src/bazaar-app/backend/tests/Bazaar.Application.UnitTests/Import/ImportFileParserTests.cs` · `ImportFileParserTests`
 - Test: `src/bazaar-app/backend/tests/Bazaar.Application.UnitTests/Import/RunImportHandlerTests.cs` · `RunImportHandlerTests`
-- Test: `src/bazaar-app/backend/tests/Bazaar.Application.UnitTests/Import/PreviewImportHandlerTests.cs` · `PreviewImportHandlerTests.SellerJson`
 
 **Interfaces:**
-- Consumes: `Seller.CreateFromImport(…, string city, …, string? email, …)` und `ImportSellerDto.City`/`Email` (`string?`) aus Task 1
+- Consumes: `Seller.CreateFromImport(…, string city, …, string? email, …)` und `ImportSellerDto.City`/`Email` (`string?`) aus Task 1; Ort in den `SellerJson`-Fixtures von `RunImportHandlerTests` und `PreviewImportHandlerTests` aus Task 1
 - Produces: `ImportFileParser.Parse` wirft `BadRequestException` mit Code `import.invalid_format`, wenn `id`, `firstName`, `lastName`, `city` oder `sellerType` eines Verkäufers leer ist; fehlende E-Mail ist gültig
 
 - [ ] **Schritt 1: Fehlschlagende Tests schreiben**
@@ -819,10 +822,9 @@
           Assert.Null(seller.Email);
           Assert.Empty(seller.Articles!);
   ```
-  Dann in allen übrigen Test-JSONs, die für einen anderen Fehlergrund gedacht sind, den Ort ergänzen (jeweils eine Zeile `"city"` vor der E-Mail-Zeile; im Bash-Tool, Arbeitsverzeichnis `<R>/src/bazaar-app/backend/tests/Bazaar.Application.UnitTests/Import`):
+  Dann in allen übrigen Parser-Test-JSONs, die für einen anderen Fehlergrund gedacht sind, den Ort ergänzen (jeweils eine Zeile `"city"` vor der E-Mail-Zeile; im Bash-Tool, Arbeitsverzeichnis `<R>/src/bazaar-app/backend/tests/Bazaar.Application.UnitTests/Import`). Die JSONs von `RunImportHandlerTests` und `PreviewImportHandlerTests` tragen den Ort bereits seit Task 1 Schritt 4.
   ```bash
   sed -i -E '100,$ s/^( *)"email": "max@example\.com",$/\1"city": "Musterstadt",\n\1"email": "max@example.com",/' ImportFileParserTests.cs
-  sed -i -E 's/^( *)"email": "anna@example\.org",$/\1"city": "Karlsruhe",\n\1"email": "anna@example.org",/' RunImportHandlerTests.cs PreviewImportHandlerTests.cs
   git diff --stat | cat
   ```
   Neue Tests. In `ImportFileParserTests.cs` vor `    [Fact]\n    public async Task Parse_EmptySellersArray_ParsesSuccessfully()` einfügen:
@@ -887,14 +889,15 @@
 
 ---
 
-### Task 5: Frontend — gemeinsame Pflichtfeld-Regel und API-Typen
+### Task 5: Frontend — gemeinsame Pflichtfeld-Regel und Pflichtfeld-Zustand
 
-**ACs:** AC-3, AC-8
+**ACs:** AC-2, AC-3
 
 **Dateien:**
 - Create: `src/bazaar-app/frontend/src/app/shared/seller-form/seller-required-fields.ts`
 - Create: `src/bazaar-app/frontend/src/app/shared/seller-form/seller-required-fields.spec.ts`
-- Modify: `src/bazaar-app/frontend/src/app/features/sellers/data/sellers-api.ts:50-130` · `CreateSellerRequest`, `UpdateSellerRequest`, `Seller`, `SellerDetail`
+
+Ablage: Der Helper ist keine Komponente, sondern reine Regel- und Signal-Logik; er liegt deshalb bewusst in einem eigenen Ordner `shared/seller-form/` direkt unter `shared/` und nicht unter `shared/components/`.
 
 **Interfaces:**
 - Consumes: —
@@ -905,16 +908,19 @@
   - `function missingSellerFields(values: SellerRequiredValues): SellerRequiredField[]`
   - `type SellerRequiredErrors = Partial<Record<SellerRequiredField, string>>`
   - `function sellerRequiredErrors(values: SellerRequiredValues, touched: ReadonlySet<SellerRequiredField>): SellerRequiredErrors`
-  - `sellers-api.ts`: `CreateSellerRequest.email?: string | null`, `UpdateSellerRequest.email?: string | null`, `Seller.email: string | null`, `SellerDetail.email: string | null`
+  - `interface SellerRequiredState { readonly errors: Signal<SellerRequiredErrors>; readonly complete: Signal<boolean>; markTouched(field: SellerRequiredField): void; reset(): void }`
+  - `function sellerRequiredState(values: () => SellerRequiredValues): SellerRequiredState` — kapselt das Touched-Signal und die Computeds, die Dialog und Wizard gemeinsam nutzen
 
 - [ ] **Schritt 1: Fehlschlagenden Test schreiben**
   `src/bazaar-app/frontend/src/app/shared/seller-form/seller-required-fields.spec.ts`:
   ```ts
+  import { signal } from '@angular/core';
   import {
     missingSellerFields,
     SELLER_REQUIRED_MESSAGES,
     sellerRequiredErrors,
     SellerRequiredField,
+    sellerRequiredState,
     SellerRequiredValues,
   } from './seller-required-fields';
 
@@ -963,12 +969,47 @@
       expect(errors).toEqual({});
     });
   });
+
+  describe('sellerRequiredState', () => {
+    it('is incomplete and silent while a required field is empty and untouched', () => {
+      const values = signal<SellerRequiredValues>({ ...VALID, firstName: '' });
+
+      const state = sellerRequiredState(() => values());
+
+      expect(state.complete()).toBe(false);
+      expect(state.errors()).toEqual({});
+    });
+
+    it('reports a touched empty field and drops the message once it is filled', () => {
+      const values = signal<SellerRequiredValues>({ ...VALID, firstName: '' });
+      const state = sellerRequiredState(() => values());
+
+      state.markTouched('firstName');
+      expect(state.errors()).toEqual({ firstName: SELLER_REQUIRED_MESSAGES.firstName });
+
+      values.set(VALID);
+      expect(state.errors()).toEqual({});
+      expect(state.complete()).toBe(true);
+    });
+
+    it('forgets touched fields on reset', () => {
+      const values = signal<SellerRequiredValues>({ ...VALID, city: '' });
+      const state = sellerRequiredState(() => values());
+      state.markTouched('city');
+
+      state.reset();
+
+      expect(state.errors()).toEqual({});
+    });
+  });
   ```
 - [ ] **Schritt 2: Test rot laufen lassen**
   Befehl: `dv-angular-test --root <R>/src/bazaar-app/frontend -- --include src/app/shared/seller-form/seller-required-fields.spec.ts` — erwartet: FAIL (Modul `./seller-required-fields` nicht gefunden)
 - [ ] **Schritt 3: Minimal implementieren**
   `src/bazaar-app/frontend/src/app/shared/seller-form/seller-required-fields.ts`:
   ```ts
+  import { computed, Signal, signal } from '@angular/core';
+
   /** The six fields the Haupt-App requires for a seller (Verkäufer dialog and intake wizard step 1). */
   export type SellerRequiredField =
     | 'firstName'
@@ -1023,108 +1064,65 @@
     }
     return errors;
   }
-  ```
-  `src/bazaar-app/frontend/src/app/features/sellers/data/sellers-api.ts` — vier Edits. `CreateSellerRequest`, Alt:
-  ```ts
-    lastName: string;
-    email: string;
-    sellerTypeId: string;
-    address?: string | null;
-    postalCode?: string | null;
-    city?: string | null;
-    phone?: string | null;
+
+  /** Touched tracking plus derived errors/completeness for one seller form (dialog or wizard step 1). */
+  export interface SellerRequiredState {
+    /** Inline messages for empty required fields the user already left. */
+    readonly errors: Signal<SellerRequiredErrors>;
+    /** `true` when all six required fields are set. */
+    readonly complete: Signal<boolean>;
+    markTouched(field: SellerRequiredField): void;
+    /** Forgets all touched fields, e.g. when the form is opened again. */
+    reset(): void;
   }
-  ```
-  Neu:
-  ```ts
-    lastName: string;
-    email?: string | null;
-    sellerTypeId: string;
-    address?: string | null;
-    postalCode?: string | null;
-    city?: string | null;
-    phone?: string | null;
+
+  /**
+   * Shared state for the six required seller fields. `values` is read lazily inside the
+   * computeds, so a component may pass a closure over signals declared anywhere in the class.
+   */
+  export function sellerRequiredState(values: () => SellerRequiredValues): SellerRequiredState {
+    const touched = signal<ReadonlySet<SellerRequiredField>>(new Set());
+    const current = computed(values);
+    return {
+      errors: computed(() => sellerRequiredErrors(current(), touched())),
+      complete: computed(() => missingSellerFields(current()).length === 0),
+      markTouched: (field) => touched.update((set) => new Set(set).add(field)),
+      reset: () => touched.set(new Set()),
+    };
   }
-  ```
-  `UpdateSellerRequest`, Alt:
-  ```ts
-    lastName: string;
-    email: string;
-    sellerTypeId: string;
-    address?: string | null;
-    postalCode?: string | null;
-    city?: string | null;
-    phone?: string | null;
-    salesCommission: number;
-  ```
-  Neu:
-  ```ts
-    lastName: string;
-    email?: string | null;
-    sellerTypeId: string;
-    address?: string | null;
-    postalCode?: string | null;
-    city?: string | null;
-    phone?: string | null;
-    salesCommission: number;
-  ```
-  `Seller`, Alt:
-  ```ts
-    email: string;
-    sellerTypeId: string;
-    salesCommission: number;
-    feePerItem: number;
-    status: string;
-  ```
-  Neu:
-  ```ts
-    email: string | null;
-    sellerTypeId: string;
-    salesCommission: number;
-    feePerItem: number;
-    status: string;
-  ```
-  `SellerDetail`, Alt:
-  ```ts
-    email: string;
-    sellerTypeId: string;
-    salesCommission: number;
-    feePerItem: number;
-    intakeFeePaid: number;
-  ```
-  Neu:
-  ```ts
-    email: string | null;
-    sellerTypeId: string;
-    salesCommission: number;
-    feePerItem: number;
-    intakeFeePaid: number;
   ```
 - [ ] **Schritt 4: Test grün laufen lassen**
-  Befehl: `dv-angular-test --root <R>/src/bazaar-app/frontend -- --include src/app/shared/seller-form/seller-required-fields.spec.ts` — erwartet: PASS (alle Tests von `missingSellerFields` und `sellerRequiredErrors`)
+  Befehl: `dv-angular-test --root <R>/src/bazaar-app/frontend -- --include src/app/shared/seller-form/seller-required-fields.spec.ts` — erwartet: PASS (alle Tests von `missingSellerFields`, `sellerRequiredErrors` und `sellerRequiredState`)
+  Befehl: `dv-angular-build --root <R>/src/bazaar-app/frontend` — erwartet: OK (der Task ändert keine bestehende Datei, die App kompiliert unverändert)
 - [ ] **Schritt 5: Commit**
   `git add -N src/bazaar-app/frontend/src/app/shared/seller-form/seller-required-fields.ts src/bazaar-app/frontend/src/app/shared/seller-form/seller-required-fields.spec.ts`, dann
-  `git commit -m "feat(sellers): gemeinsame Pflichtfeld-Regel und optionale E-Mail in den API-Typen" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>" -- src/bazaar-app/frontend/src/app/shared/seller-form src/bazaar-app/frontend/src/app/features/sellers/data/sellers-api.ts`
+  `git commit -m "feat(sellers): gemeinsame Pflichtfeld-Regel und Pflichtfeld-Zustand für Verkäufer-Formulare" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>" -- src/bazaar-app/frontend/src/app/shared/seller-form`
 
 ---
 
 ### Task 6: Frontend — Verkäufer-Dialog (Anlegen/Bearbeiten)
 
-**ACs:** AC-1, AC-2, AC-3, AC-4, AC-5, AC-12
+**ACs:** AC-1, AC-2, AC-3, AC-4, AC-5, AC-8, AC-12
 
 **Dateien:**
+- Modify: `src/bazaar-app/frontend/src/app/features/sellers/data/sellers-api.ts:50-130` · `CreateSellerRequest`, `UpdateSellerRequest`, `Seller`, `SellerDetail`
 - Modify: `src/bazaar-app/frontend/src/app/features/sellers/components/verkaeufer-dialog/verkaeufer-dialog.ts:25-50,97-129,241-263` · `SellerFormValue`, `SellerDialogServerErrors`, `VerkaeuferDialog` (`feePerItem`, `salesCommission`, `canSave`, `markTouched`, `requiredErrors`, `onSave`, Konstruktor-`effect`)
-- Modify: `src/bazaar-app/frontend/src/app/features/sellers/components/verkaeufer-dialog/verkaeufer-dialog.html` · Felder Vorname, Nachname, Ort, E-Mail, Verkäufer-Typ, Gebühr, Provision
+- Modify: `src/bazaar-app/frontend/src/app/features/sellers/components/verkaeufer-dialog/verkaeufer-dialog.html` · `verkaeufer-dialog-email`, `serverErrors()?.email` — Felder Vorname, Nachname, Ort, E-Mail, Verkäufer-Typ, Gebühr, Provision
 - Modify: `src/bazaar-app/frontend/src/app/features/sellers/pages/sellers-page/sellers-page.ts:557-565` · `SellersPage.fieldErrorsOf`
 - Test: `src/bazaar-app/frontend/src/app/features/sellers/components/verkaeufer-dialog/verkaeufer-dialog.spec.ts` · `VerkaeuferDialog`
 
+Die Typänderung in `sellers-api.ts` liegt bewusst in diesem Task: `SellerDetail.email: string | null` fließt über `SellersPage.buildEditInitialValue` (`email: detail.email`) in `SellerFormValue.email`, das hier ebenfalls `string | null` wird. Beide Seiten ändern sich im selben Commit, die App kompiliert nach jedem Task.
+
 **Interfaces:**
-- Consumes: `missingSellerFields`, `sellerRequiredErrors`, `SellerRequiredField` aus `src/bazaar-app/frontend/src/app/shared/seller-form/seller-required-fields.ts` (Task 5); `CreateSellerRequest.email?: string | null` und `UpdateSellerRequest.email?: string | null` (Task 5)
+- Consumes: `sellerRequiredState`, `SellerRequiredField`, `SellerRequiredErrors` aus `src/bazaar-app/frontend/src/app/shared/seller-form/seller-required-fields.ts` (Task 5)
 - Produces:
+  - `sellers-api.ts`: `CreateSellerRequest.email?: string | null`, `UpdateSellerRequest.email?: string | null`, `Seller.email: string | null`, `SellerDetail.email: string | null`
   - `SellerFormValue.email: string | null` (leer = `null`), `SellerFormValue.city: string | null` (Dialog sendet ein nicht leeres, getrimmtes `string`)
   - `SellerDialogServerErrors { firstName?; lastName?; city?; sellerTypeId? }` (kein `email` mehr)
   - `VerkaeuferDialog.feePerItem` und `.salesCommission`: `WritableSignal<number | null>`
   - `VerkaeuferDialog.requiredErrors: Signal<SellerRequiredErrors>`, `VerkaeuferDialog.markTouched(field: SellerRequiredField): void`, `VerkaeuferDialog.canSave: Signal<boolean>`
+
+Anzeigeorte der E-Mail (AC-8, offener Punkt der Spec): Im Frontend lesen nur `verkaeufer-dialog` (Eingabefeld, Vorbelegung `this.email.set(initial?.email ?? '')`), `intake-wizard` (Eingabefeld), `sellers-page.ts` (Request-Mapping und `buildEditInitialValue`) und die Typen in `sellers-api.ts` die E-Mail; Verkäuferkarte, Suche, Abrechnung und Druck lesen sie nicht. Im Backend lesen außer Domain, Commands, Validatoren, Import und EF-Konfiguration nur die beiden DTO-Mappings in `SellerEndpoints.cs` die E-Mail, deren DTO-Feld Task 1 auf `string?` stellt. Die Vorbelegung im Dialog zeigt `null` bereits als leeres Feld (`?? ''`), ein neuer Test in Schritt 1 (f) sichert das ab; Schritt 4 belegt per `grep`, dass kein weiterer Anzeigeort existiert. Weitere Anpassungen für AC-8 sind nicht nötig.
 
 - [ ] **Schritt 1: Fehlschlagende Tests schreiben**
   In `verkaeufer-dialog.spec.ts`:
@@ -1310,9 +1308,111 @@
         ]);
       });
   ```
+
+  (f) AC-8: Verkäuferin ohne E-Mail im Bearbeiten-Modus. Direkt vor `  it('displays a server-side field error for city when provided', async () => {` (aus (d)) einfügen:
+  ```ts
+    it('opens a seller without email in edit mode with an empty email field and allows saving', async () => {
+      const { fixture } = await setup({ isAdmin: true });
+      fixture.componentRef.setInput('visible', true);
+      fixture.componentRef.setInput('mode', 'edit');
+      fixture.componentRef.setInput('initialValue', { ...EDIT_SELLER, email: null });
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+      const emailInput = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>(
+        '#verkaeufer-dialog-email',
+      );
+      expect(component.email()).toBe('');
+      expect(emailInput?.value).toBe('');
+      expect(component.canSave()).toBe(true);
+
+      const saveSpy = vi.fn();
+      component.save.subscribe(saveSpy);
+      component.onSave();
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ email: null }));
+    });
+
+  ```
 - [ ] **Schritt 2: Test rot laufen lassen**
   Befehl: `dv-angular-test --root <R>/src/bazaar-app/frontend -- --include src/app/features/sellers/components/verkaeufer-dialog/verkaeufer-dialog.spec.ts` — erwartet: FAIL (Typfehler/Laufzeitfehler: `markTouched` und `feePerItem.set(null)` existieren noch nicht; Stern-Test und `canSave`-Tests schlagen fehl)
 - [ ] **Schritt 3: Minimal implementieren**
+  `src/bazaar-app/frontend/src/app/features/sellers/data/sellers-api.ts` — vier Edits. `CreateSellerRequest`, Alt:
+  ```ts
+    lastName: string;
+    email: string;
+    sellerTypeId: string;
+    address?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    phone?: string | null;
+  }
+  ```
+  Neu:
+  ```ts
+    lastName: string;
+    email?: string | null;
+    sellerTypeId: string;
+    address?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    phone?: string | null;
+  }
+  ```
+  `UpdateSellerRequest`, Alt:
+  ```ts
+    lastName: string;
+    email: string;
+    sellerTypeId: string;
+    address?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    phone?: string | null;
+    salesCommission: number;
+  ```
+  Neu:
+  ```ts
+    lastName: string;
+    email?: string | null;
+    sellerTypeId: string;
+    address?: string | null;
+    postalCode?: string | null;
+    city?: string | null;
+    phone?: string | null;
+    salesCommission: number;
+  ```
+  `Seller`, Alt:
+  ```ts
+    email: string;
+    sellerTypeId: string;
+    salesCommission: number;
+    feePerItem: number;
+    status: string;
+  ```
+  Neu:
+  ```ts
+    email: string | null;
+    sellerTypeId: string;
+    salesCommission: number;
+    feePerItem: number;
+    status: string;
+  ```
+  `SellerDetail`, Alt:
+  ```ts
+    email: string;
+    sellerTypeId: string;
+    salesCommission: number;
+    feePerItem: number;
+    intakeFeePaid: number;
+  ```
+  Neu:
+  ```ts
+    email: string | null;
+    sellerTypeId: string;
+    salesCommission: number;
+    feePerItem: number;
+    intakeFeePaid: number;
+  ```
+
   `verkaeufer-dialog.ts`, Edits in dieser Reihenfolge:
 
   (1) Import nach der `Input`-Zeile. Alt:
@@ -1323,9 +1423,8 @@
   ```ts
   import { Input } from '../../../../shared/components/input/input';
   import {
-    missingSellerFields,
     SellerRequiredField,
-    sellerRequiredErrors,
+    sellerRequiredState,
   } from '../../../../shared/seller-form/seller-required-fields';
   ```
   (2) `SellerFormValue`. Alt:
@@ -1365,7 +1464,7 @@
     readonly feePerItem = signal<number | null>(0);
     readonly salesCommission = signal<number | null>(0);
   ```
-  (5) `canSave` ersetzen und `touched`/`requiredErrors`/`markTouched` ergänzen. Alt:
+  (5) `canSave` ersetzen und `requiredErrors`/`markTouched` über den gemeinsamen Pflichtfeld-Zustand aus Task 5 ergänzen. Alt:
   ```ts
     readonly canSave = computed(
       () =>
@@ -1378,9 +1477,7 @@
   ```
   Neu:
   ```ts
-    private readonly touched = signal<ReadonlySet<SellerRequiredField>>(new Set());
-
-    private readonly requiredValues = computed(() => ({
+    private readonly required = sellerRequiredState(() => ({
       firstName: this.firstName(),
       lastName: this.lastName(),
       city: this.city(),
@@ -1390,14 +1487,12 @@
     }));
 
     /** Inline messages for empty required fields the user already left. */
-    readonly requiredErrors = computed(() => sellerRequiredErrors(this.requiredValues(), this.touched()));
+    readonly requiredErrors = this.required.errors;
 
-    readonly canSave = computed(
-      () => missingSellerFields(this.requiredValues()).length === 0 && !this.saving(),
-    );
+    readonly canSave = computed(() => this.required.complete() && !this.saving());
 
     markTouched(field: SellerRequiredField): void {
-      this.touched.update((current) => new Set(current).add(field));
+      this.required.markTouched(field);
     }
   ```
   (6) Touched beim Öffnen zurücksetzen. Alt:
@@ -1410,7 +1505,7 @@
   ```ts
       if (!this.visible()) return;
 
-      this.touched.set(new Set());
+      this.required.reset();
       const initial = this.initialValue();
   ```
   (7) `onSave`, Kopf. Alt:
@@ -1622,7 +1717,10 @@
         sellerTypeId: firstMessage('sellerTypeId'),
   ```
 - [ ] **Schritt 4: Test grün laufen lassen**
-  Befehl: `dv-angular-test --root <R>/src/bazaar-app/frontend -- --include src/app/features/sellers` — erwartet: PASS (Dialog-Spec, Sellers-Page-Spec, Sellers-Store-Spec und die übrigen Specs unter `features/sellers`)
+  Befehl: `dv-angular-test --root <R>/src/bazaar-app/frontend -- --include src/app/features/sellers` — erwartet: PASS (Dialog-Spec, Sellers-Page-Spec, Sellers-Store-Spec und die übrigen Specs unter `features/sellers`, darunter `opens a seller without email in edit mode with an empty email field and allows saving`)
+  Befehl: `dv-angular-build --root <R>/src/bazaar-app/frontend` — erwartet: OK (die nullbare E-Mail in `sellers-api.ts` kompiliert mit `SellerFormValue`, `buildEditInitialValue` und dem Wizard)
+  Befehl (Prüfung Anzeigeorte, AC-8): `grep -rnE '\.email\b|email:' <R>/src/bazaar-app/frontend/src/app --include=*.ts --include=*.html | grep -v '\.spec\.ts:' | grep -vE '/(verkaeufer-dialog|intake-wizard)/|/sellers-page\.ts:|/sellers-api\.ts:'` — erwartet: leere Ausgabe (kein Anzeigeort in Karte, Suche, Abrechnung oder Druck liest die E-Mail)
+  Befehl (Prüfung Backend, AC-8): `grep -rn 'Email' <R>/src/bazaar-app/backend --include=*.cs | grep -vE '/tests/|/Migrations/' | grep -vE '/(Seller\.cs|CreateSellerCommand\.cs|UpdateSellerCommand\.cs|CreateSellerCommandValidator\.cs|UpdateSellerCommandValidator\.cs|CreateSellerHandler\.cs|UpdateSellerHandler\.cs|SellerConfiguration\.cs|Dtos\.cs|SellerEndpoints\.cs|ImportFileDto\.cs|ImportFileParser\.cs|RunImportHandler\.cs):'` — erwartet: leere Ausgabe (nur Domain, Commands, Handler, Validatoren, Import, EF-Konfiguration und die DTO-Mappings in `SellerEndpoints.cs` lesen die E-Mail; kein Druck- oder Abrechnungspfad)
 - [ ] **Schritt 5: Commit**
   `git commit -m "feat(sellers): Pflichtfelder im Verkäufer-Dialog mit Inline-Meldung, E-Mail optional" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>" -- src/bazaar-app/frontend/src/app/features/sellers`
 
@@ -1634,11 +1732,11 @@
 
 **Dateien:**
 - Modify: `src/bazaar-app/frontend/src/app/features/intake/components/intake-wizard/intake-wizard.ts:27-33,90-126,200-232` · `IntakeWizard` (`feePerItem`, `salesCommission`, `emailFormatError`, `canSave`, `markTouched`, `requiredErrors`, `onNext`)
-- Modify: `src/bazaar-app/frontend/src/app/features/intake/components/intake-wizard/intake-wizard.html` · Felder Vorname, Nachname, Ort, E-Mail, Verkäufer-Typ, Gebühr, Provision
+- Modify: `src/bazaar-app/frontend/src/app/features/intake/components/intake-wizard/intake-wizard.html` · `intake-wizard-email`, `emailFormatError()` — Felder Vorname, Nachname, Ort, E-Mail, Verkäufer-Typ, Gebühr, Provision
 - Test: `src/bazaar-app/frontend/src/app/features/intake/components/intake-wizard/intake-wizard.spec.ts` · `IntakeWizard`
 
 **Interfaces:**
-- Consumes: `missingSellerFields`, `sellerRequiredErrors`, `SellerRequiredField` aus `src/bazaar-app/frontend/src/app/shared/seller-form/seller-required-fields.ts` (Task 5); `CreateSellerRequest.email?: string | null` (Task 5)
+- Consumes: `sellerRequiredState`, `SellerRequiredField` aus `src/bazaar-app/frontend/src/app/shared/seller-form/seller-required-fields.ts` (Task 5); `CreateSellerRequest.email?: string | null` (Task 6)
 - Produces:
   - `IntakeWizard.feePerItem`, `.salesCommission`: `WritableSignal<number | null>`
   - `IntakeWizard.emailFormatError: Signal<string | null>` (berechnet: gefüllte E-Mail mit ungültigem Format → `'Ungültiges E-Mail-Format.'`, sonst `null`)
@@ -1842,9 +1940,8 @@
   ```ts
   import { Input } from '../../../../shared/components/input/input';
   import {
-    missingSellerFields,
     SellerRequiredField,
-    sellerRequiredErrors,
+    sellerRequiredState,
   } from '../../../../shared/seller-form/seller-required-fields';
   ```
   (2) Fee/Commission nullable. Alt:
@@ -1878,11 +1975,9 @@
         !this.saving(),
     );
   ```
-  Neu:
+  Neu (gemeinsamer Pflichtfeld-Zustand aus Task 5, wie im Dialog):
   ```ts
-    private readonly touched = signal<ReadonlySet<SellerRequiredField>>(new Set());
-
-    private readonly requiredValues = computed(() => ({
+    private readonly required = sellerRequiredState(() => ({
       firstName: this.firstName(),
       lastName: this.lastName(),
       city: this.city(),
@@ -1892,7 +1987,7 @@
     }));
 
     /** Inline messages for empty required fields the user already left. */
-    readonly requiredErrors = computed(() => sellerRequiredErrors(this.requiredValues(), this.touched()));
+    readonly requiredErrors = this.required.errors;
 
     /** The email is optional; only a typed email with an invalid format is reported (and blocks "Weiter"). */
     readonly emailFormatError = computed(() => {
@@ -1901,14 +1996,11 @@
     });
 
     readonly canSave = computed(
-      () =>
-        missingSellerFields(this.requiredValues()).length === 0 &&
-        this.emailFormatError() === null &&
-        !this.saving(),
+      () => this.required.complete() && this.emailFormatError() === null && !this.saving(),
     );
 
     markTouched(field: SellerRequiredField): void {
-      this.touched.update((current) => new Set(current).add(field));
+      this.required.markTouched(field);
     }
   ```
   (5) `onNext`, Format-Prüfung entfernen. Alt:
@@ -2074,16 +2166,16 @@
 **ACs:** AC-11
 
 **Dateien:**
-- Modify: `docs/requirements/bazaar-app/components/verkaeufer-dialog.md` · Abschnitte Vergleichstabelle, Mockup, `## 2. Panels`, `## Akzeptanzkriterien`
-- Modify: `docs/requirements/bazaar-app/entities/verkaeufer.md` · Felder-Tabelle (`city`, `email`), Absatz „Pflichtfelder sind hier schmaler"
-- Modify: `docs/requirements/bazaar-app/api/sellers.md` · Abschnitt `## 3. POST /api/sellers`
-- Modify: `docs/requirements/bazaar-app/entities/import-format.md` · Tabelle `## Regeln`
-- Modify: `docs/requirements/bazaar-app/epics/Epic_Artikelannahme/stories/ANNAHME-S02-seller-form-layout.md` · Mockup, Feldtabelle, `**Pflichtfelder insgesamt:**`, AC-5, AC-10
-- Modify: `docs/requirements/bazaar-app/epics/Epic_Verkaeufer/stories/VERK-S01-seller-edit-form-layout.md` · Mockup, AC-7
+- Modify: `docs/requirements/bazaar-app/components/verkaeufer-dialog.md` · `| Pflichtfelder |`, `## 1. ASCII-Darstellung`, `## 2. Panels`, `## Akzeptanzkriterien` — Vergleichstabelle, Mockup, Panels, Akzeptanzkriterien
+- Modify: `docs/requirements/bazaar-app/entities/verkaeufer.md` · `## Felder`, `Pflichtfelder sind hier schmaler` — Felder-Tabelle (Zeilen `city`, `email`) und Absatz darunter
+- Modify: `docs/requirements/bazaar-app/api/sellers.md` · `**Pflicht:**`, `"city": null`, `→ 204 No Content` — Abschnitte POST (Request-Beispiel, Pflicht-Satz) und PUT
+- Modify: `docs/requirements/bazaar-app/entities/import-format.md` · `## Regeln` — Regel-Tabelle
+- Modify: `docs/requirements/bazaar-app/epics/Epic_Artikelannahme/stories/ANNAHME-S02-seller-form-layout.md` · `## UI-Spezifikation`, `### Felder im Detail`, `**Pflichtfelder insgesamt:**`, `**AC-5**`, `**AC-10**` — Mockup, Feldtabelle, Pflichtfeld-Satz, AC-5, AC-10
+- Modify: `docs/requirements/bazaar-app/epics/Epic_Verkaeufer/stories/VERK-S01-seller-edit-form-layout.md` · `## UI-Spezifikation`, `**AC-7**` — Mockup, AC-7
 - Modify: `docs/requirements/bazaar-app/epics/Epic_Artikelannahme/epic.md` · AC-4
 - Modify: `docs/requirements/bazaar-app/epics/Epic_Verkaeufer/epic.md` · AC-2
-- Modify: `docs/knowledge/feature-profile/bazaar-app-intake/feature.md` · Capabilities Wizard Schritt 1
-- Modify: `docs/knowledge/feature-profile/bazaar-app-sellers/feature.md` · Capabilities Dialog
+- Modify: `docs/knowledge/feature-profile/bazaar-app-intake/feature.md` · `## Capabilities`, `User can fill in seller master data`, `User sees E-Mail-Format-Validierung`, `**Last reviewed:**` — Capabilities zu Wizard Schritt 1
+- Modify: `docs/knowledge/feature-profile/bazaar-app-sellers/feature.md` · `## Capabilities`, `User can create a new seller via a dialog` — Capabilities zum Dialog
 
 **Interfaces:**
 - Consumes: Verhalten aus Task 1 bis 7
@@ -2190,3 +2282,9 @@
 - **E · Test-Fixtures per `sed`** · Planer — Rund 30 bestehende Backend-Testaufrufe übergeben `null` als Ort und würden an der neuen Domain-Regel scheitern; ein mechanischer Ersatz durch `"Karlsruhe"` hält den Diff klein und verändert keine Testabsicht.
 - **E · Migration ohne `database update`** · Planer — Die Migration entsteht per `dotnet ef migrations add` mit Dummy-Connection-String und wird mit `has-pending-model-changes` geprüft; angewendet wird sie beim Start der Anwendung durch `Migrate()`.
 - **E · Spec-Hinweise ohne Auswirkung auf den Plan** · Planer — Die sechs offenen Formulierungs-Hinweise des Spec-Reviews ändern kein Verhalten; der Plan folgt den Akzeptanzkriterien wie freigegeben.
+- **R1 · AC-8** — geändert — Das ganze AC gegen den Code geprüft: Die E-Mail lesen im Frontend nur Dialog, Wizard, `sellers-page.ts` und `sellers-api.ts`, im Backend nur Domain, Commands, Handler, Validatoren, Import, EF-Konfiguration und die DTO-Mappings in `SellerEndpoints.cs`; Karte, Suche, Abrechnung und Druck lesen sie nicht. Task 6 trägt jetzt AC-8, hält den Befund fest, ergänzt den Test „Verkäufer ohne E-Mail im Bearbeiten-Modus zeigt leeres Feld, speichert mit `email: null`“ (Anzeige leer statt `null`) und zwei `grep`-Prüfungen mit erwarteter leerer Ausgabe für Frontend und Backend. Speichern und Laden decken weiter Task 1 bis 3 ab.
+- **R1 · Task 1** — geändert — Der Ort in den `SellerJson`-Fixtures von `RunImportHandlerTests` und `PreviewImportHandlerTests` wird jetzt schon in Task 1 Schritt 4 per `sed` ergänzt (mit Prüfbefehl), weil `Seller.CreateFromImport` ab Task 1 bei leerem Ort wirft; der Ganz-Solution-Lauf in Schritt 5 ist damit grün. Task 4 Schritt 1 enthält nur noch den `sed` für `ImportFileParserTests`, die Datei `PreviewImportHandlerTests.cs` entfällt aus der Dateiliste von Task 4.
+- **R1 · Task 5** — geändert — Die vier Typänderungen an `sellers-api.ts` liegen jetzt in Task 6 (Dateiliste, Produces, Schritt 3), wo auch `SellerFormValue.email` nullbar wird; Task 5 ändert keine bestehende Datei und prüft zusätzlich per `dv-angular-build`. Task 5 hält fest, dass der Helper als Nicht-Komponente bewusst in `shared/seller-form/` statt unter `shared/components/` liegt. Task 5 trägt AC-2 und AC-3 statt AC-3 und AC-8.
+- **R1 · Task 6** — geändert — Der Anker der Template-Zeile nennt jetzt die wörtlichen Treffer `verkaeufer-dialog-email` und `serverErrors()?.email`, die Feldliste steht als Beschreibung dahinter. Zusätzlich nutzt der Dialog den gemeinsamen Pflichtfeld-Zustand `sellerRequiredState` aus Task 5 (siehe R1 · Task 7) und baut in Schritt 4 die App.
+- **R1 · Task 7** — geändert — Statt den Block aus Touched-Signal, Computeds und `markTouched` in Dialog und Wizard zu kopieren, liefert Task 5 jetzt `sellerRequiredState(values)` (Fehler, Vollständigkeit, `markTouched`, `reset`) mit eigenen Tests; Task 6 und 7 rufen ihn auf. Der Anker der Wizard-Template-Zeile nennt jetzt `intake-wizard-email` und `emailFormatError()`; Task 7 bezieht `CreateSellerRequest.email` aus Task 6.
+- **R1 · Task 8** — geändert — Alle Dateizeilen nennen jetzt wörtlich vorhandene Anker (Überschriften wie `## 2. Panels`, `## Felder`, `## Regeln`, `## Capabilities`, `## UI-Spezifikation` sowie Zeichenfolgen wie `**Pflicht:**`, `**AC-7**`, `User can fill in seller master data`); die Beschreibung steht nach einem Gedankenstrich außerhalb der Backticks.
