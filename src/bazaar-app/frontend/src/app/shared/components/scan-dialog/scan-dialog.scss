@@ -13,6 +13,11 @@
 }
 
 .scan-dialog {
+  // Positioned parent for `app-result-overlay` (fills the dialog content, see result-overlay.scss).
+  &__content {
+    position: relative;
+  }
+
   &__numpad {
     display: block;
     margin-top: 12px;

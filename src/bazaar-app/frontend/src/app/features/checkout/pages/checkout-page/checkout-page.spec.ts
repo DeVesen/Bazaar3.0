@@ -577,6 +577,152 @@ describe('CheckoutPage', () => {
     });
   });
 
+  describe('Ergebnis-Einblendung', () => {
+    async function setupWithArticle(overrides: Partial<ArticleByNumberResult>) {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub(overrides)));
+      return setup(articlesApi);
+    }
+
+    it('onEnterPressed_SellingArticle_ShowsSuccess', async () => {
+      // Arrange
+      const { component } = await setupWithArticle({ status: 'selling' });
+      component.onTyped('1042');
+
+      // Act
+      component.onEnterPressed();
+
+      // Assert
+      expect(component.resultEvent()?.kind).toBe('success');
+    });
+
+    it('onEnterPressed_SecondEnterOnFoundArticle_ShowsCartAndAddsArticle', async () => {
+      // Arrange
+      const { component } = await setupWithArticle({ status: 'selling' });
+      component.onTyped('1042');
+      component.onEnterPressed();
+
+      // Act
+      component.onEnterPressed();
+
+      // Assert
+      expect(component.resultEvent()?.kind).toBe('cart');
+      expect(component.cartItems()).toHaveLength(1);
+    });
+
+    it('onEnterPressed_UnknownNumber_ShowsFailedAndKeepsInfoText', async () => {
+      // Arrange
+      const { component } = await setup();
+      component.onTyped('1042');
+
+      // Act
+      component.onEnterPressed();
+
+      // Assert
+      expect(component.resultEvent()?.kind).toBe('failed');
+      expect(component.infoState()).toEqual({ type: 'error', text: 'Artikelnummer 1042 ist nicht bekannt.' });
+    });
+
+    it.each(['registered', 'sold', 'returned', 'archived'])(
+      'onEnterPressed_Article%sStatus_ShowsFailed',
+      async (status) => {
+        // Arrange
+        const { component } = await setupWithArticle({ status });
+        component.onTyped('1042');
+
+        // Act
+        component.onEnterPressed();
+
+        // Assert
+        expect(component.resultEvent()?.kind).toBe('failed');
+      },
+    );
+
+    it('onEnterPressed_ServerNotReachable_ShowsFailed', async () => {
+      // Arrange
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+      const { component } = await setup(articlesApi);
+      component.onTyped('1042');
+
+      // Act
+      component.onEnterPressed();
+
+      // Assert
+      expect(component.resultEvent()?.kind).toBe('failed');
+    });
+
+    it('onEnterPressed_ArticleAlreadyInCart_ShowsAlreadyAndDoesNotAddTwice', async () => {
+      // Arrange
+      const articlesApi = articlesApiStub();
+      const { component } = await setup(articlesApi);
+      component.cartItems.set([{ id: 'ART00001', number: 1042, name: 'Winterjacke', price: 12.5 }]);
+      component.onTyped('1042');
+
+      // Act
+      component.onEnterPressed();
+
+      // Assert
+      expect(component.resultEvent()?.kind).toBe('already');
+      expect(component.cartItems()).toHaveLength(1);
+      expect(articlesApi.getByNumber).not.toHaveBeenCalled();
+    });
+
+    it('onEnterPressed_TwoFailuresInARow_SetsADistinctEventEachTime', async () => {
+      // Arrange
+      const { component } = await setup();
+      component.onTyped('1042');
+      component.onEnterPressed();
+      const firstEvent = component.resultEvent();
+
+      // Act
+      component.onEnterPressed();
+
+      // Assert
+      expect(component.resultEvent()).not.toBe(firstEvent);
+    });
+
+    it('onTyped_WhileOverlayIsShown_StillAcceptsInputAndLookup', async () => {
+      // Arrange
+      const articlesApi = articlesApiStub();
+      const { component } = await setup(articlesApi);
+      component.onTyped('1042');
+      component.onEnterPressed();
+
+      // Act
+      component.onTyped('77');
+
+      // Assert
+      expect(component.articleNumber()).toBe('77');
+      component.onEnterPressed();
+      expect(articlesApi.getByNumber).toHaveBeenLastCalledWith(77);
+    });
+
+    it('onCartRemoveItem_CartRowClickedWhileOverlayIsShown_StillRemovesArticle', async () => {
+      // Arrange
+      const { fixture, component } = await setup();
+      component.cartItems.set([{ id: 'ART00001', number: 1042, name: 'Winterjacke', price: 12.5 }]);
+      component.onTyped('555');
+      component.onEnterPressed();
+      fixture.detectChanges();
+      const rowButton = fixture.debugElement.query(By.css('.cart__item button')).nativeElement as HTMLButtonElement;
+
+      // Act
+      rowButton.click();
+
+      // Assert
+      expect(component.cartItems()).toEqual([]);
+    });
+
+    it('template_CheckoutPage_HostsOverlayInsidePositionedPageArea', async () => {
+      // Arrange & Act
+      const { fixture } = await setup();
+
+      // Assert
+      expect(fixture.debugElement.query(By.css('.checkout-page app-result-overlay'))).not.toBeNull();
+    });
+  });
+
   it('wires Enter on the app-input field itself through to the lookup', async () => {
     const articlesApi = articlesApiStub();
     const { fixture, component } = await setup(articlesApi);

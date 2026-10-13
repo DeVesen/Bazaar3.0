@@ -1,0 +1,59 @@
+---
+status: draft
+updated: 2026-10-13
+---
+
+# Component: Result-Overlay (Ergebnis-Einblendung)
+
+## Index
+- Kontext — Einsatzorte
+- Aussehen — Ergebnisse, Ablauf
+- Schnittstelle — Inputs
+- Verhalten — Ton, Vibration, Abbruch, Barrierefreiheit
+- Technik — Wrapper-Begründung
+- Akzeptanzkriterien — EARS-Kriterien
+
+**Verwendung:** Haupt-App — Verkauf-Seite sowie die Dialoge „Artikel freigeben" und „Artikel zurückgeben" (`scan-dialog`).
+
+Eigenständiger, wiederverwendbarer Baustein ohne eigene Fachlogik: Verkauf-Seite und Dialoge bestimmen, welches
+Ergebnis gemeldet wird. Nicht zu verwechseln mit dem Scan-Feedback (`app-scan-feedback`, Ring-Countdown der
+Wareneingangs-Erfassung).
+
+PrimeNG liefert keine solche Komponente — daher eigener Wrapper (Grundregel → [overview.md](../overview.md)).
+
+---
+
+## Aussehen
+
+Nur das Icon, zentriert über der Fläche des nächsten positionierten Vorfahren, ohne Hochskalieren und ohne
+getönten Schleier; der Inhalt dahinter bleibt sichtbar.
+
+| Ergebnis (`kind`) | Icon | Farbe | Ton | Vibration |
+|---|---|---|---|---|
+| `failed` | `pi-times` | Rot | Zonk 180 → 120 Hz | 80/60/80 ms |
+| `success` | `pi-check` | Grün | Ping 880 → 1320 Hz | 1 × 100 ms |
+| `already` | `pi-check` | Gelb | 2 Töne à 80 ms, 1000 Hz, 60 ms Pause | 2 × 60 ms (60 ms Pause) |
+| `cart` | `pi-shopping-cart` | Grün | Ping 880 → 1320 Hz | 1 × 100 ms |
+
+Ablauf fest 1,5 s: 0–500 ms einblenden, 500–1000 ms voll sichtbar, 1000–1500 ms ausblenden.
+
+## Schnittstelle
+
+| Name | Typ | Art | Beschreibung |
+|---|---|---|---|
+| `event` | `ResultEvent \| null` | `input()` | Jede Einblendung ist ein frisches Objekt aus `createResultEvent(kind)`; `null` blendet nichts ein |
+
+Der Konsument setzt `position: relative` auf die Fläche und platziert `<app-result-overlay [event]="…" />` darin.
+
+## Verhalten
+
+- Ton und Vibration laufen mit jeder Einblendung und sind nicht abschaltbar; fehlende Web-Audio- oder Vibrations-Unterstützung wird still übergangen.
+- Eine neue Einblendung bricht die laufende samt Ton und Vibration sofort ab und startet von vorn.
+- Die Einblendung blockiert keine Eingabe (`pointer-events: none`), nimmt keinen Fokus.
+- Screenreader: Textmeldung (`role="status"`) „Fehlgeschlagen", „Erfolgreich", „Bereits erledigt" bzw. „Im Warenkorb".
+- „Bewegung reduzieren" ändert nichts.
+- Ein Event, das beim Mounten nicht `null` ist, wird sofort abgespielt. Bleibt der Konsument über einen Sichtbarkeitswechsel hinweg gemountet (z. B. Dialog), setzt er das Event dabei auf `null` zurück.
+
+## Akzeptanzkriterien
+
+Siehe `docs/forge/2026-10-13-ergebnis-einblendung/spec.md` (AC-16 bis AC-19, AC-24 bis AC-29).

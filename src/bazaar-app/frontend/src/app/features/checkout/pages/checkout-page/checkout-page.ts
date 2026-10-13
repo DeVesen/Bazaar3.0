@@ -6,6 +6,8 @@ import { Input, InputAddon } from '../../../../shared/components/input/input';
 import { Page } from '../../../../shared/components/page/page';
 import { Numpad } from '../../../../shared/components/numpad/numpad';
 import { BarcodeScanner } from '../../../../shared/components/barcode-scanner/barcode-scanner';
+import { ResultEvent, ResultKind, createResultEvent } from '../../../../shared/components/result-overlay/result-event';
+import { ResultOverlay } from '../../../../shared/components/result-overlay/result-overlay';
 import { PaymentConfirmedEvent, PaymentPanel } from '../../../../shared/components/payment-panel/payment-panel';
 import { Cart } from '../../components/cart/cart';
 import { SalesApi } from '../../data/sales-api';
@@ -52,7 +54,7 @@ const INITIAL_INFO_STATE: InfoState = { type: 'warn', text: 'Bitte Artikelnummer
  */
 @Component({
   selector: 'app-checkout-page',
-  imports: [ButtonModule, DialogModule, Input, Page, Numpad, BarcodeScanner, Cart, PaymentPanel],
+  imports: [ButtonModule, DialogModule, Input, Page, Numpad, BarcodeScanner, Cart, PaymentPanel, ResultOverlay],
   templateUrl: './checkout-page.html',
   styleUrl: './checkout-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,6 +66,8 @@ export class CheckoutPage {
 
   readonly cartItems = signal<CartItem[]>([]);
   readonly infoState = signal<InfoState>(INITIAL_INFO_STATE);
+  /** Latest lookup/cart result for `app-result-overlay` (green = like the InfoArea, see spec "Verkauf-Farben"). */
+  readonly resultEvent = signal<ResultEvent | null>(null);
   readonly lastSaleArticleIds = signal<string[]>([]);
   readonly paymentPanelVisible = signal(false);
   readonly highlightedItemId = signal<string | null>(null);
@@ -210,6 +214,7 @@ export class CheckoutPage {
     // cart.md AC-2).
     if (this.cartItems().some((item) => item.number === number)) {
       this.infoState.set({ type: 'warn', text: 'Artikel ist bereits im Warenkorb.' });
+      this.showResult('already');
       this.foundArticle.set(null);
       this.resultNumber.set(null);
       this.focusArticleNumberField(true);
@@ -235,6 +240,7 @@ export class CheckoutPage {
         this.resultNumber.set(matchedRaw);
         this.previousMode.set(this.activeMode());
         this.activeMode.set('keyboard');
+        this.showResult('success');
         this.focusArticleNumberField(true);
         return;
       case 'registered':
@@ -243,11 +249,13 @@ export class CheckoutPage {
           text: `Artikel ${number} ist noch nicht freigegeben — zuerst annehmen.`,
         });
         this.foundArticle.set(null);
+        this.showResult('failed');
         this.focusArticleNumberField(true);
         return;
       case 'sold':
         this.infoState.set({ type: 'error', text: `Artikel ${number} ist bereits verkauft.` });
         this.foundArticle.set(null);
+        this.showResult('failed');
         this.focusArticleNumberField(true);
         return;
       case 'returned':
@@ -256,6 +264,7 @@ export class CheckoutPage {
           text: `Artikel ${number} wurde an den Verkäufer zurückgegeben.`,
         });
         this.foundArticle.set(null);
+        this.showResult('failed');
         this.focusArticleNumberField(true);
         return;
       default:
@@ -267,6 +276,7 @@ export class CheckoutPage {
           text: 'Artikel-Suche fehlgeschlagen. Bitte erneut versuchen.',
         });
         this.foundArticle.set(null);
+        this.showResult('failed');
         this.focusArticleNumberField(true);
     }
   }
@@ -276,6 +286,7 @@ export class CheckoutPage {
     if (error instanceof HttpErrorResponse && error.status === 404) {
       this.infoState.set({ type: 'error', text: `Artikelnummer ${number} ist nicht bekannt.` });
       this.foundArticle.set(null);
+      this.showResult('failed');
       this.focusArticleNumberField(true);
       return;
     }
@@ -284,6 +295,7 @@ export class CheckoutPage {
     // generic error message rather than silently doing nothing.
     this.infoState.set({ type: 'error', text: 'Artikel-Suche fehlgeschlagen. Bitte erneut versuchen.' });
     this.foundArticle.set(null);
+    this.showResult('failed');
     this.focusArticleNumberField(true);
   }
 
@@ -298,6 +310,7 @@ export class CheckoutPage {
     this.resultNumber.set(null);
     this.articleNumber.set('');
     this.infoState.set({ type: 'success', text: 'Nächsten Artikel eingeben …' });
+    this.showResult('cart');
     this.activeMode.set(this.previousMode());
     this.focusArticleNumberField();
   }
@@ -404,6 +417,10 @@ export class CheckoutPage {
       return;
     }
     this.infoState.set({ type: 'error', text: 'Storno fehlgeschlagen. Bitte erneut versuchen.' });
+  }
+
+  private showResult(kind: ResultKind): void {
+    this.resultEvent.set(createResultEvent(kind));
   }
 
   private resetField(): void {

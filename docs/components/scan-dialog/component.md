@@ -47,7 +47,7 @@ zentriert (globale Klasse `dialog-responsive`), max. Höhe 90vh.
 | Modus | Besonderheit im Scan-Dialog |
 |---|---|
 | Tastatur | AutoComplete-Liste der ausstehenden Artikel unter dem Feld |
-| Kamera | Kamerabild ersetzt die Liste; Dauerscan mit Feedback-Overlay (Abschnitt 4). Das Feld selbst bleibt stehen |
+| Kamera | Kamerabild ersetzt die Liste; Dauerscan mit Ergebnis-Einblendung (Abschnitt 4). Das Feld selbst bleibt stehen |
 | Numpad | AutoComplete-Liste bleibt sichtbar; `⏎` bestätigt die getippte Nummer |
 
 ---
@@ -83,11 +83,9 @@ Kamera-Modus:
 │  │                                     │   │
 │  │         [ Kamerabild ]              │   │
 │  │                                     │   │
-│  │  ┌───────────────────────────────┐  │   │
-│  │  │  ✓  Freigegeben   (grün)      │  │   │  ← Feedback-Overlay
-│  │  │  ⚠  Bereits gesetzt (gelb)    │  │   │    (nur eines sichtbar)
-│  │  │  ✕  Nicht bekannt  (rot)      │  │   │
-│  │  └───────────────────────────────┘  │   │
+│  │             ✓ / ✓ / ✕               │   │  ← Ergebnis-Einblendung: nur Icon,
+│  │   (grün / gelb / rot), zentriert,   │   │    1,5 s, ohne Schleier
+│  │   mit Ton und Vibration             │   │
 │  └─────────────────────────────────────┘   │
 │                                             │
 │  [⌨ Tastatur]  [⊞ Numpad]                  │
@@ -105,7 +103,7 @@ Kamera-Modus:
 | `title` | `string` | `@Input` | Dialog-Überschrift (z. B. „Artikel freigeben") |
 | `sellerId` | `string` | `@Input` | ID des Verkäufers — begrenzt die AutoComplete-Liste auf dessen ausstehende Artikel |
 | `targetField` | `'releasedAt' \| 'returnedAt'` | `@Input` | Welcher Zeitstempel gesetzt wird |
-| `pauseMs` | `number` | `@Input` | Anzeigedauer des Scan-Feedbacks in ms (Default: aus App-Einstellungen `scannerPauseMs`) |
+| `pauseMs` | `number` | `@Input` | Scan-Pause im Kamera-Modus in ms (dasselbe Bild wird währenddessen nicht erneut ausgewertet; Default unverändert: aus App-Einstellungen `scannerPauseMs`) |
 | `scanComplete` | `ScanResultEvent` | `@Output` | Emittiert nach erfolgreichem Scan: `{ articleId, result: 'success' \| 'already-set' \| 'unknown' }` |
 | `visibleChange` | `boolean` | `@Output` | Two-way-Binding — emittiert `false` wenn Dialog geschlossen wird |
 
@@ -136,20 +134,21 @@ Das Kamerabild ersetzt Eingabefeld und AutoComplete-Liste vollständig.
 
 → Komponente: [Barcode-Scanner](../barcode-scanner/component.md) — `[active]="true"` · `(codeDetected)="onScan($event)"`
 
-### Scan-Feedback-Overlay
+### Ergebnis-Einblendung
 
-Erscheint nach jedem Scan für `pauseMs` Millisekunden, dann wird das Kamerabild wieder aktiv.
+Jede Eingabe (Tastatur-Enter, Numpad-Bestätigung, Klick auf einen Listeneintrag, Kamera-Scan) löst die
+[Ergebnis-Einblendung](../result-overlay/component.md) über dem Dialog-Inhalt aus — fest 1,5 s, unabhängig von
+`pauseMs`. Der Ring-Countdown entfällt. `pauseMs` bleibt als Scan-Pause, die dasselbe Bild im Kamera-Modus nicht
+mehrfach auswertet.
 
-| Ergebnis | Farbe | Bedeutung |
+| Ergebnis | Einblendung | Bedeutung |
 |---|---|---|
-| Artikel gefunden und Zeitstempel gesetzt | Grün | Erfolg |
-| Zeitstempel war bereits gesetzt | Gelb | Bereits verarbeitet |
-| Artikel nicht bekannt | Rot | Unbekannte Nummer |
+| Artikel des Verkäufers erfasst bzw. zurückgegeben (beim Freigeben schon beim Erfassen in der Sitzung) | Grüner Haken | Erfolg |
+| Freigeben: bereits freigegeben (auch verkauft/zurückgegeben) oder in der Sitzung schon erfasst; Zurückgeben: bereits zurückgegeben | Gelber Haken | Bereits erledigt |
+| Unbekannte Nummer, Artikel eines anderen Verkäufers, Zurückgeben: noch nicht freigegeben oder bereits verkauft, Such-Fehler (Netz/Server) | Roter X | Fehlgeschlagen |
 
-### Feedback-Nebeneffekte
-
-- **Ton:** Web Audio API (kein Audio-File-Dependency)
-- **Vibration:** `Navigator.vibrate()` — nur auf mobilen Geräten mit Unterstützung
+Der Text „Artikel nicht bekannt" im Tastatur-Modus bleibt zusätzlich bestehen. Ton und Vibration kommen aus der
+Einblendung.
 
 ### Verlassen des Kamera-Modus
 
@@ -189,8 +188,8 @@ Kameraintegration und Barcode-Dekodierung: [Barcode-Scanner](../barcode-scanner/
 
 1. **AC-1** — WHEN der Dialog geöffnet wird, THEN SHALL das System den Fokus automatisch auf das Artikelnummer-Eingabefeld setzen.
 2. **AC-2** — WHEN eine Artikelnummer eingegeben und bestätigt wird und der Artikel dem Verkäufer gehört und der Zeitstempel noch nicht gesetzt ist, THEN SHALL das System den konfigurierten Zeitstempel (`releasedAt` oder `returnedAt`) auf den aktuellen Zeitpunkt setzen und `scanComplete` mit `result: 'success'` emittieren.
-3. **AC-3** — WHEN im Kamera-Modus ein Barcode erkannt wird, dessen Zeitstempel bereits gesetzt ist, THEN SHALL das System das Feedback-Overlay in Gelb für `pauseMs` Millisekunden einblenden und `scanComplete` mit `result: 'already-set'` emittieren.
-4. **AC-4** — IF eine eingegebene oder gescannte Nummer keinem ausstehenden Artikel des Verkäufers entspricht, THEN SHALL das System im Tastatur-Modus den Text „Artikel nicht bekannt" unterhalb des Felds anzeigen und im Kamera-Modus das Feedback-Overlay in Rot für `pauseMs` Millisekunden einblenden.
+3. **AC-3** — WHEN eine Nummer erfasst wird, deren Zeitstempel bereits gesetzt ist (Freigeben: bereits freigegeben oder in der Sitzung schon erfasst; Zurückgeben: bereits zurückgegeben), THEN SHALL das System in jedem Eingabeweg einen gelben Haken einblenden und `scanComplete` mit `result: 'already-set'` emittieren.
+4. **AC-4** — IF eine eingegebene oder gescannte Nummer keinem passenden Artikel des Verkäufers entspricht oder die Suche fehlschlägt, THEN SHALL das System in jedem Eingabeweg einen roten X einblenden und im Tastatur-Modus zusätzlich den Text „Artikel nicht bekannt" unterhalb des Felds anzeigen.
 5. **AC-5** — WHEN der Dialog über ✕-Button oder Escape geschlossen wird, THEN SHALL das System die Kamera stoppen, alle MediaStream-Tracks freigeben und `visibleChange: false` emittieren.
 6. **AC-6** — WHEN der Dialog geöffnet wird, THEN SHALL das System den Tastatur-Modus aktivieren und die drei Modi `keyboard`, `camera`, `numpad` anbieten.
 7. **AC-7** — WHEN aus dem Kamera-Modus in einen anderen Modus gewechselt wird, THEN SHALL das System die Kamera stoppen und alle MediaStream-Tracks freigeben.

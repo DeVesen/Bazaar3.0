@@ -16,7 +16,8 @@ import { Input, InputAddon } from '../input/input';
 import { FieldModeState, applyNumpadKey, fieldModeAddons } from '../input/field-mode';
 import { Numpad } from '../numpad/numpad';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
-import { ScanFeedback } from '../scan-feedback/scan-feedback';
+import { ResultEvent, ResultKind, createResultEvent } from '../result-overlay/result-event';
+import { ResultOverlay } from '../result-overlay/result-overlay';
 // Sanctioned `shared` -> `core` boundary crossing (Round-25 Task 5, review-fix decision):
 // `pauseMs`'s default now reads the app-wide `SettingsService` instead of a hardcoded constant
 // (see the `pauseMs` input's own doc comment below). Routing the default through a
@@ -71,6 +72,18 @@ interface ArticleByNumberResult {
   status: string;
 }
 
+/** Statuses that mean "this timestamp was already set" for a seller's own article — yellow, not red. */
+const ALREADY_DONE_STATUSES: Record<ScanDialogTargetField, readonly string[]> = {
+  releasedAt: ['selling', 'sold', 'returned'],
+  returnedAt: ['returned'],
+};
+
+const RESULT_KIND_BY_SCAN_RESULT: Record<ScanCompleteEvent['result'], ResultKind> = {
+  success: 'success',
+  'already-set': 'already',
+  unknown: 'failed',
+};
+
 /**
  * `targetField` → which derived `status` counts as "still pending" (Task-3 brief "Pending-list
  * filter mapping"). spec.md's own wording ("releasedAt == null") assumes raw timestamps, but the
@@ -78,6 +91,20 @@ interface ArticleByNumberResult {
  */
 function pendingStatusFor(targetField: ScanDialogTargetField): string {
   return targetField === 'releasedAt' ? 'registered' : 'selling';
+}
+
+/**
+ * Verdict for an existing article: another seller's article is always `'unknown'`; an own article either
+ * still needs the timestamp (`'success'`), already has it (`'already-set'`) or cannot take it (`'unknown'`).
+ */
+function verdictFor(
+  article: ArticleByNumberResult,
+  sellerId: string,
+  targetField: ScanDialogTargetField,
+): ScanCompleteEvent['result'] {
+  if (article.sellerId !== sellerId) return 'unknown';
+  if (article.status === pendingStatusFor(targetField)) return 'success';
+  return ALREADY_DONE_STATUSES[targetField].includes(article.status) ? 'already-set' : 'unknown';
 }
 
 /** Numeric substring/prefix match on `number.toString()` — mirrors `seller-search.ts`'s own
@@ -92,7 +119,7 @@ function filterPending(articles: PendingArticle[], query: string): PendingArticl
  * Shared popup for setting an article timestamp (`releasedAt`/`returnedAt`) by typed number,
  * numpad, camera scan, or picking from the pending-articles list
  * (docs/components/scan-dialog/component.md), composing `app-input` (Modi über `field-mode.ts`) +
- * `app-numpad` + `app-barcode-scanner` + `app-scan-feedback` + `p-listbox`, mirroring
+ * `app-numpad` + `app-barcode-scanner` + `app-result-overlay` + `p-listbox`, mirroring
  * `seller-search.ts`/`.html`.
  *
  * Architectural ruling (Task-3 brief, binding, do not re-litigate): this project's
@@ -114,7 +141,7 @@ function filterPending(articles: PendingArticle[], query: string): PendingArticl
  */
 @Component({
   selector: 'app-scan-dialog',
-  imports: [DialogModule, ListboxModule, Input, Numpad, BarcodeScanner, ScanFeedback],
+  imports: [DialogModule, ListboxModule, Input, Numpad, BarcodeScanner, ResultOverlay],
   templateUrl: './scan-dialog.html',
   styleUrl: './scan-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -131,8 +158,7 @@ export class ScanDialog {
   /**
    * Default now reads the app-wide `SettingsService` (Round-25) instead of a hardcoded
    * constant. A parent may still override it explicitly via the `[pauseMs]` binding (no
-   * breaking change to this input's public shape). Forwarded to `app-scan-feedback`'s own
-   * `pauseMs` in camera mode.
+   * breaking change to this input's public shape). Only drives the camera dauerscan lock (`scanLocked`).
    */
   readonly pauseMs = input<number>(this.settingsService.scannerPauseMs());
   /** `'batch'` (default): Round-18 behaviour, unchanged — matches are collected in `sessionIds`
@@ -166,13 +192,14 @@ export class ScanDialog {
    * `visible() === true` (a fresh open starts a fresh session, see the `constructor()` effect). */
   private readonly sessionIds = signal<ReadonlySet<string>>(new Set());
 
-  /** Camera dauerscan lock (Task-3 brief): `barcode-scanner` has no internal debounce, so while
-   * `scan-feedback`'s countdown is visually running, further `codeDetected` emissions for the same
-   * still-pointed-at code are ignored. Set on every scan start, cleared via `setTimeout(pauseMs)` —
-   * mirrors `scan-feedback.ts`'s own `startCountdown`/timeout pattern. */
+  /** Camera dauerscan lock: `barcode-scanner` has no internal debounce, so for `pauseMs` after
+   * every scan further `codeDetected` emissions for the same still-pointed-at code are ignored
+   * (the Ergebnis-Einblendung itself runs a fixed 1.5 s, independent of `pauseMs`). Set on every
+   * scan start, cleared via `setTimeout(pauseMs)`. */
   private readonly scanLocked = signal(false);
 
-  readonly scanFeedbackResult = signal<'success' | 'already-set' | 'unknown' | null>(null);
+  /** Latest result to show over the dialog content (`app-result-overlay`); always a fresh event per lookup result. */
+  readonly resultEvent = signal<ResultEvent | null>(null);
 
   readonly isCameraActive = computed<boolean>(() => this.mode.active() === 'camera');
 
@@ -246,20 +273,20 @@ export class ScanDialog {
   onSubmit(): void {
     const raw = this.articleNumber();
     if (!raw.trim()) return;
-    this.checkArticleNumber(raw, false);
+    this.checkArticleNumber(raw);
   }
 
   /** `p-listbox` selection — per the brief, goes through the SAME validation path as typed
    * Enter/scan, never a direct "trust the cache and add". */
   onListboxSelect(event: { value: PendingArticle }): void {
-    this.checkArticleNumber(event.value.number, false);
+    this.checkArticleNumber(event.value.number);
   }
 
   onScanDetected(value: string): void {
     if (this.scanLocked()) return;
     this.scanLocked.set(true);
     setTimeout(() => this.scanLocked.set(false), this.pauseMs());
-    this.checkArticleNumber(value, true);
+    this.checkArticleNumber(value);
   }
 
   /** `p-dialog`'s own `(visibleChange)` fires on both the ✕ button and Escape — forwarded to this
@@ -291,25 +318,20 @@ export class ScanDialog {
    * camera-detected, listbox selection) — per spec.md "validiert jeden Scan/jede Eingabe
    * read-only", nothing ever trusts the cached pending list alone.
    */
-  private checkArticleNumber(rawNumber: string | number, isCameraOrigin: boolean): void {
+  private checkArticleNumber(rawNumber: string | number): void {
     const number = typeof rawNumber === 'number' ? rawNumber : Number.parseInt(rawNumber.trim(), 10);
     if (!Number.isFinite(number)) return;
 
     this.http.get<ArticleByNumberResult>(`/api/articles/by-number/${number}`).subscribe({
-      next: (article) => this.handleArticleFound(article, isCameraOrigin),
-      error: (error: unknown) => this.handleLookupError(error, isCameraOrigin),
+      next: (article) => this.handleArticleFound(article),
+      error: (error: unknown) => this.handleLookupError(error),
     });
   }
 
-  private handleArticleFound(article: ArticleByNumberResult, isCameraOrigin: boolean): void {
-    const matchesSeller = article.sellerId === this.sellerId();
-    const matchesStatus = article.status === pendingStatusFor(this.targetField());
-
-    if (!matchesSeller || !matchesStatus) {
-      // Result-mapping #2 (judgment call, plan.md's literal "sonst"): wrong seller, wrong status
-      // and "number unknown" (handled in `handleLookupError()`) all collapse to the same
-      // `'unknown'` result — plan.md never distinguishes them, and neither does this component.
-      this.emitResult(article.id, 'unknown', isCameraOrigin);
+  private handleArticleFound(article: ArticleByNumberResult): void {
+    const verdict = verdictFor(article, this.sellerId(), this.targetField());
+    if (verdict !== 'success') {
+      this.emitResult(article.id, verdict);
       return;
     }
 
@@ -320,56 +342,52 @@ export class ScanDialog {
       this.pendingArticles.update((articles) => articles.filter((a) => a.id !== article.id));
       this.articleNumber.set('');
       this.articleConfirmed.emit(article.id);
-      this.emitResult(article.id, 'success', isCameraOrigin);
+      this.emitResult(article.id, 'success');
       return;
     }
 
     if (this.sessionIds().has(article.id)) {
-      // Result-mapping #3 (judgment call): plan.md's own text only names 'success'/'unknown', but
-      // `scan-feedback`'s `result` input already supports `'already-set'` and the generic
-      // component doc's AC-3 names exactly this label for "already captured" — reused here for
-      // "already scanned/entered in THIS session" since it is the closest fit and costs nothing
-      // (scan-feedback renders anything non-'success' as the same error variant anyway).
-      this.emitResult(article.id, 'already-set', isCameraOrigin);
+      // Already scanned/entered in THIS session — `'already-set'` is the closest fit (yellow).
+      this.emitResult(article.id, 'already-set');
       return;
     }
 
-    // Result-mapping #4: add to the session, emit the full snapshot, clear the field so the next
-    // entry starts fresh (doc's "Feld leert sich").
+    // Add to the session, emit the full snapshot, clear the field so the next entry starts
+    // fresh (doc's "Feld leert sich").
     this.sessionIds.update((ids) => new Set(ids).add(article.id));
     this.sessionArticleIds.emit(Array.from(this.sessionIds()));
     this.articleNumber.set('');
-    this.emitResult(article.id, 'success', isCameraOrigin);
+    this.emitResult(article.id, 'success');
   }
 
-  private handleLookupError(error: unknown, isCameraOrigin: boolean): void {
+  private handleLookupError(error: unknown): void {
     if (error instanceof HttpErrorResponse && error.status === 404) {
       // Result-mapping #1: the number does not belong to ANY article — there is no real
       // `articleId` to report, so `''` is emitted instead of inventing one (see `ScanCompleteEvent`
       // doc comment above).
-      this.emitResult('', 'unknown', isCameraOrigin);
+      this.emitResult('', 'unknown');
       return;
     }
 
-    // Result-mapping #5: any other HTTP failure (network/5xx) — mirrors
-    // `intake-article-entry.ts`'s `handleArticleLookupError()` final branch: do NOT mutate the
-    // session and do NOT emit `scanComplete` at all. Camera mode only gets a neutral/error visual
-    // via `scan-feedback`'s `'unknown'` variant, exactly like that precedent.
-    if (isCameraOrigin) {
-      this.scanFeedbackResult.set('unknown');
-    }
+    // Any other HTTP failure (network/5xx): do NOT mutate the session and do NOT emit
+    // `scanComplete` — only the red overlay reports it, in every input mode.
+    this.showResult('unknown');
   }
 
-  private emitResult(articleId: string, result: 'success' | 'unknown' | 'already-set', isCameraOrigin: boolean): void {
+  private emitResult(articleId: string, result: ScanCompleteEvent['result']): void {
     this.scanComplete.emit({ articleId, result });
-    if (isCameraOrigin) {
-      this.scanFeedbackResult.set(result);
-    }
+    this.showResult(result);
+  }
+
+  private showResult(result: ScanCompleteEvent['result']): void {
+    this.resultEvent.set(createResultEvent(RESULT_KIND_BY_SCAN_RESULT[result]));
   }
 
   private resetSession(): void {
     this.sessionIds.set(new Set());
     this.sessionArticleIds.emit([]);
+    // Ein beim Öffnen noch gesetztes Event würde vom neu gemounteten Overlay erneut abgespielt.
+    this.resultEvent.set(null);
     // Regressionsfix: die Komponente bleibt zwischen Schließen und erneutem Öffnen gemountet —
     // ohne dieses Zurücksetzen überleben getippter Feldwert und Modus (Kamera/Nummernblock) den
     // Reopen, filtern die Liste für einen neuen Verkäufer fälschlich und zeigen Numpad/Kamera

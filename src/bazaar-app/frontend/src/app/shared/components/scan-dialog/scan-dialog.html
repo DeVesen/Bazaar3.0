@@ -7,42 +7,45 @@
   (visibleChange)="onVisibleChange($event)"
   (onShow)="onShown()"
 >
-  <app-input
-    label="Artikelnummer"
-    inputId="scan-dialog-number"
-    [value]="articleNumber()"
-    [debounceMs]="0"
-    [addonRight]="inputAddons()"
-    (valueChange)="onTyped($event)"
-    (enter)="onSubmit()"
-    (addonClick)="onAddonClick($event)"
-  />
-
-  @if (mode.active() === 'numpad') {
-    <app-numpad
-      class="scan-dialog__numpad"
-      (keyPressed)="onNumpadKey($event)"
-      (cleared)="onNumpadClear()"
-      (submitted)="onSubmit()"
+  <div class="scan-dialog__content">
+    <app-input
+      label="Artikelnummer"
+      inputId="scan-dialog-number"
+      [value]="articleNumber()"
+      [debounceMs]="0"
+      [addonRight]="inputAddons()"
+      (valueChange)="onTyped($event)"
+      (enter)="onSubmit()"
+      (addonClick)="onAddonClick($event)"
     />
-  }
 
-  @if (mode.cameraDenied()) {
-    <p class="scan-dialog__camera-error">Kamerazugriff nicht möglich</p>
-  }
-
-  @if (isCameraActive()) {
-    <app-barcode-scanner class="scan-dialog__camera" [active]="isCameraActive()" (codeDetected)="onScanDetected($event)" />
-    <app-scan-feedback [result]="scanFeedbackResult()" [pauseMs]="pauseMs()" />
-  } @else {
-    @if (pendingList().length > 0) {
-      <p-listbox [options]="pendingList()" styleClass="scan-dialog__list" (onChange)="onListboxSelect($event)">
-        <ng-template #item let-a>{{ a.number }} — {{ a.name }}</ng-template>
-      </p-listbox>
-    } @else if (showUnknownMessage()) {
-      <p class="scan-dialog__message">Artikel nicht bekannt</p>
-    } @else {
-      <p class="scan-dialog__message">{{ allDoneMessage() }}</p>
+    @if (mode.active() === 'numpad') {
+      <app-numpad
+        class="scan-dialog__numpad"
+        (keyPressed)="onNumpadKey($event)"
+        (cleared)="onNumpadClear()"
+        (submitted)="onSubmit()"
+      />
     }
-  }
+
+    @if (mode.cameraDenied()) {
+      <p class="scan-dialog__camera-error">Kamerazugriff nicht möglich</p>
+    }
+
+    @if (isCameraActive()) {
+      <app-barcode-scanner class="scan-dialog__camera" [active]="isCameraActive()" (codeDetected)="onScanDetected($event)" />
+    } @else {
+      @if (pendingList().length > 0) {
+        <p-listbox [options]="pendingList()" styleClass="scan-dialog__list" (onChange)="onListboxSelect($event)">
+          <ng-template #item let-a>{{ a.number }} — {{ a.name }}</ng-template>
+        </p-listbox>
+      } @else if (showUnknownMessage()) {
+        <p class="scan-dialog__message">Artikel nicht bekannt</p>
+      } @else {
+        <p class="scan-dialog__message">{{ allDoneMessage() }}</p>
+      }
+    }
+
+    <app-result-overlay [event]="resultEvent()" />
+  </div>
 </p-dialog>
