@@ -19,9 +19,9 @@ Feldnamen englisch, Doku-Prosa deutsch (Sprachregel → [`spec.md`](../spec.md) 
 | `lastName` | string | ✅ | Nachname |
 | `address` | string | ❌ | Anschrift, optional |
 | `postalCode` | string | ❌ | PLZ — am Annahmeplatz optional, siehe unten |
-| `city` | string | ❌ | Ort — optional |
+| `city` | string | ✅ | Ort — am Annahmeplatz Pflicht; bei Altbestand ohne Ort bleibt der Wert leer |
 | `phone` | string | ❌ | Telefon — optional |
-| `email` | string | ✅ | Kontakt. **Kein Login** — die Haupt-App hat keine Verkäufer-Anmeldung |
+| `email` | string | ❌ | Kontakt, optional. **Kein Login** — die Haupt-App hat keine Verkäufer-Anmeldung |
 | `sellerTypeId` | string (8 Zeichen) | ✅ | ID-Referenz auf den Verkäufer-Typ. Dient nur als Vorlage, siehe unten |
 | `salesCommission` | decimal | ✅ | Verkaufsprovision in Prozent, die der Basar einbehält |
 | `feePerItem` | decimal | ✅ | Gebühr pro abgegebenem Artikel — der **Satz**, mit dem am Tisch gerechnet wird |
@@ -44,11 +44,13 @@ aber nur solange nichts storniert und neu abgerechnet wurde; genau dann bräucht
 Kassenabstimmung sie am dringendsten. Was Geld bewegt, wird festgehalten, nicht
 rekonstruiert.
 
-**Pflichtfelder sind hier schmaler als in der Voranmelde-App:** Pflicht sind nur
-`firstName`, `lastName`, `email` und `sellerTypeId`. Adresse, PLZ, Ort und Telefon
-bleiben optional, weil Laufkundschaft am Annahmeplatz erfasst wird, während eine Schlange
-wartet (siehe [ANNAHME-S02](../epics/Epic_Artikelannahme/stories/ANNAHME-S02-seller-form-layout.md)).
+**Pflichtfelder sind hier schmaler als in der Voranmelde-App:** Pflicht sind
+`firstName`, `lastName`, `city`, `sellerTypeId`, `salesCommission` und `feePerItem`.
+Adresse, PLZ, Telefon und E-Mail bleiben optional, weil Laufkundschaft am Annahmeplatz
+erfasst wird, während eine Schlange wartet (siehe [ANNAHME-S02](../epics/Epic_Artikelannahme/stories/ANNAHME-S02-seller-form-layout.md)).
 Die Voranmelde-App verlangt sie, weil dort der Verkäufer selbst und ohne Zeitdruck tippt.
+Gebühr und Provision leitet der Server beim Anlegen aus dem Verkäufer-Typ ab; die Pflicht
+gilt für die Formulare, in denen sie immer vorbelegt sind.
 
 ## Konditionen gehören dem Verkäufer
 

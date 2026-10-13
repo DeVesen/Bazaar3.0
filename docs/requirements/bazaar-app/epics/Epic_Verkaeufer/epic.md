@@ -250,7 +250,7 @@ Kein `IQueryable` über die Portgrenze, ein Repository pro Aggregate — die Agg
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN der Nutzer Text in das Suchfeld eingibt, THEN SHALL das System nach 300 ms Debounce die Verkäuferliste serverseitig filtern — case-insensitiv, Teilwort an beliebiger Stelle, Eingabe an Leerzeichen zerlegt (Regeln → [`api/cross-cutting.md`](../../api/cross-cutting.md) Abschnitt „Pagination, Suche und Sortierung").
-2. **AC-2** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit leeren Pflichtfeldern (Vorname, Nachname) öffnen; der Verkäufer-Typ SHALL mit dem am häufigsten zugewiesenen Typ vorbelegt sein.
+2. **AC-2** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Popup mit leeren Pflichtfeldern (Vorname, Nachname, Ort) öffnen; der Verkäufer-Typ SHALL mit dem am häufigsten zugewiesenen Typ vorbelegt sein.
 3. **AC-3** — WHEN ein neuer Verkäufer gespeichert wird, THEN SHALL das System ihn in der Datenbank anlegen und in der Liste anzeigen.
 4. **AC-4** — WHEN „Edit" bei einem Verkäufer geklickt wird, THEN SHALL das System das Popup mit den vorausgefüllten Verkäuferdaten öffnen.
 5. **AC-5** — WHEN auf eine Verkäufer-Karte geklickt wird (nicht auf Edit oder Scanner), THEN SHALL das System das Detail-Modal mit der Verkäufernummer im Klartext, demselben Wert als QR-Code (Shared-Component [`qr-code`](../../../../components/qr-code/component.md), Inhalt = Verkäufer-`id`) und der Artikelliste mit Status je Artikel anzeigen.

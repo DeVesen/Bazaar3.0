@@ -90,14 +90,14 @@ POST /api/sellers
   "firstName": "Anna", "lastName": "Meier",
   "email": "anna@example.org",
   "sellerTypeId": "b7c1e4f2",
-  "address": null, "postalCode": null, "city": null, "phone": null
+  "address": null, "postalCode": null, "city": "Karlsruhe", "phone": null
 }
 
 → 201 Created   Location: /api/sellers/a3f9c2d1
 → 400 Bad Request   errors: { "sellerTypeId": ["Verkäufer-Typ ist erforderlich"] }
 ```
 
-**Pflicht:** `firstName`, `lastName`, `email`, `sellerTypeId`. Adresse, PLZ, Ort und Telefon bleiben optional, weil Laufkundschaft erfasst wird, während eine Schlange wartet.
+**Pflicht:** `firstName`, `lastName`, `city`, `sellerTypeId`. Adresse, PLZ, Telefon und E-Mail bleiben optional, weil Laufkundschaft erfasst wird, während eine Schlange wartet. Ein Request ohne Pflichtfeld antwortet mit `400` und dem Feldfehler. Gebühr und Provision werden serverseitig nicht als Pflicht geprüft (siehe unten).
 
 **Der Server belegt `salesCommission` und `feePerItem` aus dem Typ** — sie werden im Request **nicht** akzeptiert. Ein Kassenvorgang darf keine Konditionen setzen ([`seller-types.md`](seller-types.md)).
 
@@ -151,6 +151,8 @@ PUT /api/sellers/{id}
 → 403 Forbidden   errorCode: seller.conditions_admin_only
 → 409 Conflict    errorCode: settlement.locked
 ```
+
+**Pflicht:** wie bei `POST` — `firstName`, `lastName`, `city`, `sellerTypeId`; `email` ist optional (leer wird als nicht vorhanden gespeichert).
 
 **Feldbezogene Rollenprüfung — die einzige der API:** `salesCommission` und `feePerItem` wirken nur mit Rolle `admin`. Sendet Kassenpersonal sie mit, antwortet der Endpoint `403` statt sie stillschweigend zu ignorieren — stilles Verwerfen würde im Frontend wie ein Erfolg aussehen.
 

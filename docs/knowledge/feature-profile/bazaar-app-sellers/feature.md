@@ -12,6 +12,7 @@
 - User sees an empty-state hint pointing to Settings→Import or "+ Neu" when there are no sellers at all — `sellers-page.html` (`noSellersAtAll`)
 - User sees a distinct empty-state with a "Filter zurücksetzen" action when filters yield no results — `sellers-page.html` (`noResultsForFilter`)
 - User can create a new seller via a dialog (Personendaten/Kontakt/Konditionen) — `components/verkaeufer-dialog/verkaeufer-dialog.ts`
+- User sees Vorname*, Nachname*, Ort*, Verkäufer-Typ*, Gebühr* und Provision* als Pflichtfelder im Dialog (E-Mail optional); "Speichern" bleibt gesperrt, solange eines leer ist, und unter einem verlassenen leeren Pflichtfeld erscheint eine Meldung — `verkaeufer-dialog.ts` (`canSave`, `requiredErrors`), `verkaeufer-dialog.html`
 - User can edit an existing seller (full detail fetched first via `GET /api/sellers/{id}`) — `sellers-page.ts` (`onEdit`)
 - User sees Provision/Gebühr-Felder disabled unless the caller is admin — `verkaeufer-dialog.html` (`conditionsEditable`)
 - User can delete a seller (admin only, from within the edit dialog) — `verkaeufer-dialog.html`/`sellers-page.ts` (`onDeleteRequested`)

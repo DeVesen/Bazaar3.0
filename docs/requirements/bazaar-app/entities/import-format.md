@@ -57,7 +57,8 @@ beim Import **kein** Feldnamen-Mapping.
 | Unbekannter `sellerType` | Wird **nicht** automatisch angelegt: Der Admin ordnet jeden unbekannten Namen in der Import-Vorschau einem existierenden Typ zu ([Epic_Verkaeufer_Typen](../epics/Epic_Verkaeufer_Typen/epic.md) Abschnitt 4). Anders als Marken und Kategorien trägt ein Typ Provision und Gebühr — die kann der Import nicht erfinden, und ein Typ mit 0 % wäre ein stiller Geldverlust |
 | `brands` / `categories` | Arrays von **Namen**, keine Objekte — `id` ist app-lokal, das `original`-Flag existiert dort mit anderer Bedeutung. Fehlende Namen legt diese App an |
 | Leere Arrays | Immer vorhanden, ggf. leer (Checkboxen im Export-Dialog nicht gesetzt). Das Schema bleibt dadurch über alle Dateien stabil |
-| Optionale Felder | `address` und `description` können fehlen oder `null` sein, werden aber übertragen — beide Felder existieren hier und am Basar-Tag neu zu erfassen wäre unnötig |
+| Pflichtfelder je Verkäufer | `id`, `firstName`, `lastName`, `city`, `sellerType` und `articles` müssen vorhanden sein. Fehlt eines (oder ist `city` leer), lehnt die Haupt-App die **ganze Datei** mit `import.invalid_format` ab |
+| Optionale Felder | `address`, `postalCode`, `phone`, `email` und `description` können fehlen oder `null` sein, werden aber übertragen — die Felder existieren hier und am Basar-Tag neu zu erfassen wäre unnötig |
 | `id` | Verkäufer- und Artikel-IDs werden **1:1 übernommen**. Sie sind der Schlüssel der Upsert-Erkennung |
 | Nicht enthalten | Nummernblöcke, Login-/Invite-Daten, Refresh-Tokens, Admin-Flag, das `original`-Flag der Stammdaten sowie Konditionszahlen pro Verkäufer |
 | Artikel-Status | Nicht enthalten. Importierte Artikel starten ohne Status-Zeitstempel, gelten also als „Registriert" ([artikel.md](artikel.md)) und werden am Basar-Morgen über den Freigabe-Scan freigegeben ([Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md) Abschnitt 6) |

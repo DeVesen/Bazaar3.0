@@ -30,7 +30,7 @@ reviewed-date: 2026-08-17
 | Konditionen | nur Anzeige, aus dem Typ aufgelöst | **eigene Felder**, vom Admin überschreibbar |
 | Panel „Sonstiges" | Admin-Rechte-Toggle, Einladungs-Link | **keines** — Verkäufer sind hier keine Benutzer |
 | Löschen | im Profil des Verkäufers | **hier**, Admin-only, nur ohne Artikel |
-| Pflichtfelder | Adresse, PLZ, Ort, Telefon zusätzlich | nur Vorname, Nachname, E-Mail, Typ |
+| Pflichtfelder | Adresse, PLZ, Ort, Telefon zusätzlich | Vorname, Nachname, Ort, Typ, Gebühr, Provision (E-Mail optional) |
 
 Die schmaleren Pflichtfelder haben einen Grund: Laufkundschaft wird am Annahmeplatz erfasst, während eine Schlange wartet. In der Voranmelde-App tippt der Verkäufer selbst und ohne Zeitdruck.
 
@@ -45,14 +45,14 @@ Die schmaleren Pflichtfelder haben einen Grund: Laufkundschaft wird am Annahmepl
 │  PERSONENDATEN                                  │
 │  [Vorname *      50%] [Nachname *      50%]     │
 │  [Anschrift                          100%]      │
-│  [PLZ            50%] [Ort             50%]     │
+│  [PLZ            50%] [Ort *           50%]     │
 │                                                  │
 │  KONTAKT                                        │
-│  [Telefon        50%] [E-Mail *        50%]     │
+│  [Telefon        50%] [E-Mail          50%]     │
 │                                                  │
 │  KONDITIONEN                                    │
 │  [Verkäufer-Typ *                    100%]      │
-│  [Gebühr je Stück 50%] [Provision %    50%]     │
+│  [Gebühr je Stück * 50%] [Provision % * 50%]    │
 ├────────────────────────────────────────────────┤
 │  [Löschen]              [Abbrechen] [Speichern] │
 └────────────────────────────────────────────────┘
@@ -66,11 +66,11 @@ Modal Standard-Größe. Panel-Titel: 11 px, 700, uppercase. Identische Feldanord
 
 | Panel | Felder | Pflicht |
 |---|---|---|
-| Personendaten | Vorname, Nachname, Anschrift, PLZ, Ort | Vorname, Nachname |
-| Kontakt | Telefon, E-Mail | E-Mail |
-| Konditionen | Verkäufer-Typ, Gebühr je Stück, Provision | Typ |
+| Personendaten | Vorname, Nachname, Anschrift, PLZ, Ort | Vorname, Nachname, Ort |
+| Kontakt | Telefon, E-Mail | — |
+| Konditionen | Verkäufer-Typ, Gebühr je Stück, Provision | Typ, Gebühr, Provision |
 
-Die E-Mail ist Pflicht, aber **kein Login** — sie dient nur der Kontaktaufnahme, wenn nach dem Basar etwas offen ist.
+Die E-Mail ist optional und **kein Login** — sie dient nur der Kontaktaufnahme, wenn nach dem Basar etwas offen ist. Gebühr und Provision sind Pflicht, weil die Abrechnung sie braucht; sie sind immer aus dem Verkäufer-Typ vorbelegt, `0` gilt als gesetzt, ein geleertes Feld nicht.
 
 ---
 
@@ -107,12 +107,13 @@ Bewusst hier und nicht auf der Karte: Vier Klickflächen pro Karte sind das Maxi
 
 ## Akzeptanzkriterien
 
-1. **AC-1** — THE SYSTEM SHALL als Pflichtfelder nur Vorname, Nachname, E-Mail und Verkäufer-Typ verlangen.
+1. **AC-1** — THE SYSTEM SHALL als Pflichtfelder nur Vorname, Nachname, Ort, Verkäufer-Typ, Gebühr und Provision verlangen; die E-Mail ist optional.
 2. **AC-2** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL das System Gebühr und Provision schreibgeschützt anzeigen.
 3. **AC-3** — WHEN der Typ gewechselt wird, THEN SHALL das System vorher einen Bestätigungsdialog mit den konkreten alten und neuen Werten anzeigen und nach Bestätigung beide Felder überschreiben.
 4. **AC-4** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL der Löschen-Button nicht gerendert werden.
 5. **AC-5** — IF der Verkäufer noch Artikel hat, THEN SHALL das System das Löschen ablehnen und die Anzahl der Artikel nennen.
 6. **AC-6** — THE SYSTEM SHALL kein Panel für Admin-Rechte oder Einladungs-Links anzeigen.
+7. **AC-7** — WHILE eines der sechs Pflichtfelder leer ist, SHALL das System „Speichern" deaktiviert halten und nach dem Verlassen des Feldes eine Meldung unter dem leeren Feld anzeigen.
 
 ## Tags & Piles
 

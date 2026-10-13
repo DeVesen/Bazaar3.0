@@ -37,15 +37,15 @@ Typ-Wechsel, Aktivierungslogik des „Weiter"-Buttons, DB-Anlage bei „Weiter".
 ┌─ PERSONENDATEN ─────────────────────────┐
 │ [Vorname *      50%] [Nachname *    50%] │
 │ [Anschrift                        100%] │
-│ [PLZ            33%] [Ort           67%] │
+│ [PLZ            33%] [Ort *         67%] │
 └─────────────────────────────────────────┘
 
 ┌─ KONTAKT ───────────────────────────────┐
-│ [Telefon        50%] [E-Mail *      50%] │
+│ [Telefon        50%] [E-Mail        50%] │
 └─────────────────────────────────────────┘
 
 ┌─ KONDITIONEN ───────────────────────────┐
-│ [Typ * 33%] [Gebühr je St. 33%] [Prov. 33%] │  ← vorausgefüllt bei Typ-Wechsel (AC-6)
+│ [Typ * 33%] [Gebühr je St. * 33%] [Prov. * 33%] │  ← vorausgefüllt bei Typ-Wechsel (AC-6)
 └─────────────────────────────────────────┘
 
                          [  Weiter →  ]   ← inaktiv bis AC-5
@@ -65,14 +65,14 @@ Panel-Titel: 11 px · 700 · uppercase · 0.8 px letter-spacing · `#4a6080` · 
 | 01 PERSONENDATEN | Nachname | `lastName` | 50 % | ✅ | `app-input` |
 | 01 PERSONENDATEN | Anschrift | `address` | 100 % | ❌ | `app-input` |
 | 01 PERSONENDATEN | PLZ | `postalCode` | 33 % | ❌ | `app-input` |
-| 01 PERSONENDATEN | Ort | `city` | 67 % | ❌ | `app-input` |
+| 01 PERSONENDATEN | Ort | `city` | 67 % | ✅ | `app-input` |
 | 02 KONTAKT | Telefon | `phone` | 50 % | ❌ | `app-input` |
-| 02 KONTAKT | E-Mail | `email` | 50 % | ✅ | `app-input` |
+| 02 KONTAKT | E-Mail | `email` | 50 % | ❌ | `app-input` |
 | 03 KONDITIONEN | Verkäufer-Typ | `sellerTypeId` | 33 % | ✅ | `p-select` (nur bestehende Typen) |
-| 03 KONDITIONEN | Gebühr je Stück | `feePerItem` | 33 % | ❌ | `p-inputnumber` (€, 2 Dez.) |
-| 03 KONDITIONEN | Provision | `salesCommission` | 33 % | ❌ | `p-inputnumber` (%, 2 Dez.) |
+| 03 KONDITIONEN | Gebühr je Stück | `feePerItem` | 33 % | ✅ | `p-inputnumber` (€, 2 Dez.) |
+| 03 KONDITIONEN | Provision | `salesCommission` | 33 % | ✅ | `p-inputnumber` (%, 2 Dez.) |
 
-**Pflichtfelder insgesamt:** Vorname, Nachname, E-Mail, Verkäufer-Typ.
+**Pflichtfelder insgesamt:** Vorname, Nachname, Ort, Verkäufer-Typ, Gebühr, Provision. Die E-Mail ist optional; ist sie eingegeben, muss sie ein gültiges Format haben.
 
 **„Weiter"-Button:** `p-button severity="primary"` · deaktiviert solange ein Pflichtfeld
 leer ist.
@@ -88,12 +88,12 @@ sich dieses Formular von dem der Voranmelde-App.
 - [ ] **AC-2** — THE SYSTEM SHALL die Felder Telefon (50 %) und E-Mail (50 %) in Panel 02 (KONTAKT) anzeigen.
 - [ ] **AC-3** — THE SYSTEM SHALL die Felder Verkäufer-Typ (33 %), Gebühr je Stück (33 %) und Provision (33 %) in einer Zeile in Panel 03 (KONDITIONEN) anzeigen.
 - [ ] **AC-4** — WHEN der Wizard über einen Sucheingabe-Text geöffnet wird, THEN SHALL das System den Text vor dem ersten Leerzeichen als Vorname und den Rest als Nachname vorbelegen.
-- [ ] **AC-5** — WHILE mindestens eines der Pflichtfelder (Vorname, Nachname, E-Mail, Verkäufer-Typ) leer ist, SHALL das System den „Weiter"-Button deaktiviert halten.
+- [ ] **AC-5** — WHILE mindestens eines der Pflichtfelder (Vorname, Nachname, Ort, Verkäufer-Typ, Gebühr, Provision) leer ist, SHALL das System den „Weiter"-Button deaktiviert halten und nach dem Verlassen des Feldes eine Meldung unter dem leeren Feld anzeigen.
 - [ ] **AC-6** — WHEN der Nutzer einen Verkäufer-Typ wählt, THEN SHALL das System `feePerItem` und `salesCommission` mit den Werten (`itemFee`, `commissionRate`) des gewählten Typs vorausfüllen.
 - [ ] **AC-7** — WHEN der Nutzer Gebühr oder Provision nach dem Vorausfüllen manuell überschreibt, THEN SHALL das System den manuell eingegebenen Wert beibehalten und beim Speichern übernehmen.
 - [ ] **AC-8** — WHEN der Nutzer „Weiter" klickt und alle Pflichtfelder ausgefüllt sind, THEN SHALL das System den Verkäufer in der Datenbank anlegen und zu Wizard-Schritt 2 wechseln.
 - [ ] **AC-9** — IF das Anlegen des Verkäufers fehlschlägt, THEN SHALL das System die Eingaben erhalten, eine Fehlermeldung anzeigen und auf Wizard-Schritt 1 verbleiben.
-- [ ] **AC-10** — IF die E-Mail-Adresse kein gültiges Format hat, THEN SHALL das System die Meldung unter dem Feld anzeigen und nicht speichern.
+- [ ] **AC-10** — IF eine eingegebene E-Mail-Adresse kein gültiges Format hat, THEN SHALL das System die Meldung unter dem Feld anzeigen und den „Weiter"-Button deaktiviert halten; eine leere E-Mail ist nie ein Fehler.
 
 ## Abhängigkeiten
 

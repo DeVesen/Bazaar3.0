@@ -42,13 +42,13 @@ eines neuen Verkäufers.
 │ ┌─ PERSONENDATEN ───────────────────────────┐   │
 │ │ [Vorname *    50%] [Nachname *        50%] │   │
 │ │ [Anschrift                          100%] │   │
-│ │ [PLZ      33%] [Ort                   67%] │   │
+│ │ [PLZ      33%] [Ort *                 67%] │   │
 │ └───────────────────────────────────────────┘   │
 │ ┌─ KONTAKT ─────────────────────────────────┐   │
-│ │ [Telefon      50%] [E-Mail *          50%] │   │
+│ │ [Telefon      50%] [E-Mail            50%] │   │
 │ └───────────────────────────────────────────┘   │
 │ ┌─ KONDITIONEN ─────────────────────────────┐   │
-│ │ [Typ * 33%] [Gebühr j.St. 33%] [Prov. 33%] │   │  ← vorausgefüllt bei Typ-Wechsel (AC-5)
+│ │ [Typ * 33%] [Gebühr j.St.* 33%] [Prov.* 33%] │   │  ← vorausgefüllt bei Typ-Wechsel (AC-5)
 │ └───────────────────────────────────────────┘   │
 │ ┌─ SONSTIGES ───────────────────────────────┐   │
 │ │ Abgerechnet am: 06.10.2026 14:22          │   │
@@ -89,7 +89,7 @@ korrigiert damit Tippfehler.
 - [ ] **AC-4** — THE SYSTEM SHALL in dieser App **kein** Feld „Admin-Rechte" und **keinen** Einladungs-Link anzeigen.
 - [ ] **AC-5** — WHEN der Admin einen anderen Verkäufer-Typ wählt, THEN SHALL das System `feePerItem` und `salesCommission` mit den Werten des neu gewählten Typs vorausfüllen.
 - [ ] **AC-6** — WHEN der Admin Gebühr oder Provision nach dem Vorausfüllen manuell ändert, THEN SHALL das System den manuell eingegebenen Wert beibehalten und nicht zurücksetzen.
-- [ ] **AC-7** — IF beim Speichern ein Pflichtfeld (Vorname, Nachname, E-Mail, Verkäufer-Typ) leer ist, THEN SHALL das System eine Inline-Fehlermeldung unter dem jeweiligen Feld anzeigen und nicht speichern.
+- [ ] **AC-7** — WHILE ein Pflichtfeld (Vorname, Nachname, Ort, Verkäufer-Typ, Gebühr, Provision) leer ist, SHALL das System „Speichern" deaktiviert halten und nach dem Verlassen des Feldes eine Inline-Meldung unter dem leeren Feld anzeigen; die E-Mail ist optional.
 - [ ] **AC-8** — WHEN der Admin „Speichern" klickt und alle Pflichtfelder ausgefüllt sind, THEN SHALL das System die Änderungen persistieren, den Dialog schließen, einen Toast „Verkäufer gespeichert" einblenden und die Verkäufer-Karte mit den neuen Werten aktualisieren.
 - [ ] **AC-9** — WHEN der Admin „Abbrechen" klickt, THEN SHALL das System den Dialog schließen und alle ungespeicherten Änderungen verwerfen.
 - [ ] **AC-10** — WHEN „Zurücksetzen" in Panel 05 geklickt wird, THEN SHALL das System `settledAt` auf `null` setzen und den Status-Badge der Karte neu berechnen.
