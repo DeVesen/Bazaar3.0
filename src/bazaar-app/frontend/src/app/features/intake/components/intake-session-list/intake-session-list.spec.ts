@@ -155,6 +155,18 @@ describe('IntakeSessionList', () => {
     expect(component.paymentPanelVisible()).toBe(true);
   });
 
+  it('fee 0: "Speichern" books directly with feeAmount 0 and skips the payment dialog', async () => {
+    const { component, intakeApi } = await setup({ items: [itemStub()], feePerItem: 0 });
+    const bookedSpy = vi.fn();
+    component.booked.subscribe(bookedSpy);
+
+    component.openPayment();
+
+    expect(component.paymentPanelVisible()).toBe(false);
+    expect(intakeApi.bookIntake).toHaveBeenCalledWith(SELLER_ID, 0, expect.any(Array));
+    expect(bookedSpy).toHaveBeenCalled();
+  });
+
   it('onPaymentConfirmed calls IntakeApi.bookIntake with feeAmount = event.totalAmount, not receivedAmount', async () => {
     const { component, intakeApi } = await setup({ items: [itemStub()], feePerItem: 0.5 });
 
