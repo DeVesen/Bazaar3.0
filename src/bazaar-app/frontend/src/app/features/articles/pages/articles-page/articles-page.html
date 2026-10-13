@@ -69,7 +69,7 @@
   [visible]="dialogVisible()"
   (visibleChange)="onDialogVisibleChange($event)"
   [articleNumber]="editingRow()?.number ?? 0"
-  [articleId]="editingRow()?.id ?? ''"
+  [articleId]="editingDetail()?.id ?? ''"
   [initialValue]="dialogInitialValue()"
   [locked]="dialogLocked()"
   [saving]="saving()"
