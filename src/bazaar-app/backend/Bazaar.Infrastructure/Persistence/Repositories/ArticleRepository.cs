@@ -35,4 +35,9 @@ public sealed class ArticleRepository(BazaarDbContext dbContext) : IArticleRepos
 
     public Task<int?> GetMaxNumber() =>
         dbContext.Articles.MaxAsync(a => (int?)a.Number);
+
+    public async Task<IReadOnlyList<Article>> GetByNumbers(
+        IReadOnlyCollection<int> numbers,
+        CancellationToken cancellationToken) =>
+        await dbContext.Articles.Where(a => numbers.Contains(a.Number)).ToListAsync(cancellationToken);
 }

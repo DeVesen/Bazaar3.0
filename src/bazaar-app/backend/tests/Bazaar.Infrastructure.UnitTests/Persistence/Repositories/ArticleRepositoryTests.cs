@@ -162,4 +162,21 @@ public class ArticleRepositoryTests
 
         Assert.Equal(12, result);
     }
+
+    [Fact]
+    public async Task GetByNumbers_KnownAndUnknownNumbers_ReturnsOnlyExistingArticles()
+    {
+        // Arrange
+        await using var dbContext = CreateContext();
+        var sut = new ArticleRepository(dbContext);
+        await sut.Add(CreateArticle(id: "ART00001", number: 3001, sellerId: "SEL00001"));
+        await sut.Add(CreateArticle(id: "ART00002", number: 3002, sellerId: "SEL00002"));
+        await sut.Add(CreateArticle(id: "ART00003", number: 3003, sellerId: "SEL00001"));
+
+        // Act
+        var found = await sut.GetByNumbers([3001, 3002, 9999], TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(new[] { 3001, 3002 }, found.Select(a => a.Number).Order().ToArray());
+    }
 }

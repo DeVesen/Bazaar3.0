@@ -17,4 +17,6 @@ public interface IArticleRepository
     Task<IReadOnlyList<Article>> GetAllBySellerId(string sellerId);
 
     Task<int?> GetMaxNumber();
+
+    Task<IReadOnlyList<Article>> GetByNumbers(IReadOnlyCollection<int> numbers, CancellationToken cancellationToken);
 }
