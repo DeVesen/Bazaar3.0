@@ -30,7 +30,7 @@ public class DiRegistrationTests
 
         Assert.True(handlerTypeNames.Count > 0, "Es wurden keine *Handler-Typen in Bazaar.Application gefunden - Assembly-Ladung prüfen.");
 
-        var programSource = File.ReadAllText(FindProgramCsPath());
+        var programSource = File.ReadAllText(RepoFiles.Find(Path.Combine("Bazaar.Api", "Program.cs")));
 
         var unregisteredHandlers = handlerTypeNames
             .Where(handlerName => !Regex.IsMatch(programSource, $@"AddScoped<{Regex.Escape(handlerName)}>\s*\(\s*\)"))
@@ -40,22 +40,5 @@ public class DiRegistrationTests
             unregisteredHandlers.Count > 0
                 ? $"Nicht in Program.cs registrierte Handler: {string.Join(", ", unregisteredHandlers)}"
                 : "Regel verletzt.");
-    }
-
-    private static string FindProgramCsPath()
-    {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory is not null)
-        {
-            var candidate = Path.Combine(directory.FullName, "Bazaar.Api", "Program.cs");
-            if (File.Exists(candidate))
-            {
-                return candidate;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new FileNotFoundException("Bazaar.Api/Program.cs konnte ausgehend vom Testverzeichnis nicht gefunden werden.");
     }
 }

@@ -21,26 +21,9 @@ public class ProgramJsonOptionsRegistrationTests
     [Fact]
     public void Program_RegistersAppJsonOptions_ForHttpJson()
     {
-        var programSource = File.ReadAllText(FindProgramCsPath());
+        var programSource = File.ReadAllText(RepoFiles.Find(Path.Combine("Bazaar.Api", "Program.cs")));
 
         Assert.Contains("ConfigureHttpJsonOptions", programSource, StringComparison.Ordinal);
         Assert.Contains("AppJsonOptions.ConfigureEnumsAsCamelCaseStrings", programSource, StringComparison.Ordinal);
-    }
-
-    private static string FindProgramCsPath()
-    {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory is not null)
-        {
-            var candidate = Path.Combine(directory.FullName, "Bazaar.Api", "Program.cs");
-            if (File.Exists(candidate))
-            {
-                return candidate;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new FileNotFoundException("Bazaar.Api/Program.cs konnte ausgehend vom Testverzeichnis nicht gefunden werden.");
     }
 }

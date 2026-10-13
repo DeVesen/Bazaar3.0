@@ -30,26 +30,9 @@ public class NginxProxyLimitsTests
 
     private static string ReadApiLocationBlock()
     {
-        var template = File.ReadAllText(FindNginxTemplatePath());
+        var template = File.ReadAllText(RepoFiles.Find(Path.Combine("nginx", "nginx.conf.template")));
         var match = ApiLocationBlock.Match(template);
         Assert.True(match.Success, "Block 'location /api/' fehlt in nginx/nginx.conf.template.");
         return match.Groups["body"].Value;
-    }
-
-    private static string FindNginxTemplatePath()
-    {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory is not null)
-        {
-            var candidate = Path.Combine(directory.FullName, "nginx", "nginx.conf.template");
-            if (File.Exists(candidate))
-            {
-                return candidate;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new FileNotFoundException("nginx/nginx.conf.template konnte ausgehend vom Testverzeichnis nicht gefunden werden.");
     }
 }
