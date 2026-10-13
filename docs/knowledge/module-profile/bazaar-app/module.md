@@ -5,7 +5,7 @@
 **Purpose:** Operativer Basar-Betrieb für Basar-Mitarbeiter/-Admins — Verkäufer-Intake, Checkout, Abrechnung, Stammdatenverwaltung, Statistik, Einstellungen. Das Bedien-Frontend der Haupt-App (CLAUDE.md: Bazaar Suite).
 **Identity:** Angular-22-Standalone-SPA, einziges Frontend-Projekt in diesem Workspace (`angular.json` hat nur einen Eintrag: `bazaar-app`), Feature-First-Struktur wie in CLAUDE.md vorgegeben.
 **Maturity:** sketch (opportunistischer Durchlauf — Routing, Ordnerstruktur, package.json gelesen; nicht jede Komponente einzeln gewalkt)
-**Last updated:** 2026-09-23
+**Last updated:** 2026-10-13
 
 ## Responsibilities
 - Gesamtes Bedien-UI der Haupt-App: Setup-Wizard, Login, Intake, Checkout, Settlement, Sellers, Articles, Brands, Categories, Seller-Types, Statistics, Settings (inkl. User-Management, Import, Dev-Tools)
@@ -19,7 +19,7 @@
 - Es gibt keine exportierte API — Konsumenten sind Menschen über den Browser. Die einzige "Schnittstelle" ist die Routen-Tabelle (`app.routes.ts`): `/setup`, `/login`, `/intake`, `/checkout`, `/settlement`, `/sellers`, `/articles`, `/brands`, `/categories`, `/seller-types`, `/statistics`, `/settings`, `/change-password`
 
 ## Talks To
-- `Bazaar.Api` (Backend) — über `/api/*` per HTTP; im Dev-Server per `proxy.conf.json` auf `https://localhost:7006` geproxied, in Produktion vermutlich gleicher Origin/Reverse-Proxy (nicht verifiziert)
+- `Bazaar.Api` (Backend) — über `/api/*` per HTTP; im Dev-Server per `proxy.conf.json` auf `https://localhost:7006` geproxied, im Insel-Betrieb (`docker-compose.local.yml`, Service `frontend`) leitet ein Nginx-Container auf Port 80/443 `/api/` und `/health` an `http://backend:5000` weiter und liefert die SPA mit Fallback auf `index.html` (`nginx/nginx.conf.template`, per Volume als `/etc/nginx/templates/default.conf.template` gemountet)
 
 ## Structure
 - `src/app/core/` — `auth/` (Guards: `auth.guard`, `admin.guard`, `guest.guard`, `password-change.guard`), `bootstrap/` (`no-admin.guard`, `admin-exists.guard` — Setup-Wizard-Routing), `shell/` (App-Rahmen), `theme/`, `print/`
@@ -36,4 +36,6 @@
 - Testrunner: Vitest über `@angular/build:unit-test` (nicht Karma) — `ng test` ruft intern Vitest auf
 - `proxy.conf.json` fest auf Port 7006 (Backend-Dev-Port) verdrahtet — nicht per Env konfigurierbar
 - `primeicons.css` steht seit `67cbe11` in `angular.json` → `styles` — vorher wurden die Icons nie geladen (alle `pi pi-*`-Klassen unsichtbar)
-- Nicht verifiziert: Produktions-Deployment-Mechanismus (Docker? Reverse-Proxy-Config?)
+- Deployment im Insel-Betrieb: `docker-compose.local.yml` baut `frontend` aus `src/bazaar-app/frontend/Dockerfile` (Nginx-Image) und `backend` aus `src/bazaar-app/backend`; die Nginx-Konfig kommt als Template vom Repo-Root (`nginx/nginx.conf.template`, envsubst für `LOCAL_HOSTNAME`), TLS-Zertifikate aus `nginx/certs`
+- `nginx/nginx.conf.template` setzt weder `proxy_read_timeout` noch `client_max_body_size` — für `/api/` gelten die Nginx-Defaults (60 s Antwortwartezeit, 1 MB Request-Body); lange oder große Uploads brechen dort ab, bevor das Backend antwortet
+- Das Frontend hat keinen eigenen HTTP-Timeout: `app.config.ts` registriert nur `jwtInterceptor` (`provideHttpClient(withInterceptors([jwtInterceptor]))`)

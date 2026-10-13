@@ -2,7 +2,7 @@
 
 **Intent:** Zentrale Stammdaten- und Statusverwaltung für Verkäufer im laufenden Basar-Betrieb — anlegen, bearbeiten, Artikel freigeben, Abrechnungsstatus einsehen und (als Admin) zurücksetzen.
 **Coverage:** partial
-**Last reviewed:** 2026-09-23
+**Last reviewed:** 2026-10-13
 
 ## Capabilities
 - User can search sellers by name/city (debounced 300ms) — `pages/sellers-page/sellers-page.ts` (`onQInputChange`)
@@ -18,6 +18,9 @@
 - User sees a specific error when deleting a seller who still has articles — `sellers-page.ts` (`seller.has_articles`)
 - User can open a seller's detail modal (QR code + article table) by clicking its card — `components/seller-detail-modal/seller-detail-modal.ts`
 - User can open the "Artikel freigeben" (release) scan flow from a seller's card — `components/release-dialog/release-dialog.ts` (reuses shared `app-scan-dialog` + `app-payment-panel`)
+- User can im Freigabe-Flow eine Artikelnummer per Tastatur-Enter, Numpad-⏎, Kamera-Scan oder Klick auf einen Listeneintrag der noch nicht freigegebenen Artikel des Verkäufers erfassen; Erfassen sammelt nur in der Sitzung, geschrieben wird erst nach dem Bezahlen der Gesamtgebühr — `shared/components/scan-dialog/scan-dialog.ts` (`sessionArticleIds`, `writeMode` Default `batch`), `components/release-dialog/release-dialog.html`
+- User sees im Freigabe-Flow im Kamera-Modus nach jedem Scan einen Ring-Countdown mit Ton und Vibration (Erfolgs- bzw. Fehlermuster) für `scannerPauseMs`; weitere Scans sind währenddessen gesperrt — `scan-dialog.ts` (`onScanDetected`, `scanLocked`), `shared/components/scan-feedback`
+- User sees im Freigabe-Flow in Tastatur- und Numpad-Modus nur den Text "Artikel nicht bekannt", wenn die Eingabe keinen ausstehenden Artikel trifft; bei Erfolg leert sich das Feld — `scan-dialog.html` (`showUnknownMessage`)
 - User sees den Bezahlen-Dialog im Freigabe-Flow responsiv breit (25 % / unter 1024px 50 % / unter 768px 95 %) — `components/release-dialog/release-dialog.scss` (`.payment-dialog`)
 - User can click a seller's status badge to see settlement details (settled date or "not yet settled") — `sellers-page.html` (`statusPopupCard`)
 - User can reset a seller's settlement (admin only, with confirm dialog) — `sellers-page.ts` (`onResetSettlement`, `DELETE /api/sellers/{id}/settlement`)
@@ -30,4 +33,5 @@
 ## Notes
 - Backend endpoint handler classes (Application layer) and their business rules (e.g. `seller.conditions_admin_only`, `settlement.locked`) not walked — only the Api-layer endpoint surface and the errorCodes the frontend reacts to.
 - `release-dialog` and `seller-detail-modal` pull in shared components (`scan-dialog`, `payment-panel`, `qr-code`, `p-table`) — not re-documented here, they're `shared/components/*`.
+- Scan-Dialog im Freigabe-Flow (Stand 2026-10-13): Alle Fehlschläge (Nummer unbekannt/404, Artikel eines anderen Verkäufers, falscher Status) ergeben dasselbe Ergebnis `unknown`; `already-set` gibt es nur bei Doppelerfassung in derselben Sitzung. Bei Netz/5xx gibt es keine Meldung, nur den Fehlerzustand in der Kamera. Aus `scan-dialog.ts/.html` direkt gelesen; dass geschrieben wird erst nach dem Bezahlen, ist abgeleitet (`release-dialog.html`, `release-dialog.ts` nicht gelesen).
 - Coverage `partial`: frontend page/component templates walked at signature level; `sellers-store.ts` (state layer) and full backend Application handlers not read line-by-line.

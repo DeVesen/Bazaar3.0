@@ -2,10 +2,10 @@
 
 **Intent:** Kassenpersonal verkauft Artikel an Kunden — Artikel per Nummer suchen, in den Warenkorb legen, bezahlen und buchen; unterstützt sofortiges Stornieren des letzten Vorgangs.
 **Coverage:** inventoried
-**Last reviewed:** 2026-09-23
+**Last reviewed:** 2026-10-13
 
 ## Capabilities
-- User sees die Seitenüberschrift "Verkauf" — `pages/checkout-page/checkout-page.html` (`checkout-page__header`)
+- User sees die Seitenüberschrift "Verkauf" — `pages/checkout-page/checkout-page.html` (`<app-page title="Verkauf">`, shared `Page`)
 - User can enter an Artikelnummer per Tastatur in ein `app-input` mit Addons Kamera/Numpad/Clear/Enter — `checkout-page.html`, `checkout-page.ts` (`inputAddons`)
 - User can toggle Kamera-Scanner bzw. Numpad als Panel unterhalb des Feldes (jeweils nur eins aktiv); der Numpad übernimmt nur Ziffern — `checkout-page.ts` (`onAddonClick`, `activeMode`, `onNumpadKey`)
 - User sees im "Artikel gefunden"-Zustand nur noch die Addons Clear und Enter — `checkout-page.ts` (`inputAddons`)
@@ -31,7 +31,7 @@
 - User sees das Artikelnummer-Feld nach jeder Aktion (Init, Hinzufügen, Entfernen, Leeren, Buchen) automatisch neu fokussiert — `checkout-page.ts` (`focusArticleNumberField`)
 
 ## Spans
-- **Frontend:** `features/checkout/pages/checkout-page/`, `features/checkout/components/cart/`, `features/checkout/data/sales-api.ts`; nutzt `shared/components/{input,numpad,barcode-scanner,payment-panel}`, cross-feature `ArticlesApi.getByNumber()` (read-only, sanktioniert)
+- **Frontend:** `features/checkout/pages/checkout-page/`, `features/checkout/components/cart/`, `features/checkout/data/sales-api.ts`; nutzt `shared/components/{page,input,numpad,barcode-scanner,payment-panel}`, cross-feature `ArticlesApi.getByNumber()` (read-only, sanktioniert)
 - **Backend:** `POST /api/sales`, `POST /api/sales/undo` — `Bazaar.Api/Features/Sales/SalesEndpoints.cs` → `Bazaar.Application/Sales/{RecordSaleHandler,UndoSaleHandler}.cs`
 
 ## Notes

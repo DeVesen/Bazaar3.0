@@ -10,3 +10,9 @@
 - **Aliases:** Renumber
 - **Confidence:** user-confirmed
 - **First seen:** 2026-09-23
+
+### Stammdaten-Import
+- **Maps to:** `ImportPanel` (`src/bazaar-app/frontend/src/app/features/settings/components/import-panel/import-panel.ts`) — Bereich „JSON-Import" in den Einstellungen der Haupt-App: Vorschau, dann Übernahme der JSON-Datei der Voranmelde-App (Verkäufer, Artikel, optional Marken und Kategorien); `ImportEndpoints` (`src/bazaar-app/backend/Bazaar.Api/Features/Import/ImportEndpoints.cs`) — `POST /api/import/preview` und `POST /api/import`. Abzugrenzen vom „Artikel-Import" (Datei mit Artikeln eines Verkäufers an dessen Verkäufer-Kachel, siehe `CONTEXT.md`).
+- **Aliases:** JSON-Import
+- **Confidence:** inferred
+- **First seen:** 2026-10-13

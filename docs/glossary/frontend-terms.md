@@ -79,3 +79,20 @@
 - **Maps to:** `src/bazaar-app/frontend/src/app/features/settlement/pages/settlement-page/settlement-page.html` — gerahmte Leiste (`p-toolbar.settlement-page__actionbar`) auf einer Seite mit einem Gegenstand und Aktionen: Zurück links als reines „<"-Icon, Name des Gegenstands mittig (mit Adresse bzw. Zusatzzeile darunter), Aktionen rechts. Erste Ausprägung: Abrechnungsseite der Haupt-App im Zustand „Verkäufer abrechnen"; Vorbild für weitere Seiten dieser Art. Nicht verwenden: „Filterleiste" — dieser Begriff bleibt den Listenseiten (Suche, Sortierung, Status) vorbehalten.
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-12
+
+### Verkaufs-Page
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/checkout/pages/checkout-page/` — Verkauf-Seite der Haupt-App (Komponente `CheckoutPage`, Selector `app-checkout-page`, Überschrift „Verkauf"); Code-Ordner heißt `checkout`.
+- **Aliases:** Verkauf-Seite
+- **Confidence:** inferred
+- **First seen:** 2026-10-13
+
+### Artikel freigeben
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/sellers/components/release-dialog/` — Dialog `ReleaseDialog` an der Verkäufer-Kachel der Haupt-App, hostet `app-scan-dialog` mit `targetField="releasedAt"` (Titel „Artikel freigeben"); Code-Name ist `release`.
+- **Confidence:** inferred
+- **First seen:** 2026-10-13
+
+### Zurückgeben
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/settlement/pages/settlement-page/settlement-page.html` — `app-scan-dialog` mit `targetField="returnedAt"` und `writeMode="immediate"` (Titel „Artikel zurückgeben") auf der Abrechnungsseite der Haupt-App; Code-Name ist `return`.
+- **Aliases:** Artikel zurückgeben
+- **Confidence:** inferred
+- **First seen:** 2026-10-13
