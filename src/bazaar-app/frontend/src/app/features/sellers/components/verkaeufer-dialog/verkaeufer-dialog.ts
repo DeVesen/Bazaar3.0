@@ -9,6 +9,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { RoleService } from '../../../../core/auth/role.service';
 import { Input } from '../../../../shared/components/input/input';
+import {
+  SellerRequiredField,
+  sellerRequiredState,
+} from '../../../../shared/seller-form/seller-required-fields';
 // Cross-feature import, read-only: `SellerTypesApi.getAll()` populates the type dropdown.
 // Sanctioned explicitly by plan.md ("hier read-only importiert") — see Round-14 Task 8 brief.
 // eslint-disable-next-line boundaries/dependencies
@@ -25,7 +29,7 @@ import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-ty
 export interface SellerFormValue {
   firstName: string;
   lastName: string;
-  email: string;
+  email: string | null;
   sellerTypeId: string;
   address: string | null;
   postalCode: string | null;
@@ -45,7 +49,7 @@ export type SellerFormResult = SellerFormValue;
 export interface SellerDialogServerErrors {
   firstName?: string;
   lastName?: string;
-  email?: string;
+  city?: string;
   sellerTypeId?: string;
 }
 
@@ -102,8 +106,9 @@ export class VerkaeuferDialog {
   readonly phone = signal('');
   readonly email = signal('');
   readonly sellerTypeId = signal('');
-  readonly feePerItem = signal(0);
-  readonly salesCommission = signal(0);
+  /** `null` while the number input is cleared; `0` is valid. */
+  readonly feePerItem = signal<number | null>(0);
+  readonly salesCommission = signal<number | null>(0);
 
   /** The seller's persisted type/conditions when the dialog was opened (edit mode only). */
   private readonly originalSellerTypeId = signal<string | null>(null);
@@ -119,14 +124,23 @@ export class VerkaeuferDialog {
   /** Only admins may type numeric fee/commission values directly (backend rule). */
   readonly conditionsEditable = computed(() => this.isAdmin());
 
-  readonly canSave = computed(
-    () =>
-      this.firstName().trim().length > 0 &&
-      this.lastName().trim().length > 0 &&
-      this.email().trim().length > 0 &&
-      this.sellerTypeId().length > 0 &&
-      !this.saving(),
-  );
+  private readonly required = sellerRequiredState(() => ({
+    firstName: this.firstName(),
+    lastName: this.lastName(),
+    city: this.city(),
+    sellerTypeId: this.sellerTypeId(),
+    feePerItem: this.feePerItem(),
+    salesCommission: this.salesCommission(),
+  }));
+
+  /** Inline messages for empty required fields the user already left. */
+  readonly requiredErrors = this.required.errors;
+
+  readonly canSave = computed(() => this.required.complete() && !this.saving());
+
+  markTouched(field: SellerRequiredField): void {
+    this.required.markTouched(field);
+  }
 
   constructor() {
     this.sellerTypesApi.getAll().subscribe((types) => this.sellerTypesList.set(types));
@@ -134,6 +148,7 @@ export class VerkaeuferDialog {
     effect(() => {
       if (!this.visible()) return;
 
+      this.required.reset();
       const initial = this.initialValue();
       this.firstName.set(initial?.firstName ?? '');
       this.lastName.set(initial?.lastName ?? '');
@@ -239,15 +254,17 @@ export class VerkaeuferDialog {
   }
 
   onSave(): void {
-    if (!this.canSave()) return;
+    const feePerItem = this.feePerItem();
+    const salesCommission = this.salesCommission();
+    if (!this.canSave() || feePerItem === null || salesCommission === null) return;
     this.save.emit({
       firstName: this.firstName().trim(),
       lastName: this.lastName().trim(),
-      email: this.email().trim(),
+      email: this.email().trim() || null,
       sellerTypeId: this.sellerTypeId(),
       address: this.address().trim() || null,
       postalCode: this.postalCode().trim() || null,
-      city: this.city().trim() || null,
+      city: this.city().trim(),
       phone: this.phone().trim() || null,
       // Always send the current signal values. A non-admin never has a way to change
       // these (conditionsEditable() is false, and onTypeChange() leaves them untouched
@@ -257,8 +274,8 @@ export class VerkaeuferDialog {
       // is sent in this request (UpdateSellerHandler, Round-14 review fix), so it
       // doesn't matter whether an admin's request carries the new type's values (set by
       // onTypeChange's confirm) or stale ones — the server-derived result is the same.
-      feePerItem: this.feePerItem(),
-      salesCommission: this.salesCommission(),
+      feePerItem,
+      salesCommission,
     });
   }
 

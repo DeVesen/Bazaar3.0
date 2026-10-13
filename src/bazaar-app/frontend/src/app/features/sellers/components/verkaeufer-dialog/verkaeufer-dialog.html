@@ -18,9 +18,10 @@
             [debounceMs]="0"
             [value]="firstName()"
             (valueChange)="firstName.set($event)"
+            (blurred)="markTouched('firstName')"
           />
-          @if (serverErrors()?.firstName) {
-            <small class="verkaeufer-dialog__error">{{ serverErrors()?.firstName }}</small>
+          @if (requiredErrors().firstName ?? serverErrors()?.firstName; as message) {
+            <small class="verkaeufer-dialog__error">{{ message }}</small>
           }
         </div>
 
@@ -33,9 +34,10 @@
             [debounceMs]="0"
             [value]="lastName()"
             (valueChange)="lastName.set($event)"
+            (blurred)="markTouched('lastName')"
           />
-          @if (serverErrors()?.lastName) {
-            <small class="verkaeufer-dialog__error">{{ serverErrors()?.lastName }}</small>
+          @if (requiredErrors().lastName ?? serverErrors()?.lastName; as message) {
+            <small class="verkaeufer-dialog__error">{{ message }}</small>
           }
         </div>
 
@@ -66,10 +68,15 @@
             label="Ort"
             inputId="verkaeufer-dialog-city"
             name="city"
+            [required]="true"
             [debounceMs]="0"
             [value]="city()"
             (valueChange)="city.set($event)"
+            (blurred)="markTouched('city')"
           />
+          @if (requiredErrors().city ?? serverErrors()?.city; as message) {
+            <small class="verkaeufer-dialog__error">{{ message }}</small>
+          }
         </div>
       </div>
     </section>
@@ -95,14 +102,10 @@
             inputId="verkaeufer-dialog-email"
             name="email"
             type="email"
-            [required]="true"
             [debounceMs]="0"
             [value]="email()"
             (valueChange)="email.set($event)"
           />
-          @if (serverErrors()?.email) {
-            <small class="verkaeufer-dialog__error">{{ serverErrors()?.email }}</small>
-          }
         </div>
       </div>
     </section>
@@ -120,14 +123,15 @@
               optionValue="id"
               [ngModel]="sellerTypeId()"
               (ngModelChange)="onTypeChange($event)"
+              (onBlur)="markTouched('sellerTypeId')"
               name="sellerTypeId"
             />
             <label for="verkaeufer-dialog-seller-type">
               Verkäufer-Typ <span class="verkaeufer-dialog__required">*</span>
             </label>
           </p-iftalabel>
-          @if (serverErrors()?.sellerTypeId) {
-            <small class="verkaeufer-dialog__error">{{ serverErrors()?.sellerTypeId }}</small>
+          @if (requiredErrors().sellerTypeId ?? serverErrors()?.sellerTypeId; as message) {
+            <small class="verkaeufer-dialog__error">{{ message }}</small>
           }
         </div>
 
@@ -143,9 +147,15 @@
               locale="de-DE"
               [min]="0"
               [disabled]="!conditionsEditable()"
+              (onBlur)="markTouched('feePerItem')"
             />
-            <label for="verkaeufer-dialog-fee-per-item">Gebühr/Stück (€)</label>
+            <label for="verkaeufer-dialog-fee-per-item">
+              Gebühr/Stück (€) <span class="verkaeufer-dialog__required">*</span>
+            </label>
           </p-iftalabel>
+          @if (requiredErrors().feePerItem; as message) {
+            <small class="verkaeufer-dialog__error">{{ message }}</small>
+          }
         </div>
 
         <div class="verkaeufer-dialog__field verkaeufer-dialog__field--third">
@@ -163,9 +173,15 @@
               [min]="0"
               [max]="100"
               [disabled]="!conditionsEditable()"
+              (onBlur)="markTouched('salesCommission')"
             />
-            <label for="verkaeufer-dialog-sales-commission">Provision (%)</label>
+            <label for="verkaeufer-dialog-sales-commission">
+              Provision (%) <span class="verkaeufer-dialog__required">*</span>
+            </label>
           </p-iftalabel>
+          @if (requiredErrors().salesCommission; as message) {
+            <small class="verkaeufer-dialog__error">{{ message }}</small>
+          }
         </div>
       </div>
     </section>

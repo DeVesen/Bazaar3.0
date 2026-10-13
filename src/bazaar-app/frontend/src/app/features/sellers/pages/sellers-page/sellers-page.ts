@@ -560,7 +560,7 @@ export class SellersPage {
     return {
       firstName: firstMessage('firstName'),
       lastName: firstMessage('lastName'),
-      email: firstMessage('email'),
+      city: firstMessage('city'),
       sellerTypeId: firstMessage('sellerTypeId'),
     };
   }

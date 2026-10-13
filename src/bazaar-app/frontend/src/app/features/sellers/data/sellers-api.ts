@@ -54,7 +54,7 @@ export interface ArticleSummary {
 export interface CreateSellerRequest {
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string | null;
   sellerTypeId: string;
   address?: string | null;
   postalCode?: string | null;
@@ -69,7 +69,7 @@ export interface CreateSellerRequest {
 export interface UpdateSellerRequest {
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string | null;
   sellerTypeId: string;
   address?: string | null;
   postalCode?: string | null;
@@ -91,7 +91,7 @@ export interface Seller {
   postalCode: string | null;
   city: string | null;
   phone: string | null;
-  email: string;
+  email: string | null;
   sellerTypeId: string;
   salesCommission: number;
   feePerItem: number;
@@ -120,7 +120,7 @@ export interface SellerDetail {
   postalCode: string | null;
   city: string | null;
   phone: string | null;
-  email: string;
+  email: string | null;
   sellerTypeId: string;
   salesCommission: number;
   feePerItem: number;

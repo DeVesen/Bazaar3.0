@@ -20,7 +20,7 @@ const EDIT_SELLER: SellerFormValue = {
   sellerTypeId: 'type-privat',
   address: null,
   postalCode: null,
-  city: null,
+  city: 'Karlsruhe',
   phone: null,
   salesCommission: 10,
   feePerItem: 0.5,
@@ -55,7 +55,7 @@ async function setup(options: { isAdmin: boolean }) {
 }
 
 describe('VerkaeuferDialog', () => {
-  it('is invalid while firstName/lastName/email are empty and valid once required fields are filled', async () => {
+  it('is invalid while a required field is empty and valid once all six are filled — the email is optional', async () => {
     const { fixture } = await setup({ isAdmin: true });
     fixture.componentRef.setInput('visible', true);
     fixture.componentRef.setInput('mode', 'create');
@@ -66,8 +66,78 @@ describe('VerkaeuferDialog', () => {
 
     component.firstName.set('Max');
     component.lastName.set('Mustermann');
-    component.email.set('max@example.com');
+    expect(component.canSave()).toBe(false);
+
+    component.city.set('Karlsruhe');
+    // seller type, fee and commission are prefilled in create mode; no email was entered
     expect(component.canSave()).toBe(true);
+  });
+
+  it('treats a cleared fee or commission as missing but accepts 0', async () => {
+    const { fixture } = await setup({ isAdmin: true });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('mode', 'create');
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    component.firstName.set('Max');
+    component.lastName.set('Mustermann');
+    component.city.set('Karlsruhe');
+    component.feePerItem.set(0);
+    component.salesCommission.set(0);
+    expect(component.canSave()).toBe(true);
+
+    component.feePerItem.set(null);
+    expect(component.canSave()).toBe(false);
+
+    component.feePerItem.set(0);
+    component.salesCommission.set(null);
+    expect(component.canSave()).toBe(false);
+  });
+
+  it('emits email null and the trimmed city when the email field is empty', async () => {
+    const { fixture } = await setup({ isAdmin: true });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('mode', 'create');
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    const saveSpy = vi.fn();
+    component.save.subscribe(saveSpy);
+    component.firstName.set('Max');
+    component.lastName.set('Mustermann');
+    component.city.set(' Karlsruhe ');
+    component.email.set('  ');
+
+    component.onSave();
+
+    expect(saveSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ email: null, city: 'Karlsruhe', firstName: 'Max', lastName: 'Mustermann' }),
+    );
+  });
+
+  it('shows an inline message under each empty required field only after the field was touched', async () => {
+    const { fixture } = await setup({ isAdmin: true });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('mode', 'create');
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelectorAll('.verkaeufer-dialog__error').length).toBe(0);
+
+    component.markTouched('firstName');
+    component.markTouched('city');
+    fixture.detectChanges();
+
+    const messages = Array.from(el.querySelectorAll('.verkaeufer-dialog__error')).map((m) => m.textContent?.trim());
+    expect(messages).toEqual(['Vorname ist erforderlich.', 'Ort ist erforderlich.']);
+
+    component.firstName.set('Max');
+    fixture.detectChanges();
+
+    const remaining = Array.from(el.querySelectorAll('.verkaeufer-dialog__error')).map((m) => m.textContent?.trim());
+    expect(remaining).toEqual(['Ort ist erforderlich.']);
   });
 
   it('does not allow save without a selected seller type', async () => {
@@ -79,7 +149,7 @@ describe('VerkaeuferDialog', () => {
     const component = fixture.componentInstance;
     component.firstName.set('Max');
     component.lastName.set('Mustermann');
-    component.email.set('max@example.com');
+    component.city.set('Karlsruhe');
     component.sellerTypeId.set('');
 
     expect(component.canSave()).toBe(false);
@@ -278,15 +348,36 @@ describe('VerkaeuferDialog', () => {
     expect(visibleChangeSpy).toHaveBeenCalledWith(false);
   });
 
-  it('displays a server-side field error for email when provided', async () => {
+  it('opens a seller without email in edit mode with an empty email field and allows saving', async () => {
+    const { fixture } = await setup({ isAdmin: true });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('mode', 'edit');
+    fixture.componentRef.setInput('initialValue', { ...EDIT_SELLER, email: null });
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    const emailInput = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>(
+      '#verkaeufer-dialog-email',
+    );
+    expect(component.email()).toBe('');
+    expect(emailInput?.value).toBe('');
+    expect(component.canSave()).toBe(true);
+
+    const saveSpy = vi.fn();
+    component.save.subscribe(saveSpy);
+    component.onSave();
+    expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ email: null }));
+  });
+
+  it('displays a server-side field error for city when provided', async () => {
     const { fixture } = await setup({ isAdmin: true });
     fixture.componentRef.setInput('visible', true);
     fixture.componentRef.setInput('mode', 'create');
-    fixture.componentRef.setInput('serverErrors', { email: 'E-Mail bereits vergeben.' });
+    fixture.componentRef.setInput('serverErrors', { city: 'Ort fehlt auf dem Server.' });
     await fixture.whenStable();
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      'E-Mail bereits vergeben.',
+      'Ort fehlt auf dem Server.',
     );
   });
 
@@ -331,7 +422,7 @@ describe('VerkaeuferDialog', () => {
       expect(headings).toEqual(['Personendaten', 'Kontakt', 'Konditionen']);
     });
 
-    it('shows a red star exactly on Vorname, Nachname, E-Mail and Verkäufer-Typ', async () => {
+    it('shows a red star exactly on Vorname, Nachname, Ort, Verkäufer-Typ, Gebühr and Provision', async () => {
       const el = await open('create');
       const starred = SPANS.map(([id]) => id).filter((id) =>
         fieldOf(el, id)?.querySelector('.app-input__required, .verkaeufer-dialog__required'),
@@ -339,8 +430,10 @@ describe('VerkaeuferDialog', () => {
       expect(starred).toEqual([
         'verkaeufer-dialog-first-name',
         'verkaeufer-dialog-last-name',
-        'verkaeufer-dialog-email',
+        'verkaeufer-dialog-city',
         'verkaeufer-dialog-seller-type',
+        'verkaeufer-dialog-fee-per-item',
+        'verkaeufer-dialog-sales-commission',
       ]);
     });
 
