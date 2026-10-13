@@ -60,4 +60,17 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 
 ## dv-forge
 
+- Spec-Ablage: `docs/forge/<datum>-<slug>/spec.md`
+- Plan-Ablage: `docs/forge/<datum>-<slug>/plan.md`
+- Glossar: `docs/glossary`
+- Profile: `docs/knowledge`
+- Workitem: keine
 - Worktree: ja
+- Branch-Schema: `docs/feature/<slug>`
+- Worktree-Ordner: `.worktrees/<repo>-worktrees`
+- Planungs-Skills: dv-craft:craft-design-principles, dv-craft:craft-unit-testing, dv-dotnet:dotnet @src/*/backend, dv-angular:angular @src/*/frontend, primeng:primeng-component-implementation @src/*/frontend
+- Build:
+- Test:
+- Lint:
+- Suche: dev-mcp
+- Commit-Konvention: Conventional Commits (type(scope): Beschreibung), Text deutsch
