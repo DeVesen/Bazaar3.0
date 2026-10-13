@@ -52,7 +52,7 @@ public sealed class ArticleTableReader : IArticleTableReader
         {
             return new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true)
                 .GetString(bytes)
-                .TrimStart('﻿');
+                .TrimStart('\uFEFF');
         }
         catch (DecoderFallbackException)
         {

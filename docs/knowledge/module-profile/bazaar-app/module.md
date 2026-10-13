@@ -37,5 +37,5 @@
 - `proxy.conf.json` fest auf Port 7006 (Backend-Dev-Port) verdrahtet — nicht per Env konfigurierbar
 - `primeicons.css` steht seit `67cbe11` in `angular.json` → `styles` — vorher wurden die Icons nie geladen (alle `pi pi-*`-Klassen unsichtbar)
 - Deployment im Insel-Betrieb: `docker-compose.local.yml` baut `frontend` aus `src/bazaar-app/frontend/Dockerfile` (Nginx-Image) und `backend` aus `src/bazaar-app/backend`; die Nginx-Konfig kommt als Template vom Repo-Root (`nginx/nginx.conf.template`, envsubst für `LOCAL_HOSTNAME`), TLS-Zertifikate aus `nginx/certs`
-- `nginx/nginx.conf.template` setzt weder `proxy_read_timeout` noch `client_max_body_size` — für `/api/` gelten die Nginx-Defaults (60 s Antwortwartezeit, 1 MB Request-Body); lange oder große Uploads brechen dort ab, bevor das Backend antwortet
-- Das Frontend hat keinen eigenen HTTP-Timeout: `app.config.ts` registriert nur `jwtInterceptor` (`provideHttpClient(withInterceptors([jwtInterceptor]))`)
+- `nginx/nginx.conf.template` setzt in `location /api/` `client_max_body_size 2100k` sowie `proxy_read_timeout` und `proxy_send_timeout` von je 180 s; größere oder längere Requests brechen dort ab, bevor das Backend antwortet
+- Das Frontend hat keinen globalen HTTP-Timeout: `app.config.ts` registriert nur `jwtInterceptor` (`provideHttpClient(withInterceptors([jwtInterceptor]))`); lediglich `ArticleImportApi` setzt eigene 180 s (`IMPORT_TIMEOUT_MS`)
