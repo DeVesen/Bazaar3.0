@@ -16,6 +16,11 @@ server {
     location /api/ {
         proxy_pass http://backend:5000;
         proxy_http_version 1.1;
+        # Artikel-Import: Datei bis 2 MB plus multipart-Overhead (2100k) und Antwortzeit bis 3 Minuten
+        # (nginx-Standard: 1 MB / 60 s). Die genaue 2-MB-Grenze prüfen Modal und Endpoint.
+        client_max_body_size 2100k;
+        proxy_read_timeout 180s;
+        proxy_send_timeout 180s;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
