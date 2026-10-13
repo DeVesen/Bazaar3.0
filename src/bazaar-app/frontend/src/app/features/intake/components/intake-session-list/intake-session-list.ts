@@ -100,10 +100,21 @@ export class IntakeSessionList {
   openPayment(): void {
     if (!this.canBook()) return;
     this.bookingError.set(null);
+
+    // Nothing to collect (fee 0): skip the payment-panel and book straight away.
+    if (this.fee() <= 0) {
+      this.book(0);
+      return;
+    }
+
     this.paymentPanelVisible.set(true);
   }
 
   onPaymentConfirmed(event: PaymentConfirmedEvent): void {
+    this.book(event.totalAmount);
+  }
+
+  private book(feeAmount: number): void {
     const articles: IntakeArticleLine[] = this.items().map((item) => ({
       number: item.number,
       name: item.name,
@@ -116,12 +127,12 @@ export class IntakeSessionList {
       deleteArticleNumber: item.originalNumberToDelete,
     }));
 
-    this.intakeApi.bookIntake(this.sellerId(), event.totalAmount, articles).subscribe({
+    this.intakeApi.bookIntake(this.sellerId(), feeAmount, articles).subscribe({
       next: (result) => {
         this.printService.printIntakeReceipt({
           articleIds: result.articleIds,
           sellerId: this.sellerId(),
-          feeAmount: event.totalAmount,
+          feeAmount,
         });
         this.paymentPanelVisible.set(false);
         this.bookingError.set(null);
