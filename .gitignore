@@ -141,6 +141,11 @@ graphify-out/
 
 ### Git worktrees (isolated dev workspaces)
 .worktrees/
+.angular
 
 ### Insel-Betrieb: lokal generierte Zertifikate (mkcert), nie committen
 nginx/certs/
+
+### AI-Retro
+docs/retro
+docs/wishes
