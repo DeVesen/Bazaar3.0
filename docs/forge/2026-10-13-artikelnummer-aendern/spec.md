@@ -17,7 +17,7 @@ Speichert der Anwender trotzdem (z. B. weil die Nummer zwischenzeitlich vergeben
 Nach dem Speichern trägt der Artikel die neue Nummer. · Aussage
 
 ## Soll-Vorgaben
-Die Nummer ist eine ganze Zahl ab 1 ohne Obergrenze. Leer, 0, negativ oder Text ergeben einen Feldfehler. · Aussage
+Die Nummer ist eine ganze Zahl ab 1; die größte erlaubte Nummer ist 2147483646. Leer, 0, negativ, Text oder eine Nummer darüber ergeben einen Feldfehler. · Aussage
 Der Fehlertext bei vergebener Nummer lautet „Artikelnummer <Nummer> ist bereits vergeben.“ und nennt keinen anderen Artikel. · Aussage
 Alle Rollen, die den Dialog bearbeiten dürfen, dürfen die Nummer ändern. · Aussage
 Die Nummer unterliegt denselben Sperren wie die übrigen Felder. Bei abgerechnetem Verkäufer ist das Feld deaktiviert und der Server lehnt die Änderung ab. Nach dem Verkauf bleibt die Nummer änderbar. · Aussage
@@ -41,10 +41,11 @@ Eine Nummernänderung wird nicht protokolliert. · Aussage
 ## Entscheidungen
 - **W · Prüfzeitpunkt** · Aussage — Prüfung beim Verlassen des Feldes im Frontend, Server entscheidet endgültig.
 - **W · Fehlertext** · Aussage — Text ohne Nennung des Besitzer-Artikels.
-- **W · Wertebereich** · Aussage — Ganze Zahl ≥ 1, keine Obergrenze, sonst Feldfehler.
+- **W · Wertebereich** · Aussage — Ganze Zahl von 1 bis 2147483646, sonst Feldfehler.
 - **W · Berechtigung** · Aussage — Alle Rollen, die den Dialog bearbeiten dürfen.
 - **W · Etikett-Hinweis** · Aussage — Kurzer Hinweis unter dem Feld bei geänderter Nummer.
 - **W · Nummernkreis** · Aussage — Hohe Nummer erlaubt, Vorschlag folgt der höchsten Nummer.
 - **W · Protokoll** · Aussage — Keine Spur der Änderung.
 - **W · Sperren** · Aussage — Wie übrige Felder; abgerechneter Verkäufer sperrt, Verkauf nicht.
 - **W · Ablage** · Aussage — Spec im Worktree.
+- **W · Obergrenze (Nachtrag 2026-10-13)** · Aussage — größte erlaubte Nummer 2147483646, damit der Vorschlag „höchste Nummer plus 1“ nicht überläuft; Review-Befund, vom Menschen bestätigt.
