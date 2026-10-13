@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScanCompleteEvent, ScanDialog } from './scan-dialog';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
+import { Numpad } from '../numpad/numpad';
 // eslint-disable-next-line boundaries/dependencies -- see scan-dialog.ts's own justification
 import { SettingsService } from '../../../core/settings/settings.service';
 // `BarcodeScanner` (a real dependency of `ScanDialog`) itself depends on `@zxing/browser` — this
@@ -233,7 +234,7 @@ describe('ScanDialog', () => {
       scannerOf(fixture).codeDetected.emit('101');
       fixture.detectChanges();
 
-      expect(fixture.componentInstance.scanFeedbackResult()).toBe('success');
+      expect(fixture.componentInstance.resultEvent()?.kind).toBe('success');
     });
 
     it('shows unknown for a number that does not belong to this seller / does not match the targetField status', async () => {
@@ -245,7 +246,7 @@ describe('ScanDialog', () => {
       scannerOf(fixture).codeDetected.emit('202');
       fixture.detectChanges();
 
-      expect(fixture.componentInstance.scanFeedbackResult()).toBe('unknown');
+      expect(fixture.componentInstance.resultEvent()?.kind).toBe('failed');
     });
 
     it('shows unknown for a number that does not exist at all (404)', async () => {
@@ -256,7 +257,7 @@ describe('ScanDialog', () => {
       scannerOf(fixture).codeDetected.emit('303');
       fixture.detectChanges();
 
-      expect(fixture.componentInstance.scanFeedbackResult()).toBe('unknown');
+      expect(fixture.componentInstance.resultEvent()?.kind).toBe('failed');
     });
 
     it('shows already-set for an article already captured in this session', async () => {
@@ -273,7 +274,7 @@ describe('ScanDialog', () => {
       scannerOf(fixture).codeDetected.emit('101');
       fixture.detectChanges();
 
-      expect(fixture.componentInstance.scanFeedbackResult()).toBe('already-set');
+      expect(fixture.componentInstance.resultEvent()?.kind).toBe('already');
     });
 
     it('ignores a repeated codeDetected while scan-feedback is still showing (dauerscan lock)', async () => {
@@ -300,6 +301,252 @@ describe('ScanDialog', () => {
       scannerOf(fixture).codeDetected.emit('101');
       fixture.detectChanges();
       expect((http.get as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(callsAfterFirst);
+    });
+  });
+
+  describe('Ergebnis-Einblendung (all dialogs, all input paths)', () => {
+    type Fixture = Awaited<ReturnType<typeof create>>;
+    type Path = 'keyboard' | 'numpad' | 'listbox' | 'camera';
+    const ALL_PATHS: Path[] = ['keyboard', 'numpad', 'listbox', 'camera'];
+
+    function byNumber(status: string, sellerId = 'SEL1'): ByNumberFixture {
+      return { id: 'A1', number: 101, name: 'Jacke', sellerId, status };
+    }
+
+    function pendingFor(status: string): PendingArticleFixture[] {
+      return [{ id: 'A1', number: 101, name: 'Jacke', status }];
+    }
+
+    function releaseDialog(article: ByNumberFixture | HttpErrorResponse | undefined) {
+      const byNumberMap: Record<number, ByNumberFixture | HttpErrorResponse> = article === undefined ? {} : { 101: article };
+      return create(httpClientMock({ pending: pendingFor('registered'), byNumber: byNumberMap }), { pauseMs: 0 });
+    }
+
+    function returnDialog(article: ByNumberFixture | HttpErrorResponse | undefined) {
+      const byNumberMap: Record<number, ByNumberFixture | HttpErrorResponse> = article === undefined ? {} : { 101: article };
+      return create(httpClientMock({ pending: pendingFor('selling'), byNumber: byNumberMap }), {
+        pauseMs: 0,
+        targetField: 'returnedAt',
+        writeMode: 'immediate',
+      });
+    }
+
+    function confirmNumber(fixture: Fixture, number = '101') {
+      typeInto(fixture, number);
+      fixture.componentInstance.onSubmit();
+      fixture.detectChanges();
+    }
+
+    function confirmVia(fixture: Fixture, path: Path) {
+      const dialog = fixture.componentInstance;
+      if (path === 'keyboard') {
+        confirmNumber(fixture);
+      } else if (path === 'numpad') {
+        dialog.onAddonClick('numpad');
+        fixture.detectChanges();
+        typeInto(fixture, '101');
+        fixture.debugElement.query(By.directive(Numpad)).componentInstance.submitted.emit();
+      } else if (path === 'listbox') {
+        dialog.onListboxSelect({ value: { id: 'A1', number: 101, name: 'Jacke', status: 'registered' } });
+      } else {
+        dialog.onAddonClick('camera');
+        fixture.detectChanges();
+        fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance.codeDetected.emit('101');
+      }
+      fixture.detectChanges();
+    }
+
+    function kindOf(fixture: Fixture) {
+      return fixture.componentInstance.resultEvent()?.kind;
+    }
+
+    it('onSubmit_ReleaseDialogUnreleasedArticleOfSeller_ShowsSuccess', async () => {
+      // Arrange
+      const fixture = await releaseDialog(byNumber('registered'));
+      vi.useFakeTimers();
+
+      // Act
+      confirmNumber(fixture);
+
+      // Assert
+      expect(kindOf(fixture)).toBe('success');
+    });
+
+    it.each(['selling', 'sold', 'returned'])(
+      'onSubmit_ReleaseDialogArticleAlreadyReleasedAs%s_ShowsAlready',
+      async (status) => {
+        // Arrange
+        const fixture = await releaseDialog(byNumber(status));
+        vi.useFakeTimers();
+
+        // Act
+        confirmNumber(fixture);
+
+        // Assert
+        expect(kindOf(fixture)).toBe('already');
+      },
+    );
+
+    it('onSubmit_ReleaseDialogArticleAlreadyCapturedInSession_ShowsAlready', async () => {
+      // Arrange
+      const fixture = await releaseDialog(byNumber('registered'));
+      vi.useFakeTimers();
+      confirmNumber(fixture);
+
+      // Act
+      confirmNumber(fixture);
+
+      // Assert
+      expect(kindOf(fixture)).toBe('already');
+    });
+
+    it.each([
+      ['unknown number', undefined],
+      ['article of another seller', byNumber('registered', 'OTHER')],
+    ])('onSubmit_ReleaseDialog%s_ShowsFailed', async (_label, article) => {
+      // Arrange
+      const fixture = await releaseDialog(article);
+      vi.useFakeTimers();
+
+      // Act
+      confirmNumber(fixture);
+
+      // Assert
+      expect(kindOf(fixture)).toBe('failed');
+    });
+
+    it('onSubmit_ReturnDialogReleasedUnsoldArticleOfSeller_ShowsSuccessAndConfirmsArticle', async () => {
+      // Arrange
+      const fixture = await returnDialog(byNumber('selling'));
+      vi.useFakeTimers();
+      const confirmed: string[] = [];
+      fixture.componentInstance.articleConfirmed.subscribe((id) => confirmed.push(id));
+
+      // Act
+      confirmNumber(fixture);
+
+      // Assert
+      expect(kindOf(fixture)).toBe('success');
+      expect(confirmed).toEqual(['A1']);
+    });
+
+    it('onSubmit_ReturnDialogArticleAlreadyReturned_ShowsAlready', async () => {
+      // Arrange
+      const fixture = await returnDialog(byNumber('returned'));
+      vi.useFakeTimers();
+
+      // Act
+      confirmNumber(fixture);
+
+      // Assert
+      expect(kindOf(fixture)).toBe('already');
+    });
+
+    it.each([
+      ['unknown number', undefined],
+      ['article of another seller', byNumber('selling', 'OTHER')],
+      ['article not yet released', byNumber('registered')],
+      ['article already sold', byNumber('sold')],
+    ])('onSubmit_ReturnDialog%s_ShowsFailed', async (_label, article) => {
+      // Arrange
+      const fixture = await returnDialog(article);
+      vi.useFakeTimers();
+
+      // Act
+      confirmNumber(fixture);
+
+      // Assert
+      expect(kindOf(fixture)).toBe('failed');
+    });
+
+    it.each([
+      ['release', releaseDialog],
+      ['return', returnDialog],
+    ])('onSubmit_%sDialogServerNotReachable_ShowsFailedWithoutScanComplete', async (_label, openDialog) => {
+      // Arrange
+      const fixture = await openDialog(new HttpErrorResponse({ status: 500 }));
+      vi.useFakeTimers();
+      const completed: ScanCompleteEvent[] = [];
+      fixture.componentInstance.scanComplete.subscribe((event) => completed.push(event));
+
+      // Act
+      confirmNumber(fixture);
+
+      // Assert
+      expect(kindOf(fixture)).toBe('failed');
+      expect(completed).toEqual([]);
+    });
+
+    it.each(ALL_PATHS)('confirm_ReleaseDialogVia%s_ShowsSuccess', async (path) => {
+      // Arrange
+      const fixture = await releaseDialog(byNumber('registered'));
+      vi.useFakeTimers();
+
+      // Act
+      confirmVia(fixture, path);
+
+      // Assert
+      expect(kindOf(fixture)).toBe('success');
+    });
+
+    it.each(ALL_PATHS)('confirm_ReturnDialogVia%s_ShowsSuccess', async (path) => {
+      // Arrange
+      const fixture = await returnDialog(byNumber('selling'));
+      vi.useFakeTimers();
+
+      // Act
+      confirmVia(fixture, path);
+
+      // Assert
+      expect(kindOf(fixture)).toBe('success');
+    });
+
+    it('onSubmit_UnknownNumberTypedInKeyboardMode_KeepsUnknownTextAndShowsFailed', async () => {
+      // Arrange
+      const fixture = await create(httpClientMock({ pending: pendingFor('registered'), byNumber: {} }), { pauseMs: 0 });
+      vi.useFakeTimers();
+
+      // Act
+      confirmNumber(fixture, '555');
+
+      // Assert
+      const message = fixture.debugElement.query(By.css('.scan-dialog__message'))?.nativeElement as HTMLElement | undefined;
+      expect(message?.textContent?.trim()).toBe('Artikel nicht bekannt');
+      expect(kindOf(fixture)).toBe('failed');
+    });
+
+    it('onScanDetected_CameraMode_RendersOverlayInsteadOfRingCountdown', async () => {
+      // Arrange
+      const fixture = await releaseDialog(byNumber('registered'));
+      vi.useFakeTimers();
+
+      // Act
+      confirmVia(fixture, 'camera');
+
+      // Assert
+      expect(fixture.debugElement.query(By.css('app-scan-feedback'))).toBeNull();
+      expect(fixture.debugElement.query(By.css('app-result-overlay .result-overlay__icon'))).not.toBeNull();
+    });
+
+    it('template_DialogContent_HostsOverlayInsidePositionedContentWrapper', async () => {
+      // Arrange & Act
+      const fixture = await releaseDialog(undefined);
+
+      // Assert
+      expect(fixture.debugElement.query(By.css('.scan-dialog__content app-result-overlay'))).not.toBeNull();
+    });
+
+    it('typing_WhileOverlayIsShown_StillAcceptsInput', async () => {
+      // Arrange
+      const fixture = await releaseDialog(undefined);
+      vi.useFakeTimers();
+      confirmNumber(fixture);
+
+      // Act
+      typeInto(fixture, '77');
+
+      // Assert
+      expect(fixture.componentInstance.articleNumber()).toBe('77');
     });
   });
 
