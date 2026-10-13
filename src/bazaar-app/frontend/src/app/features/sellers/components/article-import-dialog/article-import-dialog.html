@@ -1,0 +1,42 @@
+<p-dialog
+  header="Artikel importieren"
+  [modal]="true"
+  [visible]="visible()"
+  [closable]="!busy()"
+  [closeOnEscape]="!busy()"
+  [style]="{ width: '32rem' }"
+  (visibleChange)="onVisibleChange($event)"
+>
+  <div class="article-import-dialog__body">
+    <app-file-dropzone [accept]="acceptAttribute" [disabled]="busy()" (filesChosen)="onFilesChosen($event)">
+      <span>Datei hierher ziehen oder klicken (XLSX, XLS oder CSV)</span>
+    </app-file-dropzone>
+
+    @if (file(); as chosen) {
+      <p class="article-import-dialog__file-name">{{ chosen.name }}</p>
+    }
+
+    @if (message(); as text) {
+      <p-message severity="error">
+        <span class="article-import-dialog__message">{{ text }}</span>
+      </p-message>
+    }
+
+    @switch (phase()) {
+      @case ('importing') {
+        <div class="article-import-dialog__status" role="status">
+          <p-progress-spinner ariaLabel="Import läuft" strokeWidth="4" />
+        </div>
+      }
+      @case ('success') {
+        <div class="article-import-dialog__status" role="status">
+          <i class="pi pi-check article-import-dialog__check" aria-label="Import erfolgreich"></i>
+        </div>
+      }
+    }
+  </div>
+
+  <ng-template #footer>
+    <p-button label="Import" [disabled]="!canImport()" (onClick)="startImport()" />
+  </ng-template>
+</p-dialog>
