@@ -132,6 +132,22 @@ describe('ReleaseDialog', () => {
     expect(scanDialogHidden(fixture)).toBe(true);
   });
 
+  it('fee 0: closing scan-dialog books directly with feeAmount 0 and skips payment-panel', async () => {
+    const { component, releaseApi } = await setup({ sellerId: SELLER_ID, feePerItem: 0 });
+    const releasedSpy = vi.fn();
+    const visibleChangeSpy = vi.fn();
+    component.released.subscribe(releasedSpy);
+    component.visibleChange.subscribe(visibleChangeSpy);
+    component.onSessionChanged(['a1', 'a2']);
+
+    component.onScanDialogVisibleChange(false);
+
+    expect(component.paymentPanelVisible()).toBe(false);
+    expect(releaseApi.bookRelease).toHaveBeenCalledWith(SELLER_ID, 0, ['a1', 'a2']);
+    expect(releasedSpy).toHaveBeenCalled();
+    expect(visibleChangeSpy).toHaveBeenCalledWith(false);
+  });
+
   it('renders payment-panel with fee as totalAmount once open', async () => {
     const { fixture, component } = await setup({ feePerItem: 0.5 });
     component.onSessionChanged(['a1', 'a2']);

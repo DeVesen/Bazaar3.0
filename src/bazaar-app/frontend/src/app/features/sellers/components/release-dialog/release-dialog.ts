@@ -131,6 +131,13 @@ export class ReleaseDialog {
     }
 
     this.bookingError.set(null);
+
+    // Nothing to collect (fee 0): skip the payment-panel and book straight away.
+    if (this.fee() <= 0) {
+      this.book(0);
+      return;
+    }
+
     this.paymentPanelVisible.set(true);
   }
 
@@ -142,12 +149,16 @@ export class ReleaseDialog {
   }
 
   onPaymentConfirmed(event: PaymentConfirmedEvent): void {
-    this.releaseApi.bookRelease(this.sellerId(), event.totalAmount, this.sessionIds()).subscribe({
+    this.book(event.totalAmount);
+  }
+
+  private book(feeAmount: number): void {
+    this.releaseApi.bookRelease(this.sellerId(), feeAmount, this.sessionIds()).subscribe({
       next: () => {
         this.printService.printIntakeReceipt({
           articleIds: Array.from(this.sessionIds()),
           sellerId: this.sellerId(),
-          feeAmount: event.totalAmount,
+          feeAmount,
         });
         this.paymentPanelVisible.set(false);
         this.bookingError.set(null);
