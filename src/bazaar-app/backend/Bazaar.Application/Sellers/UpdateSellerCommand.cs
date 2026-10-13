@@ -15,10 +15,10 @@ public sealed class UpdateSellerCommand
     public string Id { get; set; } = string.Empty; // set by the endpoint from the route value
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
+    public string? Email { get; set; }
     public string? Address { get; set; }
     public string? PostalCode { get; set; }
-    public string? City { get; set; }
+    public string City { get; set; } = string.Empty;
     public string? Phone { get; set; }
     public string SellerTypeId { get; set; } = string.Empty;
     public decimal SalesCommission { get; set; }

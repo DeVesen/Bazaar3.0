@@ -15,7 +15,7 @@ public class DeleteSellerHandlerTests
         new(_sellerRepository.Object, _articleCountBySellerQuery.Object);
 
     private static Seller CreateSeller() =>
-        Seller.Create("SELLER001", "Anna", "Meier", null, null, null, null, "anna@example.org", "SELLERTYPE001", 10m, 0.5m);
+        Seller.Create("SELLER001", "Anna", "Meier", null, null, "Karlsruhe", null, "anna@example.org", "SELLERTYPE001", 10m, 0.5m);
 
     [Fact]
     public async Task Handle_UnknownId_ThrowsNotFoundWithSellerNotFoundCode()

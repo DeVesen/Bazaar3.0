@@ -27,7 +27,7 @@ public class ReleaseHandlerTests
     private ReleaseHandler CreateSut() => new(_articleRepository.Object, _sellerRepository.Object, _unitOfWork.Object);
 
     private static Seller CreateSeller(decimal feePerItem = 3.00m) =>
-        Seller.Create("SELLER001", "Anna", "Meier", null, null, null, null, "anna@example.org", "SELLERTYPE001", 10m, feePerItem);
+        Seller.Create("SELLER001", "Anna", "Meier", null, null, "Karlsruhe", null, "anna@example.org", "SELLERTYPE001", 10m, feePerItem);
 
     private static Article CreateArticle(string id, int number, string sellerId = "SELLER001") =>
         Article.Create(

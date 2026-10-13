@@ -16,7 +16,7 @@ public class UpdateSellerHandlerTests
 
     private static Seller CreateSeller(decimal salesCommission = 10m, decimal feePerItem = 0.5m) =>
         Seller.Create(
-            "SELLER001", "Anna", "Meier", null, null, null, null,
+            "SELLER001", "Anna", "Meier", null, null, "Karlsruhe", null,
             "anna@example.org", "SELLERTYPE001", salesCommission, feePerItem);
 
     private static UpdateSellerCommand CreateCommand(
@@ -26,6 +26,7 @@ public class UpdateSellerHandlerTests
         FirstName = "Anna",
         LastName = "Meier",
         Email = "anna@example.org",
+        City = "Karlsruhe",
         SellerTypeId = "SELLERTYPE001",
         SalesCommission = salesCommission,
         FeePerItem = feePerItem,

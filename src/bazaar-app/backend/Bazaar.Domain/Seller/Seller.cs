@@ -9,7 +9,7 @@ public sealed class Seller
     public string? PostalCode { get; private set; }
     public string? City { get; private set; }
     public string? Phone { get; private set; }
-    public string Email { get; private set; } = null!;
+    public string? Email { get; private set; }
     public string SellerTypeId { get; private set; } = null!;
     public decimal SalesCommission { get; private set; }
     public decimal FeePerItem { get; private set; }
@@ -23,15 +23,15 @@ public sealed class Seller
         string lastName,
         string? address,
         string? postalCode,
-        string? city,
+        string city,
         string? phone,
-        string email,
+        string? email,
         string sellerTypeId,
         decimal salesCommission,
         decimal feePerItem)
     {
         if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Id required.");
-        EnsureRequiredFields(firstName, lastName, email, sellerTypeId);
+        EnsureRequiredFields(firstName, lastName, city, sellerTypeId);
 
         return new Seller
         {
@@ -40,9 +40,9 @@ public sealed class Seller
             LastName = lastName.Trim(),
             Address = address,
             PostalCode = postalCode,
-            City = city,
+            City = city.Trim(),
             Phone = phone,
-            Email = email.Trim(),
+            Email = NormalizeOptional(email),
             SellerTypeId = sellerTypeId,
             SalesCommission = salesCommission,
             FeePerItem = feePerItem,
@@ -66,9 +66,9 @@ public sealed class Seller
         string lastName,
         string? address,
         string? postalCode,
-        string? city,
+        string city,
         string? phone,
-        string email,
+        string? email,
         string sellerTypeId,
         decimal salesCommission,
         decimal feePerItem) =>
@@ -85,20 +85,20 @@ public sealed class Seller
         string lastName,
         string? address,
         string? postalCode,
-        string? city,
+        string city,
         string? phone,
-        string email,
+        string? email,
         string sellerTypeId)
     {
-        EnsureRequiredFields(firstName, lastName, email, sellerTypeId);
+        EnsureRequiredFields(firstName, lastName, city, sellerTypeId);
 
         FirstName = firstName.Trim();
         LastName = lastName.Trim();
         Address = address;
         PostalCode = postalCode;
-        City = city;
+        City = city.Trim();
         Phone = phone;
-        Email = email.Trim();
+        Email = NormalizeOptional(email);
         SellerTypeId = sellerTypeId;
     }
 
@@ -145,11 +145,14 @@ public sealed class Seller
         IntakeFeePaid += amount;
     }
 
-    private static void EnsureRequiredFields(string firstName, string lastName, string email, string sellerTypeId)
+    private static void EnsureRequiredFields(string firstName, string lastName, string city, string sellerTypeId)
     {
         if (string.IsNullOrWhiteSpace(firstName)) throw new ArgumentException("FirstName required.");
         if (string.IsNullOrWhiteSpace(lastName)) throw new ArgumentException("LastName required.");
-        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email required.");
+        if (string.IsNullOrWhiteSpace(city)) throw new ArgumentException("City required.");
         if (string.IsNullOrWhiteSpace(sellerTypeId)) throw new ArgumentException("SellerTypeId required.");
     }
+
+    private static string? NormalizeOptional(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

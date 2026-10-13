@@ -16,7 +16,7 @@ public class ArticleListQueryTests
         return new BazaarDbContext(options);
     }
 
-    private static Seller CreateSeller(string id, string firstName, string lastName, string? city = "Karlsruhe") =>
+    private static Seller CreateSeller(string id, string firstName, string lastName, string city = "Karlsruhe") =>
         Seller.Create(
             id, firstName, lastName, null, "76133", city, null,
             $"{id}@example.org", "SLT00001", 10m, 0.5m);

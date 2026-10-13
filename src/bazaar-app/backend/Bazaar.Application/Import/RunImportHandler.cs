@@ -98,9 +98,9 @@ public sealed class RunImportHandler(
                     fileSeller.LastName!,
                     fileSeller.Address,
                     fileSeller.PostalCode,
-                    fileSeller.City,
+                    fileSeller.City!,
                     fileSeller.Phone,
-                    fileSeller.Email!,
+                    fileSeller.Email,
                     sellerType.Id,
                     sellerType.CommissionRate,
                     sellerType.ItemFee);

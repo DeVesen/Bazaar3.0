@@ -56,6 +56,7 @@ public class PreviewImportHandlerTests
           "id": "{{id}}",
           "firstName": "{{firstName}}",
           "lastName": "{{lastName}}",
+          "city": "Karlsruhe",
           "email": "anna@example.org",
           "sellerType": "{{sellerType}}",
           "articles": [{{articlesJson}}]
@@ -75,7 +76,7 @@ public class PreviewImportHandlerTests
         """;
 
     private static Seller ExistingSeller(string id = "SELLER001") =>
-        Seller.Create(id, "Anna", "Meier", null, null, null, null, "anna@example.org", "SELLERTYPE001", 10m, 3m);
+        Seller.Create(id, "Anna", "Meier", null, null, "Karlsruhe", null, "anna@example.org", "SELLERTYPE001", 10m, 3m);
 
     private static Article SoldArticle(string sellerId = "SELLER001")
     {

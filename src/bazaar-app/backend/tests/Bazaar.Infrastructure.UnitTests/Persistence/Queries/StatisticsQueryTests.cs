@@ -59,10 +59,10 @@ public class StatisticsQueryTests
         // regressed to rounding a single blended total instead of summing
         // per-seller-rounded commissions, this test would catch the drift.
         var sellerA = Seller.Create(
-            "SEL00001", "Anna", "Meier", null, null, null, null,
+            "SEL00001", "Anna", "Meier", null, null, "Karlsruhe", null,
             "anna@example.org", "SLT00001", 10m, 0.5m);
         var sellerB = Seller.Create(
-            "SEL00002", "Bea", "Schulz", null, null, null, null,
+            "SEL00002", "Bea", "Schulz", null, null, "Karlsruhe", null,
             "bea@example.org", "SLT00001", 10m, 0.5m);
         await dbContext.Sellers.AddRangeAsync([sellerA, sellerB], cancellationToken);
 
@@ -91,7 +91,7 @@ public class StatisticsQueryTests
         var sellerType = SellerType.Create("SLT00001", "Privat", 10m, 0.5m);
         await dbContext.SellerTypes.AddAsync(sellerType, cancellationToken);
         var seller = Seller.Create(
-            "SEL00001", "Anna", "Meier", null, null, null, null,
+            "SEL00001", "Anna", "Meier", null, null, "Karlsruhe", null,
             "anna@example.org", "SLT00001", 10m, 0.5m);
         await dbContext.Sellers.AddAsync(seller, cancellationToken);
 
@@ -120,10 +120,10 @@ public class StatisticsQueryTests
         await dbContext.SellerTypes.AddRangeAsync([typeA, typeB], cancellationToken);
 
         var sellerA = Seller.Create(
-            "SEL00001", "Anna", "Meier", null, null, null, null,
+            "SEL00001", "Anna", "Meier", null, null, "Karlsruhe", null,
             "anna@example.org", "SLT00001", 10m, 0.5m);
         var sellerB = Seller.Create(
-            "SEL00002", "Bea", "Schulz", null, null, null, null,
+            "SEL00002", "Bea", "Schulz", null, null, "Karlsruhe", null,
             "bea@example.org", "SLT00002", 5m, 0.25m);
         await dbContext.Sellers.AddRangeAsync([sellerA, sellerB], cancellationToken);
 
@@ -164,10 +164,10 @@ public class StatisticsQueryTests
         await dbContext.SellerTypes.AddAsync(sellerType, cancellationToken);
 
         var settledSeller = Seller.Create(
-            "SEL00001", "Anna", "Meier", null, null, null, null,
+            "SEL00001", "Anna", "Meier", null, null, "Karlsruhe", null,
             "anna@example.org", "SLT00001", 10m, 0.5m);
         var unsettledSeller = Seller.Create(
-            "SEL00002", "Bea", "Schulz", null, null, null, null,
+            "SEL00002", "Bea", "Schulz", null, null, "Karlsruhe", null,
             "bea@example.org", "SLT00001", 10m, 0.5m);
         settledSeller.AddIntakeFeePaid(2.50m);
         unsettledSeller.AddIntakeFeePaid(1.50m);

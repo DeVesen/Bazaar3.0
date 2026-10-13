@@ -9,10 +9,10 @@ public sealed class CreateSellerCommand
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
+    public string? Email { get; set; }
     public string SellerTypeId { get; set; } = string.Empty;
     public string? Address { get; set; }
     public string? PostalCode { get; set; }
-    public string? City { get; set; }
+    public string City { get; set; } = string.Empty;
     public string? Phone { get; set; }
 }

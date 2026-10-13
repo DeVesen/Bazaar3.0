@@ -39,7 +39,7 @@ public class ImportSellerArticlesHandlerTests
     }
 
     private static Seller CreateSeller(string id, string firstName, string lastName) =>
-        Seller.Create(id, firstName, lastName, null, null, null, null, "mail@example.org", "SELLERTYPE001", 10m, 3m);
+        Seller.Create(id, firstName, lastName, null, null, "Karlsruhe", null, "mail@example.org", "SELLERTYPE001", 10m, 3m);
 
     private static Article CreateArticle(int number, string sellerId)
     {

@@ -82,6 +82,7 @@ public class RunImportHandlerTests
           "id": "{{id}}",
           "firstName": "{{firstName}}",
           "lastName": "{{lastName}}",
+          "city": "Karlsruhe",
           "email": "anna@example.org",
           "sellerType": "{{sellerType}}",
           "articles": [{{articlesJson}}]
@@ -101,7 +102,7 @@ public class RunImportHandlerTests
         """;
 
     private static Seller ExistingSeller(string id = "SELLER001") =>
-        Seller.Create(id, "Anna", "Meier", null, null, null, null, "anna@example.org", "SELLERTYPE001", 10m, 3m);
+        Seller.Create(id, "Anna", "Meier", null, null, "Karlsruhe", null, "anna@example.org", "SELLERTYPE001", 10m, 3m);
 
     private static Article ExistingArticle(string id = "ARTICLE-OLD", string sellerId = "SELLER001") =>
         Article.Create(id, 500, sellerId, "Alt", "AlteMarke", "AlteKategorie", 5m, null, null, null, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
