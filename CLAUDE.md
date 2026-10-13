@@ -87,3 +87,9 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 - Bei Fragen zur Microsoft- und .NET-Dokumentation den MCP `microsoft-learn` nutzen. <!-- dv-mcp:microsoft-learn -->
 - Bei Fragen zu Bibliotheken und Frameworks den MCP `context7` nutzen. <!-- dv-mcp:context7 -->
 <!-- dv-mcp:end -->
+
+<!-- dv-angular:start -->
+## dv-angular
+
+- Bauen, Testen, Linten: Skill `dv-angular:toolchain` aufrufen, bevor gebaut, getestet oder gelintet wird.
+<!-- dv-angular:end -->
