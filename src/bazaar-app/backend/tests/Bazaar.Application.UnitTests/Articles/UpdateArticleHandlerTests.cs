@@ -22,9 +22,10 @@ public class UpdateArticleHandlerTests
     private static Seller CreateSeller() =>
         Seller.Create("SELLER001", "Anna", "Meier", null, null, null, null, "anna@example.org", "SELLERTYPE001", 10m, 0.5m);
 
-    private static UpdateArticleCommand CreateCommand(decimal price = 10m) => new()
+    private static UpdateArticleCommand CreateCommand(decimal price = 10m, int number = 1) => new()
     {
         Id = "ARTICLE001",
+        Number = number,
         Name = "T-Shirt Neu",
         Brand = "Puma",
         Category = "Kleidung",
@@ -112,5 +113,102 @@ public class UpdateArticleHandlerTests
 
         Assert.Equal("article.sold", exception.ErrorCode);
         _articleRepository.Verify(r => r.Update(It.IsAny<Article>()), Times.Never);
+    }
+
+    private static Article CreateOtherArticle(int number) =>
+        Article.Create(
+            "ARTICLE002", number, "SELLER001", "Hose", "Nike", "Kleidung", 5m,
+            null, null, null, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+
+    [Fact]
+    public async Task Handle_NewNumberFree_RenumbersArticleAndUpdates()
+    {
+        // Arrange
+        var article = CreateArticle();
+        _articleRepository.Setup(r => r.GetById("ARTICLE001")).ReturnsAsync(article);
+        _articleRepository.Setup(r => r.GetByNumber(2000)).ReturnsAsync((Article?)null);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(CreateSeller());
+        var sut = CreateSut();
+
+        // Act
+        await sut.Handle(CreateCommand(number: 2000));
+
+        // Assert
+        Assert.Equal(2000, article.Number);
+        _articleRepository.Verify(r => r.Update(article), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_NumberTakenByOtherArticle_ThrowsConflictWithNumberTakenCode_AndDoesNotCallUpdate()
+    {
+        // Arrange
+        var article = CreateArticle();
+        _articleRepository.Setup(r => r.GetById("ARTICLE001")).ReturnsAsync(article);
+        _articleRepository.Setup(r => r.GetByNumber(1044)).ReturnsAsync(CreateOtherArticle(1044));
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(CreateSeller());
+        var sut = CreateSut();
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ConflictException>(() => sut.Handle(CreateCommand(number: 1044)));
+
+        Assert.Equal("article.number_taken", exception.ErrorCode);
+        Assert.Equal("Artikelnummer 1044 ist bereits vergeben.", exception.Message);
+        Assert.Equal(1, article.Number);
+        _articleRepository.Verify(r => r.Update(It.IsAny<Article>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_NumberUnchanged_DoesNotCheckAvailabilityAndUpdates()
+    {
+        // Arrange
+        var article = CreateArticle();
+        _articleRepository.Setup(r => r.GetById("ARTICLE001")).ReturnsAsync(article);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(CreateSeller());
+        var sut = CreateSut();
+
+        // Act
+        await sut.Handle(CreateCommand(number: 1));
+
+        // Assert
+        _articleRepository.Verify(r => r.GetByNumber(It.IsAny<int>()), Times.Never);
+        _articleRepository.Verify(r => r.Update(article), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_SellerSettledAndNumberChanged_ThrowsSettlementLocked_AndKeepsNumber()
+    {
+        // Arrange
+        var article = CreateArticle();
+        var seller = CreateSeller();
+        seller.Settle(100m, DateTimeOffset.UtcNow);
+        _articleRepository.Setup(r => r.GetById("ARTICLE001")).ReturnsAsync(article);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+        var sut = CreateSut();
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ConflictException>(() => sut.Handle(CreateCommand(number: 2000)));
+
+        Assert.Equal("settlement.locked", exception.ErrorCode);
+        Assert.Equal(1, article.Number);
+        _articleRepository.Verify(r => r.Update(It.IsAny<Article>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_ArticleSoldNumberChangedToFreeNumber_Renumbers()
+    {
+        // Arrange
+        var article = CreateArticle();
+        article.SetTimestamps(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null, true, DateTimeOffset.UtcNow);
+        _articleRepository.Setup(r => r.GetById("ARTICLE001")).ReturnsAsync(article);
+        _articleRepository.Setup(r => r.GetByNumber(2000)).ReturnsAsync((Article?)null);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(CreateSeller());
+        var sut = CreateSut();
+
+        // Act
+        await sut.Handle(CreateCommand(number: 2000));
+
+        // Assert
+        Assert.Equal(2000, article.Number);
+        _articleRepository.Verify(r => r.Update(article), Times.Once);
     }
 }

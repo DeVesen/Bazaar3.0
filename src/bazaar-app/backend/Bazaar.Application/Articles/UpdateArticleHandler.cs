@@ -1,3 +1,4 @@
+using Bazaar.Domain.Articles;
 using Bazaar.Domain.Exceptions;
 using Bazaar.Domain.Ports;
 
@@ -16,9 +17,22 @@ public sealed class UpdateArticleHandler(IArticleRepository articleRepository, I
             throw new ConflictException("Verkäufer ist abgerechnet", "settlement.locked");
         }
 
+        await EnsureNumberAvailable(article, command.Number);
+
         var now = DateTimeOffset.UtcNow;
         article.UpdateDetails(command.Name, command.Brand, command.Category, command.Price, command.Size, command.Color, command.Description, now);
+        article.Renumber(command.Number, now);
 
         await articleRepository.Update(article);
+    }
+
+    private async Task EnsureNumberAvailable(Article article, int number)
+    {
+        if (number == article.Number) return;
+
+        var owner = await articleRepository.GetByNumber(number);
+        if (owner is null) return;
+
+        throw new ConflictException($"Artikelnummer {number} ist bereits vergeben.", "article.number_taken");
     }
 }
