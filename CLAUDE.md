@@ -67,13 +67,16 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 - Workitem: keine
 - Worktree: ja
 - Branch-Schema: `docs/feature/<slug>`
-- Worktree-Ordner: `.worktrees/<repo>-worktrees`
+- Worktree-Ordner: `C:/wt/<repo>` (kurz halten: Windows-Pfadlänge, `node_modules` im Worktree per `npm ci`)
 - Planungs-Skills: dv-craft:craft-design-principles, dv-craft:craft-unit-testing, dv-dotnet:dotnet @src/*/backend, dv-angular:angular @src/*/frontend, primeng:primeng-component-implementation @src/*/frontend
 - Build:
 - Test:
 - Lint:
 - Suche: dev-mcp
 - Commit-Konvention: Conventional Commits (type(scope): Beschreibung), Text deutsch
+- Arbeitsort: Immer im Worktree, außer der Mensch sagt ausdrücklich „vor Ort“. Gilt auch für Spec-, Review- und Capture-Sessions und geht der „vor Ort“-Vorgabe der Skills vor.
+- Commits: Immer mit Pfadangabe in einem Schritt (`git commit -- <pfade>`), nie getrennt stagen und committen; vorher Branch und `git status` prüfen.
+- Build-Hinweis: Meldet der .NET-Build `MSB3027` (DLL gesperrt, meist läuft `Bazaar.Api` im Debugger), Prozess beenden oder mit `-c Release` bauen.
 
 <!-- dv-dotnet:start -->
 ## dv-dotnet
