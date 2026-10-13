@@ -11,11 +11,10 @@ public sealed class SellerConfiguration : IEntityTypeConfiguration<Seller>
         builder.HasKey(s => s.Id);
         builder.Property(s => s.Id).HasMaxLength(8);
 
-        // Deliberate deviation from SellerTypeConfiguration/BrandConfiguration:
-        // Email is required (NOT NULL) but spec.md does not document it as
-        // unique, so no HasIndex(...).IsUnique() here and no citext column
-        // type (citext is only used where case-insensitive uniqueness/lookup
-        // is needed).
-        builder.Property(s => s.Email).IsRequired();
+        // Email is optional (nullable column, inferred from Seller.Email being
+        // string?): the Haupt-App only requires FirstName, LastName, City,
+        // SellerTypeId and the conditions. Deliberately not unique and no citext
+        // column type (citext is only used where case-insensitive
+        // uniqueness/lookup is needed).
     }
 }

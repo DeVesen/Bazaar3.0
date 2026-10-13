@@ -168,7 +168,6 @@ namespace Bazaar.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<decimal>("FeePerItem")

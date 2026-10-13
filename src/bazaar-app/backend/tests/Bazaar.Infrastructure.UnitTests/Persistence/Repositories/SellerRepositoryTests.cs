@@ -30,6 +30,31 @@ public class SellerRepositoryTests
             feePerItem: 0.5m);
 
     [Fact]
+    public void Model_SellerEmail_IsNullable()
+    {
+        using var dbContext = CreateContext();
+
+        var property = dbContext.Model.FindEntityType(typeof(Seller))!.FindProperty(nameof(Seller.Email))!;
+
+        Assert.True(property.IsNullable);
+    }
+
+    [Fact]
+    public async Task Add_SellerWithoutEmail_IsPersistedWithNullEmail()
+    {
+        await using var dbContext = CreateContext();
+        var sut = new SellerRepository(dbContext);
+        var seller = Seller.Create(
+            "SEL00001", "Anna", "Meier", null, "76133", "Karlsruhe", null, null, "SLT00001", 10m, 0.5m);
+
+        await sut.Add(seller);
+
+        var found = await sut.GetById("SEL00001");
+        Assert.NotNull(found);
+        Assert.Null(found!.Email);
+    }
+
+    [Fact]
     public async Task Add_PersistsSeller_FindableByGetById()
     {
         await using var dbContext = CreateContext();
