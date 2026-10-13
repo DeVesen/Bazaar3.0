@@ -154,23 +154,30 @@ describe('IntakeWizard', () => {
     expect(fixture.componentInstance.lastName()).toBe('');
   });
 
-  it('gates "Weiter" on all four required fields', async () => {
+  it('gates "Weiter" on all six required fields — the email is optional', async () => {
     const { fixture } = await setup();
     const component = fixture.componentInstance;
 
-    // sellerTypeId already defaulted by the SellerTypesApi.getAll() response — clear it to
-    // exercise the "all four empty" starting point AC-5 describes.
+    // sellerTypeId, fee and commission are prefilled from the default type — empty them first.
     component.sellerTypeId.set('');
+    component.feePerItem.set(null);
+    component.salesCommission.set(null);
     expect(component.canSave()).toBe(false);
 
     component.firstName.set('Max');
     component.lastName.set('Mustermann');
     expect(component.canSave()).toBe(false);
 
-    component.email.set('max@example.com');
+    component.city.set('Karlsruhe');
     expect(component.canSave()).toBe(false);
 
     component.sellerTypeId.set('type-privat');
+    expect(component.canSave()).toBe(false);
+
+    component.feePerItem.set(0);
+    expect(component.canSave()).toBe(false);
+
+    component.salesCommission.set(0);
     expect(component.canSave()).toBe(true);
   });
 
@@ -243,7 +250,7 @@ describe('IntakeWizard', () => {
     component.email.set(' max@example.com ');
     component.address.set('  ');
     component.postalCode.set('');
-    component.city.set('');
+    component.city.set(' Karlsruhe ');
     component.phone.set('');
 
     component.onNext();
@@ -255,7 +262,7 @@ describe('IntakeWizard', () => {
       sellerTypeId: 'type-privat',
       address: null,
       postalCode: null,
-      city: null,
+      city: 'Karlsruhe',
       phone: null,
     });
     expect(component.step2SellerId()).toBe('SEL00099');
@@ -270,6 +277,7 @@ describe('IntakeWizard', () => {
     created.fixture.componentInstance.firstName.set('Max');
     created.fixture.componentInstance.lastName.set('Mustermann');
     created.fixture.componentInstance.email.set('max@example.com');
+    created.fixture.componentInstance.city.set('Karlsruhe');
     created.fixture.componentInstance.onNext();
 
     expect(created.fixture.componentInstance.canGoToStep1()).toBe(false);
@@ -286,6 +294,7 @@ describe('IntakeWizard', () => {
     component.firstName.set('Max');
     component.lastName.set('Mustermann');
     component.email.set('max@example.com');
+    component.city.set('Karlsruhe');
     component.onNext();
     expect(create).toHaveBeenCalledTimes(1);
     expect(component.step2SellerId()).toBe('SEL00099');
@@ -305,6 +314,7 @@ describe('IntakeWizard', () => {
     component.firstName.set('Max');
     component.lastName.set('Mustermann');
     component.email.set('max@example.com');
+    component.city.set('Karlsruhe');
     component.onNext();
     expect(component.activeStep()).toBe('step2');
 
@@ -320,6 +330,7 @@ describe('IntakeWizard', () => {
     component.firstName.set('Max');
     component.lastName.set('Mustermann');
     component.email.set('max@example.com');
+    component.city.set('Karlsruhe');
 
     component.onNext();
 
@@ -330,19 +341,57 @@ describe('IntakeWizard', () => {
     expect(component.email()).toBe('max@example.com');
   });
 
-  it('blocks "Weiter" with an inline message when the email format is invalid', async () => {
+  it('disables "Weiter" and shows an inline message while a typed email has an invalid format', async () => {
     const { fixture, create } = await setup();
     const component = fixture.componentInstance;
 
     component.firstName.set('Max');
     component.lastName.set('Mustermann');
+    component.city.set('Karlsruhe');
     component.email.set('not-an-email');
+    fixture.detectChanges();
+
+    expect(component.canSave()).toBe(false);
+    expect(component.emailFormatError()).toBe('Ungültiges E-Mail-Format.');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.intake-wizard__error')?.textContent).toContain(
+      'Ungültiges E-Mail-Format.',
+    );
+
+    component.onNext();
+    expect(create).not.toHaveBeenCalled();
+    expect(component.activeStep()).toBe('step1');
+
+    component.email.set('');
+    expect(component.emailFormatError()).toBeNull();
+    expect(component.canSave()).toBe(true);
+  });
+
+  it('creates the seller without an email and sends email null', async () => {
+    const { fixture, create } = await setup({ createResult: createdSeller({ id: 'SEL00098' }) });
+    const component = fixture.componentInstance;
+
+    component.firstName.set('Max');
+    component.lastName.set('Mustermann');
+    component.city.set('Karlsruhe');
 
     component.onNext();
 
-    expect(component.emailFormatError()).toBeTruthy();
-    expect(create).not.toHaveBeenCalled();
-    expect(component.activeStep()).toBe('step1');
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ email: null, city: 'Karlsruhe' }));
+    expect(component.activeStep()).toBe('step2');
+  });
+
+  it('shows an inline message under each empty required field only after the field was touched', async () => {
+    const { fixture } = await setup();
+    const component = fixture.componentInstance;
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelectorAll('.intake-wizard__error').length).toBe(0);
+
+    component.markTouched('firstName');
+    component.markTouched('city');
+    fixture.detectChanges();
+
+    const messages = Array.from(el.querySelectorAll('.intake-wizard__error')).map((m) => m.textContent?.trim());
+    expect(messages).toEqual(['Vorname ist erforderlich.', 'Ort ist erforderlich.']);
   });
 
   it('Cancel after a same-session creation calls SellersApi.remove(id) and then emits closed', async () => {
@@ -354,6 +403,7 @@ describe('IntakeWizard', () => {
     component.firstName.set('Max');
     component.lastName.set('Mustermann');
     component.email.set('max@example.com');
+    component.city.set('Karlsruhe');
     component.onNext();
     expect(create).toHaveBeenCalled();
 
@@ -412,7 +462,7 @@ describe('IntakeWizard', () => {
       }
     });
 
-    it('stars exactly Vorname, Nachname, E-Mail and Verkäufer-Typ, labels in the frame', async () => {
+    it('stars exactly Vorname, Nachname, Ort, Verkäufer-Typ, Gebühr and Provision, labels in the frame', async () => {
       const el = (await setup()).fixture.nativeElement as HTMLElement;
       const starred = SPANS.map(([id]) => id).filter((id) =>
         fieldOf(el, id)?.querySelector('.app-input__required, .intake-wizard__required'),
@@ -420,8 +470,10 @@ describe('IntakeWizard', () => {
       expect(starred).toEqual([
         'intake-wizard-first-name',
         'intake-wizard-last-name',
-        'intake-wizard-email',
+        'intake-wizard-city',
         'intake-wizard-seller-type',
+        'intake-wizard-fee-per-item',
+        'intake-wizard-sales-commission',
       ]);
       for (const [id] of SPANS) {
         expect(fieldOf(el, id)?.querySelector('p-iftalabel label'), id).not.toBeNull();

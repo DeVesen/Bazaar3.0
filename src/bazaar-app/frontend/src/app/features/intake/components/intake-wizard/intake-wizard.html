@@ -32,7 +32,11 @@
                 [debounceMs]="0"
                 [value]="firstName()"
                 (valueChange)="firstName.set($event)"
+                (blurred)="markTouched('firstName')"
               />
+              @if (requiredErrors().firstName; as message) {
+                <small class="intake-wizard__error">{{ message }}</small>
+              }
             </div>
 
             <div class="intake-wizard__field intake-wizard__field--half">
@@ -44,7 +48,11 @@
                 [debounceMs]="0"
                 [value]="lastName()"
                 (valueChange)="lastName.set($event)"
+                (blurred)="markTouched('lastName')"
               />
+              @if (requiredErrors().lastName; as message) {
+                <small class="intake-wizard__error">{{ message }}</small>
+              }
             </div>
 
             <div class="intake-wizard__field intake-wizard__field--full">
@@ -74,10 +82,15 @@
                 label="Ort"
                 inputId="intake-wizard-city"
                 name="city"
+                [required]="true"
                 [debounceMs]="0"
                 [value]="city()"
                 (valueChange)="city.set($event)"
+                (blurred)="markTouched('city')"
               />
+              @if (requiredErrors().city; as message) {
+                <small class="intake-wizard__error">{{ message }}</small>
+              }
             </div>
           </div>
         </div>
@@ -103,7 +116,6 @@
                 inputId="intake-wizard-email"
                 name="email"
                 type="email"
-                [required]="true"
                 [debounceMs]="0"
                 [value]="email()"
                 (valueChange)="email.set($event)"
@@ -128,12 +140,16 @@
                   optionValue="id"
                   [ngModel]="sellerTypeId()"
                   (ngModelChange)="onTypeChange($event)"
+                  (onBlur)="markTouched('sellerTypeId')"
                   name="sellerTypeId"
                 />
                 <label for="intake-wizard-seller-type">
                   Verkäufer-Typ <span class="intake-wizard__required">*</span>
                 </label>
               </p-iftalabel>
+              @if (requiredErrors().sellerTypeId; as message) {
+                <small class="intake-wizard__error">{{ message }}</small>
+              }
             </div>
 
             <div class="intake-wizard__field intake-wizard__field--third">
@@ -149,7 +165,9 @@
                   [min]="0"
                   [disabled]="!conditionsEditable()"
                 />
-                <label for="intake-wizard-fee-per-item">Gebühr je Stück</label>
+                <label for="intake-wizard-fee-per-item">
+                  Gebühr je Stück <span class="intake-wizard__required">*</span>
+                </label>
               </p-iftalabel>
             </div>
 
@@ -169,7 +187,9 @@
                   [max]="100"
                   [disabled]="!conditionsEditable()"
                 />
-                <label for="intake-wizard-sales-commission">Provision</label>
+                <label for="intake-wizard-sales-commission">
+                  Provision <span class="intake-wizard__required">*</span>
+                </label>
               </p-iftalabel>
             </div>
           </div>

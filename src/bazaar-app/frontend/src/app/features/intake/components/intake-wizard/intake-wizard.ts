@@ -25,6 +25,10 @@ import { CreateSellerRequest, SellersApi } from '../../../sellers/data/sellers-a
 // eslint-disable-next-line boundaries/dependencies
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
 import { Input } from '../../../../shared/components/input/input';
+import {
+  SellerRequiredField,
+  sellerRequiredState,
+} from '../../../../shared/seller-form/seller-required-fields';
 import { IntakeArticleEntry } from '../intake-article-entry/intake-article-entry';
 
 type WizardStep = 'step1' | 'step2';
@@ -95,12 +99,12 @@ export class IntakeWizard {
   readonly phone = signal('');
   readonly email = signal('');
   readonly sellerTypeId = signal('');
-  readonly feePerItem = signal(0);
-  readonly salesCommission = signal(0);
+  /** `null` while the number input is cleared; `0` is valid. */
+  readonly feePerItem = signal<number | null>(0);
+  readonly salesCommission = signal<number | null>(0);
 
   readonly saving = signal(false);
   readonly createError = signal<string | null>(null);
-  readonly emailFormatError = signal<string | null>(null);
 
   /**
    * Final-review fix (Important 1): fixed `false`, no longer `computed(() => this.isAdmin())`.
@@ -116,14 +120,31 @@ export class IntakeWizard {
    */
   readonly conditionsEditable = computed(() => false);
 
+  private readonly required = sellerRequiredState(() => ({
+    firstName: this.firstName(),
+    lastName: this.lastName(),
+    city: this.city(),
+    sellerTypeId: this.sellerTypeId(),
+    feePerItem: this.feePerItem(),
+    salesCommission: this.salesCommission(),
+  }));
+
+  /** Inline messages for empty required fields the user already left. */
+  readonly requiredErrors = this.required.errors;
+
+  /** The email is optional; only a typed email with an invalid format is reported (and blocks "Weiter"). */
+  readonly emailFormatError = computed(() => {
+    const email = this.email().trim();
+    return email.length > 0 && !EMAIL_PATTERN.test(email) ? 'Ungültiges E-Mail-Format.' : null;
+  });
+
   readonly canSave = computed(
-    () =>
-      this.firstName().trim().length > 0 &&
-      this.lastName().trim().length > 0 &&
-      this.email().trim().length > 0 &&
-      this.sellerTypeId().length > 0 &&
-      !this.saving(),
+    () => this.required.complete() && this.emailFormatError() === null && !this.saving(),
   );
+
+  markTouched(field: SellerRequiredField): void {
+    this.required.markTouched(field);
+  }
 
   readonly canGoToStep2 = computed(() => this.step2SellerId() !== null);
   /**
@@ -206,12 +227,6 @@ export class IntakeWizard {
     if (this.step2SellerId() !== null) return;
     if (!this.canSave()) return;
 
-    const email = this.email().trim();
-    if (!EMAIL_PATTERN.test(email)) {
-      this.emailFormatError.set('Ungültiges E-Mail-Format.');
-      return;
-    }
-    this.emailFormatError.set(null);
     this.createError.set(null);
     this.saving.set(true);
 
@@ -220,11 +235,11 @@ export class IntakeWizard {
     const request: CreateSellerRequest = {
       firstName: this.firstName().trim(),
       lastName: this.lastName().trim(),
-      email,
+      email: this.email().trim() || null,
       sellerTypeId: this.sellerTypeId(),
       address: this.address().trim() || null,
       postalCode: this.postalCode().trim() || null,
-      city: this.city().trim() || null,
+      city: this.city().trim(),
       phone: this.phone().trim() || null,
     };
 
