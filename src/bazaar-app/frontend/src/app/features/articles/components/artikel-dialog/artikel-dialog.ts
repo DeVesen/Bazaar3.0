@@ -64,10 +64,10 @@ export interface ArtikelDialogServerErrors {
   price?: string;
 }
 
-const MAX_ARTICLE_NUMBER = 2147483647;
+const MAX_ARTICLE_NUMBER = 2147483646;
 const ARTICLE_NUMBER_FORMAT_ERROR = 'Artikelnummer muss eine ganze Zahl ab 1 sein.';
 
-/** Whole number from 1 to the technical `int` limit, else `null` (empty, 0, negative, text). */
+/** Whole number from 1 to `int` max minus 1 (so "highest + 1" never overflows), else `null` (empty, 0, negative, text). */
 function parseArticleNumber(text: string): number | null {
   const trimmed = text.trim();
   if (!/^\d+$/.test(trimmed)) return null;

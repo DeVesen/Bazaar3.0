@@ -4,6 +4,7 @@ namespace Bazaar.Application.UnitTests.Articles;
 
 public class UpdateArticleCommandValidatorTests
 {
+    private const string NumberTooLargeMessage = "Artikelnummer ist zu groß.";
     private const string NumberErrorMessage = "Artikelnummer muss eine ganze Zahl ab 1 sein.";
 
     private static UpdateArticleCommand CreateCommand(int number) => new()
@@ -39,6 +40,32 @@ public class UpdateArticleCommandValidatorTests
 
         // Act
         var result = sut.Validate(CreateCommand(1043));
+
+        // Assert
+        Assert.DoesNotContain(result.Errors, e => e.PropertyName == "Number");
+    }
+
+    [Fact]
+    public void Validate_NumberAboveMaximum_ReturnsTooLargeError()
+    {
+        // Arrange
+        var sut = new UpdateArticleCommandValidator();
+
+        // Act
+        var result = sut.Validate(CreateCommand(int.MaxValue));
+
+        // Assert
+        Assert.Contains(result.Errors, e => e.PropertyName == "Number" && e.ErrorMessage == NumberTooLargeMessage);
+    }
+
+    [Fact]
+    public void Validate_MaximumAllowedNumber_HasNoNumberError()
+    {
+        // Arrange
+        var sut = new UpdateArticleCommandValidator();
+
+        // Act
+        var result = sut.Validate(CreateCommand(int.MaxValue - 1));
 
         // Assert
         Assert.DoesNotContain(result.Errors, e => e.PropertyName == "Number");

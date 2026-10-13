@@ -471,6 +471,28 @@ describe('ArtikelDialog', () => {
       expect(component.canSave()).toBe(false);
     });
 
+    it('rejects a number above the maximum allowed number with a field error', async () => {
+      const { fixture, component } = await openDialog();
+
+      component.numberText.set('2147483647');
+      component.onNumberBlur();
+      await fixture.whenStable();
+
+      expect(component.numberError()).not.toBeNull();
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('accepts the maximum allowed number', async () => {
+      const { fixture, component } = await openDialog();
+
+      component.numberText.set('2147483646');
+      component.onNumberBlur();
+      await fixture.whenStable();
+
+      expect(component.numberError()).toBeNull();
+      expect(component.canSave()).toBe(true);
+    });
+
     it('does not query the backend and can save when the number stays unchanged', async () => {
       const { fixture, component, articlesApi } = await openDialog();
 
