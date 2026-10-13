@@ -77,6 +77,9 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 - Arbeitsort: Immer im Worktree, außer der Mensch sagt ausdrücklich „vor Ort“. Gilt auch für Spec-, Review- und Capture-Sessions und geht der „vor Ort“-Vorgabe der Skills vor.
 - Commits: Immer mit Pfadangabe in einem Schritt (`git commit -- <pfade>`), nie getrennt stagen und committen; vorher Branch und `git status` prüfen.
 - Build-Hinweis: Meldet der .NET-Build `MSB3027` (DLL gesperrt, meist läuft `Bazaar.Api` im Debugger), Prozess beenden oder mit `-c Release` bauen.
+- Doku-Nachführung: Ändert Umsetzung Fähigkeit/Begriff/Beschriftung → Anforderungs-Doku, Profile, Glossar im selben Lauf mitführen; Plan hat dafür eigenen Task.
+- Spec bei bewusster Abweichung (z. B. Beschriftung): im Umsetzungslauf anpassen, Vermerk mit Datum+Grund in „Entscheidungen“, Mensch bestätigt vor Commit, gleicher Branch.
+- Zeilenenden: `.gitattributes` erzwingt LF; Dateien immer mit LF schreiben.
 
 <!-- dv-dotnet:start -->
 ## dv-dotnet
