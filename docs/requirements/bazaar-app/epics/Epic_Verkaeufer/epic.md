@@ -240,14 +240,14 @@ Die Karten-Aggregate kommen über einen **eigenen Query-Port** ([`spec.md`](../.
 | `GET /api/sellers/search` | `authenticated` | Schmale Treffer ohne Aggregate für Such-Ansichten — die Tippsuche darf keine Summen auslösen |
 | `POST /api/sellers` | `authenticated` | Legt Verkäufer an; `sellerTypeId` ist Pflicht |
 | `PUT /api/sellers/{id}` | `authenticated` | Stammdaten. Mitgesendete `salesCommission`/`feePerItem` SHALL nur mit Rolle `admin` wirken, sonst `403` |
-| `DELETE /api/sellers/{id}` | `authenticated` | löscht den Verkäufer samt allen seinen Artikeln |
+| `DELETE /api/sellers/{id}` | `authenticated` | Admin: löscht den Verkäufer samt allen seinen Artikeln. Kassenpersonal: nur ohne Artikel, sonst `409 seller.has_articles` mit der Anzahl |
 | `GET /api/sellers/{id}/articles` | `authenticated` | Artikelliste für das Detail-Modal (Abschnitt 5) |
 | `POST /api/release` | `authenticated` | Abschluss der Freigabe-Sitzung: `releasedAt` an N Artikeln + Gebühr, in einer Transaktion (Abschnitt 6) |
 | `DELETE /api/sellers/{id}/settlement` | `admin` | Setzt `settledAt` **und** `payoutAmount` zurück |
 
 Kein `IQueryable` über die Portgrenze, ein Repository pro Aggregate — die Aggregat-Abfrage ist ein Query-Port, kein erweitertes Repository.
 
-**`DELETE` ist `authenticated`, nicht `admin`** (Stand 2026-10-14, offen: Absicherung nach Wegfall der „nur ohne Artikel"-Bedingung prüfen). Die Oberfläche bietet das Löschen nur Admins an.
+**`DELETE` ist `authenticated`, die Kaskade ist Admin-Sache** (Stand 2026-10-14): Nur Admins löschen einen Verkäufer samt Artikeln. Kassenpersonal darf weiterhin einen Verkäufer **ohne Artikel** löschen — nötig, damit der Abbruch der Artikelannahme einen gerade angelegten Verkäufer wieder entfernen kann ([Epic_Artikelannahme](../Epic_Artikelannahme/epic.md) AC-11). Mit Artikeln liefert `DELETE` für Kassenpersonal `409 seller.has_articles`.
 
 ## Akzeptanzkriterien
 

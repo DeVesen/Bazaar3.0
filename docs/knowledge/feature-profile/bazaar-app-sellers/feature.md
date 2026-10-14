@@ -16,7 +16,7 @@
 - User can edit an existing seller (full detail fetched first via `GET /api/sellers/{id}`) — `sellers-page.ts` (`onEdit`)
 - User sees Provision/Gebühr-Felder disabled unless the caller is admin — `verkaeufer-dialog.html` (`conditionsEditable`)
 - User can delete a seller (admin only, from within the edit dialog) — `verkaeufer-dialog.html`/`sellers-page.ts` (`onDeleteRequested`)
-- User sees the article count in the delete confirmation and deletes the seller together with all their articles — `verkaeufer-dialog.ts` (`articleCount`), `DeleteSellerHandler`
+- User sees the article count in the delete confirmation and deletes the seller together with all their articles (admin only; non-admin gets `seller.has_articles` 409 when articles exist) — `verkaeufer-dialog.ts` (`articleCount`), `DeleteSellerHandler`
 - User can open a seller's detail modal (QR code + article table) by clicking its card — `components/seller-detail-modal/seller-detail-modal.ts`
 - User can open the "Artikel freigeben" (release) scan flow from a seller's card — `components/release-dialog/release-dialog.ts` (reuses shared `app-scan-dialog` + `app-payment-panel`)
 - User can im Freigabe-Flow eine Artikelnummer per Tastatur-Enter, Numpad-⏎, Kamera-Scan oder Klick auf einen Listeneintrag der noch nicht freigegebenen Artikel des Verkäufers erfassen; Erfassen sammelt nur in der Sitzung, geschrieben wird erst nach dem Bezahlen der Gesamtgebühr — `shared/components/scan-dialog/scan-dialog.ts` (`sessionArticleIds`, `writeMode` Default `batch`), `components/release-dialog/release-dialog.html`
