@@ -90,7 +90,9 @@ public sealed class SettleSellerHandler(
             seller.Settle(command.PayoutAmount, now);
             await sellerRepository.Update(seller);
 
-            var notDelivered = articles.Where(a => a.ReleasedAt == null).ToList();
+            var notDelivered = command.RemoveNotDelivered
+                ? articles.Where(a => a.ReleasedAt == null).ToList()
+                : [];
             foreach (var article in notDelivered)
             {
                 await articleRepository.Remove(article);

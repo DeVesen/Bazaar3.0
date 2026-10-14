@@ -22,9 +22,14 @@
     </div>
 
     @if (settlement().notDeliveredCount > 0) {
-      <p class="settlement-panel__hint">
-        {{ settlement().notDeliveredCount }} nicht abgegebene Artikel werden entfernt
-      </p>
+      <div class="settlement-panel__hint">
+        <app-boolean-input
+          variant="checkbox"
+          [label]="settlement().notDeliveredCount + ' nicht abgegebene Artikel löschen'"
+          [value]="removeNotDelivered()"
+          (valueChange)="removeNotDelivered.set($event)"
+        />
+      </div>
     }
 
     @if (errorMessage()) {

@@ -36,7 +36,7 @@ public static class SettlementEndpoints
 
         app.MapPost("/api/sellers/{id}/settlement", async (string id, SettleSellerRequestDto body, SettleSellerHandler handler) =>
         {
-            var command = new SettleSellerCommand { SellerId = id, PayoutAmount = body.PayoutAmount };
+            var command = new SettleSellerCommand { SellerId = id, PayoutAmount = body.PayoutAmount, RemoveNotDelivered = body.RemoveNotDelivered };
             var result = await handler.Handle(command);
             return Results.Ok(new SettleSellerResponseDto(result.SettledAt, result.PayoutAmount, result.RemovedArticleCount));
         })
@@ -69,6 +69,6 @@ public sealed record SellerSettlementDto(
     decimal? PayoutAmount,
     bool CanSettle);
 
-public sealed record SettleSellerRequestDto(decimal PayoutAmount);
+public sealed record SettleSellerRequestDto(decimal PayoutAmount, bool RemoveNotDelivered = true);
 
 public sealed record SettleSellerResponseDto(DateTimeOffset SettledAt, decimal PayoutAmount, int RemovedArticleCount);

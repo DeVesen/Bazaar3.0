@@ -44,7 +44,7 @@ Genau **drei Zeilen** — mehr wäre Erklärungsbedarf, weniger würde die Provi
 │  ℹ Annahmegebühr 20,00 € wurde bereits           │
 │    am Annahmetisch bezahlt.                       │
 │                                                   │
-│  ⚠ 10 nicht abgegebene Artikel werden entfernt.  │
+│  ☑ 10 nicht abgegebene Artikel löschen           │
 ├──────────────────────────────────────────────────┤
 │                        [Abbrechen]  [Buchen]      │
 └──────────────────────────────────────────────────┘
@@ -95,11 +95,11 @@ Sie hier abzuziehen würde bedeuten, dass der Verkäufer sie zweimal zahlt — e
 
 ## 5. Nicht abgegebene Artikel
 
-Hat der Verkäufer vorangemeldete Artikel, die er nie gebracht hat (`releasedAt` leer), nennt das Panel **vorher** deren Anzahl. Beim Buchen werden sie entfernt.
+Hat der Verkäufer vorangemeldete Artikel, die er nie gebracht hat (`releasedAt` leer), zeigt das Panel **vorher** eine Checkbox „N nicht abgegebene Artikel löschen" (Default: gesetzt, bei jedem Öffnen zurückgesetzt). Ist sie gesetzt, werden die Artikel beim Buchen entfernt; ist sie abgewählt, bleiben sie bestehen.
 
 Sie haben den Basar nie erreicht, es wurde keine Gebühr für sie kassiert und keine Auszahlung berührt sie — sie zu behalten würde Badge und Statistik dauerhaft mit Karteileichen belasten. Der Datensatz existiert weiterhin in der Voranmelde-App.
 
-**„Buchen"** setzt `settledAt` und `payoutAmount`, entfernt diese Artikel und sperrt den Verkäufer — alles in einer Transaktion. Danach ist der Weg zurück ausschließlich das Stornieren über die Verkäufer-Karte (Admin-only).
+**„Buchen"** setzt `settledAt` und `payoutAmount`, entfernt diese Artikel (nur bei gesetztem Häkchen) und sperrt den Verkäufer — alles in einer Transaktion. Danach ist der Weg zurück ausschließlich das Stornieren über die Verkäufer-Karte (Admin-only).
 
 ## Akzeptanzkriterien
 
@@ -108,7 +108,7 @@ Sie haben den Basar nie erreicht, es wurde keine Gebühr für sie kassiert und k
 3. **AC-3** — THE SYSTEM SHALL die Provision kaufmännisch auf 2 Dezimalstellen runden und die Auszahlung als Differenz berechnen; eine weitere Rundung SHALL nicht erfolgen.
 4. **AC-4** — THE SYSTEM SHALL die bereits bezahlte Annahmegebühr als Hinweis anzeigen und **nicht** als Abzugsposten verrechnen.
 5. **AC-5** — IF der Verkäufer Artikel mit leerem `releasedAt` hat, THEN SHALL das Panel deren Anzahl vor dem Buchen nennen.
-6. **AC-6** — WHEN „Buchen" geklickt wird, THEN SHALL das System `settledAt` und den ausgezahlten Betrag setzen und die nicht abgegebenen Artikel in derselben Transaktion entfernen.
+6. **AC-6** — WHEN „Buchen" geklickt wird, THEN SHALL das System `settledAt` und den ausgezahlten Betrag setzen und — nur bei gesetzter Checkbox „nicht abgegebene Artikel löschen" (Default gesetzt) — die nicht abgegebenen Artikel in derselben Transaktion entfernen.
 7. **AC-7** — THE SYSTEM SHALL für die Provision `salesCommission` des Verkäufers verwenden, nicht den aktuellen Wert seines Typs.
 
 ## Tags & Piles

@@ -15,7 +15,7 @@
 - User sees beim Zurückgeben in Tastatur- und Numpad-Modus nur den Text "Artikel nicht bekannt", wenn die Eingabe keinen ausstehenden Artikel trifft; bei Erfolg leert sich das Feld — `scan-dialog.html` (`showUnknownMessage`)
 - User can open the settlement confirmation panel ("✓ Abrechnen"), nur wenn der Server `canSettle=true` liefert und noch nicht abgerechnet ist — `settlement-page.ts` (`canSettleClick`, `onSettleClick`)
 - User sees Umsatz/Provision/Auszahlung im Bestätigungs-Dialog — `components/settlement-panel/settlement-panel.html`
-- User sees einen Hinweis auf nicht abgegebene Artikel, die beim Abrechnen entfernt werden — `settlement-panel.html` (`notDeliveredCount`)
+- User sees einen Hinweis auf nicht abgegebene Artikel, die beim Abrechnen entfernt werden; per Checkbox (Default gesetzt) abwählbar, dann bleiben sie bestehen — `settlement-panel.html` (`notDeliveredCount`, `removeNotDelivered`)
 - User can confirm the settlement booking ("Buchen") — `settlement-panel.ts` (`onConfirm`) → `settlement-page.ts` (`onSettleConfirmed`), `POST /api/sellers/{id}/settlement`
 - User sees eine Info-Meldung statt Fehler, wenn der Verkäufer zwischenzeitlich bereits (von anderer Stelle) abgerechnet wurde (409 `settlement.already_settled`) — `settlement-page.ts` (`onSettleConfirmed`)
 - User sees die Server-Fehlermeldung im Panel bei 409 `settlement.articles_open` / 400 `settlement.payout_mismatch`, Panel bleibt offen — `settlement-page.ts` (`onSettleConfirmed`)

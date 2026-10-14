@@ -49,7 +49,10 @@ export class SettlementApi {
     return this.http.put<void>(`/api/articles/${articleId}/return`, null);
   }
 
-  settle(sellerId: string, payoutAmount: number): Observable<SettleSellerResponse> {
-    return this.http.post<SettleSellerResponse>(`/api/sellers/${sellerId}/settlement`, { payoutAmount });
+  settle(sellerId: string, payoutAmount: number, removeNotDelivered = true): Observable<SettleSellerResponse> {
+    return this.http.post<SettleSellerResponse>(`/api/sellers/${sellerId}/settlement`, {
+      payoutAmount,
+      removeNotDelivered,
+    });
   }
 }

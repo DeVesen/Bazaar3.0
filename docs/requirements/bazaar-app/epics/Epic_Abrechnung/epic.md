@@ -171,7 +171,7 @@ Damit stehen der Geldschublade zwei gespeicherte Summen gegenüber statt zweier 
 
 Die Abrechnen-Bedingung betrachtet nur **freigegebene** Artikel. Ein vorangemeldeter Verkäufer, der 40 Artikel erfasst und 30 gebracht hat, kann also abgerechnet werden, während 10 Artikel mit leerem `releasedAt` zurückbleiben.
 
-**Diese Artikel werden beim Abrechnen entfernt.** Der Abrechnen-Dialog nennt die Anzahl vorher: „10 nicht abgegebene Artikel werden entfernt".
+**Diese Artikel werden beim Abrechnen standardmäßig entfernt.** Der Abrechnen-Dialog zeigt dafür eine Checkbox „10 nicht abgegebene Artikel löschen" (Default: gesetzt). Wird das Häkchen entfernt, bleiben die Artikel bestehen (`removeNotDelivered = false`).
 
 Begründung: Der Artikel hat den Basar nie erreicht. Es gibt keinen Vorgang zu dokumentieren, es wurde keine Gebühr dafür kassiert und keine Auszahlung berührt ihn. Ihn zu behalten würde das Sidebar-Badge „offene Artikel" ([Epic_App_Shell](../Epic_App_Shell/epic.md)) und jede Artikelstatistik dauerhaft mit Karteileichen belasten. Der Datensatz existiert außerdem weiterhin in der Voranmelde-App.
 

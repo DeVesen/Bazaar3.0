@@ -9,4 +9,7 @@ public sealed class SettleSellerCommand
 {
     public string SellerId { get; set; } = string.Empty;
     public decimal PayoutAmount { get; set; }
+
+    /// <summary>Default true: nicht abgegebene Artikel (ReleasedAt == null) werden beim Abrechnen gelöscht; false lässt sie bestehen.</summary>
+    public bool RemoveNotDelivered { get; set; } = true;
 }

@@ -148,18 +148,18 @@ export class SettlementPage {
     }
   }
 
-  onSettleConfirmed(): void {
+  onSettleConfirmed(removeNotDelivered = true): void {
     const sellerId = this.selectedSellerId();
     const payoutAmount = this.settlement()?.payout;
     if (!sellerId || payoutAmount === undefined) return;
 
-    this.settlementApi.settle(sellerId, payoutAmount).subscribe({
+    this.settlementApi.settle(sellerId, payoutAmount, removeNotDelivered).subscribe({
       next: () => {
         this.settlePanelVisible.set(false);
         this.settleError.set(null);
         this.resultEvent.set(createResultEvent('paid'));
-        // Der Server hat gerade alle ReleasedAt == null-Artikel hart gelöscht (settlement.md
-        // §4) — ohne loadArticles() würde die Tabelle sie fälschlich weiter als "Angenommen"
+        // Der Server hat (bei removeNotDelivered) alle ReleasedAt == null-Artikel hart gelöscht
+        // (settlement.md §4) — ohne loadArticles() würde die Tabelle sie fälschlich weiter als "Angenommen"
         // zeigen. Gleiches Muster wie onArticleConfirmed().
         this.loadSettlement();
         this.loadArticles();

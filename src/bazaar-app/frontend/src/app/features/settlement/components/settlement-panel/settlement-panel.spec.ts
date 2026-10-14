@@ -67,7 +67,7 @@ describe('SettlementPanel', () => {
   it('shows the "N nicht abgegebene Artikel werden entfernt" hint when notDeliveredCount > 0', async () => {
     const { fixture } = await setup();
 
-    expect(text(fixture)).toContain('10 nicht abgegebene Artikel werden entfernt');
+    expect(text(fixture)).toContain('10 nicht abgegebene Artikel löschen');
   });
 
   it('does not render the hint when notDeliveredCount is 0', async () => {
@@ -91,7 +91,18 @@ describe('SettlementPanel', () => {
 
     fixture.componentInstance.onConfirm();
 
-    expect(confirmedSpy).toHaveBeenCalled();
+    expect(confirmedSpy).toHaveBeenCalledWith(true);
+  });
+
+  it('emits confirmed(false) when the delete checkbox was unchecked', async () => {
+    const { fixture } = await setup();
+    const confirmedSpy = vi.fn();
+    fixture.componentInstance.confirmed.subscribe(confirmedSpy);
+
+    (fixture.componentInstance as unknown as { removeNotDelivered: { set(v: boolean): void } }).removeNotDelivered.set(false);
+    fixture.componentInstance.onConfirm();
+
+    expect(confirmedSpy).toHaveBeenCalledWith(false);
   });
 
   it('clicking "Abbrechen" emits visibleChange(false)', async () => {
