@@ -40,6 +40,15 @@
           (onClick)="onImportArticles(); $event.stopPropagation()"
         />
       }
+      <p-button
+        icon="pi pi-print"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        ariaLabel="Drucken"
+        (click)="$event.stopPropagation()"
+        (onClick)="onPrintReceipt(); $event.stopPropagation()"
+      />
     </div>
   </div>
 

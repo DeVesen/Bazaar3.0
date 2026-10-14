@@ -162,6 +162,7 @@ describe('SellerCard', () => {
         'Bearbeiten',
         'Scannen',
         'Importieren',
+        'Drucken',
       ]);
     });
 
@@ -237,6 +238,62 @@ describe('SellerCard', () => {
 
       // Assert
       expect(importSpy).toHaveBeenCalledWith(card);
+      expect(cardClickSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('print button', () => {
+    function actionLabels(el: HTMLElement): string[] {
+      return Array.from(el.querySelectorAll('.seller-card__actions button')).map(
+        (button) => button.getAttribute('aria-label') ?? '',
+      );
+    }
+
+    it('template_withoutImportRight_showsPrintAsLastActionNextToEditAndScan', async () => {
+      // Arrange
+      const fixture = TestBed.createComponent(SellerCard);
+      fixture.componentRef.setInput('card', buildCard());
+      fixture.componentRef.setInput('importVisible', false);
+
+      // Act
+      await fixture.whenStable();
+
+      // Assert
+      expect(actionLabels(fixture.nativeElement)).toEqual(['Bearbeiten', 'Scannen', 'Drucken']);
+    });
+
+    it('template_printButton_usesPrinterIcon', async () => {
+      // Arrange
+      const fixture = TestBed.createComponent(SellerCard);
+      fixture.componentRef.setInput('card', buildCard());
+
+      // Act
+      await fixture.whenStable();
+
+      // Assert
+      const button = (fixture.nativeElement as HTMLElement).querySelector('button[aria-label="Drucken"]');
+      expect(button?.querySelector('.pi-print')).not.toBeNull();
+    });
+
+    it('onPrintReceipt_buttonClicked_emitsCardWithoutOpeningDetail', async () => {
+      // Arrange
+      const card = buildCard({ articleCount: 0 });
+      const fixture = TestBed.createComponent(SellerCard);
+      fixture.componentRef.setInput('card', card);
+      const printSpy = vi.fn();
+      const cardClickSpy = vi.fn();
+      fixture.componentInstance.printReceipt.subscribe(printSpy);
+      fixture.componentInstance.cardClick.subscribe(cardClickSpy);
+      await fixture.whenStable();
+      const button = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+        'button[aria-label="Drucken"]',
+      );
+
+      // Act
+      button?.click();
+
+      // Assert
+      expect(printSpy).toHaveBeenCalledWith(card);
       expect(cardClickSpy).not.toHaveBeenCalled();
     });
   });
