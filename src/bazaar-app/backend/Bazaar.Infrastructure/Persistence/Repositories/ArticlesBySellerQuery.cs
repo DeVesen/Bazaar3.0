@@ -13,7 +13,7 @@ public sealed class ArticlesBySellerQuery(BazaarDbContext dbContext) : IArticles
 
         return articles
             .Select(a => new SellerArticleSummary(
-                a.Id, a.Number, a.Name, a.Brand, a.Category, a.Price,
+                a.Id, a.Number, a.Name, a.Brand, a.Category, a.Size, a.Color, a.Price,
                 a.Status.ToString().ToLowerInvariant(),
                 a.SoldManually))
             .ToList();

@@ -65,6 +65,29 @@ public class ArticlesBySellerQueryTests
     }
 
     [Fact]
+    public async Task GetBySellerId_ArticleWithSizeAndColor_ReturnsSizeAndColor()
+    {
+        // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
+        await using var dbContext = CreateContext();
+        var now = DateTimeOffset.UtcNow;
+        var article = Article.Create(
+            "ART00004", 4, "SEL00001", "Jacke", "Nike", "Jacken", 20m,
+            "M", "Rot", null, now, now);
+        await dbContext.Articles.AddAsync(article, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        var sut = new ArticlesBySellerQuery(dbContext);
+
+        // Act
+        var result = await sut.GetBySellerId("SEL00001");
+
+        // Assert
+        var item = Assert.Single(result);
+        Assert.Equal("M", item.Size);
+        Assert.Equal("Rot", item.Color);
+    }
+
+    [Fact]
     public async Task GetBySellerId_NoArticlesForSeller_ReturnsEmptyList()
     {
         await using var dbContext = CreateContext();

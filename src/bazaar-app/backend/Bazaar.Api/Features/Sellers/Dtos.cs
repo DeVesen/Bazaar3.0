@@ -90,6 +90,8 @@ public sealed record ArticleSummaryDto(
     string Name,
     string? Brand,
     string? Category,
+    string? Size,
+    string? Color,
     decimal Price,
     string Status,
     bool SoldManually);
