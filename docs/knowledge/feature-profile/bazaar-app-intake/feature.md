@@ -37,7 +37,7 @@
 - User can book einen umnummerierten Artikel: die Zeile trägt die Ursprungsnummer (`originalNumberToDelete`), die als `deleteArticleNumber` an `POST /api/intake` geht; das Backend löscht den alten Artikel vor dem Anlegen unter der neuen Nummer — `intake-session-list.ts` (Mapping auf `IntakeArticleLine`), `Bazaar.Application/Intake/IntakeHandler.cs`
 - User sees bei einem Umnummerieren auf eine Nummer, die bereits einem anderen eigenen vorregistrierten Artikel gehört, einen 409 `article.number_taken` statt eines Überschreibens dieses Artikels — `IntakeHandler.cs` (`toUpdate` nur ohne `DeleteArticleNumber`)
 - User sees betroffene Zeilen markiert und die Artikelnummer mit dem Server-Vorschlag vorbefüllt, wenn beim Buchen eine Nummer inzwischen vergeben ist (409 `article.number_taken`) — `intake-session-list.ts` (`handleBookingError`/`onBookingConflict`)
-- User sees einen Beleg-Druck ausgelöst nach erfolgreicher Buchung — `intake-session-list.ts` (`onPaymentConfirmed` → `PrintService.printIntakeReceipt`)
+- User sees den Abgabe-Beleg (neues A4-Layout, Gruppe „Registriert") als Druckvorschau nach erfolgreicher Buchung — `intake-session-list.ts` (`onPaymentConfirmed` → `PrintService.printIntakeReceipt({ articleIds, sellerId })`)
 
 ## Spans
 - **Frontend:** `features/intake/pages/intake-page/`, `features/intake/components/{intake-wizard,intake-article-entry,intake-renumber-lookup-popup,intake-session-list,session-item-popup}/`, `features/intake/data/intake-api.ts`; nutzt `shared/components/{seller-search,input-group,input,numpad,scan-feedback,autocomplete-create,payment-panel}`, cross-feature `SellersApi`/`SellerTypesApi`/`ArticlesApi`/`CategoriesApi`/`BrandsApi` (read-only, sanktioniert)

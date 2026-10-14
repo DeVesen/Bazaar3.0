@@ -98,11 +98,21 @@
 - **First seen:** 2026-10-13
 
 ### Abgabe-Beleg
-- **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/print-abgabe-beleg/print-abgabe-beleg.ts` — Druckdokument der Haupt-App über abgegebene Artikel (Komponente `PrintAbgabeBeleg`, Selector `app-print-abgabe-beleg`), gedruckt über `PrintService.printIntakeReceipt` bei „Speichern" in der Artikelannahme und bei der Freigabe; kommt zusätzlich an die Verkäufer-Kachel. Code-Name `print-abgabe-beleg` bleibt. Nicht verwenden: „Druckvorlage".
+- **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/print-document/print-document.ts` — Druckdokument der Haupt-App über abgegebene Artikel (Komponente `PrintDocument`, Modell-Builder `buildAbgabeBelegModel`), gedruckt über `PrintService.printIntakeReceipt` bei „Speichern" in der Artikelannahme und bei der Freigabe sowie über `PrintService.printSellerReceipt` beim Druckbutton der Verkäufer-Kachel. Nicht verwenden: „Druckvorlage".
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-14
 
 ### Verkäufer-Übersicht
-- **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/print-verkaeufer-uebersicht/print-verkaeufer-uebersicht.ts` — Druckdokument der Abrechnung in der Haupt-App (Komponente `PrintVerkaeuferUebersicht`, Selector `app-print-verkaeufer-uebersicht`), gedruckt über `PrintService.printSellerSummary`. Code-Name `print-verkaeufer-uebersicht` bleibt.
+- **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/print-document/print-document.ts` — Druckdokument der Abrechnung in der Haupt-App (dieselbe Komponente `PrintDocument` wie der Abgabe-Beleg, Modell-Builder `buildVerkaeuferUebersichtModel`, mehr Kennzahl-Kacheln, „Verdienst" statt „Auszahlung"), gedruckt über `PrintService.printSellerSummary`.
+- **Confidence:** user-confirmed
+- **First seen:** 2026-10-14
+
+### Kennzahl-Kachel
+- **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/print-document/print-document.html` — Infoblock auf dem Beleg (Titel links oben, darunter größerer, dickerer Wert, linksbündig), Klassen `.print-doc__tile`, Zeilen `.print-doc__tiles--a|--b`. „Kachel" allein bleibt die Verkäufer-Kachel.
+- **Confidence:** user-confirmed
+- **First seen:** 2026-10-14
+
+### Freitext (Beleg)
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/components/print-texts-form/print-texts-form.ts` — fünf Markdown-Texte je Vorlage (Abgabe-Beleg, Verkäufer-Übersicht), zusammen zehn Felder: 1 Kopfzeile links, 2 Kopfzeile Mitte, 3 über der Artikelliste, 4 Fußzeile links, 5 Fußzeile Mitte; Backend `Settings.AbgabeBeleg`/`Settings.VerkaeuferUebersicht` (`PrintTexts`), Endpoints `GET/PUT /api/settings/print-texts`.
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-14
