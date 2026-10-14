@@ -96,3 +96,13 @@
 - **Aliases:** Artikel zurückgeben
 - **Confidence:** inferred
 - **First seen:** 2026-10-13
+
+### Abgabe-Beleg
+- **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/print-abgabe-beleg/print-abgabe-beleg.ts` — Druckdokument der Haupt-App über abgegebene Artikel (Komponente `PrintAbgabeBeleg`, Selector `app-print-abgabe-beleg`), gedruckt über `PrintService.printIntakeReceipt` bei „Speichern" in der Artikelannahme und bei der Freigabe; kommt zusätzlich an die Verkäufer-Kachel. Code-Name `print-abgabe-beleg` bleibt. Nicht verwenden: „Druckvorlage".
+- **Confidence:** user-confirmed
+- **First seen:** 2026-10-14
+
+### Verkäufer-Übersicht
+- **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/print-verkaeufer-uebersicht/print-verkaeufer-uebersicht.ts` — Druckdokument der Abrechnung in der Haupt-App (Komponente `PrintVerkaeuferUebersicht`, Selector `app-print-verkaeufer-uebersicht`), gedruckt über `PrintService.printSellerSummary`. Code-Name `print-verkaeufer-uebersicht` bleibt.
+- **Confidence:** user-confirmed
+- **First seen:** 2026-10-14
