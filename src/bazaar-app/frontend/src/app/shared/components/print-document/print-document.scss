@@ -1,0 +1,208 @@
+app-print-document {
+  display: block;
+  background: #fff;
+  color: #000;
+  font-family: var(--font-body, sans-serif);
+  font-size: 9pt;
+  line-height: 1.25;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.print-page {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  break-after: page;
+  page-break-after: always;
+
+  &:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+}
+
+.print-doc {
+  &__head,
+  &__foot {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 4mm;
+    flex: none;
+    overflow: hidden;
+  }
+
+  &__text {
+    min-width: 0;
+    overflow: hidden;
+
+    &--center {
+      text-align: center;
+    }
+  }
+
+  &__meta,
+  &__page-no {
+    text-align: right;
+  }
+
+  &__seller {
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex: none;
+    overflow: hidden;
+    padding: 2mm 0;
+  }
+
+  &__address p {
+    margin: 0;
+  }
+
+  &__name {
+    font-weight: 700;
+  }
+
+  &__tiles {
+    box-sizing: border-box;
+    display: flex;
+    gap: 3mm;
+    flex: none;
+    padding-bottom: 2mm;
+  }
+
+  &__tile {
+    box-sizing: border-box;
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    overflow: hidden;
+    padding: 1.5mm 2mm;
+    border: 0.3mm solid #000;
+  }
+
+  &__tile-title {
+    font-size: 8pt;
+  }
+
+  &__tile-value {
+    font-size: 13pt;
+    font-weight: 700;
+  }
+
+  &__tiles--b &__tile-value {
+    font-size: 10pt;
+  }
+
+  &__freitext3,
+  &__continuation {
+    flex: none;
+    padding: 2mm 0;
+  }
+
+  &__freitext3 {
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  &__continuation {
+    box-sizing: border-box;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    border: 0.3mm solid #000;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    th,
+    td {
+      padding: 0 1.5mm;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    thead th {
+      font-weight: 700;
+      border-bottom: 0.3mm solid #000;
+    }
+  }
+
+  &__col--number {
+    width: 24mm;
+  }
+
+  &__col--category {
+    width: 26mm;
+  }
+
+  &__col--brand {
+    width: 24mm;
+  }
+
+  &__col--size {
+    width: 14mm;
+  }
+
+  &__col--color {
+    width: 20mm;
+  }
+
+  &__col--price {
+    width: 20mm;
+  }
+
+  &__cell--price {
+    text-align: right !important;
+  }
+
+  &__group-row th {
+    background: #e6e6e6;
+    font-weight: 700;
+  }
+
+  &__text p,
+  &__freitext3 p {
+    margin: 0 0 1mm;
+  }
+
+  &__text :is(h1, h2, h3, h4, h5, h6),
+  &__freitext3 :is(h1, h2, h3, h4, h5, h6) {
+    margin: 0 0 1mm;
+    font-size: 11pt;
+  }
+
+  &__text :is(ul, ol),
+  &__freitext3 :is(ul, ol) {
+    margin: 0 0 1mm;
+    padding-left: 5mm;
+  }
+
+  &__text table,
+  &__freitext3 table {
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 0 1.5mm;
+      border: 0.2mm solid #000;
+    }
+  }
+}
