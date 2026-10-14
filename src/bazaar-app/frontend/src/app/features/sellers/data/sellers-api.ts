@@ -42,6 +42,8 @@ export interface ArticleSummary {
   name: string;
   brand: string | null;
   category: string | null;
+  size: string | null;
+  color: string | null;
   price: number;
   status: string;
   soldManually: boolean;

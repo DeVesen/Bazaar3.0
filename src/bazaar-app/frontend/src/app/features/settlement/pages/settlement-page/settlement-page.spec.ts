@@ -66,6 +66,8 @@ function article(overrides: Partial<ArticleSummary> = {}): ArticleSummary {
     name: 'Winterjacke',
     brand: null,
     category: null,
+    size: null,
+    color: null,
     price: 12.5,
     status: 'selling',
     soldManually: false,

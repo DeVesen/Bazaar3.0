@@ -30,6 +30,8 @@ function article(
     name: 'Artikel',
     brand: null,
     category: null,
+    size: null,
+    color: null,
     price: 5,
     status: 'accepted',
     soldManually: false,
