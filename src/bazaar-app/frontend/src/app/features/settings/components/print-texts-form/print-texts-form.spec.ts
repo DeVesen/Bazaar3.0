@@ -120,6 +120,31 @@ describe('PrintTextsForm', () => {
     );
   });
 
+  it('onSave_loadFailed_doesNotSendUpdate', async () => {
+    // Arrange
+    get.mockReturnValue(throwError(() => new Error('boom')));
+    const { fixture, component, el } = await createForm();
+    fixture.detectChanges();
+    const button = el.querySelector<HTMLButtonElement>('p-button button');
+
+    // Act
+    component.onSave();
+
+    // Assert
+    expect(button?.disabled).toBe(true);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('template_textsLoaded_saveButtonIsEnabled', async () => {
+    // Arrange & Act
+    const { fixture, el } = await createForm();
+    fixture.detectChanges();
+    const button = el.querySelector<HTMLButtonElement>('p-button button');
+
+    // Assert
+    expect(button?.disabled).toBe(false);
+  });
+
   it('constructor_loadFails_showsErrorToast', async () => {
     // Arrange
     get.mockReturnValue(throwError(() => new Error('boom')));

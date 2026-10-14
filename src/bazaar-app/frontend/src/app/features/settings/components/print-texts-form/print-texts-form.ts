@@ -48,10 +48,15 @@ export class PrintTextsForm {
 
   readonly texts = signal<PrintTexts>(emptyPrintTexts());
   readonly saving = signal(false);
+  /** Erst nach erfolgreichem Laden darf gespeichert werden, sonst überschreiben leere Felder die Sätze. */
+  readonly loaded = signal(false);
 
   constructor() {
     this.printTextsApi.get().subscribe({
-      next: (texts) => this.texts.set(texts),
+      next: (texts) => {
+        this.texts.set(texts);
+        this.loaded.set(true);
+      },
       error: () =>
         this.messageService.add({
           severity: 'error',
@@ -72,6 +77,9 @@ export class PrintTextsForm {
   }
 
   onSave(): void {
+    if (!this.loaded()) {
+      return;
+    }
     this.saving.set(true);
     this.printTextsApi.update(this.texts()).subscribe({
       next: () => {

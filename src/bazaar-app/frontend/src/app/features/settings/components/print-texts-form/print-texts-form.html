@@ -22,5 +22,5 @@
     </fieldset>
   }
 
-  <p-button label="Freitexte speichern" [disabled]="saving()" (onClick)="onSave()" />
+  <p-button label="Freitexte speichern" [disabled]="saving() || !loaded()" (onClick)="onSave()" />
 </div>
