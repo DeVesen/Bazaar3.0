@@ -6,6 +6,8 @@ import { TextareaModule } from 'primeng/textarea';
 import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
 import { Input, InputAddon } from '../../../../shared/components/input/input';
+import { ResultOverlay } from '../../../../shared/components/result-overlay/result-overlay';
+import { ResultEvent, createResultEvent } from '../../../../shared/components/result-overlay/result-event';
 import { Numpad } from '../../../../shared/components/numpad/numpad';
 // Cross-feature import, read-only: `ArticlesApi.getByNumber()`/`.getNextNumber()` back the
 // Artikelnummer-Prüfung/Nummernvorschlag — same sanctioned pattern as the other cross-feature
@@ -75,6 +77,7 @@ export interface SessionArticle {
     Numpad,
     IntakeSessionList,
     IntakeRenumberLookupPopup,
+    ResultOverlay,
   ],
   templateUrl: './intake-article-entry.html',
   styleUrl: './intake-article-entry.scss',
@@ -109,6 +112,8 @@ export class IntakeArticleEntry {
   readonly brandNames = computed(() => this.brandsList().map((brand) => brand.name));
 
   readonly articleNumber = signal('');
+  /** Fresh `success` event after a successful transition/takeover (`app-result-overlay`). */
+  readonly resultEvent = signal<ResultEvent | null>(null);
   readonly name = signal('');
   readonly category = signal('');
   readonly brand = signal('');
@@ -438,6 +443,7 @@ export class IntakeArticleEntry {
     ]);
 
     this.resetForm();
+    this.resultEvent.set(createResultEvent('success'));
   }
 
   /** `intake-session-list`'s `itemDeleted` — pure in-memory session state, no confirm dialog

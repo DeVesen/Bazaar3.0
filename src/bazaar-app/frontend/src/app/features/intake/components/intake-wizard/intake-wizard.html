@@ -214,4 +214,6 @@
       <p-button severity="primary" label="Weiter →" [disabled]="!canSave()" (onClick)="onNext()" />
     }
   </div>
+
+  <app-result-overlay [event]="resultEvent()" />
 </div>

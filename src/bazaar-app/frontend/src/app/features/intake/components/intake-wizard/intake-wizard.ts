@@ -25,6 +25,8 @@ import { CreateSellerRequest, SellersApi } from '../../../sellers/data/sellers-a
 // eslint-disable-next-line boundaries/dependencies
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
 import { Input } from '../../../../shared/components/input/input';
+import { ResultOverlay } from '../../../../shared/components/result-overlay/result-overlay';
+import { ResultEvent, createResultEvent } from '../../../../shared/components/result-overlay/result-event';
 import {
   SellerRequiredField,
   sellerRequiredState,
@@ -64,6 +66,7 @@ function splitPendingSearchText(text: string): { firstName: string; lastName: st
     IftaLabelModule,
     Input,
     IntakeArticleEntry,
+    ResultOverlay,
   ],
   templateUrl: './intake-wizard.html',
   styleUrl: './intake-wizard.scss',
@@ -105,6 +108,8 @@ export class IntakeWizard {
 
   readonly saving = signal(false);
   readonly createError = signal<string | null>(null);
+  /** Fresh `success` event after a successful transition/takeover (`app-result-overlay`). */
+  readonly resultEvent = signal<ResultEvent | null>(null);
 
   /**
    * Final-review fix (Important 1): fixed `false`, no longer `computed(() => this.isAdmin())`.
@@ -249,6 +254,7 @@ export class IntakeWizard {
         this.step2SellerId.set(seller.id);
         this.createdInThisSession.set(true);
         this.activeStep.set('step2');
+        this.resultEvent.set(createResultEvent('success'));
       },
       error: () => {
         // AC-9: keep all field values exactly as entered, show an error, stay on Step 1.

@@ -361,6 +361,7 @@ describe('IntakeArticleEntry', () => {
       component.onSubmitEntry();
       await fixture.whenStable();
 
+      expect(component.resultEvent()?.kind).toBe('success');
       expect(component.items()).toEqual([
         {
           localId: expect.any(String),

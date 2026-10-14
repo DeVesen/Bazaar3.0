@@ -13,7 +13,7 @@ updated: 2026-10-13
 - Technik — Wrapper-Begründung
 - Akzeptanzkriterien — EARS-Kriterien
 
-**Verwendung:** Haupt-App — Verkauf-Seite sowie die Dialoge „Artikel freigeben" und „Artikel zurückgeben" (`scan-dialog`). Zusätzlich `paid` („Bezahlt") nach erfolgreicher Buchung aus dem Bezahlen-Dialog (`payment-panel`): Verkauf (Bezahlen), Artikelannahme (Speichern) und Freigeben (bei Gebühr > 0).
+**Verwendung:** Haupt-App — Verkauf-Seite sowie die Dialoge „Artikel freigeben" und „Artikel zurückgeben" (`scan-dialog`). Zusätzlich `paid` („Bezahlt") nach erfolgreicher Buchung aus dem Bezahlen-Dialog (`payment-panel`): Verkauf (Bezahlen), Artikelannahme (Speichern) und Freigeben (bei Gebühr > 0), Abrechnen (nach dem Buchen). `success` zusätzlich in der Artikelannahme: „Übernehmen" (Artikel übernommen) und „Weiter" von Schritt 1 zu Schritt 2 (Verkäufer angelegt).
 
 Eigenständiger, wiederverwendbarer Baustein ohne eigene Fachlogik: Verkauf-Seite und Dialoge bestimmen, welches
 Ergebnis gemeldet wird. Nicht zu verwechseln mit dem Scan-Feedback (`app-scan-feedback`, Ring-Countdown der

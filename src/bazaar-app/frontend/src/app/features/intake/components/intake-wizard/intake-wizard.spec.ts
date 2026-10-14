@@ -270,6 +270,18 @@ describe('IntakeWizard', () => {
     expect(component.activeStep()).toBe('step2');
   });
 
+  it('onNext success: shows the success result on the transition to step 2', async () => {
+    const { fixture } = await setup({ createResult: createdSeller({ id: 'SEL00099' }) });
+    const component = fixture.componentInstance;
+    component.firstName.set('Max');
+    component.lastName.set('Mustermann');
+    component.city.set('Karlsruhe');
+
+    component.onNext();
+
+    expect(component.resultEvent()?.kind).toBe('success');
+  });
+
   it('fix round 1: disables the Step-1 tab once a seller exists for this session (created or resolved)', async () => {
     const created = await setup({ createResult: createdSeller({ id: 'SEL00099' }) });
     expect(created.fixture.componentInstance.canGoToStep1()).toBe(true);
