@@ -671,7 +671,18 @@ describe('SettlementPage', () => {
       selectSeller(component);
       component.onSettleConfirmed();
 
-      expect(settlementApi.settle).toHaveBeenCalledWith('SEL00001', 332.94);
+      expect(settlementApi.settle).toHaveBeenCalledWith('SEL00001', 332.94, true);
+    });
+
+    it('onSettleConfirmed(false) passes removeNotDelivered=false to settlementApi.settle', async () => {
+      const settlementApi = settlementApiStub();
+      settlementApi.getSettlement.mockReturnValue(of(settlement({ openCount: 0, canSettle: true, payout: 332.94 })));
+      const { component } = await setup({ settlementApi });
+
+      selectSeller(component);
+      component.onSettleConfirmed(false);
+
+      expect(settlementApi.settle).toHaveBeenCalledWith('SEL00001', 332.94, false);
     });
 
     it('on success: closes the panel, reloads settlement and articles, and prints the final summary', async () => {

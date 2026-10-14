@@ -72,18 +72,20 @@ Ein verkaufter Artikel kann nicht zurückgegeben werden (`409`) — die gegensei
 
 ```
 POST /api/sellers/a3f9c2d1/settlement
-{ "payoutAmount": 332.94 }
+{ "payoutAmount": 332.94, "removeNotDelivered": true }
 
 → 200 OK
 { "settledAt": "2026-08-17T16:40:11Z",
   "payoutAmount": 332.94,
-  "removedArticleCount": 10 }
+  "removedArticleCount": 10 }   // 0, wenn removeNotDelivered = false
 
 → 409 Conflict   errorCode: settlement.articles_open
                  detail: "3 Artikel sind noch im Verkauf"
 → 409 Conflict   errorCode: settlement.already_settled
 → 400 Bad Request  errors: { "payoutAmount": ["Betrag weicht von der Berechnung ab"] }
 ```
+
+`removeNotDelivered` ist optional (Default `true`). Bei `false` bleiben die nicht abgegebenen Artikel bestehen, `removedArticleCount` ist `0`.
 
 ### Was in der Transaktion passiert
 

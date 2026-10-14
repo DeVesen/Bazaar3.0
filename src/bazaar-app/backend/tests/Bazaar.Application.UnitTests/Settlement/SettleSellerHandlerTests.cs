@@ -81,6 +81,26 @@ public class SettleSellerHandlerTests
     }
 
     [Fact]
+    public async Task Handle_RemoveNotDeliveredFalse_SettlesSellerButKeepsNotDeliveredArticles()
+    {
+        var seller = CreateSeller(salesCommission: 15m);
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+
+        var sold = CreateSoldArticle("ARTICLE001", 1001, 50.00m);
+        var notDelivered = CreateArticle("ARTICLE002", 1002);
+        _articleRepository.Setup(r => r.GetAllBySellerId("SELLER001")).ReturnsAsync([sold, notDelivered]);
+
+        var command = new SettleSellerCommand { SellerId = "SELLER001", PayoutAmount = 42.50m, RemoveNotDelivered = false };
+        var sut = CreateSut();
+
+        var result = await sut.Handle(command);
+
+        Assert.Equal(0, result.RemovedArticleCount);
+        Assert.NotNull(seller.SettledAt);
+        _articleRepository.Verify(r => r.Remove(It.IsAny<Article>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_ArticleStillOpenInSelling_ThrowsConflictWithArticlesOpen_AndMakesNoWrites()
     {
         var seller = CreateSeller();

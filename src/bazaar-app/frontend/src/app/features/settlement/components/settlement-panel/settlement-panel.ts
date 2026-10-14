@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, input, output, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { BooleanInput } from '../../../../shared/components/boolean-input/boolean-input';
 import { SellerSettlement } from '../../data/settlement-api';
 
 /**
@@ -15,7 +16,7 @@ import { SellerSettlement } from '../../data/settlement-api';
  */
 @Component({
   selector: 'app-settlement-panel',
-  imports: [DialogModule, ButtonModule],
+  imports: [DialogModule, ButtonModule, BooleanInput],
   templateUrl: './settlement-panel.html',
   styleUrl: './settlement-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,17 +30,28 @@ export class SettlementPanel {
   readonly errorMessage = input<string | null>(null);
 
   readonly visibleChange = output<boolean>();
-  /** Emitted when "Buchen" is clicked. No payload — the parent already holds the exact payout
-   * amount in the same `settlement` object it passed down as an input, so there is nothing
-   * this component could add. */
-  readonly confirmed = output<void>();
+  /** Emitted when "Buchen" is clicked. Payload: Häkchen "nicht abgegebene Artikel löschen"
+   * (true = löschen, Default). The parent already holds the exact payout amount in the same
+   * `settlement` object it passed down as an input. */
+  readonly confirmed = output<boolean>();
+
+  /** Default true; wird bei jedem Öffnen des Dialogs auf true zurückgesetzt. */
+  protected readonly removeNotDelivered = signal(true);
+
+  constructor() {
+    effect(() => {
+      if (this.visible()) {
+        this.removeNotDelivered.set(true);
+      }
+    });
+  }
 
   onCancel(): void {
     this.visibleChange.emit(false);
   }
 
   onConfirm(): void {
-    this.confirmed.emit();
+    this.confirmed.emit(this.removeNotDelivered());
   }
 
   protected formatCurrency(value: number): string {
