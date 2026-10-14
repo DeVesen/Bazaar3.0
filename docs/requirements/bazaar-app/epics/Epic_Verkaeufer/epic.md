@@ -168,11 +168,13 @@ Zusätzlich **Panel 05 — Sonstiges**:
 
 Im Bearbeiten-Dialog, **nur für Admins**, mit Bestätigungsdialog — bewusst nicht als vierter Button auf jeder Karte, das lädt zum Verklicken ein.
 
-**Löschen ist nur möglich, solange der Verkäufer keine Artikel hat.** Andernfalls `409` mit der Anzahl der Artikel. Ein Verkäufer mit verkauften Artikeln hängt an Kassenvorgängen; ihn zu entfernen würde Umsätze verwaisen lassen. Für den häufigsten Anlass — eine am Annahmetisch versehentlich doppelt angelegte Person — reicht die Regel, weil die Dublette in der Regel leer ist.
+**Beim Löschen werden alle Artikel des Verkäufers mitgelöscht** — auch verkaufte, und auch bei abgerechneten Verkäufern. Hat der Verkäufer Artikel, nennt der Bestätigungsdialog deren Anzahl und weist darauf hin, dass sie ebenfalls gelöscht werden.
+
+*Entscheidung 2026-10-14:* Bewusste Abweichung von der früheren Regel „löschen nur ohne Artikel (`409`)". Grund: Der Betreiber will einen Verkäufer samt Artikeln in einem Schritt entfernen; der Bestätigungsdialog mit Artikelanzahl ist die Schutzmaßnahme.
 
 **Zwei Verkäufer zusammenführen ist ausdrücklich nicht Teil des MVP.**
 
-Das ist strenger als der JSON-Import, der einen existierenden Verkäufer samt Artikeln ersetzt ([Epic_Einstellungen](../Epic_Einstellungen/epic.md)). Der Unterschied ist gewollt: Der Import ersetzt einen Verkäufer durch **denselben** Verkäufer in neuerem Stand (gleiche ID aus der Voranmelde-App), es verschwindet nichts, was nicht sofort wieder entsteht. Manuelles Löschen entfernt ihn dauerhaft.
+Wie beim JSON-Import ([Epic_Einstellungen](../Epic_Einstellungen/epic.md)) werden Verkäufer samt Artikeln entfernt. Anders als dort entsteht beim manuellen Löschen nichts neu: Der Verkäufer ist dauerhaft weg.
 
 ---
 
@@ -238,14 +240,14 @@ Die Karten-Aggregate kommen über einen **eigenen Query-Port** ([`spec.md`](../.
 | `GET /api/sellers/search` | `authenticated` | Schmale Treffer ohne Aggregate für Such-Ansichten — die Tippsuche darf keine Summen auslösen |
 | `POST /api/sellers` | `authenticated` | Legt Verkäufer an; `sellerTypeId` ist Pflicht |
 | `PUT /api/sellers/{id}` | `authenticated` | Stammdaten. Mitgesendete `salesCommission`/`feePerItem` SHALL nur mit Rolle `admin` wirken, sonst `403` |
-| `DELETE /api/sellers/{id}` | `authenticated` | `409` falls der Verkäufer noch Artikel hat — die Datenbedingung trägt die Sicherheit, nicht die Rolle |
+| `DELETE /api/sellers/{id}` | `authenticated` | löscht den Verkäufer samt allen seinen Artikeln |
 | `GET /api/sellers/{id}/articles` | `authenticated` | Artikelliste für das Detail-Modal (Abschnitt 5) |
 | `POST /api/release` | `authenticated` | Abschluss der Freigabe-Sitzung: `releasedAt` an N Artikeln + Gebühr, in einer Transaktion (Abschnitt 6) |
 | `DELETE /api/sellers/{id}/settlement` | `admin` | Setzt `settledAt` **und** `payoutAmount` zurück |
 
 Kein `IQueryable` über die Portgrenze, ein Repository pro Aggregate — die Aggregat-Abfrage ist ein Query-Port, kein erweitertes Repository.
 
-**`DELETE` ist `authenticated`, nicht `admin`:** Löschbar ist nur ein Verkäufer **ohne Artikel** — also eine gerade entstandene Fehleingabe oder ein Laufkunde, der nie abgegeben hat. Importierte Verkäufer haben immer Artikel. Ein Sonderrecht für den Admin würde nichts zusätzlich schützen, aber Kassenpersonal daran hindern, die eigene Fehleingabe zurückzunehmen.
+**`DELETE` ist `authenticated`, nicht `admin`** (Stand 2026-10-14, offen: Absicherung nach Wegfall der „nur ohne Artikel"-Bedingung prüfen). Die Oberfläche bietet das Löschen nur Admins an.
 
 ## Akzeptanzkriterien
 
@@ -257,7 +259,7 @@ Kein `IQueryable` über die Portgrenze, ein Repository pro Aggregate — die Agg
 6. **AC-6** — WHILE ein Pflichtfeld leer ist, SHALL das System „Speichern" deaktiviert halten und nach dem Verlassen des Feldes eine Meldung unter dem leeren Feld anzeigen.
 7. **AC-7** — THE SYSTEM SHALL Suche, Statusfilter, Sortierung und Paging serverseitig auflösen und je Nachladen höchstens 60 Karten liefern; WHEN das Listenende erreicht wird und weitere Verkäufer existieren, THEN SHALL das System die nächsten 60 ohne Paginator anhängen. Die Karten-Aggregate SHALL aus einer einzigen Abfrage stammen.
 8. **AC-8** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL das System die Konditionsfelder schreibgeschützt anzeigen, den Löschen-Button im Bearbeiten-Dialog nicht rendern und den Löschen-Button im Abrechnungs-Popup nicht rendern; entsprechende Requests SHALL mit `403` abgelehnt werden.
-9. **AC-9** — IF ein Verkäufer gelöscht werden soll, der noch Artikel hat, THEN SHALL das System die Löschung mit `409` ablehnen und die Anzahl der Artikel nennen.
+9. **AC-9** — IF ein Verkäufer gelöscht werden soll, der noch Artikel hat, THEN SHALL das System im Bestätigungsdialog die Anzahl der Artikel nennen und beim Bestätigen den Verkäufer samt allen seinen Artikeln löschen.
 10. **AC-10** — WHEN der Löschen-Button im Abrechnungs-Popup geklickt wird, THEN SHALL das System einen Bestätigungsdialog mit dem Text „Auszahlung vom ‹Zeitstempel› wird verworfen" anzeigen und `settledAt` erst nach Bestätigung zurücksetzen.
 11. **AC-11** — WHEN der Freigeben-Dialog geöffnet wird, THEN SHALL das System ausschließlich Artikel mit leerem `releasedAt` listen; am Tisch aufgenommene Artikel SHALL dort nicht erscheinen.
 

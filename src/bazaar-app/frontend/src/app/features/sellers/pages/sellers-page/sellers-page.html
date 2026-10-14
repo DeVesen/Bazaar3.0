@@ -122,7 +122,7 @@
   [initialValue]="dialogInitialValue()"
   [saving]="saving()"
   [serverErrors]="serverErrors()"
-  [deleteError]="deleteError()"
+  [articleCount]="editingCard()?.articleCount ?? 0"
   (save)="onDialogSave($event)"
   (cancel)="onDialogCancel()"
   (deleteRequested)="onDeleteRequested()"

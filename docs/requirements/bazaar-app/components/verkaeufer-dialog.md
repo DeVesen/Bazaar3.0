@@ -111,7 +111,7 @@ Bewusst hier und nicht auf der Karte: Vier Klickflächen pro Karte sind das Maxi
 2. **AC-2** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL das System Gebühr und Provision schreibgeschützt anzeigen.
 3. **AC-3** — WHEN der Typ gewechselt wird, THEN SHALL das System vorher einen Bestätigungsdialog mit den konkreten alten und neuen Werten anzeigen und nach Bestätigung beide Felder überschreiben.
 4. **AC-4** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL der Löschen-Button nicht gerendert werden.
-5. **AC-5** — IF der Verkäufer noch Artikel hat, THEN SHALL das System das Löschen ablehnen und die Anzahl der Artikel nennen.
+5. **AC-5** — IF der Verkäufer noch Artikel hat, THEN SHALL das System im Lösch-Bestätigungsdialog die Anzahl der Artikel nennen und darauf hinweisen, dass sie mitgelöscht werden.
 6. **AC-6** — THE SYSTEM SHALL kein Panel für Admin-Rechte oder Einladungs-Links anzeigen.
 7. **AC-7** — WHILE eines der sechs Pflichtfelder leer ist, SHALL das System „Speichern" deaktiviert halten und nach dem Verlassen des Feldes eine Meldung unter dem leeren Feld anzeigen.
 

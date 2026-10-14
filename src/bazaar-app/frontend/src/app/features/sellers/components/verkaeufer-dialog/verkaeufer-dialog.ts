@@ -81,12 +81,8 @@ export class VerkaeuferDialog {
   readonly saving = input<boolean>(false);
   /** Server-side validation messages to render under the affected field. */
   readonly serverErrors = input<SellerDialogServerErrors | null>(null);
-  /**
-   * Message for a failed delete (e.g. mapped from a `409 seller.has_articles` response's
-   * `detail`) — the page owns the actual `DELETE` call and feeds the result back in here so
-   * this dialog can display it without closing.
-   */
-  readonly deleteError = input<string | null>(null);
+  /** Number of articles the seller owns; they are deleted together with the seller. */
+  readonly articleCount = input<number>(0);
 
   readonly visibleChange = output<boolean>();
   readonly save = output<SellerFormResult>();
@@ -286,10 +282,16 @@ export class VerkaeuferDialog {
 
   onDeleteClick(): void {
     const name = `${this.firstName()} ${this.lastName()}`.trim();
+    const count = this.articleCount();
+    const articleHint =
+      count > 0
+        ? ` Der Verkäufer hat bereits ${count} Artikel, ` +
+          `${count === 1 ? 'dieser wird' : 'diese werden'} ebenfalls gelöscht.`
+        : '';
     this.confirmationService.confirm({
       key: 'delete',
       header: 'Verkäufer löschen',
-      message: `Verkäufer '${name}' wirklich löschen?`,
+      message: `Verkäufer '${name}' wirklich löschen?${articleHint}`,
       accept: () => {
         this.deleteRequested.emit();
       },

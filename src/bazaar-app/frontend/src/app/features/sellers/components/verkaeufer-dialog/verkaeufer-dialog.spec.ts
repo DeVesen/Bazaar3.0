@@ -314,20 +314,46 @@ describe('VerkaeuferDialog', () => {
     expect(deleteSpy).toHaveBeenCalled();
   });
 
-  it('renders the 409 article-count message when deleteError is set', async () => {
-    const { fixture } = await setup({ isAdmin: true });
+  it('adds an article hint to the delete confirm message when the seller has articles', async () => {
+    const { fixture, confirmSpy } = await setup({ isAdmin: true });
     fixture.componentRef.setInput('visible', true);
     fixture.componentRef.setInput('mode', 'edit');
     fixture.componentRef.setInput('initialValue', EDIT_SELLER);
-    fixture.componentRef.setInput(
-      'deleteError',
-      'Verkäufer hat noch 12 Artikel und kann nicht gelöscht werden.',
-    );
+    fixture.componentRef.setInput('articleCount', 12);
     await fixture.whenStable();
 
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      'Verkäufer hat noch 12 Artikel und kann nicht gelöscht werden.',
+    fixture.componentInstance.onDeleteClick();
+
+    expect(confirmSpy.mock.calls[0][0].message).toContain(
+      'Der Verkäufer hat bereits 12 Artikel, diese werden ebenfalls gelöscht.',
     );
+  });
+
+  it('uses the singular in the article hint for exactly one article', async () => {
+    const { fixture, confirmSpy } = await setup({ isAdmin: true });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('mode', 'edit');
+    fixture.componentRef.setInput('initialValue', EDIT_SELLER);
+    fixture.componentRef.setInput('articleCount', 1);
+    await fixture.whenStable();
+
+    fixture.componentInstance.onDeleteClick();
+
+    expect(confirmSpy.mock.calls[0][0].message).toContain(
+      'hat bereits 1 Artikel, dieser wird ebenfalls gelöscht.',
+    );
+  });
+
+  it('adds no article hint to the delete confirm message when the seller has no articles', async () => {
+    const { fixture, confirmSpy } = await setup({ isAdmin: true });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('mode', 'edit');
+    fixture.componentRef.setInput('initialValue', EDIT_SELLER);
+    await fixture.whenStable();
+
+    fixture.componentInstance.onDeleteClick();
+
+    expect(confirmSpy.mock.calls[0][0].message).not.toContain('Artikel');
   });
 
   it('emits cancel and visibleChange(false) on cancel', async () => {
