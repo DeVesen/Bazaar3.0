@@ -18,7 +18,6 @@ import { PrintTextsApi } from '../../features/settings/data/print-texts-api';
 import { PrintDocument } from '../../shared/components/print-document/print-document';
 import {
   PrintArticle,
-  PrintArticleStatus,
   PrintDocumentModel,
   PrintSeller,
   buildAbgabeBelegModel,
@@ -38,7 +37,6 @@ export interface SellerSummaryPrintData {
 }
 
 const REGISTERED_STATUS = 'registered';
-const PRINT_STATUSES: readonly string[] = ['registered', 'selling', 'sold', 'returned'] satisfies PrintArticleStatus[];
 const PRINT_HOST_ATTRIBUTE = 'data-print-host';
 const PRINT_STYLE_ATTRIBUTE = 'data-print-style';
 
@@ -80,11 +78,6 @@ function toPrintArticle(article: ArticleSummary): PrintArticle {
     price: article.price,
     status: article.status,
   };
-}
-
-/** Nur Artikel mit druckbarem Status; ein unbekannter Status fiele sonst still aus den Gruppen. */
-function toPrintArticles(articles: ArticleSummary[]): PrintArticle[] {
-  return articles.filter((article) => PRINT_STATUSES.includes(article.status)).map(toPrintArticle);
 }
 
 /**
@@ -138,7 +131,7 @@ export class PrintService {
         map(({ seller, settlement, articles, texts }) =>
           buildVerkaeuferUebersichtModel({
             seller: toPrintSeller(seller),
-            articles: toPrintArticles(articles),
+            articles: articles.map(toPrintArticle),
             freitexts: texts.verkaeuferUebersicht,
             feePerItem: seller.feePerItem,
             settlement: {
@@ -173,7 +166,7 @@ export class PrintService {
       map(({ seller, articles, texts }) =>
         buildAbgabeBelegModel({
           seller: toPrintSeller(seller),
-          articles: toPrintArticles(selectArticles(articles)),
+          articles: selectArticles(articles).map(toPrintArticle),
           freitexts: texts.abgabeBeleg,
           feePerItem: seller.feePerItem,
           commissionRate: seller.salesCommission,
