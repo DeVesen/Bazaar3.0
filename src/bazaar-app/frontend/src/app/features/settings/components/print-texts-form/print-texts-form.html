@@ -1,0 +1,26 @@
+<div class="print-texts-form">
+  <h3 class="print-texts-form__title">Freitexte der Belege</h3>
+  <p class="print-texts-form__help">{{ helpText }}</p>
+
+  @for (section of sections; track section.key) {
+    <fieldset class="print-texts-form__section">
+      <legend>{{ section.title }}</legend>
+      @for (field of fields; track field.key) {
+        <div class="print-texts-form__field">
+          <label [for]="section.key + '-' + field.key">{{ field.label }}</label>
+          <textarea
+            pTextarea
+            rows="3"
+            [id]="section.key + '-' + field.key"
+            [attr.maxlength]="maxLength"
+            [ngModel]="valueOf(section.key, field.key)"
+            (ngModelChange)="onChange(section.key, field.key, $event)"
+          ></textarea>
+        </div>
+      }
+      <p class="print-texts-form__hint">{{ spaceHint }}</p>
+    </fieldset>
+  }
+
+  <p-button label="Freitexte speichern" [disabled]="saving()" (onClick)="onSave()" />
+</div>

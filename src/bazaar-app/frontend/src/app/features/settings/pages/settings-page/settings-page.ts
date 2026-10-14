@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { SettingsForm } from '../../components/settings-form/settings-form';
+import { PrintTextsForm } from '../../components/print-texts-form/print-texts-form';
 import { ImportPanel } from '../../components/import-panel/import-panel';
 import { UserManagement } from '../../components/user-management/user-management';
 import { DevToolsPanel } from '../../components/dev-tools-panel/dev-tools-panel';
@@ -11,10 +12,10 @@ import { Page } from '../../../../shared/components/page/page';
 // gate a third time. `DevToolsPanel` hides itself (dev/local only) via its own status check.
 @Component({
   selector: 'app-settings-page',
-  imports: [SettingsForm, ImportPanel, UserManagement, DevToolsPanel, Page],
+  imports: [SettingsForm, PrintTextsForm, ImportPanel, UserManagement, DevToolsPanel, Page],
   template: `
     <app-page title="Einstellungen">
-      <app-settings-form /><app-import-panel /><app-user-management /><app-dev-tools-panel />
+      <app-settings-form /><app-print-texts-form /><app-import-panel /><app-user-management /><app-dev-tools-panel />
     </app-page>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
