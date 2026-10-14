@@ -20,6 +20,7 @@ import {
   PrintArticle,
   PrintDocumentModel,
   PrintSeller,
+  REGISTERED_STATUS,
   buildAbgabeBelegModel,
   buildVerkaeuferUebersichtModel,
   // eslint-disable-next-line boundaries/dependencies
@@ -36,7 +37,6 @@ export interface SellerSummaryPrintData {
   sellerId: string;
 }
 
-const REGISTERED_STATUS = 'registered';
 const PRINT_HOST_ATTRIBUTE = 'data-print-host';
 const PRINT_STYLE_ATTRIBUTE = 'data-print-style';
 

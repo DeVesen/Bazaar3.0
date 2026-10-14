@@ -62,7 +62,7 @@ const GROUP_ORDER: readonly { status: PrintArticleStatus; label: string }[] = [
   { status: 'returned', label: 'Zurückgegeben' },
 ];
 
-const REGISTERED_STATUS: PrintArticleStatus = 'registered';
+export const REGISTERED_STATUS: PrintArticleStatus = 'registered';
 
 /**
  * de-DE ohne `CurrencyPipe`/`LOCALE_ID` (im Projekt ist keine Locale registriert).
