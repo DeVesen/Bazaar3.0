@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
 import { ResultCue, playResultCue } from './result-cue';
 import { ResultEvent, ResultKind } from './result-event';
 
@@ -30,11 +30,12 @@ const ANNOUNCEMENT_BY_KIND: Record<ResultKind, string> = {
   selector: 'app-result-overlay',
   template: `
     @for (shown of shownList(); track shown.id) {
-      <i
-        class="result-overlay__icon result-overlay__icon--{{ shown.kind }} {{ iconClassOf(shown.kind) }}"
-        aria-hidden="true"
-        [style.animation-duration]="durationCss"
-      ></i>
+      <div #layer class="result-overlay__layer" popover="manual" aria-hidden="true">
+        <i
+          class="result-overlay__icon result-overlay__icon--{{ shown.kind }} {{ iconClassOf(shown.kind) }}"
+          [style.animation-duration]="durationCss"
+        ></i>
+      </div>
       <span class="result-overlay__announcement">{{ announcementOf(shown.kind) }}</span>
     }
   `,
@@ -52,6 +53,7 @@ export class ResultOverlay {
     return current ? [current] : [];
   });
 
+  private readonly layer = viewChild<ElementRef<HTMLElement>>('layer');
   private cue: ResultCue | undefined;
   private hideHandle: ReturnType<typeof setTimeout> | undefined;
 
@@ -60,6 +62,8 @@ export class ResultOverlay {
       const event = this.event();
       untracked(() => (event ? this.start(event) : this.stop()));
     });
+    // Promote the layer to the browser top layer as soon as it is rendered (guarded: no popover support in jsdom).
+    effect(() => this.layer()?.nativeElement.showPopover?.());
     inject(DestroyRef).onDestroy(() => this.stop());
   }
 

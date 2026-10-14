@@ -25,8 +25,9 @@ PrimeNG liefert keine solche Komponente — daher eigener Wrapper (Grundregel �
 
 ## Aussehen
 
-Nur das Icon, zentriert über der Fläche des nächsten positionierten Vorfahren, ohne Hochskalieren und ohne
-getönten Schleier; der Inhalt dahinter bleibt sichtbar.
+Nur das Icon, mittig (horizontal und vertikal) im Browserfenster, ohne getönten Schleier; der Inhalt dahinter
+bleibt sichtbar. Größe: 21 rem (200 % größer als die frühere 7 rem), höchstens 80 vh und 80 vw. Die Einblendung
+liegt über allem (Top-Layer des Browsers per `popover`, über Dialogen und jedem z-index).
 
 | Ergebnis (`kind`) | Icon | Farbe | Ton | Vibration |
 |---|---|---|---|---|
@@ -43,7 +44,7 @@ Ablauf fest 1,5 s: 0–500 ms einblenden, 500–1000 ms voll sichtbar, 1000–15
 |---|---|---|---|
 | `event` | `ResultEvent \| null` | `input()` | Jede Einblendung ist ein frisches Objekt aus `createResultEvent(kind)`; `null` blendet nichts ein |
 
-Der Konsument setzt `position: relative` auf die Fläche und platziert `<app-result-overlay [event]="…" />` darin.
+Der Konsument platziert `<app-result-overlay [event]="…" />` beliebig in seinem Template; die Lage ist unabhängig vom Elternelement.
 
 ## Verhalten
 
