@@ -1,241 +1,241 @@
 import { ApplicationRef, ComponentRef, Injectable, createComponent, inject } from '@angular/core';
-import { forkJoin } from 'rxjs';
-// Sanctioned `core` → `feature` boundary crossing (Round-23 Task 2 brief) — the first one in
-// this project (`release-dialog.ts`'s own `SellersApi` import is same-feature, not a
-// cross-boundary precedent). Sanctioned because the brief forbids extending
-// `printIntakeReceipt()`'s signature, so this print flow must load the seller/article data
-// itself rather than have callers pass it in.
+import { MessageService } from 'primeng/api';
+import { Observable, forkJoin, map } from 'rxjs';
+// Sanctioned `core` → `feature` boundary crossing (first one in this project, Round-23): the
+// print flows load the seller/article/settlement/text data themselves, so their callers keep
+// passing only ids. `SellersApi`'s same-feature import in `release-dialog.ts` is no precedent.
 // eslint-disable-next-line boundaries/dependencies
 import { ArticleSummary, SellersApi } from '../../features/sellers/data/sellers-api';
-// Sanctioned `core` → `feature` boundary crossing, same justification as the `SellersApi` import
-// above: `printSellerSummary`'s signature must not grow beyond `{ sellerId, phase }` (Round-24
-// Task 2 brief), so this print flow loads the settlement data itself instead of having
-// `settlement-page` pass it in.
+// Sanctioned `core` → `feature` boundary crossing, same justification as above.
 // eslint-disable-next-line boundaries/dependencies
 import { SettlementApi } from '../../features/settlement/data/settlement-api';
-// Sanctioned `core` → `shared` boundary crossing: `PrintAbgabeBeleg` (Round-23 Task 1) is the
-// one presentation component this service renders; there is no other place for that dependency.
+// Sanctioned `core` → `feature` boundary crossing, same justification as above.
+// eslint-disable-next-line boundaries/dependencies
+import { PrintTextsApi } from '../../features/settings/data/print-texts-api';
+// Sanctioned `core` → `shared` boundary crossing: `PrintDocument` is the one presentation
+// component this service renders.
+// eslint-disable-next-line boundaries/dependencies
+import { PrintDocument } from '../../shared/components/print-document/print-document';
 import {
-  PrintAbgabeBeleg,
-  PrintAbgabeBelegArticle,
-  PrintAbgabeBelegSeller,
+  PrintArticle,
+  PrintArticleStatus,
+  PrintDocumentModel,
+  PrintSeller,
+  buildAbgabeBelegModel,
+  buildVerkaeuferUebersichtModel,
   // eslint-disable-next-line boundaries/dependencies
-} from '../../shared/components/print-abgabe-beleg/print-abgabe-beleg';
-// Sanctioned `core` → `shared` boundary crossing, same justification as `PrintAbgabeBeleg` above.
-import {
-  PrintVerkaeuferUebersicht,
-  PrintVerkaeuferUebersichtArticle,
-  PrintVerkaeuferUebersichtSeller,
-  PrintVerkaeuferUebersichtSettlement,
-  // eslint-disable-next-line boundaries/dependencies
-} from '../../shared/components/print-verkaeufer-uebersicht/print-verkaeufer-uebersicht';
+} from '../../shared/components/print-document/print-document.model';
 
-/** Data needed to print an Artikelannahme receipt (Round-17 Task 7's booking flow). */
+/** Data needed to print the Abgabe-Beleg after "Speichern" (Artikelannahme) or a Freigabe. */
 export interface IntakeReceiptData {
   articleIds: string[];
   sellerId: string;
-  feeAmount: number;
 }
 
-/** Data needed to print a seller's Abrechnungs-Beleg (Round-20 Task 6b's "Drucken" button). */
+/** Data needed to print a seller's Verkäufer-Übersicht (Abrechnung). */
 export interface SellerSummaryPrintData {
   sellerId: string;
-  phase: 'preliminary' | 'final';
+}
+
+const REGISTERED_STATUS = 'registered';
+const PRINT_STATUSES: readonly string[] = ['registered', 'selling', 'sold', 'returned'] satisfies PrintArticleStatus[];
+const PRINT_HOST_ATTRIBUTE = 'data-print-host';
+const PRINT_STYLE_ATTRIBUTE = 'data-print-style';
+
+/**
+ * Gilt nur, solange das Druckdokument im DOM hängt: A4 hochkant ohne Seitenrand, und im Druck
+ * bleibt von der Seite nur das Dokument übrig — alles andere im `body` (App, Overlays, Toasts)
+ * entfällt, der Host rückt aus dem Off-Canvas-Bereich in den normalen Fluss.
+ */
+const PRINT_STYLE = `
+@page { size: A4 portrait; margin: 0; }
+@media print {
+  html, body { margin: 0 !important; background: #fff !important; }
+  body > *:not([data-print-host]) { display: none !important; }
+  body > [data-print-host] { position: static !important; left: auto !important; top: auto !important; }
+}
+`;
+
+const LOAD_ERROR_MESSAGE = 'Beleg konnte nicht geladen werden';
+
+function toPrintSeller(seller: PrintSeller): PrintSeller {
+  return {
+    id: seller.id,
+    firstName: seller.firstName,
+    lastName: seller.lastName,
+    address: seller.address,
+    postalCode: seller.postalCode,
+    city: seller.city,
+  };
+}
+
+function toPrintArticle(article: ArticleSummary): PrintArticle {
+  return {
+    number: article.number,
+    name: article.name,
+    category: article.category,
+    brand: article.brand,
+    size: article.size,
+    color: article.color,
+    price: article.price,
+    status: article.status,
+  };
+}
+
+/** Nur Artikel mit druckbarem Status; ein unbekannter Status fiele sonst still aus den Gruppen. */
+function toPrintArticles(articles: ArticleSummary[]): PrintArticle[] {
+  return articles.filter((article) => PRINT_STATUSES.includes(article.status)).map(toPrintArticle);
 }
 
 /**
- * `printIntakeReceipt` (Round-23 Task 2) and `printSellerSummary` (Round-24 Task 2) both
- * dynamically instantiate a pure presentation component (`PrintAbgabeBeleg` /
- * `PrintVerkaeuferUebersicht`) via Angular's standalone `createComponent` API, feed it
- * seller/article(/settlement) data each method loads itself, trigger `window.print()`, and tear
- * the dynamic component back down on `afterprint`. Neither method's call sites ever changed for
- * this — `intake-session-list`/`release-dialog` still call `printIntakeReceipt()` with only
- * `{ articleIds, sellerId, feeAmount }`, and `settlement-page` still calls `printSellerSummary()`
- * with only `{ sellerId, phase }`, both their methods' unchanged signatures.
+ * Lädt die Daten, baut das Modell des Belegs, rendert `PrintDocument` dynamisch, öffnet den
+ * Druckdialog des Geräts und baut alles bei `afterprint` wieder ab. Die Aufrufer übergeben nur
+ * Ids; welche Artikel auf den Beleg kommen, entscheidet der jeweilige Auslöser:
+ * Druckbutton = alle außer „Registriert", Speichern/Freigabe = die gebuchten bzw. freigegebenen.
  */
 @Injectable({ providedIn: 'root' })
 export class PrintService {
   private readonly sellersApi = inject(SellersApi);
   private readonly settlementApi = inject(SettlementApi);
+  private readonly printTextsApi = inject(PrintTextsApi);
+  private readonly messageService = inject(MessageService);
   private readonly appRef = inject(ApplicationRef);
 
-  /**
-   * Loads the seller (`SellersApi.getById`) and that seller's articles (`SellersApi.getArticles`)
-   * itself rather than taking them as parameters — symmetric with how both existing callers
-   * already fetch fee-per-item info themselves (see `release-dialog.ts`'s own `getById` call).
-   * `GET /api/sellers/{id}` exists since Round-14's nachfix; no `sellerSummary` parameter needed.
-   */
-  printIntakeReceipt(data: IntakeReceiptData): void {
-    forkJoin({
-      seller: this.sellersApi.getById(data.sellerId),
-      articles: this.sellersApi.getArticles(data.sellerId),
-    }).subscribe({
-      next: ({ seller, articles }) => {
-        const filteredArticles = this.filterAndOrderArticles(articles, data.articleIds);
-        const printSeller: PrintAbgabeBelegSeller = {
-          id: seller.id,
-          firstName: seller.firstName,
-          lastName: seller.lastName,
-          address: seller.address,
-          postalCode: seller.postalCode,
-          city: seller.city,
-          phone: seller.phone,
-        };
-        const printArticles: PrintAbgabeBelegArticle[] = filteredArticles.map((article) => ({
-          number: article.number,
-          name: article.name,
-          brand: article.brand,
-          price: article.price,
-        }));
+  /** Abbau des aktuell eingehängten Dokuments; `null`, solange keins hängt. */
+  private activeCleanup: (() => void) | null = null;
 
-        this.renderAndPrintAbgabeBeleg({
-          seller: printSeller,
-          articles: printArticles,
-          feePerItem: seller.feePerItem,
-          feeAmount: data.feeAmount,
-          occurredAt: new Date(),
-        });
-      },
-      // The booking itself already succeeded by the time this is called — printing is a
-      // nice-to-have follow-up, not a critical path, so a failed lookup here only gets logged,
-      // never surfaced to the user (no spec requirement for user-facing error handling here).
-      error: (error: unknown) => console.error('[PrintService] printIntakeReceipt failed', error),
+  /** Druckbutton der Verkäufer-Kachel: alle Artikel des Verkäufers außer „Registriert". */
+  printSellerReceipt(sellerId: string): void {
+    this.loadAbgabeBeleg(sellerId, (articles) =>
+      articles.filter((article) => article.status !== REGISTERED_STATUS),
+    ).subscribe({
+      next: (model) => this.mountRenderAndPrint(model),
+      error: () => this.showLoadError(),
     });
   }
 
-  /**
-   * Loads the settlement (`SettlementApi.getSettlement`) and that seller's articles
-   * (`SellersApi.getArticles`) itself, same reasoning as `printIntakeReceipt` — the caller's own
-   * `{ sellerId, phase }` must not grow. Unlike `printIntakeReceipt`, `articles` is passed through
-   * unfiltered: `PrintVerkaeuferUebersicht` groups by `status` itself (AC-1/AC-2/AC-7), it isn't
-   * restricted to a caller-supplied id subset.
-   */
+  /** „Speichern" in der Artikelannahme und Freigabe: genau die übergebenen Artikel. */
+  printIntakeReceipt(data: IntakeReceiptData): void {
+    const wanted = new Set(data.articleIds);
+    this.loadAbgabeBeleg(data.sellerId, (articles) =>
+      articles.filter((article) => wanted.has(article.id)),
+    ).subscribe({
+      next: (model) => this.mountRenderAndPrint(model),
+      // Die Buchung ist schon erfolgt; der Toast sagt nur, dass der Beleg fehlt.
+      error: () => this.showLoadError(),
+    });
+  }
+
+  /** Druck in der Abrechnung: Verkäufer-Übersicht mit den Beträgen der Abrechnung. */
   printSellerSummary(data: SellerSummaryPrintData): void {
     forkJoin({
+      seller: this.sellersApi.getById(data.sellerId),
       settlement: this.settlementApi.getSettlement(data.sellerId),
       articles: this.sellersApi.getArticles(data.sellerId),
-    }).subscribe({
-      next: ({ settlement, articles }) => {
-        const printSeller: PrintVerkaeuferUebersichtSeller = {
-          id: settlement.seller.id,
-          firstName: settlement.seller.firstName,
-          lastName: settlement.seller.lastName,
-          postalCode: settlement.seller.postalCode,
-          city: settlement.seller.city,
-        };
-        const printArticles: PrintVerkaeuferUebersichtArticle[] = articles.map((article) => ({
-          number: article.number,
-          name: article.name,
-          price: article.price,
-          status: article.status,
-        }));
-        const printSettlement: PrintVerkaeuferUebersichtSettlement = {
-          revenue: settlement.revenue,
-          commission: settlement.commission,
-          payout: settlement.payout,
-          commissionRate: settlement.commissionRate,
-          intakeFeePaid: settlement.intakeFeePaid,
-        };
-
-        this.renderAndPrintVerkaeuferUebersicht({
-          seller: printSeller,
-          articles: printArticles,
-          settlement: printSettlement,
-          phase: data.phase,
-        });
-      },
-      // Same reasoning as `printIntakeReceipt`'s own error handler: printing is a nice-to-have
-      // follow-up here too (the settlement/return itself already succeeded), never a critical
-      // path, so a failed lookup only gets logged.
-      error: (error: unknown) => console.error('[PrintService] printSellerSummary failed', error),
-    });
+      texts: this.printTextsApi.get(),
+    })
+      .pipe(
+        map(({ seller, settlement, articles, texts }) =>
+          buildVerkaeuferUebersichtModel({
+            seller: toPrintSeller(seller),
+            articles: toPrintArticles(articles),
+            freitexts: texts.verkaeuferUebersicht,
+            feePerItem: seller.feePerItem,
+            settlement: {
+              revenue: settlement.revenue,
+              commission: settlement.commission,
+              payout: settlement.payout,
+              commissionRate: settlement.commissionRate,
+            },
+            printedAt: new Date(),
+          }),
+        ),
+      )
+      .subscribe({
+        next: (model) => this.mountRenderAndPrint(model),
+        error: () => this.showLoadError(),
+      });
   }
 
-  /** Keeps `articleIds`' own order (the caller's session order), not the backend's list order. */
-  private filterAndOrderArticles(
-    articles: ArticleSummary[],
-    articleIds: string[],
-  ): ArticleSummary[] {
-    const byId = new Map(articles.map((article) => [article.id, article]));
-    return articleIds
-      .map((id) => byId.get(id))
-      .filter((article): article is ArticleSummary => !!article);
+  private showLoadError(): void {
+    this.messageService.add({ severity: 'error', summary: LOAD_ERROR_MESSAGE });
   }
 
-  private renderAndPrintAbgabeBeleg(inputs: {
-    seller: PrintAbgabeBelegSeller;
-    articles: PrintAbgabeBelegArticle[];
-    feePerItem: number;
-    feeAmount: number;
-    occurredAt: Date;
-  }): void {
-    // No explicit `hostElement` — letting `createComponent` create its own host element gives it
-    // the component's real selector tag (`<app-print-abgabe-beleg>`), which both this method's
-    // own test and any future DOM-based debugging/e2e rely on being findable by that selector.
-    // A supplied custom host element (e.g. a plain `<div>`) would replace that tag entirely.
-    const componentRef: ComponentRef<PrintAbgabeBeleg> = createComponent(PrintAbgabeBeleg, {
+  private loadAbgabeBeleg(
+    sellerId: string,
+    selectArticles: (articles: ArticleSummary[]) => ArticleSummary[],
+  ): Observable<PrintDocumentModel> {
+    return forkJoin({
+      seller: this.sellersApi.getById(sellerId),
+      articles: this.sellersApi.getArticles(sellerId),
+      texts: this.printTextsApi.get(),
+    }).pipe(
+      map(({ seller, articles, texts }) =>
+        buildAbgabeBelegModel({
+          seller: toPrintSeller(seller),
+          articles: toPrintArticles(selectArticles(articles)),
+          freitexts: texts.abgabeBeleg,
+          feePerItem: seller.feePerItem,
+          commissionRate: seller.salesCommission,
+          printedAt: new Date(),
+        }),
+      ),
+    );
+  }
+
+  private mountRenderAndPrint(model: PrintDocumentModel): void {
+    // Ein Dokument aus einem früheren Druck, dessen `afterprint` ausblieb (Android/iOS) oder das
+    // nach einem Doppelklick noch hängt, wird zuerst abgebaut — es hängt immer höchstens eins.
+    this.activeCleanup?.();
+
+    const componentRef: ComponentRef<PrintDocument> = createComponent(PrintDocument, {
       environmentInjector: this.appRef.injector,
     });
-    componentRef.setInput('seller', inputs.seller);
-    componentRef.setInput('articles', inputs.articles);
-    componentRef.setInput('feePerItem', inputs.feePerItem);
-    componentRef.setInput('feeAmount', inputs.feeAmount);
-    componentRef.setInput('occurredAt', inputs.occurredAt);
+    componentRef.setInput('model', model);
 
-    this.mountRenderAndPrint(componentRef);
-  }
-
-  /**
-   * Same `createComponent`/mount/print/cleanup pattern as `renderAndPrintAbgabeBeleg`, kept as
-   * its own method (rather than a single generic one) because no call site needs to treat both
-   * component types uniformly — each print method already knows exactly which component and
-   * which inputs it renders.
-   */
-  private renderAndPrintVerkaeuferUebersicht(inputs: {
-    seller: PrintVerkaeuferUebersichtSeller;
-    articles: PrintVerkaeuferUebersichtArticle[];
-    settlement: PrintVerkaeuferUebersichtSettlement;
-    phase: 'preliminary' | 'final';
-  }): void {
-    const componentRef: ComponentRef<PrintVerkaeuferUebersicht> = createComponent(
-      PrintVerkaeuferUebersicht,
-      { environmentInjector: this.appRef.injector },
-    );
-    componentRef.setInput('seller', inputs.seller);
-    componentRef.setInput('articles', inputs.articles);
-    componentRef.setInput('settlement', inputs.settlement);
-    componentRef.setInput('phase', inputs.phase);
-
-    this.mountRenderAndPrint(componentRef);
-  }
-
-  /**
-   * Shared mount/print/cleanup mechanics for both dynamic print components — extracted once the
-   * second print method needed the identical DOM-attach/`window.print`/`afterprint`-teardown
-   * sequence, so the two `ComponentRef<...>` types never had to be unified into one signature
-   * upstream (each caller still passes its own concretely-typed `ComponentRef`).
-   */
-  private mountRenderAndPrint(componentRef: ComponentRef<unknown>): void {
     const hostElement = componentRef.location.nativeElement as HTMLElement;
-    // Off-screen, not `display: none` — a `display: none` host would stay unrendered for
-    // `window.print()` too and nothing would print at all. Positioning it off-canvas keeps it
-    // out of the visible viewport (no flash on screen) while it still lays out and prints.
+    hostElement.setAttribute(PRINT_HOST_ATTRIBUTE, '');
+    // Off-screen, not `display: none` — a hidden host would stay unrendered for `window.print()`
+    // too. Im Druck rückt das Isolations-CSS den Host in den normalen Fluss.
     hostElement.style.position = 'fixed';
     hostElement.style.top = '0';
     hostElement.style.left = '-10000px';
     document.body.appendChild(hostElement);
 
+    const styleElement = document.createElement('style');
+    styleElement.setAttribute(PRINT_STYLE_ATTRIBUTE, '');
+    styleElement.textContent = PRINT_STYLE;
+    document.head.appendChild(styleElement);
+
     this.appRef.attachView(componentRef.hostView);
 
     const cleanup = (): void => {
       window.removeEventListener('afterprint', cleanup);
+      this.activeCleanup = null;
       this.appRef.detachView(componentRef.hostView);
       componentRef.destroy();
       hostElement.remove();
+      styleElement.remove();
     };
+    this.activeCleanup = cleanup;
     window.addEventListener('afterprint', cleanup);
 
     this.appRef.tick();
-    window.print();
+    componentRef.instance.applyMeasurement();
+    this.appRef.tick();
+    this.openPrintDialog(cleanup);
+  }
+
+  /**
+   * Kein `finally`: Auf Android/iOS kehrt `window.print()` sofort zurück, während der Dialog
+   * noch rendert — abgebaut wird hier nur, wenn der Aufruf selbst wirft.
+   */
+  private openPrintDialog(cleanup: () => void): void {
+    try {
+      window.print();
+    } catch (error: unknown) {
+      cleanup();
+      console.error('[PrintService] window.print failed', error);
+    }
   }
 }
