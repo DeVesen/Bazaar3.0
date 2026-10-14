@@ -1,3 +1,4 @@
+using Bazaar.Domain.Settings;
 using SettingsAggregate = Bazaar.Domain.Settings.Settings;
 
 namespace Bazaar.Domain.UnitTests;
@@ -52,5 +53,70 @@ public class SettingsTests
         settings.Update(scannerPauseMs);
 
         Assert.Equal(scannerPauseMs, settings.ScannerPauseMs);
+    }
+
+    [Fact]
+    public void Create_Always_StartsWithEmptyPrintTexts()
+    {
+        // Arrange & Act
+        var settings = SettingsAggregate.Create(3000);
+
+        // Assert
+        Assert.Equal(PrintTexts.CreateEmpty(), settings.AbgabeBeleg);
+        Assert.Equal(PrintTexts.CreateEmpty(), settings.VerkaeuferUebersicht);
+    }
+
+    [Fact]
+    public void UpdatePrintTexts_ValidTexts_ReplacesBothTextSets()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        var abgabeBeleg = new PrintTexts("a1", "a2", "a3", "a4", "a5");
+        var verkaeuferUebersicht = new PrintTexts("v1", "v2", "v3", "v4", "v5");
+
+        // Act
+        settings.UpdatePrintTexts(abgabeBeleg, verkaeuferUebersicht);
+
+        // Assert
+        Assert.Equal(abgabeBeleg, settings.AbgabeBeleg);
+        Assert.Equal(verkaeuferUebersicht, settings.VerkaeuferUebersicht);
+    }
+
+    [Fact]
+    public void UpdatePrintTexts_TextLongerThanMaxLength_Throws()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        var tooLong = new PrintTexts("", "", new string('x', PrintTexts.MaxLength + 1), "", "");
+
+        // Act & Assert
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            settings.UpdatePrintTexts(tooLong, PrintTexts.CreateEmpty()));
+    }
+
+    [Fact]
+    public void UpdatePrintTexts_TextAtMaxLength_Succeeds()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        var atLimit = new PrintTexts(new string('x', PrintTexts.MaxLength), "", "", "", "");
+
+        // Act
+        settings.UpdatePrintTexts(PrintTexts.CreateEmpty(), atLimit);
+
+        // Assert
+        Assert.Equal(PrintTexts.MaxLength, settings.VerkaeuferUebersicht.Text1.Length);
+    }
+
+    [Fact]
+    public void UpdatePrintTexts_NullText_Throws()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        var withNull = new PrintTexts(null!, "", "", "", "");
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+            settings.UpdatePrintTexts(withNull, PrintTexts.CreateEmpty()));
     }
 }
