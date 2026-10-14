@@ -62,10 +62,12 @@ export interface GetArticlesParams {
 }
 
 /**
- * PUT /api/articles/{id} request body — Stammfelder only. number/sellerId
- * are never editable (api/articles.md §4).
+ * PUT /api/articles/{id} request body — Stammfelder plus the editable article number
+ * (api/articles.md §4: free or the article's own number, else 409 `article.number_taken`).
+ * sellerId is never editable.
  */
 export interface UpdateArticleRequest {
+  number: number;
   name: string;
   brand: string;
   category: string;

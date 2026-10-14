@@ -28,7 +28,7 @@ reviewed-date: 2026-08-17
 | Aspekt | Voranmelde-App | Haupt-App |
 |---|---|---|
 | Anlegen | im Dialog | **nicht hier** — Artikel entstehen über Annahme oder Import |
-| Artikelnummer | Vorschlag, beim Speichern endgültig vergeben | **read-only**, klebt physisch am Etikett |
+| Artikelnummer | Vorschlag, beim Speichern endgültig vergeben | **änderbar** — nur frei oder die eigene Nummer, sonst Fehler; klebt physisch am Etikett, daher Hinweis bei Änderung |
 | Preis | jederzeit änderbar | **gesperrt ab Verkauf** |
 | Sperre nach Abrechnung | existiert nicht | **alle Felder** |
 | Löschen | eigener Artikel jederzeit | **Admin-only**, nur vor dem Verkauf |
@@ -41,7 +41,7 @@ reviewed-date: 2026-08-17
 ┌────────────────────────────────────────────────┐
 │  Artikel bearbeiten                       [✕]  │
 ├────────────────────────────────────────────────┤
-│  Artikelnummer  1043            (read-only)     │
+│  [Artikelnummer *                      100%]     │
 │                                                  │
 │  [Bezeichnung *                        100%]     │
 │  [Kategorie * ▾+  50%] [Marke * ▾+      50%]    │
@@ -63,7 +63,7 @@ Modal Standard-Größe. Feldanordnung identisch zur Artikeleingabe im [`intake-w
 
 | Feld | Pflicht | Bemerkung |
 |---|---|---|
-| Artikelnummer | — | **read-only**, oben; die Nummer klebt am Etikett |
+| Artikelnummer | ✅ | oben; ganze Zahl von 1 bis 2147483646, nur frei oder die eigene Nummer. Prüfung beim Verlassen des Feldes (Fehler „Artikelnummer *n* ist bereits vergeben.“), bei geänderter gültiger Nummer Hinweis „Etikett neu drucken und anbringen.“ |
 | Bezeichnung | ✅ | |
 | Kategorie, Marke | ✅ | [`autocomplete-create`](../../../components/autocomplete-create/component.md) — neue Werte anlegbar |
 | Preis | ✅ | [`input-group`](../../../components/input-group/component.md), €-Addon rechts, `modes = ['keyboard', 'numpad']`, Numpad mit `showDecimal="true"` — analog zur Preis-Zeile im [`intake-wizard`](intake-wizard.md) |
@@ -89,6 +89,8 @@ Bezeichnung, Beschreibung, Größe und Farbe bleiben auch nach dem Verkauf ände
 
 Alle Sperren werden **serverseitig** durchgesetzt (`409`); die deaktivierten Felder sind die Bequemlichkeit, nicht die Regel.
 
+Die Artikelnummer folgt denselben Sperren wie Bezeichnung und Beschreibung: nach dem Verkauf bleibt sie änderbar, bei abgerechnetem Verkäufer ist sie gesperrt.
+
 ---
 
 ## 4. Löschen
@@ -99,13 +101,17 @@ Ein verkaufter Artikel ist ein Geldvorgang, kein Datensatz. Für Fehleingaben vo
 
 ## Akzeptanzkriterien
 
-1. **AC-1** — THE SYSTEM SHALL die Artikelnummer schreibgeschützt anzeigen und keinen Verkäufer-Wechsel anbieten.
+1. **AC-1** — THE SYSTEM SHALL die Artikelnummer als änderbares Feld anzeigen und keinen Verkäufer-Wechsel anbieten.
 2. **AC-2** — IF `soldAt` gesetzt ist, THEN SHALL das Preisfeld deaktiviert sein und einen Hinweis auf das Stornieren zeigen.
 3. **AC-3** — IF der Verkäufer abgerechnet ist, THEN SHALL das System alle Felder deaktivieren und ein Hinweisbanner mit Verweis auf die Verkäufer-Seite anzeigen.
 4. **AC-4** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL der Löschen-Button nicht gerendert werden.
 5. **AC-5** — IF `soldAt` gesetzt ist, THEN SHALL das System das Löschen ablehnen.
 6. **AC-6** — THE SYSTEM SHALL beim Speichern eines Pflichtfelds ohne Wert eine Feldmeldung anzeigen und nicht speichern.
 7. **AC-7** — THE SYSTEM SHALL das Preisfeld mit `modes = ['keyboard', 'numpad']` anbieten und im Numpad-Modus `showDecimal="true"` verwenden.
+8. **AC-8** — IF die eingegebene Artikelnummer an einem anderen Artikel hängt, THEN SHALL das Feld „Artikelnummer *n* ist bereits vergeben.“ zeigen und das Speichern verhindern.
+9. **AC-9** — IF die Artikelnummer leer, 0, negativ, keine ganze Zahl oder größer als 2147483646 ist, THEN SHALL das Feld einen Fehler zeigen und das Speichern verhindern.
+10. **AC-10** — WHEN die Artikelnummer geändert und gültig ist, THE SYSTEM SHALL unter dem Feld den Hinweis „Etikett neu drucken und anbringen.“ zeigen.
+11. **AC-11** — THE SYSTEM SHALL eine Nummernänderung serverseitig ablehnen, wenn die Nummer an einem anderen Artikel hängt (`409`, `article.number_taken`) oder der Verkäufer abgerechnet ist (`409`, `settlement.locked`).
 
 ## Tags & Piles
 

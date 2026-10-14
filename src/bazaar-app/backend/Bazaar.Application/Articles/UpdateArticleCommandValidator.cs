@@ -7,6 +7,8 @@ public sealed class UpdateArticleCommandValidator : AbstractValidator<UpdateArti
     public UpdateArticleCommandValidator()
     {
         RuleFor(x => x.Name).NotEmpty();
+        RuleFor(x => x.Number).GreaterThan(0).WithMessage("Artikelnummer muss eine ganze Zahl ab 1 sein.");
+        RuleFor(x => x.Number).LessThan(int.MaxValue).WithMessage("Artikelnummer ist zu groß.");
         RuleFor(x => x.Brand).NotEmpty();
         RuleFor(x => x.Category).NotEmpty();
         RuleFor(x => x.Price).GreaterThan(0);

@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ArticlesPage } from './articles-page';
+import { ArtikelDialog } from '../../components/artikel-dialog/artikel-dialog';
 // `ArticlesPage` renders `ArtikelDialog`, which renders `InputGroup`, which depends on
 // `BarcodeScanner`/`@zxing/browser` — importing the ONE shared mock (see that file's own
 // comment for why it must be centralized, and why every spec that transitively loads
@@ -16,7 +17,7 @@ import { ArticlesPage } from './articles-page';
 // not because it is still load-bearing for the mock to win the race.)
 import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { ArticlesStore, ArticlesFilters } from '../../articles-store';
-import { ArticleDetail, ArticleListItem } from '../../data/articles-api';
+import { ArticleDetail, ArticleListItem, ArticlesApi } from '../../data/articles-api';
 import { RoleService } from '../../../../core/auth/role.service';
 // eslint-disable-next-line boundaries/dependencies
 import { Brand, BrandsApi } from '../../../brands/data/brands-api';
@@ -133,6 +134,12 @@ describe('ArticlesPage', () => {
         { provide: MessageService, useValue: { add: messageServiceAdd } },
         { provide: BrandsApi, useValue: { getAll: () => of(BRANDS) } },
         { provide: CategoriesApi, useValue: { getAll: () => of(CATEGORIES) } },
+        {
+          provide: ArticlesApi,
+          useValue: {
+            getByNumber: () => throwError(() => new HttpErrorResponse({ status: 404 })),
+          },
+        },
         ConfirmationService,
       ],
     }).compileComponents();
@@ -633,6 +640,7 @@ describe('ArticlesPage', () => {
       expect(getById).toHaveBeenCalledWith('a1');
       expect(component.dialogVisible()).toBe(true);
       expect(component.dialogInitialValue()).toEqual({
+        number: detail.number,
         name: detail.name,
         brand: detail.brand,
         category: detail.category,
@@ -680,6 +688,7 @@ describe('ArticlesPage', () => {
       getById.mockReturnValue(of(buildDetail()));
       component.onEdit(buildItem());
       const formResult = {
+        number: 1001,
         name: 'Neuer Name',
         brand: 'Playmobil',
         category: 'Kleidung',
@@ -710,6 +719,7 @@ describe('ArticlesPage', () => {
       );
 
       component.onDialogSave({
+        number: 1001,
         name: '',
         brand: 'Playmobil',
         category: 'Kleidung',
@@ -721,6 +731,82 @@ describe('ArticlesPage', () => {
 
       expect(component.dialogVisible()).toBe(true);
       expect(component.serverErrors()?.name).toBe('Bezeichnung ist erforderlich');
+    });
+
+    it('maps a 400 number error to serverErrors.number', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(of(buildDetail()));
+      component.onEdit(buildItem());
+      update.mockReturnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 400,
+              error: { errors: { number: ['Artikelnummer muss eine ganze Zahl ab 1 sein.'] } },
+            }),
+        ),
+      );
+
+      component.onDialogSave({
+        number: 0,
+        name: 'Schneeanzug 104',
+        brand: 'Playmobil',
+        category: 'Kleidung',
+        price: 15,
+        size: null,
+        color: null,
+        description: null,
+      });
+
+      expect(component.dialogVisible()).toBe(true);
+      expect(component.serverErrors()?.number).toBe(
+        'Artikelnummer muss eine ganze Zahl ab 1 sein.',
+      );
+    });
+
+    it('maps a 409 article.number_taken to serverErrors.number without closing the dialog', async () => {
+      const { component } = await createPage();
+      getById.mockReturnValue(of(buildDetail()));
+      component.onEdit(buildItem());
+      update.mockReturnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 409,
+              error: {
+                errorCode: 'article.number_taken',
+                detail: 'Artikelnummer 1044 ist bereits vergeben.',
+              },
+            }),
+        ),
+      );
+
+      component.onDialogSave({
+        number: 1044,
+        name: 'Schneeanzug 104',
+        brand: 'Playmobil',
+        category: 'Kleidung',
+        price: 15,
+        size: null,
+        color: null,
+        description: null,
+      });
+
+      expect(component.dialogVisible()).toBe(true);
+      expect(component.serverErrors()?.number).toBe('Artikelnummer 1044 ist bereits vergeben.');
+      expect(messageServiceAdd).not.toHaveBeenCalled();
+    });
+
+    it('passes the edited article id to the dialog', async () => {
+      const { fixture, component } = await createPage();
+      getById.mockReturnValue(of(buildDetail({ id: 'a7' })));
+
+      component.onEdit(buildItem({ id: 'a7' }));
+      await fixture.whenStable();
+
+      const dialog = fixture.debugElement.query(By.directive(ArtikelDialog))
+        .componentInstance as ArtikelDialog;
+      expect(dialog.articleId()).toBe('a7');
     });
 
     it('calls ArticlesStore.remove on deleteRequested and closes the dialog on success', async () => {

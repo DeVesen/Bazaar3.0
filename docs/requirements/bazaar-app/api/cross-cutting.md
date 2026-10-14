@@ -119,7 +119,7 @@ Beim Hinzufügen eines Fehlers zuerst hier nachsehen: Ein Code, den es schon gib
 |---|---|---|---|
 | `auth.invalid_credentials` | 401 | Ungültige Anmeldedaten | [`auth.md`](auth.md) — Login, Passwortwechsel |
 | `article.number_unknown` | 404 | Artikelnummer nicht bekannt | [`articles.md`](articles.md) — `by-number` |
-| `article.number_taken` | 409 | Artikelnummer *n* ist inzwischen vergeben | [`intake.md`](intake.md) |
+| `article.number_taken` | 409 | Artikelnummer *n* ist inzwischen vergeben | [`intake.md`](intake.md), [`articles.md`](articles.md) §4 |
 | `article.sold` | 409 | Artikel ist verkauft — Verkauf zuerst stornieren | [`articles.md`](articles.md) (Preis, Löschen), [`settlement.md`](settlement.md) (Rückgabe) |
 | `article.sold_and_returned` | 409 | Artikel kann nicht gleichzeitig verkauft und zurückgegeben sein | [`articles.md`](articles.md) — Zeitstempel |
 | `article.not_sellable` | 409 | Artikel *n* ist nicht mehr im Verkauf | [`sales.md`](sales.md) |

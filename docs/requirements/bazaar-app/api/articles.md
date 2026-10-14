@@ -95,12 +95,14 @@ Liefert die **nächste freie Nummer oberhalb des höchsten vergebenen Werts** �
 
 ```
 PUT /api/articles/{id}
-{ "name": "Winterjacke", "brand": "Nike", "category": "Jacken",
+{ "number": 1043, "name": "Winterjacke", "brand": "Nike", "category": "Jacken",
   "price": 12.00, "size": "128", "color": "rot", "description": null }
 
 → 204 No Content
 → 409 Conflict   errorCode: article.sold          (price nach Verkauf)
 → 409 Conflict   errorCode: settlement.locked     (Verkäufer abgerechnet)
+→ 409 Conflict   errorCode: article.number_taken  (number an einem anderen Artikel)
+→ 400 Bad Request                                  (number < 1)
 ```
 
 **Beide Rollen dürfen bearbeiten** — ein Tippfehler beim Preis muss korrigierbar sein, solange der Verkäufer noch am Tisch steht; der Weg über den Admin würde die Schlange aufhalten.
@@ -113,7 +115,7 @@ PUT /api/articles/{id}
 | `soldAt` gesetzt | alles **außer `price`** — der Preis *ist* der Umsatz |
 | Verkäufer abgerechnet | nichts |
 
-`number` und `sellerId` sind **nie** änderbar: Die Nummer klebt physisch am Artikel, und ein Artikel wechselt nicht den Besitzer.
+`number` ist änderbar, wenn sie frei oder die eigene Nummer des Artikels ist (sonst `409 article.number_taken`, geprüft vor dem Speichern); sie folgt den Sperren der übrigen Stammfelder außer `price`. Die Nummer klebt physisch am Etikett — der Dialog weist bei Änderung darauf hin. `sellerId` ist **nie** änderbar: Ein Artikel wechselt nicht den Besitzer.
 
 ---
 

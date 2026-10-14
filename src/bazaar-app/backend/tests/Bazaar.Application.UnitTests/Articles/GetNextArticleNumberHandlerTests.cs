@@ -31,4 +31,18 @@ public class GetNextArticleNumberHandlerTests
 
         Assert.Equal(8, result);
     }
+
+    [Fact]
+    public async Task Handle_MaxNumberRaisedByRenumbering_ReturnsMaxPlusOne()
+    {
+        // Arrange
+        _articleRepository.Setup(r => r.GetMaxNumber()).ReturnsAsync(9999);
+        var sut = CreateSut();
+
+        // Act
+        var result = await sut.Handle();
+
+        // Assert
+        Assert.Equal(10000, result);
+    }
 }

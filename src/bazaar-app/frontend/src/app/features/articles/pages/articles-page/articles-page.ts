@@ -228,6 +228,7 @@ export class ArticlesPage {
     const detail = this.editingDetail();
     if (!detail) return null;
     return {
+      number: detail.number,
       name: detail.name,
       brand: detail.brand,
       category: detail.category,
@@ -407,6 +408,13 @@ export class ArticlesPage {
         }
 
         const code = this.errorCodeOf(error);
+        if (code === 'article.number_taken') {
+          this.serverErrors.set({
+            number:
+              this.detailOf(error) ?? `Artikelnummer ${result.number} ist bereits vergeben.`,
+          });
+          return;
+        }
         if (code === 'article.sold') {
           this.messageService.add({
             severity: 'error',
@@ -534,6 +542,7 @@ export class ArticlesPage {
     const errors = (error.error as ValidationProblemBody | null)?.errors ?? {};
     const firstMessage = (key: string): string | undefined => errors[key]?.[0];
     return {
+      number: firstMessage('number'),
       name: firstMessage('name'),
       brand: firstMessage('brand'),
       category: firstMessage('category'),

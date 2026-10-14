@@ -5,7 +5,7 @@ namespace Bazaar.Domain.Articles;
 public sealed class Article
 {
     public string Id { get; private init; } = null!;
-    public int Number { get; private init; }
+    public int Number { get; private set; }
     public string SellerId { get; private init; } = null!;
     public string Name { get; private set; } = null!;
     public string Brand { get; private set; } = null!;
@@ -125,6 +125,18 @@ public sealed class Article
         Size = size;
         Color = color;
         Description = description;
+        UpdatedAt = now;
+    }
+
+    /// <summary>
+    /// Ändert die Artikelnummer (Barcode- und Etikett-Grundlage). Ob die Nummer frei ist,
+    /// prüft der Aufrufer gegen das Repository — die Domain kennt andere Artikel nicht.
+    /// </summary>
+    public void Renumber(int number, DateTimeOffset now)
+    {
+        if (number < 1) throw new ArgumentException("Number must be at least 1.");
+
+        Number = number;
         UpdatedAt = now;
     }
 

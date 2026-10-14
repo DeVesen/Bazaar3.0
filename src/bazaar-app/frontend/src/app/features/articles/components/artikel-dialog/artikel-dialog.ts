@@ -7,6 +7,7 @@ import {
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -29,15 +30,17 @@ import { InputGroup } from '../../../../shared/components/input-group/input-grou
 import { Category, CategoriesApi } from '../../../categories/data/categories-api';
 // eslint-disable-next-line boundaries/dependencies
 import { Brand, BrandsApi } from '../../../brands/data/brands-api';
+import { ArticlesApi } from '../../data/articles-api';
 
 /**
- * Article Stammfelder as edited by this dialog (see `UpdateArticleRequest` in Task 5's
- * `articles-api.ts`) — `brand`/`category` are the master-data NAMES (not ids), matching
+ * Article Stammfelder as edited by this dialog (see `UpdateArticleRequest` in `articles-api.ts`)
+ * — `brand`/`category` are the master-data NAMES (not ids), matching
  * `ArticleListItem`/`UpdateArticleRequest`'s string shape and `articles-page.ts`'s own
- * Brand/Category filter dropdowns (`optionValue="name"`-equivalent). The article number and
- * seller are fixed and never part of this shape — see `articleNumber` input below.
+ * Brand/Category filter dropdowns (`optionValue="name"`-equivalent). The seller is fixed and
+ * never part of this shape; `number` is editable (free or the article's own number).
  */
 export interface ArtikelFormValue {
+  number: number;
   name: string;
   brand: string;
   category: string;
@@ -54,10 +57,27 @@ export type ArtikelFormResult = ArtikelFormValue;
  * `SellerDialogServerErrors`'s pattern from `verkaeufer-dialog.ts`.
  */
 export interface ArtikelDialogServerErrors {
+  number?: string;
   name?: string;
   brand?: string;
   category?: string;
   price?: string;
+}
+
+const MAX_ARTICLE_NUMBER = 2147483646;
+const ARTICLE_NUMBER_FORMAT_ERROR = 'Artikelnummer muss eine ganze Zahl ab 1 sein.';
+
+/** Whole number from 1 to `int` max minus 1 (so "highest + 1" never overflows), else `null` (empty, 0, negative, text). */
+function parseArticleNumber(text: string): number | null {
+  const trimmed = text.trim();
+  if (!/^\d+$/.test(trimmed)) return null;
+
+  const value = Number(trimmed);
+  return value >= 1 && value <= MAX_ARTICLE_NUMBER ? value : null;
+}
+
+function numberTakenMessage(number: number): string {
+  return `Artikelnummer ${number} ist bereits vergeben.`;
 }
 
 @Component({
@@ -82,11 +102,14 @@ export class ArtikelDialog {
   private readonly categoriesApi = inject(CategoriesApi);
   private readonly brandsApi = inject(BrandsApi);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly articlesApi = inject(ArticlesApi);
 
   readonly visible = input.required<boolean>();
-  /** Read-only display value, not part of the editable form or the `save` payload — the
-   * article number is never editable (api/articles.md §4). */
+  /** The number the article currently carries — used for the title, the delete confirmation
+   * and to detect a change. The editable value lives in `numberText`. */
   readonly articleNumber = input.required<number>();
+  /** Id of the edited article — lets the on-blur lookup recognise a hit on the article itself. */
+  readonly articleId = input<string>('');
   readonly initialValue = input<ArtikelFormValue | null>(null);
   /**
    * Client-side convenience lock mirroring the article's server-enforced state — the server
@@ -135,6 +158,30 @@ export class ArtikelDialog {
   readonly color = signal('');
   readonly description = signal('');
 
+  readonly numberText = signal('');
+  readonly parsedNumber = computed(() => parseArticleNumber(this.numberText()));
+  /** Number a blur lookup found at ANOTHER article; only counts while it is still entered. */
+  private readonly takenNumber = signal<number | null>(null);
+  /** Number that was entered when the server last rejected the save with a number error. */
+  private readonly rejectedNumber = signal<number | null>(null);
+
+  readonly numberTaken = computed(
+    () => this.takenNumber() !== null && this.takenNumber() === this.parsedNumber(),
+  );
+  private readonly serverNumberError = computed(() =>
+    this.rejectedNumber() === this.parsedNumber() ? (this.serverErrors()?.number ?? null) : null,
+  );
+  readonly numberError = computed<string | null>(() => {
+    const parsed = this.parsedNumber();
+    if (parsed === null) return ARTICLE_NUMBER_FORMAT_ERROR;
+    if (this.numberTaken()) return numberTakenMessage(parsed);
+    return this.serverNumberError();
+  });
+  readonly showLabelHint = computed(() => {
+    const parsed = this.parsedNumber();
+    return parsed !== null && parsed !== this.articleNumber() && this.numberError() === null;
+  });
+
   readonly dialogTitle = computed(() => `Artikel #${this.articleNumber()} bearbeiten`);
 
   readonly isSold = computed(() => this.locked() === 'sold');
@@ -153,11 +200,13 @@ export class ArtikelDialog {
 
   readonly canSave = computed(
     () =>
+      this.parsedNumber() !== null &&
+      !this.numberTaken() &&
       this.name().trim().length > 0 &&
       this.category().length > 0 &&
       this.brand().length > 0 &&
       this.price() > 0 &&
-      this.locked() === 'none' &&
+      !this.isSettled() &&
       !this.saving(),
   );
 
@@ -169,6 +218,8 @@ export class ArtikelDialog {
       if (!this.visible()) return;
 
       const initial = this.initialValue();
+      this.numberText.set(String(initial?.number ?? this.articleNumber()));
+      this.takenNumber.set(null);
       this.name.set(initial?.name ?? '');
       this.brand.set(initial?.brand ?? '');
       this.category.set(initial?.category ?? '');
@@ -190,10 +241,32 @@ export class ArtikelDialog {
       const initial = this.initialValue();
       inputGroup.applyExternalValue(String(initial?.price ?? 0));
     });
+
+    effect(() => {
+      if (!this.serverErrors()?.number) return;
+      this.rejectedNumber.set(untracked(() => this.parsedNumber()));
+    });
   }
 
   onPriceChange(value: string | number): void {
     this.price.set(typeof value === 'number' ? value : Number(value));
+  }
+
+  /**
+   * Frontend pre-check on leaving the field: `404` means free, a hit on another article marks
+   * the number taken. Any other failure is ignored — the server decides on save.
+   */
+  onNumberBlur(): void {
+    const number = this.parsedNumber();
+    if (number === null || number === this.articleNumber()) {
+      this.takenNumber.set(null);
+      return;
+    }
+
+    this.articlesApi.getByNumber(number).subscribe({
+      next: (owner) => this.takenNumber.set(owner.id === this.articleId() ? null : number),
+      error: () => this.takenNumber.set(null),
+    });
   }
 
   onCategoryCreated(name: string): void {
@@ -234,8 +307,10 @@ export class ArtikelDialog {
   }
 
   onSave(): void {
-    if (!this.canSave()) return;
+    const number = this.parsedNumber();
+    if (!this.canSave() || number === null) return;
     this.save.emit({
+      number,
       name: this.name().trim(),
       brand: this.brand(),
       category: this.category(),

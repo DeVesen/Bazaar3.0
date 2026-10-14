@@ -21,6 +21,7 @@ import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock
 import { Category, CategoriesApi } from '../../../categories/data/categories-api';
 // eslint-disable-next-line boundaries/dependencies
 import { Brand, BrandsApi } from '../../../brands/data/brands-api';
+import { ArticlesApi } from '../../data/articles-api';
 import { ArtikelDialog, ArtikelFormValue } from './artikel-dialog';
 
 const CATEGORIES: Category[] = [
@@ -34,6 +35,7 @@ const BRANDS: Brand[] = [
 ];
 
 const EDIT_ARTICLE: ArtikelFormValue = {
+  number: 1043,
   name: 'Winterjacke',
   brand: 'Playmobil',
   category: 'Kleidung',
@@ -65,14 +67,24 @@ function brandsApiStub() {
   };
 }
 
+function articlesApiStub() {
+  return {
+    getByNumber: vi
+      .fn()
+      .mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 }))),
+  };
+}
+
 async function setup(options: {
   isAdmin: boolean;
   categoriesApi?: ReturnType<typeof categoriesApiStub>;
   brandsApi?: ReturnType<typeof brandsApiStub>;
+  articlesApi?: ReturnType<typeof articlesApiStub>;
 }) {
   const isAdminSignal = signal(options.isAdmin);
   const categoriesApi = options.categoriesApi ?? categoriesApiStub();
   const brandsApi = options.brandsApi ?? brandsApiStub();
+  const articlesApi = options.articlesApi ?? articlesApiStub();
 
   await TestBed.configureTestingModule({
     imports: [ArtikelDialog],
@@ -81,6 +93,7 @@ async function setup(options: {
       { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
       { provide: CategoriesApi, useValue: categoriesApi },
       { provide: BrandsApi, useValue: brandsApi },
+      { provide: ArticlesApi, useValue: articlesApi },
       ConfirmationService,
     ],
   }).compileComponents();
@@ -95,6 +108,7 @@ async function setup(options: {
     isAdminSignal,
     categoriesApi,
     brandsApi,
+    articlesApi,
     confirmSpy: confirmSpy as unknown as ReturnType<typeof vi.fn<(config: ConfirmConfig) => void>>,
   };
 }
@@ -109,6 +123,7 @@ describe('ArtikelDialog', () => {
 
     const component = fixture.componentInstance;
     expect(component.name()).toBe('Winterjacke');
+    expect(component.numberText()).toBe('1043');
     expect(component.brand()).toBe('Playmobil');
     expect(component.category()).toBe('Kleidung');
     expect(component.price()).toBe(12.5);
@@ -141,7 +156,7 @@ describe('ArtikelDialog', () => {
     expect(component.canSave()).toBe(true);
   });
 
-  it('is invalid whenever locked is not none, even with all required fields valid', async () => {
+  it('is invalid when the seller is settled, and stays valid when only the article is sold', async () => {
     const { fixture } = await setup({ isAdmin: true });
     fixture.componentRef.setInput('visible', true);
     fixture.componentRef.setInput('articleNumber', 1043);
@@ -153,7 +168,7 @@ describe('ArtikelDialog', () => {
 
     fixture.componentRef.setInput('locked', 'sold');
     await fixture.whenStable();
-    expect(component.canSave()).toBe(false);
+    expect(component.canSave()).toBe(true);
 
     fixture.componentRef.setInput('locked', 'settled');
     await fixture.whenStable();
@@ -300,7 +315,7 @@ describe('ArtikelDialog', () => {
     );
   });
 
-  it('does not include the article number in the save payload', async () => {
+  it('includes the unchanged article number in the save payload', async () => {
     const { fixture } = await setup({ isAdmin: true });
     fixture.componentRef.setInput('visible', true);
     fixture.componentRef.setInput('articleNumber', 1043);
@@ -314,6 +329,7 @@ describe('ArtikelDialog', () => {
     component.onSave();
 
     expect(saveSpy).toHaveBeenCalledWith({
+      number: 1043,
       name: 'Winterjacke',
       brand: 'Playmobil',
       category: 'Kleidung',
@@ -405,5 +421,183 @@ describe('ArtikelDialog', () => {
     await fixture.whenStable();
 
     expect(fixture.componentInstance.price()).toBe(19.9);
+  });
+
+  describe('article number field', () => {
+    async function openDialog(
+      options: {
+        isAdmin?: boolean;
+        articlesApi?: ReturnType<typeof articlesApiStub>;
+        locked?: 'none' | 'sold' | 'settled';
+      } = {},
+    ) {
+      const { fixture, articlesApi } = await setup({
+        isAdmin: options.isAdmin ?? true,
+        articlesApi: options.articlesApi,
+      });
+      fixture.componentRef.setInput('visible', true);
+      fixture.componentRef.setInput('articleNumber', 1043);
+      fixture.componentRef.setInput('articleId', 'a1');
+      fixture.componentRef.setInput('initialValue', EDIT_ARTICLE);
+      fixture.componentRef.setInput('locked', options.locked ?? 'none');
+      await fixture.whenStable();
+      return {
+        fixture,
+        component: fixture.componentInstance,
+        articlesApi,
+        element: fixture.nativeElement as HTMLElement,
+      };
+    }
+
+    it('shows the number input prefilled with the current number and enabled', async () => {
+      const { element } = await openDialog();
+
+      const input = element.querySelector('#artikel-dialog-number') as HTMLInputElement;
+      expect(input.value).toBe('1043');
+      expect(input.disabled).toBe(false);
+    });
+
+    it('shows the taken-number error and blocks saving when another article owns the number', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of({ id: 'b2', number: 1044 }));
+      const { fixture, component, element } = await openDialog({ articlesApi });
+
+      component.numberText.set('1044');
+      component.onNumberBlur();
+      await fixture.whenStable();
+
+      expect(articlesApi.getByNumber).toHaveBeenCalledWith(1044);
+      expect(element.textContent).toContain('Artikelnummer 1044 ist bereits vergeben.');
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('rejects a number above the maximum allowed number with a field error', async () => {
+      const { fixture, component } = await openDialog();
+
+      component.numberText.set('2147483647');
+      component.onNumberBlur();
+      await fixture.whenStable();
+
+      expect(component.numberError()).not.toBeNull();
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('accepts the maximum allowed number', async () => {
+      const { fixture, component } = await openDialog();
+
+      component.numberText.set('2147483646');
+      component.onNumberBlur();
+      await fixture.whenStable();
+
+      expect(component.numberError()).toBeNull();
+      expect(component.canSave()).toBe(true);
+    });
+
+    it('does not query the backend and can save when the number stays unchanged', async () => {
+      const { fixture, component, articlesApi } = await openDialog();
+
+      component.onNumberBlur();
+      await fixture.whenStable();
+
+      expect(articlesApi.getByNumber).not.toHaveBeenCalled();
+      expect(component.canSave()).toBe(true);
+    });
+
+    it('treats a lookup hit on the article itself as free', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of({ id: 'a1', number: 1050 }));
+      const { fixture, component } = await openDialog({ articlesApi });
+
+      component.numberText.set('1050');
+      component.onNumberBlur();
+      await fixture.whenStable();
+
+      expect(component.numberError()).toBeNull();
+      expect(component.canSave()).toBe(true);
+    });
+
+    it('emits the new number in the save payload when the number is free', async () => {
+      const { fixture, component } = await openDialog();
+      const saveSpy = vi.fn();
+      component.save.subscribe(saveSpy);
+
+      component.numberText.set('2000');
+      component.onNumberBlur();
+      await fixture.whenStable();
+      component.onSave();
+
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ number: 2000 }));
+    });
+
+    it('shows a server-side number error only while the rejected number is still entered', async () => {
+      const { fixture, component, element } = await openDialog();
+
+      component.numberText.set('1050');
+      fixture.componentRef.setInput('serverErrors', {
+        number: 'Artikelnummer 1050 ist bereits vergeben.',
+      });
+      await fixture.whenStable();
+      expect(element.textContent).toContain('Artikelnummer 1050 ist bereits vergeben.');
+
+      component.numberText.set('1060');
+      await fixture.whenStable();
+      expect(element.textContent).not.toContain('Artikelnummer 1050 ist bereits vergeben.');
+    });
+
+    it('shows the label hint for a changed valid number and hides it again on return', async () => {
+      const { fixture, component, element } = await openDialog();
+
+      component.numberText.set('2000');
+      await fixture.whenStable();
+      expect(element.textContent).toContain('Etikett neu drucken und anbringen.');
+
+      component.numberText.set('1043');
+      await fixture.whenStable();
+      expect(element.textContent).not.toContain('Etikett neu drucken und anbringen.');
+    });
+
+    for (const invalidText of ['', '0', '-5', 'abc']) {
+      it(`rejects "${invalidText}" with a field error and blocks saving`, async () => {
+        const { fixture, component, element } = await openDialog();
+
+        component.numberText.set(invalidText);
+        await fixture.whenStable();
+
+        expect(element.textContent).toContain('Artikelnummer muss eine ganze Zahl ab 1 sein.');
+        expect(component.canSave()).toBe(false);
+      });
+    }
+
+    it('disables the number input when the seller is settled', async () => {
+      const { element } = await openDialog({ locked: 'settled' });
+
+      const input = element.querySelector('#artikel-dialog-number') as HTMLInputElement;
+      expect(input.disabled).toBe(true);
+    });
+
+    it('keeps the number input enabled and saveable when only the article is sold', async () => {
+      const { fixture, component, element } = await openDialog({ locked: 'sold' });
+
+      component.numberText.set('2000');
+      component.onNumberBlur();
+      await fixture.whenStable();
+
+      const input = element.querySelector('#artikel-dialog-number') as HTMLInputElement;
+      expect(input.disabled).toBe(false);
+      expect(component.canSave()).toBe(true);
+    });
+
+    it('lets a non-admin change the number the same way as an admin', async () => {
+      const { fixture, component } = await openDialog({ isAdmin: false });
+      const saveSpy = vi.fn();
+      component.save.subscribe(saveSpy);
+
+      component.numberText.set('2000');
+      component.onNumberBlur();
+      await fixture.whenStable();
+      component.onSave();
+
+      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ number: 2000 }));
+    });
   });
 });

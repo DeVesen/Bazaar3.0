@@ -76,7 +76,7 @@ Manuell als verkauft markierte Artikel tragen ein kleines Badge **„manuell"** 
 **Kein „+ Neu"-Button.**
 
 **Edit-Button** pro Zeile → öffnet Artikel-Bearbeiten-Dialog:
-- Artikelnummer oben, read-only
+- Artikelnummer oben, änderbar (nur frei oder die eigene Nummer, sonst Fehler am Feld)
 - **Löschen-Button** im Footer (links, `danger`) — **nur für Admins** und nur solange `soldAt` leer ist
 
 ---

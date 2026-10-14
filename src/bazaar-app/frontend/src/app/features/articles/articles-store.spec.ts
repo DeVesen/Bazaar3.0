@@ -149,6 +149,7 @@ describe('ArticlesStore', () => {
     it('calls the API and triggers a reload on success', () => {
       getArticles.mockReturnValue(of({ items: [], totalCount: 0, page: 1, pageSize: 50 }));
       const request = {
+        number: 1001,
         name: 'Schneeanzug 104',
         brand: 'Playmobil',
         category: 'Kleidung',
