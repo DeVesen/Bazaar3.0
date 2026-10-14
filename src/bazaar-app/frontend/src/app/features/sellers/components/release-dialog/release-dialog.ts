@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, ou
 import { HttpErrorResponse } from '@angular/common/http';
 import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
+import { ResultOverlay } from '../../../../shared/components/result-overlay/result-overlay';
+import { ResultEvent, createResultEvent } from '../../../../shared/components/result-overlay/result-event';
 import { PaymentConfirmedEvent, PaymentPanel } from '../../../../shared/components/payment-panel/payment-panel';
 import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialog';
 import { ReleaseApi } from '../../data/release-api';
@@ -55,7 +57,7 @@ import { PrintService } from '../../../../core/print/print.service';
  */
 @Component({
   selector: 'app-release-dialog',
-  imports: [DialogModule, ScanDialog, PaymentPanel],
+  imports: [DialogModule, ScanDialog, PaymentPanel, ResultOverlay],
   templateUrl: './release-dialog.html',
   styleUrl: './release-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -90,6 +92,8 @@ export class ReleaseDialog {
    * visible exactly when this is `false` — no separate flag for that, see class doc comment. */
   readonly paymentPanelVisible = signal(false);
   readonly bookingError = signal<string | null>(null);
+  /** Fresh `paid` event after a successful booking with a fee to collect (`app-result-overlay`). */
+  readonly resultEvent = signal<ResultEvent | null>(null);
 
   /** Same formula shape as `intake-session-list.ts`'s own `fee` computed. */
   readonly fee = computed(() => this.sessionIds().length * this.feePerItem());
@@ -162,6 +166,7 @@ export class ReleaseDialog {
         });
         this.paymentPanelVisible.set(false);
         this.bookingError.set(null);
+        if (feeAmount > 0) this.resultEvent.set(createResultEvent('paid'));
         this.released.emit();
         this.visibleChange.emit(false);
       },

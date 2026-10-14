@@ -1,5 +1,5 @@
-/** The four outcomes the Ergebnis-Einblendung can show (docs/components/result-overlay/component.md). */
-export type ResultKind = 'failed' | 'success' | 'already' | 'cart';
+/** The five outcomes the Ergebnis-Einblendung can show (docs/components/result-overlay/component.md). */
+export type ResultKind = 'failed' | 'success' | 'already' | 'cart' | 'paid';
 
 /**
  * One request to show a result. `id` makes every event distinct, so the same `kind` twice in a row

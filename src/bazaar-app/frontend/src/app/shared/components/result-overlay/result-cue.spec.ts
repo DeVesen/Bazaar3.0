@@ -58,7 +58,7 @@ describe('playResultCue', () => {
     vi.unstubAllGlobals();
   });
 
-  it.each(['success', 'cart'] as const)('playResultCue_%sKind_PlaysPingAndVibratesOnce', (kind) => {
+  it.each(['success', 'cart', 'paid'] as const)('playResultCue_%sKind_PlaysPingAndVibratesOnce', (kind) => {
     // Arrange
     const expectedVibration = [100];
 

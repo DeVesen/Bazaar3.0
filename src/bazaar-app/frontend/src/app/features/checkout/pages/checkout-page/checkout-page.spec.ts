@@ -507,6 +507,7 @@ describe('CheckoutPage', () => {
       expect(component.infoState()).toEqual({ type: 'warn', text: 'Bitte Artikelnummer eingeben' });
       expect(component.articleNumber()).toBe('');
       expect(component.paymentPanelVisible()).toBe(false);
+      expect(component.resultEvent()?.kind).toBe('paid');
     });
 
     it('onPaymentConfirmed 409 article.not_sellable: cart unchanged, panel closed, affected item highlighted, error infoState', async () => {

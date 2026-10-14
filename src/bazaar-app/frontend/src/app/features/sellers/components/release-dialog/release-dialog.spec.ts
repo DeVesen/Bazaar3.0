@@ -189,6 +189,15 @@ describe('ReleaseDialog', () => {
     expect(releaseApi.bookRelease).toHaveBeenCalledWith(SELLER_ID, 1, ['a1', 'a2']);
   });
 
+  it('onPaymentConfirmed success: shows the paid result', async () => {
+    const { component } = await setup({ sellerId: SELLER_ID });
+    component.onSessionChanged(['a1']);
+
+    component.onPaymentConfirmed({ totalAmount: 1, receivedAmount: 5, change: 4 });
+
+    expect(component.resultEvent()?.kind).toBe('paid');
+  });
+
   it('success: prints via PrintService, closes payment + dialog, emits released', async () => {
     const { component, printService } = await setup({ sellerId: SELLER_ID });
     component.onSessionChanged(['a1', 'a2']);

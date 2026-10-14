@@ -44,6 +44,7 @@ const DOUBLE_BEEP: CuePattern = {
 const PATTERN_BY_KIND: Record<ResultKind, CuePattern> = {
   success: PING,
   cart: PING,
+  paid: PING,
   failed: ZONK,
   already: DOUBLE_BEEP,
 };

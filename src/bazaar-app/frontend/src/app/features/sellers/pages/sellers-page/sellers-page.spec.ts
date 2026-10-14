@@ -480,7 +480,7 @@ describe('SellersPage', () => {
       const { fixture } = await createPage();
 
       // Assert
-      const regions = (fixture.nativeElement as HTMLElement).querySelectorAll('[role="status"]');
+      const regions = (fixture.nativeElement as HTMLElement).querySelectorAll('[role="status"]:not(app-result-overlay)');
       expect(regions.length).toBe(1);
       expect(regions[0].classList.contains('sellers-page__sr-only')).toBe(true);
       expect(regions[0].textContent?.trim()).toBe('');
@@ -492,7 +492,7 @@ describe('SellersPage', () => {
       loadingSignal.set(true);
       const { fixture } = await createPage();
       const host = fixture.nativeElement as HTMLElement;
-      expect(host.querySelector('[role="status"]')?.textContent?.trim()).toBe('Verkäufer werden geladen');
+      expect(host.querySelector('[role="status"]:not(app-result-overlay)')?.textContent?.trim()).toBe('Verkäufer werden geladen');
 
       // Act
       showSkeletonSignal.set(false);
@@ -500,8 +500,8 @@ describe('SellersPage', () => {
       await settle(fixture);
 
       // Assert
-      expect(host.querySelectorAll('[role="status"]').length).toBe(1);
-      expect(host.querySelector('[role="status"]')?.textContent?.trim()).toBe('');
+      expect(host.querySelectorAll('[role="status"]:not(app-result-overlay)').length).toBe(1);
+      expect(host.querySelector('[role="status"]:not(app-result-overlay)')?.textContent?.trim()).toBe('');
       expect(host.textContent).not.toContain('Verkäufer werden geladen');
     });
 
@@ -509,18 +509,18 @@ describe('SellersPage', () => {
       // Arrange
       const { fixture } = await createPage();
       const host = fixture.nativeElement as HTMLElement;
-      const before = host.querySelector('[role="status"]');
+      const before = host.querySelector('[role="status"]:not(app-result-overlay)');
 
       // Act
       showSkeletonSignal.set(true);
       await settle(fixture);
-      const during = host.querySelector('[role="status"]');
+      const during = host.querySelector('[role="status"]:not(app-result-overlay)');
       showSkeletonSignal.set(false);
       await settle(fixture);
 
       // Assert
       expect(during).toBe(before);
-      expect(host.querySelector('[role="status"]')).toBe(before);
+      expect(host.querySelector('[role="status"]:not(app-result-overlay)')).toBe(before);
     });
 
     it('render_skeletonVisible_skeletonContainerHasNoOwnStatusRole', async () => {
@@ -530,7 +530,7 @@ describe('SellersPage', () => {
       const host = fixture.nativeElement as HTMLElement;
 
       // Assert
-      expect(host.querySelectorAll('[role="status"]').length).toBe(1);
+      expect(host.querySelectorAll('[role="status"]:not(app-result-overlay)').length).toBe(1);
       expect(host.querySelector('.sellers-page__list [role="status"]')).toBeNull();
       expect(host.querySelector('.sellers-page__list .sellers-page__sr-only')).toBeNull();
     });

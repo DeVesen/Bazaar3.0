@@ -3,6 +3,8 @@ import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { ResultOverlay } from '../../../../shared/components/result-overlay/result-overlay';
+import { ResultEvent, createResultEvent } from '../../../../shared/components/result-overlay/result-event';
 import { PaymentConfirmedEvent, PaymentPanel } from '../../../../shared/components/payment-panel/payment-panel';
 import { IntakeApi, IntakeArticleLine } from '../../data/intake-api';
 import { SessionArticle } from '../intake-article-entry/intake-article-entry';
@@ -34,7 +36,7 @@ export interface BookingConflict {
  */
 @Component({
   selector: 'app-intake-session-list',
-  imports: [CurrencyPipe, ButtonModule, DialogModule, PaymentPanel, SessionItemPopup],
+  imports: [CurrencyPipe, ButtonModule, DialogModule, PaymentPanel, ResultOverlay, SessionItemPopup],
   templateUrl: './intake-session-list.html',
   styleUrl: './intake-session-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -73,6 +75,8 @@ export class IntakeSessionList {
 
   readonly paymentPanelVisible = signal(false);
   readonly bookingError = signal<string | null>(null);
+  /** Fresh `paid` event after a successful booking with a fee to collect (`app-result-overlay`). */
+  readonly resultEvent = signal<ResultEvent | null>(null);
 
   onRowClick(item: SessionArticle): void {
     this.selectedItem.set(item);
@@ -136,6 +140,7 @@ export class IntakeSessionList {
         });
         this.paymentPanelVisible.set(false);
         this.bookingError.set(null);
+        if (feeAmount > 0) this.resultEvent.set(createResultEvent('paid'));
         this.booked.emit();
       },
       error: (error: unknown) => this.handleBookingError(error),

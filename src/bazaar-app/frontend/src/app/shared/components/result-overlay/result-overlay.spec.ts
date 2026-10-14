@@ -67,6 +67,7 @@ describe('ResultOverlay', () => {
     ['success', 'pi-check', 'Erfolgreich'],
     ['already', 'pi-check', 'Bereits erledigt'],
     ['cart', 'pi-shopping-cart', 'Im Warenkorb'],
+    ['paid', 'pi-dollar', 'Bezahlt'],
   ] as [ResultKind, string, string][])('event_%sKind_ShowsMatchingIconAndAnnouncement', (kind, iconClass, text) => {
     // Arrange & Act
     const fixture = createOverlay(createResultEvent(kind));

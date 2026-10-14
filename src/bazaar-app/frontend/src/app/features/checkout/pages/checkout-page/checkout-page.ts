@@ -351,6 +351,7 @@ export class CheckoutPage {
     this.salesApi.bookSale(articleIds).subscribe({
       next: () => {
         this.paymentPanelVisible.set(false);
+        this.showResult('paid');
         this.lastSaleArticleIds.set(articleIds);
         this.cartItems.set([]);
         this.highlightedItemId.set(null);

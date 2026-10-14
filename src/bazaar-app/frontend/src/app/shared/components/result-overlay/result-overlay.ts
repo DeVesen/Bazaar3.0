@@ -10,6 +10,7 @@ const ICON_CLASS_BY_KIND: Record<ResultKind, string> = {
   success: 'pi pi-check',
   already: 'pi pi-check',
   cart: 'pi pi-shopping-cart',
+  paid: 'pi pi-dollar',
 };
 
 const ANNOUNCEMENT_BY_KIND: Record<ResultKind, string> = {
@@ -17,6 +18,7 @@ const ANNOUNCEMENT_BY_KIND: Record<ResultKind, string> = {
   success: 'Erfolgreich',
   already: 'Bereits erledigt',
   cart: 'Im Warenkorb',
+  paid: 'Bezahlt',
 };
 
 /**

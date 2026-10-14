@@ -238,6 +238,15 @@ describe('IntakeSessionList', () => {
     });
     expect(component.paymentPanelVisible()).toBe(false);
     expect(bookedSpy).toHaveBeenCalled();
+    expect(component.resultEvent()?.kind).toBe('paid');
+  });
+
+  it('fee 0: no paid result is shown', async () => {
+    const { component } = await setup({ items: [itemStub()], feePerItem: 0 });
+
+    component.openPayment();
+
+    expect(component.resultEvent()).toBeNull();
   });
 
   it('409 article.number_taken: emits bookingConflict with the right payload, does NOT emit booked, and closes the dialog', async () => {
