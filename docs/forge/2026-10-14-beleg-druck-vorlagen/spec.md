@@ -50,7 +50,7 @@ Beim Abgabe-Beleg und bei der Verkäufer-Übersicht erscheinen Freitexte, Kennza
 - Der Inhalt der Verkäufer-Übersicht ändert sich nur wie oben beschrieben. · Aussage
 
 ## Akzeptanzkriterien
-- **AC-01** Gegeben ein angemeldeter Nutzer ohne Admin-Rolle, wenn er die Verkäufer-Seite öffnet, dann zeigt jede Verkäufer-Kachel ein Drucker-Icon neben den Aktionen Bearbeiten und Scannen. · Anhang
+- **AC-01** Gegeben ein angemeldeter Nutzer ohne Admin-Rolle, wenn er die Verkäufer-Seite öffnet, dann zeigt jede Verkäufer-Kachel ein Drucker-Icon in der Aktionsleiste, zusätzlich zu den dort sichtbaren Aktionen Bearbeiten, Scannen und Importieren; das Icon steht als letzte Aktion rechts. · Anhang
 - **AC-02** Gegeben ein Verkäufer mit Artikeln, wenn der Anwender das Drucker-Icon der Verkäufer-Kachel anklickt, dann öffnet sich die Druckvorschau des Geräts, die nur den Abgabe-Beleg dieses Verkäufers zeigt, ohne Navigation, Kachelliste oder andere Seitenelemente. · Aussage
 - **AC-03** Gegeben die Verkäufer-Seite, wenn der Anwender das Drucker-Icon anklickt, dann öffnet sich die Detailansicht des Verkäufers nicht. · Aussage
 - **AC-04** Gegeben ein Verkäufer ohne Artikel, wenn der Anwender das Drucker-Icon anklickt, dann öffnet sich die Vorschau mit leerer Artikelliste, „Anzahl abgegebener Artikel" 0 und der Gebühr-Kachel mit Wert 0,00 €. · Aussage
@@ -63,7 +63,7 @@ Beim Abgabe-Beleg und bei der Verkäufer-Übersicht erscheinen Freitexte, Kennza
 - **AC-11** Gegeben ein gedruckter Abgabe-Beleg, wenn Seite 1 betrachtet wird, dann zeigt sie von oben nach unten: Kopfzeile, Verkäufer-Block mit QR-Code, Zeile A der Kennzahl-Kacheln, Zeile B, Freitext 3, Artikelliste und Fußzeile. · Anhang
 - **AC-12** Gegeben Freitext 1 „A", Freitext 2 „B" und der Druck am 14.10.2026 um 09:30, wenn der Beleg gedruckt wird, dann steht in der Kopfzeile „A" linksbündig, „B" zentriert und „14.10.2026, 09:30" rechtsbündig. · Anhang
 - **AC-13** Gegeben ein Verkäufer „Anna Meier", Musterstraße 5, 76133 Karlsruhe, Telefon und E-Mail gepflegt, wenn der Beleg gedruckt wird, dann stehen im Verkäufer-Block „Anna Meier", „Musterstraße 5" und „76133 Karlsruhe" in einer Zeile, Telefon und E-Mail stehen nirgends. · Aussage
-- **AC-14** Gegeben ein Verkäufer mit der ID „a3f9c2d1", wenn der Beleg gedruckt wird, dann zeigt der QR-Code den String „a3f9c2d1" und „a3f9c2d1" steht zusätzlich als Text in Zeile A. · Anhang
+- **AC-14** Gegeben ein Verkäufer mit der ID „a3f9c2d1", wenn der Beleg gedruckt wird, dann zeigt der QR-Code den String „a3f9c2d1", „a3f9c2d1" steht als Text unter dem QR-Code und zusätzlich als Text in Zeile A, also zweimal auf Seite 1. · Anhang
 - **AC-15** Gegeben 4 gedruckte Artikel und Gebühr 0,50 € pro Artikel, wenn der Beleg gedruckt wird, dann zeigt die Gebühr-Kachel den Titel „Gebühr 0,50 € / Artikel" und den Wert „2,00 €". · Aussage
 - **AC-16** Gegeben ein Provisionssatz von 20 %, wenn der Abgabe-Beleg gedruckt wird, dann zeigt die Provision-Kachel den Titel „Provision" und den Wert „20 %". · Aussage
 - **AC-17** Gegeben ein Abgabe-Beleg, wenn Zeile B betrachtet wird, dann ist sie halb so hoch wie Zeile A. · Aussage
@@ -82,6 +82,8 @@ Beim Abgabe-Beleg und bei der Verkäufer-Übersicht erscheinen Freitexte, Kennza
 - **AC-30** Gegeben ein Umsatz von 200,00 € und ein Provisionssatz von 20 %, wenn die Verkäufer-Übersicht gedruckt wird, dann zeigt die Kachel Einnahmen „200,00 €", die Kachel „Provision 20 %" den Wert „40,00 €" und die Kachel Verdienst „160,00 €". · Aussage
 - **AC-31** Gegeben 3 Artikel „Im Verkauf", 2 „Verkauft" und 2 „Registriert", wenn die Verkäufer-Übersicht gedruckt wird, dann sind „Anzahl offener Artikel" 3, „Anzahl verkaufter Artikel" 2, die Registriert fehlen in der Liste und die Gruppen stehen in der Reihenfolge „Im Verkauf", „Verkauft", „Zurückgegeben". · Aussage
 - **AC-32** Gegeben der Freitext 3 der Verkäufer-Übersicht ist leer und der Freitext 3 des Abgabe-Belegs gepflegt, wenn beide gedruckt werden, dann erscheint der gepflegte Text nur im Abgabe-Beleg. · Aussage
+- **AC-33** Gegeben ein Beleg mit Artikeln, wenn Seite 1 betrachtet wird, dann zeigt die Artikelliste als Tabelle genau die Spalten Artikelnummer, Bezeichnung, Kategorie, Marke, Größe, Farbe und Preis, und es gibt keine Kachel pro Artikel. · Anhang
+- **AC-34** Gegeben ein Beleg mit wenigen Artikeln, wenn Seite 1 betrachtet wird, dann reicht der Bereich der Artikelliste bis zur Fußzeile; bei mehreren Seiten endet er auf jeder Seite direkt über der Fußzeile. · Anhang
 
 ## Entscheidungen
 - **W · Fehler Druckvorschau** · Aussage — Die Browser-Vorschau zeigt heute den Seiteninhalt statt des Belegs. Das Ziel ist ein Dokument ohne Seitenelemente.
@@ -97,3 +99,6 @@ Beim Abgabe-Beleg und bei der Verkäufer-Übersicht erscheinen Freitexte, Kennza
 - **W · Format und Zeit** · Aussage — DIN A4 hochkant, Zeitpunkt des Drucks.
 - **W · Adresse** · Aussage — Straße sowie Postleitzahl und Ort. Telefon und E-Mail entfallen.
 - **W · Fehlerfall** · Aussage — Eine sichtbare Fehlermeldung, keine Vorschau.
+- **R1 · Soll-Vorgaben** — geändert — Neues Verhalten, Beleg: Spec · Soll-Vorgaben — Die Vorgaben zu Spalten und Tabellenform der Artikelliste sowie zur Listenhöhe bis zur Fußzeile hatten kein Akzeptanzkriterium; AC-33 und AC-34 prüfen sie jetzt so, wie die Soll-Vorgaben sie festlegen (bevorzugter Scout-Vorschlag 1).
+- **F · AC-01** — geändert — Vorschlag 1: Das Kriterium nennt jetzt wie die Einleitung alle drei Aktionen Bearbeiten, Scannen und Importieren und legt fest, dass das Drucker-Icon als letzte Aktion rechts in der Aktionsleiste steht.
+- **F · AC-14** — geändert — Vorschlag 1: Das Kriterium folgt jetzt den Soll-Vorgaben zu Verkäufer-Block und Zeile A; die Verkäufer-ID steht als Text unter dem QR-Code und zusätzlich in Zeile A, also zweimal auf Seite 1.
