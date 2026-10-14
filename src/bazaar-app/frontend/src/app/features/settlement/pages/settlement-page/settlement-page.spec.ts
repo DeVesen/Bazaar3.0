@@ -695,6 +695,7 @@ describe('SettlementPage', () => {
       // neu geladen werden, sonst zeigt sie sie fälschlich weiter als "Angenommen".
       expect(sellersApi.getArticles).toHaveBeenCalledWith('SEL00001');
       expect(printService.printSellerSummary).toHaveBeenCalledWith({ sellerId: 'SEL00001', phase: 'final' });
+      expect(component.resultEvent()?.kind).toBe('paid');
     });
 
     it('on 409 settlement.articles_open: keeps the panel open and shows the server detail message', async () => {

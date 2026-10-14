@@ -8,6 +8,8 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { SellerSearch, SellerSummary } from '../../../../shared/components/seller-search/seller-search';
+import { ResultOverlay } from '../../../../shared/components/result-overlay/result-overlay';
+import { ResultEvent, createResultEvent } from '../../../../shared/components/result-overlay/result-event';
 import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialog';
 import { KpiGrid } from '../../../../shared/components/kpi-tile/kpi-grid';
 import { KpiTile } from '../../../../shared/components/kpi-tile/kpi-tile';
@@ -61,6 +63,7 @@ const ARTICLE_STATUS_LABELS: Record<string, string> = {
     KpiGrid,
     KpiTile,
     SettlementPanel,
+    ResultOverlay,
     Page,
   ],
   templateUrl: './settlement-page.html',
@@ -83,6 +86,8 @@ export class SettlementPage {
   readonly scanDialogVisible = signal(false);
   readonly settlePanelVisible = signal(false);
   readonly settleError = signal<string | null>(null);
+  /** Fresh `paid` event after a successful settlement booking (`app-result-overlay`). */
+  readonly resultEvent = signal<ResultEvent | null>(null);
 
   readonly hint = 'ENTER bei 1 Treffer oder direkt klicken';
 
@@ -152,6 +157,7 @@ export class SettlementPage {
       next: () => {
         this.settlePanelVisible.set(false);
         this.settleError.set(null);
+        this.resultEvent.set(createResultEvent('paid'));
         // Der Server hat gerade alle ReleasedAt == null-Artikel hart gelöscht (settlement.md
         // §4) — ohne loadArticles() würde die Tabelle sie fälschlich weiter als "Angenommen"
         // zeigen. Gleiches Muster wie onArticleConfirmed().
