@@ -116,6 +116,8 @@ builder.Services.AddScoped<UpdateSellerTypeHandler>();
 builder.Services.AddScoped<DeleteSellerTypeHandler>();
 builder.Services.AddScoped<GetSettingsHandler>();
 builder.Services.AddScoped<UpdateSettingsHandler>();
+builder.Services.AddScoped<GetPrintTextsHandler>();
+builder.Services.AddScoped<UpdatePrintTextsHandler>();
 builder.Services.AddScoped<GetSellerCardsHandler>();
 builder.Services.AddScoped<GetSellerByIdHandler>();
 builder.Services.AddScoped<SearchSellersHandler>();

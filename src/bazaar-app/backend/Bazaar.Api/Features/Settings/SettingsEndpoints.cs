@@ -18,6 +18,18 @@ public static class SettingsEndpoints
         .RequireAuthorization("admin")
         .AddEndpointFilter<ValidationFilter<UpdateSettingsCommand>>();
 
+        app.MapGet("/api/settings/print-texts", async (GetPrintTextsHandler handler) =>
+                Results.Ok(await handler.Handle()))
+            .RequireAuthorization();
+
+        app.MapPut("/api/settings/print-texts", async (UpdatePrintTextsCommand command, UpdatePrintTextsHandler handler) =>
+        {
+            await handler.Handle(command);
+            return Results.NoContent();
+        })
+        .RequireAuthorization("admin")
+        .AddEndpointFilter<ValidationFilter<UpdatePrintTextsCommand>>();
+
         return app;
     }
 }
