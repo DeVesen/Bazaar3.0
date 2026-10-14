@@ -34,10 +34,18 @@ type SettlementState = 'selection' | 'view';
  * `'released'`, which is not a real status string, and missing `'registered'`/`'selling'`
  * entirely); not this task's bug to fix there, just not propagated here. */
 const ARTICLE_STATUS_LABELS: Record<string, string> = {
-  registered: 'Angenommen',
+  registered: 'Registriert',
   selling: 'Im Verkauf',
   sold: 'Verkauft',
   returned: 'Zurückgegeben',
+};
+
+/** Badge severities identical to the article list (`articles-page.ts` `STATUS_SEVERITY`). */
+const ARTICLE_STATUS_SEVERITY: Record<string, 'success' | 'info' | 'warn' | 'secondary'> = {
+  registered: 'secondary',
+  selling: 'info',
+  sold: 'success',
+  returned: 'warn',
 };
 
 /**
@@ -203,6 +211,10 @@ export class SettlementPage {
 
   articleStatusLabel(status: string): string {
     return ARTICLE_STATUS_LABELS[status] ?? status;
+  }
+
+  articleStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'secondary' {
+    return ARTICLE_STATUS_SEVERITY[status] ?? 'info';
   }
 
   private loadSellers(): void {

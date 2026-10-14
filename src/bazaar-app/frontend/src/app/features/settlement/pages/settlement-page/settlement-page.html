@@ -58,7 +58,14 @@
           <td>{{ article.number }}</td>
           <td>{{ article.name }}</td>
           <td>{{ article.price | currency: 'EUR' }}</td>
-          <td>{{ articleStatusLabel(article.status) }}</td>
+          <td>
+            <div class="settlement-page__status">
+              <p-tag [value]="articleStatusLabel(article.status)" [severity]="articleStatusSeverity(article.status)" />
+              @if (article.soldManually) {
+                <p-tag value="manuell" severity="secondary" />
+              }
+            </div>
+          </td>
         </tr>
       </ng-template>
     </p-table>
