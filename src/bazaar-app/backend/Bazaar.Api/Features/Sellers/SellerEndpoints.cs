@@ -115,9 +115,9 @@ public static class SellerEndpoints
         .RequireAuthorization()
         .AddEndpointFilter<ValidationFilter<UpdateSellerCommand>>();
 
-        app.MapDelete("/api/sellers/{id}", async (string id, DeleteSellerHandler handler) =>
+        app.MapDelete("/api/sellers/{id}", async (string id, ClaimsPrincipal user, DeleteSellerHandler handler) =>
         {
-            await handler.Handle(id);
+            await handler.Handle(id, user.FindFirst("role")?.Value == "admin");
             return Results.NoContent();
         })
         .RequireAuthorization();

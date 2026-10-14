@@ -79,7 +79,6 @@ interface ValidationProblemBody {
 
 interface ProblemDetailsBody {
   errorCode?: string;
-  detail?: string;
 }
 
 /**
@@ -184,7 +183,6 @@ export class SellersPage {
   readonly editLoading = signal(false);
   readonly saving = signal(false);
   readonly serverErrors = signal<SellerDialogServerErrors | null>(null);
-  readonly deleteError = signal<string | null>(null);
 
   readonly dialogInitialValue = computed<SellerFormValue | null>(() => {
     const detail = this.editingDetail();
@@ -325,7 +323,6 @@ export class SellersPage {
     this.editingDetail.set(null);
     this.dialogMode.set('create');
     this.serverErrors.set(null);
-    this.deleteError.set(null);
     this.dialogVisible.set(true);
   }
 
@@ -333,7 +330,6 @@ export class SellersPage {
     this.editingCard.set(card);
     this.dialogMode.set('edit');
     this.serverErrors.set(null);
-    this.deleteError.set(null);
     this.editingDetail.set(null);
     this.editLoading.set(true);
 
@@ -361,8 +357,7 @@ export class SellersPage {
       this.editingCard.set(null);
       this.editingDetail.set(null);
       this.serverErrors.set(null);
-      this.deleteError.set(null);
-    }
+      }
   }
 
   onDialogCancel(): void {
@@ -370,7 +365,6 @@ export class SellersPage {
     this.editingCard.set(null);
     this.editingDetail.set(null);
     this.serverErrors.set(null);
-    this.deleteError.set(null);
   }
 
   onDialogSave(result: SellerFormResult): void {
@@ -462,16 +456,9 @@ export class SellersPage {
         this.dialogVisible.set(false);
         this.editingCard.set(null);
         this.editingDetail.set(null);
-        this.deleteError.set(null);
         this.messageService.add({ severity: 'success', summary: '✓ Verkäufer gelöscht' });
       },
-      error: (error: unknown) => {
-        if (this.errorCodeOf(error) === 'seller.has_articles') {
-          this.deleteError.set(
-            this.detailOf(error) ?? 'Verkäufer hat noch Artikel und kann nicht gelöscht werden.',
-          );
-          return;
-        }
+      error: () => {
         this.messageService.add({
           severity: 'error',
           summary: 'Verkäufer konnte nicht gelöscht werden',
@@ -547,11 +534,6 @@ export class SellersPage {
   private errorCodeOf(error: unknown): string | undefined {
     if (!(error instanceof HttpErrorResponse)) return undefined;
     return (error.error as ProblemDetailsBody | null)?.errorCode;
-  }
-
-  private detailOf(error: unknown): string | undefined {
-    if (!(error instanceof HttpErrorResponse)) return undefined;
-    return (error.error as ProblemDetailsBody | null)?.detail;
   }
 
   private fieldErrorsOf(error: HttpErrorResponse): SellerDialogServerErrors {

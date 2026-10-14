@@ -1,4 +1,5 @@
 using Bazaar.Application.Sellers;
+using Bazaar.Domain.Articles;
 using Bazaar.Domain.Exceptions;
 using Bazaar.Domain.Ports;
 using Bazaar.Domain.Sellers;
@@ -9,13 +10,18 @@ namespace Bazaar.Application.UnitTests.Sellers;
 public class DeleteSellerHandlerTests
 {
     private readonly Mock<ISellerRepository> _sellerRepository = new();
-    private readonly Mock<IArticleCountBySellerQuery> _articleCountBySellerQuery = new();
+    private readonly Mock<IArticleRepository> _articleRepository = new();
 
     private DeleteSellerHandler CreateSut() =>
-        new(_sellerRepository.Object, _articleCountBySellerQuery.Object);
+        new(_sellerRepository.Object, _articleRepository.Object);
 
     private static Seller CreateSeller() =>
         Seller.Create("SELLER001", "Anna", "Meier", null, null, "Karlsruhe", null, "anna@example.org", "SELLERTYPE001", 10m, 0.5m);
+
+    private static Article CreateArticle(string id, int number) =>
+        Article.Create(
+            id, number, "SELLER001", "T-Shirt", "Adidas", "Kleidung", 10m,
+            "M", "blau", null, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
 
     [Fact]
     public async Task Handle_UnknownId_ThrowsNotFoundWithSellerNotFoundCode()
@@ -23,9 +29,10 @@ public class DeleteSellerHandlerTests
         _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync((Seller?)null);
         var sut = CreateSut();
 
-        var exception = await Assert.ThrowsAsync<NotFoundException>(() => sut.Handle("SELLER001"));
+        var exception = await Assert.ThrowsAsync<NotFoundException>(() => sut.Handle("SELLER001", callerIsAdmin: true));
 
         Assert.Equal("seller.not_found", exception.ErrorCode);
+        _articleRepository.Verify(r => r.Remove(It.IsAny<Article>()), Times.Never);
     }
 
     [Fact]
@@ -33,32 +40,57 @@ public class DeleteSellerHandlerTests
     {
         var seller = CreateSeller();
         _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
-        _articleCountBySellerQuery.Setup(q => q.CountBySellerId("SELLER001")).ReturnsAsync(0);
+        _articleRepository.Setup(r => r.GetAllBySellerId("SELLER001")).ReturnsAsync([]);
         var sut = CreateSut();
 
-        await sut.Handle("SELLER001");
+        await sut.Handle("SELLER001", callerIsAdmin: true);
 
         _sellerRepository.Verify(r => r.Remove(seller), Times.Once);
     }
 
-    /// <summary>
-    /// This branch is structurally correct but unreachable in Round-14 via the real
-    /// (placeholder) IArticleCountBySellerQuery, which always returns 0 — Round-15 wires
-    /// the real Articles table and makes this branch reachable. The mock here proves the
-    /// handler logic ahead of that.
-    /// </summary>
     [Fact]
-    public async Task Handle_SellerHasArticles_ThrowsConflictAndDoesNotRemove_UnreachableUntilRound15()
+    public async Task Handle_SellerHasArticles_RemovesAllArticlesAndSeller()
+    {
+        var seller = CreateSeller();
+        var articles = new List<Article> { CreateArticle("ARTICLE001", 1), CreateArticle("ARTICLE002", 2) };
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+        _articleRepository.Setup(r => r.GetAllBySellerId("SELLER001")).ReturnsAsync(articles);
+        var sut = CreateSut();
+
+        await sut.Handle("SELLER001", callerIsAdmin: true);
+
+        _articleRepository.Verify(r => r.Remove(articles[0]), Times.Once);
+        _articleRepository.Verify(r => r.Remove(articles[1]), Times.Once);
+        _sellerRepository.Verify(r => r.Remove(seller), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_NonAdminSellerHasArticles_ThrowsConflictAndRemovesNothing()
     {
         var seller = CreateSeller();
         _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
-        _articleCountBySellerQuery.Setup(q => q.CountBySellerId("SELLER001")).ReturnsAsync(12);
+        _articleRepository.Setup(r => r.GetAllBySellerId("SELLER001"))
+            .ReturnsAsync([CreateArticle("ARTICLE001", 1), CreateArticle("ARTICLE002", 2)]);
         var sut = CreateSut();
 
-        var exception = await Assert.ThrowsAsync<ConflictException>(() => sut.Handle("SELLER001"));
+        var exception = await Assert.ThrowsAsync<ConflictException>(() => sut.Handle("SELLER001", callerIsAdmin: false));
 
         Assert.Equal("seller.has_articles", exception.ErrorCode);
-        Assert.Equal("Verkäufer hat noch 12 Artikel", exception.Message);
+        Assert.Equal("Verkäufer hat noch 2 Artikel", exception.Message);
+        _articleRepository.Verify(r => r.Remove(It.IsAny<Article>()), Times.Never);
         _sellerRepository.Verify(r => r.Remove(It.IsAny<Seller>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_NonAdminSellerWithoutArticles_RemovesSeller()
+    {
+        var seller = CreateSeller();
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
+        _articleRepository.Setup(r => r.GetAllBySellerId("SELLER001")).ReturnsAsync([]);
+        var sut = CreateSut();
+
+        await sut.Handle("SELLER001", callerIsAdmin: false);
+
+        _sellerRepository.Verify(r => r.Remove(seller), Times.Once);
     }
 }
