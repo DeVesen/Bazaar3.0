@@ -67,7 +67,8 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 - Workitem: keine
 - Worktree: ja
 - Branch-Schema: `docs/feature/<slug>`
-- Worktree-Ordner: `C:/wt/<repo>` (kurz halten: Windows-Pfadlänge, `node_modules` im Worktree per `npm ci`)
+- Worktree-Ordner: C:/wt/<repo>
+- Worktree-Hinweis: Pfad kurz halten (Windows-Pfadlänge), `node_modules` im Worktree per `npm ci`.
 - Planungs-Skills: dv-craft:craft-design-principles, dv-craft:craft-unit-testing, dv-dotnet:dotnet @src/*/backend, dv-angular:angular @src/*/frontend, primeng:primeng-component-implementation @src/*/frontend
 - Build:
 - Test:
