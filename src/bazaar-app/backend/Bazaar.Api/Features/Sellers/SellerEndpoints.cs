@@ -126,7 +126,7 @@ public static class SellerEndpoints
         {
             var articles = await handler.Handle(id);
             return Results.Ok(articles.Select(a => new ArticleSummaryDto(
-                a.Id, a.Number, a.Name, a.Brand, a.Category, a.Price, a.Status, a.SoldManually)));
+                a.Id, a.Number, a.Name, a.Brand, a.Category, a.Size, a.Color, a.Price, a.Status, a.SoldManually)));
         })
         .RequireAuthorization();
 

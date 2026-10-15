@@ -27,6 +27,7 @@ import { ScrollArea, ScrollAreaModule } from 'primeng/scrollarea';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { RoleService } from '../../../../core/auth/role.service';
+import { PrintService } from '../../../../core/print/print.service';
 import { Page } from '../../../../shared/components/page/page';
 import { LoadMoreSentinel } from '../../components/load-more-sentinel/load-more-sentinel';
 import { SellerCardSkeleton } from '../../components/seller-card-skeleton/seller-card-skeleton';
@@ -130,6 +131,7 @@ export class SellersPage {
   private readonly sellersStore = inject(SellersStore);
   private readonly roleService = inject(RoleService);
   private readonly messageService = inject(MessageService);
+  private readonly printService = inject(PrintService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -287,6 +289,10 @@ export class SellersPage {
   onReleased(): void {
     this.sellersStore.load();
     this.messageService.add({ severity: 'success', summary: '✓ Artikel freigegeben' });
+  }
+
+  onPrintReceipt(card: SellerCardModel): void {
+    this.printService.printSellerReceipt(card.id);
   }
 
   onImportArticles(card: SellerCardModel): void {

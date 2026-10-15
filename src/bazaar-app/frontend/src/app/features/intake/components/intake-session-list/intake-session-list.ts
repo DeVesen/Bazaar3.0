@@ -136,7 +136,6 @@ export class IntakeSessionList {
         this.printService.printIntakeReceipt({
           articleIds: result.articleIds,
           sellerId: this.sellerId(),
-          feeAmount,
         });
         this.paymentPanelVisible.set(false);
         this.bookingError.set(null);

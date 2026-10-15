@@ -17,6 +17,8 @@ import { SellersPage } from './sellers-page';
 import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { SellersStore, SellersFilters } from '../../sellers-store';
 import { RoleService } from '../../../../core/auth/role.service';
+import { PrintService } from '../../../../core/print/print.service';
+import { SellerCard as SellerCardComponent } from '../../components/seller-card/seller-card';
 // eslint-disable-next-line boundaries/dependencies
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
 import { SellerCard, SellerDetail, SellersApi } from '../../data/sellers-api';
@@ -88,6 +90,7 @@ describe('SellersPage', () => {
   let getArticles: ReturnType<typeof vi.fn>;
   let getById: ReturnType<typeof vi.fn>;
   let messageServiceAdd: ReturnType<typeof vi.fn>;
+  let printSellerReceipt: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     itemsSignal = signal<SellerCard[]>([]);
@@ -111,6 +114,7 @@ describe('SellersPage', () => {
     getArticles = vi.fn().mockReturnValue(of([]));
     getById = vi.fn().mockReturnValue(of(buildDetail()));
     messageServiceAdd = vi.fn();
+    printSellerReceipt = vi.fn();
     // `app-release-dialog` (Round-18 Task 4) is always rendered by `sellers-page.html` and
     // injects the real `SellersApi`/`ReleaseApi` itself (`providedIn: 'root'`) — both are
     // overridden here purely so their real `HttpClient` dependency is never required by this
@@ -143,6 +147,7 @@ describe('SellersPage', () => {
         },
         { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
         { provide: MessageService, useValue: { add: messageServiceAdd } },
+        { provide: PrintService, useValue: { printSellerReceipt } },
         { provide: SellerTypesApi, useValue: { getAll: () => of(SELLER_TYPES) } },
         { provide: SellersApi, useValue: { getById: vi.fn().mockReturnValue(of(buildDetail())) } },
         { provide: ReleaseApi, useValue: { bookRelease: vi.fn() } },
@@ -568,6 +573,35 @@ describe('SellersPage', () => {
       expect(messageServiceAdd).toHaveBeenCalledWith(
         expect.objectContaining({ severity: 'success', summary: '✓ Artikel freigegeben' }),
       );
+    });
+  });
+
+  describe('print receipt', () => {
+    it('onPrintReceipt_clickedCard_printsTheReceiptOfThatSeller', async () => {
+      // Arrange
+      const { component } = await createPage();
+
+      // Act
+      component.onPrintReceipt(buildCard({ id: 's1' }));
+
+      // Assert
+      expect(printSellerReceipt).toHaveBeenCalledWith('s1');
+      expect(component.detailModalVisible()).toBe(false);
+    });
+
+    it('template_printOutputOfSellerCard_isWiredToOnPrintReceipt', async () => {
+      // Arrange
+      itemsSignal.set([buildCard({ id: 's7' })]);
+      totalCountSignal.set(1);
+      const { fixture } = await createPage();
+      const cardComponent = fixture.debugElement.query(By.directive(SellerCardComponent))
+        .componentInstance as SellerCardComponent;
+
+      // Act
+      cardComponent.printReceipt.emit(buildCard({ id: 's7' }));
+
+      // Assert
+      expect(printSellerReceipt).toHaveBeenCalledWith('s7');
     });
   });
 

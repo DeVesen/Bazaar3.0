@@ -46,8 +46,7 @@ Grundregeln (Dumb Component, ausschließlich PrimeNG) → [`docs/components/over
 
 | Komponente | Beschreibung | Epic |
 |---|---|---|
-| [print-abgabe-beleg](print-abgabe-beleg.md) | Quittung über abgegebene Artikel und gezahlte Annahmegebühr | [Druckfunktionen](../epics/Epic_Druckfunktionen/epic.md) |
-| [print-verkaeufer-uebersicht](print-verkaeufer-uebersicht.md) | Einsammelliste bzw. Auszahlungsbeleg — ein Dokument, zwei Reifegrade | [Druckfunktionen](../epics/Epic_Druckfunktionen/epic.md) |
+| [print-document](print-document.md) | Gemeinsames A4-Druckdokument für Abgabe-Beleg und Verkäufer-Übersicht (Kennzahl-Kacheln, Freitexte, Artikeltabelle) | [Druckfunktionen](../epics/Epic_Druckfunktionen/epic.md) |
 
 ---
 

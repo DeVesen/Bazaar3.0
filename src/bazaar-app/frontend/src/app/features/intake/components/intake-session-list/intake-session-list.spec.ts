@@ -234,7 +234,6 @@ describe('IntakeSessionList', () => {
     expect(printService.printIntakeReceipt).toHaveBeenCalledWith({
       articleIds: ['ART00099'],
       sellerId: SELLER_ID,
-      feeAmount: 12.5,
     });
     expect(component.paymentPanelVisible()).toBe(false);
     expect(bookedSpy).toHaveBeenCalled();

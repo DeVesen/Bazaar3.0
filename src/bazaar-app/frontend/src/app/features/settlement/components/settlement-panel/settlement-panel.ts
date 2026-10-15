@@ -12,7 +12,7 @@ import { SellerSettlement } from '../../data/settlement-api';
  *
  * Currency formatting deliberately does NOT use `CurrencyPipe:'EUR'` (falls back to `en-US`
  * formatting since this project registers no `LOCALE_ID`) — same `Intl.NumberFormat('de-DE', ...)`
- * pattern as `print-abgabe-beleg.ts`'s `formatCurrency`.
+ * pattern as `print-document.model.ts`'s `formatCurrency`.
  */
 @Component({
   selector: 'app-settlement-panel',

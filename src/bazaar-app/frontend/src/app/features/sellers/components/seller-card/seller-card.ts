@@ -44,6 +44,7 @@ export class SellerCard {
   readonly edit = output<SellerCardModel>();
   readonly scan = output<SellerCardModel>();
   readonly importArticles = output<SellerCardModel>();
+  readonly printReceipt = output<SellerCardModel>();
   readonly statusClick = output<SellerCardModel>();
   readonly cardClick = output<SellerCardModel>();
 
@@ -79,6 +80,10 @@ export class SellerCard {
 
   onImportArticles(): void {
     this.importArticles.emit(this.card());
+  }
+
+  onPrintReceipt(): void {
+    this.printReceipt.emit(this.card());
   }
 
   onStatusClick(): void {

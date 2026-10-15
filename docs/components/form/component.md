@@ -23,7 +23,7 @@ Vorgänge kennt, die die Voranmelde-App nicht hat:
 | Regel | Haupt-App |
 |---|---|
 | R-1 bis R-3, R-6, R-7 | unverändert |
-| **R-4** | zusätzlich: Beträge, die der Verkäufer **behält**, gehören auf einen Ausdruck, nicht in einen Toast — Annahmegebühr und Auszahlung stehen auf dem [Abgabe-Beleg](../../requirements/bazaar-app/components/print-abgabe-beleg.md) bzw. der [Verkäufer-Übersicht](../../requirements/bazaar-app/components/print-verkaeufer-uebersicht.md). Ein Toast verschwindet; eine Quittung nicht |
+| **R-4** | zusätzlich: Beträge, die der Verkäufer **behält**, gehören auf einen Ausdruck, nicht in einen Toast — Annahmegebühr und Verdienst stehen auf dem [Abgabe-Beleg](../../requirements/bazaar-app/components/print-document.md) bzw. der [Verkäufer-Übersicht](../../requirements/bazaar-app/components/print-document.md). Ein Toast verschwindet; eine Quittung nicht |
 | **R-5** | verschärft: Bestätigungsdialoge nennen **die konkreten Werte**, nicht nur die Aktion — „Auszahlung von 332,94 € vom 17.08. wird verworfen", „Gebühr 0,50 € → 1,00 €", „Verkauft am 17.08. 14:22 wird ebenfalls entfernt". Alles, was Geld bewegt oder Geldhistorie löscht, muss vorher beziffert sein |
 
 R-5 in dieser Schärfe ist der Ertrag des Haupt-App-Reviews: Ein Bestätigungsdialog, der nur

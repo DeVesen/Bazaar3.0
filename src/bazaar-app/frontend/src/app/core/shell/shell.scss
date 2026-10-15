@@ -16,15 +16,3 @@
     padding: 14px 12px;
   }
 }
-
-@media print {
-  #app-nav,
-  #topbar,
-  p-sidebar-backdrop {
-    display: none;
-  }
-
-  .content-body {
-    padding: 0;
-  }
-}

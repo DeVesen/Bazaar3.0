@@ -162,7 +162,6 @@ export class ReleaseDialog {
         this.printService.printIntakeReceipt({
           articleIds: Array.from(this.sessionIds()),
           sellerId: this.sellerId(),
-          feeAmount,
         });
         this.paymentPanelVisible.set(false);
         this.bookingError.set(null);

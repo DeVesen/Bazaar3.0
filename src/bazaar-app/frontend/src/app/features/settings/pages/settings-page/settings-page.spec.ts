@@ -3,6 +3,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { SettingsPage } from './settings-page';
 import { SettingsApi } from '../../data/settings-api';
+import { PrintTextsApi, emptyPrintTexts } from '../../data/print-texts-api';
 import { ImportApi } from '../../data/import-api';
 import { UsersApi } from '../../data/users-api';
 import { DevToolsApi } from '../../data/dev-tools-api';
@@ -16,6 +17,7 @@ describe('SettingsPage', () => {
       imports: [SettingsPage],
       providers: [
         { provide: SettingsApi, useValue: { get: vi.fn().mockReturnValue(of({ scannerPauseMs: 3000 })) } },
+        { provide: PrintTextsApi, useValue: { get: vi.fn().mockReturnValue(of(emptyPrintTexts())), update: vi.fn() } },
         { provide: ImportApi, useValue: { preview: vi.fn(), run: vi.fn() } },
         { provide: SellerTypesApi, useValue: { getAll: vi.fn().mockReturnValue(of([])) } },
         { provide: UsersApi, useValue: { getAll: vi.fn().mockReturnValue(of([])) } },
@@ -42,6 +44,14 @@ describe('SettingsPage', () => {
 
     const importPanel = fixture.nativeElement.querySelector('app-import-panel');
     expect(importPanel).not.toBeNull();
+  });
+
+  it('hosts app-print-texts-form', () => {
+    const fixture = TestBed.createComponent(SettingsPage);
+    fixture.detectChanges();
+
+    const printTextsForm = fixture.nativeElement.querySelector('app-print-texts-form');
+    expect(printTextsForm).not.toBeNull();
   });
 
   it('hosts app-user-management (Round-27 Task C wiring)', () => {

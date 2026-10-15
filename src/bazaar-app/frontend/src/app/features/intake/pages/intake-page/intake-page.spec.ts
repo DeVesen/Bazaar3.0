@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { vi } from 'vitest';
 import { IntakePage } from './intake-page';
 // eslint-disable-next-line boundaries/dependencies -- see intake-page.ts's own justification
@@ -56,6 +57,7 @@ describe('IntakePage', () => {
         { provide: SellersApi, useValue: { search, getById: () => of({ feePerItem: 0 }) } },
         { provide: SellerTypesApi, useValue: { getAll: () => of([]) } },
         { provide: RoleService, useValue: { isAdmin: () => false } },
+        { provide: MessageService, useValue: { add: vi.fn() } },
         // `IntakeWizard`'s Step 2 now renders the real `intake-article-entry` (Round-17 Task
         // 6) — stubbed here purely so mounting it doesn't make real HTTP calls; its own
         // behavior is covered by `intake-article-entry.spec.ts`.

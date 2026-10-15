@@ -6,6 +6,8 @@ public sealed class Settings
 
     public int Id { get; private init; }
     public int ScannerPauseMs { get; private set; }
+    public PrintTexts AbgabeBeleg { get; private set; } = PrintTexts.CreateEmpty();
+    public PrintTexts VerkaeuferUebersicht { get; private set; } = PrintTexts.CreateEmpty();
 
     public static Settings Create(int scannerPauseMs)
     {
@@ -21,6 +23,24 @@ public sealed class Settings
     {
         EnsureValidScannerPauseMs(scannerPauseMs);
         ScannerPauseMs = scannerPauseMs;
+    }
+
+    public void UpdatePrintTexts(PrintTexts abgabeBeleg, PrintTexts verkaeuferUebersicht)
+    {
+        EnsureValidPrintTexts(abgabeBeleg);
+        EnsureValidPrintTexts(verkaeuferUebersicht);
+        AbgabeBeleg = abgabeBeleg with { };
+        VerkaeuferUebersicht = verkaeuferUebersicht with { };
+    }
+
+    private static void EnsureValidPrintTexts(PrintTexts texts)
+    {
+        ArgumentNullException.ThrowIfNull(texts);
+        foreach (var text in texts.All())
+        {
+            ArgumentNullException.ThrowIfNull(text);
+            if (text.Length > PrintTexts.MaxLength) throw new ArgumentOutOfRangeException(nameof(texts));
+        }
     }
 
     private static void EnsureValidScannerPauseMs(int scannerPauseMs)

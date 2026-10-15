@@ -1,8 +1,8 @@
 # Einstellungen (Bazaar-App)
 
-**Intent:** Zentrale Admin-Oberfläche für alles, was den Basar-Betrieb konfiguriert, aber nicht ins Tagesgeschäft (Intake/Checkout/Abrechnung) gehört: Scanner-Verhalten, Stammdaten-Import, Benutzerverwaltung, und (nur lokal/Dev) ein kompletter DB-Reset.
+**Intent:** Zentrale Admin-Oberfläche für alles, was den Basar-Betrieb konfiguriert, aber nicht ins Tagesgeschäft (Intake/Checkout/Abrechnung) gehört: Scanner-Verhalten, Stammdaten-Import, Benutzerverwaltung, Freitexte der Belege, und (nur lokal/Dev) ein kompletter DB-Reset.
 **Coverage:** inventoried
-**Last reviewed:** 2026-09-21
+**Last reviewed:** 2026-10-14
 
 ## Capabilities
 
@@ -10,6 +10,10 @@
 - User sees/edits `ScannerPauseMs` (wie lange ein Scan-Ergebnis am Annahmetisch stehen bleibt, bevor automatisch weiterscannt wird) über eine geteilte `input-group`-Komponente — `features/settings/components/settings-form/settings-form.{ts,html}`
 - User sees a field-level validation error from a 400 response (Wertebereich 500–15000ms) — `settings-form.ts` `fieldErrorOf()`
 - User sees a success toast on save — `settings-form.ts` `onSave()`
+
+### Freitexte der Belege (`print-texts-form`)
+- Admin edits five Markdown free texts per template (Abgabe-Beleg, Verkäufer-Übersicht) — `features/settings/components/print-texts-form/print-texts-form.{ts,html}`, `data/print-texts-api.ts`
+- Free texts apply from the next print; links, images and HTML are not rendered — `shared/components/print-document/print-document.markdown.ts`
 
 ### Stammdaten-Import (`import-panel`)
 - User uploads a JSON-Export der Voranmelde-App and sees a preview (Verkäufer-/Artikelanzahl, neu/ersetzt/übersprungen) before committing — `features/settings/components/import-panel/import-panel.{ts,html}`
@@ -35,7 +39,7 @@
 
 ## Spans
 - **Frontend:** `features/settings/pages/settings-page/settings-page.ts` (hostet alle vier Bereiche), `features/settings/components/{settings-form,import-panel,user-management,user-dialog,dev-tools-panel}/`, `features/settings/data/{settings-api,import-api,users-api,dev-tools-api}.ts`
-- **Backend:** `Bazaar.Api/Features/Settings/SettingsEndpoints.cs` (`GET/PUT /api/settings`), `Bazaar.Api/Features/Import/ImportEndpoints.cs` (`POST /api/import/preview`, `POST /api/import`), `Bazaar.Api/Features/Users/UserEndpoints.cs` (`GET/POST/PUT/DELETE /api/users`), `Bazaar.Api/Features/Admin/DevToolsEndpoints.cs` (`GET /api/admin/dev-tools/status`, `POST /api/admin/dev-tools/reset-database`, nur gemappt wenn `Environment.IsDevelopment()`)
+- **Backend:** `Bazaar.Api/Features/Settings/SettingsEndpoints.cs` (`GET/PUT /api/settings`, `GET/PUT /api/settings/print-texts`), `Bazaar.Api/Features/Import/ImportEndpoints.cs` (`POST /api/import/preview`, `POST /api/import`), `Bazaar.Api/Features/Users/UserEndpoints.cs` (`GET/POST/PUT/DELETE /api/users`), `Bazaar.Api/Features/Admin/DevToolsEndpoints.cs` (`GET /api/admin/dev-tools/status`, `POST /api/admin/dev-tools/reset-database`, nur gemappt wenn `Environment.IsDevelopment()`)
 
 ## Notes
 - Ganze `/settings`-Route trägt `adminGuard` (`app.routes.ts`) — keine der vier Komponenten prüft die Rolle nochmal selbst, bewusste Konvention.

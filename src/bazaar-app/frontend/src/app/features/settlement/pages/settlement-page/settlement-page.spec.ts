@@ -66,6 +66,8 @@ function article(overrides: Partial<ArticleSummary> = {}): ArticleSummary {
     name: 'Winterjacke',
     brand: null,
     category: null,
+    size: null,
+    color: null,
     price: 12.5,
     status: 'selling',
     soldManually: false,
@@ -532,7 +534,7 @@ describe('SettlementPage', () => {
       expect(component.settlePanelVisible()).toBe(true);
     });
 
-    it('onPrint_unsettledSeller_printsPreliminarySummary', async () => {
+    it('onPrint_sellerSelected_printsSellerSummaryWithoutPhase', async () => {
       // Arrange
       const printService = printServiceStub();
       const { fixture, print } = await renderWithActions({ openCount: 3 }, printService);
@@ -542,29 +544,7 @@ describe('SettlementPage', () => {
       await fixture.whenStable();
 
       // Assert
-      expect(printService.printSellerSummary).toHaveBeenCalledWith({
-        sellerId: 'SEL00001',
-        phase: 'preliminary',
-      });
-    });
-
-    it('onPrint_settledSeller_printsFinalSummary', async () => {
-      // Arrange
-      const printService = printServiceStub();
-      const { fixture, print } = await renderWithActions(
-        { settledAt: '2026-01-15T10:00:00Z', payoutAmount: 332.94 },
-        printService,
-      );
-
-      // Act
-      print.click();
-      await fixture.whenStable();
-
-      // Assert
-      expect(printService.printSellerSummary).toHaveBeenCalledWith({
-        sellerId: 'SEL00001',
-        phase: 'final',
-      });
+      expect(printService.printSellerSummary).toHaveBeenCalledWith({ sellerId: 'SEL00001' });
     });
 
     it('template_sellerSelected_keepsPageTitleKpiTilesAndArticleTableBelowTheBar', async () => {
@@ -705,7 +685,7 @@ describe('SettlementPage', () => {
       // Der Server hat gerade alle nie freigegebenen Artikel hart gelöscht — die Tabelle muss
       // neu geladen werden, sonst zeigt sie sie fälschlich weiter als "Angenommen".
       expect(sellersApi.getArticles).toHaveBeenCalledWith('SEL00001');
-      expect(printService.printSellerSummary).toHaveBeenCalledWith({ sellerId: 'SEL00001', phase: 'final' });
+      expect(printService.printSellerSummary).toHaveBeenCalledWith({ sellerId: 'SEL00001' });
       expect(component.resultEvent()?.kind).toBe('paid');
     });
 

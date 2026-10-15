@@ -17,6 +17,8 @@ public sealed record SellerArticleSummary(
     string Name,
     string? Brand,
     string? Category,
+    string? Size,
+    string? Color,
     decimal Price,
     string Status,
     bool SoldManually);

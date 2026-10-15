@@ -24,6 +24,7 @@
     "@primeuix/themes": "^3.0.1",
     "@zxing/browser": "^0.2.1",
     "@zxing/library": "^0.23.0",
+    "marked": "18.1.1",
     "primeicons": "^8.0.1",
     "primeng": "^22.1.1",
     "rxjs": "~7.8.0",

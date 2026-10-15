@@ -36,7 +36,7 @@ public class GetSellerArticlesHandlerTests
         _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(seller);
         var articles = new List<SellerArticleSummary>
         {
-            new("ART001", 1043, "Winterjacke", "Nike", "Jacken", 12.00m, "sold", false)
+            new("ART001", 1043, "Winterjacke", "Nike", "Jacken", "M", "Rot", 12.00m, "sold", false)
         };
         _articlesBySellerQuery.Setup(q => q.GetBySellerId("SELLER001")).ReturnsAsync(articles);
         var sut = CreateSut();

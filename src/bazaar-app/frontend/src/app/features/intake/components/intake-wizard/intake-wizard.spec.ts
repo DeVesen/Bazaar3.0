@@ -3,6 +3,7 @@ import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { RoleService } from '../../../../core/auth/role.service';
 // eslint-disable-next-line boundaries/dependencies
 import { ArticlesApi } from '../../../articles/data/articles-api';
@@ -81,6 +82,7 @@ async function setup(options: {
     imports: [IntakeWizard],
     providers: [
       { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
+      { provide: MessageService, useValue: { add: vi.fn() } },
       { provide: SellerTypesApi, useValue: { getAll: () => of(SELLER_TYPES) } },
       { provide: SellersApi, useValue: { create, remove, getById } },
       {

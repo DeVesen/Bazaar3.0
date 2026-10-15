@@ -134,10 +134,7 @@ export class SettlementPage {
   onPrint(): void {
     const sellerId = this.selectedSellerId();
     if (!sellerId) return;
-    this.printService.printSellerSummary({
-      sellerId,
-      phase: this.isSettled() ? 'final' : 'preliminary',
-    });
+    this.printService.printSellerSummary({ sellerId });
   }
 
   onReturnClick(): void {
@@ -171,7 +168,7 @@ export class SettlementPage {
         // zeigen. Gleiches Muster wie onArticleConfirmed().
         this.loadSettlement();
         this.loadArticles();
-        this.printService.printSellerSummary({ sellerId, phase: 'final' });
+        this.printService.printSellerSummary({ sellerId });
       },
       error: (err: HttpErrorResponse) => {
         if (err.error?.errorCode === 'settlement.already_settled') {

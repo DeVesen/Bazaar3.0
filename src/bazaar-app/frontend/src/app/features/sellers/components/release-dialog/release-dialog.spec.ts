@@ -212,7 +212,6 @@ describe('ReleaseDialog', () => {
     expect(printService.printIntakeReceipt).toHaveBeenCalledWith({
       articleIds: ['a1', 'a2'],
       sellerId: SELLER_ID,
-      feeAmount: 1,
     });
     expect(component.paymentPanelVisible()).toBe(false);
     expect(releasedSpy).toHaveBeenCalled();

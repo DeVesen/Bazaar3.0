@@ -7,6 +7,8 @@ updated: 2026-08-17
 
 # Epic: Druckfunktionen
 
+> **Nachtrag 2026-10-14:** Layout, Freitexte, Kennzahl-Kacheln, Druckbutton an der Verkäufer-Kachel und die Verkäufer-Übersicht ohne „vorläufig/endgültig" sind in [Abgabe-Beleg und Verkäufer-Übersicht drucken](../../../../forge/2026-10-14-beleg-druck-vorlagen/spec.md) neu festgelegt und ersetzen die Beschreibungen in den Abschnitten 1 und 2 dieses Epics, soweit sie widersprechen (z. B. „gezahlter Gebührenbetrag" → berechnete Gebühr, „Auszahlung" → „Verdienst").
+
 ## Index
 - Überblick — Druckdokumente
 - 1. Abgabe-Beleg — Annahme und Freigabe
@@ -23,7 +25,7 @@ updated: 2026-08-17
 
 **User Story:** Als Kassenpersonal möchte ich bei Abgabe und Abrechnung einen Ausdruck erstellen, damit der Verkäufer eine physische Bestätigung über Artikel und Geldbewegung erhält.
 
-Component-Details → [`print-abgabe-beleg`](../../components/print-abgabe-beleg.md) · [`print-verkaeufer-uebersicht`](../../components/print-verkaeufer-uebersicht.md)
+Component-Details → [`print-document`](../../components/print-document.md)
 
 ---
 
