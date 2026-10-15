@@ -7,9 +7,19 @@ import {
 } from './print-document.layout';
 
 describe('PRINT_LAYOUT', () => {
-  it('tileRowBMm_always_isHalfAsHighAsTileRowAMm', () => {
+  it('tileRowAMm_always_isOneThirdLowerThanTheFormerTwentyMillimetres', () => {
     // Arrange & Act & Assert
-    expect(PRINT_LAYOUT.tileRowBMm).toBe(PRINT_LAYOUT.tileRowAMm / 2);
+    expect(PRINT_LAYOUT.tileRowAMm).toBe(13.4);
+  });
+
+  it('tileRowBMm_always_isOneThirdHigherThanTheFormerTenMillimetres', () => {
+    // Arrange & Act & Assert
+    expect(PRINT_LAYOUT.tileRowBMm).toBe(13.3);
+  });
+
+  it('sellerBlockMm_always_leavesLessGapBetweenQrCodeAndTiles', () => {
+    // Arrange & Act & Assert
+    expect(PRINT_LAYOUT.sellerBlockMm).toBe(33);
   });
 });
 
@@ -19,7 +29,7 @@ describe('list heights', () => {
     const height = firstPageListHeightMm(0);
 
     // Assert
-    expect(height).toBe(178);
+    expect(height).toBeCloseTo(184.3, 5);
   });
 
   it('firstPageListHeightMm_freitext3Present_shrinksByItsHeight', () => {
@@ -27,7 +37,7 @@ describe('list heights', () => {
     const height = firstPageListHeightMm(30);
 
     // Assert
-    expect(height).toBe(148);
+    expect(height).toBeCloseTo(154.3, 5);
   });
 
   it('restPageListHeightMm_always_isInnerHeightMinusHeaderContinuationAndFooter', () => {
@@ -40,12 +50,12 @@ describe('list heights', () => {
 });
 
 describe('listCapacityRows', () => {
-  it('listCapacityRows_firstPageWithoutFreitext3_fitsTwentyFourRows', () => {
+  it('listCapacityRows_firstPageWithoutFreitext3_fitsTwentyFiveRows', () => {
     // Arrange & Act
     const rows = listCapacityRows(firstPageListHeightMm(0));
 
     // Assert
-    expect(rows).toBe(24);
+    expect(rows).toBe(25);
   });
 
   it('listCapacityRows_followingPage_fitsThirtyTwoRows', () => {

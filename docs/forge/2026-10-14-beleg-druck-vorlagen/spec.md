@@ -34,7 +34,7 @@ Beim Abgabe-Beleg und bei der Verkäufer-Übersicht erscheinen Freitexte, Kennza
 - Der Verkäufer-Block enthält Vorname, Nachname, Straße sowie Postleitzahl und Ort in einer Zeile. Telefon und E-Mail entfallen. · Aussage
 - Der Verkäufer-Block enthält links die Anschrift und rechts den QR-Code der Verkäufer-ID. Darunter steht die Verkäufer-ID als Text. · Anhang
 - **Kennzahl-Kachel** ist der Begriff für einen Infoblock auf dem Beleg. Er hat links oben einen Titel und darunter einen größeren, dickeren Wert, linksbündig. „Kachel" allein bleibt die Verkäufer-Kachel. · Aussage
-- Zeile A der Kennzahl-Kacheln beim Abgabe-Beleg enthält Verkäufer-ID als Text und Anzahl abgegebener Artikel. Zeile B ist halb so hoch wie Zeile A und enthält Gebühr und Provision. · Aussage
+- Zeile A der Kennzahl-Kacheln beim Abgabe-Beleg enthält Verkäufer-ID als Text und Anzahl abgegebener Artikel. Zeile B ist 33 % höher als ursprünglich vorgesehen (13,3 mm), Zeile A 33 % niedriger (13,4 mm); Zeile B enthält Gebühr und Provision. · Aussage
 - Die Gebühr-Kachel hat den Titel „Gebühr Y € / Artikel" und den Wert „Anzahl abgegebener Artikel × Y". Es erscheint der berechnete, nicht der tatsächlich bezahlte Betrag. · Aussage
 - Die Provision-Kachel im Abgabe-Beleg hat den Titel „Provision" und als Wert den Provisionssatz „X %". · Aussage
 - Zeile A der Kennzahl-Kacheln bei der Verkäufer-Übersicht enthält Verkäufer-ID, Anzahl abgegebener Artikel, Anzahl offener Artikel (= „Im Verkauf"), Anzahl verkaufter Artikel und Einnahmen (= Umsatz des Verkäufers). Zeile B enthält Gebühr, Provision und Verdienst. · Aussage
@@ -66,7 +66,7 @@ Beim Abgabe-Beleg und bei der Verkäufer-Übersicht erscheinen Freitexte, Kennza
 - **AC-14** Gegeben ein Verkäufer mit der ID „a3f9c2d1", wenn der Beleg gedruckt wird, dann zeigt der QR-Code den String „a3f9c2d1", „a3f9c2d1" steht als Text unter dem QR-Code und zusätzlich als Text in Zeile A, also zweimal auf Seite 1. · Anhang
 - **AC-15** Gegeben 4 gedruckte Artikel und Gebühr 0,50 € pro Artikel, wenn der Beleg gedruckt wird, dann zeigt die Gebühr-Kachel den Titel „Gebühr 0,50 € / Artikel" und den Wert „2,00 €". · Aussage
 - **AC-16** Gegeben ein Provisionssatz von 20 %, wenn der Abgabe-Beleg gedruckt wird, dann zeigt die Provision-Kachel den Titel „Provision" und den Wert „20 %". · Aussage
-- **AC-17** Gegeben ein Abgabe-Beleg, wenn Zeile B betrachtet wird, dann ist sie halb so hoch wie Zeile A. · Aussage
+- **AC-17** Gegeben ein Abgabe-Beleg, wenn Zeile B betrachtet wird, dann ist sie 13,3 mm hoch und Zeile A 13,4 mm. · Aussage
 - **AC-18** Gegeben Freitext 3 mit einer Überschrift, einem fett gesetzten Wort, einem kursiven Wort, einer Liste und einer Tabelle, wenn der Beleg gedruckt wird, dann erscheinen alle fünf Elemente formatiert und nicht als Markdown-Zeichen. · Aussage
 - **AC-19** Gegeben Freitext 3 mit einem Link, einem Bild und einem HTML-Tag, wenn der Beleg gedruckt wird, dann erscheint weder ein klickbarer Link noch ein Bild noch ein ausgeführtes HTML-Element. · Aussage
 - **AC-20** Gegeben Freitext 3 ist leer, wenn der Beleg gedruckt wird, dann beginnt die Artikelliste direkt unter Zeile B. · Aussage
@@ -102,3 +102,4 @@ Beim Abgabe-Beleg und bei der Verkäufer-Übersicht erscheinen Freitexte, Kennza
 - **R1 · Soll-Vorgaben** — geändert — Neues Verhalten, Beleg: Spec · Soll-Vorgaben — Die Vorgaben zu Spalten und Tabellenform der Artikelliste sowie zur Listenhöhe bis zur Fußzeile hatten kein Akzeptanzkriterium; AC-33 und AC-34 prüfen sie jetzt so, wie die Soll-Vorgaben sie festlegen (bevorzugter Scout-Vorschlag 1).
 - **F · AC-01** — geändert — Vorschlag 1: Das Kriterium nennt jetzt wie die Einleitung alle drei Aktionen Bearbeiten, Scannen und Importieren und legt fest, dass das Drucker-Icon als letzte Aktion rechts in der Aktionsleiste steht.
 - **F · AC-14** — geändert — Vorschlag 1: Das Kriterium folgt jetzt den Soll-Vorgaben zu Verkäufer-Block und Zeile A; die Verkäufer-ID steht als Text unter dem QR-Code und zusätzlich in Zeile A, also zweimal auf Seite 1.
+- **N1 · Druck-Nacharbeit 2026-10-15** — geändert — Nach der Sichtprüfung des Drucks: Zeile A der Kennzahl-Kacheln 33 % niedriger (20 → 13,4 mm), Zeile B 33 % höher (10 → 13,3 mm), AC-17 und Soll-Vorgabe zu Zeile B entsprechend; Abstand zwischen QR-Code und Kacheln kleiner (Verkäufer-Block 36 → 33 mm); alle Rahmen im Beleg 2 px in dem Grau der Gruppenzeilen (#e6e6e6) statt 0,3 mm schwarz. Grund: Wunsch des Auftraggebers nach der Druckvorschau.

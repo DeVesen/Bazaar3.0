@@ -22,7 +22,7 @@ Ein gemeinsames A4-Dokument (`app-print-document`) für zwei Vorlagen. Es render
 Der Druckbutton ist für alle Rollen sichtbar, die die Verkäufer-Kachel sehen, und bleibt auch ohne Artikel aktiv. Lässt sich der Beleg nicht laden, erscheint ein Toast „Beleg konnte nicht geladen werden" und keine Vorschau.
 
 ## Layout
-Seite 1 von oben nach unten: Kopfzeile (Freitext 1 links, Freitext 2 zentriert, Datum/Uhrzeit des Drucks rechts) · Verkäufer-Block (Name, Straße, PLZ Ort; rechts QR-Code der Verkäufer-ID mit ID als Text) · Kennzahl-Kacheln Zeile A · Zeile B (halb so hoch) · Freitext 3 (entfällt ohne Text) · Artikelliste bis zur Fußzeile · Fußzeile (Freitext 4 links, Freitext 5 zentriert, „Seite x von y" rechts). Ab Seite 2: Kopfzeile, eine Zeile mit Verkäufer-ID und Anschrift, Fortsetzung der Artikelliste mit wiederholtem Tabellenkopf, Fußzeile.
+Seite 1 von oben nach unten: Kopfzeile (Freitext 1 links, Freitext 2 zentriert, Datum/Uhrzeit des Drucks rechts) · Verkäufer-Block (Name, Straße, PLZ Ort; rechts QR-Code der Verkäufer-ID mit ID als Text) · Kennzahl-Kacheln Zeile A · Zeile B (13,3 mm, Zeile A 13,4 mm) · Freitext 3 (entfällt ohne Text) · Artikelliste bis zur Fußzeile · Fußzeile (Freitext 4 links, Freitext 5 zentriert, „Seite x von y" rechts). Ab Seite 2: Kopfzeile, eine Zeile mit Verkäufer-ID und Anschrift, Fortsetzung der Artikelliste mit wiederholtem Tabellenkopf, Fußzeile.
 
 | Vorlage | Zeile A | Zeile B |
 |---|---|---|
@@ -32,7 +32,7 @@ Seite 1 von oben nach unten: Kopfzeile (Freitext 1 links, Freitext 2 zentriert, 
 Artikelliste: Tabelle mit Artikelnummer, Bezeichnung, Kategorie, Marke, Größe, Farbe, Preis; gruppiert nach „Registriert" (nur bei „Speichern"), „Im Verkauf", „Verkauft", „Zurückgegeben"; leere Gruppen entfallen; je Gruppe Artikelnummer aufsteigend.
 
 ## Seitenaufteilung
-Feste Maße (`print-document.layout.ts`, A4 hochkant), Zeilen mit fester Höhe (zu lange Texte werden abgeschnitten), Kopf- und Fußzeile mit fester Höhe. Nur die Höhe von Freitext 3 wird vor dem Druck gemessen. „Seite x von y" ist Text im Dokument, nicht CSS-Seitenzähler — damit es auch unter iOS/Safari funktioniert.
+Feste Maße (`print-document.layout.ts`, A4 hochkant), alle Rahmen 2 px in Hellgrau #e6e6e6 (wie die Gruppenzeilen), Zeilen mit fester Höhe (zu lange Texte werden abgeschnitten), Kopf- und Fußzeile mit fester Höhe. Nur die Höhe von Freitext 3 wird vor dem Druck gemessen. „Seite x von y" ist Text im Dokument, nicht CSS-Seitenzähler — damit es auch unter iOS/Safari funktioniert.
 
 ## Freitexte
 Je Vorlage fünf Freitexte, gepflegt von einem Admin unter Einstellungen → „Freitexte der Belege" (`PrintTextsForm`, `GET/PUT /api/settings/print-texts`, je Text höchstens 5000 Zeichen). Markdown mit Überschriften, Fett, Kursiv, Absätzen, Listen und Tabellen; Links, Bilder und HTML werden nicht dargestellt. Änderungen gelten ab dem nächsten Druck.
