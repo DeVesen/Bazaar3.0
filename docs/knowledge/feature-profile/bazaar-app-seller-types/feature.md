@@ -2,7 +2,7 @@
 
 **Intent:** Admins pflegen die Verkäufer-Typen (Provisionssatz + Gebühr je Artikel), die bei der Verkäufer-Anlage zwingend zugeordnet werden müssen — ohne Typ kann kein Verkäufer angelegt werden.
 **Coverage:** inventoried
-**Last reviewed:** 2026-09-21
+**Last reviewed:** 2026-10-15
 
 ## Capabilities
 - User can view the seller-type list (Name, Provision %, Gebühr, Verkäufer-Anzahl) — `src/bazaar-app/frontend/src/app/features/seller-types/pages/seller-types-page/seller-types-page.html`
@@ -17,6 +17,9 @@
 - User sees "Name bereits vergeben" on duplicate name — `seller-types-page.ts` (`onPopupSave` → `seller_type.name_taken`)
 - User sees "Verkäufer-Typ wird noch verwendet" when deleting a type still assigned to sellers — `seller-types-page.ts` (`deleteSellerType` → `seller_type.in_use`)
 - Provision/Gebühr entry uses `p-inputnumber` with German locale formatting (`locale="de-DE"`, `%`/`€` suffix) — `typ-popup.html`
+- User sees +-Button (nur Admin) und Suchfeld in einer Leiste über der Tabelle — `pages/seller-types-page/seller-types-page.html` (`.seller-types-page__toolbar`)
+- User can search seller types by name; die Tabelle filtert clientseitig — `seller-types-page.ts` (`onSearchChange`)
+- User sees „Keine Verkäufer-Typen gefunden.“, wenn die Suche nichts trifft — `seller-types-page.ts` (`emptyText`, `NO_RESULTS_TEXT`)
 
 ## Spans
 - **Frontend:** `features/seller-types/pages/seller-types-page/`, `features/seller-types/components/typ-popup/`, `features/seller-types/seller-types-store.ts`, `features/seller-types/data/seller-types-api.ts`, `features/seller-types/seller-types.routes.ts`
@@ -26,3 +29,4 @@
 - Not a structural twin of Brands/Categories — has its own popup (`typ-popup`, not `master-data-popup`) because it edits two numeric fields, not just a name.
 - `typ-popup`'s `p-inputnumber` fields sit directly in the page's own dialog template (not behind any `ngTemplateOutlet`/stepper), unlike the Setup-Wizard's seller-type row — the NG01203 value-accessor bug found there does not apply here; no fix needed in this feature.
 - `SellerTypesStore` mirrors `CategoriesStore`'s sort/mutation pattern.
+- Filterleiste (Stand 2026-10-15, nur Templates gelesen): Die Redesigns der Listenseiten (Artikel, Marken, Kategorien, Verkäufer-Typen, Verkäufer) liefen unter den Workitems `*-toolbar-redesign`; ob die Leiste der Verkäufer-Typen einen Rahmen trägt, steht nur im SCSS und wurde nicht geprüft.

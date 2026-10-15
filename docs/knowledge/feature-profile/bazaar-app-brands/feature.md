@@ -2,7 +2,7 @@
 
 **Intent:** Admins pflegen die Markenliste, die Verkäufern beim Artikel-Erfassen zur Auswahl steht — importierte Original-Marken aus der Voranmelde-App und lokal in der Haupt-App nachgetragene neue Marken bleiben unterscheidbar.
 **Coverage:** inventoried
-**Last reviewed:** 2026-09-21
+**Last reviewed:** 2026-10-15
 
 ## Capabilities
 - User can view the brand list (ID, Name, Original-Badge, Artikel-Anzahl) — `src/bazaar-app/frontend/src/app/features/brands/pages/brands-page/brands-page.html`
@@ -15,6 +15,9 @@
 - Non-admin (Verkäufer) sees the list read-only — no add/edit/delete actions rendered — `brands-page.ts` (`actionColumn`/`canAdd` gated on `RoleService.isAdmin()`)
 - User sees "Name bereits vergeben" when creating/editing with a duplicate name — `brands-page.ts` (`onPopupSave` → `brand.name_taken`)
 - User sees "Marke wird noch verwendet" when deleting a brand still linked to articles — `brands-page.ts` (`deleteBrand` → `brand.in_use`)
+- User sees +-Button (nur Admin), Suchfeld und Original-Filter in einer Leiste über der Tabelle statt eines Neu-Buttons in der Titelzeile — `pages/brands-page/brands-page.html` (`.brands-page__toolbar`)
+- User can search brands by name und nach Original filtern (Select, leerbar); die Tabelle filtert clientseitig — `brands-page.ts` (`onSearchChange`, `onOriginalChange`)
+- User sees „Keine Marken gefunden.“, wenn Suche oder Filter nichts treffen, und den Voranmelde-Hinweis nur bei leerem Bestand — `brands-page.ts` (`emptyText`, `NOT_FOUND_TEXT`, `EMPTY_TEXT`)
 
 ## Spans
 - **Frontend:** `features/brands/pages/brands-page/`, `features/brands/brands-store.ts`, `features/brands/data/brands-api.ts`, `features/brands/brands.routes.ts`; shared `shared/components/master-data-popup/` (also used by `bazaar-app-categories`)

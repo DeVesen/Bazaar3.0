@@ -116,3 +116,8 @@
 - **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/components/print-texts-form/print-texts-form.ts` — fünf Markdown-Texte je Vorlage (Abgabe-Beleg, Verkäufer-Übersicht), zusammen zehn Felder: 1 Kopfzeile links, 2 Kopfzeile Mitte, 3 über der Artikelliste, 4 Fußzeile links, 5 Fußzeile Mitte; Backend `Settings.AbgabeBeleg`/`Settings.VerkaeuferUebersicht` (`PrintTexts`), Endpoints `GET/PUT /api/settings/print-texts`.
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-14
+
+### Filterleiste
+- **Maps to:** `p-toolbar` oberhalb der Liste auf den Listenseiten der Haupt-App, z. B. `src/bazaar-app/frontend/src/app/features/articles/pages/articles-page/articles-page.html` (`.articles-page__filterbar`: Suche, Marke, Kategorie, Status) und `sellers-page.html` (`.sellers-page__toolbar`: +-Button, Suche, Sortierung, Status); entsprechend auf den Seiten Marken, Kategorien und Verkäufer-Typen (+-Button, Suche, Original-Filter). Gegenstück für Seiten mit einem einzelnen Gegenstand ist die „Aktionsleiste“.
+- **Confidence:** inferred
+- **First seen:** 2026-10-12

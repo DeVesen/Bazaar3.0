@@ -2,7 +2,7 @@
 
 **Intent:** Admins pflegen die Kategorienliste, die Verkäufern beim Artikel-Erfassen zur Auswahl steht — importierte Original-Kategorien aus der Voranmelde-App und lokal in der Haupt-App nachgetragene neue Kategorien bleiben unterscheidbar.
 **Coverage:** inventoried
-**Last reviewed:** 2026-09-21
+**Last reviewed:** 2026-10-15
 
 ## Capabilities
 - User can view the category list (ID, Name, Original-Badge, Artikel-Anzahl) — `src/bazaar-app/frontend/src/app/features/categories/pages/categories-page/categories-page.html`
@@ -15,6 +15,9 @@
 - Non-admin (Verkäufer) sees the list read-only — `categories-page.ts` (`actionColumn`/`canAdd` gated on `RoleService.isAdmin()`)
 - User sees "Name bereits vergeben" on duplicate name — `categories-page.ts` (`onPopupSave` → `category.name_taken`)
 - User sees "Kategorie wird noch verwendet" when deleting a category still linked to articles — `categories-page.ts` (`deleteCategory` → `category.in_use`)
+- User sees +-Button (nur Admin), Suchfeld und Original-Filter in einer gerahmten Filterleiste (`p-toolbar`) statt eines Neu-Buttons in der Titelzeile — `pages/categories-page/categories-page.html` (`.categories-page__toolbar`)
+- User can search categories by name und nach Original filtern (Select, leerbar); die Tabelle filtert clientseitig und behält die gewählte Sortierung nach dem Filtern — `categories-page.ts` (`onSearchChange`, `onOriginalFilterChange`)
+- User sees „Keine Kategorien gefunden.“, wenn Suche oder Filter nichts treffen — `categories-page.ts` (`emptyText`, `NO_RESULTS_TEXT`)
 
 ## Spans
 - **Frontend:** `features/categories/pages/categories-page/`, `features/categories/categories-store.ts`, `features/categories/data/categories-api.ts`, `features/categories/categories.routes.ts`; shared `shared/components/master-data-popup/` (also used by `bazaar-app-brands`)
