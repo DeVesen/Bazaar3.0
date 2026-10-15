@@ -241,7 +241,7 @@ describe('PrintDocument', () => {
     const cells = Array.from(el.querySelectorAll('.print-doc__table tbody tr:not(.print-doc__group-row) td')).map((cell) => text(cell));
 
     // Assert
-    expect(headings).toEqual(['Artikelnummer', 'Bezeichnung', 'Kategorie', 'Marke', 'Größe', 'Farbe', 'Preis']);
+    expect(headings).toEqual(['#', 'Bezeichnung', 'Kategorie', 'Marke', 'Größe', 'Farbe', 'Preis']);
     expect(cells.slice(0, 6)).toEqual(['1', 'Artikel 1', 'Jacken', 'Nike', 'M', 'Rot']);
     expect(el.querySelectorAll('.print-doc__tiles .print-doc__tile').length).toBe(4);
   });

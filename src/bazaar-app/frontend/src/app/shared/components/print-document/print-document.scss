@@ -37,6 +37,10 @@ app-print-document {
     overflow: hidden;
   }
 
+  &__foot {
+    align-items: end;
+  }
+
   &__text {
     min-width: 0;
     overflow: hidden;

@@ -155,7 +155,7 @@ describe('PrintService', () => {
       expect(host).not.toBeNull();
       expect(groupLabels(host!)).toEqual(['Im Verkauf (3)', 'Verkauft (2)', 'Zurückgegeben (1)']);
       expect(articleNumbers(host!)).toEqual(['5', '9', '12', '20', '21', '30']);
-      expect(tileValue(host!, 'Anzahl abgegebener Artikel')).toBe('6');
+      expect(tileValue(host!, 'Anzahl Artikel')).toBe('6');
       expect(printSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -170,7 +170,7 @@ describe('PrintService', () => {
       const host = printHost();
       expect(host).not.toBeNull();
       expect(articleNumbers(host!)).toEqual([]);
-      expect(tileValue(host!, 'Anzahl abgegebener Artikel')).toBe('0');
+      expect(tileValue(host!, 'Anzahl Artikel')).toBe('0');
       expect(tileValue(host!, 'Gebühr 0,50 € / Artikel')).toBe('0,00 €');
       expect(printSpy).toHaveBeenCalledTimes(1);
     });
@@ -265,7 +265,7 @@ describe('PrintService', () => {
       const host = printHost();
       expect(groupLabels(host!)).toEqual(['Registriert (3)']);
       expect(articleNumbers(host!)).toEqual(['1', '2', '3']);
-      expect(tileValue(host!, 'Anzahl abgegebener Artikel')).toBe('3');
+      expect(tileValue(host!, 'Anzahl Artikel')).toBe('3');
       expect(printSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -321,7 +321,7 @@ describe('PrintService', () => {
       expect(groupLabels(host!)).toEqual(['Im Verkauf (3)', 'Verkauft (2)']);
       expect(tileValue(host!, 'Anzahl offener Artikel')).toBe('3');
       expect(tileValue(host!, 'Anzahl verkaufter Artikel')).toBe('2');
-      expect(tileValue(host!, 'Anzahl abgegebener Artikel')).toBe('5');
+      expect(tileValue(host!, 'Anzahl Artikel')).toBe('5');
       expect(printSpy).toHaveBeenCalledTimes(1);
     });
 

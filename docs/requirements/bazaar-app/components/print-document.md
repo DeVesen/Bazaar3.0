@@ -26,13 +26,13 @@ Seite 1 von oben nach unten: Kopfzeile (Freitext 1 links, Freitext 2 zentriert, 
 
 | Vorlage | Zeile A | Zeile B |
 |---|---|---|
-| Abgabe-Beleg | Verkäufer-ID · Anzahl abgegebener Artikel | Gebühr Y € / Artikel (= Anzahl × Y, berechnet) · Provision (Satz X %) |
+| Abgabe-Beleg | Verkäufer-ID · Anzahl Artikel | Gebühr Y € / Artikel (= Anzahl × Y, berechnet) · Provision (Satz X %) |
 | Verkäufer-Übersicht | Verkäufer-ID · Anzahl abgegebener · offener · verkaufter Artikel · Einnahmen | Gebühr · Provision X % (= Umsatz × X / 100) · Verdienst (= Umsatz − Provision) |
 
-Artikelliste: Tabelle mit Artikelnummer, Bezeichnung, Kategorie, Marke, Größe, Farbe, Preis; gruppiert nach „Registriert" (nur bei „Speichern"), „Im Verkauf", „Verkauft", „Zurückgegeben"; leere Gruppen entfallen; je Gruppe Artikelnummer aufsteigend.
+Artikelliste: Tabelle mit # (Artikelnummer), Bezeichnung, Kategorie, Marke, Größe, Farbe, Preis; gruppiert nach „Registriert" (nur bei „Speichern"), „Im Verkauf", „Verkauft", „Zurückgegeben"; leere Gruppen entfallen; je Gruppe Artikelnummer aufsteigend.
 
 ## Seitenaufteilung
-Feste Maße (`print-document.layout.ts`, A4 hochkant), alle Rahmen 2 px in Hellgrau #e6e6e6 (wie die Gruppenzeilen), Zeilen mit fester Höhe (zu lange Texte werden abgeschnitten), Kopf- und Fußzeile mit fester Höhe. Nur die Höhe von Freitext 3 wird vor dem Druck gemessen. „Seite x von y" ist Text im Dokument, nicht CSS-Seitenzähler — damit es auch unter iOS/Safari funktioniert.
+Feste Maße (`print-document.layout.ts`, A4 hochkant), alle Rahmen 2 px in Hellgrau #e6e6e6 (wie die Gruppenzeilen), Zeilen mit fester Höhe (zu lange Texte werden abgeschnitten), Kopf- und Fußzeile mit fester Höhe (die Texte der Fußzeile stehen am unteren Rand). Nur die Höhe von Freitext 3 wird vor dem Druck gemessen. „Seite x von y" ist Text im Dokument, nicht CSS-Seitenzähler — damit es auch unter iOS/Safari funktioniert.
 
 ## Freitexte
 Je Vorlage fünf Freitexte, gepflegt von einem Admin unter Einstellungen → „Freitexte der Belege" (`PrintTextsForm`, `GET/PUT /api/settings/print-texts`, je Text höchstens 5000 Zeichen). Markdown mit Überschriften, Fett, Kursiv, Absätzen, Listen und Tabellen; Links, Bilder und HTML werden nicht dargestellt. Änderungen gelten ab dem nächsten Druck.

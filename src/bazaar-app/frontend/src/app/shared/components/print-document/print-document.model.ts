@@ -141,7 +141,7 @@ export function buildAbgabeBelegModel(input: AbgabeBelegInput): PrintDocumentMod
     groups,
     tilesA: [
       { title: 'Verkäufer-ID', value: input.seller.id },
-      { title: 'Anzahl abgegebener Artikel', value: String(count) },
+      { title: 'Anzahl Artikel', value: String(count) },
     ],
     tilesB: [
       feeTile(count, input.feePerItem),
@@ -170,7 +170,7 @@ export function buildVerkaeuferUebersichtModel(input: VerkaeuferUebersichtInput)
     groups,
     tilesA: [
       { title: 'Verkäufer-ID', value: input.seller.id },
-      { title: 'Anzahl abgegebener Artikel', value: String(count) },
+      { title: 'Anzahl Artikel', value: String(count) },
       { title: 'Anzahl offener Artikel', value: String(countInGroup(groups, 'selling')) },
       { title: 'Anzahl verkaufter Artikel', value: String(countInGroup(groups, 'sold')) },
       { title: 'Einnahmen', value: formatCurrency(settlement.revenue) },

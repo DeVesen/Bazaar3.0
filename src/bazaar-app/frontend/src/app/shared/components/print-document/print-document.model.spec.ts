@@ -115,9 +115,9 @@ describe('buildAbgabeBelegModel', () => {
     const model = build([article(1, 'selling'), article(2, 'selling')]);
 
     // Assert
-    expect(model.tilesA.map((entry) => entry.title)).toEqual(['Verkäufer-ID', 'Anzahl abgegebener Artikel']);
+    expect(model.tilesA.map((entry) => entry.title)).toEqual(['Verkäufer-ID', 'Anzahl Artikel']);
     expect(tile(model.tilesA, 'Verkäufer-ID')?.value).toBe('a3f9c2d1');
-    expect(tile(model.tilesA, 'Anzahl abgegebener Artikel')?.value).toBe('2');
+    expect(tile(model.tilesA, 'Anzahl Artikel')?.value).toBe('2');
   });
 
   it('buildAbgabeBelegModel_fourArticlesAndFeeFiftyCent_showsCalculatedFeeTile', () => {
@@ -146,7 +146,7 @@ describe('buildAbgabeBelegModel', () => {
     const model = build([]);
 
     // Assert
-    expect(tile(model.tilesA, 'Anzahl abgegebener Artikel')?.value).toBe('0');
+    expect(tile(model.tilesA, 'Anzahl Artikel')?.value).toBe('0');
     expect(plain(model.tilesB[0].value)).toBe('0,00 €');
     expect(model.groups).toEqual([]);
   });
@@ -179,7 +179,7 @@ describe('buildVerkaeuferUebersichtModel', () => {
     // Assert
     expect(model.tilesA.map((entry) => entry.title)).toEqual([
       'Verkäufer-ID',
-      'Anzahl abgegebener Artikel',
+      'Anzahl Artikel',
       'Anzahl offener Artikel',
       'Anzahl verkaufter Artikel',
       'Einnahmen',
@@ -219,7 +219,7 @@ describe('buildVerkaeuferUebersichtModel', () => {
     // Assert
     expect(tile(model.tilesA, 'Anzahl offener Artikel')?.value).toBe('3');
     expect(tile(model.tilesA, 'Anzahl verkaufter Artikel')?.value).toBe('2');
-    expect(tile(model.tilesA, 'Anzahl abgegebener Artikel')?.value).toBe('5');
+    expect(tile(model.tilesA, 'Anzahl Artikel')?.value).toBe('5');
     expect(model.groups.map((group) => group.label)).toEqual(['Im Verkauf', 'Verkauft']);
   });
 });
