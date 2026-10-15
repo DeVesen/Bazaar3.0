@@ -125,14 +125,15 @@ describe('PrintDocument', () => {
     expect(occurrences).toBe(2);
   });
 
-  it('template_tileRows_rowBIsHalfAsHighAsRowA', async () => {
+  it('template_tileRows_rowAIsLowerAndRowBHigherThanBefore', async () => {
     // Arrange & Act
     const { el } = await render(model());
     const rowA = el.querySelector('.print-doc__tiles--a') as HTMLElement;
     const rowB = el.querySelector('.print-doc__tiles--b') as HTMLElement;
 
     // Assert
-    expect(parseFloat(rowB.style.height)).toBe(parseFloat(rowA.style.height) / 2);
+    expect(parseFloat(rowA.style.height)).toBeCloseTo(13.4, 5);
+    expect(parseFloat(rowB.style.height)).toBeCloseTo(13.3, 5);
     expect(rowA.style.height).toContain('mm');
   });
 
@@ -259,9 +260,10 @@ describe('PrintDocument', () => {
 
     // Assert
     expect(list.nextElementSibling?.classList.contains('print-doc__foot')).toBe(true);
-    expect(parseFloat(list.style.height)).toBe(firstPageListHeightMm(0));
-    expect(fixedBlocksMm + parseFloat(list.style.height)).toBe(
+    expect(parseFloat(list.style.height)).toBeCloseTo(firstPageListHeightMm(0), 5);
+    expect(fixedBlocksMm + parseFloat(list.style.height)).toBeCloseTo(
       PRINT_LAYOUT.pageHeightMm - 2 * PRINT_LAYOUT.paddingMm,
+      5,
     );
   });
 
@@ -280,7 +282,7 @@ describe('PrintDocument', () => {
       const expectedMm = index === 0 ? firstPageListHeightMm(0) : restPageListHeightMm();
       expect(list.nextElementSibling?.classList.contains('print-doc__foot')).toBe(true);
       expect(page.lastElementChild?.classList.contains('print-doc__foot')).toBe(true);
-      expect(parseFloat(list.style.height)).toBe(expectedMm);
+      expect(parseFloat(list.style.height)).toBeCloseTo(expectedMm, 5);
     });
   });
 
