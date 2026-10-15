@@ -2,7 +2,7 @@
 
 **Intent:** Übersicht und Korrektur aller Artikel im laufenden Basar — durchsuchen, filtern, sortieren, Stammdaten korrigieren, Status-Zeitstempel verwalten (Admin).
 **Coverage:** partial
-**Last reviewed:** 2026-10-13
+**Last reviewed:** 2026-10-15
 
 ## Capabilities
 - User can search articles by number/name (debounced) — `pages/articles-page/articles-page.ts` (`onQInputChange`)
@@ -18,6 +18,7 @@
 - User sees settlement-locked state in the status popup with a link to `/sellers` — `article-status-popup.html`
 - User sees a specific error when a timestamp combination is invalid (sold+returned) — `articles-page.ts` (`article.sold_and_returned`)
 - Both roles (not just admin) can edit basic Stammfelder — `PUT /api/articles/{id}` is `authenticated`, not `admin`
+- User sees Suche (mittig) und die Auswahlfelder Marke, Kategorie und Status (rechts) in einer gerahmten Filterleiste über der Tabelle — `pages/articles-page/articles-page.html` (`p-toolbar.articles-page__filterbar`, Templates `#center`/`#end`)
 
 ## Spans
 - **Frontend:** `features/articles/pages/articles-page/`, `features/articles/components/{artikel-dialog,article-status-popup}/`, `features/articles/{articles-store.ts, data/articles-api.ts}`; cross-feature read-only imports of `brands/data/brands-api` and `categories/data/categories-api` for filter dropdown options

@@ -2,7 +2,7 @@
 
 **Intent:** Kassenpersonal verkauft Artikel an Kunden — Artikel per Nummer suchen, in den Warenkorb legen, bezahlen und buchen; unterstützt sofortiges Stornieren des letzten Vorgangs.
 **Coverage:** inventoried
-**Last reviewed:** 2026-10-13
+**Last reviewed:** 2026-10-15
 
 ## Capabilities
 - User sees die Seitenüberschrift "Verkauf" — `pages/checkout-page/checkout-page.html` (`<app-page title="Verkauf">`, shared `Page`)
@@ -29,6 +29,7 @@
 - User can undo ("Letzten Vorgang stornieren") den zuletzt gebuchten Verkauf, solange der nächste Artikel noch nicht gescannt wurde — `checkout-page.ts` (`onUndoSale`, `lastSaleArticleIds`), `POST /api/sales/undo`
 - User sees eine Meldung, wenn Storno wegen bereits erfolgter Abrechnung des Verkäufers nicht mehr möglich ist (409 `settlement.locked`) — `checkout-page.ts` (`handleUndoError`)
 - User sees das Artikelnummer-Feld nach jeder Aktion (Init, Hinzufügen, Entfernen, Leeren, Buchen) automatisch neu fokussiert — `checkout-page.ts` (`focusArticleNumberField`)
+- User sees nach einem Verkaufsschritt eine Ergebnis-Einblendung (u. a. Warenkorb-Icon, `paid` nach erfolgreichem Bezahlen) mit Ton und Vibration; sie blockiert keine Eingabe — `pages/checkout-page/checkout-page.html` (`app-result-overlay`), `shared/components/result-overlay/result-event.ts` (`ResultKind`: failed, success, already, cart, paid)
 
 ## Spans
 - **Frontend:** `features/checkout/pages/checkout-page/`, `features/checkout/components/cart/`, `features/checkout/data/sales-api.ts`; nutzt `shared/components/{page,input,numpad,barcode-scanner,payment-panel}`, cross-feature `ArticlesApi.getByNumber()` (read-only, sanktioniert)

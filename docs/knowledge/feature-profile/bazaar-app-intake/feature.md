@@ -2,7 +2,7 @@
 
 **Intent:** Kassenpersonal nimmt Artikel eines Verkäufers auf — Verkäufer per Suche finden oder neu anlegen, dann Artikel für Artikel erfassen (Nummer per Tastatur/Kamera/Numpad, Bezeichnung, Kategorie, Marke, Preis, optional Größe/Farbe/Beschreibung), Session sammeln und am Ende gegen Gebühr buchen.
 **Coverage:** inventoried
-**Last reviewed:** 2026-10-13
+**Last reviewed:** 2026-10-15
 
 ## Capabilities
 - User can search for an existing seller or create a new one from the search text — `pages/intake-page/intake-page.ts` (`onSellerSelected`/`onCreateRequested`), delegiert an `shared/components/seller-search`
@@ -38,6 +38,8 @@
 - User sees bei einem Umnummerieren auf eine Nummer, die bereits einem anderen eigenen vorregistrierten Artikel gehört, einen 409 `article.number_taken` statt eines Überschreibens dieses Artikels — `IntakeHandler.cs` (`toUpdate` nur ohne `DeleteArticleNumber`)
 - User sees betroffene Zeilen markiert und die Artikelnummer mit dem Server-Vorschlag vorbefüllt, wenn beim Buchen eine Nummer inzwischen vergeben ist (409 `article.number_taken`) — `intake-session-list.ts` (`handleBookingError`/`onBookingConflict`)
 - User sees den Abgabe-Beleg (neues A4-Layout, Gruppe „Registriert") als Druckvorschau nach erfolgreicher Buchung — `intake-session-list.ts` (`onPaymentConfirmed` → `PrintService.printIntakeReceipt({ articleIds, sellerId })`)
+- User sees bei Gebühr 0 beim Speichern der Sitzung keinen Bezahlen-Dialog: die Annahme wird direkt mit Gebühr 0 gebucht — `components/intake-session-list/intake-session-list.ts` (`openPayment`, `fee() <= 0` → `book(0)`)
+- User sees eine Ergebnis-Einblendung (großes Icon mit Ton und Vibration) beim Übernehmen eines Artikels und beim Wechsel zu Schritt 2, nach erfolgreichem Bezahlen die Einblendung `paid` mit Dollar-Icon — `components/intake-wizard/intake-wizard.html` (`app-result-overlay`), `intake-article-entry`, `intake-session-list`, `shared/components/result-overlay/`
 
 ## Spans
 - **Frontend:** `features/intake/pages/intake-page/`, `features/intake/components/{intake-wizard,intake-article-entry,intake-renumber-lookup-popup,intake-session-list,session-item-popup}/`, `features/intake/data/intake-api.ts`; nutzt `shared/components/{seller-search,input-group,input,numpad,scan-feedback,autocomplete-create,payment-panel}`, cross-feature `SellersApi`/`SellerTypesApi`/`ArticlesApi`/`CategoriesApi`/`BrandsApi` (read-only, sanktioniert)

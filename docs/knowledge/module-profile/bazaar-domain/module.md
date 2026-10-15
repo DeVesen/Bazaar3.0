@@ -5,7 +5,7 @@
 **Purpose:** Domain model and ports for the Bazaar-Haupt-App backend — entities, the `Ports` interfaces every other layer implements or consumes, and domain exceptions. Zero external package references.
 **Identity:** The innermost hexagon of the Haupt-App's hexagonal backend (per project CLAUDE.md §7.0.1) — no dependencies on anything else in the solution.
 **Maturity:** reviewed
-**Last updated:** 2026-09-21
+**Last updated:** 2026-10-15
 
 ## Responsibilities
 - Entities: `Article`, `Brand`, `Category`, `Seller`, `SellerType`, `Settings`, `User` (+ `Role`, `ArticleStatus`), `SettlementCalculation`
@@ -32,3 +32,4 @@ One folder per entity/concept at the root (`Article/`, `Brand/`, `Category/`, `S
 
 ## Notes
 - Zero-dependency by design — this is what lets `Bazaar.Application`/`Bazaar.Infrastructure` be swapped/tested independently (matches the hexagonal architecture mandated in the app's own CLAUDE.md).
+- Nachtrag 2026-10-15 (aus Commit-Sichtung, `Article.cs`/`IArticleRepository.cs` gelesen): neuer Port `Ports/IArticleTableReader` (Zeilen einer XLSX-/XLS-/CSV-Datei lesen, implementiert in `Bazaar.Infrastructure/Files/ArticleTableReader`); `Article.Renumber(number, now)` ändert die Artikelnummer; `IArticleRepository.GetMaxNumber()`. Beim Seller ist `Ort` Pflicht und `E-Mail` optional (Commits `a8dc75d5`, `d4aba87a`). Die Zahl „19 Interfaces“ oben wurde nicht neu gezählt.

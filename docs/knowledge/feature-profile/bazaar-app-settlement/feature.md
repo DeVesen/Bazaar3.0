@@ -2,7 +2,7 @@
 
 **Intent:** Verwaltung rechnet einen Verkäufer ab — Übersicht über offene/verkaufte Artikel und Umsatz, Rücknahme nicht verkaufter Artikel per Scan, abschließende Auszahlungsbuchung mit Provisionsabzug.
 **Coverage:** inventoried
-**Last reviewed:** 2026-10-13
+**Last reviewed:** 2026-10-15
 
 ## Capabilities
 - User can search for a seller (kein "Neu anlegen" in diesem Kontext) — `pages/settlement-page/settlement-page.ts` (`onSellerSelected`), `shared/components/seller-search` mit `showCreateButton=false`
@@ -19,6 +19,9 @@
 - User can confirm the settlement booking ("Buchen") — `settlement-panel.ts` (`onConfirm`) → `settlement-page.ts` (`onSettleConfirmed`), `POST /api/sellers/{id}/settlement`
 - User sees eine Info-Meldung statt Fehler, wenn der Verkäufer zwischenzeitlich bereits (von anderer Stelle) abgerechnet wurde (409 `settlement.already_settled`) — `settlement-page.ts` (`onSettleConfirmed`)
 - User sees die Server-Fehlermeldung im Panel bei 409 `settlement.articles_open` / 400 `settlement.payout_mismatch`, Panel bleibt offen — `settlement-page.ts` (`onSettleConfirmed`)
+- User sees die Artikel der Abrechnung mit denselben farbigen Status-Badges wie in der Artikelliste — `pages/settlement-page/settlement-page.html` (`p-tag`), `settlement-page.ts` (`articleStatusLabel`, `articleStatusSeverity`)
+- User sees im Zustand „Verkäufer abrechnen“ eine Aktionsleiste: Zurück als „<“-Icon mit Label „Zurück“ links, Name und Adresse des Verkäufers mittig („Name | Adresse | PLZ Ort“), Aktionen rechts — `settlement-page.html` (`p-toolbar.settlement-page__actionbar`)
+- User sees nach erfolgreichem Buchen im Abrechnen-Dialog die Ergebnis-Einblendung `paid` — `settlement-page.html` (`app-result-overlay`), `shared/components/result-overlay/`
 
 ## Spans
 - **Frontend:** `features/settlement/pages/settlement-page/`, `features/settlement/components/settlement-panel/`, `features/settlement/data/settlement-api.ts`; nutzt `shared/components/{seller-search,scan-dialog,kpi-tile}`, cross-feature `SellersApi.{search,getArticles}` (read-only, sanktioniert)
