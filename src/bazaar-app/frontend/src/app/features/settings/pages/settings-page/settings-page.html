@@ -1,0 +1,29 @@
+<app-page title="Einstellungen">
+  <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
+    <p-tablist>
+      @for (tab of tabs; track tab.value) {
+        <p-tab [value]="tab.value" class="settings-page__tab">
+          <i [class]="tab.icon" aria-hidden="true"></i>
+          <span>{{ tab.label }}</span>
+        </p-tab>
+      }
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="general">
+        <app-settings-form />
+      </p-tabpanel>
+      <p-tabpanel value="users">
+        <app-user-management />
+      </p-tabpanel>
+      <p-tabpanel value="print">
+        <app-print-texts-form />
+      </p-tabpanel>
+      <p-tabpanel value="misc">
+        <app-import-panel />
+        <app-dev-tools-panel />
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</app-page>
+
+<p-confirmdialog [key]="leaveTabConfirmKey" />
