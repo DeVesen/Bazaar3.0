@@ -76,6 +76,10 @@ export class ImportPanel implements OnDestroy {
     () => this.previewResult() !== null && !this.previewError() && this.state() !== 'done',
   );
 
+  /** Eine offene Vorschau gilt beim Tab-Wechsel als ungespeicherte Änderung
+   * (docs/forge/2026-10-18-einstellungen-tabs/spec.md AC-20); ein laufender Import nicht. */
+  readonly hasUnsavedChanges = computed(() => this.state() === 'preview');
+
   constructor() {
     this.sellerTypesApi.getAll().subscribe((sellerTypes) => this.sellerTypesOptions.set(sellerTypes));
   }
@@ -169,6 +173,11 @@ export class ImportPanel implements OnDestroy {
         this.state.set('preview');
       },
     });
+  }
+
+  /** Schließt die offene Vorschau, wenn der Admin beim Tab-Wechsel „Verwerfen" wählt. */
+  discardChanges(): void {
+    this.resetToEmpty();
   }
 
   private clearPendingReset(): void {
