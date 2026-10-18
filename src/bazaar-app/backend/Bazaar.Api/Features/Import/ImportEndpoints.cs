@@ -20,6 +20,11 @@ public static class ImportEndpoints
         // runs and ASP.NET Core itself returns 400 (verified against
         // api/import.md's contract in the report), so no manual null-check
         // for a missing file is needed here.
+        //
+        // Binding an IFormFile also attaches anti-forgery metadata, which
+        // fails every request with a 500 because no anti-forgery middleware
+        // is registered. The API authenticates via JWT bearer header, not a
+        // cookie, so there is no CSRF surface and the check is disabled.
         app.MapPost("/api/import/preview", async (IFormFile file, PreviewImportHandler handler, CancellationToken cancellationToken) =>
         {
             if (file.Length == 0)
@@ -31,7 +36,8 @@ public static class ImportEndpoints
             var result = await handler.Handle(stream, cancellationToken);
             return Results.Ok(result);
         })
-        .RequireAuthorization("admin");
+        .RequireAuthorization("admin")
+        .DisableAntiforgery();
 
         // Mixed file + JSON-string multipart body: Minimal API's simple
         // parameter binding can't express "file plus a JSON-encoded form
