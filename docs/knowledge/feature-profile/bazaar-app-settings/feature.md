@@ -2,9 +2,14 @@
 
 **Intent:** Zentrale Admin-Oberfläche für alles, was den Basar-Betrieb konfiguriert, aber nicht ins Tagesgeschäft (Intake/Checkout/Abrechnung) gehört: Scanner-Verhalten, Stammdaten-Import, Benutzerverwaltung, Freitexte der Belege, und (nur lokal/Dev) ein kompletter DB-Reset.
 **Coverage:** inventoried
-**Last reviewed:** 2026-10-14
+**Last reviewed:** 2026-10-18
 
 ## Capabilities
+
+### Tab-Leiste (`settings-page`)
+- Admin sees four tabs „Basis-Einstellungen" (`pi-cog`), „User" (`pi-users`), „Beleg Druck" (`pi-print`), „Sonstiges" (`pi-ellipsis-h`); start tab is „Basis-Einstellungen" — `features/settings/pages/settings-page/settings-page.{ts,html}`, `settings-tabs.ts`
+- Active tab lives in query parameter `tab` (`general`/`users`/`print`/`misc`); unknown value falls back to `general`; tab switches use `replaceUrl` — `settings-page.ts` `activeTab`, `navigateTo()`
+- Switching away from unsaved changes (Scan-Pause, Freitexte) or an open import preview asks „Ungespeicherte Änderungen" with „Bleiben"/„Verwerfen" — `settings-page.ts` `onTabChange()`; areas expose `hasUnsavedChanges`/`discardChanges()`
 
 ### Scanner-Einstellungen (`settings-form`)
 - User sees/edits `ScannerPauseMs` (wie lange ein Scan-Ergebnis am Annahmetisch stehen bleibt, bevor automatisch weiterscannt wird) über eine geteilte `input-group`-Komponente — `features/settings/components/settings-form/settings-form.{ts,html}`
@@ -12,6 +17,7 @@
 - User sees a success toast on save — `settings-form.ts` `onSave()`
 
 ### Freitexte der Belege (`print-texts-form`)
+- Fields are laid out like the receipt: Freitext 1|2 side by side, Freitext 3 full width, Freitext 4|5 side by side; one „Freitexte speichern" button saves both templates — `print-texts-form.html` `.print-texts-form__grid`
 - Admin edits five Markdown free texts per template (Abgabe-Beleg, Verkäufer-Übersicht) — `features/settings/components/print-texts-form/print-texts-form.{ts,html}`, `data/print-texts-api.ts`
 - Free texts apply from the next print; links, images and HTML are not rendered — `shared/components/print-document/print-document.markdown.ts`
 
@@ -32,13 +38,13 @@
 - User sees a specific error wenn der Benutzername schon vergeben ist (create) — `user-management.ts` `user.username_taken`
 - User sees a specific error wenn dem letzten Admin die Rolle entzogen oder er gelöscht werden soll — `user-management.ts` `user.last_admin`
 
-### Dev-Tools / DB-Reset (`dev-tools-panel`)
+### Datenbank zurücksetzen (`dev-tools-panel`, Tab „Sonstiges")
 - User sees den "Datenbank zurücksetzen"-Bereich nur, wenn das Backend im Development-Modus läuft — `features/settings/components/dev-tools-panel/dev-tools-panel.ts` (`DevToolsApi.isDevelopment()`, 404 in Production → unsichtbar)
 - User must type "RESET" before the reset button enables — `dev-tools-panel.ts` `canReset`
 - User triggers einen kompletten DB-Drop+Neuaufbau (alle Daten inkl. eigenes Admin-Konto weg), danach Logout+Reload zurück zum Setup-Wizard — `dev-tools-panel.ts` `resetDatabase()`
 
 ## Spans
-- **Frontend:** `features/settings/pages/settings-page/settings-page.ts` (hostet alle vier Bereiche), `features/settings/components/{settings-form,import-panel,user-management,user-dialog,dev-tools-panel}/`, `features/settings/data/{settings-api,import-api,users-api,dev-tools-api}.ts`
+- **Frontend:** `features/settings/pages/settings-page/settings-page.{ts,html}` + `settings-tabs.ts` (Tab-Leiste, hostet alle Bereiche), `features/settings/components/{settings-form,print-texts-form,import-panel,user-management,user-dialog,dev-tools-panel}/`, `features/settings/data/{settings-api,import-api,users-api,dev-tools-api}.ts`
 - **Backend:** `Bazaar.Api/Features/Settings/SettingsEndpoints.cs` (`GET/PUT /api/settings`, `GET/PUT /api/settings/print-texts`), `Bazaar.Api/Features/Import/ImportEndpoints.cs` (`POST /api/import/preview`, `POST /api/import`), `Bazaar.Api/Features/Users/UserEndpoints.cs` (`GET/POST/PUT/DELETE /api/users`), `Bazaar.Api/Features/Admin/DevToolsEndpoints.cs` (`GET /api/admin/dev-tools/status`, `POST /api/admin/dev-tools/reset-database`, nur gemappt wenn `Environment.IsDevelopment()`)
 
 ## Notes

@@ -2,13 +2,14 @@
 id: F-BA-010
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-10-18
 ---
 
 # Epic: Einstellungen
 
 ## Index
 - Überblick — Admin-Einstellungen
+- Aufbau der Seite — Tabs
 - 1. Systemparameter — Parameter & Defaults
 - 2. JSON-Import — Voranmelde-Import
 - 3. Benutzerverwaltung — Konten & Rollen
@@ -31,7 +32,21 @@ Component-Details → [`import-panel`](../../components/import-panel.md) · [`se
 
 ## Überblick
 
-Admin-Seite für systemweite Parameter und den JSON-Import aus der Voranmelde-App. Der Import ist in der Einstellungen-Seite integriert — kein separater Menüpunkt.
+Admin-Seite für systemweite Parameter und den JSON-Import aus der Voranmelde-App. Der Import ist in der Einstellungen-Seite integriert (Tab „Sonstiges") — kein separater Menüpunkt.
+
+### Aufbau der Seite
+
+Die Seite ist eine Tab-Leiste (PrimeNG `p-tabs`); jeder Tab trägt Caption und Icon:
+
+| Tab | Icon | Inhalt |
+|---|---|---|
+| Basis-Einstellungen | `pi-cog` | Systemparameter (Abschnitt 1) |
+| User | `pi-users` | Benutzerverwaltung (Abschnitt 3) |
+| Beleg Druck | `pi-print` | Freitexte von „Abgabe-Beleg" und „Verkäufer-Übersicht" untereinander; je Abschnitt Freitext 1 und 2 nebeneinander (je 50 %), Freitext 3 über die ganze Breite, Freitext 4 und 5 nebeneinander (je 50 %); ein gemeinsamer Button „Freitexte speichern" |
+| Sonstiges | `pi-ellipsis-h` | JSON-Import (Abschnitt 2), in jedem Modus; nur im Development-Modus zusätzlich „Datenbank zurücksetzen" |
+
+- Start-Tab ist „Basis-Einstellungen". Der aktive Tab steht im Query-Parameter `tab` (`general`, `users`, `print`, `misc`), sodass Neuladen oder ein geteilter Link denselben Tab öffnet; ein unbekannter Wert öffnet „Basis-Einstellungen".
+- Wer den Tab wechselt, während in „Basis-Einstellungen" oder „Beleg Druck" ungespeicherte Änderungen stehen oder in „Sonstiges" eine Import-Vorschau offen ist, bekommt die Rückfrage „Ungespeicherte Änderungen" mit „Bleiben" und „Verwerfen". „Verwerfen" wechselt den Tab und stellt den zuletzt gespeicherten Stand wieder her bzw. schließt die Vorschau.
 
 ---
 
