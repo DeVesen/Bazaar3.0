@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +28,10 @@ const MAX_SCANNER_PAUSE_MS = 15000;
  * in `ngAfterViewInit` rather than the constructor specifically so the view child is guaranteed
  * resolved before the subscribe callback can fire, regardless of whether the HTTP response
  * arrives synchronously (tests) or asynchronously (real backend).
+ *
+ * Ungespeicherte Änderungen (docs/forge/2026-10-18-einstellungen-tabs/spec.md): `hasUnsavedChanges`
+ * vergleicht die Eingabe mit dem zuletzt geladenen oder gespeicherten Wert; `discardChanges()`
+ * stellt diesen Wert wieder her. Die Einstellungsseite fragt damit vor einem Tab-Wechsel nach.
  */
 @Component({
   selector: 'app-settings-form',
@@ -41,10 +45,13 @@ export class SettingsForm implements AfterViewInit {
   private readonly messageService = inject(MessageService);
 
   private readonly inputGroupRef = viewChild<InputGroup>('scannerPauseInput');
+  /** Zuletzt geladener oder gespeicherter Wert — Bezug für `hasUnsavedChanges` und `discardChanges()`. */
+  private readonly savedScannerPauseMs = signal<number>(0);
 
   readonly scannerPauseMs = signal<number>(0);
   readonly saving = signal(false);
   readonly fieldError = signal<string | null>(null);
+  readonly hasUnsavedChanges = computed(() => this.scannerPauseMs() !== this.savedScannerPauseMs());
 
   readonly helpText = `Wie lange das Scan-Ergebnis am Annahmetisch angezeigt wird, bevor automatisch weitergescannt werden kann. Gültige Werte: ${SettingsForm.formatMs(MIN_SCANNER_PAUSE_MS)}–${SettingsForm.formatMs(MAX_SCANNER_PAUSE_MS)} ms.`;
 
@@ -54,8 +61,8 @@ export class SettingsForm implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.settingsApi.get().subscribe((settings) => {
-      this.scannerPauseMs.set(settings.scannerPauseMs);
-      this.inputGroupRef()?.applyExternalValue(String(settings.scannerPauseMs));
+      this.savedScannerPauseMs.set(settings.scannerPauseMs);
+      this.showValue(settings.scannerPauseMs);
     });
   }
 
@@ -64,12 +71,14 @@ export class SettingsForm implements AfterViewInit {
   }
 
   onSave(): void {
+    const value = this.scannerPauseMs();
     this.fieldError.set(null);
     this.saving.set(true);
 
-    this.settingsApi.update(this.scannerPauseMs()).subscribe({
+    this.settingsApi.update(value).subscribe({
       next: () => {
         this.saving.set(false);
+        this.savedScannerPauseMs.set(value);
         this.messageService.add({ severity: 'success', summary: '✓ Einstellungen gespeichert' });
       },
       error: (error: unknown) => {
@@ -85,6 +94,22 @@ export class SettingsForm implements AfterViewInit {
         });
       },
     });
+  }
+
+  /**
+   * Verwirft die ungespeicherte Eingabe und zeigt wieder den zuletzt gespeicherten Wert.
+   * Während eines laufenden Speicherns verwirft sie nichts: Die Antwort macht den gesendeten Wert
+   * zum Bezug, Anzeige, Bezug und Server bleiben damit gleich.
+   */
+  discardChanges(): void {
+    if (this.saving()) return;
+    this.fieldError.set(null);
+    this.showValue(this.savedScannerPauseMs());
+  }
+
+  private showValue(value: number): void {
+    this.scannerPauseMs.set(value);
+    this.inputGroupRef()?.applyExternalValue(String(value));
   }
 
   private fieldErrorOf(error: HttpErrorResponse): string | null {
