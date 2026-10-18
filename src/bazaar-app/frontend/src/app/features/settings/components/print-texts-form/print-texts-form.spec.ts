@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MessageService } from 'primeng/api';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { PrintTextsForm } from './print-texts-form';
 import { PrintTexts, PrintTextsApi, emptyPrintTexts } from '../../data/print-texts-api';
 
@@ -156,5 +156,123 @@ describe('PrintTextsForm', () => {
     expect(messageServiceAdd).toHaveBeenCalledWith(
       expect.objectContaining({ severity: 'error', summary: 'Freitexte konnten nicht geladen werden' }),
     );
+  });
+
+  it('template_adminOpensPrintTab_showsAbgabeBelegAboveVerkaeuferUebersicht', async () => {
+    // Arrange & Act
+    const { el } = await createForm();
+
+    // Assert
+    const legends = Array.from(el.querySelectorAll('fieldset > legend')).map((legend) => legend.textContent?.trim());
+    expect(legends).toEqual(['Abgabe-Beleg', 'Verkäufer-Übersicht']);
+  });
+
+  it('template_eachTemplate_placesFreitext3FullWidthBetweenTwoHalfWidthPairs', async () => {
+    // Arrange & Act
+    const { el } = await createForm();
+
+    // Assert
+    const layouts = Array.from(el.querySelectorAll('fieldset')).map((fieldset) =>
+      Array.from(fieldset.querySelectorAll('.print-texts-form__grid > .print-texts-form__field')).map((field) =>
+        field.classList.contains('print-texts-form__field--full') ? 'full' : 'half',
+      ),
+    );
+    expect(layouts).toEqual([
+      ['half', 'half', 'full', 'half', 'half'],
+      ['half', 'half', 'full', 'half', 'half'],
+    ]);
+  });
+
+  it('template_eachTemplate_keepsTheFieldLabelsInReceiptOrder', async () => {
+    // Arrange & Act
+    const { el } = await createForm();
+
+    // Assert
+    const labelsPerSection = Array.from(el.querySelectorAll('fieldset')).map((fieldset) =>
+      Array.from(fieldset.querySelectorAll('.print-texts-form__grid label')).map((label) => label.textContent?.trim()),
+    );
+    const expectedLabels = [
+      'Freitext 1 (Kopfzeile links)',
+      'Freitext 2 (Kopfzeile Mitte)',
+      'Freitext 3 (über der Artikelliste)',
+      'Freitext 4 (Fußzeile links)',
+      'Freitext 5 (Fußzeile Mitte)',
+    ];
+    expect(labelsPerSection).toEqual([expectedLabels, expectedLabels]);
+  });
+
+  it('template_textsLoaded_showsExactlyOneSaveButtonForBothTemplates', async () => {
+    // Arrange & Act
+    const { el } = await createForm();
+
+    // Assert
+    const saveButtons = Array.from(el.querySelectorAll('button')).filter(
+      (button) => button.textContent?.trim() === 'Freitexte speichern',
+    );
+    expect(saveButtons.length).toBe(1);
+  });
+
+  it('hasUnsavedChanges_textEditedButNotSaved_isTrue', async () => {
+    // Arrange
+    const { component } = await createForm();
+
+    // Act
+    component.onChange('verkaeuferUebersicht', 'text2', 'Neu');
+
+    // Assert
+    expect(component.hasUnsavedChanges()).toBe(true);
+  });
+
+  it('hasUnsavedChanges_freshlyLoaded_isFalse', async () => {
+    // Arrange & Act
+    const { component } = await createForm();
+
+    // Assert
+    expect(component.hasUnsavedChanges()).toBe(false);
+  });
+
+  it('onSave_editedTextsSaved_leavesNoUnsavedChanges', async () => {
+    // Arrange
+    update.mockReturnValue(of(undefined));
+    const { component } = await createForm();
+    component.onChange('abgabeBeleg', 'text3', '**Hinweis**');
+
+    // Act
+    component.onSave();
+
+    // Assert
+    expect(component.hasUnsavedChanges()).toBe(false);
+  });
+
+  it('discardChanges_editedTexts_showsLastSavedTextsAgain', async () => {
+    // Arrange
+    const { fixture, component, el } = await createForm();
+    component.onChange('abgabeBeleg', 'text1', 'Verworfen');
+
+    // Act
+    component.discardChanges();
+
+    // Assert
+    await fixture.whenStable();
+    expect(component.valueOf('abgabeBeleg', 'text1')).toBe('Kopf links');
+    expect(component.hasUnsavedChanges()).toBe(false);
+    expect(el.querySelector<HTMLTextAreaElement>('#abgabeBeleg-text1')?.value).toBe('Kopf links');
+  });
+
+  it('discardChanges_saveInFlight_keepsInputAndStaysConsistentAfterResponse', async () => {
+    // Arrange
+    const response = new Subject<void>();
+    update.mockReturnValue(response);
+    const { component } = await createForm();
+    component.onChange('abgabeBeleg', 'text3', '**Hinweis**');
+    component.onSave();
+    component.discardChanges();
+
+    // Act
+    response.next();
+
+    // Assert
+    expect(component.valueOf('abgabeBeleg', 'text3')).toBe('**Hinweis**');
+    expect(component.hasUnsavedChanges()).toBe(false);
   });
 });

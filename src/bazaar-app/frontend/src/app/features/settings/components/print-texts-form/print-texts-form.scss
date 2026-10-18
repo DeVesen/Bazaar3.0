@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-width: 640px;
+  // Zwei Spalten wie auf dem Beleg brauchen mehr Breite als das frühere 640px-Formular.
+  max-width: 960px;
   margin-left: auto;
   margin-right: auto;
 
@@ -23,9 +24,20 @@
     gap: 0.75rem;
   }
 
+  // Anordnung des Belegs: Freitext 1|2, Freitext 3 über die ganze Breite, Freitext 4|5.
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
   &__field {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+
+    &--full {
+      grid-column: 1 / -1;
+    }
   }
 }

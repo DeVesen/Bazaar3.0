@@ -5,19 +5,21 @@
   @for (section of sections; track section.key) {
     <fieldset class="print-texts-form__section">
       <legend>{{ section.title }}</legend>
-      @for (field of fields; track field.key) {
-        <div class="print-texts-form__field">
-          <label [for]="section.key + '-' + field.key">{{ field.label }}</label>
-          <textarea
-            pTextarea
-            rows="3"
-            [id]="section.key + '-' + field.key"
-            [attr.maxlength]="maxLength"
-            [ngModel]="valueOf(section.key, field.key)"
-            (ngModelChange)="onChange(section.key, field.key, $event)"
-          ></textarea>
-        </div>
-      }
+      <div class="print-texts-form__grid">
+        @for (field of fields; track field.key) {
+          <div class="print-texts-form__field" [class.print-texts-form__field--full]="field.fullWidth">
+            <label [for]="section.key + '-' + field.key">{{ field.label }}</label>
+            <textarea
+              pTextarea
+              rows="3"
+              [id]="section.key + '-' + field.key"
+              [attr.maxlength]="maxLength"
+              [ngModel]="valueOf(section.key, field.key)"
+              (ngModelChange)="onChange(section.key, field.key, $event)"
+            ></textarea>
+          </div>
+        }
+      </div>
       <p class="print-texts-form__hint">{{ spaceHint }}</p>
     </fieldset>
   }
