@@ -43,3 +43,25 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
 }
 
+// Zoomen auf Touch-Geräten aus: iOS ignoriert `user-scalable=no` im Viewport-Meta und zoomt per
+// Doppeltipp/Pinch trotzdem. `touch-action` sperrt beides (Scrollen bleibt erlaubt); `manipulation`
+// als Fallback für Browser ohne `pan-x pan-y`-Auswertung (nur Doppeltipp).
+html {
+  touch-action: manipulation;
+  touch-action: pan-x pan-y;
+}
+
+// iOS Safari zoomt beim Fokus in ein Eingabefeld mit < 16px Schrift die ganze Seite hinein und
+// zoomt danach nicht zurück; die Seite wirkt dann zu breit. Auf Touch-Geräten daher mindestens
+// 16px, statt die Pinch-Zoom-Funktion per `maximum-scale` zu sperren. Doppelte Selektoren
+// schlagen PrimeNGs `.p-inputtext`.
+@media (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']),
+  input.p-inputtext,
+  textarea,
+  textarea.p-textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
