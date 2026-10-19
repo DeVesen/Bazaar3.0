@@ -43,6 +43,14 @@ h1, h2, h3, .logo-block {
   }
 }
 
+// Zoomen auf Touch-Geräten aus: iOS ignoriert `user-scalable=no` im Viewport-Meta und zoomt per
+// Doppeltipp/Pinch trotzdem. `touch-action` sperrt beides (Scrollen bleibt erlaubt); `manipulation`
+// als Fallback für Browser ohne `pan-x pan-y`-Auswertung (nur Doppeltipp).
+html {
+  touch-action: manipulation;
+  touch-action: pan-x pan-y;
+}
+
 .accent {
   color: var(--color-accent);
 }
