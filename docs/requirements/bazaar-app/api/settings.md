@@ -31,10 +31,12 @@ Das Epic stellt alle Endpoints der Einstellungen-Seite auf `admin`. Für `GET` i
 GET /api/settings
 
 → 200 OK
-{ "scannerPauseMs": 3000 }
+{ "scannerPauseMs": 3000, "releaseOnClose": true }
 ```
 
-Das Frontend liest die Werte **beim App-Start** und hält sie im Speicher. Kein Nachladen pro Scan.
+Das Frontend liest die Werte **beim App-Start** und hält sie im Speicher. Kein Nachladen pro Scan. Ausnahme: Das Freigeben-Popup lädt die Einstellungen bei jedem Öffnen neu (`releaseOnClose`), damit eine gespeicherte Änderung ohne App-Neuladen gilt.
+
+`releaseOnClose` (bool, Standard `true`): `true` = das Freigeben-Popup gibt Artikel erst beim Schließen frei, `false` = bei Verkäufern mit Gebühr je Stück 0 wird jeder erfasste Artikel sofort freigegeben. Bei Gebühr je Stück größer 0 hat der Wert keine Wirkung. Fehlt das Feld im `PUT`, gilt `true`.
 
 ---
 
@@ -42,7 +44,7 @@ Das Frontend liest die Werte **beim App-Start** und hält sie im Speicher. Kein 
 
 ```
 PUT /api/settings
-{ "scannerPauseMs": 5000 }
+{ "scannerPauseMs": 5000, "releaseOnClose": false }
 
 → 204 No Content
 → 400 Bad Request   errors: { "scannerPauseMs": ["Wert muss zwischen 500 und 15000 liegen"] }
@@ -54,7 +56,7 @@ Wertebereich `500`–`15000` ms: Unter einer halben Sekunde ist das Scan-Ergebni
 
 ---
 
-## Genau ein Parameter
+## Weitere Parameter bewusst nicht enthalten
 
 `suchDebounceMs` gehört **nicht** hierher: Eine Debounce-Zeit für Suchfelder ist eine Frontend-Tuning-Konstante ohne fachlichen Anlass und steht fest im Code. Die Voranmelde-App hat denselben Parameter aus demselben Grund aus ihren Einstellungen entfernt.
 

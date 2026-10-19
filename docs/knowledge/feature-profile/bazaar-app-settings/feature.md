@@ -2,7 +2,7 @@
 
 **Intent:** Zentrale Admin-Oberfläche für alles, was den Basar-Betrieb konfiguriert, aber nicht ins Tagesgeschäft (Intake/Checkout/Abrechnung) gehört: Scanner-Verhalten, Stammdaten-Import, Benutzerverwaltung, Freitexte der Belege, und (nur lokal/Dev) ein kompletter DB-Reset.
 **Coverage:** inventoried
-**Last reviewed:** 2026-10-18
+**Last reviewed:** 2026-10-19
 
 ## Capabilities
 
@@ -15,6 +15,7 @@
 - User sees/edits `ScannerPauseMs` (wie lange ein Scan-Ergebnis am Annahmetisch stehen bleibt, bevor automatisch weiterscannt wird) über eine geteilte `input-group`-Komponente — `features/settings/components/settings-form/settings-form.{ts,html}`
 - User sees a field-level validation error from a 400 response (Wertebereich 500–15000ms) — `settings-form.ts` `fieldErrorOf()`
 - User sees a success toast on save — `settings-form.ts` `onSave()`
+- Admin schaltet „Artikel erst beim Schließen des Freigabe-Dialogs freigeben" (Standard an, Hilfetext „Gilt nur für Verkäufer ohne Gebühr.") und speichert es zusammen mit der Scan-Pause; aus = das Freigeben-Popup gibt bei Verkäufern mit Gebühr je Stück 0 sofort frei — `settings-form.{ts,html}` (`releaseOnClose`, `app-boolean-input`), `Bazaar.Domain/Settings/Settings.cs` (`ReleaseOnClose`)
 
 ### Freitexte der Belege (`print-texts-form`)
 - Fields are laid out like the receipt: Freitext 1|2 side by side, Freitext 3 full width, Freitext 4|5 side by side; one „Freitexte speichern" button saves both templates — `print-texts-form.html` `.print-texts-form__grid`

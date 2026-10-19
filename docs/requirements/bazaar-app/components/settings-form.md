@@ -15,13 +15,13 @@ reviewed-date: 2026-08-17
 - Akzeptanzkriterien — Prüfbare Kriterien
 - Tags & Piles — Ablage
 
-**Beschreibung:** Formular für die Systemparameter — derzeit genau einer.
+**Beschreibung:** Formular für die Systemparameter — derzeit genau zwei.
 
 ---
 
 ## Überblick
 
-Das Formular hat **ein** Feld. Das ist kein Versehen, sondern das Ergebnis des Reviews: `suchDebounceMs` wurde entfernt (Frontend-Tuning-Konstante ohne fachlichen Anlass, jetzt als 300-ms-Konstante im Code, siehe [`api/cross-cutting.md`](../api/cross-cutting.md)), und die Termine, `defaultTypeId` und die Nummernblock-Parameter gehören zur Voranmelde-App.
+Das Formular hat **zwei** Felder: `scannerPauseMs` und den Schalter `releaseOnClose` (Sofort-Freigabe im Freigeben-Popup bei Verkäufern ohne Gebühr, Spec [2026-10-19-freigabe-sofort-ohne-gebuehr](../../../forge/2026-10-19-freigabe-sofort-ohne-gebuehr/spec.md)). Die Beschränkung darauf ist kein Versehen, sondern das Ergebnis des Reviews: `suchDebounceMs` wurde entfernt (Frontend-Tuning-Konstante ohne fachlichen Anlass, jetzt als 300-ms-Konstante im Code, siehe [`api/cross-cutting.md`](../api/cross-cutting.md)), und die Termine, `defaultTypeId` und die Nummernblock-Parameter gehören zur Voranmelde-App.
 
 Übrig bleibt `scannerPauseMs` — und der ist es wert, weil er am Basar-Tag je nach Personal und Scanner-Qualität wirklich verstellt wird.
 

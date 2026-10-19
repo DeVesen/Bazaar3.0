@@ -23,20 +23,20 @@ ein Feldfehler-Signal gesetzt ist.
 - Akzeptanzkriterien — Prüfbare Kriterien
 - Tags & Piles — Thematische Einordnung
 
-**Beschreibung:** Admin-Formular mit einem Feld (`ScannerPauseMs`) zur Pflege der
+**Beschreibung:** Admin-Formular mit zwei Feldern (`ScannerPauseMs`, `ReleaseOnClose`) zur Pflege der
 Basar-weiten Systemparameter aus [Epic_Einstellungen](../../requirements/bazaar-app/epics/Epic_Einstellungen/epic.md)
 Abschnitt 1.
 
-**Verwendungszweck:** Einziger Editier-Weg für `scannerPauseMs`; die Seite lädt den aktuellen
+**Verwendungszweck:** Einziger Editier-Weg für `scannerPauseMs` und `releaseOnClose`; die Seite lädt den aktuellen
 Wert beim Betreten und schreibt Änderungen per `PUT /api/settings` serverseitig zurück.
 
 ---
 
 ## Überblick
 
-`settings-form` ist ein einfeldriges Formular auf der `/settings`-Seite (Admin only). Es
+`settings-form` ist ein Formular mit zwei Feldern auf der `/settings`-Seite (Admin only). Es
 verwendet die Anzahl-Variante der [InputGroup](../input-group/component.md) (Abschnitt 5a) für
-den einzigen Systemparameter `scannerPauseMs` und persistiert Änderungen ausschließlich
+den Systemparameter `scannerPauseMs` (dazu der Schalter `releaseOnClose`, Abschnitt 1a) und persistiert Änderungen ausschließlich
 serverseitig — nie im `localStorage` (Epic_Einstellungen AC-1).
 
 ---
@@ -49,6 +49,20 @@ serverseitig — nie im `localStorage` (Epic_Einstellungen AC-1).
   automatisch weitergescannt werden kann. Gültige Werte: 500–15.000 ms."
 - Gültige Spanne: **500–15.000 ms** (serverseitig per FluentValidation erzwungen, `400` bei
   Verstoß).
+
+---
+
+## 1a. Feld — ReleaseOnClose
+
+- `app-boolean-input` (Variante `switch`) mit der Beschriftung „Artikel erst beim Schließen des
+  Freigabe-Dialogs freigeben"; Standardstellung **an** (Verhalten wie heute).
+- Hilfstext unter dem Schalter: „Gilt nur für Verkäufer ohne Gebühr."
+- Wirkung: Aus = das Freigeben-Popup gibt bei Verkäufern mit Gebühr je Stück 0 jeden erfassten Artikel
+  sofort frei; bei Gebühr je Stück größer 0 ohne Wirkung. Der Schalter wird erst über „Speichern"
+  wirksam (gemeinsam mit der Scan-Pause per `PUT /api/settings`) und gilt auf jedem Gerät ab dem
+  nächsten Öffnen des Freigeben-Popups.
+- Ungespeicherte Stellung zählt zu `hasUnsavedChanges`; `discardChanges()` stellt die zuletzt
+  gespeicherte Stellung wieder her.
 
 ---
 
@@ -103,6 +117,12 @@ gecachten App-weiten Lesewert. Die beiden Pfade werden bewusst nicht zusammengef
    anzeigen und KEINEN Erfolgs-Toast.
 6. **AC-6** — THE SYSTEM SHALL den Wert ausschließlich serverseitig persistieren; eine
    Ablage im `localStorage` SHALL nicht erfolgen (Epic_Einstellungen AC-1).
+7. **AC-7** — THE SYSTEM SHALL den Schalter „Artikel erst beim Schließen des Freigabe-Dialogs
+   freigeben" mit dem Hilfetext „Gilt nur für Verkäufer ohne Gebühr." anzeigen, standardmäßig
+   eingeschaltet.
+8. **AC-8** — WHEN „Speichern" geklickt wird, THEN SHALL das System die Stellung des Schalters
+   zusammen mit der Scan-Pause per `PUT /api/settings` senden; eine nicht gespeicherte
+   Stellung SHALL beim Neuladen der Seite durch die zuletzt gespeicherte ersetzt werden.
 
 ---
 

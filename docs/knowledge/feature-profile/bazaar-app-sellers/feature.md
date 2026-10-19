@@ -35,6 +35,7 @@
 - User sees im Import-Dialog „Die Datei ist größer als 2 MB.“ (clientseitig sowie bei 413), einen Fortschrittsspinner während des Imports, ein Häkchen bei Erfolg und die Server-Fehlertexte mit Zeile und Artikelnummer (z. B. „Zeile 4, Artikelnummer 3003: Pflichtfeld …“, „Datei enthält keine Artikel“) — `article-import-dialog.ts`, `ArticleImportErrorMessage`
 - User sees nach erfolgreichem Import den Toast „✓ n Artikel importiert“ und die Kachelliste neu geladen — `sellers-page.ts` (`onArticlesImported`)
 - User sees im Freigabe-Flow bei Gebühr 0 keinen Bezahlen-Dialog: Schließen des Scan-Dialogs bucht direkt mit Gebühr 0 — `components/release-dialog/release-dialog.ts` (`fee() <= 0` → `book(0)`)
+- User sees im Freigabe-Flow bei Gebühr je Stück 0 und ausgeschaltetem Einstellungs-Schalter „Artikel erst beim Schließen des Freigabe-Dialogs freigeben" jeden erfassten Artikel sofort freigegeben (Auswahlliste ohne ihn); beim Schließen wird einmal ein Abgabe-Beleg mit allen freigegebenen Artikeln gedruckt, sofern mindestens einer freigegeben wurde; scheitert eine Buchung, zeigt der Dialog die rote Ergebnis-Einblendung und der Artikel zählt nicht zum Beleg — `components/release-dialog/release-dialog.ts` (`writeMode`, `onArticleConfirmed`, `releasedIds`), `shared/components/scan-dialog/scan-dialog.ts` (`reportWriteFailed`)
 - User sees nach erfolgreichem Bezahlen die Ergebnis-Einblendung `paid` (Dollar-Icon, Ton, Vibration) im Freigabe-Flow — `release-dialog.html` (`app-result-overlay`), `shared/components/result-overlay/`
 
 ## Spans

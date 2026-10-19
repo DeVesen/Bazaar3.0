@@ -106,6 +106,9 @@ Kamera-Modus:
 | `pauseMs` | `number` | `@Input` | Scan-Pause im Kamera-Modus in ms (dasselbe Bild wird währenddessen nicht erneut ausgewertet; Default unverändert: aus App-Einstellungen `scannerPauseMs`) |
 | `scanComplete` | `ScanResultEvent` | `@Output` | Emittiert nach erfolgreichem Scan: `{ articleId, result: 'success' \| 'already-set' \| 'unknown' }` |
 | `visibleChange` | `boolean` | `@Output` | Two-way-Binding — emittiert `false` wenn Dialog geschlossen wird |
+| `writeMode` | `'batch' \| 'immediate'` | `@Input` | `'batch'` (Default): Treffer werden in der Sitzung gesammelt (`sessionArticleIds`), der Elternteil schreibt am Ende. `'immediate'`: jeder Treffer löst sofort `articleConfirmed` aus, die Sitzungsliste bleibt leer (Rückgabe in der Abrechnung; Freigeben-Popup bei ausgeschaltetem Schalter `releaseOnClose` und Gebühr je Stück 0) |
+| `articleConfirmed` | `string` | `@Output` | Nur im Modus `'immediate'`: Artikel-ID eines erfolgreichen Treffers; der Elternteil schreibt |
+| `reportWriteFailed()` | — | Methode | Der Elternteil meldet im Modus `'immediate'`, dass das Schreiben scheiterte: Liste der ausstehenden Artikel wird neu geladen, die Ergebnis-Einblendung zeigt rot |
 
 ---
 

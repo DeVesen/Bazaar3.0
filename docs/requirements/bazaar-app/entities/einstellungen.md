@@ -17,6 +17,7 @@ Eine einzelne Zeile — es gibt genau einen Einstellungssatz pro Installation.
 | Feld | Typ | Pflicht | Bemerkung |
 |---|---|---|---|
 | `scannerPauseMs` | int | ✅ | Anzeigedauer des Scan-Ergebnisses im Inline-Kamera-Modus, Default `3000` |
+| `releaseOnClose` | bool | ✅ | `true` = Freigeben-Popup gibt Artikel erst beim Schließen frei, `false` = bei Verkäufern mit Gebühr je Stück 0 sofort; Default `true` |
 
 ## Warum serverseitig
 
