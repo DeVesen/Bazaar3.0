@@ -72,8 +72,9 @@ function scanDialogOf(fixture: ComponentFixture<unknown>): ScanDialog {
 /** Reads the actual DOM `hidden` state of the `app-scan-dialog` wrapper (`release-dialog.html`'s
  * `<div [hidden]="paymentPanelVisible()">`) rather than a component-level flag — this is what
  * would actually catch it if the template's binding ever drifted from `paymentPanelVisible()`
- * (Round-18 review fix: the old `scanDialogVisible()` signal could not, since it was set by hand
- * at every call site and only happened to stay in sync with the template). */
+ * (Round-18 review fix: the former hand-set `scanDialogVisible` signal (since replaced by the
+ * computed of the same name) could not, since it was set by hand at every call site and only
+ * happened to stay in sync with the template). */
 function scanDialogHidden(fixture: ComponentFixture<unknown>): boolean {
   const scanDialogElement = fixture.nativeElement.querySelector('app-scan-dialog') as HTMLElement | null;
   const wrapper = scanDialogElement?.parentElement as HTMLElement | null | undefined;
@@ -463,6 +464,51 @@ describe('ReleaseDialog', () => {
       expect(settingsService.load).toHaveBeenCalledTimes(2);
       expect(component.writeMode()).toBe('immediate');
       expect(scanDialogOf(fixture).writeMode()).toBe('immediate');
+    });
+
+    /** Öffnen, Schließen, erneut Öffnen, bevor die erste Antwort zurück ist: zwei offene `load()`-Promises. */
+    async function reopenWithStaggeredLoads(releaseOnClose: boolean) {
+      const setupResult = await setup({ visible: false, feePerItem: 0, releaseOnClose });
+      const { fixture, settingsService } = setupResult;
+      const resolvers: (() => void)[] = [];
+      settingsService.load.mockImplementation(
+        () => new Promise<void>((resolve) => resolvers.push(resolve)),
+      );
+      for (const visible of [true, false, true]) {
+        fixture.componentRef.setInput('visible', visible);
+        fixture.detectChanges();
+      }
+      return { ...setupResult, resolveFirst: resolvers[0], resolveSecond: resolvers[1] };
+    }
+
+    it('refreshReleaseOnClose_staleLoadFromEarlierOpening_doesNotMarkSettingsLoaded', async () => {
+      // Arrange
+      const { fixture, resolveFirst } = await reopenWithStaggeredLoads(false);
+
+      // Act
+      resolveFirst();
+      await flushPromises();
+      fixture.detectChanges();
+
+      // Assert
+      expect(scanDialogOf(fixture).visible()).toBe(false);
+    });
+
+    it('refreshReleaseOnClose_staleLoadResolvesAfterCurrentOne_doesNotSwitchModeMidSession', async () => {
+      // Arrange
+      const { fixture, component, settingsService, resolveFirst, resolveSecond } =
+        await reopenWithStaggeredLoads(true);
+      resolveSecond();
+      await flushPromises();
+      fixture.detectChanges();
+      settingsService.state.releaseOnClose = false;
+
+      // Act
+      resolveFirst();
+      await flushPromises();
+
+      // Assert
+      expect(component.writeMode()).toBe('batch');
     });
 
     it('onArticleConfirmed_immediateMode_booksOneArticleWithoutFee', async () => {

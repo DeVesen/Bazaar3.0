@@ -52,12 +52,13 @@ export const IMMEDIATE_WRITE_TIMEOUT_MS = 10000;
  * 409) would silently wipe the very session it is supposed to preserve. To avoid that, `scan-
  * dialog`'s `[visible]` follows `scanDialogVisible()`, which only ANDs `visible()` with flags that
  * never change while a session is open (`modeReady()` flips only at opening, before anything is
- * captured; `closeRequested()` only once the user has closed) — the payment-panel overlay is instead a purely local `[hidden]`
- * toggle bound directly to `paymentPanelVisible()` on the wrapping element (`release-dialog.html`),
+ * captured; `closeRequested()` only once the user has closed) — the payment-panel overlay is
+ * instead a purely local `[hidden]` toggle bound directly to `paymentPanelVisible()` on the wrapping element (`release-dialog.html`),
  * which hides `scan-dialog` visually without ever touching its `visible` input, so it stays
- * mounted with its session state intact throughout the whole payment/409 dance. There is
- * deliberately no separate "is scan-dialog visible" flag — it is always the logical inverse of
- * `paymentPanelVisible()`, so keeping only one signal removes the risk of the two drifting apart.
+ * mounted with its session state intact throughout the whole payment/409 dance. The overlay
+ * itself has no separate "is scan-dialog visible" flag — it is always the logical inverse of
+ * `paymentPanelVisible()`, so keeping only one signal removes the risk of the two drifting apart
+ * (`scanDialogVisible()` is the unrelated `[visible]` binding described above).
  * `sessionIds()` (this component's own mirror, kept in
  * sync via `scan-dialog`'s `sessionArticleIds` output, which keeps firing regardless of which
  * overlay is on top) is the source of truth for the fee and for the booking request.
@@ -120,6 +121,8 @@ export class ReleaseDialog {
   private readonly settingsLoaded = signal(false);
   /** Stellung des Schalters, bei jedem Öffnen frisch geladen; bis dahin „an" (Verhalten wie heute). */
   private readonly releaseOnClose = signal(true);
+  /** Zähler der Öffnungen; ordnet eine `SettingsService.load()`-Antwort ihrer Öffnung zu. */
+  private openingGeneration = 0;
   /** Gebühr je Stück und Einstellungen dieser Öffnung liegen vor — erst dann ist der Modus der Sitzung bekannt. */
   private readonly modeReady = computed(() => this.feeState() !== 'loading' && this.settingsLoaded());
 
@@ -254,8 +257,11 @@ export class ReleaseDialog {
     return this.pendingWrites() > 0 || this.releasedIds().length > 0;
   }
 
+  /** Antworten früherer Öffnungen (Popup zu früh geschlossen und neu geöffnet) werden verworfen. */
   private refreshReleaseOnClose(): void {
+    const opening = ++this.openingGeneration;
     void this.settingsService.load().then(() => {
+      if (opening !== this.openingGeneration) return;
       this.releaseOnClose.set(this.settingsService.releaseOnClose());
       this.settingsLoaded.set(true);
     });
