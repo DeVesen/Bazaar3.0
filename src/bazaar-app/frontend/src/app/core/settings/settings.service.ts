@@ -5,6 +5,8 @@ import { catchError, firstValueFrom, of } from 'rxjs';
 /** Shape of `GET /api/settings` / `PUT /api/settings` (docs/requirements/bazaar-app, Round-25). */
 export interface Settings {
   scannerPauseMs: number;
+  /** `true` = Freigeben-Popup gibt Artikel erst beim Schließen frei, `false` = sofort (nur bei Gebühr je Stück 0). */
+  releaseOnClose: boolean;
 }
 
 /**
@@ -28,6 +30,12 @@ export class SettingsService {
    * `scan-feedback`/`scan-dialog` on the very first tick.
    */
   readonly scannerPauseMs = computed(() => this._settings()?.scannerPauseMs ?? 3000);
+
+  /**
+   * `?? true` is the same deliberate pre-load fallback as above: until `GET /api/settings` has
+   * answered, the Freigeben-Popup behaves as it always did (release on close).
+   */
+  readonly releaseOnClose = computed(() => this._settings()?.releaseOnClose ?? true);
 
   /**
    * Errors (401 for the common not-yet-logged-in case, but any HTTP failure) are swallowed

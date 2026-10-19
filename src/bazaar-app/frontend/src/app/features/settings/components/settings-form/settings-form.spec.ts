@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { Subject, of, throwError } from 'rxjs';
 import { SettingsForm } from './settings-form';
 import { SettingsApi } from '../../data/settings-api';
+import { BooleanInput } from '../../../../shared/components/boolean-input/boolean-input';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
 
 describe('SettingsForm', () => {
@@ -13,7 +14,7 @@ describe('SettingsForm', () => {
   let messageServiceAdd: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
-    get = vi.fn().mockReturnValue(of({ scannerPauseMs: 3000 }));
+    get = vi.fn().mockReturnValue(of({ scannerPauseMs: 3000, releaseOnClose: true }));
     update = vi.fn();
     messageServiceAdd = vi.fn();
 
@@ -39,7 +40,7 @@ describe('SettingsForm', () => {
   });
 
   it('loads and displays the current value on init', () => {
-    get.mockReturnValue(of({ scannerPauseMs: 4500 }));
+    get.mockReturnValue(of({ scannerPauseMs: 4500, releaseOnClose: true }));
     const { component } = createForm();
 
     expect(get).toHaveBeenCalled();
@@ -53,7 +54,7 @@ describe('SettingsForm', () => {
 
     component.onSave();
 
-    expect(update).toHaveBeenCalledWith(5000);
+    expect(update).toHaveBeenCalledWith({ scannerPauseMs: 5000, releaseOnClose: true });
     expect(component.saving()).toBe(false);
     expect(component.fieldError()).toBeNull();
     expect(messageServiceAdd).toHaveBeenCalledWith(
@@ -191,6 +192,86 @@ describe('SettingsForm', () => {
 
     // Assert
     expect(component.scannerPauseMs()).toBe(5000);
+    expect(component.hasUnsavedChanges()).toBe(false);
+  });
+
+  it('template_loadedEnabled_showsSwitchWithLabelAndHelpText', async () => {
+    // Arrange & Act
+    const { fixture } = createForm();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // Assert
+    const text = (fixture.nativeElement as HTMLElement).textContent;
+    const booleanInput = fixture.debugElement.query(By.directive(BooleanInput)).componentInstance as BooleanInput;
+    expect(text).toContain('Artikel erst beim Schließen des Freigabe-Dialogs freigeben');
+    expect(text).toContain('Gilt nur für Verkäufer ohne Gebühr.');
+    expect(booleanInput.value()).toBe(true);
+  });
+
+  it('init_savedValueFalse_showsSwitchOff', async () => {
+    // Arrange
+    get.mockReturnValue(of({ scannerPauseMs: 3000, releaseOnClose: false }));
+
+    // Act
+    const { fixture, component } = createForm();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // Assert
+    const booleanInput = fixture.debugElement.query(By.directive(BooleanInput)).componentInstance as BooleanInput;
+    expect(component.releaseOnClose()).toBe(false);
+    expect(booleanInput.value()).toBe(false);
+    expect(component.hasUnsavedChanges()).toBe(false);
+  });
+
+  it('onSave_releaseOnCloseSwitchedOff_sendsBothFields', () => {
+    // Arrange
+    update.mockReturnValue(of(undefined));
+    const { component } = createForm();
+    component.onReleaseOnCloseChange(false);
+
+    // Act
+    component.onSave();
+
+    // Assert
+    expect(update).toHaveBeenCalledWith({ scannerPauseMs: 3000, releaseOnClose: false });
+  });
+
+  it('onSave_releaseOnCloseSwitchedOff_leavesNoUnsavedChanges', () => {
+    // Arrange
+    update.mockReturnValue(of(undefined));
+    const { component } = createForm();
+    component.onReleaseOnCloseChange(false);
+
+    // Act
+    component.onSave();
+
+    // Assert
+    expect(component.hasUnsavedChanges()).toBe(false);
+  });
+
+  it('hasUnsavedChanges_onlySwitchChanged_isTrue', () => {
+    // Arrange
+    const { component } = createForm();
+
+    // Act
+    component.onReleaseOnCloseChange(false);
+
+    // Assert
+    expect(component.hasUnsavedChanges()).toBe(true);
+  });
+
+  it('discardChanges_switchChangedButNotSaved_restoresLastSavedValue', () => {
+    // Arrange
+    const { component } = createForm();
+    component.onReleaseOnCloseChange(false);
+
+    // Act
+    component.discardChanges();
+
+    // Assert
+    expect(component.releaseOnClose()).toBe(true);
     expect(component.hasUnsavedChanges()).toBe(false);
   });
 });

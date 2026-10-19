@@ -13,5 +13,13 @@
     <p class="settings-form__error">{{ fieldError() }}</p>
   }
 
+  <app-boolean-input
+    variant="switch"
+    [label]="releaseOnCloseLabel"
+    [value]="releaseOnClose()"
+    (valueChange)="onReleaseOnCloseChange($event)"
+  />
+  <p class="settings-form__help">{{ releaseOnCloseHelpText }}</p>
+
   <p-button label="Speichern" [disabled]="saving()" (onClick)="onSave()" />
 </div>

@@ -21,7 +21,7 @@ export class SettingsApi {
     return this.http.get<Settings>('/api/settings');
   }
 
-  update(scannerPauseMs: number): Observable<void> {
-    return this.http.put<void>('/api/settings', { scannerPauseMs });
+  update(settings: Settings): Observable<void> {
+    return this.http.put<void>('/api/settings', settings);
   }
 }

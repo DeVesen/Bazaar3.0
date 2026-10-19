@@ -33,7 +33,7 @@ describe('SettingsPage', () => {
     await TestBed.configureTestingModule({
       providers: [
         provideRouter([{ path: 'settings', component: SettingsPage }]),
-        { provide: SettingsApi, useValue: { get: vi.fn().mockReturnValue(of({ scannerPauseMs: 3000 })), update: vi.fn() } },
+        { provide: SettingsApi, useValue: { get: vi.fn().mockReturnValue(of({ scannerPauseMs: 3000, releaseOnClose: true })), update: vi.fn() } },
         { provide: PrintTextsApi, useValue: { get: vi.fn().mockReturnValue(of(emptyPrintTexts())), update: vi.fn() } },
         { provide: ImportApi, useValue: { preview: vi.fn().mockReturnValue(of(previewResultStub())), run: vi.fn() } },
         { provide: SellerTypesApi, useValue: { getAll: vi.fn().mockReturnValue(of([])) } },

@@ -29,11 +29,11 @@ describe('SettingsService', () => {
 
     const req = httpMock.expectOne('/api/settings');
     expect(req.request.method).toBe('GET');
-    req.flush({ scannerPauseMs: 7000 });
+    req.flush({ scannerPauseMs: 7000, releaseOnClose: false });
 
     await loadPromise;
 
-    expect(settingsService.settings()).toEqual({ scannerPauseMs: 7000 });
+    expect(settingsService.settings()).toEqual({ scannerPauseMs: 7000, releaseOnClose: false });
     expect(settingsService.scannerPauseMs()).toBe(7000);
   });
 
@@ -47,5 +47,40 @@ describe('SettingsService', () => {
 
     expect(settingsService.settings()).toBeNull();
     expect(settingsService.scannerPauseMs()).toBe(3000);
+  });
+
+  it('releaseOnClose_beforeLoad_isTrue', () => {
+    // Arrange & Act
+    const value = settingsService.releaseOnClose();
+
+    // Assert
+    expect(value).toBe(true);
+  });
+
+  it('releaseOnClose_afterLoadWithFalse_isFalse', async () => {
+    // Arrange
+    const loadPromise = settingsService.load();
+    httpMock.expectOne('/api/settings').flush({ scannerPauseMs: 3000, releaseOnClose: false });
+
+    // Act
+    await loadPromise;
+
+    // Assert
+    expect(settingsService.releaseOnClose()).toBe(false);
+  });
+
+  it('releaseOnClose_secondLoadWithChangedValue_followsTheNewValue', async () => {
+    // Arrange
+    const first = settingsService.load();
+    httpMock.expectOne('/api/settings').flush({ scannerPauseMs: 3000, releaseOnClose: true });
+    await first;
+    const second = settingsService.load();
+    httpMock.expectOne('/api/settings').flush({ scannerPauseMs: 3000, releaseOnClose: false });
+
+    // Act
+    await second;
+
+    // Assert
+    expect(settingsService.releaseOnClose()).toBe(false);
   });
 });
