@@ -704,6 +704,50 @@ describe('ScanDialog', () => {
       expect(scanCompletes).toEqual([{ articleId: 'A1', result: 'success' }]);
       expect(sessionSnapshots.at(-1)).toEqual(['A1']);
     });
+
+    it('immediate mode releasedAt: a confirmed article leaves the pending list without a reload', async () => {
+      // Arrange
+      const fixture = await create(httpClientMock({ pending, byNumber: { 101: article } }), {
+        writeMode: 'immediate',
+      });
+      typeInto(fixture, '101');
+
+      // Act
+      fixture.componentInstance.onSubmit();
+
+      // Assert
+      expect(fixture.componentInstance.pendingList().find((a) => a.id === 'A1')).toBeUndefined();
+    });
+
+    it('reportWriteFailed_afterConfirmedArticle_showsFailedResult', async () => {
+      // Arrange
+      const fixture = await create(httpClientMock({ pending, byNumber: { 101: article } }), {
+        writeMode: 'immediate',
+      });
+      typeInto(fixture, '101');
+      fixture.componentInstance.onSubmit();
+
+      // Act
+      fixture.componentInstance.reportWriteFailed();
+
+      // Assert
+      expect(fixture.componentInstance.resultEvent()?.kind).toBe('failed');
+    });
+
+    it('reportWriteFailed_afterConfirmedArticle_reloadsThePendingList', async () => {
+      // Arrange
+      const fixture = await create(httpClientMock({ pending, byNumber: { 101: article } }), {
+        writeMode: 'immediate',
+      });
+      typeInto(fixture, '101');
+      fixture.componentInstance.onSubmit();
+
+      // Act
+      fixture.componentInstance.reportWriteFailed();
+
+      // Assert
+      expect(fixture.componentInstance.pendingList().find((a) => a.id === 'A1')).toBeDefined();
+    });
   });
 
   describe('field and layout (Layout-Vereinheitlichung Teil 2)', () => {

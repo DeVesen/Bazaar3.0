@@ -301,6 +301,17 @@ export class ScanDialog {
     this.visibleChange.emit(value);
   }
 
+  /**
+   * Sofort-Modus (`writeMode === 'immediate'`): Der Elternteil meldet, dass das Schreiben des
+   * zuletzt über `articleConfirmed` bestätigten Artikels gescheitert ist. Die Liste der
+   * ausstehenden Artikel wird neu geladen (der Artikel war lokal schon entfernt, ist aber
+   * womöglich nicht freigegeben) und die rote Ergebnis-Einblendung ersetzt die grüne.
+   */
+  reportWriteFailed(): void {
+    this.loadPendingArticles();
+    this.showResult('unknown');
+  }
+
   /** AC-1, best-effort only (documented limitation, same spirit as `input-group.ts`'s own
    * documented camera-permission-detection limitation): `app-input` exposes no public `focus()`
    * method and this component never modifies either component's own public API, so focus is
