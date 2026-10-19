@@ -29,6 +29,20 @@ h1, h2, h3, .logo-block {
   font-weight: 600;
 }
 
+// iOS Safari zoomt beim Fokus in ein Eingabefeld mit < 16px Schrift die ganze Seite hinein
+// (14px → Faktor 16/14 ≈ 1,14) und zoomt danach nicht zurück; die Seite wirkt dann zu breit und
+// ragt rechts über den Rand. Auf Touch-Geräten daher mindestens 16px, statt die Pinch-Zoom-Funktion
+// per `maximum-scale` zu sperren. Doppelte Selektoren schlagen PrimeNGs `.p-inputtext`.
+@media (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']),
+  input.p-inputtext,
+  textarea,
+  textarea.p-textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
 .accent {
   color: var(--color-accent);
 }
