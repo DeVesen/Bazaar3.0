@@ -14,6 +14,9 @@ public sealed class SettingsConfiguration : IEntityTypeConfiguration<SettingsAgg
         builder.Property(s => s.Id).ValueGeneratedNever();
 
         builder.Property(s => s.ScannerPauseMs).IsRequired();
+        // DB-Default true für bestehende Zeilen; ValueGeneratedNever, damit EF den Wert `false`
+        // beim Insert nicht als „nicht gesetzt" behandelt und stillschweigend durch den Default ersetzt.
+        builder.Property(s => s.ReleaseOnClose).IsRequired().HasDefaultValue(true).ValueGeneratedNever();
         builder.ComplexProperty(s => s.AbgabeBeleg, ConfigurePrintTexts);
         builder.ComplexProperty(s => s.VerkaeuferUebersicht, ConfigurePrintTexts);
     }

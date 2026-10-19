@@ -214,6 +214,10 @@ namespace Bazaar.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("ReleaseOnClose")
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
                     b.Property<int>("ScannerPauseMs")
                         .HasColumnType("integer");
 
