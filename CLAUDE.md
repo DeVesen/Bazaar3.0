@@ -75,7 +75,7 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 - Lint:
 - Suche: dev-mcp
 - Commit-Konvention: Conventional Commits (type(scope): Beschreibung), Text deutsch
-- Arbeitsort: Immer im Worktree, außer der Mensch sagt ausdrücklich „vor Ort“. Gilt auch für Spec-, Review- und Capture-Sessions und geht der „vor Ort“-Vorgabe der Skills vor.
+- Arbeitsort: Worktree mit Feature-Branch nur für die Implementation (Code-Änderungen). Spec-, Plan-, Review- und Capture-Sessions laufen ohne Worktree und ohne Feature-Branch im aktuellen Checkout auf dem aktuellen Branch, auch ein Review am Code. Ein Review innerhalb einer Implementation bleibt in deren Worktree.
 - Commits: Immer mit Pfadangabe in einem Schritt (`git commit -- <pfade>`), nie getrennt stagen und committen; vorher Branch und `git status` prüfen.
 - Build-Hinweis: Meldet der .NET-Build `MSB3027` (DLL gesperrt, meist läuft `Bazaar.Api` im Debugger), Prozess beenden oder mit `-c Release` bauen.
 - Doku-Nachführung: Ändert Umsetzung Fähigkeit/Begriff/Beschriftung → Anforderungs-Doku, Profile, Glossar im selben Lauf mitführen; Plan hat dafür eigenen Task.
