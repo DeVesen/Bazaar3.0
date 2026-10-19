@@ -182,7 +182,7 @@ Der Grenzfall „Verkäufer mit Artikeln entfernen" existiert nur beim Import, u
 
 ## 6. `GET /api/sellers/{id}/articles`
 
-Artikelliste eines Verkäufers für das Detail-Modal ([Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md) Abschnitt 5) und die Abrechnungs-Ansicht. **Nicht paginiert** — ein Verkäufer hat Dutzende Artikel, keine Tausende.
+Artikelliste eines Verkäufers für das Detail-Modal ([Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md) Abschnitt 5) und die Abrechnungs-Ansicht. **Nicht paginiert** — ein Verkäufer hat Dutzende Artikel, keine Tausende. Die Liste ist aufsteigend nach Artikelnummer sortiert (numerisch, 2 vor 10); Detail-Modal und Auswahlliste im Scan-Dialog übernehmen diese Reihenfolge.
 
 ```
 GET /api/sellers/{id}/articles

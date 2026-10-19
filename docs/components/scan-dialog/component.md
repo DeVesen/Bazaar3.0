@@ -121,6 +121,8 @@ Kamera-Modus:
 | Kein Treffer | Liste ausgeblendet; Text *„Artikel nicht bekannt"* |
 | Alle Artikel bereits gesetzt | Nur Text: *„Alle Artikel freigegeben"* / *„Alle Artikel zurückgegeben"* |
 
+Die Liste (im Sprachgebrauch „Auswahlliste“) zeigt die Artikel aufsteigend nach Artikelnummer; die Reihenfolge kommt vom Server (`GET /api/sellers/{id}/articles`, siehe `sellers.md` §6) und bleibt beim Filtern und beim Wegfall erfasster Artikel erhalten — der Dialog sortiert nicht selbst.
+
 ### Numpad-Modus
 
 Der Numpad zeigt hier wie überall alle Tasten. `⏎` bestätigt die getippte Nummer — identisch zu `Enter` im
