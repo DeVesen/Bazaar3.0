@@ -1,5 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { timeout } from 'rxjs';
 import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
 import { ResultOverlay } from '../../../../shared/components/result-overlay/result-overlay';
@@ -12,6 +23,13 @@ import { SellersApi } from '../../data/sellers-api';
 // successful booking — same sanctioned `core` import pattern `intake-session-list.ts` already
 // uses (deliberately the SECOND caller of this same stub method, per spec.md).
 import { PrintService } from '../../../../core/print/print.service';
+// Cross-cutting core service: the Sofort-Modus flag (`releaseOnClose`) is an app-wide setting,
+// re-read via `SettingsService.load()` every time the popup opens.
+import { SettingsService } from '../../../../core/settings/settings.service';
+
+/** Sofort-Modus: Bleibt die Antwort einer Einzelbuchung so lange aus, gilt sie als fehlgeschlagen
+ * (rot, zählt nicht zum Abgabe-Beleg) — sonst hinge das Schließen des Popups an einer hängenden Anfrage. */
+export const IMMEDIATE_WRITE_TIMEOUT_MS = 10000;
 
 /**
  * Orchestrates the "Freigeben"-Popup (Round-18 spec.md, plan.md section 4) opened from a
@@ -32,8 +50,9 @@ import { PrintService } from '../../../../core/print/print.service';
  * `visible` input transitions `false → true`. If the payment-panel overlay were implemented by
  * toggling `scan-dialog`'s own `[visible]`, reopening it after a cancelled/failed payment (or a
  * 409) would silently wipe the very session it is supposed to preserve. To avoid that, `scan-
- * dialog`'s `[visible]` stays bound directly to this component's own `visible()` input and is
- * NEVER ANDed with anything else — the payment-panel overlay is instead a purely local `[hidden]`
+ * dialog`'s `[visible]` follows `scanDialogVisible()`, which only ANDs `visible()` with flags that
+ * never change while a session is open (`modeReady()` flips only at opening, before anything is
+ * captured; `closeRequested()` only once the user has closed) — the payment-panel overlay is instead a purely local `[hidden]`
  * toggle bound directly to `paymentPanelVisible()` on the wrapping element (`release-dialog.html`),
  * which hides `scan-dialog` visually without ever touching its `visible` input, so it stays
  * mounted with its session state intact throughout the whole payment/409 dance. There is
@@ -54,6 +73,18 @@ import { PrintService } from '../../../../core/print/print.service';
  * actually sees why the booking failed. `bookingError()` is kept as well (still asserted by
  * tests, still useful for anything that reads component state), it is just no longer the ONLY
  * channel.
+ *
+ * Sofort-Modus (Spec docs/forge/2026-10-19-freigabe-sofort-ohne-gebuehr/spec.md): Ist der Schalter
+ * `releaseOnClose` (frisch bei jedem Öffnen über `SettingsService.load()` gelesen) aus und die
+ * Gebühr je Stück 0, schaltet `writeMode()` den `scan-dialog` auf `'immediate'`. Jeder dann über
+ * `articleConfirmed` bestätigte Artikel wird sofort einzeln gebucht (`POST /api/release`, Gebühr 0,
+ * eine ID); scheitert die Buchung, meldet `ScanDialog.reportWriteFailed()` das rot. Beim Schließen
+ * entfällt der Bezahlen-Dialog; der Abgabe-Beleg wird einmal mit allen freigegebenen Artikeln
+ * gedruckt (nur wenn mindestens einer freigegeben wurde) — nachdem laufende Buchungen fertig sind
+ * oder nach `IMMEDIATE_WRITE_TIMEOUT_MS` als fehlgeschlagen gelten. Der `scan-dialog` erscheint
+ * erst, wenn Gebühr je Stück und Einstellungen dieser Öffnung geladen sind (`modeReady()`), damit
+ * nie ein Artikel im falschen Modus erfasst wird; nach dem Schließen mit laufender Buchung bleibt
+ * er verborgen (`closeRequested()`), damit keine weiteren Scans hinzukommen.
  */
 @Component({
   selector: 'app-release-dialog',
@@ -67,6 +98,8 @@ export class ReleaseDialog {
   private readonly sellersApi = inject(SellersApi);
   private readonly printService = inject(PrintService);
   private readonly messageService = inject(MessageService);
+  private readonly settingsService = inject(SettingsService);
+  private readonly scanDialog = viewChild(ScanDialog);
 
   readonly visible = input<boolean>(false);
   readonly sellerId = input.required<string>();
@@ -80,6 +113,30 @@ export class ReleaseDialog {
    * already has loaded) does not carry `feePerItem`, only `SellerDetail`/`Seller` do. Mirrors
    * `intake-article-entry.ts`'s own `SellersApi.getById()` pattern exactly. */
   readonly feePerItem = signal(0);
+  /** Ladezustand von `feePerItem` für den aktuellen Verkäufer — nur bei `'loaded'` gilt je der Sofort-Modus;
+   * `'failed'` lässt das Popup wie bisher im Sammel-Modus arbeiten. */
+  private readonly feeState = signal<'loading' | 'loaded' | 'failed'>('loading');
+  /** `true`, sobald `SettingsService.load()` für diese Öffnung zurück ist (auch nach einem geschluckten Fehler). */
+  private readonly settingsLoaded = signal(false);
+  /** Stellung des Schalters, bei jedem Öffnen frisch geladen; bis dahin „an" (Verhalten wie heute). */
+  private readonly releaseOnClose = signal(true);
+  /** Gebühr je Stück und Einstellungen dieser Öffnung liegen vor — erst dann ist der Modus der Sitzung bekannt. */
+  private readonly modeReady = computed(() => this.feeState() !== 'loading' && this.settingsLoaded());
+
+  /** Sofort-Modus nur bei Gebühr je Stück 0 und ausgeschaltetem Schalter, sonst Verhalten wie heute. */
+  readonly writeMode = computed<'batch' | 'immediate'>(() =>
+    this.feeState() === 'loaded' && this.feePerItem() === 0 && !this.releaseOnClose() ? 'immediate' : 'batch',
+  );
+
+  /** Im Sofort-Modus in dieser Sitzung erfolgreich freigegebene Artikel — Grundlage des Abgabe-Belegs. */
+  readonly releasedIds = signal<readonly string[]>([]);
+  /** Im Sofort-Modus noch ohne Antwort laufende Einzelbuchungen. */
+  private readonly pendingWrites = signal(0);
+  /** Im Sofort-Modus hat der Nutzer geschlossen; bis zur nächsten Öffnung bleibt der `scan-dialog` verborgen. */
+  private readonly closeRequested = signal(false);
+
+  /** `[visible]` des `scan-dialog` — siehe Klassen-Doc-Kommentar, warum dieses UND die Sitzung nicht zurücksetzt. */
+  readonly scanDialogVisible = computed(() => this.visible() && this.modeReady() && !this.closeRequested());
 
   /** The full current session list, mirrored from `scan-dialog`'s own `sessionArticleIds`
    * output on every change (a complete snapshot, not a delta — see that output's own doc
@@ -102,7 +159,14 @@ export class ReleaseDialog {
     effect(() => {
       const id = this.sellerId();
       if (!id) return;
-      this.sellersApi.getById(id).subscribe((seller) => this.feePerItem.set(seller.feePerItem));
+      this.feeState.set('loading');
+      this.sellersApi.getById(id).subscribe({
+        next: (seller) => {
+          this.feePerItem.set(seller.feePerItem);
+          this.feeState.set('loaded');
+        },
+        error: () => this.feeState.set('failed'),
+      });
     });
 
     // Fresh local state every time the dialog opens — `scan-dialog` resets its own session on
@@ -110,10 +174,16 @@ export class ReleaseDialog {
     // flag (a previous visit may have left `paymentPanelVisible` in whatever state the last
     // close/booking left it in).
     effect(() => {
-      if (this.visible()) {
-        this.paymentPanelVisible.set(false);
-        this.bookingError.set(null);
+      if (!this.visible()) {
+        this.settingsLoaded.set(false);
+        this.closeRequested.set(false);
+        return;
       }
+      this.paymentPanelVisible.set(false);
+      this.bookingError.set(null);
+      this.releasedIds.set([]);
+      this.releaseOnClose.set(true);
+      this.refreshReleaseOnClose();
     });
   }
 
@@ -128,6 +198,11 @@ export class ReleaseDialog {
    * defensively anyway. */
   onScanDialogVisibleChange(value: boolean): void {
     if (value) return;
+
+    if (this.hasImmediateWrites()) {
+      this.closeImmediateSession();
+      return;
+    }
 
     if (this.sessionIds().length === 0) {
       this.visibleChange.emit(false);
@@ -156,17 +231,67 @@ export class ReleaseDialog {
     this.book(event.totalAmount);
   }
 
+  /** Sofort-Modus: `scan-dialog` hat einen Artikel bestätigt — sofort einzeln und ohne Gebühr buchen.
+   * Bleibt die Antwort `IMMEDIATE_WRITE_TIMEOUT_MS` aus, gilt die Buchung als fehlgeschlagen. */
+  onArticleConfirmed(articleId: string): void {
+    this.pendingWrites.update((count) => count + 1);
+    this.releaseApi
+      .bookRelease(this.sellerId(), 0, [articleId])
+      .pipe(timeout({ first: IMMEDIATE_WRITE_TIMEOUT_MS }))
+      .subscribe({
+        next: () => {
+          this.releasedIds.update((ids) => [...ids, articleId]);
+          this.onWriteSettled();
+        },
+        error: () => {
+          this.scanDialog()?.reportWriteFailed();
+          this.onWriteSettled();
+        },
+      });
+  }
+
+  private hasImmediateWrites(): boolean {
+    return this.pendingWrites() > 0 || this.releasedIds().length > 0;
+  }
+
+  private refreshReleaseOnClose(): void {
+    void this.settingsService.load().then(() => {
+      this.releaseOnClose.set(this.settingsService.releaseOnClose());
+      this.settingsLoaded.set(true);
+    });
+  }
+
+  private onWriteSettled(): void {
+    this.pendingWrites.update((count) => count - 1);
+    if (this.closeRequested() && this.pendingWrites() === 0) this.finishImmediateSession();
+  }
+
+  private closeImmediateSession(): void {
+    this.closeRequested.set(true);
+    if (this.pendingWrites() === 0) this.finishImmediateSession();
+  }
+
+  /** `closeRequested` bleibt gesetzt, bis der Elternteil `visible` auf `false` legt (zweiter Effect) —
+   * sonst würde der `scan-dialog` zwischen Emit und Schließen kurz wieder erscheinen. */
+  private finishImmediateSession(): void {
+    const articleIds = Array.from(this.releasedIds());
+    if (articleIds.length > 0) this.reportReleased(articleIds);
+    this.visibleChange.emit(false);
+  }
+
+  /** Abgabe-Beleg drucken und das Verkäufer-Raster neu laden lassen — gemeinsam für Sammel- und Sofort-Modus. */
+  private reportReleased(articleIds: string[]): void {
+    this.printService.printIntakeReceipt({ articleIds, sellerId: this.sellerId() });
+    this.released.emit();
+  }
+
   private book(feeAmount: number): void {
     this.releaseApi.bookRelease(this.sellerId(), feeAmount, this.sessionIds()).subscribe({
       next: () => {
-        this.printService.printIntakeReceipt({
-          articleIds: Array.from(this.sessionIds()),
-          sellerId: this.sellerId(),
-        });
+        this.reportReleased(Array.from(this.sessionIds()));
         this.paymentPanelVisible.set(false);
         this.bookingError.set(null);
         if (feeAmount > 0) this.resultEvent.set(createResultEvent('paid'));
-        this.released.emit();
         this.visibleChange.emit(false);
       },
       error: (error: unknown) => this.handleBookingError(error),

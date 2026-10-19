@@ -4,12 +4,14 @@
 
 <div [hidden]="paymentPanelVisible()">
   <app-scan-dialog
-    [visible]="visible()"
+    [visible]="scanDialogVisible()"
     title="Artikel freigeben"
     [sellerId]="sellerId()"
     targetField="releasedAt"
+    [writeMode]="writeMode()"
     (visibleChange)="onScanDialogVisibleChange($event)"
     (sessionArticleIds)="onSessionChanged($event)"
+    (articleConfirmed)="onArticleConfirmed($event)"
   />
 </div>
 

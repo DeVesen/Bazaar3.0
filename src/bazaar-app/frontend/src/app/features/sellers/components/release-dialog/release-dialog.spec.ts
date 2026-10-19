@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { PaymentPanel } from '../../../../shared/components/payment-panel/payment-panel';
 import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialog';
@@ -14,9 +14,10 @@ import { ScanDialog } from '../../../../shared/components/scan-dialog/scan-dialo
 // not because it is still load-bearing for the mock to win the race.)
 import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock';
 import { PrintService } from '../../../../core/print/print.service';
+import { SettingsService } from '../../../../core/settings/settings.service';
 import { ReleaseApi } from '../../data/release-api';
 import { SellersApi } from '../../data/sellers-api';
-import { ReleaseDialog } from './release-dialog';
+import { IMMEDIATE_WRITE_TIMEOUT_MS, ReleaseDialog } from './release-dialog';
 
 const SELLER_ID = 'SEL00001';
 
@@ -46,6 +47,28 @@ function httpClientStub(): HttpClient {
   return { get: vi.fn().mockReturnValue(of([])) } as unknown as HttpClient;
 }
 
+/** `ReleaseDialog` und das echte `ScanDialog` darin lesen beide `SettingsService`; `state` erlaubt es,
+ * die gespeicherte Stellung zwischen zwei Öffnungen zu ändern (AC-10). */
+function settingsServiceStub(releaseOnClose = true) {
+  const state = { releaseOnClose };
+  return {
+    state,
+    load: vi.fn().mockImplementation(() => Promise.resolve()),
+    releaseOnClose: () => state.releaseOnClose,
+    scannerPauseMs: () => 3000,
+  };
+}
+
+/** Lässt Promise-Callbacks (`SettingsService.load().then(…)`) laufen — `whenStable()` wartet darauf nicht. */
+function flushPromises(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve));
+}
+
+function scanDialogOf(fixture: ComponentFixture<unknown>): ScanDialog {
+  return fixture.debugElement.query((de) => de.componentInstance instanceof ScanDialog)
+    .componentInstance as ScanDialog;
+}
+
 /** Reads the actual DOM `hidden` state of the `app-scan-dialog` wrapper (`release-dialog.html`'s
  * `<div [hidden]="paymentPanelVisible()">`) rather than a component-level flag — this is what
  * would actually catch it if the template's binding ever drifted from `paymentPanelVisible()`
@@ -62,6 +85,7 @@ async function setup(
     visible?: boolean;
     sellerId?: string;
     feePerItem?: number;
+    releaseOnClose?: boolean;
     releaseApi?: ReturnType<typeof releaseApiStub>;
     sellersApi?: ReturnType<typeof sellersApiStub>;
     printService?: ReturnType<typeof printServiceStub>;
@@ -72,6 +96,7 @@ async function setup(
   const sellersApi = options.sellersApi ?? sellersApiStub(options.feePerItem ?? 0.5);
   const printService = options.printService ?? printServiceStub();
   const messageService = options.messageService ?? messageServiceStub();
+  const settingsService = settingsServiceStub(options.releaseOnClose ?? true);
 
   await TestBed.configureTestingModule({
     imports: [ReleaseDialog],
@@ -80,6 +105,7 @@ async function setup(
       { provide: SellersApi, useValue: sellersApi },
       { provide: PrintService, useValue: printService },
       { provide: MessageService, useValue: messageService },
+      { provide: SettingsService, useValue: settingsService },
       { provide: HttpClient, useValue: httpClientStub() },
     ],
   }).compileComponents();
@@ -88,9 +114,18 @@ async function setup(
   fixture.componentRef.setInput('visible', options.visible ?? true);
   fixture.componentRef.setInput('sellerId', options.sellerId ?? SELLER_ID);
   await fixture.whenStable();
+  await flushPromises();
   fixture.detectChanges();
 
-  return { fixture, component: fixture.componentInstance, releaseApi, sellersApi, printService, messageService };
+  return {
+    fixture,
+    component: fixture.componentInstance,
+    releaseApi,
+    sellersApi,
+    printService,
+    messageService,
+    settingsService,
+  };
 }
 
 describe('ReleaseDialog', () => {
@@ -300,5 +335,289 @@ describe('ReleaseDialog', () => {
     expect(scanDialog.targetField()).toBe('releasedAt');
     expect(scanDialog.sellerId()).toBe(SELLER_ID);
     expect(scanDialog.title()).toBe('Artikel freigeben');
+  });
+
+  describe('Sofort-Modus', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('scanDialogVisible_settingsOfThisOpeningNotYetLoaded_keepsScanDialogHidden', async () => {
+      // Arrange
+      const { fixture, settingsService } = await setup({ feePerItem: 0, releaseOnClose: false });
+      settingsService.load.mockImplementation(() => new Promise<void>(() => undefined));
+      fixture.componentRef.setInput('visible', false);
+      fixture.detectChanges();
+
+      // Act
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      await flushPromises();
+      fixture.detectChanges();
+
+      // Assert
+      expect(scanDialogOf(fixture).visible()).toBe(false);
+    });
+
+    it('scanDialogVisible_settingsAndFeeLoaded_showsScanDialog', async () => {
+      // Arrange & Act
+      const { fixture } = await setup({ feePerItem: 0, releaseOnClose: false });
+
+      // Assert
+      expect(scanDialogOf(fixture).visible()).toBe(true);
+    });
+
+    it('onScanDialogVisibleChange_bookingStillRunning_hidesScanDialogAgainstFurtherScans', async () => {
+      // Arrange
+      const releaseApi = releaseApiStub();
+      releaseApi.bookRelease.mockReturnValue(new Subject<{ releasedCount: number; intakeFeePaid: number }>());
+      const { fixture, component } = await setup({ feePerItem: 0, releaseOnClose: false, releaseApi });
+      component.onArticleConfirmed('a1');
+
+      // Act
+      component.onScanDialogVisibleChange(false);
+      fixture.detectChanges();
+
+      // Assert
+      expect(scanDialogOf(fixture).visible()).toBe(false);
+    });
+
+    it('onScanDialogVisibleChange_bookingNeverAnswers_closesAfterTimeoutWithoutReceipt', async () => {
+      // Arrange
+      const releaseApi = releaseApiStub();
+      releaseApi.bookRelease.mockReturnValue(new Subject<{ releasedCount: number; intakeFeePaid: number }>());
+      const { component, printService } = await setup({ feePerItem: 0, releaseOnClose: false, releaseApi });
+      const visibleChangeSpy = vi.fn();
+      component.visibleChange.subscribe(visibleChangeSpy);
+      vi.useFakeTimers();
+      component.onArticleConfirmed('a1');
+      component.onScanDialogVisibleChange(false);
+
+      // Act
+      vi.advanceTimersByTime(IMMEDIATE_WRITE_TIMEOUT_MS);
+
+      // Assert
+      expect(visibleChangeSpy).toHaveBeenCalledWith(false);
+      expect(printService.printIntakeReceipt).not.toHaveBeenCalled();
+      expect(component.releasedIds()).toEqual([]);
+    });
+
+    it('onScanDialogVisibleChange_afterImmediateClose_reopeningShowsScanDialogAgain', async () => {
+      // Arrange
+      const { fixture, component } = await setup({ feePerItem: 0, releaseOnClose: false });
+      component.onArticleConfirmed('a1');
+      component.onScanDialogVisibleChange(false);
+      fixture.componentRef.setInput('visible', false);
+      fixture.detectChanges();
+
+      // Act
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      await flushPromises();
+      fixture.detectChanges();
+
+      // Assert
+      expect(scanDialogOf(fixture).visible()).toBe(true);
+    });
+
+    it('writeMode_releaseOnCloseTrueFeeZero_isBatch', async () => {
+      // Arrange & Act
+      const { fixture, component } = await setup({ feePerItem: 0, releaseOnClose: true });
+
+      // Assert
+      expect(component.writeMode()).toBe('batch');
+      expect(scanDialogOf(fixture).writeMode()).toBe('batch');
+    });
+
+    it('writeMode_releaseOnCloseFalseFeeZero_isImmediate', async () => {
+      // Arrange & Act
+      const { fixture, component } = await setup({ feePerItem: 0, releaseOnClose: false });
+
+      // Assert
+      expect(component.writeMode()).toBe('immediate');
+      expect(scanDialogOf(fixture).writeMode()).toBe('immediate');
+    });
+
+    it('writeMode_releaseOnCloseFalseFeeGreaterZero_isBatch', async () => {
+      // Arrange & Act
+      const { component } = await setup({ feePerItem: 0.5, releaseOnClose: false });
+
+      // Assert
+      expect(component.writeMode()).toBe('batch');
+    });
+
+    it('writeMode_settingsReloadedOnEveryOpen_followsNewlySavedValue', async () => {
+      // Arrange
+      const { fixture, component, settingsService } = await setup({ feePerItem: 0, releaseOnClose: true });
+      settingsService.state.releaseOnClose = false;
+
+      // Act
+      fixture.componentRef.setInput('visible', false);
+      fixture.detectChanges();
+      fixture.componentRef.setInput('visible', true);
+      fixture.detectChanges();
+      await flushPromises();
+      fixture.detectChanges();
+
+      // Assert
+      expect(settingsService.load).toHaveBeenCalledTimes(2);
+      expect(component.writeMode()).toBe('immediate');
+      expect(scanDialogOf(fixture).writeMode()).toBe('immediate');
+    });
+
+    it('onArticleConfirmed_immediateMode_booksOneArticleWithoutFee', async () => {
+      // Arrange
+      const { component, releaseApi } = await setup({ feePerItem: 0, releaseOnClose: false });
+
+      // Act
+      component.onArticleConfirmed('a1');
+
+      // Assert
+      expect(releaseApi.bookRelease).toHaveBeenCalledWith(SELLER_ID, 0, ['a1']);
+      expect(component.releasedIds()).toEqual(['a1']);
+    });
+
+    it('template_scanDialogConfirmsArticle_booksIt', async () => {
+      // Arrange
+      const { fixture, releaseApi } = await setup({ feePerItem: 0, releaseOnClose: false });
+
+      // Act
+      scanDialogOf(fixture).articleConfirmed.emit('a1');
+
+      // Assert
+      expect(releaseApi.bookRelease).toHaveBeenCalledWith(SELLER_ID, 0, ['a1']);
+    });
+
+    it('onScanDialogVisibleChange_threeArticlesReleased_printsOneReceiptWithoutPayment', async () => {
+      // Arrange
+      const { component, releaseApi, printService } = await setup({ feePerItem: 0, releaseOnClose: false });
+      const visibleChangeSpy = vi.fn();
+      const releasedSpy = vi.fn();
+      component.visibleChange.subscribe(visibleChangeSpy);
+      component.released.subscribe(releasedSpy);
+      component.onArticleConfirmed('a1');
+      component.onArticleConfirmed('a2');
+      component.onArticleConfirmed('a3');
+
+      // Act
+      component.onScanDialogVisibleChange(false);
+
+      // Assert
+      expect(printService.printIntakeReceipt).toHaveBeenCalledTimes(1);
+      expect(printService.printIntakeReceipt).toHaveBeenCalledWith({
+        articleIds: ['a1', 'a2', 'a3'],
+        sellerId: SELLER_ID,
+      });
+      expect(releaseApi.bookRelease).toHaveBeenCalledTimes(3);
+      expect(component.paymentPanelVisible()).toBe(false);
+      expect(releasedSpy).toHaveBeenCalledTimes(1);
+      expect(visibleChangeSpy).toHaveBeenCalledWith(false);
+    });
+
+    it('onScanDialogVisibleChange_nothingCaptured_printsNoReceipt', async () => {
+      // Arrange
+      const { component, releaseApi, printService } = await setup({ feePerItem: 0, releaseOnClose: false });
+      const visibleChangeSpy = vi.fn();
+      component.visibleChange.subscribe(visibleChangeSpy);
+
+      // Act
+      component.onScanDialogVisibleChange(false);
+
+      // Assert
+      expect(printService.printIntakeReceipt).not.toHaveBeenCalled();
+      expect(releaseApi.bookRelease).not.toHaveBeenCalled();
+      expect(visibleChangeSpy).toHaveBeenCalledWith(false);
+    });
+
+    it('onArticleConfirmed_bookingFails_reportsFailureToScanDialogAndDoesNotCountArticle', async () => {
+      // Arrange
+      const releaseApi = releaseApiStub();
+      releaseApi.bookRelease.mockReturnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 409,
+              error: { errorCode: 'article.not_releasable', articleNumbers: [1043] },
+            }),
+        ),
+      );
+      const { fixture, component } = await setup({ feePerItem: 0, releaseOnClose: false, releaseApi });
+      const reportWriteFailed = vi.spyOn(scanDialogOf(fixture), 'reportWriteFailed');
+
+      // Act
+      component.onArticleConfirmed('a1');
+
+      // Assert
+      expect(reportWriteFailed).toHaveBeenCalledTimes(1);
+      expect(component.releasedIds()).toEqual([]);
+    });
+
+    it('onScanDialogVisibleChange_onlyFailedBookings_printsNoReceipt', async () => {
+      // Arrange
+      const releaseApi = releaseApiStub();
+      releaseApi.bookRelease.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+      const { component, printService } = await setup({ feePerItem: 0, releaseOnClose: false, releaseApi });
+      const visibleChangeSpy = vi.fn();
+      component.visibleChange.subscribe(visibleChangeSpy);
+      component.onArticleConfirmed('a1');
+
+      // Act
+      component.onScanDialogVisibleChange(false);
+
+      // Assert
+      expect(printService.printIntakeReceipt).not.toHaveBeenCalled();
+      expect(visibleChangeSpy).toHaveBeenCalledWith(false);
+    });
+
+    it('onScanDialogVisibleChange_bookingStillRunning_waitsAndPrintsAfterwards', async () => {
+      // Arrange
+      const response = new Subject<{ releasedCount: number; intakeFeePaid: number }>();
+      const releaseApi = releaseApiStub();
+      releaseApi.bookRelease.mockReturnValue(response);
+      const { component, printService } = await setup({ feePerItem: 0, releaseOnClose: false, releaseApi });
+      const visibleChangeSpy = vi.fn();
+      component.visibleChange.subscribe(visibleChangeSpy);
+      component.onArticleConfirmed('a1');
+
+      // Act
+      component.onScanDialogVisibleChange(false);
+
+      // Assert (während die Buchung läuft)
+      expect(printService.printIntakeReceipt).not.toHaveBeenCalled();
+      expect(visibleChangeSpy).not.toHaveBeenCalled();
+
+      // Act (Buchung kommt zurück)
+      response.next({ releasedCount: 1, intakeFeePaid: 0 });
+
+      // Assert (danach)
+      expect(printService.printIntakeReceipt).toHaveBeenCalledWith({ articleIds: ['a1'], sellerId: SELLER_ID });
+      expect(visibleChangeSpy).toHaveBeenCalledWith(false);
+    });
+
+    it('onScanDialogVisibleChange_releaseOnCloseTrueFeeZero_stillBooksOnCloseAsBefore', async () => {
+      // Arrange
+      const { component, releaseApi } = await setup({ feePerItem: 0, releaseOnClose: true });
+      component.onSessionChanged(['a1', 'a2']);
+
+      // Act
+      component.onScanDialogVisibleChange(false);
+
+      // Assert
+      expect(releaseApi.bookRelease).toHaveBeenCalledTimes(1);
+      expect(releaseApi.bookRelease).toHaveBeenCalledWith(SELLER_ID, 0, ['a1', 'a2']);
+    });
+
+    it('onScanDialogVisibleChange_releaseOnCloseFalseFeeGreaterZero_collectsAndOpensPaymentAsBefore', async () => {
+      // Arrange
+      const { component, releaseApi } = await setup({ feePerItem: 0.5, releaseOnClose: false });
+      component.onSessionChanged(['a1']);
+
+      // Act
+      component.onScanDialogVisibleChange(false);
+
+      // Assert
+      expect(component.paymentPanelVisible()).toBe(true);
+      expect(releaseApi.bookRelease).not.toHaveBeenCalled();
+    });
   });
 });
