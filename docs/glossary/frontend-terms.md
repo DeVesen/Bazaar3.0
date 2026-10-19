@@ -121,3 +121,8 @@
 - **Maps to:** `p-toolbar` oberhalb der Liste auf den Listenseiten der Haupt-App, z. B. `src/bazaar-app/frontend/src/app/features/articles/pages/articles-page/articles-page.html` (`.articles-page__filterbar`: Suche, Marke, Kategorie, Status) und `sellers-page.html` (`.sellers-page__toolbar`: +-Button, Suche, Sortierung, Status); entsprechend auf den Seiten Marken, Kategorien und Verkäufer-Typen (+-Button, Suche, Original-Filter). Gegenstück für Seiten mit einem einzelnen Gegenstand ist die „Aktionsleiste“.
 - **Confidence:** inferred
 - **First seen:** 2026-10-12
+
+### Auswahlliste
+- **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/scan-dialog/scan-dialog.html` (`p-listbox`, gespeist aus `pendingList` in `scan-dialog.ts`) — Liste der noch nicht erfassten Artikel des Verkäufers im Scan-Dialog bei „Artikel freigeben“ und „Zurückgeben“; ein Antippen erfasst den Artikel. Nicht verwenden: „Artikelliste“ (im Druck belegt), „Liste offener Artikel“ („offen“ ist Status-Begriff der Abrechnung).
+- **Confidence:** user-confirmed
+- **First seen:** 2026-10-18
