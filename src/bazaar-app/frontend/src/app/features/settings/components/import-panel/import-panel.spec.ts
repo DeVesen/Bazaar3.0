@@ -3,7 +3,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { of, throwError } from 'rxjs';
 import { ImportPanel } from './import-panel';
-import { ImportApi, ImportPreviewResult } from '../../data/import-api';
+import { ImportApi } from '../../data/import-api';
+import { jsonFile, previewResultStub, selectEventFor } from '../../testing/import-preview.stub';
 // Same sanctioned cross-feature import as import-panel.ts itself (see that file's comment).
 // eslint-disable-next-line boundaries/dependencies
 import { SellerTypesApi } from '../../../seller-types/data/seller-types-api';
@@ -11,33 +12,6 @@ import { SellerTypesApi } from '../../../seller-types/data/seller-types-api';
 const SELLER_TYPES = [
   { id: 'st-privat', name: 'Privat', commissionRate: 10, itemFee: 0.5, sellerCount: 10 },
 ];
-
-function previewResultStub(overrides: Partial<ImportPreviewResult> = {}): ImportPreviewResult {
-  return {
-    sellerCount: 84,
-    articleCount: 612,
-    newSellers: 71,
-    replacedSellers: 11,
-    skippedSellers: [],
-    unknownSellerTypes: [],
-    newBrands: 23,
-    newCategories: 5,
-    ...overrides,
-  };
-}
-
-/** A `new File(...)` stand-in for the file the (mocked) `p-fileupload`'s `onSelect` would emit —
- * per task-6-brief.md, `p-fileupload`'s real native file picker can't be driven in a jsdom unit
- * test, so this codebase's first fileupload spec drives `onFileSelect()` directly with a
- * `FileSelectEvent`-shaped object rather than simulating a native `<input type="file">` change
- * event (no existing precedent for this found via `grep -rn "new File("` across the frontend). */
-function selectEventFor(file: File) {
-  return { files: [file] } as unknown as Parameters<ImportPanel['onFileSelect']>[0];
-}
-
-function jsonFile(name = 'export-2026-08-17.json'): File {
-  return new File(['{}'], name, { type: 'application/json' });
-}
 
 describe('ImportPanel', () => {
   let preview: ReturnType<typeof vi.fn>;
@@ -283,5 +257,42 @@ describe('ImportPanel', () => {
       '7 verkaufte Artikel',
     );
     expect(component.reasonText({ id: 'b', name: 'Bea Schmidt', reason: 'settled' })).toBe('abgerechnet');
+  });
+
+  it('hasUnsavedChanges_previewOpen_isTrue', () => {
+    // Arrange
+    preview.mockReturnValue(of(previewResultStub()));
+    const { component } = createPanel();
+
+    // Act
+    component.onFileSelect(selectEventFor(jsonFile()));
+
+    // Assert
+    expect(component.hasUnsavedChanges()).toBe(true);
+  });
+
+  it('hasUnsavedChanges_noFileSelected_isFalse', () => {
+    // Arrange & Act
+    const { component } = createPanel();
+
+    // Assert
+    expect(component.hasUnsavedChanges()).toBe(false);
+  });
+
+  it('discardChanges_previewOpen_closesThePreview', () => {
+    // Arrange
+    preview.mockReturnValue(of(previewResultStub()));
+    const { component } = createPanel();
+    component.onFileSelect(selectEventFor(jsonFile()));
+
+    // Act
+    component.discardChanges();
+
+    // Assert
+    expect(component.state()).toBe('empty');
+    expect(component.selectedFile()).toBeNull();
+    expect(component.previewResult()).toBeNull();
+    expect(component.showPreview()).toBe(false);
+    expect(component.hasUnsavedChanges()).toBe(false);
   });
 });

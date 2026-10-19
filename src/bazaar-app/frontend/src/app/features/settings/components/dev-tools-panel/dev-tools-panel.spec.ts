@@ -83,4 +83,17 @@ describe('DevToolsPanel', () => {
     expect(fixture.componentInstance.resetting()).toBe(false);
     expect(authService.logout).not.toHaveBeenCalled();
   });
+
+  it('template_development_showsHeadingDatenbankZuruecksetzen', () => {
+    // Arrange
+    const fixture = TestBed.createComponent(DevToolsPanel);
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.dev-tools-panel__title')?.textContent?.trim()).toBe('Datenbank zurücksetzen');
+    expect(el.textContent).not.toContain('Entwickler-Werkzeuge');
+  });
 });

@@ -117,6 +117,11 @@
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-14
 
+### Einstellungs-Tabs (Haupt-App)
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/pages/settings-page/settings-tabs.ts` — vier Tabs der Einstellungsseite: „Basis-Einstellungen" (`general`, Scan-Pause), „User" (`users`, Benutzerverwaltung), „Beleg Druck" (`print`, Freitexte der Belege), „Sonstiges" (`misc`, JSON-Import und nur im Development-Modus „Datenbank zurücksetzen"); aktiver Tab im Query-Parameter `tab`.
+- **Confidence:** user-confirmed
+- **First seen:** 2026-10-18
+
 ### Filterleiste
 - **Maps to:** `p-toolbar` oberhalb der Liste auf den Listenseiten der Haupt-App, z. B. `src/bazaar-app/frontend/src/app/features/articles/pages/articles-page/articles-page.html` (`.articles-page__filterbar`: Suche, Marke, Kategorie, Status) und `sellers-page.html` (`.sellers-page__toolbar`: +-Button, Suche, Sortierung, Status); entsprechend auf den Seiten Marken, Kategorien und Verkäufer-Typen (+-Button, Suche, Original-Filter). Gegenstück für Seiten mit einem einzelnen Gegenstand ist die „Aktionsleiste“.
 - **Confidence:** inferred
