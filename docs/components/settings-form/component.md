@@ -18,6 +18,7 @@ ein Feldfehler-Signal gesetzt ist.
 
 - Überblick — Konzept
 - 1. Feld — ScannerPauseMs
+- 1a. Feld — ReleaseOnClose
 - 2. Verhalten — Laden, Speichern, Fehler
 - 3. Abgrenzung zu SettingsService — Lese- vs. Schreibpfad
 - Akzeptanzkriterien — Prüfbare Kriterien
@@ -34,7 +35,7 @@ Wert beim Betreten und schreibt Änderungen per `PUT /api/settings` serverseitig
 
 ## Überblick
 
-`settings-form` ist ein Formular mit zwei Feldern auf der `/settings`-Seite (Admin only). Es
+Das Formular hat zwei Felder (`scannerPauseMs`, `releaseOnClose`) auf der `/settings`-Seite (Admin only). Es
 verwendet die Anzahl-Variante der [InputGroup](../input-group/component.md) (Abschnitt 5a) für
 den Systemparameter `scannerPauseMs` (dazu der Schalter `releaseOnClose`, Abschnitt 1a) und persistiert Änderungen ausschließlich
 serverseitig — nie im `localStorage` (Epic_Einstellungen AC-1).
@@ -42,6 +43,8 @@ serverseitig — nie im `localStorage` (Epic_Einstellungen AC-1).
 ---
 
 ## 1. Feld — ScannerPauseMs
+
+Erstes der zwei Felder des Formulars (das zweite ist der Schalter in Abschnitt 1a).
 
 - `input-group` Anzahl-Variante: `ms`-Addon rechts, `modes=['keyboard','numpad']` (kein
   Kamera-Modus — ein Millisekunden-Pausenwert wird nie gescannt).

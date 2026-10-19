@@ -9,7 +9,7 @@ reviewed-date: 2026-08-17
 **Verwendung:** Nur Haupt-App, **nur Admin** — [Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) Abschnitt 1
 
 ## Index
-- Überblick — Ein Parameter
+- Überblick — Zwei Parameter
 - 1. ASCII-Darstellung — Layoutskizze
 - 2. Verhalten — Speichern und Wirkung
 - Akzeptanzkriterien — Prüfbare Kriterien
@@ -23,7 +23,7 @@ reviewed-date: 2026-08-17
 
 Das Formular hat **zwei** Felder: `scannerPauseMs` und den Schalter `releaseOnClose` (Sofort-Freigabe im Freigeben-Popup bei Verkäufern ohne Gebühr, Spec [2026-10-19-freigabe-sofort-ohne-gebuehr](../../../forge/2026-10-19-freigabe-sofort-ohne-gebuehr/spec.md)). Die Beschränkung darauf ist kein Versehen, sondern das Ergebnis des Reviews: `suchDebounceMs` wurde entfernt (Frontend-Tuning-Konstante ohne fachlichen Anlass, jetzt als 300-ms-Konstante im Code, siehe [`api/cross-cutting.md`](../api/cross-cutting.md)), und die Termine, `defaultTypeId` und die Nummernblock-Parameter gehören zur Voranmelde-App.
 
-Übrig bleibt `scannerPauseMs` — und der ist es wert, weil er am Basar-Tag je nach Personal und Scanner-Qualität wirklich verstellt wird.
+Übrig bleiben `scannerPauseMs` und `releaseOnClose`. `scannerPauseMs` ist es wert, weil er am Basar-Tag je nach Personal und Scanner-Qualität wirklich verstellt wird; `releaseOnClose` entscheidet, ob das Freigeben-Popup bei Verkäufern ohne Annahmegebühr jeden Artikel sofort oder erst beim Schließen freigibt.
 
 ---
 
@@ -38,11 +38,17 @@ Das Formular hat **zwei** Felder: `scannerPauseMs` und den Schalter `releaseOnCl
 │  Wie lange das Ergebnis im Kamera-Modus           │
 │  stehen bleibt. Zwischen 500 und 15.000 ms.       │
 │                                                    │
+│  [●─] Artikel erst beim Schließen des             │
+│       Freigabe-Dialogs freigeben                  │
+│  Gilt nur für Verkäufer ohne Gebühr.              │
+│                                                    │
 │                              [ Speichern ]         │
 └──────────────────────────────────────────────────┘
 ```
 
 Feld als [`input-group`](../../../components/input-group/component.md) mit der Variante [**Anzahl**](../../../components/inputnumber/component.md) (keine Dezimalstellen, keine Tausendertrennung im Eingabewert), mit `ms` als Add-on und `modes = ['keyboard', 'numpad']` — analog zur Preis-Zeile im [`intake-wizard`](intake-wizard.md), Numpad mit `showDecimal="false"`.
+
+Darunter steht der Schalter `releaseOnClose` als [`boolean-input`](../../../components/boolean-input/component.md) (Variante Switch), Standardstellung **an** (Freigabe beim Schließen, Verhalten wie heute). Aus = das Freigeben-Popup gibt bei Verkäufern ohne Annahmegebühr (Gebühr je Stück 0) jeden erfassten Artikel sofort frei; bei Gebühr je Stück größer 0 hat er keine Wirkung. Er gilt ab dem nächsten Öffnen des Freigeben-Popups.
 
 Der Hilfstext unter dem Feld erklärt die **Wirkung**, nicht das Feld: „Anzeigedauer" allein sagt nicht, was länger oder kürzer bedeutet.
 
@@ -62,12 +68,14 @@ Die Grenzen haben einen praktischen Grund: Unter einer halben Sekunde ist das Sc
 
 ## Akzeptanzkriterien
 
-1. **AC-1** — THE SYSTEM SHALL genau den Parameter `scannerPauseMs` anbieten.
+1. **AC-1** — THE SYSTEM SHALL genau die Parameter `scannerPauseMs` und `releaseOnClose` anbieten.
 2. **AC-2** — THE SYSTEM SHALL unter dem Feld erklären, was der Wert bewirkt, und die zulässigen Grenzen nennen.
 3. **AC-3** — IF der Wert außerhalb von 500–15.000 liegt, THEN SHALL das System serverseitig mit einem Feldfehler ablehnen.
 4. **AC-4** — WHEN gespeichert wird, THEN SHALL der Wert serverseitig persistiert werden und für alle Geräte gelten.
 5. **AC-5** — THE SYSTEM SHALL die Parameter **nicht** im `localStorage` ablegen.
 6. **AC-6** — THE SYSTEM SHALL das Feld mit `modes = ['keyboard', 'numpad']` anbieten und im Numpad-Modus `showDecimal="false"` verwenden.
+7. **AC-7** — THE SYSTEM SHALL den Schalter „Artikel erst beim Schließen des Freigabe-Dialogs freigeben" mit dem Hilfetext „Gilt nur für Verkäufer ohne Gebühr." anzeigen, standardmäßig eingeschaltet.
+8. **AC-8** — WHEN „Speichern" geklickt wird, THEN SHALL das System die Stellung des Schalters zusammen mit der Scan-Pause serverseitig persistieren; sie gilt auf allen Geräten ab dem nächsten Öffnen des Freigeben-Popups, bei Verkäufern mit Annahmegebühr (Gebühr je Stück größer 0) ohne Wirkung.
 
 ## Tags & Piles
 
