@@ -161,6 +161,95 @@ describe('ScanDialog', () => {
     });
   });
 
+  describe('Auswahlliste in Server-Reihenfolge', () => {
+    function pendingOf(numbers: number[], status: string): PendingArticleFixture[] {
+      return numbers.map((number) => ({ id: `A${number}`, number, name: `Artikel ${number}`, status }));
+    }
+
+    function numbersOf(fixture: Awaited<ReturnType<typeof create>>): number[] {
+      return fixture.componentInstance.pendingList().map((article) => article.number);
+    }
+
+    it('pendingList_releaseServerDeliversAscending_keepsOrder', async () => {
+      // Arrange
+      const http = httpClientMock({ pending: pendingOf([3, 12, 101], 'registered') });
+
+      // Act
+      const fixture = await create(http, { targetField: 'releasedAt' });
+
+      // Assert
+      expect(numbersOf(fixture)).toEqual([3, 12, 101]);
+    });
+
+    it('pendingList_returnServerDeliversAscending_keepsOrder', async () => {
+      // Arrange
+      const http = httpClientMock({ pending: pendingOf([3, 12, 101], 'selling') });
+
+      // Act
+      const fixture = await create(http, { targetField: 'returnedAt', writeMode: 'immediate' });
+
+      // Assert
+      expect(numbersOf(fixture)).toEqual([3, 12, 101]);
+    });
+
+    it('pendingList_numbersWithDifferentDigitCounts_keepsServerOrderOneTwoTen', async () => {
+      // Arrange
+      const http = httpClientMock({ pending: pendingOf([1, 2, 10], 'registered') });
+
+      // Act
+      const fixture = await create(http, { targetField: 'releasedAt' });
+
+      // Assert
+      expect(numbersOf(fixture)).toEqual([1, 2, 10]);
+    });
+
+    it('pendingList_typedDigitThree_keepsRemainingHitsAscending', async () => {
+      // Arrange
+      const http = httpClientMock({ pending: pendingOf([3, 13, 31, 45], 'registered') });
+      const fixture = await create(http, { targetField: 'releasedAt' });
+
+      // Act
+      typeInto(fixture, '3');
+
+      // Assert
+      expect(numbersOf(fixture)).toEqual([3, 13, 31]);
+    });
+
+    it('pendingList_articleTwelveConfirmedOnReturn_dropsItAndKeepsOrderOfTheRest', async () => {
+      // Arrange
+      const pending = pendingOf([3, 12, 101], 'selling');
+      const articleTwelve: ByNumberFixture = {
+        id: 'A12',
+        number: 12,
+        name: 'Artikel 12',
+        sellerId: 'SEL1',
+        status: 'selling',
+      };
+      const http = httpClientMock({ pending, byNumber: { 12: articleTwelve } });
+      const fixture = await create(http, { targetField: 'returnedAt', writeMode: 'immediate' });
+      typeInto(fixture, '12');
+
+      // Act
+      fixture.componentInstance.onSubmit();
+
+      // Assert
+      expect(numbersOf(fixture)).toEqual([3, 101]);
+    });
+
+    it('template_sellerWithoutPendingArticles_showsAllDoneTextInsteadOfListbox', async () => {
+      // Arrange
+      const http = httpClientMock({ pending: [] });
+
+      // Act
+      const fixture = await create(http, { targetField: 'releasedAt' });
+
+      // Assert
+      expect(fixture.nativeElement.querySelector('p-listbox')).toBeNull();
+      expect(fixture.nativeElement.textContent).toContain('Alle Artikel freigegeben.');
+    });
+  });
+
+
   describe('Sitzungssammlung ohne Duplikate', () => {
     const pending: PendingArticleFixture[] = [{ id: 'A1', number: 101, name: 'Jacke blau', status: 'registered' }];
     const article: ByNumberFixture = { id: 'A1', number: 101, name: 'Jacke blau', sellerId: 'SEL1', status: 'registered' };

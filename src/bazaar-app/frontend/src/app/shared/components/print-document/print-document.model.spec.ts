@@ -172,6 +172,20 @@ describe('buildVerkaeuferUebersichtModel', () => {
     });
   }
 
+  it('buildVerkaeuferUebersichtModel_sellingAndSoldGroupsUnsorted_keepsGroupOrderAndSortsWithinGroups', () => {
+    // Arrange
+    const articles = [article(12, 'selling'), article(3, 'selling'), article(7, 'sold'), article(1, 'sold')];
+
+    // Act
+    const model = build(articles);
+
+    // Assert
+    expect(model.groups.map((group) => [group.status, group.articles.map((entry) => entry.number)])).toEqual([
+      ['selling', [3, 12]],
+      ['sold', [1, 7]],
+    ]);
+  });
+
   it('buildVerkaeuferUebersichtModel_always_hasTheFiveTilesOfRowAAndThreeOfRowB', () => {
     // Arrange & Act
     const model = build([article(1, 'selling')]);

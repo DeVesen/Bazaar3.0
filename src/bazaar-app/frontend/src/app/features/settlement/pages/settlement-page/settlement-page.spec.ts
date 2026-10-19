@@ -248,6 +248,21 @@ describe('SettlementPage', () => {
     expect(component.articles().map((a) => a.number)).toEqual([5, 17, 30]);
   });
 
+  it('articles_serverDeliversAscendingNumbers_showsSameOrderAsBefore', async () => {
+    // Arrange
+    const sellersApi = sellersApiStub();
+    sellersApi.getArticles.mockReturnValue(
+      of([article({ id: 'a', number: 3 }), article({ id: 'b', number: 12 }), article({ id: 'c', number: 101 })]),
+    );
+    const { component } = await setup({ sellersApi });
+
+    // Act
+    selectSeller(component);
+
+    // Assert
+    expect(component.articles().map((a) => a.number)).toEqual([3, 12, 101]);
+  });
+
   describe('action bar', () => {
     async function renderActionBar(
       settlementOverrides: Partial<SellerSettlement> = {},

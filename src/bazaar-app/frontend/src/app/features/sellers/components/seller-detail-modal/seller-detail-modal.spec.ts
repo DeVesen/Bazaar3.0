@@ -96,6 +96,29 @@ describe('SellerDetailModal', () => {
     expect(compiled.textContent).toContain('Freigegeben');
   });
 
+  it('articleTable_serverDeliversAscendingNumbers_rendersRowsInThatOrder', async () => {
+    // Arrange
+    getArticlesSpy.mockReturnValue(
+      of([
+        buildArticle({ id: 'article-3', number: 3 }),
+        buildArticle({ id: 'article-12', number: 12 }),
+        buildArticle({ id: 'article-101', number: 101 }),
+      ]),
+    );
+    const fixture = TestBed.createComponent(SellerDetailModal);
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('seller', buildCard());
+
+    // Act
+    await fixture.whenStable();
+
+    // Assert
+    const numberCells = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr td:first-child')).map(
+      (cell) => cell.textContent?.trim(),
+    );
+    expect(numberCells).toEqual(['3', '12', '101']);
+  });
+
   it('calls SellersStore.getArticles(seller.id) when the modal opens for a seller', async () => {
     const fixture = TestBed.createComponent(SellerDetailModal);
     fixture.componentRef.setInput('visible', true);

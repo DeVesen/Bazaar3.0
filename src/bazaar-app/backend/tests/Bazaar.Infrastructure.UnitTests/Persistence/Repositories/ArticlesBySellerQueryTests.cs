@@ -97,4 +97,50 @@ public class ArticlesBySellerQueryTests
 
         Assert.Empty(result);
     }
+
+    [Fact]
+    public async Task GetBySellerId_ArticlesCreatedOutOfOrder_ReturnsAscendingByNumber()
+    {
+        // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
+        await using var dbContext = CreateContext();
+        var now = DateTimeOffset.UtcNow;
+        var articles = new[] { 12, 3, 101 }
+            .Select(number => Article.Create(
+                $"ART{number:D5}", number, "SEL00001", $"Artikel {number}", "Nike", "Kleidung", 10m,
+                null, null, null, now, now))
+            .ToList();
+        await dbContext.Articles.AddRangeAsync(articles, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        var sut = new ArticlesBySellerQuery(dbContext);
+
+        // Act
+        var result = await sut.GetBySellerId("SEL00001");
+
+        // Assert
+        Assert.Equal(new[] { 3, 12, 101 }, result.Select(a => a.Number));
+    }
+
+    [Fact]
+    public async Task GetBySellerId_NumbersWithDifferentDigitCounts_SortsNumericallyNotAlphabetically()
+    {
+        // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
+        await using var dbContext = CreateContext();
+        var now = DateTimeOffset.UtcNow;
+        var articles = new[] { 10, 2, 1 }
+            .Select(number => Article.Create(
+                $"ART{number:D5}", number, "SEL00001", $"Artikel {number}", "Nike", "Kleidung", 10m,
+                null, null, null, now, now))
+            .ToList();
+        await dbContext.Articles.AddRangeAsync(articles, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        var sut = new ArticlesBySellerQuery(dbContext);
+
+        // Act
+        var result = await sut.GetBySellerId("SEL00001");
+
+        // Assert
+        Assert.Equal(new[] { 1, 2, 10 }, result.Select(a => a.Number));
+    }
 }

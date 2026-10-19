@@ -9,6 +9,7 @@ public sealed class ArticlesBySellerQuery(BazaarDbContext dbContext) : IArticles
     {
         var articles = await dbContext.Articles
             .Where(a => a.SellerId == sellerId)
+            .OrderBy(a => a.Number)
             .ToListAsync();
 
         return articles

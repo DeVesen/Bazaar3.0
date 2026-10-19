@@ -5,6 +5,7 @@ namespace Bazaar.Domain.Ports;
 /// GetSellerArticlesHandler (GET /api/sellers/{id}/articles). This Round
 /// only provides the port contract (Domain concern) — Infrastructure's
 /// placeholder implementation is a separate task.
+/// The returned list is sorted ascending by article number (numeric).
 /// </summary>
 public interface IArticlesBySellerQuery
 {
