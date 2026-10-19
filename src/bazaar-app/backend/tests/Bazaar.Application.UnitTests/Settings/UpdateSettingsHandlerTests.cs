@@ -37,4 +37,34 @@ public class UpdateSettingsHandlerTests
 
         _settingsRepository.Verify(r => r.Update(It.Is<SettingsAggregate>(s => ReferenceEquals(s, settings))), Times.Once);
     }
+
+    [Fact]
+    public async Task Handle_ReleaseOnCloseDisabled_StoresFlagOnSettings()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        _settingsRepository.Setup(r => r.Get()).ReturnsAsync(settings);
+        var sut = CreateSut();
+
+        // Act
+        await sut.Handle(new UpdateSettingsCommand { ScannerPauseMs = 3000, ReleaseOnClose = false });
+
+        // Assert
+        Assert.False(settings.ReleaseOnClose);
+    }
+
+    [Fact]
+    public async Task Handle_ReleaseOnCloseOmitted_KeepsReleaseOnCloseEnabled()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        _settingsRepository.Setup(r => r.Get()).ReturnsAsync(settings);
+        var sut = CreateSut();
+
+        // Act
+        await sut.Handle(new UpdateSettingsCommand { ScannerPauseMs = 3000 });
+
+        // Assert
+        Assert.True(settings.ReleaseOnClose);
+    }
 }

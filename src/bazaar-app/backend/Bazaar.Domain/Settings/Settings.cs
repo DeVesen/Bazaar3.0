@@ -9,6 +9,12 @@ public sealed class Settings
     public PrintTexts AbgabeBeleg { get; private set; } = PrintTexts.CreateEmpty();
     public PrintTexts VerkaeuferUebersicht { get; private set; } = PrintTexts.CreateEmpty();
 
+    /// <summary>
+    /// true = das Freigeben-Popup gibt Artikel erst beim Schließen frei (Verhalten wie bisher),
+    /// false = bei Verkäufern ohne Gebühr wird jeder erfasste Artikel sofort freigegeben.
+    /// </summary>
+    public bool ReleaseOnClose { get; private set; } = true;
+
     public static Settings Create(int scannerPauseMs)
     {
         EnsureValidScannerPauseMs(scannerPauseMs);
@@ -19,10 +25,11 @@ public sealed class Settings
         };
     }
 
-    public void Update(int scannerPauseMs)
+    public void Update(int scannerPauseMs, bool releaseOnClose)
     {
         EnsureValidScannerPauseMs(scannerPauseMs);
         ScannerPauseMs = scannerPauseMs;
+        ReleaseOnClose = releaseOnClose;
     }
 
     public void UpdatePrintTexts(PrintTexts abgabeBeleg, PrintTexts verkaeuferUebersicht)

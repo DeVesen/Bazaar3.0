@@ -40,7 +40,7 @@ public class SettingsTests
     {
         var settings = SettingsAggregate.Create(3000);
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => settings.Update(scannerPauseMs));
+        Assert.Throws<ArgumentOutOfRangeException>(() => settings.Update(scannerPauseMs, true));
     }
 
     [Theory]
@@ -50,7 +50,7 @@ public class SettingsTests
     {
         var settings = SettingsAggregate.Create(3000);
 
-        settings.Update(scannerPauseMs);
+        settings.Update(scannerPauseMs, true);
 
         Assert.Equal(scannerPauseMs, settings.ScannerPauseMs);
     }
@@ -118,5 +118,30 @@ public class SettingsTests
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
             settings.UpdatePrintTexts(withNull, PrintTexts.CreateEmpty()));
+    }
+
+    [Fact]
+    public void Create_Always_StartsWithReleaseOnCloseEnabled()
+    {
+        // Arrange & Act
+        var settings = SettingsAggregate.Create(3000);
+
+        // Assert
+        Assert.True(settings.ReleaseOnClose);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Update_ReleaseOnCloseValue_IsStored(bool releaseOnClose)
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+
+        // Act
+        settings.Update(3000, releaseOnClose);
+
+        // Assert
+        Assert.Equal(releaseOnClose, settings.ReleaseOnClose);
     }
 }

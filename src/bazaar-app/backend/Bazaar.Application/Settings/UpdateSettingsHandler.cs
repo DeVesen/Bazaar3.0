@@ -7,7 +7,7 @@ public sealed class UpdateSettingsHandler(ISettingsRepository settingsRepository
     public async Task Handle(UpdateSettingsCommand command)
     {
         var settings = await settingsRepository.Get();
-        settings.Update(command.ScannerPauseMs);
+        settings.Update(command.ScannerPauseMs, command.ReleaseOnClose);
         await settingsRepository.Update(settings);
     }
 }
