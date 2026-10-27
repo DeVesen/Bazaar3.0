@@ -50,9 +50,14 @@ const PRINT_STYLE = `
 @media print {
   html, body { margin: 0 !important; background: #fff !important; }
   body > *:not([data-print-host]) { display: none !important; }
-  body > [data-print-host] { position: static !important; left: auto !important; top: auto !important; }
+  body > [data-print-host] { position: static !important; left: auto !important; top: auto !important; visibility: visible !important; }
 }
 `;
+
+/** iPadOS meldet sich als „Macintosh", erkennbar nur an den Touchpoints. */
+function isIos(): boolean {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
 
 const LOAD_ERROR_MESSAGE = 'Beleg konnte nicht geladen werden';
 
@@ -188,11 +193,15 @@ export class PrintService {
 
     const hostElement = componentRef.location.nativeElement as HTMLElement;
     hostElement.setAttribute(PRINT_HOST_ATTRIBUTE, '');
-    // Off-screen, not `display: none` — a hidden host would stay unrendered for `window.print()`
-    // too. Im Druck rückt das Isolations-CSS den Host in den normalen Fluss.
+    // Not `display: none` — a hidden host would stay unrendered for `window.print()` too. Nicht
+    // weit außerhalb des Viewports (`-10000px`): iOS rendert so positionierte Inhalte leer in
+    // der Vorschau. Im Druck rückt das Isolations-CSS den Host in den normalen Fluss.
     hostElement.style.position = 'fixed';
     hostElement.style.top = '0';
-    hostElement.style.left = '-10000px';
+    hostElement.style.left = '0';
+    hostElement.style.visibility = 'hidden';
+    hostElement.style.pointerEvents = 'none';
+    hostElement.style.zIndex = '-1';
     document.body.appendChild(hostElement);
 
     const styleElement = document.createElement('style');
@@ -211,7 +220,11 @@ export class PrintService {
       styleElement.remove();
     };
     this.activeCleanup = cleanup;
-    window.addEventListener('afterprint', cleanup);
+    // iOS feuert `afterprint` vor dem Rendern der Vorschau — ein Abbau dort ließe die Vorschau
+    // die normale App-Seite zeigen. Dort baut erst der nächste Druck das Dokument ab.
+    if (!isIos()) {
+      window.addEventListener('afterprint', cleanup);
+    }
 
     this.appRef.tick();
     componentRef.instance.applyMeasurement();

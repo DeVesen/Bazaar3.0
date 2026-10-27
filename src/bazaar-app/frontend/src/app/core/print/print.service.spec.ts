@@ -203,6 +203,26 @@ describe('PrintService', () => {
       expect(document.querySelector('style[data-print-style]')).toBeNull();
     });
 
+    it('printSellerReceipt_afterPrintOnIos_keepsDocumentUntilNextPrint', () => {
+      // Arrange
+      vi.stubGlobal('navigator', { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)', maxTouchPoints: 5 });
+      const service = setup({ articles: [article('a1', 1, 'selling')] });
+      service.printSellerReceipt('seller-1');
+
+      // Act
+      window.dispatchEvent(new Event('afterprint'));
+
+      // Assert
+      expect(printHost()).not.toBeNull();
+      expect(document.querySelector('style[data-print-style]')).not.toBeNull();
+
+      // Act
+      service.printSellerReceipt('seller-1');
+
+      // Assert
+      expect(document.querySelectorAll('[data-print-host]')).toHaveLength(1);
+    });
+
     it('printSellerReceipt_always_setsA4PortraitAndHidesEverythingButTheDocument', () => {
       // Arrange
       const service = setup({ articles: [article('a1', 1, 'selling')] });
