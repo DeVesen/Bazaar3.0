@@ -21,3 +21,9 @@
 - **Maps to:** `ArticleImportDialog` (`src/bazaar-app/frontend/src/app/features/sellers/components/article-import-dialog/article-import-dialog.ts`) — Dialog an der Verkäufer-Kachel (Upload-Icon, nur Admin): Datei (XLSX, XLS oder CSV, höchstens 2 MB) per Drag & Drop wählen, alle Zeilen werden als Artikel „Registriert“ für diesen einen Verkäufer angelegt, alles oder nichts; `ArticleImportEndpoints` (`src/bazaar-app/backend/Bazaar.Api/Features/ArticleImport/ArticleImportEndpoints.cs`) — `POST /api/sellers/{id}/articles/import`; `ImportSellerArticlesHandler` (`Bazaar.Application/ArticleImport/`). Nicht zu verwechseln mit „Stammdaten-Import“ (JSON der Voranmelde-App in den Einstellungen, mehrere Verkäufer auf einmal).
 - **Confidence:** inferred
 - **First seen:** 2026-10-13
+
+### Standard-Verkäufer-Typ
+- **Maps to:** `Settings.DefaultSellerTypeId` (`src/bazaar-app/backend/Bazaar.Domain/Settings/Settings.cs`) — optionale Einstellung der Haupt-App, `defaultSellerTypeId` in `GET/PUT /api/settings`; Auswahl „Standard-Verkäufer-Typ" im Tab „Basis-Einstellungen" (`src/bazaar-app/frontend/src/app/features/settings/components/settings-form/settings-form.html`); `pickDefaultSellerType` (`src/bazaar-app/frontend/src/app/shared/seller-form/default-seller-type.ts`) — Vorbelegung des Typs bei „Neuer Verkäufer" und in der Artikelannahme: konfigurierter Typ, solange er existiert, sonst der am häufigsten zugewiesene. Löschen des Typs setzt die Einstellung auf leer zurück (`DeleteSellerTypeHandler`). Nicht zu verwechseln mit `defaultTypeId` der Voranmelde-App, der das Löschen sperrt.
+- **Aliases:** Standard-Typ, Default-Verkäufer-Typ
+- **Confidence:** user-confirmed
+- **First seen:** 2026-10-30

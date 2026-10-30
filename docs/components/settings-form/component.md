@@ -1,12 +1,12 @@
 ---
 id: C-025
 status: draft
-updated: 2026-09-20
+updated: 2026-10-30
 ---
 
 # Component: SettingsForm
 
-**Bibliothek:** PrimeNG — `app-input-group` (Anzahl-Variante, Round-25 Task 6a) · `p-button` ·
+**Bibliothek:** PrimeNG — `app-input-group` (Anzahl-Variante, Round-25 Task 6a) · `app-boolean-input` · `p-select` · `p-button` ·
 Feldfehler als einfaches bedingtes `<p>`-Element unter dem Feld (kein `p-message`) — dieselbe
 Baseline wie `change-password-page` (`src/bazaar-app/frontend/.../change-password-page.html`)
 und der Server-Feldfehler-Zweig von `seller-types-page`: kein eigenständiges
@@ -19,32 +19,33 @@ ein Feldfehler-Signal gesetzt ist.
 - Überblick — Konzept
 - 1. Feld — ScannerPauseMs
 - 1a. Feld — ReleaseOnClose
+- 1b. Feld — DefaultSellerTypeId
 - 2. Verhalten — Laden, Speichern, Fehler
 - 3. Abgrenzung zu SettingsService — Lese- vs. Schreibpfad
 - Akzeptanzkriterien — Prüfbare Kriterien
 - Tags & Piles — Thematische Einordnung
 
-**Beschreibung:** Admin-Formular mit zwei Feldern (`ScannerPauseMs`, `ReleaseOnClose`) zur Pflege der
+**Beschreibung:** Admin-Formular mit drei Feldern (`ScannerPauseMs`, `ReleaseOnClose`, `DefaultSellerTypeId`) zur Pflege der
 Basar-weiten Systemparameter aus [Epic_Einstellungen](../../requirements/bazaar-app/epics/Epic_Einstellungen/epic.md)
 Abschnitt 1.
 
-**Verwendungszweck:** Einziger Editier-Weg für `scannerPauseMs` und `releaseOnClose`; die Seite lädt den aktuellen
+**Verwendungszweck:** Einziger Editier-Weg für `scannerPauseMs`, `releaseOnClose` und `defaultSellerTypeId`; die Seite lädt den aktuellen
 Wert beim Betreten und schreibt Änderungen per `PUT /api/settings` serverseitig zurück.
 
 ---
 
 ## Überblick
 
-Das Formular hat zwei Felder (`scannerPauseMs`, `releaseOnClose`) auf der `/settings`-Seite (Admin only). Es
+Das Formular hat drei Felder (`scannerPauseMs`, `releaseOnClose`, `defaultSellerTypeId`) auf der `/settings`-Seite (Admin only, Tab „Basis-Einstellungen"). Es
 verwendet die Anzahl-Variante der [InputGroup](../input-group/component.md) (Abschnitt 5a) für
-den Systemparameter `scannerPauseMs` (dazu der Schalter `releaseOnClose`, Abschnitt 1a) und persistiert Änderungen ausschließlich
+den Systemparameter `scannerPauseMs` (dazu der Schalter `releaseOnClose`, Abschnitt 1a, und die Auswahl `defaultSellerTypeId`, Abschnitt 1b) und persistiert Änderungen ausschließlich
 serverseitig — nie im `localStorage` (Epic_Einstellungen AC-1).
 
 ---
 
 ## 1. Feld — ScannerPauseMs
 
-Erstes der zwei Felder des Formulars (das zweite ist der Schalter in Abschnitt 1a).
+Erstes der drei Felder des Formulars (das zweite ist der Schalter in Abschnitt 1a, das dritte die Auswahl in Abschnitt 1b).
 
 - `input-group` Anzahl-Variante: `ms`-Addon rechts, `modes=['keyboard','numpad']` (kein
   Kamera-Modus — ein Millisekunden-Pausenwert wird nie gescannt).
@@ -69,12 +70,32 @@ Erstes der zwei Felder des Formulars (das zweite ist der Schalter in Abschnitt 1
 
 ---
 
+## 1b. Feld — DefaultSellerTypeId
+
+- `p-select` unter dem Schalter aus Abschnitt 1a, Beschriftung „Standard-Verkäufer-Typ";
+  Optionen = alle Verkäufer-Typen (`SellerTypesApi.getAll()`, `optionLabel="name"`,
+  `optionValue="id"`), löschbar (`showClear`), Platzhalter „Häufigster Typ (automatisch)".
+- Hilfstext unter der Auswahl: „Wird bei „Neuer Verkäufer" und in der Artikelannahme
+  vorausgewählt. Leer = am häufigsten zugewiesener Typ."
+- Wirkung: Der gewählte Typ wird in `verkaeufer-dialog` (Anlege-Modus) und `intake-wizard`
+  (Schritt 1) vorausgewählt, solange er existiert; leer (`null`) = der Typ mit dem höchsten
+  `sellerCount` (bei Gleichstand der erste). Beide lesen die Einstellung beim Laden über
+  `SettingsService.load()` neu — kein App-Reload nötig.
+- Wird erst über „Speichern" wirksam (gemeinsam mit den anderen Feldern per `PUT /api/settings`).
+  Eine nicht mehr existierende Id lehnt der Server mit `404 seller_type.not_found` ab; das
+  Formular zeigt dann den generischen Fehler-Toast (Abschnitt 2).
+- Ungespeicherte Auswahl zählt zu `hasUnsavedChanges`; `discardChanges()` stellt die zuletzt
+  gespeicherte Auswahl wieder her.
+
+---
+
 ## 2. Verhalten
 
 ### Laden
 
 Beim Betreten der Seite lädt das Formular den aktuellen Wert per `GET /api/settings`
-(`SettingsApi.get()`) und zeigt ihn im Feld an.
+(`SettingsApi.get()`) und zeigt ihn im Feld an; parallel lädt es die Verkäufer-Typen
+(`GET /api/seller-types`) als Optionen der Auswahl aus Abschnitt 1b.
 
 ### Speichern
 
@@ -126,6 +147,14 @@ gecachten App-weiten Lesewert. Die beiden Pfade werden bewusst nicht zusammengef
 8. **AC-8** — WHEN „Speichern" geklickt wird, THEN SHALL das System die Stellung des Schalters
    zusammen mit der Scan-Pause per `PUT /api/settings` senden; eine nicht gespeicherte
    Stellung SHALL beim Neuladen der Seite durch die zuletzt gespeicherte ersetzt werden.
+9. **AC-9** — THE SYSTEM SHALL unter dem Schalter die löschbare Auswahl „Standard-Verkäufer-Typ"
+   mit allen Verkäufer-Typen, dem Platzhalter „Häufigster Typ (automatisch)" und dem Hilfetext
+   „Wird bei „Neuer Verkäufer" und in der Artikelannahme vorausgewählt. Leer = am häufigsten
+   zugewiesener Typ." anzeigen.
+10. **AC-10** — WHEN „Speichern" geklickt wird, THEN SHALL das System `defaultSellerTypeId`
+    (bei leerer Auswahl `null`) zusammen mit den übrigen Feldern per `PUT /api/settings` senden;
+    eine ungespeicherte Auswahl SHALL zu `hasUnsavedChanges` zählen und durch
+    `discardChanges()` auf den gespeicherten Wert zurückgesetzt werden.
 
 ---
 

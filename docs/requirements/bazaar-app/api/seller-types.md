@@ -1,7 +1,7 @@
 ---
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-10-30
 ---
 
 # API: Verkäufer-Typen
@@ -86,7 +86,7 @@ DELETE /api/seller-types/{id}
                  detail: "Typ ist noch 128 Verkäufern zugewiesen"
 ```
 
-Es gibt **keine** Löschsperre wegen eines Standard-Typs — anders als in der Voranmelde-App, wo `defaultTypeId` in den Einstellungen einen Typ bindet. Diese App kennt keinen konfigurierten Default; das Anlege-Formular schlägt den **am häufigsten zugewiesenen** Typ vor, und dieser Vorschlag entsteht zur Laufzeit aus `sellerCount` ([Epic_Verkaeufer_Typen](../epics/Epic_Verkaeufer_Typen/epic.md) Abschnitt 3).
+Es gibt **keine** Löschsperre wegen eines Standard-Typs — anders als in der Voranmelde-App, wo `defaultTypeId` in den Einstellungen einen Typ bindet. Ist der gelöschte Typ der in den Einstellungen gewählte **Standard-Verkäufer-Typ** (`defaultSellerTypeId`, [`settings.md`](settings.md)), setzt der Server die Einstellung im selben Vorgang auf `null` zurück; das Anlege-Formular schlägt dann wieder den **am häufigsten zugewiesenen** Typ vor, der zur Laufzeit aus `sellerCount` entsteht ([Epic_Verkaeufer_Typen](../epics/Epic_Verkaeufer_Typen/epic.md) Abschnitt 3). Die Sperre `seller_type.in_use` bleibt davon unberührt.
 
 ## Tags & Piles
 

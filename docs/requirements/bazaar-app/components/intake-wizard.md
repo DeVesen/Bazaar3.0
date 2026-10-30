@@ -46,7 +46,7 @@ Wird ein **bestehender** Verkäufer gewählt, startet der Wizard direkt in Schri
 
 Formular mit den Verkäufer-Panels 01–03. Vorname und Nachname sind aus der Sucheingabe vorbelegt: Text **vor** dem ersten Leerzeichen als Vorname, Text **danach** als Nachname.
 
-**Panel 03 — Konditionen:** Der Verkäufer-Typ ist mit dem **am häufigsten zugewiesenen** Typ vorbelegt und frei wählbar. Die abgeleiteten Konditionen erscheinen **schreibgeschützt** — überschreiben darf sie nur der Admin, und zwar über die Verkäufer-Seite. Es ist die einzige Eingabe der App, die unmittelbar Geld verschiebt.
+**Panel 03 — Konditionen:** Der Verkäufer-Typ ist mit dem in den Einstellungen gewählten **Standard-Verkäufer-Typ** vorbelegt ([Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) Abschnitt 1), solange dieser existiert; ist keiner gewählt, mit dem **am häufigsten zugewiesenen** Typ (bei Gleichstand der erste). Der Typ bleibt frei wählbar. Der Wizard liest die Einstellung beim Laden neu, eine Änderung gilt ohne App-Neuladen. Die abgeleiteten Konditionen erscheinen **schreibgeschützt** — überschreiben darf sie nur der Admin, und zwar über die Verkäufer-Seite. Es ist die einzige Eingabe der App, die unmittelbar Geld verschiebt.
 
 **„Weiter"** legt den Verkäufer **sofort** in der Datenbank an und wechselt zu Schritt 2. Das ist nötig, weil Schritt 2 eine Verkäufer-ID braucht, um Artikel zuzuordnen; ein Zwischenspeichern im Frontend wäre eine zweite Wahrheit.
 
@@ -120,7 +120,7 @@ Ohne diesen Weg bliebe nach jedem Abbruch ein leerer Verkäufer in der Liste und
 
 1. **AC-1** — WHEN ein bestehender Verkäufer gewählt wird, THEN SHALL der Wizard direkt in Schritt 2 starten.
 2. **AC-2** — THE SYSTEM SHALL Vorname und Nachname aus der Sucheingabe vorbelegen, getrennt am ersten Leerzeichen.
-3. **AC-3** — THE SYSTEM SHALL den Verkäufer-Typ mit dem am häufigsten zugewiesenen Typ vorbelegen und die abgeleiteten Konditionen schreibgeschützt anzeigen.
+3. **AC-3** — THE SYSTEM SHALL den Verkäufer-Typ mit dem Standard-Verkäufer-Typ aus den Einstellungen vorbelegen bzw. — falls keiner gewählt ist oder er nicht mehr existiert — mit dem am häufigsten zugewiesenen Typ, und die abgeleiteten Konditionen schreibgeschützt anzeigen.
 4. **AC-4** — WHILE ein Pflichtfeld leer ist, SHALL „Übernehmen" deaktiviert bleiben.
 5. **AC-5** — WHEN ein Artikel übernommen wird, THEN SHALL das System die Felder leeren und den Fokus auf das Artikelnummer-Feld setzen.
 6. **AC-6** — THE SYSTEM SHALL die Sitzungsliste ausschließlich im Frontend halten, bis gebucht wird.

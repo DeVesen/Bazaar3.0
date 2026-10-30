@@ -2,7 +2,7 @@
 
 **Intent:** Zentrale Stammdaten- und Statusverwaltung für Verkäufer im laufenden Basar-Betrieb — anlegen, bearbeiten, Artikel freigeben, Abrechnungsstatus einsehen und (als Admin) zurücksetzen.
 **Coverage:** partial
-**Last reviewed:** 2026-10-15
+**Last reviewed:** 2026-10-30
 
 ## Capabilities
 - User can search sellers by name/city (debounced 300ms) — `pages/sellers-page/sellers-page.ts` (`onQInputChange`)
@@ -14,6 +14,7 @@
 - User sees a distinct empty-state with a "Filter zurücksetzen" action when filters yield no results — `sellers-page.html` (`noResultsForFilter`)
 - User can create a new seller via a dialog (Personendaten/Kontakt/Konditionen) — `components/verkaeufer-dialog/verkaeufer-dialog.ts`
 - User sees Vorname*, Nachname*, Ort*, Verkäufer-Typ*, Gebühr* und Provision* als Pflichtfelder im Dialog (E-Mail optional); "Speichern" bleibt gesperrt, solange eines leer ist, und unter einem verlassenen leeren Pflichtfeld erscheint eine Meldung — `verkaeufer-dialog.ts` (`canSave`, `requiredErrors`), `verkaeufer-dialog.html`
+- User sees bei „Neuer Verkäufer" den Standard-Verkäufer-Typ aus den Einstellungen vorausgewählt (solange er existiert), sonst den am häufigsten zugewiesenen Typ — `verkaeufer-dialog.ts` (`defaultTypeForCreate()`), `shared/seller-form/default-seller-type.ts` (`pickDefaultSellerType`)
 - User can edit an existing seller (full detail fetched first via `GET /api/sellers/{id}`) — `sellers-page.ts` (`onEdit`)
 - User sees Provision/Gebühr-Felder disabled unless the caller is admin — `verkaeufer-dialog.html` (`conditionsEditable`)
 - User can delete a seller (admin only, from within the edit dialog) — `verkaeufer-dialog.html`/`sellers-page.ts` (`onDeleteRequested`)

@@ -3,7 +3,7 @@ id: F-BA-001
 code: ANNAHME
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-09-22
+updated: 2026-10-30
 ---
 
 # Epic: Artikelannahme
@@ -98,7 +98,7 @@ Tab-Item: padding 10 px 20 px, 600, 13 px, muted; aktiver Tab: primary-Farbe + b
 Formular mit allen Verkäufer-Feldern (Panels 01–03, siehe Lastenheft Abschnitt 6.5).
 Vorname/Nachname-Vorbelegung aus der Sucheingabe.
 
-**Verkäufer-Typ und Konditionen (Panel 03):** Der Typ ist mit dem am häufigsten zugewiesenen Typ vorbelegt und frei wählbar — auch von Kassenpersonal, das hier Verkäufer anlegen darf. Die daraus abgeleiteten Konditionen (`salesCommission`, `feePerItem`) zeigt das Formular **schreibgeschützt**; überschreiben darf sie ausschließlich der Admin über [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md). Grund: Es ist die einzige Eingabe in dieser App, die unmittelbar Geld verschiebt, und am Annahmetisch wird unter Zeitdruck im Gespräch mit dem Verkäufer getippt. Rechte-Matrix → [`spec.md`](../../spec.md) Abschnitt 4.1.
+**Verkäufer-Typ und Konditionen (Panel 03):** Der Typ ist mit dem in den Einstellungen gewählten Standard-Verkäufer-Typ vorbelegt ([Epic_Einstellungen](../Epic_Einstellungen/epic.md) Abschnitt 1), solange dieser existiert, sonst mit dem am häufigsten zugewiesenen Typ, und frei wählbar — auch von Kassenpersonal, das hier Verkäufer anlegen darf. Die daraus abgeleiteten Konditionen (`salesCommission`, `feePerItem`) zeigt das Formular **schreibgeschützt**; überschreiben darf sie ausschließlich der Admin über [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md). Grund: Es ist die einzige Eingabe in dieser App, die unmittelbar Geld verschiebt, und am Annahmetisch wird unter Zeitdruck im Gespräch mit dem Verkäufer getippt. Rechte-Matrix → [`spec.md`](../../spec.md) Abschnitt 4.1.
 
 **„Weiter"-Button** → Verkäufer wird sofort in der DB angelegt → Wechsel zu Schritt 2.
 
@@ -242,6 +242,7 @@ Die Nummernprüfung nutzt denselben Endpoint wie die Artikel-Erkennung an der Ka
 10. **AC-10** — WHEN ein Verkäufer ohne Voranmeldung angelegt wurde und das Artikelnummer-Feld leer ist, THEN SHALL das System die nächste freie Nummer über dem höchsten vergebenen Wert vorschlagen, ohne die Eingabe zu erzwingen.
 11. **AC-11** — WHEN der Wizard nach Schritt 1 abgebrochen wird und der gerade angelegte Verkäufer keine Artikel hat, THEN SHALL das System diesen Verkäufer wieder entfernen — auch mit der Rolle Kassenpersonal.
 12. **AC-12** — WHEN ein abgerechneter Verkäufer in der Trefferliste ausgewählt wird, THEN SHALL das System den Wizard **nicht** öffnen und den Hinweis anzeigen, dass ein Admin die Abrechnung stornieren muss; der Verkäufer SHALL in der Liste mit dem Badge „Abgerechnet" sichtbar bleiben.
+13. **AC-13** — WHEN in Schritt 1 ein Verkäufer neu angelegt wird, THEN SHALL das System den Verkäufer-Typ mit dem Standard-Verkäufer-Typ aus den Einstellungen vorbelegen bzw. — falls keiner gewählt ist oder er nicht mehr existiert — mit dem am häufigsten zugewiesenen Typ.
 
 ## Stories
 

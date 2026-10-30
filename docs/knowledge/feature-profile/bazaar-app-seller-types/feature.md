@@ -2,7 +2,7 @@
 
 **Intent:** Admins pflegen die Verkäufer-Typen (Provisionssatz + Gebühr je Artikel), die bei der Verkäufer-Anlage zwingend zugeordnet werden müssen — ohne Typ kann kein Verkäufer angelegt werden.
 **Coverage:** inventoried
-**Last reviewed:** 2026-10-15
+**Last reviewed:** 2026-10-30
 
 ## Capabilities
 - User can view the seller-type list (Name, Provision %, Gebühr, Verkäufer-Anzahl) — `src/bazaar-app/frontend/src/app/features/seller-types/pages/seller-types-page/seller-types-page.html`
@@ -10,7 +10,7 @@
 - User sees an empty-state hint that a seller can't be created without a type — `seller-types-page.ts` (`EMPTY_TEXT`)
 - Admin can add a new seller type (name, commission rate, item fee) via `app-typ-popup` — `seller-types-page.ts` (`onRowAdd`/`onPopupSave`), `components/typ-popup/typ-popup.ts`
 - Admin can edit an existing seller type — `seller-types-page.ts` (`onActionClick` mode `edit`); popup shows a hint that changes don't retroactively affect already-assigned sellers — `typ-popup.html` (`typ-popup__hint`)
-- Admin can delete a seller type — `seller-types-page.ts` (`deleteSellerType`)
+- Admin can delete a seller type — `seller-types-page.ts` (`deleteSellerType`); ist er der Standard-Verkäufer-Typ der Einstellungen, setzt der Server diesen auf `null` zurück statt zu sperren — `Bazaar.Application/SellerTypes/DeleteSellerTypeHandler.cs` (`Settings.ClearDefaultSellerTypeIf()`)
 - Non-admin (Verkäufer) sees the list read-only — `seller-types-page.ts` (`actionColumn`/`canAdd` gated on `RoleService.isAdmin()`)
 - User sees the Save button disabled until name is non-empty, commission rate is 0–100, and item fee is ≥0 — `typ-popup.ts` (`canSave`)
 - User sees field-level server error messages under Name/Provision/Gebühr on a 400 validation response — `seller-types-page.ts` (`fieldErrorsOf`), `typ-popup.html` (`serverErrors`)

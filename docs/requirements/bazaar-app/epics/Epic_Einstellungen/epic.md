@@ -2,7 +2,7 @@
 id: F-BA-010
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-10-18
+updated: 2026-10-30
 ---
 
 # Epic: Einstellungen
@@ -55,6 +55,7 @@ Die Seite ist eine Tab-Leiste (PrimeNG `p-tabs`); jeder Tab trägt Caption und I
 | Parameter | Beschreibung | Default |
 |---|---|---|
 | `scannerPauseMs` | Anzeigedauer des Scan-Ergebnisses im Inline-Kamera-Modus | 3 000 ms |
+| `defaultSellerTypeId` | Standard-Verkäufer-Typ: bei „Neuer Verkäufer" und in der Artikelannahme vorausgewählter Typ | leer (= am häufigsten zugewiesener Typ) |
 
 Entity-Details → [`entities/einstellungen.md`](../../entities/einstellungen.md)
 
@@ -63,6 +64,8 @@ Entity-Details → [`entities/einstellungen.md`](../../entities/einstellungen.md
 **`suchDebounceMs` gibt es hier nicht.** Eine Debounce-Zeit für Suchfelder ist eine Frontend-Tuning-Konstante ohne fachlichen Anlass und steht mit **300 ms** fest im Code ([`api/cross-cutting.md`](../../api/cross-cutting.md) Abschnitt „Pagination, Suche und Sortierung"). Die Voranmelde-App hat denselben Parameter aus demselben Grund aus ihren Einstellungen entfernt — zwei Antworten auf dieselbe Frage wären eine Doppelung auf Suite-Ebene. Nebenbei verstieß der Name gegen die Sprachregel ([`spec.md`](../../spec.md) Abschnitt 7.0.1: englische Feldnamen).
 
 `scannerPauseMs` bleibt konfigurierbar, weil er am Basar-Tag je nach Personal und Scanner-Qualität wirklich verstellt wird.
+
+**Standard-Verkäufer-Typ** (`defaultSellerTypeId`): Auswahl unter allen Verkäufer-Typen, löschbar; leer bedeutet „Häufigster Typ (automatisch)". Der gewählte Typ wird bei „Neuer Verkäufer" und in der Artikelannahme (Verkäufer neu anlegen) vorausgewählt, solange er existiert; sonst gilt wie bisher der am häufigsten zugewiesene Typ ([Epic_Verkaeufer_Typen](../Epic_Verkaeufer_Typen/epic.md) Abschnitt 3). Wird der gewählte Typ gelöscht, fällt die Einstellung auf leer zurück. Wirksam wie die übrigen Parameter erst mit „Speichern"; beide Formulare lesen die Einstellung beim Laden neu, ohne App-Neuladen.
 
 ---
 
@@ -184,6 +187,8 @@ Alle Endpoints dieser Seite verlangen die Rolle **`admin`** — mit **einer Ausn
 13. **AC-13** — THE SYSTEM SHALL den Import in einer Transaktion ausführen; IF er fehlschlägt, THEN SHALL kein Verkäufer, kein Artikel und kein Stammdatum übernommen sein.
 14. **AC-14** — THE SYSTEM SHALL in der Vorschau je eine standardmäßig aktive Auswahl für Marken und Kategorien mit der Anzahl neuer Einträge anzeigen; abgewählte Stammdaten SHALL nicht importiert werden.
 15. **AC-15** — WHEN Marken oder Kategorien importiert werden, THEN SHALL das System sie mit `original = true` anlegen.
+16. **AC-16** — THE SYSTEM SHALL im Tab „Basis-Einstellungen" eine löschbare Auswahl „Standard-Verkäufer-Typ" mit allen Verkäufer-Typen anbieten; leer bedeutet „am häufigsten zugewiesener Typ".
+17. **AC-17** — WHEN ein Standard-Verkäufer-Typ gespeichert ist und noch existiert, THEN SHALL das System ihn bei „Neuer Verkäufer" und in der Artikelannahme beim Anlegen eines Verkäufers vorbelegen.
 
 ## Tags & Piles
 

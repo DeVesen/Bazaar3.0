@@ -1,7 +1,7 @@
 ---
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-10-30
 ---
 
 # Entity: Verkäufer-Typ
@@ -33,7 +33,7 @@ auf ([import-format.md](import-format.md)).
 
 - [Epic_Verkaeufer_Typen](../epics/Epic_Verkaeufer_Typen/epic.md) — Verwaltung
 - [Epic_Verkaeufer](../epics/Epic_Verkaeufer/epic.md) — Vorbelegung der Konditionen
-- [Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) — Auflösung beim Import
+- [Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) — Auflösung beim Import; Standard-Verkäufer-Typ (`defaultSellerTypeId` in [einstellungen.md](einstellungen.md)), wird beim Löschen des Typs zurückgesetzt
 
 ## Tags & Piles
 

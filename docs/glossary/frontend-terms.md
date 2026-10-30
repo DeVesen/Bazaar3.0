@@ -118,7 +118,7 @@
 - **First seen:** 2026-10-14
 
 ### Einstellungs-Tabs (Haupt-App)
-- **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/pages/settings-page/settings-tabs.ts` — vier Tabs der Einstellungsseite: „Basis-Einstellungen" (`general`, Scan-Pause), „User" (`users`, Benutzerverwaltung), „Beleg Druck" (`print`, Freitexte der Belege), „Sonstiges" (`misc`, JSON-Import und nur im Development-Modus „Datenbank zurücksetzen"); aktiver Tab im Query-Parameter `tab`.
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/pages/settings-page/settings-tabs.ts` — vier Tabs der Einstellungsseite: „Basis-Einstellungen" (`general`, Scan-Pause, Freigabe-Schalter, Standard-Verkäufer-Typ), „User" (`users`, Benutzerverwaltung), „Beleg Druck" (`print`, Freitexte der Belege), „Sonstiges" (`misc`, JSON-Import und nur im Development-Modus „Datenbank zurücksetzen"); aktiver Tab im Query-Parameter `tab`.
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-18
 

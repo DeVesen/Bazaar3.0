@@ -2,7 +2,7 @@
 id: DOC-005
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-18
+updated: 2026-10-30
 ---
 
 # Lastenheft — Bazaar Haupt-App
@@ -369,6 +369,7 @@ Die Haupt-App **muss vollständig offline-fähig** sein. Sie läuft auf einem Se
 | Parameter | Beschreibung | Default |
 |---|---|---|
 | `scannerPauseMs` | Anzeigedauer Scan-Ergebnis im Inline-Kamera-Modus | 3 000 ms |
+| `defaultSellerTypeId` | Standard-Verkäufer-Typ — vorausgewählt bei „Neuer Verkäufer" und in der Artikelannahme (Abschnitt 9.6) | leer = am häufigsten zugewiesener Typ |
 
 Einstellungen werden **serverseitig** gespeichert (`GET`/`PUT /api/settings`), nicht im
 `localStorage` — sie gelten für alle Geräte, nicht nur für den Rechner des Admins.
@@ -428,6 +429,7 @@ Alle Entitäten verwenden eine **8-stellige alphanumerische ID** (Groß-/Kleinbu
 - Template / Vorlage — kein verbindlicher Join
 - Beim Anlegen eines Verkäufers werden `salesCommission` und `feePerItem` daraus belegt; ein **Typwechsel überschreibt** beide Felder, auch manuell gesetzte (Bestätigungsdialog, siehe [Epic_Verkaeufer_Typen](epics/Epic_Verkaeufer_Typen/epic.md) Abschnitt 3)
 - Überschreiben der Konditionen ist **Admin-only**; Kassenpersonal wählt nur den Typ
+- Vorbelegung beim Anlegen: der in den Einstellungen gewählte **Standard-Verkäufer-Typ** (Abschnitt 8), solange er existiert; sonst der am häufigsten zugewiesene Typ. Wird der Standard-Typ gelöscht, fällt die Einstellung auf leer zurück — keine Löschsperre (siehe [Epic_Verkaeufer_Typen](epics/Epic_Verkaeufer_Typen/epic.md) Abschnitt 3)
 
 Details → [`entities/verkaeufer-typ.md`](entities/verkaeufer-typ.md)
 
@@ -484,7 +486,7 @@ Erste Zeile: Tage (ganzzahlig, kein Padding). Zweite Zeile: HH:MM:SS (zero-padde
 | 1 | Kassenvorgang: Scanner-Typ? | ✅ Beides: USB-Scanner (Tastaturemulation) + Kamera-Scan |
 | 2 | Maximale Artikel-Anzahl pro Verkäufer? | ✅ Keine harte Grenze |
 | 3 | Marken/Kategorien Freitext oder Liste? | ✅ AutoComplete + Freitext via Popup |
-| 4 | Welche Einstellungen soll der Admin konfigurieren? | ✅ Nur `scannerPauseMs` (3 000 ms), serverseitig. Eine Debounce-Zeit ist eine Code-Konstante |
+| 4 | Welche Einstellungen soll der Admin konfigurieren? | ✅ `scannerPauseMs` (3 000 ms), serverseitig; seit 2026-10-30 zusätzlich `defaultSellerTypeId` (Standard-Verkäufer-Typ, Wunsch Nutzer), vollständige Liste in Abschnitt 8. Eine Debounce-Zeit ist eine Code-Konstante |
 | 5 | Offline-Fähigkeit? | ✅ Ja — lokales LAN, kein Internetzugang, alles im Bundle |
 | 6 | Scan-Ergebnis Anzeigedauer? | ✅ Konfigurierbar über `scannerPauseMs`, Default 3 000 ms (Abschnitt 8) |
 | 7 | Artikel löschen im Wizard (noch nicht gespeichert)? | ✅ Ja — Löschen-Button pro Eintrag in Session-Liste |

@@ -5,25 +5,25 @@ reviewed-date: 2026-08-17
 
 # Component: settings-form
 
-**Bibliothek:** [`card`](../../../components/card/component.md) + [`input-group`](../../../components/input-group/component.md) + [`button`](../../../components/button/component.md) + [`toast`](../../../components/toast/component.md)
+**Bibliothek:** [`card`](../../../components/card/component.md) + [`input-group`](../../../components/input-group/component.md) + [`select`](../../../components/select/component.md) + [`button`](../../../components/button/component.md) + [`toast`](../../../components/toast/component.md)
 **Verwendung:** Nur Haupt-App, **nur Admin** — [Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) Abschnitt 1
 
 ## Index
-- Überblick — Zwei Parameter
+- Überblick — Drei Parameter
 - 1. ASCII-Darstellung — Layoutskizze
 - 2. Verhalten — Speichern und Wirkung
 - Akzeptanzkriterien — Prüfbare Kriterien
 - Tags & Piles — Ablage
 
-**Beschreibung:** Formular für die Systemparameter — derzeit genau zwei.
+**Beschreibung:** Formular für die Systemparameter — derzeit genau drei.
 
 ---
 
 ## Überblick
 
-Das Formular hat **zwei** Felder: `scannerPauseMs` und den Schalter `releaseOnClose` (Sofort-Freigabe im Freigeben-Popup bei Verkäufern ohne Gebühr, Spec [2026-10-19-freigabe-sofort-ohne-gebuehr](../../../forge/2026-10-19-freigabe-sofort-ohne-gebuehr/spec.md)). Die Beschränkung darauf ist kein Versehen, sondern das Ergebnis des Reviews: `suchDebounceMs` wurde entfernt (Frontend-Tuning-Konstante ohne fachlichen Anlass, jetzt als 300-ms-Konstante im Code, siehe [`api/cross-cutting.md`](../api/cross-cutting.md)), und die Termine, `defaultTypeId` und die Nummernblock-Parameter gehören zur Voranmelde-App.
+Das Formular hat **drei** Felder: `scannerPauseMs`, den Schalter `releaseOnClose` (Sofort-Freigabe im Freigeben-Popup bei Verkäufern ohne Gebühr, Spec [2026-10-19-freigabe-sofort-ohne-gebuehr](../../../forge/2026-10-19-freigabe-sofort-ohne-gebuehr/spec.md)) und die Auswahl `defaultSellerTypeId` (Standard-Verkäufer-Typ). Die Beschränkung darauf ist kein Versehen, sondern das Ergebnis des Reviews: `suchDebounceMs` wurde entfernt (Frontend-Tuning-Konstante ohne fachlichen Anlass, jetzt als 300-ms-Konstante im Code, siehe [`api/cross-cutting.md`](../api/cross-cutting.md)), und die Termine und die Nummernblock-Parameter gehören zur Voranmelde-App. Das Gegenstück zu deren `defaultTypeId` ist `defaultSellerTypeId` — hier allerdings optional und ohne Löschsperre.
 
-Übrig bleiben `scannerPauseMs` und `releaseOnClose`. `scannerPauseMs` ist es wert, weil er am Basar-Tag je nach Personal und Scanner-Qualität wirklich verstellt wird; `releaseOnClose` entscheidet, ob das Freigeben-Popup bei Verkäufern ohne Annahmegebühr jeden Artikel sofort oder erst beim Schließen freigibt.
+Übrig bleiben `scannerPauseMs`, `releaseOnClose` und `defaultSellerTypeId`. `scannerPauseMs` ist es wert, weil er am Basar-Tag je nach Personal und Scanner-Qualität wirklich verstellt wird; `releaseOnClose` entscheidet, ob das Freigeben-Popup bei Verkäufern ohne Annahmegebühr jeden Artikel sofort oder erst beim Schließen freigibt; `defaultSellerTypeId` legt fest, welcher Verkäufer-Typ beim Anlegen vorausgewählt ist, wenn der am häufigsten zugewiesene nicht passt.
 
 ---
 
@@ -42,6 +42,12 @@ Das Formular hat **zwei** Felder: `scannerPauseMs` und den Schalter `releaseOnCl
 │       Freigabe-Dialogs freigeben                  │
 │  Gilt nur für Verkäufer ohne Gebühr.              │
 │                                                    │
+│  Standard-Verkäufer-Typ                           │
+│  [ Häufigster Typ (automatisch)       ✕ ▾ ]       │
+│  Wird bei „Neuer Verkäufer" und in der            │
+│  Artikelannahme vorausgewählt. Leer = am          │
+│  häufigsten zugewiesener Typ.                     │
+│                                                    │
 │                              [ Speichern ]         │
 └──────────────────────────────────────────────────┘
 ```
@@ -49,6 +55,8 @@ Das Formular hat **zwei** Felder: `scannerPauseMs` und den Schalter `releaseOnCl
 Feld als [`input-group`](../../../components/input-group/component.md) mit der Variante [**Anzahl**](../../../components/inputnumber/component.md) (keine Dezimalstellen, keine Tausendertrennung im Eingabewert), mit `ms` als Add-on und `modes = ['keyboard', 'numpad']` — analog zur Preis-Zeile im [`intake-wizard`](intake-wizard.md), Numpad mit `showDecimal="false"`.
 
 Darunter steht der Schalter `releaseOnClose` als [`boolean-input`](../../../components/boolean-input/component.md) (Variante Switch), Standardstellung **an** (Freigabe beim Schließen, Verhalten wie heute). Aus = das Freigeben-Popup gibt bei Verkäufern ohne Annahmegebühr (Gebühr je Stück 0) jeden erfassten Artikel sofort frei; bei Gebühr je Stück größer 0 hat er keine Wirkung. Er gilt ab dem nächsten Öffnen des Freigeben-Popups.
+
+Darunter steht die Auswahl **„Standard-Verkäufer-Typ"** als [`select`](../../../components/select/component.md) (PrimeNG `p-select`) mit allen Verkäufer-Typen (`GET /api/seller-types`), löschbar (`showClear`), Platzhalter „Häufigster Typ (automatisch)" und Hilfetext „Wird bei „Neuer Verkäufer" und in der Artikelannahme vorausgewählt. Leer = am häufigsten zugewiesener Typ.". Leer = kein Standard; dann belegen [`verkaeufer-dialog`](verkaeufer-dialog.md) und [`intake-wizard`](intake-wizard.md) wie bisher den am häufigsten zugewiesenen Typ vor. Beide lesen die Einstellung beim Laden neu, eine gespeicherte Änderung gilt also ohne App-Neuladen.
 
 Der Hilfstext unter dem Feld erklärt die **Wirkung**, nicht das Feld: „Anzeigedauer" allein sagt nicht, was länger oder kürzer bedeutet.
 
@@ -60,6 +68,7 @@ Der Hilfstext unter dem Feld erklärt die **Wirkung**, nicht das Feld: „Anzeig
 |---|---|
 | Wert außerhalb 500–15.000 | Feldfehler, serverseitig geprüft (`400`) |
 | Speichern erfolgreich | Toast „✓ Einstellungen gespeichert" |
+| Gewählter Standard-Typ existiert nicht mehr (`404 seller_type.not_found`) | generischer Fehler-Toast, nichts gespeichert |
 | Wirkung | gilt **auf allen Geräten**, ab dem nächsten App-Start der jeweiligen Geräte |
 
 **Serverseitig gespeichert, nicht im `localStorage`.** Der Wert beschreibt eine Einstellung des Basars, nicht eine Vorliebe eines Geräts — gerätelokal abgelegt würde der Admin ihn an seinem Rechner setzen, während die Kassen-Tablets ihren Default behalten.
@@ -68,7 +77,7 @@ Die Grenzen haben einen praktischen Grund: Unter einer halben Sekunde ist das Sc
 
 ## Akzeptanzkriterien
 
-1. **AC-1** — THE SYSTEM SHALL genau die Parameter `scannerPauseMs` und `releaseOnClose` anbieten.
+1. **AC-1** — THE SYSTEM SHALL genau die Parameter `scannerPauseMs`, `releaseOnClose` und `defaultSellerTypeId` anbieten.
 2. **AC-2** — THE SYSTEM SHALL unter dem Feld erklären, was der Wert bewirkt, und die zulässigen Grenzen nennen.
 3. **AC-3** — IF der Wert außerhalb von 500–15.000 liegt, THEN SHALL das System serverseitig mit einem Feldfehler ablehnen.
 4. **AC-4** — WHEN gespeichert wird, THEN SHALL der Wert serverseitig persistiert werden und für alle Geräte gelten.
@@ -76,6 +85,8 @@ Die Grenzen haben einen praktischen Grund: Unter einer halben Sekunde ist das Sc
 6. **AC-6** — THE SYSTEM SHALL das Feld mit `modes = ['keyboard', 'numpad']` anbieten und im Numpad-Modus `showDecimal="false"` verwenden.
 7. **AC-7** — THE SYSTEM SHALL den Schalter „Artikel erst beim Schließen des Freigabe-Dialogs freigeben" mit dem Hilfetext „Gilt nur für Verkäufer ohne Gebühr." anzeigen, standardmäßig eingeschaltet.
 8. **AC-8** — WHEN „Speichern" geklickt wird, THEN SHALL das System die Stellung des Schalters zusammen mit der Scan-Pause serverseitig persistieren; sie gilt auf allen Geräten ab dem nächsten Öffnen des Freigeben-Popups, bei Verkäufern mit Annahmegebühr (Gebühr je Stück größer 0) ohne Wirkung.
+9. **AC-9** — THE SYSTEM SHALL unter dem Schalter eine löschbare Auswahl „Standard-Verkäufer-Typ" mit allen Verkäufer-Typen, dem Platzhalter „Häufigster Typ (automatisch)" und dem Hilfetext „Wird bei „Neuer Verkäufer" und in der Artikelannahme vorausgewählt. Leer = am häufigsten zugewiesener Typ." anzeigen.
+10. **AC-10** — WHEN „Speichern" geklickt wird, THEN SHALL das System den gewählten Standard-Verkäufer-Typ (oder „kein Standard" bei leerer Auswahl) zusammen mit den übrigen Parametern serverseitig persistieren; eine ungespeicherte Auswahl SHALL zu den ungespeicherten Änderungen zählen und beim Verwerfen auf den gespeicherten Wert zurückgesetzt werden.
 
 ## Tags & Piles
 

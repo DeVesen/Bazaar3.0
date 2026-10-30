@@ -2,7 +2,7 @@
 id: F-BA-009
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-10-30
 ---
 
 # Epic: Verkäufer-Typen
@@ -85,7 +85,9 @@ Grund: Ein Typwechsel ist die Aussage „dieser Verkäufer hat andere Konditione
 
 **Wer darf was:** Den Typ wählen darf auch Kassenpersonal (beim Anlegen eines Verkäufers am Annahmetisch). Die Konditionen **überschreiben** darf ausschließlich der Admin; Kassenpersonal sieht sie schreibgeschützt. Rechte-Matrix → [`spec.md`](../../spec.md) Abschnitt 4.1.
 
-**Vorbelegung beim Anlegen:** Das Formular schlägt den **am häufigsten zugewiesenen Typ** vor (die Zahl liegt mit `sellerCount` ohnehin vor). Das ist eine Vorbelegung im Formular, **keine** serverseitige Regel — der Endpoint verlangt weiterhin ein explizites `sellerTypeId`. Einen konfigurierbaren Default-Typ wie in der Voranmelde-App gibt es hier nicht: Er wäre ein weiterer Einstellungs-Parameter, der gepflegt werden muss und im Zweifel falsch steht.
+**Vorbelegung beim Anlegen:** Das Formular („Neuer Verkäufer" und Artikelannahme Schritt 1) schlägt den **Standard-Verkäufer-Typ** aus den Einstellungen vor ([Epic_Einstellungen](../Epic_Einstellungen/epic.md), Tab „Basis-Einstellungen", `defaultSellerTypeId`), solange dieser Typ existiert. Ist keiner gewählt, schlägt es den **am häufigsten zugewiesenen Typ** vor (die Zahl liegt mit `sellerCount` ohnehin vor; bei Gleichstand der erste). Beide Formulare lesen die Einstellung beim Laden neu, eine Änderung gilt also ohne App-Neuladen. Das ist eine Vorbelegung im Formular, **keine** serverseitige Regel — der Endpoint verlangt weiterhin ein explizites `sellerTypeId`.
+
+Der Standard ist **optional**: Leer gelassen, greift der häufigste Typ — so muss niemand einen weiteren Parameter pflegen, der im Zweifel falsch steht. Wer aber weiß, dass am Annahmetisch fast nur ein bestimmter Typ angelegt wird (z. B. „Privat", obwohl der Import viele „Händler" mitbringt), legt ihn fest.
 
 ---
 
@@ -112,7 +114,7 @@ API-Details → [`api/seller-types.md`](../../api/seller-types.md)
 
 **`GET` ist `authenticated`, nicht `admin`** — hier weicht die Haupt-App bewusst von der Voranmelde-App ab, wo alle vier Endpoints Admin-only sind. Der Grund: Kassenpersonal legt in der Artikelannahme neue Verkäufer an, und `sellerTypeId` ist am Verkäufer ein Pflichtfeld ([`entities/verkaeufer.md`](../../entities/verkaeufer.md)) — ohne Typenliste kann es das Feld nicht füllen. In der Voranmelde-App entsteht diese Situation nicht, weil dort kein Verkäufer andere Verkäufer anlegt.
 
-Es gibt **keine** Löschsperre wegen eines Default-Typs (Gegenstück zu VA AC-4) — diese App kennt keinen `defaultTypeId`.
+Es gibt **keine** Löschsperre wegen eines Standard-Typs (Gegenstück zu VA AC-4). Wird der als Standard-Verkäufer-Typ gewählte Typ gelöscht, setzt der Server `defaultSellerTypeId` auf `null` zurück; danach greift wieder der häufigste Typ. Die Sperre wegen zugewiesener Verkäufer (`seller_type.in_use`) bleibt bestehen.
 
 ---
 
@@ -127,8 +129,9 @@ Es gibt **keine** Löschsperre wegen eines Default-Typs (Gegenstück zu VA AC-4)
 7. **AC-7** — THE SYSTEM SHALL bei der Abrechnung ausschließlich die eigenen Felder `salesCommission` und `feePerItem` des Verkäufers verwenden, nicht die aktuellen Werte des Typs.
 8. **AC-8** — IF ein Verkäufer-Typ gelöscht werden soll, der noch Verkäufern zugewiesen ist, THEN SHALL das System eine Fehlermeldung anzeigen und nicht löschen.
 9. **AC-9** — WHILE der angemeldete Nutzer die Rolle Kassenpersonal hat, SHALL das System „+ Neu", „Edit" und „Löschen" nicht rendern; ein dennoch gesendeter Schreib-Request SHALL mit `403` abgelehnt werden.
-10. **AC-10** — WHEN das Formular zum Anlegen eines Verkäufers geöffnet wird, THEN SHALL das System den am häufigsten zugewiesenen Typ vorbelegen, ohne die Auswahl zu erzwingen.
+10. **AC-10** — WHEN das Formular zum Anlegen eines Verkäufers geöffnet wird, THEN SHALL das System den in den Einstellungen gewählten Standard-Verkäufer-Typ vorbelegen bzw. — falls keiner gewählt ist oder er nicht mehr existiert — den am häufigsten zugewiesenen Typ (bei Gleichstand den ersten), ohne die Auswahl zu erzwingen.
 11. **AC-11** — WHILE kein Verkäufer-Typ vorhanden ist, SHALL die Tabelle „Noch keine Verkäufer-Typen. Ohne Typ kann kein Verkäufer angelegt werden — mit + Neu beginnen." anzeigen.
+12. **AC-12** — WHEN ein Verkäufer-Typ gelöscht wird, der als Standard-Verkäufer-Typ gewählt ist, THEN SHALL das System das Löschen nicht wegen des Standards sperren und den Standard-Verkäufer-Typ in den Einstellungen auf „kein Standard" zurücksetzen.
 
 ## Tags & Piles
 

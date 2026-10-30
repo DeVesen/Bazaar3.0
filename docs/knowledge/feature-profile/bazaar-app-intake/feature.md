@@ -2,13 +2,14 @@
 
 **Intent:** Kassenpersonal nimmt Artikel eines Verkäufers auf — Verkäufer per Suche finden oder neu anlegen, dann Artikel für Artikel erfassen (Nummer per Tastatur/Kamera/Numpad, Bezeichnung, Kategorie, Marke, Preis, optional Größe/Farbe/Beschreibung), Session sammeln und am Ende gegen Gebühr buchen.
 **Coverage:** inventoried
-**Last reviewed:** 2026-10-15
+**Last reviewed:** 2026-10-30
 
 ## Capabilities
 - User can search for an existing seller or create a new one from the search text — `pages/intake-page/intake-page.ts` (`onSellerSelected`/`onCreateRequested`), delegiert an `shared/components/seller-search`
 - User sees a hint text "ENTER bei 1 Treffer öffnet Wizard · Kein Treffer: Anlegen-Button erscheint" — `intake-page.ts` (`hint`)
 - User can fill in seller master data (Vorname*, Nachname*, Anschrift, PLZ, Ort*, Telefon, E-Mail, Verkäufer-Typ*, Gebühr*, Provision*) in Wizard-Schritt 1; "Weiter" bleibt gesperrt, solange ein Pflichtfeld leer ist, und unter einem verlassenen leeren Pflichtfeld erscheint eine Meldung — `components/intake-wizard/intake-wizard.html`, `intake-wizard.ts` (`canSave`, `requiredErrors`)
 - User sees Gebühr-je-Stück/Provision aus dem gewählten Verkäufer-Typ vorbefüllt, aber gesperrt (`[disabled]`, nie editierbar — bewusst anders als im Verkäufer-Bearbeiten-Dialog) — `intake-wizard.ts` (`conditionsEditable` fix `false`, `onTypeChange`)
+- User sees in Schritt 1 den Standard-Verkäufer-Typ aus den Einstellungen vorausgewählt (solange er existiert), sonst den am häufigsten zugewiesenen Typ — `intake-wizard.ts` (`defaultTypeForCreate()`, lädt `SettingsService.load()` mit den Typen neu), `shared/seller-form/default-seller-type.ts`
 - User sees E-Mail-Format-Validierung nur bei eingegebener E-Mail; ein ungültiges Format sperrt "Weiter" und zeigt eine Meldung unter dem Feld, eine leere E-Mail ist erlaubt — `intake-wizard.ts` (`EMAIL_PATTERN`, `emailFormatError`)
 - User can cancel Schritt 1 über den "Abbrechen"-Button im Footer — `components/intake-wizard/intake-wizard.html`
 - User can leave Schritt 2 über ein Zurück-Pfeil-Icon (`pi pi-angle-left`) links neben den Tabs; einen "Abbrechen"-Button gibt es in Schritt 2 nicht — `intake-wizard.html` (`intake-wizard__back-button`)

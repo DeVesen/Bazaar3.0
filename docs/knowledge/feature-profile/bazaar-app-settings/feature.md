@@ -1,21 +1,22 @@
 # Einstellungen (Bazaar-App)
 
-**Intent:** Zentrale Admin-Oberfläche für alles, was den Basar-Betrieb konfiguriert, aber nicht ins Tagesgeschäft (Intake/Checkout/Abrechnung) gehört: Scanner-Verhalten, Stammdaten-Import, Benutzerverwaltung, Freitexte der Belege, und (nur lokal/Dev) ein kompletter DB-Reset.
+**Intent:** Zentrale Admin-Oberfläche für alles, was den Basar-Betrieb konfiguriert, aber nicht ins Tagesgeschäft (Intake/Checkout/Abrechnung) gehört: Scanner-Verhalten, Standard-Verkäufer-Typ, Stammdaten-Import, Benutzerverwaltung, Freitexte der Belege, und (nur lokal/Dev) ein kompletter DB-Reset.
 **Coverage:** inventoried
-**Last reviewed:** 2026-10-19
+**Last reviewed:** 2026-10-30
 
 ## Capabilities
 
 ### Tab-Leiste (`settings-page`)
 - Admin sees four tabs „Basis-Einstellungen" (`pi-cog`), „User" (`pi-users`), „Beleg Druck" (`pi-print`), „Sonstiges" (`pi-ellipsis-h`); start tab is „Basis-Einstellungen" — `features/settings/pages/settings-page/settings-page.{ts,html}`, `settings-tabs.ts`
 - Active tab lives in query parameter `tab` (`general`/`users`/`print`/`misc`); unknown value falls back to `general`; tab switches use `replaceUrl` — `settings-page.ts` `activeTab`, `navigateTo()`
-- Switching away from unsaved changes (Scan-Pause, Freitexte) or an open import preview asks „Ungespeicherte Änderungen" with „Bleiben"/„Verwerfen" — `settings-page.ts` `onTabChange()`; areas expose `hasUnsavedChanges`/`discardChanges()`
+- Switching away from unsaved changes (Scan-Pause, Freigabe-Schalter, Standard-Verkäufer-Typ, Freitexte) or an open import preview asks „Ungespeicherte Änderungen" with „Bleiben"/„Verwerfen" — `settings-page.ts` `onTabChange()`; areas expose `hasUnsavedChanges`/`discardChanges()`
 
 ### Scanner-Einstellungen (`settings-form`)
 - User sees/edits `ScannerPauseMs` (wie lange ein Scan-Ergebnis am Annahmetisch stehen bleibt, bevor automatisch weiterscannt wird) über eine geteilte `input-group`-Komponente — `features/settings/components/settings-form/settings-form.{ts,html}`
 - User sees a field-level validation error from a 400 response (Wertebereich 500–15000ms) — `settings-form.ts` `fieldErrorOf()`
 - User sees a success toast on save — `settings-form.ts` `onSave()`
 - Admin schaltet „Artikel erst beim Schließen des Freigabe-Dialogs freigeben" (Standard an, Hilfetext „Gilt nur für Verkäufer ohne Gebühr.") und speichert es zusammen mit der Scan-Pause; aus = das Freigeben-Popup gibt bei Verkäufern mit Gebühr je Stück 0 sofort frei — `settings-form.{ts,html}` (`releaseOnClose`, `app-boolean-input`), `Bazaar.Domain/Settings/Settings.cs` (`ReleaseOnClose`)
+- Admin wählt unter dem Schalter den „Standard-Verkäufer-Typ" (`p-select` über alle Verkäufer-Typen, löschbar, Platzhalter „Häufigster Typ (automatisch)") und speichert ihn mit den anderen Feldern; leer = kein Standard. Zählt zu ungespeicherten Änderungen/Verwerfen; eine unbekannte Id lehnt der Server mit `404 seller_type.not_found` ab — `settings-form.{ts,html}` (`defaultSellerTypeId`, `SellerTypesApi.getAll()`), `Bazaar.Domain/Settings/Settings.cs` (`DefaultSellerTypeId`, `ChangeDefaultSellerType()`), `Bazaar.Application/Settings/UpdateSettingsHandler.cs`
 
 ### Freitexte der Belege (`print-texts-form`)
 - Fields are laid out like the receipt: Freitext 1|2 side by side, Freitext 3 full width, Freitext 4|5 side by side; one „Freitexte speichern" button saves both templates — `print-texts-form.html` `.print-texts-form__grid`
@@ -51,5 +52,6 @@
 ## Notes
 - Ganze `/settings`-Route trägt `adminGuard` (`app.routes.ts`) — keine der vier Komponenten prüft die Rolle nochmal selbst, bewusste Konvention.
 - `SettingsForm` lädt über einen eigenen `SettingsApi` (Live-Roundtrip), nicht über den app-weiten gecachten `SettingsService` (den z. B. `scan-feedback` nutzt) — bewusst getrennt.
+- Den Standard-Verkäufer-Typ konsumieren `verkaeufer-dialog` (Anlege-Modus) und `intake-wizard` (Schritt 1) über `SettingsService.defaultSellerTypeId()`; beide rufen beim Laden `SettingsService.load()` neu auf, damit eine Änderung ohne App-Reload gilt. Die Auswahlregel (konfigurierter Typ, solange er existiert, sonst höchster `sellerCount`, bei Gleichstand der erste) steht einmal in `shared/seller-form/default-seller-type.ts` (`pickDefaultSellerType`).
 - Dev-Tools-Endpoints existieren serverseitig nur in Development — das Frontend zeigt den Button nicht per Rollen-/Config-Flag, sondern weil der Status-Call in Production schlicht 404 liefert.
 - `DatabaseResetService.ResetAsync()` setzt zusätzlich das In-Memory-Singleton `AdminBootstrapState` zurück (`Initialize(false)`) — sonst bliebe `bootstrap-status` nach einem Reset fälschlich bei `hasAdmin:true` hängen.

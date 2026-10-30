@@ -83,6 +83,8 @@ Die E-Mail ist optional und **kein Login** — sie dient nur der Kontaktaufnahme
 
 Es ist die einzige Eingabe der App, die unmittelbar Geld verschiebt, und am Annahmetisch wird unter Zeitdruck im Gespräch mit dem Verkäufer getippt — genau die Situation, in der „ausnahmsweise nur 5 %" entsteht. Über den Typ bleibt jede Kondition nachvollziehbar, über ein freies Feld nicht.
 
+**Vorbelegung bei „Neuer Verkäufer":** Im Anlege-Modus ist der Typ mit dem in den Einstellungen gewählten **Standard-Verkäufer-Typ** vorbelegt ([Epic_Einstellungen](../epics/Epic_Einstellungen/epic.md) Abschnitt 1), solange dieser existiert; ist keiner gewählt, mit dem am häufigsten zugewiesenen Typ (höchster `sellerCount`, bei Gleichstand der erste). Der Dialog liest die Einstellung beim Laden neu, eine Änderung gilt ohne App-Neuladen. Im Bearbeiten-Modus bleibt der gespeicherte Typ des Verkäufers stehen.
+
 **Typwechsel überschreibt beide Werte** mit denen des neuen Typs, auch manuell gesetzte. Vorher erscheint ein Bestätigungsdialog mit den **konkreten alten und neuen Werten**:
 
 ```
@@ -114,6 +116,7 @@ Bewusst hier und nicht auf der Karte: Vier Klickflächen pro Karte sind das Maxi
 5. **AC-5** — IF der Verkäufer noch Artikel hat, THEN SHALL das System im Lösch-Bestätigungsdialog die Anzahl der Artikel nennen und darauf hinweisen, dass sie mitgelöscht werden.
 6. **AC-6** — THE SYSTEM SHALL kein Panel für Admin-Rechte oder Einladungs-Links anzeigen.
 7. **AC-7** — WHILE eines der sechs Pflichtfelder leer ist, SHALL das System „Speichern" deaktiviert halten und nach dem Verlassen des Feldes eine Meldung unter dem leeren Feld anzeigen.
+8. **AC-8** — WHEN der Dialog zum Anlegen eines Verkäufers geöffnet wird, THEN SHALL das System den Verkäufer-Typ mit dem Standard-Verkäufer-Typ aus den Einstellungen vorbelegen bzw. — falls keiner gewählt ist oder er nicht mehr existiert — mit dem am häufigsten zugewiesenen Typ.
 
 ## Tags & Piles
 
