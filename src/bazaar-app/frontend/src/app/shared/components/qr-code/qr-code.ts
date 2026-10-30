@@ -77,6 +77,11 @@ export class QrCode {
     background.setAttribute('height', height);
     background.setAttribute('fill', '#fff');
 
+    // viewBox lets CSS scale the SVG without cropping (e.g. fitting a print layout).
+    if (!svgElement.hasAttribute('viewBox')) {
+      svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    }
+
     svgElement.insertBefore(background, svgElement.firstChild);
   }
 

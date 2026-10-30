@@ -23,7 +23,9 @@
               <p>{{ cityLine() }}</p>
             }
           </div>
-          <app-qr-code [value]="model().seller.id" [size]="100" [caption]="model().seller.id" />
+          <div class="print-doc__qr">
+            <app-qr-code [value]="model().seller.id" [size]="400" [caption]="model().seller.id" />
+          </div>
         </section>
 
         <div class="print-doc__tiles print-doc__tiles--a" [style.height.mm]="layout.tileRowAMm">

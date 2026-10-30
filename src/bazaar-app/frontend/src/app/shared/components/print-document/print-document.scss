@@ -57,12 +57,52 @@ app-print-document {
 
   &__seller {
     box-sizing: border-box;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    column-gap: 4mm;
     flex: none;
     overflow: hidden;
     padding: 1mm 0 0;
+  }
+
+  &__address {
+    min-width: 0;
+  }
+
+  // QR-Spalte füllt die Blockhöhe; Bild und Beschriftung bleiben ein Quadrat bzw. eine Spalte rechtsbündig.
+  &__qr {
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
+
+    app-qr-code,
+    .qr-code {
+      height: 100%;
+      min-height: 0;
+    }
+
+    .qr-code {
+      gap: 0.5mm;
+    }
+
+    .qr-code__image {
+      flex: 1 1 0;
+      min-height: 0;
+      aspect-ratio: 1 / 1;
+    }
+
+    .qr-code__image svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .qr-code__caption {
+      flex: none;
+      font-size: 8pt;
+      line-height: 1;
+    }
   }
 
   &__address p {
