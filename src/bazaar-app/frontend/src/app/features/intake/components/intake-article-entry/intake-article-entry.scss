@@ -54,4 +54,22 @@
   &__session-title {
     margin: 0;
   }
+
+  // Mobil (< Tablet, Breakpoint wie kpi-grid/styles.scss): eine Spalte, Erfassung vor Warenkorb,
+  // alle Eingabefelder untereinander in voller Breite.
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+
+    &__actions {
+      justify-content: stretch;
+
+      ::ng-deep .p-button {
+        width: 100%;
+      }
+    }
+  }
 }

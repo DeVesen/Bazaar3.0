@@ -54,7 +54,7 @@ Formular mit den Verkäufer-Panels 01–03. Vorname und Nachname sind aus der Su
 
 ## 3. Schritt 2 — Artikeleingabe und Sitzungsliste
 
-**Layout:** `7fr 3fr`, gap 14 px — links Eingabe, rechts Übersicht.
+**Layout:** `7fr 3fr`, gap 14 px — links Eingabe, rechts Übersicht. Mobil (< 768 px): eine Spalte (100 % Breite), Eingabe vor Übersicht, alle Felder untereinander; „Übernehmen" unter dem letzten Feld, „Speichern" unter der Gebühr der Übersicht.
 
 ```
 ┌────────────────────────────────────┬──────────────────────┐

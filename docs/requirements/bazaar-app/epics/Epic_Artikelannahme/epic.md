@@ -112,7 +112,7 @@ Das Sofort-Anlegen ist nötig, weil Schritt 2 eine Verkäufer-ID braucht, um Art
 
 ### Schritt 2 — Artikelannahme
 
-**Layout:** `7fr 3fr` (70 % Artikel-Eingabe | 30 % Übersicht), gap 14 px.
+**Layout:** `7fr 3fr` (70 % Artikel-Eingabe | 30 % Übersicht), gap 14 px. Mobil (< 768 px): eine Spalte mit 100 % Breite — Eingabe, darunter Übersicht; alle Eingabefelder (auch Kategorie/Marke, Größe/Farbe) untereinander; „Übernehmen" unter dem letzten Eingabefeld, „Speichern" unter den Gebühren der Übersicht.
 
 #### Artikeleingabe (links)
 
