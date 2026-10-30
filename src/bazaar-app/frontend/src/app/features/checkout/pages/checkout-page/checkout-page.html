@@ -7,6 +7,8 @@
           inputId="checkout-page-number"
           [value]="articleNumber()"
           [debounceMs]="0"
+          inputMode="numeric"
+          [readOnly]="activeMode() === 'numpad'"
           [addonRight]="inputAddons()"
           (valueChange)="onTyped($event)"
           (enter)="onEnterPressed()"
@@ -18,12 +20,24 @@
         <app-barcode-scanner [active]="activeMode() === 'camera'" (codeDetected)="onCodeDetected($event)" />
       }
       @if (activeMode() === 'numpad') {
-        <app-numpad
-          [enterDisabled]="searching()"
-          (keyPressed)="onNumpadKey($event)"
-          (cleared)="onNumpadClear()"
-          (submitted)="onEnterPressed()"
-        />
+        <div class="checkout-page__numpad-area">
+          <app-numpad
+            [class.checkout-page__numpad--hidden]="foundArticle()"
+            [enterDisabled]="searching()"
+            (keyPressed)="onNumpadKey($event)"
+            (cleared)="onNumpadClear()"
+            (submitted)="onEnterPressed()"
+          />
+          @if (foundArticle()) {
+            <p-button
+              class="checkout-page__enter-button"
+              icon="pi pi-reply"
+              ariaLabel="Artikel übernehmen"
+              [disabled]="searching()"
+              (onClick)="onEnterPressed()"
+            />
+          }
+        </div>
       }
 
       <div class="checkout-page__info-area checkout-page__info-area--{{ infoState().type }}">

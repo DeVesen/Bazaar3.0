@@ -196,6 +196,55 @@ describe('CheckoutPage', () => {
       expect(component.previousMode()).toBe('camera');
     });
 
+    it('status "selling" in numpad mode: numpad stays active, enter button replaces the pad, field is not focused', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ status: 'selling' })));
+      const { fixture, component } = await setup(articlesApi);
+      component.activeMode.set('numpad');
+      fixture.detectChanges();
+      const focusSpy = vi.spyOn(nativeInput(fixture), 'focus');
+      component.onTyped('1042');
+
+      component.onEnterPressed();
+      fixture.detectChanges();
+
+      expect(component.activeMode()).toBe('numpad');
+      expect(focusSpy).not.toHaveBeenCalled();
+      expect(nativeInput(fixture).readOnly).toBe(true);
+      expect(fixture.nativeElement.querySelector('.checkout-page__enter-button')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('.checkout-page__numpad--hidden')).not.toBeNull();
+      // camera/numpad toggles stay visible until the article is taken over
+      expect(component.inputAddons().map((a) => a.key)).toEqual(['camera', 'numpad', 'clear', 'enter']);
+    });
+
+    it('enter button click in numpad found state adds the article to the cart', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ status: 'selling' })));
+      const { fixture, component } = await setup(articlesApi);
+      component.activeMode.set('numpad');
+      component.onTyped('1042');
+      component.onEnterPressed();
+      fixture.detectChanges();
+
+      (fixture.nativeElement.querySelector('.checkout-page__enter-button button') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(component.cartItems().length).toBe(1);
+      expect(fixture.nativeElement.querySelector('.checkout-page__enter-button')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.checkout-page__numpad--hidden')).toBeNull();
+    });
+
+    it('article-number field is a numeric-keyboard field, readonly only in numpad mode', async () => {
+      const { fixture, component } = await setup();
+      expect(nativeInput(fixture).getAttribute('inputmode')).toBe('numeric');
+      expect(nativeInput(fixture).readOnly).toBe(false);
+
+      component.onAddonClick('numpad');
+      fixture.detectChanges();
+
+      expect(nativeInput(fixture).readOnly).toBe(true);
+    });
+
     it('status "registered": error state, "noch nicht freigegeben", field refocused+selected', async () => {
       const articlesApi = articlesApiStub();
       articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ status: 'registered' })));

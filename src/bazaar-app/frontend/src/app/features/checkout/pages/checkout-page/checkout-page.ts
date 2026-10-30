@@ -112,7 +112,8 @@ export class CheckoutPage {
         class: this.searching() ? 'checkout-page__addon--disabled' : undefined,
       },
     ];
-    if (this.foundArticle()) return clearAndEnter;
+    // Im Nummernblock-Modus bleibt das Feld bis zur Übernahme unverändert (Enter-Button ersetzt nur das Pad).
+    if (this.foundArticle() && this.activeMode() !== 'numpad') return clearAndEnter;
     return [
       {
         type: 'icon',
@@ -152,6 +153,8 @@ export class CheckoutPage {
         return;
       case 'numpad':
         this.activeMode.set(this.activeMode() === 'numpad' ? 'keyboard' : 'numpad');
+        // Feld wird readonly: Fokus abgeben, damit die System-Tastatur nicht offen bleibt.
+        if (this.activeMode() === 'numpad') this.hostElement.nativeElement.querySelector<HTMLInputElement>('input')?.blur();
         return;
       case 'clear':
         this.onTyped('');
@@ -239,7 +242,8 @@ export class CheckoutPage {
         this.foundArticle.set(article);
         this.resultNumber.set(matchedRaw);
         this.previousMode.set(this.activeMode());
-        this.activeMode.set('keyboard');
+        // Numpad bleibt aktiv (Enter-Button ersetzt das Pad); nur die Kamera fällt auf die Tastatur zurück.
+        if (this.activeMode() !== 'numpad') this.activeMode.set('keyboard');
         this.showResult('success');
         this.focusArticleNumberField(true);
         return;
@@ -435,6 +439,8 @@ export class CheckoutPage {
    * `selectAll` selects the field's content too (spec.md: focus+select on every settled result
    * except the freshly-cleared/init states). */
   private focusArticleNumberField(selectAll = false): void {
+    // Numpad-Modus: Feld ist readonly und darf keinen Fokus bekommen (sonst öffnet das Handy seine Tastatur).
+    if (this.activeMode() === 'numpad') return;
     const input = this.hostElement.nativeElement.querySelector<HTMLInputElement>('input');
     input?.focus();
     if (selectAll) input?.select();

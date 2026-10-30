@@ -44,6 +44,33 @@
     gap: 4px;
   }
 
+  // Enter-Button ersetzt das Nummernpad bei gültigem Artikel: das Pad bleibt unsichtbar im Fluss
+  // (gleiche Fläche, kein Layout-Sprung), der Button liegt mit 2/3 Breite und Höhe mittig darüber.
+  &__numpad-area {
+    position: relative;
+    display: flow-root;
+  }
+
+  &__numpad--hidden {
+    visibility: hidden;
+  }
+
+  &__enter-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(100% * 2 / 3);
+    height: calc(100% * 2 / 3);
+    transform: translate(-50%, -50%);
+    display: block;
+
+    ::ng-deep .p-button {
+      width: 100%;
+      height: 100%;
+      font-size: 28px;
+    }
+  }
+
   &__info-area {
     display: flex;
     align-items: center;

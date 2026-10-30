@@ -53,6 +53,8 @@ export class Input {
   readonly name = input<string | undefined>(undefined);
   readonly placeholder = input<string | undefined>(undefined);
   readonly type = input<string>('text');
+  /** Virtual-keyboard hint (`numeric` etc.); keeps the field a text input, unlike `type="number"`. */
+  readonly inputMode = input<string | undefined>(undefined);
   readonly required = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   /**
