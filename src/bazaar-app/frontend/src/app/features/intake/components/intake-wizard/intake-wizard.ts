@@ -11,6 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { forkJoin, from } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -24,9 +25,11 @@ import { CreateSellerRequest, SellersApi } from '../../../sellers/data/sellers-a
 // same pattern `verkaeufer-dialog.ts` uses.
 // eslint-disable-next-line boundaries/dependencies
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
+import { SettingsService } from '../../../../core/settings/settings.service';
 import { Input } from '../../../../shared/components/input/input';
 import { ResultOverlay } from '../../../../shared/components/result-overlay/result-overlay';
 import { ResultEvent, createResultEvent } from '../../../../shared/components/result-overlay/result-event';
+import { pickDefaultSellerType } from '../../../../shared/seller-form/default-seller-type';
 import {
   SellerRequiredField,
   sellerRequiredState,
@@ -75,6 +78,7 @@ function splitPendingSearchText(text: string): { firstName: string; lastName: st
 export class IntakeWizard {
   private readonly sellersApi = inject(SellersApi);
   private readonly sellerTypesApi = inject(SellerTypesApi);
+  private readonly settingsService = inject(SettingsService);
   private readonly hostElement: ElementRef<HTMLElement> = inject(ElementRef);
 
   readonly sellerId = input<string | null>(null);
@@ -162,7 +166,9 @@ export class IntakeWizard {
   readonly canGoToStep1 = computed(() => this.step2SellerId() === null);
 
   constructor() {
-    this.sellerTypesApi.getAll().subscribe((types) => {
+    // Settings are re-read so a Standard-Verkäufer-Typ changed under Basis-Einstellungen applies
+    // without an app reload.
+    forkJoin([this.sellerTypesApi.getAll(), from(this.settingsService.load())]).subscribe(([types]) => {
       this.sellerTypesList.set(types);
       // Only apply the default when nothing has been selected yet — the one-time init effect
       // below may have already run (order between the two is not guaranteed), and a resolved
@@ -203,10 +209,9 @@ export class IntakeWizard {
     });
   }
 
-  /** Type with the highest `sellerCount`; first one encountered wins a tie — identical to `verkaeufer-dialog.ts`'s `defaultTypeForCreate()`. */
+  /** Configured Standard-Verkäufer-Typ, otherwise the most assigned type — same rule as `verkaeufer-dialog.ts`. */
   private defaultTypeForCreate(types: SellerType[]): SellerType | null {
-    if (types.length === 0) return null;
-    return types.reduce((best, current) => (current.sellerCount > best.sellerCount ? current : best));
+    return pickDefaultSellerType(types, this.settingsService.defaultSellerTypeId());
   }
 
   onTypeChange(newTypeId: string): void {

@@ -144,4 +144,61 @@ public class SettingsTests
         // Assert
         Assert.Equal(releaseOnClose, settings.ReleaseOnClose);
     }
+
+    [Fact]
+    public void Create_Always_StartsWithoutDefaultSellerType()
+    {
+        // Arrange & Act
+        var settings = SettingsAggregate.Create(3000);
+
+        // Assert
+        Assert.Null(settings.DefaultSellerTypeId);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("  ")]
+    public void ChangeDefaultSellerType_EmptyValue_StoresNull(string? sellerTypeId)
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        settings.ChangeDefaultSellerType("TYPE0001");
+
+        // Act
+        settings.ChangeDefaultSellerType(sellerTypeId);
+
+        // Assert
+        Assert.Null(settings.DefaultSellerTypeId);
+    }
+
+    [Fact]
+    public void ClearDefaultSellerTypeIf_MatchingId_ClearsAndReturnsTrue()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        settings.ChangeDefaultSellerType("TYPE0001");
+
+        // Act
+        var changed = settings.ClearDefaultSellerTypeIf("TYPE0001");
+
+        // Assert
+        Assert.True(changed);
+        Assert.Null(settings.DefaultSellerTypeId);
+    }
+
+    [Fact]
+    public void ClearDefaultSellerTypeIf_OtherId_KeepsDefaultAndReturnsFalse()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        settings.ChangeDefaultSellerType("TYPE0001");
+
+        // Act
+        var changed = settings.ClearDefaultSellerTypeIf("TYPE0002");
+
+        // Assert
+        Assert.False(changed);
+        Assert.Equal("TYPE0001", settings.DefaultSellerTypeId);
+    }
 }

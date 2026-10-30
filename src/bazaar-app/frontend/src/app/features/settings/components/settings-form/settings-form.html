@@ -21,5 +21,19 @@
   />
   <p class="settings-form__help">{{ releaseOnCloseHelpText }}</p>
 
+  <label for="settings-default-seller-type">Standard-Verkäufer-Typ</label>
+  <p-select
+    inputId="settings-default-seller-type"
+    appendTo="body"
+    [options]="sellerTypes()"
+    optionLabel="name"
+    optionValue="id"
+    [showClear]="true"
+    [placeholder]="defaultSellerTypePlaceholder"
+    [ngModel]="defaultSellerTypeId()"
+    (ngModelChange)="onDefaultSellerTypeChange($event)"
+  />
+  <p class="settings-form__help">{{ defaultSellerTypeHelpText }}</p>
+
   <p-button label="Speichern" [disabled]="saving()" (onClick)="onSave()" />
 </div>

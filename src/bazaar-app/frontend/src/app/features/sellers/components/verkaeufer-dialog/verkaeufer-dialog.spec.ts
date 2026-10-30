@@ -3,6 +3,7 @@ import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { RoleService } from '../../../../core/auth/role.service';
+import { SettingsService } from '../../../../core/settings/settings.service';
 // Cross-feature import, read-only — see the matching exception note in verkaeufer-dialog.ts.
 // eslint-disable-next-line boundaries/dependencies
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
@@ -34,7 +35,7 @@ interface ConfirmConfig {
   reject?: () => void;
 }
 
-async function setup(options: { isAdmin: boolean }) {
+async function setup(options: { isAdmin: boolean; defaultSellerTypeId?: string | null }) {
   const isAdminSignal = signal(options.isAdmin);
 
   await TestBed.configureTestingModule({
@@ -42,6 +43,10 @@ async function setup(options: { isAdmin: boolean }) {
     providers: [
       { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
       { provide: SellerTypesApi, useValue: { getAll: () => of(SELLER_TYPES) } },
+      {
+        provide: SettingsService,
+        useValue: { load: () => Promise.resolve(), defaultSellerTypeId: signal(options.defaultSellerTypeId ?? null) },
+      },
       ConfirmationService,
     ],
   }).compileComponents();
@@ -165,6 +170,18 @@ describe('VerkaeuferDialog', () => {
     expect(component.sellerTypeId()).toBe('type-privat');
     expect(component.feePerItem()).toBe(0.5);
     expect(component.salesCommission()).toBe(10);
+  });
+
+  it('preselects the configured Standard-Verkäufer-Typ in create mode', async () => {
+    const { fixture } = await setup({ isAdmin: true, defaultSellerTypeId: 'type-gewerblich' });
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('mode', 'create');
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    expect(component.sellerTypeId()).toBe('type-gewerblich');
+    expect(component.feePerItem()).toBe(1);
+    expect(component.salesCommission()).toBe(15);
   });
 
   it('marks condition fields (fee/commission) as not editable for non-admin', async () => {

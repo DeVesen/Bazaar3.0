@@ -15,6 +15,12 @@ public sealed class Settings
     /// </summary>
     public bool ReleaseOnClose { get; private set; } = true;
 
+    /// <summary>
+    /// Verkäufer-Typ, den „Neuer Verkäufer" und die Artikelannahme vorbelegen;
+    /// null = der am häufigsten zugewiesene Typ wird vorgeschlagen.
+    /// </summary>
+    public string? DefaultSellerTypeId { get; private set; }
+
     public static Settings Create(int scannerPauseMs)
     {
         EnsureValidScannerPauseMs(scannerPauseMs);
@@ -30,6 +36,20 @@ public sealed class Settings
         EnsureValidScannerPauseMs(scannerPauseMs);
         ScannerPauseMs = scannerPauseMs;
         ReleaseOnClose = releaseOnClose;
+    }
+
+    public void ChangeDefaultSellerType(string? sellerTypeId)
+    {
+        DefaultSellerTypeId = string.IsNullOrWhiteSpace(sellerTypeId) ? null : sellerTypeId;
+    }
+
+    /// <summary>Leert den Standard nur, wenn er auf den gelöschten Typ zeigt.</summary>
+    /// <returns>true, wenn sich der Standard geändert hat.</returns>
+    public bool ClearDefaultSellerTypeIf(string sellerTypeId)
+    {
+        if (DefaultSellerTypeId != sellerTypeId) return false;
+        DefaultSellerTypeId = null;
+        return true;
     }
 
     public void UpdatePrintTexts(PrintTexts abgabeBeleg, PrintTexts verkaeuferUebersicht)

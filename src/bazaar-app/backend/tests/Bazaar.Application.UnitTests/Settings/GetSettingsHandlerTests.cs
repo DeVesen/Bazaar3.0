@@ -41,4 +41,20 @@ public class GetSettingsHandlerTests
         // Assert
         Assert.Equal(new SettingsResponse(4500, false), result);
     }
+
+    [Fact]
+    public async Task Handle_DefaultSellerTypeSet_ReturnsDefaultSellerTypeId()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        settings.ChangeDefaultSellerType("TYPE0001");
+        _settingsRepository.Setup(r => r.Get()).ReturnsAsync(settings);
+        var sut = CreateSut();
+
+        // Act
+        var result = await sut.Handle();
+
+        // Assert
+        Assert.Equal(new SettingsResponse(3000, true, "TYPE0001"), result);
+    }
 }

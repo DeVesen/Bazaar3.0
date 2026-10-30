@@ -3,7 +3,10 @@ using Bazaar.Domain.Ports;
 
 namespace Bazaar.Application.SellerTypes;
 
-public sealed class DeleteSellerTypeHandler(ISellerTypeRepository sellerTypeRepository, ISellerCountBySellerTypeQuery sellerCountBySellerTypeQuery)
+public sealed class DeleteSellerTypeHandler(
+    ISellerTypeRepository sellerTypeRepository,
+    ISellerCountBySellerTypeQuery sellerCountBySellerTypeQuery,
+    ISettingsRepository settingsRepository)
 {
     public async Task Handle(string id)
     {
@@ -17,5 +20,12 @@ public sealed class DeleteSellerTypeHandler(ISellerTypeRepository sellerTypeRepo
         }
 
         await sellerTypeRepository.Remove(sellerType);
+
+        // Ein gelöschter Standard-Typ sperrt das Löschen nicht, sondern fällt auf „kein Standard" zurück.
+        var settings = await settingsRepository.Get();
+        if (settings.ClearDefaultSellerTypeIf(id))
+        {
+            await settingsRepository.Update(settings);
+        }
     }
 }

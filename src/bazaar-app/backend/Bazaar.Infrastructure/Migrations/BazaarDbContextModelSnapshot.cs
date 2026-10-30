@@ -214,6 +214,10 @@ namespace Bazaar.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("integer");
 
+                    b.Property<string>("DefaultSellerTypeId")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
                     b.Property<bool>("ReleaseOnClose")
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);

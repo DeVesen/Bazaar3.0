@@ -18,6 +18,7 @@ import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock
 import { SellersStore, SellersFilters } from '../../sellers-store';
 import { RoleService } from '../../../../core/auth/role.service';
 import { PrintService } from '../../../../core/print/print.service';
+import { SettingsService } from '../../../../core/settings/settings.service';
 import { SellerCard as SellerCardComponent } from '../../components/seller-card/seller-card';
 // eslint-disable-next-line boundaries/dependencies
 import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
@@ -149,6 +150,16 @@ describe('SellersPage', () => {
         { provide: MessageService, useValue: { add: messageServiceAdd } },
         { provide: PrintService, useValue: { printSellerReceipt } },
         { provide: SellerTypesApi, useValue: { getAll: () => of(SELLER_TYPES) } },
+        // verkaeufer-dialog re-reads the settings for the Standard-Verkäufer-Typ; no real HTTP here.
+        {
+          provide: SettingsService,
+          useValue: {
+            load: () => Promise.resolve(),
+            defaultSellerTypeId: signal(null),
+            releaseOnClose: signal(true),
+            scannerPauseMs: signal(3000),
+          },
+        },
         { provide: SellersApi, useValue: { getById: vi.fn().mockReturnValue(of(buildDetail())) } },
         { provide: ReleaseApi, useValue: { bookRelease: vi.fn() } },
         { provide: ArticleImportApi, useValue: { importArticles: vi.fn() } },

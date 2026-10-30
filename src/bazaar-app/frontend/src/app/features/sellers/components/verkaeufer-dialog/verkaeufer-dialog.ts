@@ -8,7 +8,9 @@ import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { RoleService } from '../../../../core/auth/role.service';
+import { SettingsService } from '../../../../core/settings/settings.service';
 import { Input } from '../../../../shared/components/input/input';
+import { pickDefaultSellerType } from '../../../../shared/seller-form/default-seller-type';
 import {
   SellerRequiredField,
   sellerRequiredState,
@@ -72,6 +74,7 @@ export interface SellerDialogServerErrors {
 export class VerkaeuferDialog {
   private readonly roleService = inject(RoleService);
   private readonly sellerTypesApi = inject(SellerTypesApi);
+  private readonly settingsService = inject(SettingsService);
   private readonly confirmationService = inject(ConfirmationService);
 
   readonly visible = input.required<boolean>();
@@ -140,6 +143,9 @@ export class VerkaeuferDialog {
 
   constructor() {
     this.sellerTypesApi.getAll().subscribe((types) => this.sellerTypesList.set(types));
+    // Re-read so a Standard-Verkäufer-Typ changed under Basis-Einstellungen applies without an app
+    // reload; the create-mode effect below reads the signal and picks it up once it has answered.
+    void this.settingsService.load();
 
     effect(() => {
       if (!this.visible()) return;
@@ -173,11 +179,9 @@ export class VerkaeuferDialog {
     });
   }
 
-  /** Type with the highest `sellerCount`; first one encountered wins a tie. */
+  /** Configured Standard-Verkäufer-Typ, otherwise the most assigned type (`pickDefaultSellerType`). */
   private defaultTypeForCreate(): SellerType | null {
-    const types = this.sellerTypesList();
-    if (types.length === 0) return null;
-    return types.reduce((best, current) => (current.sellerCount > best.sellerCount ? current : best));
+    return pickDefaultSellerType(this.sellerTypesList(), this.settingsService.defaultSellerTypeId());
   }
 
   onTypeChange(newTypeId: string): void {

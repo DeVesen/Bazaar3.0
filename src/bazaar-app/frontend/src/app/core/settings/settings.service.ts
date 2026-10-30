@@ -7,6 +7,8 @@ export interface Settings {
   scannerPauseMs: number;
   /** `true` = Freigeben-Popup gibt Artikel erst beim Schließen frei, `false` = sofort (nur bei Gebühr je Stück 0). */
   releaseOnClose: boolean;
+  /** Vorbelegter Verkäufer-Typ für neue Verkäufer; `null` = am häufigsten zugewiesener Typ. */
+  defaultSellerTypeId: string | null;
 }
 
 /**
@@ -36,6 +38,9 @@ export class SettingsService {
    * answered, the Freigeben-Popup behaves as it always did (release on close).
    */
   readonly releaseOnClose = computed(() => this._settings()?.releaseOnClose ?? true);
+
+  /** `?? null` before the load: no configured default, the most assigned type is suggested. */
+  readonly defaultSellerTypeId = computed(() => this._settings()?.defaultSellerTypeId ?? null);
 
   /**
    * Errors (401 for the common not-yet-logged-in case, but any HTTP failure) are swallowed

@@ -5,6 +5,7 @@ import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { RoleService } from '../../../../core/auth/role.service';
+import { SettingsService } from '../../../../core/settings/settings.service';
 // eslint-disable-next-line boundaries/dependencies
 import { ArticlesApi } from '../../../articles/data/articles-api';
 // eslint-disable-next-line boundaries/dependencies
@@ -65,6 +66,7 @@ async function setup(options: {
   pendingSearchText?: string | null;
   createResult?: Seller;
   createError?: unknown;
+  defaultSellerTypeId?: string | null;
 } = {}) {
   const isAdminSignal = signal(options.isAdmin ?? false);
   const create = vi.fn().mockReturnValue(
@@ -84,6 +86,10 @@ async function setup(options: {
       { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
       { provide: MessageService, useValue: { add: vi.fn() } },
       { provide: SellerTypesApi, useValue: { getAll: () => of(SELLER_TYPES) } },
+      {
+        provide: SettingsService,
+        useValue: { load: () => Promise.resolve(), defaultSellerTypeId: signal(options.defaultSellerTypeId ?? null) },
+      },
       { provide: SellersApi, useValue: { create, remove, getById } },
       {
         provide: ArticlesApi,
@@ -190,6 +196,15 @@ describe('IntakeWizard', () => {
     expect(component.sellerTypeId()).toBe('type-privat');
     expect(component.feePerItem()).toBe(0.5);
     expect(component.salesCommission()).toBe(10);
+  });
+
+  it('defaults the seller type to the configured Standard-Verkäufer-Typ', async () => {
+    const { fixture } = await setup({ defaultSellerTypeId: 'type-gewerblich' });
+    const component = fixture.componentInstance;
+
+    expect(component.sellerTypeId()).toBe('type-gewerblich');
+    expect(component.feePerItem()).toBe(1);
+    expect(component.salesCommission()).toBe(15);
   });
 
   it('updates fee/commission when the type changes', async () => {

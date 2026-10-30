@@ -5,6 +5,8 @@ import { MessageService } from 'primeng/api';
 import { Subject, of, throwError } from 'rxjs';
 import { SettingsForm } from './settings-form';
 import { SettingsApi } from '../../data/settings-api';
+// eslint-disable-next-line boundaries/dependencies -- see settings-form.ts's own justification
+import { SellerTypesApi } from '../../../seller-types/data/seller-types-api';
 import { BooleanInput } from '../../../../shared/components/boolean-input/boolean-input';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
 
@@ -22,6 +24,16 @@ describe('SettingsForm', () => {
       imports: [SettingsForm],
       providers: [
         { provide: SettingsApi, useValue: { get, update } },
+        {
+          provide: SellerTypesApi,
+          useValue: {
+            getAll: () =>
+              of([
+                { id: 'type-privat', name: 'Privat', commissionRate: 10, itemFee: 0.5, sellerCount: 5 },
+                { id: 'type-gewerblich', name: 'Gewerblich', commissionRate: 15, itemFee: 1, sellerCount: 2 },
+              ]),
+          },
+        },
         { provide: MessageService, useValue: { add: messageServiceAdd } },
       ],
     }).compileComponents();
@@ -54,7 +66,7 @@ describe('SettingsForm', () => {
 
     component.onSave();
 
-    expect(update).toHaveBeenCalledWith({ scannerPauseMs: 5000, releaseOnClose: true });
+    expect(update).toHaveBeenCalledWith({ scannerPauseMs: 5000, releaseOnClose: true, defaultSellerTypeId: null });
     expect(component.saving()).toBe(false);
     expect(component.fieldError()).toBeNull();
     expect(messageServiceAdd).toHaveBeenCalledWith(
@@ -235,7 +247,7 @@ describe('SettingsForm', () => {
     component.onSave();
 
     // Assert
-    expect(update).toHaveBeenCalledWith({ scannerPauseMs: 3000, releaseOnClose: false });
+    expect(update).toHaveBeenCalledWith({ scannerPauseMs: 3000, releaseOnClose: false, defaultSellerTypeId: null });
   });
 
   it('onSave_releaseOnCloseSwitchedOff_leavesNoUnsavedChanges', () => {
@@ -272,6 +284,49 @@ describe('SettingsForm', () => {
 
     // Assert
     expect(component.releaseOnClose()).toBe(true);
+    expect(component.hasUnsavedChanges()).toBe(false);
+  });
+
+  it('init_savedDefaultSellerType_showsSelectionAndOffersAllTypes', async () => {
+    // Arrange
+    get.mockReturnValue(of({ scannerPauseMs: 3000, releaseOnClose: true, defaultSellerTypeId: 'type-gewerblich' }));
+
+    // Act
+    const { fixture, component } = createForm();
+    await fixture.whenStable();
+
+    // Assert
+    expect(component.defaultSellerTypeId()).toBe('type-gewerblich');
+    expect(component.sellerTypes().map((t) => t.id)).toEqual(['type-privat', 'type-gewerblich']);
+    expect(component.hasUnsavedChanges()).toBe(false);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Standard-Verkäufer-Typ');
+  });
+
+  it('onSave_defaultSellerTypeChosen_sendsIt', () => {
+    // Arrange
+    update.mockReturnValue(of(undefined));
+    const { component } = createForm();
+    component.onDefaultSellerTypeChange('type-gewerblich');
+    expect(component.hasUnsavedChanges()).toBe(true);
+
+    // Act
+    component.onSave();
+
+    // Assert
+    expect(update).toHaveBeenCalledWith({ scannerPauseMs: 3000, releaseOnClose: true, defaultSellerTypeId: 'type-gewerblich' });
+    expect(component.hasUnsavedChanges()).toBe(false);
+  });
+
+  it('discardChanges_defaultSellerTypeChanged_restoresSavedValue', () => {
+    // Arrange
+    const { component } = createForm();
+    component.onDefaultSellerTypeChange('type-gewerblich');
+
+    // Act
+    component.discardChanges();
+
+    // Assert
+    expect(component.defaultSellerTypeId()).toBeNull();
     expect(component.hasUnsavedChanges()).toBe(false);
   });
 });

@@ -28,11 +28,11 @@ describe('SettingsApi', () => {
   });
 
   it('update() hits PUT /api/settings with the scannerPauseMs and releaseOnClose body', () => {
-    settingsApi.update({ scannerPauseMs: 5000, releaseOnClose: false }).subscribe();
+    settingsApi.update({ scannerPauseMs: 5000, releaseOnClose: false, defaultSellerTypeId: null }).subscribe();
 
     const req = httpMock.expectOne('/api/settings');
     expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({ scannerPauseMs: 5000, releaseOnClose: false });
+    expect(req.request.body).toEqual({ scannerPauseMs: 5000, releaseOnClose: false, defaultSellerTypeId: null });
     req.flush(null);
   });
 });

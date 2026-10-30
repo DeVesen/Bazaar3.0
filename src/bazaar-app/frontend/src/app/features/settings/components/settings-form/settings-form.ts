@@ -1,10 +1,16 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
 import { BooleanInput } from '../../../../shared/components/boolean-input/boolean-input';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
 import { SettingsApi } from '../../data/settings-api';
+// Cross-feature import, read-only: `SellerTypesApi.getAll()` fills the Standard-Verkäufer-Typ select
+// (same read-only pattern as verkaeufer-dialog / intake-wizard).
+// eslint-disable-next-line boundaries/dependencies
+import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-types-api';
 
 interface ValidationProblemBody {
   errors?: Record<string, string[]>;
@@ -35,13 +41,16 @@ const MAX_SCANNER_PAUSE_MS = 15000;
  * Der Schalter `releaseOnClose` (`app-boolean-input`) ist ein reiner Signal-Wert: Er wird erst über
  * „Speichern" wirksam und gemeinsam mit der Scan-Pause per `PUT /api/settings` gesendet.
  *
+ * Gleiches gilt für `defaultSellerTypeId` (Select „Standard-Verkäufer-Typ"): `null` = kein fester
+ * Standard, „Neuer Verkäufer" und die Artikelannahme schlagen dann den häufigsten Typ vor.
+ *
  * Ungespeicherte Änderungen (docs/forge/2026-10-18-einstellungen-tabs/spec.md): `hasUnsavedChanges`
  * vergleicht die Eingaben mit den zuletzt geladenen oder gespeicherten Werten; `discardChanges()`
  * stellt diese Werte wieder her. Die Einstellungsseite fragt damit vor einem Tab-Wechsel nach.
  */
 @Component({
   selector: 'app-settings-form',
-  imports: [ButtonModule, BooleanInput, InputGroup],
+  imports: [FormsModule, ButtonModule, SelectModule, BooleanInput, InputGroup],
   templateUrl: './settings-form.html',
   styleUrl: './settings-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,37 +58,49 @@ const MAX_SCANNER_PAUSE_MS = 15000;
 export class SettingsForm implements AfterViewInit {
   private readonly settingsApi = inject(SettingsApi);
   private readonly messageService = inject(MessageService);
+  private readonly sellerTypesApi = inject(SellerTypesApi);
 
   private readonly inputGroupRef = viewChild<InputGroup>('scannerPauseInput');
   /** Zuletzt geladener oder gespeicherter Wert — Bezug für `hasUnsavedChanges` und `discardChanges()`. */
   private readonly savedScannerPauseMs = signal<number>(0);
   private readonly savedReleaseOnClose = signal<boolean>(true);
+  private readonly savedDefaultSellerTypeId = signal<string | null>(null);
 
   readonly scannerPauseMs = signal<number>(0);
   /** Standardstellung „an" (Verhalten wie heute), bis die Einstellungen geladen sind. */
   readonly releaseOnClose = signal<boolean>(true);
+  readonly defaultSellerTypeId = signal<string | null>(null);
+  readonly sellerTypes = signal<SellerType[]>([]);
   readonly saving = signal(false);
   readonly fieldError = signal<string | null>(null);
   readonly hasUnsavedChanges = computed(
     () =>
       this.scannerPauseMs() !== this.savedScannerPauseMs() ||
-      this.releaseOnClose() !== this.savedReleaseOnClose(),
+      this.releaseOnClose() !== this.savedReleaseOnClose() ||
+      this.defaultSellerTypeId() !== this.savedDefaultSellerTypeId(),
   );
 
   readonly helpText = `Wie lange das Scan-Ergebnis am Annahmetisch angezeigt wird, bevor automatisch weitergescannt werden kann. Gültige Werte: ${SettingsForm.formatMs(MIN_SCANNER_PAUSE_MS)}–${SettingsForm.formatMs(MAX_SCANNER_PAUSE_MS)} ms.`;
   readonly releaseOnCloseLabel = 'Artikel erst beim Schließen des Freigabe-Dialogs freigeben';
   readonly releaseOnCloseHelpText = 'Gilt nur für Verkäufer ohne Gebühr.';
+  readonly defaultSellerTypePlaceholder = 'Häufigster Typ (automatisch)';
+  readonly defaultSellerTypeHelpText =
+    'Wird bei „Neuer Verkäufer" und in der Artikelannahme vorausgewählt. Leer = am häufigsten zugewiesener Typ.';
 
   private static formatMs(value: number): string {
     return new Intl.NumberFormat('de-DE').format(value);
   }
 
   ngAfterViewInit(): void {
+    this.sellerTypesApi.getAll().subscribe((types) => this.sellerTypes.set(types));
     this.settingsApi.get().subscribe((settings) => {
+      const defaultSellerTypeId = settings.defaultSellerTypeId ?? null;
       this.savedScannerPauseMs.set(settings.scannerPauseMs);
       this.savedReleaseOnClose.set(settings.releaseOnClose);
+      this.savedDefaultSellerTypeId.set(defaultSellerTypeId);
       this.showValue(settings.scannerPauseMs);
       this.releaseOnClose.set(settings.releaseOnClose);
+      this.defaultSellerTypeId.set(defaultSellerTypeId);
     });
   }
 
@@ -91,17 +112,23 @@ export class SettingsForm implements AfterViewInit {
     this.releaseOnClose.set(value);
   }
 
+  onDefaultSellerTypeChange(value: string | null): void {
+    this.defaultSellerTypeId.set(value ?? null);
+  }
+
   onSave(): void {
     const scannerPauseMs = this.scannerPauseMs();
     const releaseOnClose = this.releaseOnClose();
+    const defaultSellerTypeId = this.defaultSellerTypeId();
     this.fieldError.set(null);
     this.saving.set(true);
 
-    this.settingsApi.update({ scannerPauseMs, releaseOnClose }).subscribe({
+    this.settingsApi.update({ scannerPauseMs, releaseOnClose, defaultSellerTypeId }).subscribe({
       next: () => {
         this.saving.set(false);
         this.savedScannerPauseMs.set(scannerPauseMs);
         this.savedReleaseOnClose.set(releaseOnClose);
+        this.savedDefaultSellerTypeId.set(defaultSellerTypeId);
         this.messageService.add({ severity: 'success', summary: '✓ Einstellungen gespeichert' });
       },
       error: (error: unknown) => {
@@ -129,6 +156,7 @@ export class SettingsForm implements AfterViewInit {
     this.fieldError.set(null);
     this.showValue(this.savedScannerPauseMs());
     this.releaseOnClose.set(this.savedReleaseOnClose());
+    this.defaultSellerTypeId.set(this.savedDefaultSellerTypeId());
   }
 
   private showValue(value: number): void {
