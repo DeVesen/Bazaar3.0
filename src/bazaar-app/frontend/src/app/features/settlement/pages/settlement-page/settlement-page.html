@@ -1,6 +1,6 @@
 <app-page title="Abrechnung">
 @if (state() === 'selection') {
-  <app-seller-search [sellers]="sellers()" [hint]="hint" [showCreateButton]="false" (sellerSelected)="onSellerSelected($event)" />
+  <app-seller-search [sellers]="sellers()" [hint]="hint" [showCreateButton]="false" [showScanButton]="true" (sellerSelected)="onSellerSelected($event)" />
 } @else if (settlement(); as s) {
   <div class="settlement-page">
     <p-toolbar class="settlement-page__actionbar">

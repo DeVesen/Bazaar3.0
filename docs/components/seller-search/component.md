@@ -29,13 +29,12 @@ updated: 2026-08-18
 
 Das Seller-Search-Panel ist die einheitliche Einstiegs-Ansicht für Prozesse, die einen einzelnen Verkäufer erfordern. Es besteht aus einem Suchfeld in einer Card sowie einer Trefferliste darunter.
 
-Das Suchfeld ist ein [Input](../app-input/component.md) mit dem Label „Verkäufer" im Feldrahmen, ohne Lupe. Rechts bündig am Feld: Kamera (nur mit `showScanButton`), Nummernblock, Löschen, Übernehmen — wie das Verkauf-Feld. Startmodus Tastatur; erneuter Klick auf Kamera/Nummernblock schaltet zurück auf Tastatur.
+Das Suchfeld ist ein [Input](../app-input/component.md) mit dem Label „Verkäufer" im Feldrahmen, ohne Lupe. Rechts bündig am Feld: Kamera (nur mit `showScanButton`), Löschen, Übernehmen. Kein Nummernblock — Verkäufer-IDs sind alphanumerisch (Entscheidung 2026-10-31). Startmodus Tastatur; erneuter Klick auf Kamera schaltet zurück auf Tastatur.
 
 | Modus | Besonderheit in der Verkäufersuche |
 |---|---|
 | Tastatur | Manuelle Eingabe von Name oder Nummer |
 | Kamera | QR-/Barcode-Erkennung; Kamerabild ersetzt die Trefferliste. Nur verfügbar, wenn `showScanButton` gesetzt ist |
-| Numpad | Für die Suche nach reiner Verkäufernummer; `⏎` löst dieselbe Aktion aus wie `Enter` (Abschnitt 4) |
 
 Epic_Abrechnung beschreibt es explizit als „identische Suchfeld-Ansicht wie Artikelannahme". Einzige Unterschiede zwischen den Verwendungsstellen sind über Parameter steuerbar:
 
@@ -43,7 +42,7 @@ Epic_Abrechnung beschreibt es explizit als „identische Suchfeld-Ansicht wie Ar
 |---|---|---|
 | Hinweistext | „ENTER bei 1 Treffer öffnet Wizard · Kein Treffer: Anlegen-Button erscheint" | „ENTER bei 1 Treffer oder direkt klicken" |
 | Anlegen-Button | ✅ (erscheint bei 0 Treffern) | ❌ |
-| Scan-Button | ✅ | ❌ |
+| Scan-Button | ✅ | ✅ |
 
 ---
 
