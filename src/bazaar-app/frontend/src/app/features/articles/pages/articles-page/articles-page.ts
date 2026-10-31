@@ -7,6 +7,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Page } from '../../../../shared/components/page/page';
@@ -19,6 +20,7 @@ import {
   Table,
 } from '../../../../shared/components/table/table';
 import { RoleService } from '../../../../core/auth/role.service';
+import { PrintService } from '../../../../core/print/print.service';
 import { ArticleDetail, ArticleListItem } from '../../data/articles-api';
 import { ArticlesStore } from '../../articles-store';
 import {
@@ -131,6 +133,7 @@ interface ProblemDetailsBody {
   selector: 'app-articles-page',
   imports: [
     FormsModule,
+    ButtonModule,
     IconFieldModule,
     InputIconModule,
     InputTextModule,
@@ -152,6 +155,7 @@ export class ArticlesPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly roleService = inject(RoleService);
   private readonly messageService = inject(MessageService);
+  private readonly printService = inject(PrintService);
 
   readonly isAdmin = this.roleService.isAdmin;
 
@@ -298,6 +302,17 @@ export class ArticlesPage {
 
   onStatusChange(status: string | null): void {
     this.articlesStore.setFilters({ status });
+  }
+
+  /**
+   * Artikel-Aushang: druckt alle Artikel, die zu den aktiven Filtern passen — nicht nur die
+   * sichtbare Tabellenseite. Sortierung und Seite der Tabelle gehen bewusst nicht mit; der
+   * Aushang sortiert selbst (Kategorie → Marke → Größe → Farbe → Bezeichnung).
+   */
+  onPrint(): void {
+    if (this.totalCount() === 0) return;
+    const { q, brand, category, status } = this.filters();
+    this.printService.printArticleAushang({ q, brand, category, status });
   }
 
   statusLabel(status: string): string {
