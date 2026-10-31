@@ -1,5 +1,6 @@
 import {
   PRINT_LAYOUT,
+  aushangListHeightMm,
   firstPageListHeightMm,
   listCapacityRows,
   paginateRows,
@@ -139,5 +140,21 @@ describe('paginateRows', () => {
 
     // Assert
     expect(pages.map((page) => page.length)).toEqual([24, 32, 25]);
+  });
+});
+
+describe('aushangListHeightMm', () => {
+  it('aushangListHeightMm_always_isInnerHeightMinusHeaderAndFooter', () => {
+    // Arrange & Act
+    const height = aushangListHeightMm();
+
+    // Assert
+    expect(height).toBe(296 - 2 * PRINT_LAYOUT.paddingMm - PRINT_LAYOUT.headerMm - PRINT_LAYOUT.footerMm);
+    expect(height).toBe(244);
+  });
+
+  it('aushangListHeightMm_always_fitsMoreRowsThanTheBelegsRestPage', () => {
+    // Arrange & Act & Assert
+    expect(listCapacityRows(aushangListHeightMm())).toBeGreaterThan(listCapacityRows(restPageListHeightMm()));
   });
 });

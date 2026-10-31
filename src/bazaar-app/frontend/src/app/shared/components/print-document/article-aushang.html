@@ -1,0 +1,60 @@
+<div class="print-doc">
+  @for (page of pages(); track $index) {
+    <section
+      class="print-page"
+      [style.width.mm]="layout.pageWidthMm"
+      [style.height.mm]="layout.pageHeightMm"
+      [style.padding.mm]="layout.paddingMm"
+    >
+      <header class="print-doc__head" [style.height.mm]="layout.headerMm">
+        <div class="print-doc__text print-doc__text--left" [innerHTML]="headLeftHtml()"></div>
+        <div class="print-doc__text print-doc__text--center" [innerHTML]="headCenterHtml()"></div>
+        <div class="print-doc__meta">{{ model().printedAt | date: 'dd.MM.yyyy, HH:mm' }}</div>
+      </header>
+
+      <div class="print-doc__list" [style.height.mm]="listMm">
+        <table class="print-doc__table">
+          <colgroup>
+            <col />
+            <col class="print-doc__col--aushang-brand" />
+            <col class="print-doc__col--aushang-color" />
+            <col class="print-doc__col--aushang-size" />
+            <col class="print-doc__col--aushang-price" />
+          </colgroup>
+          <thead>
+            <tr [style.height.mm]="layout.tableHeadMm">
+              <th>Bezeichnung</th>
+              <th>Marke</th>
+              <th>Farbe</th>
+              <th>Größe</th>
+              <th class="print-doc__cell--price">Preis</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of page; track $index) {
+              @if (row.kind === 'group') {
+                <tr class="print-doc__group-row" [style.height.mm]="layout.rowMm">
+                  <th colspan="5">{{ row.label }}</th>
+                </tr>
+              } @else {
+                <tr [style.height.mm]="layout.rowMm">
+                  <td>{{ row.article.name }}</td>
+                  <td>{{ row.article.brand }}</td>
+                  <td>{{ row.article.color ?? '' }}</td>
+                  <td>{{ row.article.size ?? '' }}</td>
+                  <td class="print-doc__cell--price">{{ formatCurrency(row.article.price) }}</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="print-doc__foot" [style.height.mm]="layout.footerMm">
+        <div class="print-doc__text print-doc__text--left" [innerHTML]="footLeftHtml()"></div>
+        <div class="print-doc__text print-doc__text--center" [innerHTML]="footCenterHtml()"></div>
+        <div class="print-doc__page-no">Seite {{ $index + 1 }} von {{ pages().length }}</div>
+      </footer>
+    </section>
+  }
+</div>
