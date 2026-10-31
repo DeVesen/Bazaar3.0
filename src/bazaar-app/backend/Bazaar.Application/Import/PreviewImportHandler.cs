@@ -21,6 +21,10 @@ public sealed class PreviewImportHandler(
     {
         var file = await ImportFileParser.Parse(fileContent, cancellationToken);
 
+        // Same check as RunImportHandler, so a number collision shows up on
+        // the preview already — not only when the admin confirms the import.
+        await ImportArticleNumberCheck.EnsureNoConflicts(file.Sellers!, sellerRepository, articleRepository, cancellationToken);
+
         var sellers = file.Sellers!;
         var sellerCount = sellers.Count;
         var articleCount = sellers.Sum(s => s.Articles!.Count);

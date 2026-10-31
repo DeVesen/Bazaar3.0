@@ -17,6 +17,15 @@ import { SellerType, SellerTypesApi } from '../../../seller-types/data/seller-ty
 
 const IMPORT_SUCCESS_RESET_DELAY_MS = 2000;
 
+/**
+ * Klartext eines 409 (z. B. `import.article_number_conflict`: welche Artikelnummer mit wem
+ * kollidiert) — der Server formuliert ihn als ProblemDetails-`detail`; alle anderen Fehler: null.
+ */
+function conflictDetail(error: unknown): string | null {
+  if (!(error instanceof HttpErrorResponse) || error.status !== 409) return null;
+  return (error.error as { detail?: string } | null)?.detail ?? null;
+}
+
 const SKIPPED_REASON_TEXT: Record<string, (seller: SkippedSeller) => string> = {
   has_sold_articles: (seller) => `${seller.soldCount ?? 0} verkaufte Artikel`,
   settled: () => 'abgerechnet',
@@ -117,6 +126,12 @@ export class ImportPanel implements OnDestroy {
           this.state.set('empty');
           return;
         }
+        const detail = conflictDetail(error);
+        if (detail) {
+          this.previewError.set(detail);
+          this.state.set('empty');
+          return;
+        }
         this.messageService.add({ severity: 'error', summary: 'Vorschau konnte nicht geladen werden' });
         this.state.set('empty');
       },
@@ -166,8 +181,13 @@ export class ImportPanel implements OnDestroy {
           this.resetToEmpty();
         }, IMPORT_SUCCESS_RESET_DELAY_MS);
       },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Import fehlgeschlagen' });
+      error: (error: unknown) => {
+        const detail = conflictDetail(error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Import fehlgeschlagen',
+          ...(detail ? { detail, sticky: true } : {}),
+        });
         // Stays on the preview (not reset to empty) so a transient failure doesn't force the
         // admin to re-upload — same file/mapping/checkboxes are still there for a retry.
         this.state.set('preview');

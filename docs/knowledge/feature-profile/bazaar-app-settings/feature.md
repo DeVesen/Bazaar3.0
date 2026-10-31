@@ -29,6 +29,7 @@
 - User maps unbekannte Verkäufer-Typen aus der Import-Datei auf bestehende Typen, bevor der Import bestätigt werden kann — `import-panel.ts` `confirmDisabled`
 - User can opt in/out of Marken-/Kategorien-Übernahme per Checkbox — `import-panel.ts` `importBrands`/`importCategories`
 - User sees a distinct error für ein falsches Datei-Schema (400 `import.invalid_format`) vs. andere Fehler — `import-panel.ts` `onFileSelect()`
+- User sees which article numbers collide and with which seller (409 `import.article_number_conflict`, in Vorschau als Fehlertext, beim Ausführen als stehender Toast) — `ImportArticleNumberCheck`, `import-panel.ts` `conflictDetail()`
 
 ### Benutzerverwaltung (`user-management` + `user-dialog`)
 - User sees eine Tabelle aller Benutzer (Benutzername, Rolle, "Wechsel offen"-Status) — `features/settings/components/user-management/user-management.{ts,html}`

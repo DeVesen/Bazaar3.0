@@ -21,6 +21,8 @@ public class PreviewImportHandlerTests
     {
         _sellerRepository.Setup(r => r.GetById(It.IsAny<string>())).ReturnsAsync((Seller?)null);
         _articleRepository.Setup(r => r.GetAllBySellerId(It.IsAny<string>())).ReturnsAsync(Array.Empty<Article>());
+        _articleRepository.Setup(r => r.GetByNumbers(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Article>());
         _brandRepository.Setup(r => r.ExistsByNameIgnoreCase(It.IsAny<string>())).ReturnsAsync(false);
         _categoryRepository.Setup(r => r.ExistsByNameIgnoreCase(It.IsAny<string>())).ReturnsAsync(false);
         _sellerTypeRepository.Setup(r => r.GetAll()).ReturnsAsync(Array.Empty<SellerType>());
@@ -242,5 +244,20 @@ public class PreviewImportHandlerTests
 
         Assert.Equal(2, result.SellerCount);
         Assert.Equal(3, result.ArticleCount);
+    }
+
+    [Fact]
+    public async Task Handle_ArticleNumberOwnedBySellerNotInFile_ThrowsConflictWithReadableMessage()
+    {
+        var json = JsonWithSellers(SellerJson(id: "SELLER001", articlesJson: ArticleJson("ARTICLE001", 999)));
+        _articleRepository.Setup(r => r.GetByNumbers(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([SoldArticle("SELLER-LOCAL")]);
+        var sut = CreateSut();
+
+        var exception = await Assert.ThrowsAsync<ConflictException>(
+            () => sut.Handle(ToStream(json), TestContext.Current.CancellationToken));
+
+        Assert.Equal("import.article_number_conflict", exception.ErrorCode);
+        Assert.Contains("999 ist bereits vergeben an Verkäufer SELLER-LOCAL", exception.Message);
     }
 }

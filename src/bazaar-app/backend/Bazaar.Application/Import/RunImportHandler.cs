@@ -53,6 +53,8 @@ public sealed class RunImportHandler(
                 "import.unmapped_seller_type");
         }
 
+        await ImportArticleNumberCheck.EnsureNoConflicts(file.Sellers!, sellerRepository, articleRepository, cancellationToken);
+
         var importedSellers = 0;
         var importedArticles = 0;
         var skippedSellers = 0;
