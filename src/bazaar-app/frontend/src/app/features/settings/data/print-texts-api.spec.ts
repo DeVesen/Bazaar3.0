@@ -39,6 +39,7 @@ describe('PrintTextsApi', () => {
     // Arrange
     const texts = emptyPrintTexts();
     texts.abgabeBeleg.text3 = '**Hinweis**';
+    texts.articleAushang.text4 = 'Fuß Mitte';
 
     // Act
     printTextsApi.update(texts).subscribe();
@@ -50,15 +51,18 @@ describe('PrintTextsApi', () => {
     expect(req.request.body).toEqual(texts);
   });
 
-  it('emptyPrintTexts_always_returnsTenEmptyTextsInIndependentObjects', () => {
+  it('emptyPrintTexts_always_returnsFourteenEmptyTextsInIndependentObjects', () => {
     // Arrange & Act
     const first = emptyPrintTexts();
     const second = emptyPrintTexts();
     first.abgabeBeleg.text1 = 'x';
+    first.articleAushang.text1 = 'y';
 
     // Assert
     expect(Object.keys(first.abgabeBeleg)).toEqual(['text1', 'text2', 'text3', 'text4', 'text5']);
     expect(Object.keys(first.verkaeuferUebersicht)).toEqual(['text1', 'text2', 'text3', 'text4', 'text5']);
+    expect(Object.keys(first.articleAushang)).toEqual(['text1', 'text2', 'text3', 'text4']);
     expect(second.abgabeBeleg.text1).toBe('');
+    expect(second.articleAushang.text1).toBe('');
   });
 });

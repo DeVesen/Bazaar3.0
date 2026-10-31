@@ -51,6 +51,24 @@ export interface ArticleListResponse {
   pageSize: number;
 }
 
+/** One line of `GET /api/articles/print` — exactly the fields the Artikel-Aushang prints. */
+export interface ArticlePrintItem {
+  name: string;
+  brand: string;
+  category: string;
+  size: string | null;
+  color: string | null;
+  price: number;
+}
+
+/** Filters of the article list that also scope the Artikel-Aushang (no paging, no sort). */
+export interface GetArticlesForPrintParams {
+  q?: string | null;
+  brand?: string | null;
+  category?: string | null;
+  status?: string | null;
+}
+
 export interface GetArticlesParams {
   page?: number;
   pageSize?: number;
@@ -128,6 +146,16 @@ export class ArticlesApi {
     if (params.status) httpParams = httpParams.set('status', params.status);
     if (params.sort) httpParams = httpParams.set('sort', params.sort);
     return this.http.get<ArticleListResponse>('/api/articles', { params: httpParams });
+  }
+
+  /** All articles matching the filters, unpaginated — data of the Artikel-Aushang. */
+  getForPrint(params: GetArticlesForPrintParams): Observable<ArticlePrintItem[]> {
+    let httpParams = new HttpParams();
+    if (params.q) httpParams = httpParams.set('q', params.q);
+    if (params.brand) httpParams = httpParams.set('brand', params.brand);
+    if (params.category) httpParams = httpParams.set('category', params.category);
+    if (params.status) httpParams = httpParams.set('status', params.status);
+    return this.http.get<ArticlePrintItem[]>('/api/articles/print', { params: httpParams });
   }
 
   getById(id: string): Observable<ArticleDetail> {
