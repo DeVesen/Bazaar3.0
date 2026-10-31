@@ -2,12 +2,14 @@
 id: F-BA-011
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-10-31
 ---
 
 # Epic: Druckfunktionen
 
 > **Nachtrag 2026-10-14:** Layout, Freitexte, Kennzahl-Kacheln, Druckbutton an der Verkäufer-Kachel und die Verkäufer-Übersicht ohne „vorläufig/endgültig" sind in [Abgabe-Beleg und Verkäufer-Übersicht drucken](../../../../forge/2026-10-14-beleg-druck-vorlagen/spec.md) neu festgelegt und ersetzen die Beschreibungen in den Abschnitten 1 und 2 dieses Epics, soweit sie widersprechen (z. B. „gezahlter Gebührenbetrag" → berechnete Gebühr, „Auszahlung" → „Verdienst").
+
+> **Nachtrag 2026-10-31:** Als dritter Ausdruck kommt der **Artikel-Aushang** hinzu (Abschnitt 5): alle Artikel des Filterergebnisses der Artikel-Seite, nach Kategorie gruppiert. Festlegung in [Artikel-Aushang drucken](../../../../forge/2026-10-31-artikel-aushang-druck/spec.md).
 
 ## Index
 - Überblick — Druckdokumente
@@ -15,11 +17,12 @@ updated: 2026-08-17
 - 2. Verkäufer-Übersicht — Abrechnungs-Beleg
 - 3. Ablauf beim Abrechnen — Reihenfolge
 - 4. Druck-Technisches — Print-CSS, QR-Code
+- 5. Artikel-Aushang — Artikel-Seite
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
 **App:** Bazaar Haupt-App
-**Auslöser:** Automatisch nach der Artikelannahme und nach dem Freigabe-Scan · Manuell über „Drucken" in der Abrechnung
+**Auslöser:** Automatisch nach der Artikelannahme und nach dem Freigabe-Scan · Manuell über „Drucken" in der Abrechnung · Manuell über „Drucken" auf der Artikel-Seite
 
 **Ziel:** Kassenpersonal druckt Abgabe-Belege und Abrechnungsübersichten.
 
@@ -31,7 +34,7 @@ Component-Details → [`print-document`](../../components/print-document.md)
 
 ## Überblick
 
-Zwei Druckdokumente. Beide sind **Belege über Geld**, nicht nur Artikellisten — an beiden Stellen wechselt Bargeld den Besitzer.
+Drei Druckdokumente. Abgabe-Beleg und Verkäufer-Übersicht sind **Belege über Geld**, nicht nur Artikellisten — an beiden Stellen wechselt Bargeld den Besitzer. Der Artikel-Aushang (Abschnitt 5) ist dagegen keine Quittung, sondern eine Liste zum Aushängen oder Veröffentlichen.
 
 Beim Drucken wird nur der relevante Content gerendert, keine Sidebar und kein Layout-Chrome (Abschnitt 4).
 
@@ -113,11 +116,23 @@ Der Grund für diese Reihenfolge steckt in den Button-Regeln der [Abrechnung](..
 
 ## 4. Druck-Technisches
 
-**Dieses Epic hat keine eigene Seite und keine Route.** Beide Ausdrucke entstehen als Aktion innerhalb eines Arbeitsschritts. Ein Menüpunkt „Drucken", hinter dem erst ausgewählt werden müsste, was zu drucken ist, wäre ein Umweg.
+**Dieses Epic hat keine eigene Seite und keine Route.** Alle Ausdrucke entstehen als Aktion innerhalb eines Arbeitsschritts. Ein Menüpunkt „Drucken", hinter dem erst ausgewählt werden müsste, was zu drucken ist, wäre ein Umweg.
 
-**Abgrenzung zur App Shell:** Die Basisregel „Sidebar und Layout-Chrome beim Drucken ausblenden" liefert [Epic_App_Shell](../Epic_App_Shell/epic.md) (BSHELL-S02 AC-6) für **jede** Seite. Dieses Epic ergänzt nur die beiden fachlichen Druckansichten mit ihrem eigenen Inhalt und Aufbau — kein gemeinsames Print-Stylesheet, das beides bedienen will.
+**Abgrenzung zur App Shell:** Die Basisregel „Sidebar und Layout-Chrome beim Drucken ausblenden" liefert [Epic_App_Shell](../Epic_App_Shell/epic.md) (BSHELL-S02 AC-6) für **jede** Seite. Dieses Epic ergänzt nur die fachlichen Druckansichten mit ihrem eigenen Inhalt und Aufbau — kein gemeinsames Print-Stylesheet, das beides bedienen will.
 
 - QR-Code wird client-seitig generiert (kein externer Service — Offline-Anforderung!) über die Shared-Component [`qr-code`](../../../../components/qr-code/component.md) (`@zxing/library`, SVG); dieselbe Komponente nutzt die Voranmelde-App für die Verkäufernummer-Anzeige
+
+---
+
+## 5. Artikel-Aushang
+
+**Auslöser:** Klick auf „Drucken" in der Filterleiste der [Artikel-Seite](../Epic_Artikel/epic.md) (Abschnitt 6). Für Admin und Kassenpersonal, bei leerem Filterergebnis deaktiviert.
+
+**Inhalt:** alle Artikel, die zu den aktiven Filtern passen — nach Kategorie gruppiert, je Artikel Bezeichnung, Marke, Farbe, Größe und Preis. Keine Artikelnummer, keine Summen, keine Kennzahl-Kacheln, kein Verkäufer-Bezug.
+
+**Kopf und Fuß:** je drei gleiche Drittel; links und Mitte ein Markdown-Freitext (vier Freitexte, gepflegt unter Einstellungen → Beleg Druck), rechts Datum und Uhrzeit des Drucks bzw. „Seite x von y".
+
+**Zweck:** Aushang oder PDF zum Veröffentlichen der Artikelliste, z. B. aller Artikel „Im Verkauf". Anders als die Belege dokumentiert er keinen Geldfluss.
 
 ## Akzeptanzkriterien
 
@@ -129,6 +144,7 @@ Der Grund für diese Reihenfolge steckt in den Button-Regeln der [Abrechnung](..
 6. **AC-6** — THE SYSTEM SHALL den Drucken-Button in der Abrechnung auch nach dem Abrechnen erreichbar halten, damit der Verkäufer den endgültigen Beleg erhält.
 7. **AC-7** — THE SYSTEM SHALL für beide Ausdrucke eine eigene Druckansicht mit eigenem Aufbau rendern und dabei die Print-Basisregel der App Shell nutzen, statt Sidebar und Chrome erneut selbst auszublenden.
 8. **AC-8** — THE SYSTEM SHALL den QR-Code ausschließlich clientseitig ohne externen Service generieren.
+9. **AC-9** — WHEN „Drucken" auf der Artikel-Seite geklickt wird, THEN SHALL das System den Artikel-Aushang mit allen Artikeln des Filterergebnisses drucken; Details und Kriterien → [Epic_Artikel](../Epic_Artikel/epic.md) AC-13 bis AC-19.
 
 ## Tags & Piles
 

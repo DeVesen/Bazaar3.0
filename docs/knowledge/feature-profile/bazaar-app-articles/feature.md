@@ -2,7 +2,7 @@
 
 **Intent:** Übersicht und Korrektur aller Artikel im laufenden Basar — durchsuchen, filtern, sortieren, Stammdaten korrigieren, Status-Zeitstempel verwalten (Admin).
 **Coverage:** partial
-**Last reviewed:** 2026-10-15
+**Last reviewed:** 2026-10-31
 
 ## Capabilities
 - User can search articles by number/name (debounced) — `pages/articles-page/articles-page.ts` (`onQInputChange`)
@@ -20,9 +20,13 @@
 - Both roles (not just admin) can edit basic Stammfelder — `PUT /api/articles/{id}` is `authenticated`, not `admin`
 - User sees Suche (mittig) und die Auswahlfelder Marke, Kategorie und Status (rechts) in einer gerahmten Filterleiste über der Tabelle — `pages/articles-page/articles-page.html` (`p-toolbar.articles-page__filterbar`, Templates `#center`/`#end`)
 
+- User (admin and Kassenpersonal) can print an **Artikel-Aushang** of all articles matching the active filters via the „Drucken" button, last element right in the filter bar; disabled when the result is empty — `articles-page.{html,ts}` (`onPrint`), `core/print/print.service.ts` (`printArticleAushang`)
+- Aushang groups by Kategorie (alphabetical), sorts by Marke → Größe → Farbe → Bezeichnung (natural, German collation, empty last) and prints Bezeichnung/Marke/Farbe/Größe/Preis; Kopf/Fuß in Dritteln with four Markdown Freitexte plus Datum rechts oben and „Seite x von y" rechts unten — `shared/components/print-document/article-aushang.{ts,html,model.ts}`
+- A category that runs onto the next page continues there without a repeated heading — `article-aushang.ts` (`paginateRows`)
+
 ## Spans
 - **Frontend:** `features/articles/pages/articles-page/`, `features/articles/components/{artikel-dialog,article-status-popup}/`, `features/articles/{articles-store.ts, data/articles-api.ts}`; cross-feature read-only imports of `brands/data/brands-api` and `categories/data/categories-api` for filter dropdown options
-- **Backend:** `Bazaar.Api/Features/Articles/ArticleEndpoints.cs` (`GET /api/articles`, `GET /api/articles/next-number`, `GET /api/articles/by-number/{number}`, `GET/PUT/DELETE /api/articles/{id}`, `PUT /api/articles/{id}/timestamps`)
+- **Backend:** `Bazaar.Api/Features/Articles/ArticleEndpoints.cs` (`GET /api/articles`, `GET /api/articles/next-number`, `GET /api/articles/by-number/{number}`, `GET/PUT/DELETE /api/articles/{id}`, `PUT /api/articles/{id}/timestamps`, `GET /api/articles/print` — unpaginated, same filters as the list via the shared `LoadFiltered` in `ArticleListQuery`)
 
 ## Notes
 - `artikel-dialog`'s price field uses shared `app-input-group` (variant "price"), not a plain input — worth knowing before touching price UX elsewhere.

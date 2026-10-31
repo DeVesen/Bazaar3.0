@@ -1,7 +1,7 @@
 ---
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-10-30
+updated: 2026-10-31
 ---
 
 # API: Einstellungen
@@ -14,6 +14,8 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md)
 |---|---|
 | `GET /api/settings` | `authenticated` |
 | `PUT /api/settings` | `admin` |
+| `GET /api/settings/print-texts` | `authenticated` |
+| `PUT /api/settings/print-texts` | `admin` |
 
 ---
 
@@ -58,6 +60,30 @@ PUT /api/settings
 `defaultSellerTypeId` ist optional: `null`, leer oder weggelassen = kein Standard. Eine unbekannte Id lehnt der Server mit `404` und Code `seller_type.not_found` ab — derselbe Fehler wie beim Anlegen eines Verkäufers mit unbekanntem Typ.
 
 Wertebereich `500`–`15000` ms: Unter einer halben Sekunde ist das Scan-Ergebnis nicht lesbar, über 15 Sekunden blockiert es den Annahmetisch. Fünf Sekunden Zwangspause je Scan summieren sich bei 300 Artikeln schon auf 25 Minuten Warten — der Default von 3 000 ms ist bewusst niedrig.
+
+---
+
+## 3. `GET`/`PUT /api/settings/print-texts` — Freitexte der Druckdokumente
+
+Markdown-Freitexte für Kopf- und Fußzeile (und beim Beleg für den Text über der Artikelliste). Lesen darf jeder angemeldete Nutzer (jeder Druck braucht die Texte), Schreiben nur ein Admin. Drei Sätze:
+
+```
+GET /api/settings/print-texts
+
+→ 200 OK
+{
+  "abgabeBeleg":          { "text1": "…", "text2": "…", "text3": "…", "text4": "…", "text5": "…" },
+  "verkaeuferUebersicht": { "text1": "…", "text2": "…", "text3": "…", "text4": "…", "text5": "…" },
+  "articleAushang":       { "text1": "…", "text2": "…", "text3": "…", "text4": "…" }
+}
+```
+
+| Satz | Felder |
+|---|---|
+| `abgabeBeleg`, `verkaeuferUebersicht` | `text1` Kopfzeile links · `text2` Kopfzeile Mitte · `text3` über der Artikelliste · `text4` Fußzeile links · `text5` Fußzeile Mitte |
+| `articleAushang` | `text1` Kopfzeile links · `text2` Kopfzeile Mitte · `text3` Fußzeile links · `text4` Fußzeile Mitte (rechts stehen feste Werte: Datum/Uhrzeit bzw. „Seite x von y") |
+
+`PUT` ersetzt **alle drei Sätze vollständig**: `204 No Content`; `400`, wenn ein Satz fehlt, ein Text fehlt (`null`) oder länger als **5000 Zeichen** ist. Bestehende Datenbanken erhalten für den Artikel-Aushang leere Texte (Migration). Änderungen gelten ab dem nächsten Druck. Darstellung und Sanitizing (keine Links, Bilder, HTML) sind Sache des Frontends → [`print-document`](../components/print-document.md).
 
 ---
 

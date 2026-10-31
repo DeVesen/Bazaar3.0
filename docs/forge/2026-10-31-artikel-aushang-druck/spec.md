@@ -1,6 +1,6 @@
 # Artikel-Aushang drucken
 
-Status: Entwurf — wartet auf Bestätigung
+Status: bestätigt am 2026-10-31
 Art: verankert
 Basis: 3e77fcc
 
@@ -47,9 +47,10 @@ Der Anwender stellt in den Filtern z. B. den Status „Im Verkauf" ein und klick
 - **AC-16** Gegeben die Artikelmenge lässt sich nicht laden, wenn der Anwender „Drucken" klickt, dann erscheint der Toast „Artikel konnten nicht geladen werden" und die Vorschau öffnet sich nicht. · Aussage
 - **AC-17** Gegeben das Format, wenn die Vorschau öffnet, dann ist das Papier DIN A4 hochkant und nur der Aushang sichtbar, ohne Navigation oder Seitenelemente. · Aussage
 
-## Offen für die Umsetzung (technisch, keine Fachfrage)
-- Wie die Artikelmenge geladen wird: eigener Endpunkt oder `GET /api/articles` mit „alle". Klärt der Plan anhand von `api/articles.md`.
-- Reihenfolge der Größen „natürlich" vs. Freitext-Größen (z. B. „XL"): der Plan legt die Regel fest und ergänzt sie hier.
+## Umsetzungsentscheidungen (technisch, keine Fachfrage)
+- Die Artikelmenge kommt über einen eigenen Endpunkt `GET /api/articles/print` mit denselben Filtern, ohne Seiten und ohne Obergrenze ([`api/articles.md`](../../requirements/bazaar-app/api/articles.md) §1a); `GET /api/articles` liefert weder Größe noch Farbe und ist auf 200 je Seite begrenzt.
+- Größen sortieren „natürlich" mit deutscher Sortierung: Zahlen als Zahlen (86 vor 104), Texte wie „XL" alphabetisch dazwischen, Groß-/Kleinschreibung egal, leere Werte am Ende.
 
 ## Entscheidungen
+- 2026-10-31 (Umsetzung): Der Test der Artikel-Seite „kein Button in der Filterleiste" ist auf „kein Button links vom Suchfeld" eingegrenzt, weil der Button „Drucken" laut Spec in der Filterleiste steht (rechts, hinter den Selects).
 - 2026-10-31: Datum/Uhrzeit oben rechts (Versehen „links" korrigiert), „Seite x von y" unten rechts. Vier Freitexte statt fünf, weil das rechte Drittel belegt ist.

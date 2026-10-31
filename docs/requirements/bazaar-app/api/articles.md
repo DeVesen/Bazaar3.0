@@ -15,6 +15,7 @@ Querschnitts-Regeln → [`cross-cutting.md`](cross-cutting.md), insbesondere Abs
 | Endpoint | Auth |
 |---|---|
 | `GET /api/articles` | `authenticated` |
+| `GET /api/articles/print` | `authenticated` |
 | `GET /api/articles/by-number/{number}` | `authenticated` |
 | `GET /api/articles/next-number` | `authenticated` |
 | `PUT /api/articles/{id}` | `authenticated` |
@@ -50,6 +51,28 @@ GET /api/articles?page=1&pageSize=50&q=jacke&brand=Nike&category=Jacken&status=s
 | `sort` | `number`, `name`, `category`, `brand`, `price`, `status`, `sellerName` — Default `number:asc` |
 
 Einen Filter über den *Verkäufer-Status* gibt es hier bewusst nicht — er beantwortet auf einer Artikelliste keine Frage ([Epic_Artikel](../epics/Epic_Artikel/epic.md) Abschnitt 1).
+
+---
+
+## 1a. `GET /api/articles/print` — Daten für den Artikel-Aushang
+
+Alle Artikel, die zu den Filtern passen — **ohne Seiten, ohne Sortierung** und ohne Obergrenze —, reduziert auf die Felder des Aushangs ([Epic_Artikel](../epics/Epic_Artikel/epic.md) Abschnitt 6). Nummer, Id und Verkäufer werden nicht ausgeliefert.
+
+```
+GET /api/articles/print?q=jacke&brand=Nike&category=Jacken&status=selling
+
+→ 200 OK
+[
+  { "name": "Winterjacke", "brand": "Nike", "category": "Jacken",
+    "size": "104", "color": "Rot", "price": 12.00 }
+]
+```
+
+| Parameter | Werte |
+|---|---|
+| `q`, `brand`, `category`, `status` | **wie bei `GET /api/articles`** (Abschnitt 1) — dieselbe Filterlogik, damit Tabelle und Aushang immer dieselben Artikel treffen |
+
+`size` und `color` sind `null`, wenn nicht gepflegt. Die Antwort ist unsortiert; Gruppierung nach Kategorie und Sortierung nach Marke → Größe → Farbe → Bezeichnung erledigt das Frontend. Ohne Treffer: `200` mit `[]`.
 
 ---
 
