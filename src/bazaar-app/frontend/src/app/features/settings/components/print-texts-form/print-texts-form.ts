@@ -12,9 +12,47 @@ import {
   emptyPrintTexts,
 } from '../../data/print-texts-api';
 
+/** Ein Eingabefeld eines Abschnitts. */
+interface PrintTextFieldConfig {
+  key: PrintTextField;
+  label: string;
+  fullWidth: boolean;
+}
+
+/** Ein Druckdokument mit seinen Feldern und dem Hinweis zum begrenzten Platz. */
+interface PrintTextSectionConfig {
+  key: PrintTextSection;
+  title: string;
+  fields: readonly PrintTextFieldConfig[];
+  spaceHint: string;
+}
+
+const BELEG_FIELDS: readonly PrintTextFieldConfig[] = [
+  { key: 'text1', label: 'Freitext 1 (Kopfzeile links)', fullWidth: false },
+  { key: 'text2', label: 'Freitext 2 (Kopfzeile Mitte)', fullWidth: false },
+  { key: 'text3', label: 'Freitext 3 (über der Artikelliste)', fullWidth: true },
+  { key: 'text4', label: 'Freitext 4 (Fußzeile links)', fullWidth: false },
+  { key: 'text5', label: 'Freitext 5 (Fußzeile Mitte)', fullWidth: false },
+];
+
+/** Der Aushang hat keinen Text über der Liste; rechts in Kopf und Fuß stehen feste Werte. */
+const AUSHANG_FIELDS: readonly PrintTextFieldConfig[] = [
+  { key: 'text1', label: 'Freitext 1 (Kopfzeile links)', fullWidth: false },
+  { key: 'text2', label: 'Freitext 2 (Kopfzeile Mitte)', fullWidth: false },
+  { key: 'text3', label: 'Freitext 3 (Fußzeile links)', fullWidth: false },
+  { key: 'text4', label: 'Freitext 4 (Fußzeile Mitte)', fullWidth: false },
+];
+
+const BELEG_SPACE_HINT =
+  'Der Platz auf dem Beleg ist begrenzt: Freitext 1, 2, 4 und 5 fassen nur wenige Zeilen in Kopf- bzw. Fußzeile, Freitext 3 höchstens 15 cm über der Artikelliste. Längerer Text wird beim Druck abgeschnitten.';
+
+const AUSHANG_SPACE_HINT =
+  'Rechts in der Kopfzeile stehen immer Datum und Uhrzeit des Drucks, rechts in der Fußzeile „Seite x von y". Der Platz ist begrenzt: Jeder Freitext fasst nur wenige Zeilen in Kopf- bzw. Fußzeile. Längerer Text wird beim Druck abgeschnitten.';
+
 /**
- * Admin-Formular für die zehn Freitexte der Belege (Abgabe-Beleg und Verkäufer-Übersicht, je
- * Freitext 1 bis 5). Ein gemeinsamer Speichern-Button für beide Vorlagen, eigener Endpoint —
+ * Admin-Formular für die vierzehn Freitexte der Druckdokumente (Abgabe-Beleg und
+ * Verkäufer-Übersicht je Freitext 1 bis 5, Artikel-Aushang Freitext 1 bis 4). Ein gemeinsamer
+ * Speichern-Button für alle Vorlagen, eigener Endpoint —
  * unabhängig vom `settings-form` (Scan-Pause). Die Route `/settings` trägt bereits `adminGuard`,
  * deshalb prüft diese Komponente die Rolle nicht erneut.
  *
@@ -37,21 +75,18 @@ export class PrintTextsForm {
   private readonly savedTexts = signal<PrintTexts>(emptyPrintTexts());
 
   readonly maxLength = PRINT_TEXT_MAX_LENGTH;
-  readonly sections: readonly { key: PrintTextSection; title: string }[] = [
-    { key: 'abgabeBeleg', title: 'Abgabe-Beleg' },
-    { key: 'verkaeuferUebersicht', title: 'Verkäufer-Übersicht' },
-  ];
-  readonly fields: readonly { key: PrintTextField; label: string; fullWidth: boolean }[] = [
-    { key: 'text1', label: 'Freitext 1 (Kopfzeile links)', fullWidth: false },
-    { key: 'text2', label: 'Freitext 2 (Kopfzeile Mitte)', fullWidth: false },
-    { key: 'text3', label: 'Freitext 3 (über der Artikelliste)', fullWidth: true },
-    { key: 'text4', label: 'Freitext 4 (Fußzeile links)', fullWidth: false },
-    { key: 'text5', label: 'Freitext 5 (Fußzeile Mitte)', fullWidth: false },
+  readonly sections: readonly PrintTextSectionConfig[] = [
+    { key: 'abgabeBeleg', title: 'Abgabe-Beleg', fields: BELEG_FIELDS, spaceHint: BELEG_SPACE_HINT },
+    {
+      key: 'verkaeuferUebersicht',
+      title: 'Verkäufer-Übersicht',
+      fields: BELEG_FIELDS,
+      spaceHint: BELEG_SPACE_HINT,
+    },
+    { key: 'articleAushang', title: 'Artikel-Aushang', fields: AUSHANG_FIELDS, spaceHint: AUSHANG_SPACE_HINT },
   ];
   readonly helpText =
     'Markdown: Überschriften, Fett, Kursiv, Absätze, Listen und Tabellen. Links, Bilder und HTML werden nicht dargestellt. Änderungen gelten ab dem nächsten Druck.';
-  readonly spaceHint =
-    'Der Platz auf dem Beleg ist begrenzt: Freitext 1, 2, 4 und 5 fassen nur wenige Zeilen in Kopf- bzw. Fußzeile, Freitext 3 höchstens 15 cm über der Artikelliste. Längerer Text wird beim Druck abgeschnitten.';
 
   readonly texts = signal<PrintTexts>(emptyPrintTexts());
   readonly saving = signal(false);
@@ -74,8 +109,12 @@ export class PrintTextsForm {
     });
   }
 
+  /**
+   * Die Felder je Abschnitt stehen in `sections`; ein Feld, das der Abschnitt nicht hat (z. B.
+   * Freitext 5 im Aushang), kommt dort nicht vor und liefert hier leer.
+   */
   valueOf(section: PrintTextSection, field: PrintTextField): string {
-    return this.texts()[section][field];
+    return (this.texts()[section] as Record<string, string>)[field] ?? '';
   }
 
   onChange(section: PrintTextSection, field: PrintTextField, value: string): void {
@@ -120,7 +159,11 @@ export class PrintTextsForm {
   private differsFromSaved(texts: PrintTexts): boolean {
     const saved = this.savedTexts();
     return this.sections.some((section) =>
-      this.fields.some((field) => texts[section.key][field.key] !== saved[section.key][field.key]),
+      section.fields.some((field) => this.valueIn(texts, section.key, field.key) !== this.valueIn(saved, section.key, field.key)),
     );
+  }
+
+  private valueIn(texts: PrintTexts, section: PrintTextSection, field: PrintTextField): string {
+    return (texts[section] as Record<string, string>)[field] ?? '';
   }
 }

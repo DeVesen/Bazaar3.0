@@ -6,7 +6,7 @@
     <fieldset class="print-texts-form__section">
       <legend>{{ section.title }}</legend>
       <div class="print-texts-form__grid">
-        @for (field of fields; track field.key) {
+        @for (field of section.fields; track field.key) {
           <div class="print-texts-form__field" [class.print-texts-form__field--full]="field.fullWidth">
             <label [for]="section.key + '-' + field.key">{{ field.label }}</label>
             <textarea
@@ -20,7 +20,7 @@
           </div>
         }
       </div>
-      <p class="print-texts-form__hint">{{ spaceHint }}</p>
+      <p class="print-texts-form__hint">{{ section.spaceHint }}</p>
     </fieldset>
   }
 

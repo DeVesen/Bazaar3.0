@@ -25,6 +25,7 @@
   }
 
   // Anordnung des Belegs: Freitext 1|2, Freitext 3 über die ganze Breite, Freitext 4|5.
+  // Der Artikel-Aushang hat zwei Paare: Kopf (1|2) und Fuß (3|4).
   &__grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
