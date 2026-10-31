@@ -1,7 +1,7 @@
 ---
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-10-31
 ---
 
 # API: Import
@@ -49,7 +49,14 @@ Der Ablauf braucht zwischen Vorschau und Ausführung eine Entscheidung des Admin
 
 → 400 Bad Request   errorCode: import.invalid_format
                     detail: "Datei entspricht nicht dem erwarteten Schema"
+
+→ 409 Conflict      errorCode: import.article_number_conflict
+                    detail: "Import nicht möglich, Artikelnummern kollidieren:
+                             500 ist bereits vergeben an Max Muster;
+                             7 kommt in der Datei mehrfach vor (Anna Meier, Erika Beispiel)"
 ```
+
+**Artikelnummern-Kollision blockiert den Import.** Die Artikelnummer ist systemweit eindeutig (Barcode-Basis). Eine Nummer der Datei kollidiert, wenn sie in der Datei mehrfach vorkommt oder schon einem Artikel gehört, der den Import überlebt — einem Verkäufer, der nicht in der Datei steht (z. B. in dieser App angelegt), oder einem Datei-Verkäufer, der übersprungen wird (verkauft/abgerechnet). Artikel eines ersetzten Verkäufers kollidieren nicht, sie werden vorher gelöscht. `detail` nennt Nummer und Verkäufer (höchstens zehn, dann „und N weitere"), damit der Admin die Daten in der Voranmelde-App oder hier bereinigen kann. Vorschau und Ausführung prüfen gleich.
 
 **`unknownSellerTypes` blockiert den Import**, bis der Admin jeden Namen einem existierenden Typ zugeordnet hat. Kein automatisches Anlegen: Ein Typ trägt Provision und Gebühr, die der Import nicht erfinden kann — ein Typ mit 0 % Provision wäre ein stiller Geldverlust. Marken und Kategorien werden dagegen angelegt, weil sie keine Zahlen tragen ([`master-data.md`](master-data.md)).
 
@@ -74,6 +81,8 @@ Der Ablauf braucht zwischen Vorschau und Ausführung eine Entscheidung des Admin
 
 → 409 Conflict   errorCode: import.unmapped_seller_type
                  detail: "Verkäufer-Typ \"Verein\" ist nicht zugeordnet"
+
+→ 409 Conflict   errorCode: import.article_number_conflict   (siehe Abschnitt 1)
 ```
 
 ### Was in der Transaktion passiert

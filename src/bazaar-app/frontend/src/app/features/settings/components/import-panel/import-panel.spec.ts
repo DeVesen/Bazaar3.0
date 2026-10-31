@@ -226,6 +226,41 @@ describe('ImportPanel', () => {
     expect(component.state()).toBe('preview');
   });
 
+  it('a 409 import.article_number_conflict preview response shows the server detail as previewError', () => {
+    const detail = 'Import nicht möglich, Artikelnummern kollidieren: 500 ist bereits vergeben an Max Muster';
+    preview.mockReturnValue(
+      throwError(
+        () => new HttpErrorResponse({ status: 409, error: { errorCode: 'import.article_number_conflict', detail } }),
+      ),
+    );
+    const { component } = createPanel();
+
+    component.onFileSelect(selectEventFor(jsonFile()));
+
+    expect(component.previewError()).toBe(detail);
+    expect(component.state()).toBe('empty');
+    expect(messageServiceAdd).not.toHaveBeenCalled();
+  });
+
+  it('a 409 run response shows the server detail in a sticky error toast', () => {
+    const detail = 'Import nicht möglich, Artikelnummern kollidieren: 7 kommt in der Datei mehrfach vor (Anna Meier, Max Muster)';
+    preview.mockReturnValue(of(previewResultStub()));
+    run.mockReturnValue(
+      throwError(
+        () => new HttpErrorResponse({ status: 409, error: { errorCode: 'import.article_number_conflict', detail } }),
+      ),
+    );
+    const { component } = createPanel();
+    component.onFileSelect(selectEventFor(jsonFile()));
+
+    component.onConfirm();
+
+    expect(component.state()).toBe('preview');
+    expect(messageServiceAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ severity: 'error', summary: 'Import fehlgeschlagen', detail, sticky: true }),
+    );
+  });
+
   it('a non-400 preview error shows the generic toast instead of previewError', () => {
     preview.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
     const { component } = createPanel();

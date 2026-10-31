@@ -25,6 +25,8 @@ public class RunImportHandlerTests
     {
         _sellerRepository.Setup(r => r.GetById(It.IsAny<string>())).ReturnsAsync((Seller?)null);
         _articleRepository.Setup(r => r.GetAllBySellerId(It.IsAny<string>())).ReturnsAsync(Array.Empty<Article>());
+        _articleRepository.Setup(r => r.GetByNumbers(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Article>());
         _brandRepository.Setup(r => r.ExistsByNameIgnoreCase(It.IsAny<string>())).ReturnsAsync(false);
         _categoryRepository.Setup(r => r.ExistsByNameIgnoreCase(It.IsAny<string>())).ReturnsAsync(false);
         _sellerTypeRepository.Setup(r => r.GetAll())
@@ -333,5 +335,76 @@ public class RunImportHandlerTests
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             () => sut.Handle(ToStream(json), Options(), TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task Handle_ArticleNumberOwnedBySellerNotInFile_ThrowsConflictNamingNumberAndOwnerAndWritesNothing()
+    {
+        var json = JsonWithSellers(SellerJson(id: "SELLER001", articlesJson: ArticleJson("ARTICLE001", 500)));
+        var foreignArticle = ExistingArticle("ARTICLE-OLD", "SELLER-LOCAL");
+        _articleRepository.Setup(r => r.GetByNumbers(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([foreignArticle]);
+        _sellerRepository.Setup(r => r.GetById("SELLER-LOCAL"))
+            .ReturnsAsync(Seller.Create("SELLER-LOCAL", "Max", "Muster", null, null, "Karlsruhe", null, null, "SELLERTYPE001", 10m, 3m));
+        var sut = CreateSut();
+
+        var exception = await Assert.ThrowsAsync<ConflictException>(
+            () => sut.Handle(ToStream(json), Options(), TestContext.Current.CancellationToken));
+
+        Assert.Equal("import.article_number_conflict", exception.ErrorCode);
+        Assert.Contains("500 ist bereits vergeben an Max Muster", exception.Message);
+        _unitOfWork.Verify(u => u.ExecuteInTransactionAsync(It.IsAny<Func<CancellationToken, Task>>(), It.IsAny<CancellationToken>()), Times.Never);
+        _sellerRepository.Verify(r => r.Add(It.IsAny<Seller>()), Times.Never);
+        _articleRepository.Verify(r => r.Add(It.IsAny<Article>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_ArticleNumberTwiceInFile_ThrowsConflictNamingNumberAndBothSellers()
+    {
+        var json = JsonWithSellers(
+            SellerJson(id: "SELLER001", firstName: "Anna", lastName: "Meier", articlesJson: ArticleJson("ARTICLE001", 7)) + "," +
+            SellerJson(id: "SELLER002", firstName: "Max", lastName: "Muster", articlesJson: ArticleJson("ARTICLE002", 7)));
+        var sut = CreateSut();
+
+        var exception = await Assert.ThrowsAsync<ConflictException>(
+            () => sut.Handle(ToStream(json), Options(), TestContext.Current.CancellationToken));
+
+        Assert.Equal("import.article_number_conflict", exception.ErrorCode);
+        Assert.Contains("7 kommt in der Datei mehrfach vor (Anna Meier, Max Muster)", exception.Message);
+    }
+
+    [Fact]
+    public async Task Handle_ArticleNumberOwnedBySkippedFileSeller_ThrowsConflict()
+    {
+        var json = JsonWithSellers(
+            SellerJson(id: "SELLER001", articlesJson: ArticleJson("ARTICLE-NEW", 1)) + "," +
+            SellerJson(id: "SELLER002", firstName: "Max", lastName: "Muster", articlesJson: ArticleJson("ARTICLE-OTHER", 999)));
+        var soldArticle = SoldArticle("ARTICLE999", "SELLER001");
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(ExistingSeller("SELLER001"));
+        _articleRepository.Setup(r => r.GetAllBySellerId("SELLER001")).ReturnsAsync([soldArticle]);
+        _articleRepository.Setup(r => r.GetByNumbers(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([soldArticle]);
+        var sut = CreateSut();
+
+        var exception = await Assert.ThrowsAsync<ConflictException>(
+            () => sut.Handle(ToStream(json), Options(), TestContext.Current.CancellationToken));
+
+        Assert.Contains("999 ist bereits vergeben an Anna Meier (wird nicht ersetzt", exception.Message);
+    }
+
+    [Fact]
+    public async Task Handle_ArticleNumberOwnedByReplacedFileSeller_ImportsWithoutConflict()
+    {
+        var json = JsonWithSellers(SellerJson(id: "SELLER001", articlesJson: ArticleJson("ARTICLE-NEW", 500)));
+        var oldArticle = ExistingArticle("ARTICLE-OLD", "SELLER001");
+        _sellerRepository.Setup(r => r.GetById("SELLER001")).ReturnsAsync(ExistingSeller("SELLER001"));
+        _articleRepository.Setup(r => r.GetAllBySellerId("SELLER001")).ReturnsAsync([oldArticle]);
+        _articleRepository.Setup(r => r.GetByNumbers(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([oldArticle]);
+        var sut = CreateSut();
+
+        var result = await sut.Handle(ToStream(json), Options(), TestContext.Current.CancellationToken);
+
+        Assert.Equal(1, result.ImportedArticles);
     }
 }
