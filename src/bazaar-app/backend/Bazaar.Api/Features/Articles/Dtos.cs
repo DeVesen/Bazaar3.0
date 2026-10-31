@@ -54,3 +54,15 @@ public sealed record ArticleDetailDto(
     DateTimeOffset? SoldAt,
     DateTimeOffset? ReturnedAt,
     DateTimeOffset? SellerSettledAt);
+
+/// <summary>
+/// One line of GET /api/articles/print (api/articles.md §1a): exactly the fields the
+/// Artikel-Aushang prints — no id, number or seller data.
+/// </summary>
+public sealed record ArticlePrintItemDto(
+    string Name,
+    string Brand,
+    string Category,
+    string? Size,
+    string? Color,
+    decimal Price);

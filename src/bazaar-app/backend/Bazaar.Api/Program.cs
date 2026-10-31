@@ -127,6 +127,7 @@ builder.Services.AddScoped<DeleteSellerHandler>();
 builder.Services.AddScoped<GetSellerArticlesHandler>();
 builder.Services.AddScoped<ResetSellerSettlementHandler>();
 builder.Services.AddScoped<GetArticlesHandler>();
+builder.Services.AddScoped<GetArticlesForPrintHandler>();
 builder.Services.AddScoped<GetArticleByIdHandler>();
 builder.Services.AddScoped<GetNextArticleNumberHandler>();
 builder.Services.AddScoped<UpdateArticleHandler>();
