@@ -8,6 +8,7 @@ public sealed class Settings
     public int ScannerPauseMs { get; private set; }
     public PrintTexts AbgabeBeleg { get; private set; } = PrintTexts.CreateEmpty();
     public PrintTexts VerkaeuferUebersicht { get; private set; } = PrintTexts.CreateEmpty();
+    public AushangTexts ArticleAushang { get; private set; } = AushangTexts.CreateEmpty();
 
     /// <summary>
     /// true = das Freigeben-Popup gibt Artikel erst beim Schließen frei (Verhalten wie bisher),
@@ -52,18 +53,22 @@ public sealed class Settings
         return true;
     }
 
-    public void UpdatePrintTexts(PrintTexts abgabeBeleg, PrintTexts verkaeuferUebersicht)
+    public void UpdatePrintTexts(PrintTexts abgabeBeleg, PrintTexts verkaeuferUebersicht, AushangTexts articleAushang)
     {
-        EnsureValidPrintTexts(abgabeBeleg);
-        EnsureValidPrintTexts(verkaeuferUebersicht);
+        ArgumentNullException.ThrowIfNull(abgabeBeleg);
+        ArgumentNullException.ThrowIfNull(verkaeuferUebersicht);
+        ArgumentNullException.ThrowIfNull(articleAushang);
+        EnsureValidTexts(abgabeBeleg.All());
+        EnsureValidTexts(verkaeuferUebersicht.All());
+        EnsureValidTexts(articleAushang.All());
         AbgabeBeleg = abgabeBeleg with { };
         VerkaeuferUebersicht = verkaeuferUebersicht with { };
+        ArticleAushang = articleAushang with { };
     }
 
-    private static void EnsureValidPrintTexts(PrintTexts texts)
+    private static void EnsureValidTexts(IEnumerable<string> texts)
     {
-        ArgumentNullException.ThrowIfNull(texts);
-        foreach (var text in texts.All())
+        foreach (var text in texts)
         {
             ArgumentNullException.ThrowIfNull(text);
             if (text.Length > PrintTexts.MaxLength) throw new ArgumentOutOfRangeException(nameof(texts));

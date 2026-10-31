@@ -26,7 +26,7 @@ public class SettingsRepositoryTests
     }
 
     [Fact]
-    public async Task Update_PrintTexts_PersistsBothTextSets()
+    public async Task Update_PrintTexts_PersistsAllThreeTextSets()
     {
         // Arrange
         var cancellationToken = TestContext.Current.CancellationToken;
@@ -45,7 +45,8 @@ public class SettingsRepositoryTests
             var settings = await repository.Get();
             settings.UpdatePrintTexts(
                 new PrintTexts("a1", "a2", "a3", "a4", "a5"),
-                new PrintTexts("v1", "v2", "v3", "v4", "v5"));
+                new PrintTexts("v1", "v2", "v3", "v4", "v5"),
+                new AushangTexts("k1", "k2", "f1", "f2"));
             await repository.Update(settings);
         }
 
@@ -55,6 +56,7 @@ public class SettingsRepositoryTests
         // Assert
         Assert.Equal(new PrintTexts("a1", "a2", "a3", "a4", "a5"), reloaded.AbgabeBeleg);
         Assert.Equal(new PrintTexts("v1", "v2", "v3", "v4", "v5"), reloaded.VerkaeuferUebersicht);
+        Assert.Equal(new AushangTexts("k1", "k2", "f1", "f2"), reloaded.ArticleAushang);
     }
 
     [Fact]
