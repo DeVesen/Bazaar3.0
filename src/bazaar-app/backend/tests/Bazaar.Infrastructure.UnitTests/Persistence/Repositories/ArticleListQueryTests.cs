@@ -248,4 +248,78 @@ public class ArticleListQueryTests
         Assert.Equal("SEL00001", item.SellerId);
         Assert.Equal("Anna Meier", item.SellerName);
     }
+
+    private static async Task SeedManyArticlesAsync(BazaarDbContext dbContext, int count)
+    {
+        await dbContext.Sellers.AddAsync(CreateSeller("SEL00001", "Anna", "Meier"));
+        for (var i = 1; i <= count; i++)
+        {
+            await dbContext.Articles.AddAsync(
+                CreateArticle($"ART{i:D5}", i, "SEL00001", $"Artikel {i}", "Nike", "Jacken", 5m));
+        }
+        await dbContext.SaveChangesAsync();
+    }
+
+    private static async Task SeedSizeAndColorAsync(BazaarDbContext dbContext)
+    {
+        await dbContext.Sellers.AddAsync(CreateSeller("SEL00001", "Anna", "Meier"));
+        var now = DateTimeOffset.UtcNow;
+        await dbContext.Articles.AddAsync(
+            Article.Create("ART00001", 1, "SEL00001", "Winterjacke", "Nike", "Jacken", 12.5m, "104", "Rot", null, now, now));
+        await dbContext.Articles.AddAsync(
+            Article.Create("ART00002", 2, "SEL00001", "Mütze", "Puma", "Accessoires", 5m, null, null, null, now, now));
+        await dbContext.SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task GetArticlesForPrint_MoreArticlesThanMaxPageSize_ReturnsAll()
+    {
+        await using var dbContext = CreateContext();
+        await SeedManyArticlesAsync(dbContext, 250);
+        var sut = new ArticleListQuery(dbContext);
+
+        var items = await sut.GetArticlesForPrint(null, null, null, null);
+
+        Assert.Equal(250, items.Count);
+    }
+
+    [Fact]
+    public async Task GetArticlesForPrint_ReturnsSizeAndColor()
+    {
+        await using var dbContext = CreateContext();
+        await SeedSizeAndColorAsync(dbContext);
+        var sut = new ArticleListQuery(dbContext);
+
+        var items = await sut.GetArticlesForPrint(null, null, null, null);
+
+        var jacke = Assert.Single(items, i => i.Name == "Winterjacke");
+        Assert.Equal(("Nike", "Jacken", "104", "Rot", 12.5m), (jacke.Brand, jacke.Category, jacke.Size, jacke.Color, jacke.Price));
+        var muetze = Assert.Single(items, i => i.Name == "Mütze");
+        Assert.Null(muetze.Size);
+        Assert.Null(muetze.Color);
+    }
+
+    [Theory]
+    [InlineData(null, null, null, null)]
+    [InlineData("Nike", null, null, null)]
+    [InlineData(null, "Nike", null, null)]
+    [InlineData(null, null, "Schuhe", null)]
+    [InlineData(null, null, null, "selling")]
+    [InlineData(null, null, null, "registered")]
+    [InlineData("Anna", "Nike", "Jacken", "registered")]
+    [InlineData("gibtsnicht", null, null, null)]
+    public async Task GetArticlesForPrint_SameFiltersAsGetArticles_ReturnsSameArticles(
+        string? q, string? brand, string? category, string? status)
+    {
+        await using var dbContext = CreateContext();
+        await SeedBasicCatalogAsync(dbContext);
+        var sut = new ArticleListQuery(dbContext);
+
+        var tablePage = await sut.GetArticles(q, brand, category, status, null, 1, 200);
+        var printItems = await sut.GetArticlesForPrint(q, brand, category, status);
+
+        Assert.Equal(
+            tablePage.Items.Select(i => (i.Name, i.Brand, i.Category, i.Price)).OrderBy(t => t.Name),
+            printItems.Select(i => (i.Name, i.Brand, i.Category, i.Price)).OrderBy(t => t.Name));
+    }
 }
