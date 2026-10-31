@@ -7,6 +7,8 @@ import { ArticleSummary, SellerDetail, SellersApi } from '../../features/sellers
 // eslint-disable-next-line boundaries/dependencies -- see print.service.ts's own justification
 import { SellerSettlement, SettlementApi } from '../../features/settlement/data/settlement-api';
 // eslint-disable-next-line boundaries/dependencies -- see print.service.ts's own justification
+import { ArticlePrintItem, ArticlesApi } from '../../features/articles/data/articles-api';
+// eslint-disable-next-line boundaries/dependencies -- see print.service.ts's own justification
 import { PrintTexts, PrintTextsApi, emptyPrintTexts } from '../../features/settings/data/print-texts-api';
 
 const seller: SellerDetail = {
@@ -95,17 +97,25 @@ describe('PrintService', () => {
   let getArticlesSpy: ReturnType<typeof vi.fn>;
   let getSettlementSpy: ReturnType<typeof vi.fn>;
   let getTextsSpy: ReturnType<typeof vi.fn>;
+  let getForPrintSpy: ReturnType<typeof vi.fn>;
   let messageAddSpy: ReturnType<typeof vi.fn>;
   let printSpy: ReturnType<typeof vi.fn>;
 
   function setup(
-    options: { articles?: ArticleSummary[]; texts?: PrintTexts; sellerResult?: Observable<SellerDetail> } = {},
+    options: {
+      articles?: ArticleSummary[];
+      texts?: PrintTexts;
+      sellerResult?: Observable<SellerDetail>;
+      printItems?: Observable<ArticlePrintItem[]>;
+      textsResult?: Observable<PrintTexts>;
+    } = {},
   ): PrintService {
     TestBed.resetTestingModule();
     getByIdSpy = vi.fn().mockReturnValue(options.sellerResult ?? of(seller));
     getArticlesSpy = vi.fn().mockReturnValue(of(options.articles ?? []));
     getSettlementSpy = vi.fn().mockReturnValue(of(settlement));
-    getTextsSpy = vi.fn().mockReturnValue(of(options.texts ?? emptyPrintTexts()));
+    getTextsSpy = vi.fn().mockReturnValue(options.textsResult ?? of(options.texts ?? emptyPrintTexts()));
+    getForPrintSpy = vi.fn().mockReturnValue(options.printItems ?? of([]));
     messageAddSpy = vi.fn();
 
     TestBed.configureTestingModule({
@@ -113,6 +123,7 @@ describe('PrintService', () => {
         { provide: SellersApi, useValue: { getById: getByIdSpy, getArticles: getArticlesSpy } },
         { provide: SettlementApi, useValue: { getSettlement: getSettlementSpy } },
         { provide: PrintTextsApi, useValue: { get: getTextsSpy } },
+        { provide: ArticlesApi, useValue: { getForPrint: getForPrintSpy } },
         { provide: MessageService, useValue: { add: messageAddSpy } },
       ],
     });
@@ -128,7 +139,7 @@ describe('PrintService', () => {
   afterEach(() => {
     window.dispatchEvent(new Event('afterprint'));
     vi.unstubAllGlobals();
-    document.querySelectorAll('app-print-document').forEach((element) => element.remove());
+    document.querySelectorAll('app-print-document, app-article-aushang').forEach((element) => element.remove());
     document.querySelectorAll('style[data-print-style]').forEach((element) => element.remove());
   });
 
@@ -437,6 +448,156 @@ describe('PrintService', () => {
       expect(receiptHasText).toBe(true);
       expect(printHost()?.textContent ?? '').not.toContain('Nur im Beleg');
       expect(printHost()?.querySelector('.print-doc__freitext3')).toBeNull();
+    });
+  });
+
+  describe('printArticleAushang', () => {
+    function printItem(name: string, category: string, overrides: Partial<ArticlePrintItem> = {}): ArticlePrintItem {
+      return { name, brand: 'Nike', category, size: '104', color: 'Rot', price: 10, ...overrides };
+    }
+
+    function aushangHost(): HTMLElement | null {
+      return document.querySelector<HTMLElement>('app-article-aushang[data-print-host]');
+    }
+
+    function aushangGroups(host: HTMLElement): string[] {
+      return Array.from(host.querySelectorAll('.print-doc__group-row th')).map((cell) => plain(cell.textContent));
+    }
+
+    function aushangNames(host: HTMLElement): string[] {
+      return Array.from(host.querySelectorAll('tbody tr:not(.print-doc__group-row) td:first-child')).map((cell) =>
+        plain(cell.textContent),
+      );
+    }
+
+    it('printArticleAushang_filters_loadsPrintDataWithExactlyThoseFilters', () => {
+      // Arrange
+      const service = setup();
+      const filters = { q: 'hose', brand: 'Nike', category: null, status: 'selling' };
+
+      // Act
+      service.printArticleAushang(filters);
+
+      // Assert
+      expect(getForPrintSpy).toHaveBeenCalledTimes(1);
+      expect(getForPrintSpy).toHaveBeenCalledWith(filters);
+    });
+
+    it('printArticleAushang_articles_rendersGroupedByCategoryAndOpensPrintDialog', () => {
+      // Arrange
+      const service = setup({
+        printItems: of([
+          printItem('Schuh', 'Schuhe'),
+          printItem('Hose B', 'Hosen', { size: '128' }),
+          printItem('Hose A', 'Hosen', { size: '86' }),
+        ]),
+      });
+
+      // Act
+      service.printArticleAushang({});
+
+      // Assert
+      const host = aushangHost();
+      expect(host).not.toBeNull();
+      expect(aushangGroups(host!)).toEqual(['Hosen', 'Schuhe']);
+      expect(aushangNames(host!)).toEqual(['Hose A', 'Hose B', 'Schuh']);
+      expect(printSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('printArticleAushang_articleAushangTexts_appearInHeaderAndFooter', () => {
+      // Arrange
+      const texts = emptyPrintTexts();
+      texts.articleAushang = { text1: 'Kopf links', text2: 'Kopf Mitte', text3: 'Fuß links', text4: 'Fuß Mitte' };
+      texts.abgabeBeleg.text1 = 'nur Beleg';
+      const service = setup({ printItems: of([printItem('Hose', 'Hosen')]), texts });
+
+      // Act
+      service.printArticleAushang({});
+
+      // Assert
+      const host = aushangHost()!;
+      expect(plain(host.querySelector('.print-doc__head .print-doc__text--left')?.textContent)).toBe('Kopf links');
+      expect(plain(host.querySelector('.print-doc__head .print-doc__text--center')?.textContent)).toBe('Kopf Mitte');
+      expect(plain(host.querySelector('.print-doc__foot .print-doc__text--left')?.textContent)).toBe('Fuß links');
+      expect(plain(host.querySelector('.print-doc__foot .print-doc__text--center')?.textContent)).toBe('Fuß Mitte');
+      expect(host.textContent).not.toContain('nur Beleg');
+    });
+
+    it('printArticleAushang_articlesCannotBeLoaded_showsErrorToastAndDoesNotPrint', () => {
+      // Arrange
+      const service = setup({ printItems: throwError(() => new Error('offline')) });
+
+      // Act
+      service.printArticleAushang({});
+
+      // Assert
+      expect(messageAddSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'error', summary: 'Artikel konnten nicht geladen werden' }),
+      );
+      expect(aushangHost()).toBeNull();
+      expect(printSpy).not.toHaveBeenCalled();
+    });
+
+    it('printArticleAushang_textsCannotBeLoaded_showsErrorToastAndDoesNotPrint', () => {
+      // Arrange
+      const service = setup({
+        printItems: of([printItem('Hose', 'Hosen')]),
+        textsResult: throwError(() => new Error('offline')),
+      });
+
+      // Act
+      service.printArticleAushang({});
+
+      // Assert
+      expect(messageAddSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'error', summary: 'Artikel konnten nicht geladen werden' }),
+      );
+      expect(aushangHost()).toBeNull();
+      expect(printSpy).not.toHaveBeenCalled();
+    });
+
+    it('printArticleAushang_afterPrint_removesDocumentAndPrintStyle', () => {
+      // Arrange
+      const service = setup({ printItems: of([printItem('Hose', 'Hosen')]) });
+      service.printArticleAushang({});
+      expect(document.querySelector('style[data-print-style]')).not.toBeNull();
+
+      // Act
+      window.dispatchEvent(new Event('afterprint'));
+
+      // Assert
+      expect(aushangHost()).toBeNull();
+      expect(document.querySelector('style[data-print-style]')).toBeNull();
+    });
+
+    it('printArticleAushang_whilePreviousDocumentStillHangs_replacesIt', () => {
+      // Arrange
+      const service = setup({ printItems: of([printItem('Hose', 'Hosen')]) });
+      service.printArticleAushang({});
+
+      // Act
+      service.printArticleAushang({});
+
+      // Assert
+      expect(document.querySelectorAll('app-article-aushang[data-print-host]').length).toBe(1);
+      expect(document.querySelectorAll('style[data-print-style]').length).toBe(1);
+    });
+
+    it('printArticleAushang_afterBelegPrint_removesBelegBeforeShowingAushang', () => {
+      // Arrange
+      const service = setup({
+        articles: [article('a1', 1, 'selling')],
+        printItems: of([printItem('Hose', 'Hosen')]),
+      });
+      service.printSellerReceipt('seller-1');
+      expect(printHost()).not.toBeNull();
+
+      // Act
+      service.printArticleAushang({});
+
+      // Assert
+      expect(printHost()).toBeNull();
+      expect(aushangHost()).not.toBeNull();
     });
   });
 });
