@@ -19,7 +19,8 @@ public class UpdatePrintTextsHandlerTests
         var command = new UpdatePrintTextsCommand
         {
             AbgabeBeleg = new PrintTextsDto("a1", "a2", "a3", "a4", "a5"),
-            VerkaeuferUebersicht = new PrintTextsDto("v1", "v2", "v3", "v4", "v5")
+            VerkaeuferUebersicht = new PrintTextsDto("v1", "v2", "v3", "v4", "v5"),
+            ArticleAushang = new AushangTextsDto("k1", "k2", "f1", "f2")
         };
 
         // Act
@@ -28,6 +29,7 @@ public class UpdatePrintTextsHandlerTests
         // Assert
         Assert.Equal("a3", settings.AbgabeBeleg.Text3);
         Assert.Equal("v5", settings.VerkaeuferUebersicht.Text5);
+        Assert.Equal("f2", settings.ArticleAushang.Text4);
         _settingsRepository.Verify(r => r.Update(settings), Times.Once);
     }
 
@@ -41,7 +43,8 @@ public class UpdatePrintTextsHandlerTests
         var command = new UpdatePrintTextsCommand
         {
             AbgabeBeleg = new PrintTextsDto("", "", "", "", ""),
-            VerkaeuferUebersicht = new PrintTextsDto("", "", "", "", "")
+            VerkaeuferUebersicht = new PrintTextsDto("", "", "", "", ""),
+            ArticleAushang = new AushangTextsDto("", "", "", "")
         };
 
         // Act

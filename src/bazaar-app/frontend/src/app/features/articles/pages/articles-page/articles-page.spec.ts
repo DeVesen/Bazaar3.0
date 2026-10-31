@@ -19,6 +19,7 @@ import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock
 import { ArticlesStore, ArticlesFilters } from '../../articles-store';
 import { ArticleDetail, ArticleListItem, ArticlesApi } from '../../data/articles-api';
 import { RoleService } from '../../../../core/auth/role.service';
+import { PrintService } from '../../../../core/print/print.service';
 // eslint-disable-next-line boundaries/dependencies
 import { Brand, BrandsApi } from '../../../brands/data/brands-api';
 // eslint-disable-next-line boundaries/dependencies
@@ -83,6 +84,7 @@ describe('ArticlesPage', () => {
   let updateTimestamps: ReturnType<typeof vi.fn>;
   let remove: ReturnType<typeof vi.fn>;
   let messageServiceAdd: ReturnType<typeof vi.fn>;
+  let printArticleAushang: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     itemsSignal = signal<ArticleListItem[]>([]);
@@ -108,6 +110,7 @@ describe('ArticlesPage', () => {
     updateTimestamps = vi.fn().mockReturnValue(of(undefined));
     remove = vi.fn().mockReturnValue(of(undefined));
     messageServiceAdd = vi.fn();
+    printArticleAushang = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [ArticlesPage],
@@ -132,6 +135,7 @@ describe('ArticlesPage', () => {
         },
         { provide: RoleService, useValue: { isAdmin: isAdminSignal } },
         { provide: MessageService, useValue: { add: messageServiceAdd } },
+        { provide: PrintService, useValue: { printArticleAushang } },
         { provide: BrandsApi, useValue: { getAll: () => of(BRANDS) } },
         { provide: CategoriesApi, useValue: { getAll: () => of(CATEGORIES) } },
         {
@@ -176,6 +180,96 @@ describe('ArticlesPage', () => {
       { label: 'Alle', value: null },
       { label: 'Kleidung', value: 'Kleidung' },
     ]);
+  });
+
+  describe('print button (Artikel-Aushang)', () => {
+    function printButton(fixture: { nativeElement: HTMLElement }): HTMLButtonElement | null {
+      return (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.articles-page__print button');
+    }
+
+    it.each([
+      ['admin', true],
+      ['kassenpersonal', false],
+    ])('template_printButton_isVisibleFor_%s', async (_role, isAdmin) => {
+      // Arrange
+      isAdminSignal.set(isAdmin);
+      totalCountSignal.set(3);
+
+      // Act
+      const { fixture } = await createPage();
+
+      // Assert
+      const button = printButton(fixture);
+      expect(button).not.toBeNull();
+      expect(button?.textContent?.trim()).toBe('Drucken');
+      expect(button?.querySelector('.pi-print')).not.toBeNull();
+    });
+
+    it('template_noArticlesInResult_disablesPrintButton', async () => {
+      // Arrange
+      totalCountSignal.set(0);
+
+      // Act
+      const { fixture } = await createPage();
+
+      // Assert
+      expect(printButton(fixture)?.disabled).toBe(true);
+    });
+
+    it('template_articlesInResult_enablesPrintButton', async () => {
+      // Arrange
+      totalCountSignal.set(120);
+
+      // Act
+      const { fixture } = await createPage();
+
+      // Assert
+      expect(printButton(fixture)?.disabled).toBe(false);
+    });
+
+    it('click_activeFilters_passesExactlyThoseFiltersToPrintService', async () => {
+      // Arrange
+      totalCountSignal.set(120);
+      filtersSignal.set({ q: 'hose', brand: 'Nike', category: 'Hosen', status: 'selling', sort: 'price:desc' });
+      const { fixture } = await createPage();
+
+      // Act
+      printButton(fixture)?.click();
+
+      // Assert
+      expect(printArticleAushang).toHaveBeenCalledTimes(1);
+      expect(printArticleAushang).toHaveBeenCalledWith({
+        q: 'hose',
+        brand: 'Nike',
+        category: 'Hosen',
+        status: 'selling',
+      });
+    });
+
+    it('click_statusSellingOnly_passesStatusAndNoOtherFilter', async () => {
+      // Arrange
+      totalCountSignal.set(5);
+      filtersSignal.set({ q: '', brand: null, category: null, status: 'selling', sort: 'number:asc' });
+      const { fixture } = await createPage();
+
+      // Act
+      printButton(fixture)?.click();
+
+      // Assert
+      expect(printArticleAushang).toHaveBeenCalledWith({ q: '', brand: null, category: null, status: 'selling' });
+    });
+
+    it('click_noArticlesInResult_doesNotPrint', async () => {
+      // Arrange
+      totalCountSignal.set(0);
+      const { fixture } = await createPage();
+
+      // Act
+      printButton(fixture)?.click();
+
+      // Assert
+      expect(printArticleAushang).not.toHaveBeenCalled();
+    });
   });
 
   describe('free-text filter debounce', () => {
@@ -257,7 +351,9 @@ describe('ArticlesPage', () => {
       // Assert
       expect(children[0].classList.contains('p-toolbar-center')).toBe(true);
       expect(bar.querySelector('.p-toolbar-start')).toBeNull();
-      expect(bar.querySelector('button')).toBeNull();
+      // Nichts links vom Suchfeld. Der „Drucken"-Button (Artikel-Aushang) steht bewusst rechts,
+      // hinter den Selects (docs/forge/2026-10-31-artikel-aushang-druck/spec.md).
+      expect(bar.querySelector('.p-toolbar-center button')).toBeNull();
       expect(
         children[0].querySelector('input')?.getAttribute('placeholder'),
       ).toBe('Suche nach Nr., Bezeichnung …');
@@ -275,6 +371,9 @@ describe('ArticlesPage', () => {
 
       // Assert
       expect(names).toEqual(['Marke', 'Kategorie', 'Status']);
+      // „Drucken" steht als letztes Element rechts, hinter den Selects.
+      const end = bar.querySelector('.p-toolbar-end')!;
+      expect(end.lastElementChild?.classList.contains('articles-page__print')).toBe(true);
       expect(bar.querySelectorAll('.p-toolbar-center p-select')).toHaveLength(0);
     });
 

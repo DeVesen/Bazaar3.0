@@ -49,6 +49,15 @@ export function restPageListHeightMm(): number {
   return innerHeightMm() - headerMm - continuationMm - footerMm;
 }
 
+/**
+ * Höhe des Listenbereichs im Artikel-Aushang: auf jeder Seite gleich, nur Kopfzeile, Liste und
+ * Fußzeile (kein Verkäufer-Block, keine Kacheln).
+ */
+export function aushangListHeightMm(): number {
+  const { headerMm, footerMm } = PRINT_LAYOUT;
+  return innerHeightMm() - headerMm - footerMm;
+}
+
 /** Anzahl Zeilen, die unter dem Tabellenkopf in einen Listenbereich der Höhe `listHeightMm` passen. */
 export function listCapacityRows(listHeightMm: number): number {
   const { tableHeadMm, safetyMm, rowMm } = PRINT_LAYOUT;

@@ -19,8 +19,8 @@
 - Admin wählt unter dem Schalter den „Standard-Verkäufer-Typ" (`p-select` über alle Verkäufer-Typen, löschbar, Platzhalter „Häufigster Typ (automatisch)") und speichert ihn mit den anderen Feldern; leer = kein Standard. Zählt zu ungespeicherten Änderungen/Verwerfen; eine unbekannte Id lehnt der Server mit `404 seller_type.not_found` ab — `settings-form.{ts,html}` (`defaultSellerTypeId`, `SellerTypesApi.getAll()`), `Bazaar.Domain/Settings/Settings.cs` (`DefaultSellerTypeId`, `ChangeDefaultSellerType()`), `Bazaar.Application/Settings/UpdateSettingsHandler.cs`
 
 ### Freitexte der Belege (`print-texts-form`)
-- Fields are laid out like the receipt: Freitext 1|2 side by side, Freitext 3 full width, Freitext 4|5 side by side; one „Freitexte speichern" button saves both templates — `print-texts-form.html` `.print-texts-form__grid`
-- Admin edits five Markdown free texts per template (Abgabe-Beleg, Verkäufer-Übersicht) — `features/settings/components/print-texts-form/print-texts-form.{ts,html}`, `data/print-texts-api.ts`
+- Fields are laid out like the receipt: Freitext 1|2 side by side, Freitext 3 full width, Freitext 4|5 side by side; one „Freitexte speichern" button saves all templates — `print-texts-form.html` `.print-texts-form__grid`
+- Admin edits five Markdown free texts per template (Abgabe-Beleg, Verkäufer-Übersicht) and four for the Artikel-Aushang (Kopfzeile links/Mitte, Fußzeile links/Mitte; third fieldset, no text above the list) — 14 fields in total — `features/settings/components/print-texts-form/print-texts-form.{ts,html}`, `data/print-texts-api.ts`
 - Free texts apply from the next print; links, images and HTML are not rendered — `shared/components/print-document/print-document.markdown.ts`
 
 ### Stammdaten-Import (`import-panel`)

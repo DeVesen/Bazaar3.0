@@ -107,13 +107,18 @@
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-14
 
+### Artikel-Aushang
+- **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/print-document/article-aushang.ts` — Druckdokument der Artikel-Seite in der Haupt-App: alle Artikel des Filterergebnisses, nach Kategorie gruppiert (Komponente `ArticleAushang`, Modell-Builder `buildArticleAushangModel`), gedruckt über `PrintService.printArticleAushang`; Spalten Bezeichnung, Marke, Farbe, Größe, Preis. Daten über `GET /api/articles/print`. Eine Liste zum Veröffentlichen, kein Beleg über Geld. Nicht verwenden: „Artikelliste" (so heißt die Tabelle auf der Seite bzw. die Liste eines Verkäufers).
+- **Confidence:** user-confirmed
+- **First seen:** 2026-10-31
+
 ### Kennzahl-Kachel
 - **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/print-document/print-document.html` — Infoblock auf dem Beleg (Titel links oben, darunter größerer, dickerer Wert, linksbündig), Klassen `.print-doc__tile`, Zeilen `.print-doc__tiles--a|--b`. „Kachel" allein bleibt die Verkäufer-Kachel.
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-14
 
 ### Freitext (Beleg)
-- **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/components/print-texts-form/print-texts-form.ts` — fünf Markdown-Texte je Vorlage (Abgabe-Beleg, Verkäufer-Übersicht), zusammen zehn Felder: 1 Kopfzeile links, 2 Kopfzeile Mitte, 3 über der Artikelliste, 4 Fußzeile links, 5 Fußzeile Mitte; Backend `Settings.AbgabeBeleg`/`Settings.VerkaeuferUebersicht` (`PrintTexts`), Endpoints `GET/PUT /api/settings/print-texts`.
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/components/print-texts-form/print-texts-form.ts` — Markdown-Texte je Vorlage: fünf für Abgabe-Beleg und Verkäufer-Übersicht (1 Kopfzeile links, 2 Kopfzeile Mitte, 3 über der Artikelliste, 4 Fußzeile links, 5 Fußzeile Mitte), vier für den Artikel-Aushang (1 Kopfzeile links, 2 Kopfzeile Mitte, 3 Fußzeile links, 4 Fußzeile Mitte), zusammen vierzehn Felder; Backend `Settings.AbgabeBeleg`/`Settings.VerkaeuferUebersicht` (`PrintTexts`) und `Settings.ArticleAushang` (`AushangTexts`), Endpoints `GET/PUT /api/settings/print-texts`.
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-14
 

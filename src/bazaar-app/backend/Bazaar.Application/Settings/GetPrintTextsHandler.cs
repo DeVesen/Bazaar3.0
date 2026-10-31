@@ -9,6 +9,7 @@ public sealed class GetPrintTextsHandler(ISettingsRepository settingsRepository)
         var settings = await settingsRepository.Get();
         return new PrintTextsResponse(
             PrintTextsDto.From(settings.AbgabeBeleg),
-            PrintTextsDto.From(settings.VerkaeuferUebersicht));
+            PrintTextsDto.From(settings.VerkaeuferUebersicht),
+            AushangTextsDto.From(settings.ArticleAushang));
     }
 }

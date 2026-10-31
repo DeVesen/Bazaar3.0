@@ -7,7 +7,10 @@ public sealed class UpdatePrintTextsHandler(ISettingsRepository settingsReposito
     public async Task Handle(UpdatePrintTextsCommand command)
     {
         var settings = await settingsRepository.Get();
-        settings.UpdatePrintTexts(command.AbgabeBeleg.ToDomain(), command.VerkaeuferUebersicht.ToDomain());
+        settings.UpdatePrintTexts(
+            command.AbgabeBeleg.ToDomain(),
+            command.VerkaeuferUebersicht.ToDomain(),
+            command.ArticleAushang.ToDomain());
         await settingsRepository.Update(settings);
     }
 }

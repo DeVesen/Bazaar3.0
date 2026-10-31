@@ -46,7 +46,7 @@ Grundregeln (Dumb Component, ausschließlich PrimeNG) → [`docs/components/over
 
 | Komponente | Beschreibung | Epic |
 |---|---|---|
-| [print-document](print-document.md) | Gemeinsames A4-Druckdokument für Abgabe-Beleg und Verkäufer-Übersicht (Kennzahl-Kacheln, Freitexte, Artikeltabelle) | [Druckfunktionen](../epics/Epic_Druckfunktionen/epic.md) |
+| [print-document](print-document.md) | Gemeinsames A4-Druckdokument für Abgabe-Beleg und Verkäufer-Übersicht (Kennzahl-Kacheln, Freitexte, Artikeltabelle); der Artikel-Aushang (`app-article-aushang`) nutzt dieselben Stile | [Druckfunktionen](../epics/Epic_Druckfunktionen/epic.md) |
 
 ---
 

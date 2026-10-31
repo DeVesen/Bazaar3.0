@@ -2,7 +2,7 @@
 id: F-BA-006
 status: reviewed
 reviewed-date: 2026-08-17
-updated: 2026-08-17
+updated: 2026-10-31
 ---
 
 # Epic: Artikel
@@ -14,6 +14,7 @@ updated: 2026-08-17
 - 3. Artikelstatus-Popup — Zeitstempel korrigieren
 - 4. Änderbarkeit — Was wann gesperrt ist
 - 5. Backend & API — Endpoints
+- 6. Drucken — Artikel-Aushang
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
@@ -24,7 +25,7 @@ updated: 2026-08-17
 
 Entity-Details → [`entities/artikel.md`](../../entities/artikel.md)
 
-Component-Details → [`article-status-popup`](../../components/article-status-popup.md) · [`artikel-dialog`](../../components/artikel-dialog.md) · [`filter-panel`](../../../../components/filter-panel/component.md) · [`table`](../../../../components/table/component.md)
+Component-Details → [`print-document`](../../components/print-document.md) · [`article-status-popup`](../../components/article-status-popup.md) · [`artikel-dialog`](../../components/artikel-dialog.md) · [`filter-panel`](../../../../components/filter-panel/component.md) · [`table`](../../../../components/table/component.md)
 
 **Ziel:** Admin sieht und verwaltet alle Artikel des laufenden Basars.
 
@@ -35,6 +36,8 @@ Component-Details → [`article-status-popup`](../../components/article-status-p
 ## Überblick
 
 Übersicht aller Artikel aller Verkäufer. Kein „+ Neu"-Button — Artikel entstehen ausschließlich über die [Artikelannahme](../Epic_Artikelannahme/epic.md) oder den JSON-Import.
+
+Die Seite druckt außerdem den **Artikel-Aushang** — alle Artikel des aktuellen Filterergebnisses, nach Kategorie gruppiert (Abschnitt 6).
 
 Diese Seite ist die **Korrekturstelle** des Basar-Tags: Hier werden Tippfehler behoben und, in Ausnahmefällen, Zeitstempel von Hand richtiggestellt. Deshalb ist sie in Abschnitt 4 mit Sperren versehen — je näher ein Feld am Geld liegt, desto strenger.
 
@@ -138,11 +141,36 @@ API-Details → [`api/articles.md`](../../api/articles.md)
 | Endpoint | Auth | Beschreibung |
 |---|---|---|
 | `GET /api/articles` | `authenticated` | Seite der Artikelliste; Parameter für Freitext, Marke, Kategorie, Status, Sortierung, Seite |
+| `GET /api/articles/print` | `authenticated` | Alle Artikel zu denselben Filtern, ohne Seiten, mit den Feldern des Artikel-Aushangs (Abschnitt 6) |
 | `PUT /api/articles/{id}` | `authenticated` | Stammfelder. Sperren nach Abschnitt 4 gelten serverseitig |
 | `DELETE /api/articles/{id}` | `admin` | `409` falls `soldAt` gesetzt |
 | `PUT /api/articles/{id}/timestamps` | `admin` | Setzt oder löscht Zeitstempel inkl. Kaskade; setzt `soldManually` beim manuellen Verkauf |
 
 Bearbeiten dürfen **beide Rollen** — ein Tippfehler beim Preis muss korrigierbar sein, solange der Verkäufer noch am Tisch steht, und der Weg über den Admin würde die Schlange aufhalten. Löschen und Zeitstempel bleiben dem Admin vorbehalten (Rechte-Matrix → [`spec.md`](../../spec.md) Abschnitt 4.1).
+
+---
+
+## 6. Drucken — Artikel-Aushang
+
+Spezifikation → [Artikel-Aushang drucken](../../../../forge/2026-10-31-artikel-aushang-druck/spec.md) · Druckdokument → [`print-document`](../../components/print-document.md) · Einordnung → [Epic_Druckfunktionen](../Epic_Druckfunktionen/epic.md) Abschnitt 5
+
+Der Button **„Drucken"** (Icon `pi-print`) steht in der Filterleiste als letztes Element rechts, hinter den Auswahlfeldern. Er ist für **Admin und Kassenpersonal** sichtbar und bei leerem Filterergebnis deaktiviert. Ein Klick öffnet den Druckdialog des Geräts („Als PDF speichern" genügt).
+
+Gedruckt werden **alle** Artikel, die zu den aktiven Filtern passen (Freitext, Marke, Kategorie, Status) — nicht nur die gerade sichtbare Tabellenseite; Seite und Sortierung der Tabelle gelten nicht. Beispiel: Status „Im Verkauf" ergibt den Aushang aller Artikel im Verkauf.
+
+Der Ausdruck ist ein **Aushang zum Veröffentlichen**, kein Geschäftsbericht: ohne Artikelnummer, ohne Summen, ohne Anzahl und ohne Angabe der aktiven Filter.
+
+| Inhalt | Regel |
+|---|---|
+| Gruppierung | nach Kategorie, alphabetisch, eine Überschrift je Kategorie (ohne Anzahl) |
+| Sortierung je Kategorie | Marke → Größe → Farbe → Bezeichnung; Größen natürlich (86 vor 104), leere Werte am Ende |
+| Spalten | Bezeichnung · Marke · Farbe · Größe · Preis |
+| Kopfzeile | links und Mitte je ein Freitext, rechts Datum und Uhrzeit des Drucks |
+| Fußzeile | links und Mitte je ein Freitext, rechts „Seite x von y" |
+
+Die vier Freitexte (Markdown) pflegt ein Admin in den Einstellungen → [Beleg Druck](../Epic_Einstellungen/epic.md).
+
+**Daten:** `GET /api/articles/print` nutzt dieselbe Filterlogik wie die Tabelle, damit beide immer dieselben Artikel treffen. Die Sortierung und Gruppierung des Dokuments erledigt das Frontend.
 
 ---
 
@@ -160,6 +188,13 @@ Bearbeiten dürfen **beide Rollen** — ein Tippfehler beim Preis muss korrigier
 10. **AC-10** — WHEN „Verkauft Am" im Status-Popup von Hand gesetzt wird, THEN SHALL das System vorher den Hinweis „Dieser Verkauf entsteht ohne Kassenvorgang und fehlt in der Kassenabstimmung" anzeigen und nach Bestätigung `soldManually` am Artikel setzen.
 11. **AC-11** — WHEN ein Zeitstempel gelöscht wird, dessen Kaskade weitere Zeitstempel entfernt, THEN SHALL das System die betroffenen Zeitstempel im Bestätigungsdialog namentlich nennen und erst nach Bestätigung löschen.
 12. **AC-12** — WHEN ein Artikel mit gesetztem `soldManually` in der Tabelle erscheint, THEN SHALL das System neben dem Status ein Badge „manuell" anzeigen.
+13. **AC-13** — THE SYSTEM SHALL in der Filterleiste einen Button „Drucken" rechts hinter den Auswahlfeldern anzeigen, für Admin und Kassenpersonal.
+14. **AC-14** — IF das Filterergebnis keine Artikel enthält, THEN SHALL das System den Button „Drucken" deaktivieren.
+15. **AC-15** — WHEN „Drucken" geklickt wird, THEN SHALL das System den Druckdialog mit **allen** Artikeln des Filterergebnisses öffnen, unabhängig von Tabellenseite und Sortierung.
+16. **AC-16** — THE SYSTEM SHALL die Artikel des Aushangs nach Kategorie gruppieren (alphabetisch, eine Überschrift je Kategorie) und je Kategorie nach Marke, Größe, Farbe, Bezeichnung sortieren.
+17. **AC-17** — THE SYSTEM SHALL je Artikel Bezeichnung, Marke, Farbe, Größe und Preis drucken, ohne Artikelnummer, Summen, Anzahl oder Filterangabe.
+18. **AC-18** — THE SYSTEM SHALL Kopf- und Fußzeile des Aushangs in drei gleiche Drittel teilen: links und Mitte je ein Freitext, rechts Datum und Uhrzeit bzw. „Seite x von y".
+19. **AC-19** — IF die Artikel oder Freitexte für den Aushang nicht geladen werden können, THEN SHALL das System den Hinweis „Artikel konnten nicht geladen werden" anzeigen und keine Druckvorschau öffnen.
 
 ## Tags & Piles
 

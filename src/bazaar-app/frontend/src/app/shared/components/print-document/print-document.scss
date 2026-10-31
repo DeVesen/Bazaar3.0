@@ -1,7 +1,8 @@
 $print-gray: #e6e6e6;
 $print-border: 2px solid $print-gray;
 
-app-print-document {
+app-print-document,
+app-article-aushang {
   display: block;
   background: #fff;
   color: #000;
@@ -215,6 +216,23 @@ app-print-document {
 
   &__col--price {
     width: 20mm;
+  }
+
+  // Artikel-Aushang: Bezeichnung nimmt den Rest, die vier übrigen Spalten sind breiter als im Beleg.
+  &__col--aushang-brand {
+    width: 38mm;
+  }
+
+  &__col--aushang-color {
+    width: 30mm;
+  }
+
+  &__col--aushang-size {
+    width: 20mm;
+  }
+
+  &__col--aushang-price {
+    width: 22mm;
   }
 
   &__cell--price {

@@ -32,6 +32,22 @@ public static class ArticleEndpoints
         })
         .RequireAuthorization();
 
+        // GET /api/articles/print (api/articles.md §1a): the Artikel-Aushang's data — same filters
+        // as the list, but all matches, unpaginated. A literal segment, so it never collides
+        // with `/api/articles/{id}` below (same precedent as `next-number`).
+        app.MapGet("/api/articles/print", async (
+            string? q,
+            string? brand,
+            string? category,
+            string? status,
+            GetArticlesForPrintHandler handler) =>
+        {
+            var items = await handler.Handle(q, brand, category, status);
+            return Results.Ok(items.Select(a => new ArticlePrintItemDto(
+                a.Name, a.Brand, a.Category, a.Size, a.Color, a.Price)));
+        })
+        .RequireAuthorization();
+
         app.MapGet("/api/articles/next-number", async (GetNextArticleNumberHandler handler) =>
         {
             var nextNumber = await handler.Handle();

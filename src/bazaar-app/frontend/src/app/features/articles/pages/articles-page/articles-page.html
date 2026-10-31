@@ -47,6 +47,15 @@
         placeholder="Alle"
         aria-label="Status"
       />
+      <p-button
+        class="articles-page__print"
+        label="Drucken"
+        icon="pi pi-print"
+        severity="secondary"
+        [outlined]="true"
+        [disabled]="totalCount() === 0"
+        (onClick)="onPrint()"
+      />
     </ng-template>
   </p-toolbar>
 

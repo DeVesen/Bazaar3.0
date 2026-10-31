@@ -42,7 +42,7 @@ Die Seite ist eine Tab-Leiste (PrimeNG `p-tabs`); jeder Tab trägt Caption und I
 |---|---|---|
 | Basis-Einstellungen | `pi-cog` | Systemparameter (Abschnitt 1) |
 | User | `pi-users` | Benutzerverwaltung (Abschnitt 3) |
-| Beleg Druck | `pi-print` | Freitexte von „Abgabe-Beleg" und „Verkäufer-Übersicht" untereinander; je Abschnitt Freitext 1 und 2 nebeneinander (je 50 %), Freitext 3 über die ganze Breite, Freitext 4 und 5 nebeneinander (je 50 %); ein gemeinsamer Button „Freitexte speichern" |
+| Beleg Druck | `pi-print` | Freitexte von „Abgabe-Beleg", „Verkäufer-Übersicht" und „Artikel-Aushang" untereinander; bei Beleg und Übersicht je Abschnitt Freitext 1 und 2 nebeneinander (je 50 %), Freitext 3 über die ganze Breite, Freitext 4 und 5 nebeneinander (je 50 %); beim Artikel-Aushang vier Freitexte in zwei Paaren (Kopfzeile links/Mitte, Fußzeile links/Mitte); ein gemeinsamer Button „Freitexte speichern" |
 | Sonstiges | `pi-ellipsis-h` | JSON-Import (Abschnitt 2), in jedem Modus; nur im Development-Modus zusätzlich „Datenbank zurücksetzen" |
 
 - Start-Tab ist „Basis-Einstellungen". Der aktive Tab steht im Query-Parameter `tab` (`general`, `users`, `print`, `misc`), sodass Neuladen oder ein geteilter Link denselben Tab öffnet; ein unbekannter Wert öffnet „Basis-Einstellungen".
@@ -189,6 +189,7 @@ Alle Endpoints dieser Seite verlangen die Rolle **`admin`** — mit **einer Ausn
 15. **AC-15** — WHEN Marken oder Kategorien importiert werden, THEN SHALL das System sie mit `original = true` anlegen.
 16. **AC-16** — THE SYSTEM SHALL im Tab „Basis-Einstellungen" eine löschbare Auswahl „Standard-Verkäufer-Typ" mit allen Verkäufer-Typen anbieten; leer bedeutet „am häufigsten zugewiesener Typ".
 17. **AC-17** — WHEN ein Standard-Verkäufer-Typ gespeichert ist und noch existiert, THEN SHALL das System ihn bei „Neuer Verkäufer" und in der Artikelannahme beim Anlegen eines Verkäufers vorbelegen.
+18. **AC-18** — WHEN ein Admin den Tab „Beleg Druck" öffnet, THEN SHALL das System für den Artikel-Aushang vier Markdown-Freitext-Felder (Kopfzeile links/Mitte, Fußzeile links/Mitte) anbieten, mit den übrigen Freitexten gemeinsam speichern und ab dem nächsten Druck des Aushangs verwenden.
 
 ## Tags & Piles
 

@@ -255,6 +255,31 @@ namespace Bazaar.Infrastructure.Migrations
                                 .HasColumnType("character varying(5000)");
                         });
 
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "ArticleAushang", "Bazaar.Domain.Settings.Settings.ArticleAushang#AushangTexts", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Text1")
+                                .IsRequired()
+                                .HasMaxLength(5000)
+                                .HasColumnType("character varying(5000)");
+
+                            b1.Property<string>("Text2")
+                                .IsRequired()
+                                .HasMaxLength(5000)
+                                .HasColumnType("character varying(5000)");
+
+                            b1.Property<string>("Text3")
+                                .IsRequired()
+                                .HasMaxLength(5000)
+                                .HasColumnType("character varying(5000)");
+
+                            b1.Property<string>("Text4")
+                                .IsRequired()
+                                .HasMaxLength(5000)
+                                .HasColumnType("character varying(5000)");
+                        });
+
                     b.ComplexProperty(typeof(Dictionary<string, object>), "VerkaeuferUebersicht", "Bazaar.Domain.Settings.Settings.VerkaeuferUebersicht#PrintTexts", b1 =>
                         {
                             b1.IsRequired();

@@ -9,6 +9,7 @@ public sealed class UpdatePrintTextsCommandValidator : AbstractValidator<UpdateP
     {
         RuleFor(x => x.AbgabeBeleg).NotNull().SetValidator(new PrintTextsDtoValidator());
         RuleFor(x => x.VerkaeuferUebersicht).NotNull().SetValidator(new PrintTextsDtoValidator());
+        RuleFor(x => x.ArticleAushang).NotNull().SetValidator(new AushangTextsDtoValidator());
     }
 
     private sealed class PrintTextsDtoValidator : AbstractValidator<PrintTextsDto>
@@ -20,6 +21,17 @@ public sealed class UpdatePrintTextsCommandValidator : AbstractValidator<UpdateP
             RuleFor(x => x.Text3).NotNull().MaximumLength(PrintTexts.MaxLength);
             RuleFor(x => x.Text4).NotNull().MaximumLength(PrintTexts.MaxLength);
             RuleFor(x => x.Text5).NotNull().MaximumLength(PrintTexts.MaxLength);
+        }
+    }
+
+    private sealed class AushangTextsDtoValidator : AbstractValidator<AushangTextsDto>
+    {
+        public AushangTextsDtoValidator()
+        {
+            RuleFor(x => x.Text1).NotNull().MaximumLength(AushangTexts.MaxLength);
+            RuleFor(x => x.Text2).NotNull().MaximumLength(AushangTexts.MaxLength);
+            RuleFor(x => x.Text3).NotNull().MaximumLength(AushangTexts.MaxLength);
+            RuleFor(x => x.Text4).NotNull().MaximumLength(AushangTexts.MaxLength);
         }
     }
 }

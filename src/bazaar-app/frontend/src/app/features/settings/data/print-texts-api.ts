@@ -6,21 +6,40 @@ import { Observable } from 'rxjs';
 export const PRINT_TEXT_MAX_LENGTH = 5000;
 
 export type PrintTextField = 'text1' | 'text2' | 'text3' | 'text4' | 'text5';
-export type PrintTextSection = 'abgabeBeleg' | 'verkaeuferUebersicht';
 export type PrintTextSet = Record<PrintTextField, string>;
-export type PrintTexts = Record<PrintTextSection, PrintTextSet>;
+
+/** Artikel-Aushang: vier Freitexte — Kopfzeile links/Mitte, Fußzeile links/Mitte. */
+export type AushangTextField = 'text1' | 'text2' | 'text3' | 'text4';
+export type AushangTextSet = Record<AushangTextField, string>;
+
+export interface PrintTexts {
+  abgabeBeleg: PrintTextSet;
+  verkaeuferUebersicht: PrintTextSet;
+  articleAushang: AushangTextSet;
+}
 
 function emptyTextSet(): PrintTextSet {
   return { text1: '', text2: '', text3: '', text4: '', text5: '' };
 }
 
+function emptyAushangTextSet(): AushangTextSet {
+  return { text1: '', text2: '', text3: '', text4: '' };
+}
+
+/** Abschnitt der Freitexte: ein Druckdokument mit seinem Satz von Feldern. */
+export type PrintTextSection = keyof PrintTexts;
+
 export function emptyPrintTexts(): PrintTexts {
-  return { abgabeBeleg: emptyTextSet(), verkaeuferUebersicht: emptyTextSet() };
+  return {
+    abgabeBeleg: emptyTextSet(),
+    verkaeuferUebersicht: emptyTextSet(),
+    articleAushang: emptyAushangTextSet(),
+  };
 }
 
 /**
- * `GET`/`PUT /api/settings/print-texts` — die zehn Freitexte der Belege (Abgabe-Beleg und
- * Verkäufer-Übersicht, je fünf). Lesen darf jeder angemeldete Nutzer (der Druck braucht sie),
+ * `GET`/`PUT /api/settings/print-texts` — die vierzehn Freitexte der Druckdokumente
+ * (Abgabe-Beleg und Verkäufer-Übersicht je fünf, Artikel-Aushang vier). Lesen darf jeder angemeldete Nutzer (der Druck braucht sie),
  * Schreiben nur ein Admin.
  */
 @Injectable({ providedIn: 'root' })

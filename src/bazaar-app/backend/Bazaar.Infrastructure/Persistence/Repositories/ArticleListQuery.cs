@@ -42,39 +42,7 @@ public sealed class ArticleListQuery(BazaarDbContext dbContext) : IArticleListQu
         var effectivePageSize = pageSize > 0 ? Math.Min(pageSize, MaxPageSize) : DefaultPageSize;
         var effectivePage = page > 0 ? page : 1;
 
-        var articles = await (
-            from article in dbContext.Articles
-            join seller in dbContext.Sellers on article.SellerId equals seller.Id
-            select new ArticleRow(
-                article.Id,
-                article.Number,
-                article.Name,
-                article.Brand,
-                article.Category,
-                article.Price,
-                article.SoldManually,
-                article.SellerId,
-                seller.FirstName + " " + seller.LastName,
-                // Status is computed CLR-side — pull the enum through, stringify after materializing.
-                article.Status))
-            .ToListAsync();
-
-        var tokens = ArticleTokenSearch.Tokenize(q);
-        var textFiltered = tokens.Length == 0
-            ? articles
-            : articles.Where(a => ArticleTokenSearch.Matches(tokens, a.Number.ToString(), a.Name, a.Brand, a.Category, a.SellerName)).ToList();
-
-        var brandFiltered = string.IsNullOrWhiteSpace(brand)
-            ? textFiltered
-            : textFiltered.Where(a => string.Equals(a.Brand, brand, StringComparison.OrdinalIgnoreCase)).ToList();
-
-        var categoryFiltered = string.IsNullOrWhiteSpace(category)
-            ? brandFiltered
-            : brandFiltered.Where(a => string.Equals(a.Category, category, StringComparison.OrdinalIgnoreCase)).ToList();
-
-        var statusFiltered = string.IsNullOrWhiteSpace(status)
-            ? categoryFiltered
-            : categoryFiltered.Where(a => string.Equals(a.StatusEnum.ToString(), status, StringComparison.OrdinalIgnoreCase)).ToList();
+        var statusFiltered = await LoadFiltered(q, brand, category, status);
 
         var sortKeys = ParseSort(sort);
         var ordered = ApplySort(statusFiltered, sortKeys);
@@ -90,6 +58,57 @@ public sealed class ArticleListQuery(BazaarDbContext dbContext) : IArticleListQu
             .ToList();
 
         return new ArticleListPage(items, totalCount, effectivePage, effectivePageSize);
+    }
+
+    /// <summary>
+    /// Unpaginated twin of <see cref="GetArticles"/> for the Artikel-Aushang: runs through the
+    /// same <see cref="LoadFiltered"/> as the table, so both always agree on which articles match.
+    /// </summary>
+    public async Task<IReadOnlyList<ArticlePrintItem>> GetArticlesForPrint(string? q, string? brand, string? category, string? status)
+    {
+        var filtered = await LoadFiltered(q, brand, category, status);
+        return filtered
+            .Select(a => new ArticlePrintItem(a.Name, a.Brand, a.Category, a.Size, a.Color, a.Price))
+            .ToList();
+    }
+
+    private async Task<List<ArticleRow>> LoadFiltered(string? q, string? brand, string? category, string? status)
+    {
+        var articles = await (
+            from article in dbContext.Articles
+            join seller in dbContext.Sellers on article.SellerId equals seller.Id
+            select new ArticleRow(
+                article.Id,
+                article.Number,
+                article.Name,
+                article.Brand,
+                article.Category,
+                article.Price,
+                article.SoldManually,
+                article.SellerId,
+                seller.FirstName + " " + seller.LastName,
+                // Status is computed CLR-side — pull the enum through, stringify after materializing.
+                article.Status,
+                article.Size,
+                article.Color))
+            .ToListAsync();
+
+        var tokens = ArticleTokenSearch.Tokenize(q);
+        var textFiltered = tokens.Length == 0
+            ? articles
+            : articles.Where(a => ArticleTokenSearch.Matches(tokens, a.Number.ToString(), a.Name, a.Brand, a.Category, a.SellerName)).ToList();
+
+        var brandFiltered = string.IsNullOrWhiteSpace(brand)
+            ? textFiltered
+            : textFiltered.Where(a => string.Equals(a.Brand, brand, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        var categoryFiltered = string.IsNullOrWhiteSpace(category)
+            ? brandFiltered
+            : brandFiltered.Where(a => string.Equals(a.Category, category, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        return string.IsNullOrWhiteSpace(status)
+            ? categoryFiltered
+            : categoryFiltered.Where(a => string.Equals(a.StatusEnum.ToString(), status, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 
     private static IReadOnlyList<(string Field, bool Descending)> ParseSort(string? sort)
@@ -177,5 +196,7 @@ public sealed class ArticleListQuery(BazaarDbContext dbContext) : IArticleListQu
         bool SoldManually,
         string SellerId,
         string SellerName,
-        ArticleStatus StatusEnum);
+        ArticleStatus StatusEnum,
+        string? Size,
+        string? Color);
 }

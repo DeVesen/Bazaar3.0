@@ -1,4 +1,4 @@
-import { ApplicationRef, ComponentRef, Injectable, createComponent, inject } from '@angular/core';
+import { ApplicationRef, ComponentRef, Injectable, Type, createComponent, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Observable, forkJoin, map } from 'rxjs';
 // Sanctioned `core` → `feature` boundary crossing (first one in this project, Round-23): the
@@ -11,11 +11,19 @@ import { ArticleSummary, SellersApi } from '../../features/sellers/data/sellers-
 import { SettlementApi } from '../../features/settlement/data/settlement-api';
 // Sanctioned `core` → `feature` boundary crossing, same justification as above.
 // eslint-disable-next-line boundaries/dependencies
+import { ArticlesApi, GetArticlesForPrintParams } from '../../features/articles/data/articles-api';
+// Sanctioned `core` → `feature` boundary crossing, same justification as above.
+// eslint-disable-next-line boundaries/dependencies
 import { PrintTextsApi } from '../../features/settings/data/print-texts-api';
 // Sanctioned `core` → `shared` boundary crossing: `PrintDocument` is the one presentation
 // component this service renders.
 // eslint-disable-next-line boundaries/dependencies
 import { PrintDocument } from '../../shared/components/print-document/print-document';
+// Sanctioned `core` → `shared` boundary crossing, same justification as above.
+// eslint-disable-next-line boundaries/dependencies
+import { ArticleAushang } from '../../shared/components/print-document/article-aushang';
+// eslint-disable-next-line boundaries/dependencies
+import { AushangModel, buildArticleAushangModel } from '../../shared/components/print-document/article-aushang.model';
 import {
   PrintArticle,
   PrintDocumentModel,
@@ -60,6 +68,7 @@ function isIos(): boolean {
 }
 
 const LOAD_ERROR_MESSAGE = 'Beleg konnte nicht geladen werden';
+const ARTICLE_LOAD_ERROR_MESSAGE = 'Artikel konnten nicht geladen werden';
 
 function toPrintSeller(seller: PrintSeller): PrintSeller {
   return {
@@ -96,6 +105,7 @@ export class PrintService {
   private readonly sellersApi = inject(SellersApi);
   private readonly settlementApi = inject(SettlementApi);
   private readonly printTextsApi = inject(PrintTextsApi);
+  private readonly articlesApi = inject(ArticlesApi);
   private readonly messageService = inject(MessageService);
   private readonly appRef = inject(ApplicationRef);
 
@@ -155,8 +165,32 @@ export class PrintService {
       });
   }
 
-  private showLoadError(): void {
-    this.messageService.add({ severity: 'error', summary: LOAD_ERROR_MESSAGE });
+  /**
+   * Artikel-Aushang (Artikel-Seite): alle Artikel, die zu den übergebenen Filtern passen —
+   * ohne Seiten, ohne Sortierung der Tabelle —, nach Kategorie gruppiert.
+   */
+  printArticleAushang(filters: GetArticlesForPrintParams): void {
+    forkJoin({
+      articles: this.articlesApi.getForPrint(filters),
+      texts: this.printTextsApi.get(),
+    })
+      .pipe(
+        map(({ articles, texts }) =>
+          buildArticleAushangModel({
+            articles,
+            freitexts: texts.articleAushang,
+            printedAt: new Date(),
+          }),
+        ),
+      )
+      .subscribe({
+        next: (model) => this.mountAushangAndPrint(model),
+        error: () => this.showLoadError(ARTICLE_LOAD_ERROR_MESSAGE),
+      });
+  }
+
+  private showLoadError(message: string = LOAD_ERROR_MESSAGE): void {
+    this.messageService.add({ severity: 'error', summary: message });
   }
 
   private loadAbgabeBeleg(
@@ -182,14 +216,31 @@ export class PrintService {
   }
 
   private mountRenderAndPrint(model: PrintDocumentModel): void {
+    this.mountAndPrint(PrintDocument, (ref) => ref.setInput('model', model), (instance) => instance.applyMeasurement());
+  }
+
+  private mountAushangAndPrint(model: AushangModel): void {
+    this.mountAndPrint(ArticleAushang, (ref) => ref.setInput('model', model));
+  }
+
+  /**
+   * Hängt ein Druckdokument (beliebige Komponente) ein, öffnet den Druckdialog und baut es wieder
+   * ab. `measure` läuft einmal nach dem ersten Rendern und vor dem Druck (nur der Beleg misst
+   * Freitext 3; der Aushang hat feste Maße und braucht es nicht).
+   */
+  private mountAndPrint<T>(
+    type: Type<T>,
+    configure: (componentRef: ComponentRef<T>) => void,
+    measure?: (instance: T) => void,
+  ): void {
     // Ein Dokument aus einem früheren Druck, dessen `afterprint` ausblieb (Android/iOS) oder das
     // nach einem Doppelklick noch hängt, wird zuerst abgebaut — es hängt immer höchstens eins.
     this.activeCleanup?.();
 
-    const componentRef: ComponentRef<PrintDocument> = createComponent(PrintDocument, {
+    const componentRef: ComponentRef<T> = createComponent(type, {
       environmentInjector: this.appRef.injector,
     });
-    componentRef.setInput('model', model);
+    configure(componentRef);
 
     const hostElement = componentRef.location.nativeElement as HTMLElement;
     hostElement.setAttribute(PRINT_HOST_ATTRIBUTE, '');
@@ -227,8 +278,10 @@ export class PrintService {
     }
 
     this.appRef.tick();
-    componentRef.instance.applyMeasurement();
-    this.appRef.tick();
+    if (measure) {
+      measure(componentRef.instance);
+      this.appRef.tick();
+    }
     this.openPrintDialog(cleanup);
   }
 

@@ -20,6 +20,7 @@ public sealed class SettingsConfiguration : IEntityTypeConfiguration<SettingsAgg
         builder.Property(s => s.DefaultSellerTypeId).HasMaxLength(8);
         builder.ComplexProperty(s => s.AbgabeBeleg, ConfigurePrintTexts);
         builder.ComplexProperty(s => s.VerkaeuferUebersicht, ConfigurePrintTexts);
+        builder.ComplexProperty(s => s.ArticleAushang, ConfigureAushangTexts);
     }
 
     private static void ConfigurePrintTexts(ComplexPropertyBuilder<PrintTexts> builder)
@@ -29,5 +30,13 @@ public sealed class SettingsConfiguration : IEntityTypeConfiguration<SettingsAgg
         builder.Property(t => t.Text3).IsRequired().HasMaxLength(PrintTexts.MaxLength);
         builder.Property(t => t.Text4).IsRequired().HasMaxLength(PrintTexts.MaxLength);
         builder.Property(t => t.Text5).IsRequired().HasMaxLength(PrintTexts.MaxLength);
+    }
+
+    private static void ConfigureAushangTexts(ComplexPropertyBuilder<AushangTexts> builder)
+    {
+        builder.Property(t => t.Text1).IsRequired().HasMaxLength(AushangTexts.MaxLength);
+        builder.Property(t => t.Text2).IsRequired().HasMaxLength(AushangTexts.MaxLength);
+        builder.Property(t => t.Text3).IsRequired().HasMaxLength(AushangTexts.MaxLength);
+        builder.Property(t => t.Text4).IsRequired().HasMaxLength(AushangTexts.MaxLength);
     }
 }

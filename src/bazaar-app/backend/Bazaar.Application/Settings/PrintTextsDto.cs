@@ -10,4 +10,15 @@ public sealed record PrintTextsDto(string Text1, string Text2, string Text3, str
     public PrintTexts ToDomain() => new(Text1, Text2, Text3, Text4, Text5);
 }
 
-public sealed record PrintTextsResponse(PrintTextsDto AbgabeBeleg, PrintTextsDto VerkaeuferUebersicht);
+public sealed record AushangTextsDto(string Text1, string Text2, string Text3, string Text4)
+{
+    public static AushangTextsDto From(AushangTexts texts) =>
+        new(texts.Text1, texts.Text2, texts.Text3, texts.Text4);
+
+    public AushangTexts ToDomain() => new(Text1, Text2, Text3, Text4);
+}
+
+public sealed record PrintTextsResponse(
+    PrintTextsDto AbgabeBeleg,
+    PrintTextsDto VerkaeuferUebersicht,
+    AushangTextsDto ArticleAushang);

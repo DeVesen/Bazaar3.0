@@ -64,22 +64,25 @@ public class SettingsTests
         // Assert
         Assert.Equal(PrintTexts.CreateEmpty(), settings.AbgabeBeleg);
         Assert.Equal(PrintTexts.CreateEmpty(), settings.VerkaeuferUebersicht);
+        Assert.Equal(AushangTexts.CreateEmpty(), settings.ArticleAushang);
     }
 
     [Fact]
-    public void UpdatePrintTexts_ValidTexts_ReplacesBothTextSets()
+    public void UpdatePrintTexts_ValidTexts_ReplacesAllThreeTextSets()
     {
         // Arrange
         var settings = SettingsAggregate.Create(3000);
         var abgabeBeleg = new PrintTexts("a1", "a2", "a3", "a4", "a5");
         var verkaeuferUebersicht = new PrintTexts("v1", "v2", "v3", "v4", "v5");
+        var articleAushang = new AushangTexts("k1", "k2", "f1", "f2");
 
         // Act
-        settings.UpdatePrintTexts(abgabeBeleg, verkaeuferUebersicht);
+        settings.UpdatePrintTexts(abgabeBeleg, verkaeuferUebersicht, articleAushang);
 
         // Assert
         Assert.Equal(abgabeBeleg, settings.AbgabeBeleg);
         Assert.Equal(verkaeuferUebersicht, settings.VerkaeuferUebersicht);
+        Assert.Equal(articleAushang, settings.ArticleAushang);
     }
 
     [Fact]
@@ -91,7 +94,7 @@ public class SettingsTests
 
         // Act & Assert
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            settings.UpdatePrintTexts(tooLong, PrintTexts.CreateEmpty()));
+            settings.UpdatePrintTexts(tooLong, PrintTexts.CreateEmpty(), AushangTexts.CreateEmpty()));
     }
 
     [Fact]
@@ -102,7 +105,7 @@ public class SettingsTests
         var atLimit = new PrintTexts(new string('x', PrintTexts.MaxLength), "", "", "", "");
 
         // Act
-        settings.UpdatePrintTexts(PrintTexts.CreateEmpty(), atLimit);
+        settings.UpdatePrintTexts(PrintTexts.CreateEmpty(), atLimit, AushangTexts.CreateEmpty());
 
         // Assert
         Assert.Equal(PrintTexts.MaxLength, settings.VerkaeuferUebersicht.Text1.Length);
@@ -117,7 +120,51 @@ public class SettingsTests
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            settings.UpdatePrintTexts(withNull, PrintTexts.CreateEmpty()));
+            settings.UpdatePrintTexts(withNull, PrintTexts.CreateEmpty(), AushangTexts.CreateEmpty()));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void UpdatePrintTexts_AushangTextLongerThanMaxLength_Throws(int index)
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        var texts = new[] { "", "", "", "" };
+        texts[index] = new string('x', AushangTexts.MaxLength + 1);
+        var tooLong = new AushangTexts(texts[0], texts[1], texts[2], texts[3]);
+
+        // Act & Assert
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            settings.UpdatePrintTexts(PrintTexts.CreateEmpty(), PrintTexts.CreateEmpty(), tooLong));
+    }
+
+    [Fact]
+    public void UpdatePrintTexts_AushangTextAtMaxLength_Succeeds()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        var atLimit = new AushangTexts("", "", "", new string('x', AushangTexts.MaxLength));
+
+        // Act
+        settings.UpdatePrintTexts(PrintTexts.CreateEmpty(), PrintTexts.CreateEmpty(), atLimit);
+
+        // Assert
+        Assert.Equal(AushangTexts.MaxLength, settings.ArticleAushang.Text4.Length);
+    }
+
+    [Fact]
+    public void UpdatePrintTexts_NullAushangText_Throws()
+    {
+        // Arrange
+        var settings = SettingsAggregate.Create(3000);
+        var withNull = new AushangTexts("", null!, "", "");
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+            settings.UpdatePrintTexts(PrintTexts.CreateEmpty(), PrintTexts.CreateEmpty(), withNull));
     }
 
     [Fact]
