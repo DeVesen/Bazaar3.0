@@ -17,15 +17,6 @@
     <p class="seller-search__camera-error">Kamerazugriff nicht möglich</p>
   }
 
-  @if (mode.active() === 'numpad') {
-    <app-numpad
-      class="seller-search__numpad"
-      (keyPressed)="onNumpadKey($event)"
-      (cleared)="onNumpadClear()"
-      (submitted)="onSubmit()"
-    />
-  }
-
   @if (isCameraActive()) {
     <!-- Kamera ersetzt die TREFFERLISTE, nicht das Suchfeld (component.md Abschnitt 6). -->
     <app-barcode-scanner

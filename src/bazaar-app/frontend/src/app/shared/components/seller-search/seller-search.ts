@@ -4,9 +4,8 @@ import { ButtonModule } from 'primeng/button';
 import { ListboxModule } from 'primeng/listbox';
 import { TagModule } from 'primeng/tag';
 import { Input, InputAddon } from '../input/input';
-import { FieldMode, FieldModeState, applyNumpadKey, fieldModeAddons } from '../input/field-mode';
+import { FieldMode, FieldModeState, fieldModeAddons } from '../input/field-mode';
 import { BarcodeScanner } from '../barcode-scanner/barcode-scanner';
-import { Numpad } from '../numpad/numpad';
 
 /**
  * Shape the search-result list is filtered/rendered over
@@ -27,11 +26,11 @@ export interface SellerSummary {
  * Shared cross-app entry point for "find one seller, then continue" flows
  * (docs/components/seller-search/component.md). Suchfeld ist ein `app-input` (Label „Verkäufer"
  * im Rahmen, Buttons bündig wie im Verkauf); Modus-Logik über `field-mode.ts`. Die Kamera
- * ersetzt die Trefferliste, nicht das Feld; der Nummernblock klappt unter dem Hinweis auf.
+ * ersetzt die Trefferliste, nicht das Feld. Kein Nummernblock: Verkäufer-IDs sind alphanumerisch.
  */
 @Component({
   selector: 'app-seller-search',
-  imports: [CardModule, ButtonModule, ListboxModule, TagModule, Input, Numpad, BarcodeScanner],
+  imports: [CardModule, ButtonModule, ListboxModule, TagModule, Input, BarcodeScanner],
   templateUrl: './seller-search.html',
   styleUrl: './seller-search.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,7 +51,7 @@ export class SellerSearch {
   readonly mode = new FieldModeState();
 
   readonly modes = computed<FieldMode[]>(() =>
-    this.showScanButton() ? ['keyboard', 'camera', 'numpad'] : ['keyboard', 'numpad'],
+    this.showScanButton() ? ['keyboard', 'camera'] : ['keyboard'],
   );
 
   readonly inputAddons = computed<InputAddon[]>(() => fieldModeAddons(this.modes(), this.mode.active()));
@@ -85,7 +84,6 @@ export class SellerSearch {
   onAddonClick(key: string): void {
     switch (key) {
       case 'camera':
-      case 'numpad':
         this.mode.toggle(key);
         return;
       case 'clear':
@@ -95,14 +93,6 @@ export class SellerSearch {
         this.onSubmit();
         return;
     }
-  }
-
-  onNumpadKey(init: KeyboardEventInit): void {
-    this.onTyped(applyNumpadKey(this.searchText(), init));
-  }
-
-  onNumpadClear(): void {
-    this.onTyped('');
   }
 
   /**

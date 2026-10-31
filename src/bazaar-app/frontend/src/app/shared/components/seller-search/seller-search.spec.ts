@@ -51,7 +51,7 @@ describe('SellerSearch', () => {
     fixture.detectChanges();
   }
 
-  function enterMode(fixture: ReturnType<typeof create>, mode: 'camera' | 'numpad') {
+  function enterMode(fixture: ReturnType<typeof create>, mode: 'camera') {
     fixture.componentInstance.onAddonClick(mode);
     fixture.detectChanges();
   }
@@ -78,11 +78,10 @@ describe('SellerSearch', () => {
     expect(order).toEqual(['app-input', 'hint', 'p-listbox']);
   });
 
-  it('offers numpad, clear and enter addons, plus camera only with showScanButton', () => {
-    expect(create([seller()]).componentInstance.inputAddons().map((a) => a.key)).toEqual(['numpad', 'clear', 'enter']);
+  it('offers clear and enter addons, plus camera only with showScanButton', () => {
+    expect(create([seller()]).componentInstance.inputAddons().map((a) => a.key)).toEqual(['clear', 'enter']);
     expect(create([seller()], { showScanButton: true }).componentInstance.inputAddons().map((a) => a.key)).toEqual([
       'camera',
-      'numpad',
       'clear',
       'enter',
     ]);
@@ -186,7 +185,7 @@ describe('SellerSearch', () => {
   it('swaps the RESULT LIST (not the input field) for the video feed in camera mode', () => {
     const fixture = create([seller()], { showScanButton: true });
 
-    expect(fixture.componentInstance.modes()).toEqual(['keyboard', 'camera', 'numpad']);
+    expect(fixture.componentInstance.modes()).toEqual(['keyboard', 'camera']);
     expect(fixture.debugElement.query(By.css('p-listbox'))).toBeTruthy();
 
     enterMode(fixture, 'camera');
@@ -200,7 +199,7 @@ describe('SellerSearch', () => {
 
   it('does not offer the camera mode when showScanButton is false (default)', () => {
     const fixture = create([seller()]);
-    expect(fixture.componentInstance.modes()).toEqual(['keyboard', 'numpad']);
+    expect(fixture.componentInstance.modes()).toEqual(['keyboard']);
   });
 
   // AC-6 + scan flow
@@ -240,31 +239,29 @@ describe('SellerSearch', () => {
     expect(fixture.componentInstance.mode.active()).toBe('camera');
   });
 
-  it('returns to the previously active mode when a scan matches more than one seller', () => {
+  it('returns to the keyboard when a scan matches more than one seller', () => {
     const fixture = create(
       [seller({ id: 'SEL1', lastName: 'Meier' }), seller({ id: 'SEL2', lastName: 'Meierhof' })],
       { showScanButton: true },
     );
 
-    enterMode(fixture, 'numpad');
     enterMode(fixture, 'camera');
     scannerOf(fixture).codeDetected.emit('Meier');
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.mode.active()).toBe('numpad');
+    expect(fixture.componentInstance.mode.active()).toBe('keyboard');
     expect(fixture.debugElement.query(By.css('p-listbox'))).toBeTruthy();
   });
 
   // AC-7
-  it('stops the camera and returns to the previously active mode on Escape', () => {
+  it('stops the camera and returns to the keyboard on Escape', () => {
     const fixture = create([seller()], { showScanButton: true });
 
-    enterMode(fixture, 'numpad');
     enterMode(fixture, 'camera');
     fixture.componentInstance.onKeydown(new KeyboardEvent('keydown', { key: 'Escape' }));
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.mode.active()).toBe('numpad');
+    expect(fixture.componentInstance.mode.active()).toBe('keyboard');
   });
 
   it('clears the field and shows all sellers on Escape in keyboard mode', () => {
@@ -278,21 +275,11 @@ describe('SellerSearch', () => {
     expect(fixture.componentInstance.filteredSellers().length).toBe(2);
   });
 
-  // AC-8
-  it('types via the numpad and treats its submit like a keyboard Enter', () => {
-    const target = seller({ id: '42', lastName: 'Zahl' });
-    const fixture = create([target, seller({ id: '7', lastName: 'Andere' })]);
-    const emitted: SellerSummary[] = [];
-    fixture.componentInstance.sellerSelected.subscribe((s) => emitted.push(s));
+  it('offers no numpad — seller ids are alphanumeric', () => {
+    const fixture = create([seller()], { showScanButton: true });
 
-    enterMode(fixture, 'numpad');
-    expect(fixture.nativeElement.querySelector('app-numpad')).not.toBeNull();
-    fixture.componentInstance.onNumpadKey({ key: '4' });
-    fixture.componentInstance.onNumpadKey({ key: '2' });
-    fixture.componentInstance.onSubmit();
-
-    expect(fixture.componentInstance.searchText()).toBe('42');
-    expect(emitted).toEqual([target]);
+    expect(fixture.componentInstance.inputAddons().some((a) => a.key === 'numpad')).toBe(false);
+    expect(fixture.nativeElement.querySelector('app-numpad')).toBeNull();
   });
 
   // AC-9

@@ -30,11 +30,7 @@ export class IntakePage implements OnInit {
 
   readonly sellers = signal<SellerSummary[]>([]);
 
-  /**
-   * Hinweistext (spec.md, exact wording) — the Artikelannahme search view never sets
-   * `showScanButton` (spec.md's explicit call-out that neither Epic_Artikelannahme Abschnitt 1
-   * nor round.md require camera search here).
-   */
+  /** Hinweistext (spec.md, exact wording). */
   readonly hint = 'ENTER bei 1 Treffer öffnet Wizard · Kein Treffer: Anlegen-Button erscheint';
 
   ngOnInit(): void {
