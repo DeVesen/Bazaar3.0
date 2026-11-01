@@ -96,6 +96,9 @@ export interface SessionArticle {
   templateUrl: './intake-article-entry.html',
   styleUrl: './intake-article-entry.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Enter-Navigation: Host-Listener statt Handler auf einem Layout-`div` (a11y-Lint); `onFieldEnter()`
+  // ignoriert jedes Ziel, das keines der Formularfelder ist.
+  host: { '(keydown.enter)': 'onFieldEnter($event)' },
 })
 export class IntakeArticleEntry {
   private readonly articlesApi = inject(ArticlesApi);
