@@ -57,3 +57,62 @@
   border: 1px solid var(--p-red-200, #fecaca);
   font-size: 14px;
 }
+
+// Ergebnis-Icon (`status`): kurzer Pop beim Erfolg, Schütteln beim Fehler.
+.input-group__status {
+  background: transparent;
+
+  i {
+    font-size: 1.25rem;
+    animation: input-group-status-pop 0.35s ease-out;
+  }
+
+  &--ok i {
+    color: var(--p-green-500, #22c55e);
+  }
+
+  &--error i {
+    color: var(--p-red-500, #ef4444);
+    animation: input-group-status-shake 0.4s ease-in-out;
+  }
+}
+
+@keyframes input-group-status-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes input-group-status-shake {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1.2) translateX(-3px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(3px);
+  }
+  70% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input-group__status i {
+    animation: none;
+  }
+}

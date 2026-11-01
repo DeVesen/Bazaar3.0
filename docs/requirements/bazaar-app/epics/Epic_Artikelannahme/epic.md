@@ -131,7 +131,17 @@ Das Sofort-Anlegen ist nötig, weil Schritt 2 eine Verkäufer-ID braucht, um Art
 
 Pflichtfelder mit `*` markiert. **„Übernehmen"-Button** deaktiviert solange Pflichtfelder leer.
 
-**Sonderfall importierter Verkäufer:** Das Artikelnummer-Feld selbst lädt beim Tippen/Scannen **nicht** mehr automatisch vor — es prüft nur noch, ob die eingegebene Nummer vergeben ist (anderer Verkäufer oder bereits freigegeben → Fehlertext „bereits vergeben", „Übernehmen" bleibt disabled). Ein dritter Button neben Tastatur/Kamera am Artikelnummer-Feld öffnet stattdessen gezielt ein Popup, in dem eine bekannte, noch nicht freigegebene Artikelnummer dieses Verkäufers aus der Import-Liste gesucht und geladen werden kann. Nach einem Treffer füllt das Popup alle Felder inklusive der Artikelnummer selbst vor (alle Felder bleiben bearbeitbar) und der Button trägt ein Badge mit der ursprünglichen Nummer. Ändert der Anwender danach die Artikelnummer im Hauptfeld und klickt „Übernehmen", wird beim finalen Buchen der alte Datensatz unter der ursprünglichen Nummer gelöscht und der Artikel unter der neuen Nummer angelegt (Umnummerierung, kein Datensatz-Duplikat). Abgrenzung zum Freigabe-Scan → Abschnitt 5.
+**Artikelnummer-Prüfung auf Enter (inkl. importierter Verkäufer):** Das Artikelnummer-Feld (`submitOnEnter`) prüft erst auf **Enter, ↩-Button oder Kamera-Scan** — nicht beim Tippen. Jede Änderung der Nummer setzt das Ergebnis zurück; „Übernehmen" ist nur für eine geprüfte (oder vorgeschlagene) Nummer möglich. Vier Fälle:
+
+| Ergebnis der Prüfung | Reaktion |
+|---|---|
+| Nummer unbekannt (frei) | animiertes grünes OK-Icon am Feld, Fokus springt in „Beschreibung" |
+| Nummer gehört einem anderen Verkäufer **oder** dem aktuellen Verkäufer mit Status ≠ „Registriert" | animiertes rotes X-Icon, roter Feldrahmen, Eingabe komplett selektiert, Fehlertext unter dem Feld („Artikelnummer bereits vergeben …"), „Übernehmen" disabled |
+| Nummer gehört dem aktuellen Verkäufer mit Status „Registriert" (Import aus der Voranmeldung) | **Artikelwandlung:** Alle Felder werden mit den Artikeldaten befüllt (weiter bearbeitbar), kein Fehlertext, Nummer komplett selektiert, damit direkt eine neue Nummer eingegeben werden kann |
+
+Bei einer geladenen Voranmeldung zeigt ein Hinweistext unter dem Feld die Artikelwandlung an: zuerst „Aus Voranmeldung geladen (Nr. X). Andere Nummer eingeben und Enter drücken, um den Artikel umzunummerieren.", nach Eingabe einer neuen freien Nummer „Artikelwandlung: Wird als Nr. Y neu angelegt, Nr. X wird gelöscht." Beim finalen Buchen wird der alte Datensatz unter der ursprünglichen Nummer gelöscht (`deleteArticleNumber`, siehe [`api/intake.md`](../../api/intake.md)); die Nummer unverändert zu bestätigen ist eine normale Übernahme. Wird das Nummernfeld nach einem Treffer geleert, wird das ganze Formular zurückgesetzt. Das frühere Umnummerierungs-Popup (dritter Mode-Button) entfällt. Abgrenzung zum Freigabe-Scan → Abschnitt 5.
+
+> Entscheidung 2026-11-01: Prüfung und Laden erfolgen direkt im Artikelnummer-Feld auf Enter statt über das Popup; Grund: schnellere Erfassung ohne Moduswechsel. Das Feld ist im Tablet-Modus (≥ 768 px) so breit wie „Kategorie" (eine Rasterspalte).
 
 **Sonderfall neue Nummer:** Artikelnummer wird auf **systemweite Eindeutigkeit** geprüft (Abschnitt 3).
 

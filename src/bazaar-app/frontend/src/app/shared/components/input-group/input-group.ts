@@ -23,6 +23,8 @@ import { Numpad } from '../numpad/numpad';
 
 export type InputMode = 'keyboard' | 'camera' | 'numpad';
 export type InputGroupVariant = 'search' | 'price' | 'count';
+/** Ergebnis-Anzeige im Suchfeld (animiertes Icon): `ok` grünes Häkchen, `error` rotes X. */
+export type InputGroupStatus = 'ok' | 'error';
 
 /** Fixed order per component doc, Abschnitt 3 "Sichtbarkeitsregel der Modus-Buttons". */
 const MODE_ORDER: InputMode[] = ['keyboard', 'camera', 'numpad'];
@@ -108,7 +110,19 @@ const SEARCH_DEBOUNCE_MS = 300;
               [ngModel]="rawValue()"
               (ngModelChange)="onTyped($event)"
               [readonly]="activeMode() === 'numpad'"
+              [class.p-invalid]="status() === 'error'"
+              (keydown.enter)="onEnterKey()"
             />
+          }
+
+          @if (status(); as currentStatus) {
+            <p-inputgroup-addon
+              class="input-group__status"
+              [class.input-group__status--ok]="currentStatus === 'ok'"
+              [class.input-group__status--error]="currentStatus === 'error'"
+            >
+              <i [class]="currentStatus === 'ok' ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+            </p-inputgroup-addon>
           }
 
           @if (searching()) {
@@ -299,6 +313,18 @@ export class InputGroup {
    * `addonActionButtons()`-Mode-Row gerendert — die einzige Stelle, an der ein dritter,
    * gleichwertiger Button optisch Sinn ergibt.
    */
+  /**
+   * Search variant only: zeigt hinter dem Eingabefeld ein animiertes Ergebnis-Icon (grünes
+   * Häkchen / rotes X, roter Feldrahmen bei `error`). Der Parent setzt es nach seiner Prüfung
+   * zurück auf `null`, sobald der Wert erneut geändert wird. Default `null`: kein Icon.
+   */
+  readonly status = input<InputGroupStatus | null>(null);
+  /**
+   * Search variant only, opt-in: Enter im Textfeld und ein Kamera-Scan lösen zusätzlich zum
+   * ↩-Button `submitted` aus (Intake-Artikelnummer: Prüfung erst auf Enter/Scan statt beim
+   * Tippen). Default `false` — alle anderen Verwender bleiben unverändert.
+   */
+  readonly submitOnEnter = input<boolean>(false);
   readonly extraModeButton = input<{ icon: string; badge: string | null } | null>(null);
   readonly extraModeClicked = output<void>();
 
@@ -436,6 +462,15 @@ export class InputGroup {
     // (it renders its own scanner and calls `applyExternalValue()` instead), so it fully owns
     // the post-scan mode transition — see that method's own doc comment.
     this.switchMode('keyboard');
+    if (this.submitOnEnter() && !this.isNumericVariant()) {
+      this.submitted.emit();
+    }
+  }
+
+  onEnterKey(): void {
+    if (this.submitOnEnter()) {
+      this.onSubmit();
+    }
   }
 
   /**

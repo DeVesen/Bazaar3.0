@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
 import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
-import { InputGroup } from '../../../../shared/components/input-group/input-group';
+import { InputGroup, InputGroupStatus } from '../../../../shared/components/input-group/input-group';
 import { Input, InputAddon } from '../../../../shared/components/input/input';
 import { ResultOverlay } from '../../../../shared/components/result-overlay/result-overlay';
 import { ResultEvent, createResultEvent } from '../../../../shared/components/result-overlay/result-event';
@@ -26,7 +26,6 @@ import { Brand, BrandsApi } from '../../../brands/data/brands-api';
 import { SellersApi } from '../../../sellers/data/sellers-api';
 import { BookingConflict, IntakeSessionList } from '../intake-session-list/intake-session-list';
 import { SessionItemFormValue } from '../session-item-popup/session-item-popup';
-import { IntakeRenumberLookupPopup } from '../intake-renumber-lookup-popup/intake-renumber-lookup-popup';
 
 /**
  * A single article entered into THIS intake session, held locally until the whole session is
@@ -49,7 +48,7 @@ export interface SessionArticle {
    * row's number as taken (`onBookingConflict()`) — cleared once the row is edited
    * (`onItemUpdated()`). Drives `intake-session-list`'s row highlight (AC-8). */
   conflict?: boolean;
-  /** Gesetzt, wenn dieser Eintrag über das Renumber-Popup geladen und die Artikelnummer
+  /** Gesetzt, wenn dieser Eintrag aus einem vorregistrierten Artikel geladen und die Artikelnummer
    * anschließend geändert wurde — die Ursprungsnummer, deren Alt-Artikel beim finalen Buchen
    * gelöscht werden soll (`IntakeArticleLine.deleteArticleNumber`, siehe `intake-session-list`). */
   originalNumberToDelete?: number;
@@ -76,7 +75,6 @@ export interface SessionArticle {
     Input,
     Numpad,
     IntakeSessionList,
-    IntakeRenumberLookupPopup,
     ResultOverlay,
   ],
   templateUrl: './intake-article-entry.html',
@@ -88,6 +86,7 @@ export class IntakeArticleEntry {
   private readonly categoriesApi = inject(CategoriesApi);
   private readonly brandsApi = inject(BrandsApi);
   private readonly sellersApi = inject(SellersApi);
+  private readonly hostElement: ElementRef<HTMLElement> = inject(ElementRef);
 
   readonly sellerId = input.required<string>();
 
@@ -155,21 +154,35 @@ export class IntakeArticleEntry {
     { type: 'icon', value: 'pi pi-th-large', key: 'numpad' },
   ]);
 
-  /** Set once a `getByNumber()` lookup finds the number already taken (belongs to a different
-   * seller, or belongs to this seller but is already released) — disables "Übernehmen" and shows
-   * the inline "Artikelnummer bereits vergeben" message (spec.md, keyboard/numpad case). */
+  /** Fehlertext der Artikelnummer-Prüfung (Enter/Scan/↩): Nummer gehört einem anderen
+   * Verkäufer oder dem aktuellen Verkäufer mit Status ungleich „Registriert". Deaktiviert
+   * „Übernehmen". */
   readonly numberTakenMessage = signal<string | null>(null);
 
-  /** Gesetzt, sobald ein Artikel über das Renumber-Popup geladen wurde — die Ursprungsnummer,
-   * die als Badge am dritten Mode-Button angezeigt wird und beim finalen Buchen als
+  /** Animiertes Ergebnis-Icon am Nummernfeld (grünes OK / rotes X), `null` solange ungeprüft. */
+  readonly numberStatus = signal<InputGroupStatus | null>(null);
+
+  /** Die Nummer, für die die Prüfung zuletzt „frei" bzw. „Wandlung möglich" ergab (oder die vom
+   * Server vorgeschlagen wurde). „Übernehmen" ist nur für genau diese Nummer möglich — so wird
+   * eine ungeprüft getippte Nummer nie übernommen. */
+  private readonly verifiedNumber = signal<string | null>(null);
+
+  /** Gesetzt, sobald ein vorregistrierter Artikel (Status „Registriert", aktueller Verkäufer) per
+   * Nummerneingabe geladen wurde — die Ursprungsnummer, die beim finalen Buchen als
    * `deleteArticleNumber` mitgeschickt wird, falls die Nummer danach geändert wird. */
   readonly originalNumber = signal<number | null>(null);
-  readonly renumberPopupVisible = signal(false);
 
-  readonly extraModeButtonConfig = computed(() => ({
-    icon: 'pi pi-sync',
-    badge: this.originalNumber() !== null ? String(this.originalNumber()) : null,
-  }));
+  /** Hinweistext unter dem Nummernfeld, solange ein vorregistrierter Artikel geladen ist
+   * (Artikelwandlung). `null` bei normaler Neuerfassung. */
+  readonly numberHint = computed<string | null>(() => {
+    const original = this.originalNumber();
+    if (original === null) return null;
+    const typed = this.articleNumber().trim();
+    if (typed.length === 0 || typed === String(original)) {
+      return `Aus Voranmeldung geladen (Nr. ${original}). Andere Nummer eingeben und Enter drücken, um den Artikel umzunummerieren.`;
+    }
+    return `Artikelwandlung: Wird als Nr. ${typed} neu angelegt, Nr. ${original} wird gelöscht.`;
+  });
 
   /**
    * Owned here since this component is the container/orchestrator mounted at the wizard's
@@ -196,11 +209,6 @@ export class IntakeArticleEntry {
    */
   private numberFieldSeq = 0;
 
-  /** Steuert, ob der nächste `pendingNumberValue`-Apply-Effekt (siehe Konstruktor) zusätzlich
-   * Fokus + Volltext-Selektion ins Nummernfeld setzt — nur nach einem Renumber-Popup-Treffer,
-   * damit der Anwender die geladene Nummer sofort überschreiben kann, ohne erst zu markieren. */
-  private focusNumberFieldAfterApply = false;
-
   readonly canSave = computed(
     () =>
       this.articleNumber().trim().length > 0 &&
@@ -208,7 +216,8 @@ export class IntakeArticleEntry {
       this.category().length > 0 &&
       this.brand().length > 0 &&
       this.price() > 0 &&
-      this.numberTakenMessage() === null,
+      this.numberTakenMessage() === null &&
+      this.verifiedNumber() === this.articleNumber().trim(),
   );
 
   constructor() {
@@ -233,67 +242,36 @@ export class IntakeArticleEntry {
       if (!inputGroup || pending === null) return;
       inputGroup.applyExternalValue(pending);
       this.pendingNumberValue.set(null);
-      if (this.focusNumberFieldAfterApply) {
-        this.focusNumberFieldAfterApply = false;
-        // Fix round 2 (reviewer Important 1): `applyExternalValue()` only writes the `_rawValue`
-        // SIGNAL — `input-group`'s own native `<input>` is bound via `[ngModel]="rawValue()"` and
-        // is only actually updated in the DOM on Angular's NEXT change-detection pass (OnPush).
-        // Calling `focusAndSelect()` synchronously here would run `input.select()` while the DOM
-        // still shows the OLD value, collapsing the selection instead of highlighting the new
-        // one. `afterNextRender()` was tried first but never fires in this per-component
-        // `TestBed` fixture (it hooks `ApplicationRef`'s render hooks, which a bare
-        // `fixture.detectChanges()` does not drive) — a macrotask via `setTimeout` reliably runs
-        // after Angular's signal-triggered CD has flushed the DOM write, both in the browser and
-        // under `TestBed` (verified by the regression test below).
-        setTimeout(() => inputGroup.focusAndSelect());
-      }
+      // Vom Server vorgeschlagene (freie) Nummer — braucht keine eigene Prüfung.
+      this.verifiedNumber.set(pending.trim());
     });
   }
 
+  /** Tippen/Scannen/Setzen im Nummernfeld: ein geänderter Wert macht das letzte Prüfergebnis
+   * ungültig. Die eigentliche Prüfung läuft erst auf Enter/Scan/↩ (`onArticleNumberSubmit()`). */
   onArticleNumberChange(value: string | number): void {
     const raw = String(value);
-    this.articleNumber.set(raw);
-    if (raw.trim().length === 0 && this.originalNumber() !== null) {
-      this.resetForm();
+    // Das (entprellte) valueChange kann nach Enter noch nachlaufen — ein unveränderter Wert darf
+    // das frische Prüfergebnis nicht wieder löschen.
+    if (raw.trim() === this.articleNumber().trim()) {
+      this.articleNumber.set(raw);
       return;
     }
-    this.checkArticleNumber(raw);
+    this.articleNumber.set(raw);
+    this.numberFieldSeq++;
+    this.numberTakenMessage.set(null);
+    this.numberStatus.set(null);
+    if (raw.trim().length === 0 && this.originalNumber() !== null) {
+      this.resetForm();
+    }
   }
 
-  /** Fallback trigger for "ENTER oder Feld-Verlassen" (spec.md) — `input-group`'s `submitted`
-   * output fires on Enter/the ↩ button without necessarily re-emitting `valueChange` first (the
-   * keyboard-typed debounce may still be pending), so this re-reads the field's current raw
-   * value directly rather than relying on a payload `submitted` doesn't carry. */
+  /** Enter / ↩ / Kamera-Scan (`submitOnEnter`) — liest den aktuellen Rohwert des Felds direkt,
+   * da das entprellte `valueChange` beim Tippen noch ausstehen kann. */
   onArticleNumberSubmit(): void {
     const raw = this.numberInputGroup()?.rawValue() ?? this.articleNumber();
+    this.articleNumber.set(raw);
     this.checkArticleNumber(raw);
-  }
-
-  onOpenRenumberPopup(): void {
-    this.renumberPopupVisible.set(true);
-  }
-
-  onRenumberPopupVisibleChange(visible: boolean): void {
-    this.renumberPopupVisible.set(visible);
-  }
-
-  /** `app-intake-renumber-lookup-popup`'s `articleFound` — befüllt alle Formularfelder inkl.
-   * der Artikelnummer selbst, setzt die Badge-Markierung (`originalNumber`) und rückt Fokus +
-   * Volltext-Selektion ins Nummernfeld, sobald der Wert dort angewendet wurde (siehe
-   * `focusNumberFieldAfterApply`-Effekt im Konstruktor) — direktes Überschreiben durch
-   * Tippen/Scannen ist damit ohne manuelles Markieren möglich. */
-  onArticleFoundViaRenumberPopup(article: ArticleByNumberResult): void {
-    this.originalNumber.set(article.number);
-    this.onNameChange(article.name);
-    this.category.set(article.category);
-    this.brand.set(article.brand);
-    this.onSizeChange(article.size ?? '');
-    this.onColorChange(article.color ?? '');
-    this.description.set(article.description ?? '');
-    this.onPriceChange(article.price);
-    this.numberTakenMessage.set(null);
-    this.focusNumberFieldAfterApply = true;
-    this.pendingNumberValue.set(String(article.number));
   }
 
   onNameChange(value: string): void {
@@ -328,7 +306,7 @@ export class IntakeArticleEntry {
   /** Reactive fast-path for the clear-button (✕) visibility — reads the native input's raw
    * value directly off the keyup event, independent of the (already near-instant, `debounceMs=0`)
    * `valueChange` pipeline. `onXChange()` above also keeps these in sync for programmatic sets
-   * (renumber popup, tests) that never dispatch a real keyup. */
+   * (Laden eines vorregistrierten Artikels, Tests) that never dispatch a real keyup. */
   onNameKeyUp(event: KeyboardEvent): void {
     this.nameIsEmpty.set(((event.target as HTMLInputElement).value ?? '').trim().length === 0);
   }
@@ -489,46 +467,93 @@ export class IntakeArticleEntry {
     this.pendingNumberValue.set(String(event.nextNumber));
   }
 
+  /** Artikelnummer-Prüfung (Epic_Artikelannahme), vier Fälle:
+   * - unbekannt (404): frei → grünes OK, Fokus in die Beschreibung;
+   * - anderer Verkäufer ODER eigener Artikel mit Status ungleich „Registriert": rotes X,
+   *   Eingabe voll selektiert, Fehlertext;
+   * - eigener Artikel mit Status „Registriert" (Voranmeldung): Felder werden befüllt
+   *   (Artikelwandlung), Nummer voll selektiert zum direkten Überschreiben. */
   private checkArticleNumber(raw: string): void {
-    // Fix round 1 (reviewer Important 1): every REAL trigger of a number-check invalidates any
-    // still-in-flight `prefillNextNumber()` response — see that method's own guard and
-    // `numberFieldSeq`'s doc comment.
-    this.numberFieldSeq++;
+    // Jede echte Prüfung macht noch laufende Antworten (Nummernvorschlag, ältere Prüfung) ungültig.
+    const seq = ++this.numberFieldSeq;
 
     const trimmed = raw.trim();
-    if (!trimmed) {
-      this.numberTakenMessage.set(null);
-      return;
-    }
+    this.numberTakenMessage.set(null);
+    this.numberStatus.set(null);
+    this.verifiedNumber.set(null);
+    if (!trimmed) return;
 
     const number = Number.parseInt(trimmed, 10);
-    if (!Number.isFinite(number)) {
-      this.numberTakenMessage.set(null);
+    if (!/^\d+$/.test(trimmed) || !Number.isSafeInteger(number)) {
+      this.markNumberTaken('Bitte eine gültige Artikelnummer eingeben');
       return;
     }
 
     this.articlesApi.getByNumber(number).subscribe({
-      next: (article: ArticleByNumberResult) => this.handleArticleFound(article),
-      error: (error: unknown) => this.handleArticleLookupError(error),
+      next: (article: ArticleByNumberResult) => {
+        if (seq === this.numberFieldSeq) this.handleArticleFound(article, trimmed);
+      },
+      error: (error: unknown) => {
+        if (seq === this.numberFieldSeq) this.handleArticleLookupError(error, trimmed);
+      },
     });
   }
 
-  /** Reine Vergeben-Prüfung (Epic_Artikelannahme): die Nummer gehört einem anderen Verkäufer
-   * ODER ist bereits freigegeben. Kein Auto-Prefill mehr am Hauptfeld — das Laden eines
-   * vorregistrierten, noch nicht freigegebenen Artikels läuft ausschließlich über das
-   * `app-intake-renumber-lookup-popup` (`onArticleFoundViaRenumberPopup()`). */
-  private handleArticleFound(article: ArticleByNumberResult): void {
-    const belongsToThisSeller = article.sellerId === this.sellerId();
-    // Round-15 status model: `'registered'` is the only not-yet-released state — anything else
-    // (selling/sold/returned) means the number is already in active use.
-    const alreadyReleased = article.status !== 'registered';
-    this.numberTakenMessage.set(!belongsToThisSeller || alreadyReleased ? 'Artikelnummer bereits vergeben' : null);
+  private handleArticleFound(article: ArticleByNumberResult, typed: string): void {
+    if (article.sellerId !== this.sellerId()) {
+      this.markNumberTaken('Artikelnummer bereits vergeben');
+      return;
+    }
+    // Round-15 status model: `'registered'` ist der einzige noch nicht freigegebene Zustand.
+    if (article.status !== 'registered') {
+      this.markNumberTaken('Artikelnummer bereits vergeben (Artikel bereits freigegeben)');
+      return;
+    }
+
+    // Wiederholtes Enter auf der bereits geladenen Nummer: nichts neu laden, Eingaben behalten.
+    if (this.originalNumber() !== article.number) {
+      this.loadPreRegisteredArticle(article);
+    }
+    this.verifiedNumber.set(typed);
+    this.selectNumberField();
   }
 
-  private handleArticleLookupError(error: unknown): void {
+  private handleArticleLookupError(error: unknown, typed: string): void {
     if (error instanceof HttpErrorResponse && error.status === 404) {
-      this.numberTakenMessage.set(null);
+      this.verifiedNumber.set(typed);
+      this.numberStatus.set('ok');
+      this.focusDescription();
     }
+  }
+
+  private markNumberTaken(message: string): void {
+    this.numberTakenMessage.set(message);
+    this.numberStatus.set('error');
+    this.selectNumberField();
+  }
+
+  /** Befüllt alle Formularfelder (außer der Nummer, die der Anwender gerade selbst eingegeben
+   * hat) aus dem vorregistrierten Artikel und merkt dessen Nummer als Löschkandidat. */
+  private loadPreRegisteredArticle(article: ArticleByNumberResult): void {
+    this.originalNumber.set(article.number);
+    this.onNameChange(article.name);
+    this.category.set(article.category);
+    this.brand.set(article.brand);
+    this.onSizeChange(article.size ?? '');
+    this.onColorChange(article.color ?? '');
+    this.description.set(article.description ?? '');
+    this.onPriceChange(article.price);
+  }
+
+  /** Fokus + Volltext-Selektion im Nummernfeld. Per Macrotask: bei einem Kamera-Scan wird der Wert
+   * erst im nächsten Change-Detection-Lauf ins native `<input>` geschrieben — `select()` davor
+   * würde den alten Text markieren (gleiche Begründung wie beim Nummernvorschlag-Effekt). */
+  private selectNumberField(): void {
+    setTimeout(() => this.numberInputGroup()?.focusAndSelect());
+  }
+
+  private focusDescription(): void {
+    this.hostElement.nativeElement.querySelector<HTMLTextAreaElement>('#intake-article-entry-description')?.focus();
   }
 
   private prefillNextNumber(): void {
@@ -554,6 +579,8 @@ export class IntakeArticleEntry {
     this.description.set('');
     this.priceNumpadVisible.set(false);
     this.numberTakenMessage.set(null);
+    this.numberStatus.set(null);
+    this.verifiedNumber.set(null);
     this.originalNumber.set(null);
     this.numberFieldSeq++;
     this.prefillNextNumber();

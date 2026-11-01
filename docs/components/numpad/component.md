@@ -141,8 +141,8 @@ onNumpadClear(): void {
 
 Ein Feld ohne Dezimalstellen (z. B. eine Artikelnummer) übernimmt aus diesem Beispiel nur
 die Ziffern- und Backspace-Behandlung und lässt die Komma-Verarbeitung ganz weg — ein Komma
-darf dort erst gar nicht in den Wert gelangen (siehe `intake-renumber-lookup-popup.ts`s
-eigenes `onNumpadKey()`).
+darf dort erst gar nicht in den Wert gelangen (siehe `input-group.ts`s search-Variante mit
+`applyNumpadKeyToSearchValue()`).
 
 ### Muster B — Parent besitzt ein p-inputnumber
 

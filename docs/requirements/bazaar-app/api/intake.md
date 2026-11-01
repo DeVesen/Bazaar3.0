@@ -73,7 +73,7 @@ Bei Kollision antwortet der Endpoint `409` mit **allen** betroffenen Nummern in 
 
 ### Umnummerierung vorangemeldeter Artikel (`deleteArticleNumber`)
 
-Ein Eintrag kann optional `deleteArticleNumber` mitschicken: die Nummer des ursprünglich vorangemeldeten Artikels, den das Umnummerierungs-Popup der Artikelannahme geladen hat, bevor die Verkäuferin/der Verkäufer eine andere, freie Nummer vergeben hat (`number` trägt bereits die **neue** Zielnummer). Der alte Artikel wird dazu wie oben beschrieben vor dem eigentlichen Anlegen/Aktualisieren gelöscht.
+Ein Eintrag kann optional `deleteArticleNumber` mitschicken: die Nummer des ursprünglich vorangemeldeten Artikels, den die Artikelannahme per Enter im Artikelnummer-Feld geladen hat (Artikelwandlung), bevor die Verkäuferin/der Verkäufer eine andere, freie Nummer vergeben hat (`number` trägt bereits die **neue** Zielnummer). Der alte Artikel wird dazu wie oben beschrieben vor dem eigentlichen Anlegen/Aktualisieren gelöscht.
 
 **Kollision am Ziel ist bei Umnummerierung immer ein Konflikt, nie ein Nachbuchen.** Trägt ein Eintrag `deleteArticleNumber`, zählt ein bereits existierender Artikel unter der Zielnummer `number` **immer** als vergeben (`409 article.number_taken`) — auch dann, wenn dieser Artikel selbst demselben Verkäufer gehört und noch nicht freigegeben ist und damit für einen gewöhnlichen Eintrag (ohne `deleteArticleNumber`) den normalen Nachbuchen-Fall („Sonderfall importierter Verkäufer", siehe oben) auslösen würde. Grund: dieser Artikel ist ein eigenständiger, vorangemeldeter Artikel eines anderen Vorgangs — nicht derselbe, der gerade umnummeriert wird — und darf beim Umnummerieren nicht mit dessen Daten überschrieben/freigegeben werden.
 

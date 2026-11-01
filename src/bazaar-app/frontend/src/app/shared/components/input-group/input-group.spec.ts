@@ -569,6 +569,60 @@ describe('InputGroup', () => {
     });
   });
 
+  describe('submitOnEnter + status (Artikelnummer-Prüfung auf Enter)', () => {
+    it('does not emit submitted on Enter by default (every existing consumer)', () => {
+      const fixture = create(['keyboard']);
+      const submitted = vi.fn();
+      fixture.componentInstance.submitted.subscribe(submitted);
+
+      fixture.nativeElement.querySelector('input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+      expect(submitted).not.toHaveBeenCalled();
+    });
+
+    it('emits submitted on Enter when submitOnEnter is set', () => {
+      const fixture = TestBed.createComponent(InputGroup);
+      fixture.componentRef.setInput('submitOnEnter', true);
+      fixture.detectChanges();
+      const submitted = vi.fn();
+      fixture.componentInstance.submitted.subscribe(submitted);
+
+      fixture.nativeElement.querySelector('input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+      expect(submitted).toHaveBeenCalledTimes(1);
+    });
+
+    it('emits submitted after a camera hit only when submitOnEnter is set', () => {
+      const fixture = TestBed.createComponent(InputGroup);
+      fixture.detectChanges();
+      const submitted = vi.fn();
+      fixture.componentInstance.submitted.subscribe(submitted);
+
+      fixture.componentInstance.onCodeDetected('42');
+      expect(submitted).not.toHaveBeenCalled();
+
+      fixture.componentRef.setInput('submitOnEnter', true);
+      fixture.componentInstance.onCodeDetected('43');
+      expect(submitted).toHaveBeenCalledTimes(1);
+    });
+
+    it('renders no status icon by default and the matching animated icon for ok/error', () => {
+      const fixture = create(['keyboard']);
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.input-group__status')).toBeNull();
+
+      fixture.componentRef.setInput('status', 'ok');
+      fixture.detectChanges();
+      expect(host.querySelector('.input-group__status--ok .pi-check-circle')).not.toBeNull();
+      expect(host.querySelector('input')?.classList).not.toContain('p-invalid');
+
+      fixture.componentRef.setInput('status', 'error');
+      fixture.detectChanges();
+      expect(host.querySelector('.input-group__status--error .pi-times-circle')).not.toBeNull();
+      expect(host.querySelector('input')?.classList).toContain('p-invalid');
+    });
+  });
+
   describe('focusAndSelect()', () => {
     it('focuses the native search input and selects its text', () => {
       const fixture = create(['keyboard'], 'search');

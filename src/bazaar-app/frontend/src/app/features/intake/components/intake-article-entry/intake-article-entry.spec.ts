@@ -25,7 +25,6 @@ import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock
 import { PrintService } from '../../../../core/print/print.service';
 import { IntakeApi } from '../../data/intake-api';
 import { IntakeSessionList } from '../intake-session-list/intake-session-list';
-import { IntakeRenumberLookupPopup } from '../intake-renumber-lookup-popup/intake-renumber-lookup-popup';
 import { IntakeArticleEntry, SessionArticle } from './intake-article-entry';
 
 const SELLER_ID = 'SEL00001';
@@ -160,8 +159,19 @@ function numberInputGroup(fixture: ReturnType<typeof TestBed.createComponent<Int
   return fixture.debugElement.queryAll(By.directive(InputGroup))[0].componentInstance as InputGroup;
 }
 
-function renumberPopup(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
-  return fixture.debugElement.query(By.directive(IntakeRenumberLookupPopup)).componentInstance as IntakeRenumberLookupPopup;
+/** Tippt eine Nummer ins Feld und drückt Enter (Prüfung läuft erst auf `submitted`). */
+async function enterNumber(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>, value: string) {
+  const group = numberInputGroup(fixture);
+  group.applyExternalValue(value);
+  fixture.detectChanges(); // Wert ins native <input> schreiben, bevor Enter selektiert
+  group.submitted.emit();
+  await fixture.whenStable();
+  await new Promise((resolve) => setTimeout(resolve, 0)); // verzögerte Fokus-/Selektion
+  fixture.detectChanges();
+}
+
+function numberInput(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
+  return fixture.nativeElement.querySelector('#intake-article-entry-number') as HTMLInputElement;
 }
 
 function appInputById(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>, inputId: string) {
@@ -217,25 +227,45 @@ describe('IntakeArticleEntry', () => {
     });
   });
 
-  describe('Artikelnummer-Prüfung (getByNumber branching)', () => {
-    it('404 (number free): clears any "vergeben" message and leaves the new-entry flow open', async () => {
-      const articlesApi = articlesApiStub();
-      articlesApi.getByNumber.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
-      const { fixture } = await setup({ articlesApi });
-      const component = fixture.componentInstance;
+  describe('Artikelnummer-Prüfung auf Enter (getByNumber branching)', () => {
+    it('does not look anything up while merely typing — only Enter/↩/scan triggers the check', async () => {
+      const { fixture, articlesApi } = await setup();
 
-      numberInputGroup(fixture).valueChange.emit('1099');
+      numberInputGroup(fixture).applyExternalValue('1099');
       await fixture.whenStable();
 
-      expect(articlesApi.getByNumber).toHaveBeenCalledWith(1099);
-      expect(component.numberTakenMessage()).toBeNull();
+      expect(articlesApi.getByNumber).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.numberStatus()).toBeNull();
     });
 
-    it('200, belongs to a different seller: shows "Artikelnummer bereits vergeben" and disables Übernehmen', async () => {
+    it('404 (number free): green OK icon, no error, focus moves to Beschreibung', async () => {
+      const { fixture, articlesApi } = await setup();
+      const component = fixture.componentInstance;
+
+      await enterNumber(fixture, '1099');
+
+      expect(articlesApi.getByNumber).toHaveBeenCalledWith(1099);
+      expect(component.numberStatus()).toBe('ok');
+      expect(component.numberTakenMessage()).toBeNull();
+      expect(document.activeElement).toBe(fixture.nativeElement.querySelector('#intake-article-entry-description'));
+      expect(fixture.nativeElement.querySelector('.input-group__status--ok')).not.toBeNull();
+    });
+
+    it('404 does not clear a hand-typed Bezeichnung/Preis', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.onNameChange('Handgetippt');
+      component.onPriceChange(19.9);
+
+      await enterNumber(fixture, '1099');
+
+      expect(component.name()).toBe('Handgetippt');
+      expect(component.price()).toBe(19.9);
+    });
+
+    it('belongs to a different seller: red X, error text, full selection, Übernehmen disabled', async () => {
       const articlesApi = articlesApiStub();
-      articlesApi.getByNumber.mockReturnValue(
-        of(articleByNumberStub({ sellerId: 'SEL00099', status: 'registered' })),
-      );
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ sellerId: 'SEL00099', status: 'registered' })));
       const { fixture } = await setup({ articlesApi });
       const component = fixture.componentInstance;
       component.name.set('X');
@@ -243,100 +273,116 @@ describe('IntakeArticleEntry', () => {
       component.brand.set('Lego');
       component.onPriceChange(5);
 
-      numberInputGroup(fixture).valueChange.emit('1042');
-      await fixture.whenStable();
+      await enterNumber(fixture, '1042');
 
+      expect(component.numberStatus()).toBe('error');
       expect(component.numberTakenMessage()).toBe('Artikelnummer bereits vergeben');
       expect(component.canSave()).toBe(false);
-      expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-        'Artikelnummer bereits vergeben',
-      );
+      expect(fixture.nativeElement.textContent).toContain('Artikelnummer bereits vergeben');
+      expect(document.activeElement).toBe(numberInput(fixture));
+      expect(numberInput(fixture).selectionStart).toBe(0);
+      expect(numberInput(fixture).selectionEnd).toBe(numberInput(fixture).value.length);
     });
 
-    it('200, belongs to this seller but already released (status !== registered): also shows "vergeben"', async () => {
+    it('belongs to this seller but is already released (status !== registered): red X and error text', async () => {
       const articlesApi = articlesApiStub();
-      articlesApi.getByNumber.mockReturnValue(
-        of(articleByNumberStub({ sellerId: SELLER_ID, status: 'selling' })),
-      );
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ sellerId: SELLER_ID, status: 'selling' })));
       const { fixture } = await setup({ articlesApi });
       const component = fixture.componentInstance;
 
-      numberInputGroup(fixture).valueChange.emit('1042');
-      await fixture.whenStable();
+      await enterNumber(fixture, '1042');
 
-      expect(component.numberTakenMessage()).toBe('Artikelnummer bereits vergeben');
-    });
-
-    it('200, belongs to this seller and still registered (pre-announced): no message, but no auto-prefill either (only the renumber popup prefills)', async () => {
-      const articlesApi = articlesApiStub();
-      articlesApi.getByNumber.mockReturnValue(
-        of(articleByNumberStub({ sellerId: SELLER_ID, status: 'registered', name: 'Sommerkleid' })),
-      );
-      const { fixture } = await setup({ articlesApi });
-      const component = fixture.componentInstance;
-
-      numberInputGroup(fixture).valueChange.emit('1042');
-      await fixture.whenStable();
-
-      expect(component.numberTakenMessage()).toBeNull();
+      expect(component.numberStatus()).toBe('error');
+      expect(component.numberTakenMessage()).toContain('Artikelnummer bereits vergeben');
+      expect(component.originalNumber()).toBeNull();
       expect(component.name()).toBe('');
     });
 
-    it('also triggers the check on submitted (Enter/↩), reading the field\'s current raw value', async () => {
-      const articlesApi = articlesApiStub();
-      articlesApi.getByNumber.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
-      const { fixture } = await setup({ articlesApi });
+    it('a non-numeric entry shows an error without calling the API', async () => {
+      const { fixture, articlesApi } = await setup();
 
+      await enterNumber(fixture, 'abc');
+
+      expect(articlesApi.getByNumber).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.numberStatus()).toBe('error');
+      expect(fixture.componentInstance.numberTakenMessage()).toBe('Bitte eine gültige Artikelnummer eingeben');
+    });
+
+    it('a late debounced valueChange with the unchanged value does not wipe the fresh result', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ sellerId: 'SEL00099' })));
+      const { fixture } = await setup({ articlesApi });
       const group = numberInputGroup(fixture);
-      group.onTyped('1099');
+
+      group.onTyped('1042');
       group.submitted.emit();
       await fixture.whenStable();
+      group.valueChange.emit('1042');
 
-      expect(articlesApi.getByNumber).toHaveBeenCalledWith(1099);
+      expect(fixture.componentInstance.numberStatus()).toBe('error');
+      expect(fixture.componentInstance.numberTakenMessage()).not.toBeNull();
     });
 
-    // Fix round 1 (reviewer Important 2): the flip side — a 404 must never wipe a genuinely
-    // hand-typed Bezeichnung/Preis that never came from a found-article prefill in the first place.
-    it('does not clear a hand-typed Bezeichnung/Preis on a 404 when no prior prefill happened', async () => {
+    it('changing the number afterwards resets status and message', async () => {
       const articlesApi = articlesApiStub();
-      articlesApi.getByNumber.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ sellerId: 'SEL00099' })));
       const { fixture } = await setup({ articlesApi });
-      const component = fixture.componentInstance;
+      await enterNumber(fixture, '1042');
 
-      component.onNameChange('Handgetippt');
-      component.onPriceChange(19.9);
+      numberInputGroup(fixture).applyExternalValue('1043');
 
-      numberInputGroup(fixture).valueChange.emit('1099');
-      await fixture.whenStable();
-
-      expect(component.name()).toBe('Handgetippt');
-      expect(component.price()).toBe(19.9);
+      expect(fixture.componentInstance.numberStatus()).toBeNull();
+      expect(fixture.componentInstance.numberTakenMessage()).toBeNull();
     });
 
-    // Fix round 1 (reviewer Important 1).
-    it('ignores a stale next-number prefill response that resolves after a subsequent real scan', async () => {
+    it('keeps Übernehmen disabled for a typed number that was not verified with Enter', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      component.name.set('X');
+      component.category.set('Kleidung');
+      component.brand.set('Lego');
+      component.onPriceChange(5);
+      expect(component.canSave()).toBe(true); // vorgeschlagene Nummer gilt als geprüft
+
+      numberInputGroup(fixture).applyExternalValue('1099');
+      expect(component.canSave()).toBe(false);
+
+      numberInputGroup(fixture).submitted.emit();
+      await fixture.whenStable();
+      expect(component.canSave()).toBe(true);
+    });
+
+    it('ignores a stale next-number prefill response that resolves after a subsequent real entry', async () => {
       const nextNumberSubject = new Subject<{ nextNumber: number }>();
       const articlesApi = articlesApiStub();
       articlesApi.getNextNumber.mockReturnValue(nextNumberSubject);
-      articlesApi.getByNumber.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
       const { fixture } = await setup({ articlesApi });
 
-      // A real scan/typed entry arrives BEFORE the (still in-flight) next-number response does.
-      // `applyExternalValue()` (not a bare `valueChange.emit()`) mirrors how a real camera hit
-      // reaches this component: it both updates the group's own `rawValue()` AND emits
-      // `valueChange`, exactly like `onCodeDetected()`/typing would.
-      numberInputGroup(fixture).applyExternalValue('2050');
-      await fixture.whenStable();
+      await enterNumber(fixture, '2050');
       expect(articlesApi.getByNumber).toHaveBeenCalledWith(2050);
 
-      // The stale next-number response now resolves late.
       nextNumberSubject.next({ nextNumber: 1043 });
       await fixture.whenStable();
 
-      // Must NOT clobber the real scanned number, and must NOT trigger a second lookup for it.
       expect(numberInputGroup(fixture).rawValue()).toBe('2050');
       expect(fixture.componentInstance.articleNumber()).toBe('2050');
-      expect(articlesApi.getByNumber).not.toHaveBeenCalledWith(1043);
+    });
+
+    it('ignores a stale lookup response when the number changed in the meantime', async () => {
+      const lookup = new Subject<ArticleByNumberResult>();
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(lookup);
+      const { fixture } = await setup({ articlesApi });
+      const group = numberInputGroup(fixture);
+      group.applyExternalValue('1042');
+      group.submitted.emit();
+
+      group.applyExternalValue('1043');
+      lookup.next(articleByNumberStub({ sellerId: 'SEL00099' }));
+      await fixture.whenStable();
+
+      expect(fixture.componentInstance.numberStatus()).toBeNull();
+      expect(fixture.componentInstance.numberTakenMessage()).toBeNull();
     });
   });
 
@@ -511,56 +557,115 @@ describe('IntakeArticleEntry', () => {
     });
   });
 
-  describe('Umnummerierung über das Renumber-Popup', () => {
-    it('prefills all Stammfelder, the number field, and sets the badge when the popup reports a found article', async () => {
-      const { fixture } = await setup();
-      const component = fixture.componentInstance;
+  describe('Artikelwandlung: vorregistrierter Artikel per Nummerneingabe laden', () => {
+    function preRegistered(overrides: Partial<ArticleByNumberResult> = {}) {
+      return articleByNumberStub({
+        number: 1,
+        name: 'Sommerkleid',
+        brand: 'Vertbaudet',
+        category: 'Kleider',
+        price: 8,
+        sellerId: SELLER_ID,
+        status: 'registered',
+        ...overrides,
+      });
+    }
 
-      renumberPopup(fixture).articleFound.emit(
-        articleByNumberStub({ number: 1, name: 'Sommerkleid', brand: 'Vertbaudet', category: 'Kleider', price: 8 }),
+    async function setupLoaded() {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockImplementation((number: number) =>
+        number === 1 ? of(preRegistered()) : throwError(() => new HttpErrorResponse({ status: 404 })),
       );
-      await fixture.whenStable();
+      const ctx = await setup({ articlesApi });
+      await enterNumber(ctx.fixture, '1');
+      return ctx;
+    }
+
+    it('fills all fields, remembers the original number, shows no error and no status icon', async () => {
+      const { fixture } = await setupLoaded();
+      const component = fixture.componentInstance;
 
       expect(component.name()).toBe('Sommerkleid');
       expect(component.brand()).toBe('Vertbaudet');
       expect(component.category()).toBe('Kleider');
       expect(component.price()).toBe(8);
-      expect(numberInputGroup(fixture).rawValue()).toBe('1');
       expect(component.originalNumber()).toBe(1);
-      expect(component.extraModeButtonConfig().badge).toBe('1');
+      expect(component.numberTakenMessage()).toBeNull();
+      expect(component.numberStatus()).toBeNull();
+      expect(component.canSave()).toBe(true);
     });
 
-    it('focuses the Artikelnummer field and selects its full text after a renumber popup hit, so the user can immediately overwrite it', async () => {
-      const { fixture } = await setup();
+    it('selects the full number text so another number can be typed right away', async () => {
+      const { fixture } = await setupLoaded();
 
-      renumberPopup(fixture).articleFound.emit(articleByNumberStub({ number: 1 }));
-      await fixture.whenStable();
-      fixture.detectChanges();
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      fixture.detectChanges();
-
-      const input = fixture.nativeElement.querySelector('#intake-article-entry-number') as HTMLInputElement;
+      const input = numberInput(fixture);
       expect(document.activeElement).toBe(input);
       expect(input.value).toBe('1');
       expect(input.selectionStart).toBe(0);
-      expect(input.selectionEnd).toBe(input.value.length);
+      expect(input.selectionEnd).toBe(1);
     });
 
-    it('opening the popup is triggered by the number field\'s extraModeClicked', async () => {
-      const { fixture } = await setup();
-      const component = fixture.componentInstance;
-      expect(component.renumberPopupVisible()).toBe(false);
+    it('shows the "aus Voranmeldung geladen" hint under the number field', async () => {
+      const { fixture } = await setupLoaded();
 
-      numberInputGroup(fixture).extraModeClicked.emit();
-
-      expect(component.renumberPopupVisible()).toBe(true);
+      expect(fixture.componentInstance.numberHint()).toContain('Aus Voranmeldung geladen (Nr. 1)');
+      expect(fixture.nativeElement.querySelector('.intake-article-entry__hint')?.textContent).toContain('Nr. 1');
     });
 
-    it('clearing the Artikelnummer field while a renumber badge is active resets every field and the badge', async () => {
-      const { fixture } = await setup();
+    it('Enter again on the loaded number keeps the user\'s edits', async () => {
+      const { fixture } = await setupLoaded();
       const component = fixture.componentInstance;
-      renumberPopup(fixture).articleFound.emit(articleByNumberStub({ number: 1, name: 'Sommerkleid' }));
+      component.onNameChange('Geändert');
+
+      await enterNumber(fixture, '1');
+
+      expect(component.name()).toBe('Geändert');
+    });
+
+    it('a new free number switches the hint to Artikelwandlung and shows the OK icon', async () => {
+      const { fixture } = await setupLoaded();
+      const component = fixture.componentInstance;
+
+      await enterNumber(fixture, '6');
+
+      expect(component.numberStatus()).toBe('ok');
+      expect(component.numberHint()).toBe('Artikelwandlung: Wird als Nr. 6 neu angelegt, Nr. 1 wird gelöscht.');
+      expect(component.name()).toBe('Sommerkleid');
+    });
+
+    it('"Übernehmen" carries originalNumberToDelete into the session item and resets the hint', async () => {
+      const { fixture } = await setupLoaded();
+      const component = fixture.componentInstance;
+      await enterNumber(fixture, '6');
+
+      component.onSubmitEntry();
       await fixture.whenStable();
+
+      expect(component.items()).toEqual([
+        expect.objectContaining({ number: 6, name: 'Sommerkleid', originalNumberToDelete: 1 }),
+      ]);
+      expect(component.originalNumber()).toBeNull();
+      expect(component.numberHint()).toBeNull();
+    });
+
+    it('a new number that is taken shows the error but keeps the loaded fields', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockImplementation((number: number) =>
+        of(number === 1 ? preRegistered() : articleByNumberStub({ number, sellerId: 'SEL00099' })),
+      );
+      const { fixture } = await setup({ articlesApi });
+      await enterNumber(fixture, '1');
+
+      await enterNumber(fixture, '7');
+
+      expect(fixture.componentInstance.numberStatus()).toBe('error');
+      expect(fixture.componentInstance.name()).toBe('Sommerkleid');
+      expect(fixture.componentInstance.canSave()).toBe(false);
+    });
+
+    it('clearing the Artikelnummer field while a pre-registered article is loaded resets every field', async () => {
+      const { fixture } = await setupLoaded();
+      const component = fixture.componentInstance;
 
       numberInputGroup(fixture).valueChange.emit('');
       await fixture.whenStable();
@@ -570,10 +675,9 @@ describe('IntakeArticleEntry', () => {
       expect(component.brand()).toBe('');
       expect(component.price()).toBe(0);
       expect(component.originalNumber()).toBeNull();
-      expect(component.extraModeButtonConfig().badge).toBeNull();
     });
 
-    it('clearing the Artikelnummer field WITHOUT an active renumber badge does not wipe hand-typed fields', async () => {
+    it('clearing the Artikelnummer field WITHOUT a loaded article does not wipe hand-typed fields', async () => {
       const { fixture } = await setup();
       const component = fixture.componentInstance;
       component.onNameChange('Handgetippt');
@@ -586,27 +690,7 @@ describe('IntakeArticleEntry', () => {
       expect(component.price()).toBe(19.9);
     });
 
-    it('"Übernehmen" carries originalNumberToDelete into the session item and resets the badge', async () => {
-      const { fixture } = await setup();
-      const component = fixture.componentInstance;
-      renumberPopup(fixture).articleFound.emit(articleByNumberStub({ number: 1, name: 'Sommerkleid', price: 8 }));
-      await fixture.whenStable();
-      numberInputGroup(fixture).valueChange.emit('6');
-      component.category.set('Kleider');
-      component.brand.set('Vertbaudet');
-      await fixture.whenStable();
-
-      component.onSubmitEntry();
-      await fixture.whenStable();
-
-      expect(component.items()).toEqual([
-        expect.objectContaining({ number: 6, name: 'Sommerkleid', originalNumberToDelete: 1 }),
-      ]);
-      expect(component.originalNumber()).toBeNull();
-      expect(component.extraModeButtonConfig().badge).toBeNull();
-    });
-
-    it('"Übernehmen" without ever using the popup does not add originalNumberToDelete', async () => {
+    it('"Übernehmen" for a normal entry does not add originalNumberToDelete', async () => {
       const { fixture } = await setup();
       const component = fixture.componentInstance;
       component.articleNumber.set('1043');
@@ -761,7 +845,7 @@ describe('IntakeArticleEntry', () => {
     it('⏎ on the price numpad triggers onSubmitEntry() when canSave() is true, and is disabled otherwise', async () => {
       const { fixture } = await setup();
       const component = fixture.componentInstance;
-      component.onArticleNumberChange('123');
+      await enterNumber(fixture, '123');
       component.onNameChange('Pullover');
       component.category.set('Kleidung');
       component.brand.set('H&M');

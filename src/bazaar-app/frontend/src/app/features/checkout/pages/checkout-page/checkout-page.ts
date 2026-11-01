@@ -166,7 +166,7 @@ export class CheckoutPage {
   }
 
   /** Artikelnummer ist reine Ganzzahl — nur Ziffern und Backspace werden übernommen, gleiches
-   * Muster wie `intake-renumber-lookup-popup.ts`'s eigener `onNumpadKey`. */
+   * Muster wie `input-group.ts`'s `applyNumpadKeyToSearchValue`. */
   onNumpadKey(init: KeyboardEventInit): void {
     const key = init.key;
     if (key === undefined) return;
