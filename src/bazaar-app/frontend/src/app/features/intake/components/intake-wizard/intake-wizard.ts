@@ -38,6 +38,23 @@ import { IntakeArticleEntry } from '../intake-article-entry/intake-article-entry
 
 type WizardStep = 'step1' | 'step2';
 
+/**
+ * Enter-Reihenfolge in Schritt 1 = Tab-Folge der bedienbaren Felder (Gebühr/Provision sind
+ * dauerhaft deaktiviert und fallen heraus); danach „Weiter →". „Abbrechen" gehört bewusst nicht
+ * dazu (anders als in der Tab-Folge). Einträge: DOM-Selektor des fokussierbaren Elements.
+ */
+const STEP1_ENTER_ORDER = [
+  '#intake-wizard-first-name',
+  '#intake-wizard-last-name',
+  '#intake-wizard-address',
+  '#intake-wizard-postal-code',
+  '#intake-wizard-city',
+  '#intake-wizard-phone',
+  '#intake-wizard-email',
+  '#intake-wizard-seller-type',
+  '.intake-wizard__next-button button',
+];
+
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** AC-4 / seller-search's own "+ Neu anlegen" contract: split on the FIRST space only. */
@@ -74,6 +91,7 @@ function splitPendingSearchText(text: string): { firstName: string; lastName: st
   templateUrl: './intake-wizard.html',
   styleUrl: './intake-wizard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(keydown.enter)': 'onStep1Enter($event)' },
 })
 export class IntakeWizard {
   private readonly sellersApi = inject(SellersApi);
@@ -219,6 +237,31 @@ export class IntakeWizard {
     this.sellerTypeId.set(newTypeId);
     this.feePerItem.set(newType?.itemFee ?? 0);
     this.salesCommission.set(newType?.commissionRate ?? 0);
+  }
+
+  /**
+   * Enter in Schritt 1 springt zum nächsten Eingabefeld der Tab-Folge (Inhalt komplett markiert);
+   * vom Verkäufer-Typ (bei geschlossener Liste) geht es zu „Weiter →". Auf „Weiter →" selbst löst
+   * Enter wie gewohnt den Klick aus (nicht abgefangen). Eine geöffnete Typ-Liste behält ihr eigenes
+   * Enter (Auswahl übernehmen).
+   */
+  onStep1Enter(event: Event): void {
+    if (this.activeStep() !== 'step1') return;
+    const target = event.target as HTMLElement;
+    const root = this.hostElement.nativeElement;
+    const index = STEP1_ENTER_ORDER.findIndex((selector) => root.querySelector(selector) === target);
+    // Letzter Eintrag („Weiter →") und fremde Ziele (Tabs, Abbrechen …) bleiben unberührt.
+    if (index === -1 || index === STEP1_ENTER_ORDER.length - 1) return;
+    if (target.getAttribute('aria-expanded') === 'true') return;
+
+    for (const selector of STEP1_ENTER_ORDER.slice(index + 1)) {
+      const next = root.querySelector<HTMLInputElement | HTMLButtonElement>(selector);
+      if (!next || ('disabled' in next && next.disabled)) continue;
+      event.preventDefault();
+      next.focus();
+      if ('select' in next && typeof next.select === 'function') next.select();
+      return;
+    }
   }
 
   onTabChange(value: string | number | undefined): void {

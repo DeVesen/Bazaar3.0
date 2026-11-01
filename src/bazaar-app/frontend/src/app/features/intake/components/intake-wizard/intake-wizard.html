@@ -211,7 +211,7 @@
   <div class="intake-wizard__footer">
     @if (activeStep() === 'step1') {
       <p-button [text]="true" severity="secondary" label="Abbrechen" (onClick)="onCancel()" />
-      <p-button severity="primary" label="Weiter →" [disabled]="!canSave()" (onClick)="onNext()" />
+      <p-button class="intake-wizard__next-button" severity="primary" label="Weiter →" [disabled]="!canSave()" (onClick)="onNext()" />
     }
   </div>
 

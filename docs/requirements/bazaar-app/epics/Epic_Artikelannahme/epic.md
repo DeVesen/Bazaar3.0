@@ -98,6 +98,10 @@ Tab-Item: padding 10 px 20 px, 600, 13 px, muted; aktiver Tab: primary-Farbe + b
 Formular mit allen Verkäufer-Feldern (Panels 01–03, siehe Lastenheft Abschnitt 6.5).
 Vorname/Nachname-Vorbelegung aus der Sucheingabe.
 
+**Enter-Navigation:** Enter springt zum nächsten Eingabefeld der Tab-Folge (Vorname → Nachname → Anschrift → PLZ → Ort → Telefon → E-Mail → Verkäufer-Typ → „Weiter →"), der Inhalt des Zielfelds ist komplett markiert. Gesperrte Felder (Gebühr, Provision) und „Abbrechen" gehören — anders als in der Tab-Folge — nicht zur Enter-Folge. Enter auf „Weiter →" führt es aus (sofern aktiv); eine geöffnete Typ-Liste behält ihr eigenes Enter (Auswahl übernehmen).
+
+> Entscheidung 2026-11-01: Enter-Navigation auch in Schritt 1 auf Wunsch des Anwenders.
+
 **Verkäufer-Typ und Konditionen (Panel 03):** Der Typ ist mit dem in den Einstellungen gewählten Standard-Verkäufer-Typ vorbelegt ([Epic_Einstellungen](../Epic_Einstellungen/epic.md) Abschnitt 1), solange dieser existiert, sonst mit dem am häufigsten zugewiesenen Typ, und frei wählbar — auch von Kassenpersonal, das hier Verkäufer anlegen darf. Die daraus abgeleiteten Konditionen (`salesCommission`, `feePerItem`) zeigt das Formular **schreibgeschützt**; überschreiben darf sie ausschließlich der Admin über [Epic_Verkaeufer](../Epic_Verkaeufer/epic.md). Grund: Es ist die einzige Eingabe in dieser App, die unmittelbar Geld verschiebt, und am Annahmetisch wird unter Zeitdruck im Gespräch mit dem Verkäufer getippt. Rechte-Matrix → [`spec.md`](../../spec.md) Abschnitt 4.1.
 
 **„Weiter"-Button** → Verkäufer wird sofort in der DB angelegt → Wechsel zu Schritt 2.

@@ -466,6 +466,62 @@ describe('IntakeWizard', () => {
     expect(closedSpy).toHaveBeenCalled();
   });
 
+  describe('Enter-Navigation in Schritt 1', () => {
+    function pressEnter(element: Element) {
+      const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+      element.dispatchEvent(event);
+      return event;
+    }
+    const el = (fixture: { nativeElement: HTMLElement }, selector: string) =>
+      fixture.nativeElement.querySelector(selector) as HTMLInputElement;
+
+    it('walks the tab order with Enter, selects the text, and lands on "Weiter →" (never on "Abbrechen")', async () => {
+      const { fixture } = await setup();
+      const c = fixture.componentInstance;
+      c.firstName.set('Max');
+      c.lastName.set('Mustermann');
+      c.city.set('Berlin');
+      fixture.detectChanges();
+
+      const ids = ['first-name', 'last-name', 'address', 'postal-code', 'city', 'phone', 'email'];
+      for (let i = 0; i < ids.length - 1; i++) {
+        const current = el(fixture, `#intake-wizard-${ids[i]}`);
+        current.focus();
+        const event = pressEnter(current);
+        const next = el(fixture, `#intake-wizard-${ids[i + 1]}`);
+        expect(event.defaultPrevented).toBe(true);
+        expect(document.activeElement).toBe(next);
+        // `type="email"` kennt keine Selektions-API (selectionEnd = null), `select()` greift dort trotzdem.
+        if (next.type !== 'email') expect(next.selectionEnd).toBe(next.value.length);
+      }
+
+      pressEnter(el(fixture, '#intake-wizard-email'));
+      expect(document.activeElement).toBe(el(fixture, '#intake-wizard-seller-type'));
+
+      pressEnter(el(fixture, '#intake-wizard-seller-type'));
+      const next = fixture.nativeElement.querySelector('.intake-wizard__next-button button') as HTMLButtonElement;
+      expect(document.activeElement).toBe(next);
+      expect(document.activeElement?.textContent).not.toContain('Abbrechen');
+    });
+
+    it('leaves Enter on "Weiter →" alone so the button click runs as usual', async () => {
+      const { fixture } = await setup();
+      const next = fixture.nativeElement.querySelector('.intake-wizard__next-button button') as HTMLButtonElement;
+
+      expect(pressEnter(next).defaultPrevented).toBe(false);
+    });
+
+    it('leaves Enter on an open seller-type list to PrimeNG', async () => {
+      const { fixture } = await setup();
+      const select = el(fixture, '#intake-wizard-seller-type');
+      select.setAttribute('aria-expanded', 'true');
+      select.focus();
+
+      expect(pressEnter(select).defaultPrevented).toBe(false);
+      expect(document.activeElement).toBe(select);
+    });
+  });
+
   describe('step-1 layout (Layout-Vereinheitlichung Teil 3)', () => {
     const SPANS: [string, string][] = [
       ['intake-wizard-first-name', 'half'],
