@@ -238,7 +238,7 @@ describe('IntakeArticleEntry', () => {
       expect(fixture.componentInstance.numberStatus()).toBeNull();
     });
 
-    it('404 (number free): green OK icon, no error, focus moves to Beschreibung', async () => {
+    it('404 (number free): green OK icon, no error, focus moves to Bezeichnung', async () => {
       const { fixture, articlesApi } = await setup();
       const component = fixture.componentInstance;
 
@@ -247,7 +247,7 @@ describe('IntakeArticleEntry', () => {
       expect(articlesApi.getByNumber).toHaveBeenCalledWith(1099);
       expect(component.numberStatus()).toBe('ok');
       expect(component.numberTakenMessage()).toBeNull();
-      expect(document.activeElement).toBe(fixture.nativeElement.querySelector('#intake-article-entry-description'));
+      expect(document.activeElement).toBe(fixture.nativeElement.querySelector('#intake-article-entry-name'));
       expect(fixture.nativeElement.querySelector('.input-group__status--ok')).not.toBeNull();
     });
 

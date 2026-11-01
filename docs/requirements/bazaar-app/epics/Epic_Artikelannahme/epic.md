@@ -135,7 +135,7 @@ Pflichtfelder mit `*` markiert. **„Übernehmen"-Button** deaktiviert solange P
 
 | Ergebnis der Prüfung | Reaktion |
 |---|---|
-| Nummer unbekannt (frei) | animiertes grünes OK-Icon am Feld, Fokus springt in „Beschreibung" |
+| Nummer unbekannt (frei) | animiertes grünes OK-Icon am Feld, Fokus springt in „Bezeichnung" |
 | Nummer gehört einem anderen Verkäufer **oder** dem aktuellen Verkäufer mit Status ≠ „Registriert" | animiertes rotes X-Icon, roter Feldrahmen, Eingabe komplett selektiert, Fehlertext unter dem Feld („Artikelnummer bereits vergeben …"), „Übernehmen" disabled |
 | Nummer gehört dem aktuellen Verkäufer mit Status „Registriert" (Import aus der Voranmeldung) | **Artikelwandlung:** Alle Felder werden mit den Artikeldaten befüllt (weiter bearbeitbar), kein Fehlertext, Nummer komplett selektiert, damit direkt eine neue Nummer eingegeben werden kann |
 

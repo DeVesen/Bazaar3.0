@@ -468,7 +468,7 @@ export class IntakeArticleEntry {
   }
 
   /** Artikelnummer-Prüfung (Epic_Artikelannahme), vier Fälle:
-   * - unbekannt (404): frei → grünes OK, Fokus in die Beschreibung;
+   * - unbekannt (404): frei → grünes OK, Fokus in die Bezeichnung;
    * - anderer Verkäufer ODER eigener Artikel mit Status ungleich „Registriert": rotes X,
    *   Eingabe voll selektiert, Fehlertext;
    * - eigener Artikel mit Status „Registriert" (Voranmeldung): Felder werden befüllt
@@ -522,7 +522,7 @@ export class IntakeArticleEntry {
     if (error instanceof HttpErrorResponse && error.status === 404) {
       this.verifiedNumber.set(typed);
       this.numberStatus.set('ok');
-      this.focusDescription();
+      this.focusName();
     }
   }
 
@@ -552,8 +552,8 @@ export class IntakeArticleEntry {
     setTimeout(() => this.numberInputGroup()?.focusAndSelect());
   }
 
-  private focusDescription(): void {
-    this.hostElement.nativeElement.querySelector<HTMLTextAreaElement>('#intake-article-entry-description')?.focus();
+  private focusName(): void {
+    this.hostElement.nativeElement.querySelector<HTMLInputElement>('#intake-article-entry-name')?.focus();
   }
 
   private prefillNextNumber(): void {
