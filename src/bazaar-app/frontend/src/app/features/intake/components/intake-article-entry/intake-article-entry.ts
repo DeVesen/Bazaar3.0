@@ -34,6 +34,22 @@ import { SessionItemFormValue } from '../session-item-popup/session-item-popup';
  * booking (e.g. a user correcting a typo by re-entering the same number twice), so the list
  * needs something else to track/delete/edit entries by.
  */
+/** Felder der Enter-/Tab-Reihenfolge nach der Artikelnummer (DOM-Id → Feld). */
+type EntryField = 'name' | 'category' | 'brand' | 'price' | 'size' | 'color' | 'description';
+type ValidatedField = 'name' | 'category' | 'brand' | 'price';
+
+const FIELD_IDS: Record<EntryField, string> = {
+  name: 'intake-article-entry-name',
+  category: 'intake-article-entry-category',
+  brand: 'intake-article-entry-brand',
+  price: 'intake-article-entry-price',
+  size: 'intake-article-entry-size',
+  color: 'intake-article-entry-color',
+  description: 'intake-article-entry-description',
+};
+const FIELD_ORDER: EntryField[] = ['name', 'category', 'brand', 'price', 'size', 'color', 'description'];
+const FIELD_BY_ID = new Map<string, EntryField>(FIELD_ORDER.map((field) => [FIELD_IDS[field], field]));
+
 export interface SessionArticle {
   localId: string;
   number: number;
@@ -199,6 +215,14 @@ export class IntakeArticleEntry {
 
   private readonly pendingNumberValue = signal<string | null>(null);
 
+  /** Fehlertexte der Enter-Validierung für die Pflichtfelder (`onFieldEnter()`), je Feld gelöscht,
+   * sobald das Feld einen gültigen Wert bekommt. */
+  readonly fieldErrors = signal<Partial<Record<ValidatedField, string>>>({});
+
+  /** Nach „Übernehmen" soll der Nummernvorschlag — sobald er angewendet ist — komplett markiert
+   * im Nummernfeld stehen, damit er direkt überschrieben werden kann. */
+  private selectNumberAfterApply = false;
+
   /**
    * Fix round 1 (reviewer Important 1): bumped on every REAL Artikelnummer-field interaction
    * (`checkArticleNumber()` — typed/scanned/submitted) and captured by `prefillNextNumber()` at
@@ -244,6 +268,10 @@ export class IntakeArticleEntry {
       this.pendingNumberValue.set(null);
       // Vom Server vorgeschlagene (freie) Nummer — braucht keine eigene Prüfung.
       this.verifiedNumber.set(pending.trim());
+      if (this.selectNumberAfterApply) {
+        this.selectNumberAfterApply = false;
+        this.selectNumberField();
+      }
     });
   }
 
@@ -277,20 +305,24 @@ export class IntakeArticleEntry {
   onNameChange(value: string): void {
     this.name.set(value);
     this.nameIsEmpty.set(value.trim().length === 0);
+    if (value.trim().length > 0) this.setFieldError('name', null);
   }
 
   onPriceChange(value: string | number): void {
     const text = typeof value === 'number' ? String(value).replace('.', ',') : value;
     this.priceText.set(text);
     this.priceIsEmpty.set(text.trim().length === 0);
+    if (this.price() > 0) this.setFieldError('price', null);
   }
 
   onCategoryChange(value: string): void {
     this.category.set(value);
+    if (value.length > 0) this.setFieldError('category', null);
   }
 
   onBrandChange(value: string): void {
     this.brand.set(value);
+    if (value.length > 0) this.setFieldError('brand', null);
   }
 
   onSizeChange(value: string): void {
@@ -367,7 +399,7 @@ export class IntakeArticleEntry {
     this.categoriesApi.create(name).subscribe({
       next: (created) => {
         this.categoriesList.update((list) => [...list, created]);
-        this.category.set(created.name);
+        this.onCategoryChange(created.name);
       },
       error: (error: unknown) => {
         // 409: someone else created the same name a moment ago (race, not a failure) — same
@@ -386,7 +418,7 @@ export class IntakeArticleEntry {
     this.brandsApi.create(name).subscribe({
       next: (created) => {
         this.brandsList.update((list) => [...list, created]);
-        this.brand.set(created.name);
+        this.onBrandChange(created.name);
       },
       error: (error: unknown) => {
         if (error instanceof HttpErrorResponse && error.status === 409) {
@@ -421,6 +453,9 @@ export class IntakeArticleEntry {
     ]);
 
     this.resetForm();
+    // Fokus zurück ins Nummernfeld; der (noch ladende) Vorschlag wird dort markiert, sobald er da ist.
+    this.selectNumberAfterApply = true;
+    this.selectNumberField();
     this.resultEvent.set(createResultEvent('success'));
   }
 
@@ -468,7 +503,7 @@ export class IntakeArticleEntry {
   }
 
   /** Artikelnummer-Prüfung (Epic_Artikelannahme), vier Fälle:
-   * - unbekannt (404): frei → grünes OK, Fokus in die Bezeichnung;
+   * - unbekannt (404): frei → grünes OK, Fokus in die Bezeichnung (bei Artikelwandlung auf „Übernehmen");
    * - anderer Verkäufer ODER eigener Artikel mit Status ungleich „Registriert": rotes X,
    *   Eingabe voll selektiert, Fehlertext;
    * - eigener Artikel mit Status „Registriert" (Voranmeldung): Felder werden befüllt
@@ -510,10 +545,14 @@ export class IntakeArticleEntry {
       return;
     }
 
-    // Wiederholtes Enter auf der bereits geladenen Nummer: nichts neu laden, Eingaben behalten.
-    if (this.originalNumber() !== article.number) {
-      this.loadPreRegisteredArticle(article);
+    // Wiederholtes Enter auf der bereits geladenen Nummer: nichts neu laden, Eingaben behalten,
+    // weiter zu „Übernehmen" (Übernahme unter gleicher Nummer).
+    if (this.originalNumber() === article.number) {
+      this.verifiedNumber.set(typed);
+      this.focusSubmitButton();
+      return;
     }
+    this.loadPreRegisteredArticle(article);
     this.verifiedNumber.set(typed);
     this.selectNumberField();
   }
@@ -522,7 +561,13 @@ export class IntakeArticleEntry {
     if (error instanceof HttpErrorResponse && error.status === 404) {
       this.verifiedNumber.set(typed);
       this.numberStatus.set('ok');
-      this.focusName();
+      // Artikelwandlung (geladener Voranmeldungs-Artikel, neue freie Nummer): alles ist befüllt →
+      // direkt zu „Übernehmen"; sonst Neuerfassung → Bezeichnung.
+      if (this.originalNumber() !== null) {
+        this.focusSubmitButton();
+      } else {
+        this.focusField('name');
+      }
     }
   }
 
@@ -552,8 +597,99 @@ export class IntakeArticleEntry {
     setTimeout(() => this.numberInputGroup()?.focusAndSelect());
   }
 
-  private focusName(): void {
-    this.hostElement.nativeElement.querySelector<HTMLInputElement>('#intake-article-entry-name')?.focus();
+  /** Fokus + Volltext-Selektion eines Formularfelds; per Macrotask, damit ein soeben geänderter
+   * Signal-Zustand (z. B. aktivierter „Übernehmen"-Button) bereits im DOM steht. */
+  private focusField(field: EntryField): void {
+    setTimeout(() => {
+      const element = this.hostElement.nativeElement.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+        `#${FIELD_IDS[field]}`,
+      );
+      element?.focus();
+      element?.select();
+    });
+  }
+
+  private focusSubmitButton(): void {
+    setTimeout(() =>
+      this.hostElement.nativeElement.querySelector<HTMLButtonElement>('.intake-article-entry__actions button')?.focus(),
+    );
+  }
+
+  private setFieldError(field: ValidatedField, message: string | null): void {
+    this.fieldErrors.update((errors) => {
+      if ((errors[field] ?? null) === message) return errors;
+      const next = { ...errors };
+      if (message === null) delete next[field];
+      else next[field] = message;
+      return next;
+    });
+  }
+
+  private validateField(field: EntryField): string | null {
+    switch (field) {
+      case 'name':
+        return this.name().trim().length === 0 ? 'Bitte eine Bezeichnung eingeben' : null;
+      case 'price':
+        return this.price() > 0 ? null : 'Bitte einen Preis größer 0 eingeben';
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Enter in einem Formularfeld nach der Artikelnummer (Sequenz Bezeichnung → Kategorie → Marke →
+   * Preis → Größe → Farbe → Beschreibung → Übernehmen): das Feld wird validiert; bei Erfolg wandert
+   * der Fokus ins nächste Feld (komplett markiert), sonst bleibt er im Feld, der Inhalt wird
+   * markiert und der Fehlertext erscheint unter dem Feld. Kategorie/Marke im Anlegen-Modus (Text
+   * passt zu keinem Eintrag) überlässt das Feld seinem eigenen Enter (Anlegen-Dialog). In der
+   * Beschreibung fügt Umschalt+Enter weiterhin einen Zeilenumbruch ein.
+   */
+  onFieldEnter(event: Event): void {
+    const target = event.target as HTMLInputElement | HTMLTextAreaElement;
+    const field = FIELD_BY_ID.get(target.id);
+    if (!field) return;
+    const keyEvent = event as KeyboardEvent;
+    if (keyEvent.isComposing || (field === 'description' && keyEvent.shiftKey)) return;
+
+    if (field === 'category' || field === 'brand') {
+      if (!this.acceptAutocompleteEnter(field, target.value)) {
+        if (target.value.trim().length === 0) target.select();
+        return;
+      }
+    } else {
+      const error = this.validateField(field);
+      if (error) {
+        event.preventDefault();
+        if (field === 'name' || field === 'price') this.setFieldError(field, error);
+        target.select();
+        return;
+      }
+    }
+
+    event.preventDefault();
+    const next = FIELD_ORDER[FIELD_ORDER.indexOf(field) + 1];
+    if (next) {
+      this.focusField(next);
+    } else {
+      this.focusSubmitButton();
+    }
+  }
+
+  /** `true`, wenn der Text zu einem bestehenden Eintrag passt (wird dann übernommen); bei leerem
+   * Text Fehlertext; im Anlegen-Modus `false` ohne Fehler (das Feld öffnet seinen Dialog). */
+  private acceptAutocompleteEnter(field: 'category' | 'brand', rawText: string): boolean {
+    const text = rawText.trim();
+    const names = field === 'category' ? this.categoryNames() : this.brandNames();
+    const match = names.find((name) => name.toLowerCase() === text.toLowerCase());
+    if (text.length > 0 && match) {
+      if (field === 'category') this.onCategoryChange(match);
+      else this.onBrandChange(match);
+      return true;
+    }
+    if (text.length === 0) {
+      this.setFieldError(field, field === 'category' ? 'Bitte eine Kategorie wählen' : 'Bitte eine Marke wählen');
+    }
+    return false;
   }
 
   private prefillNextNumber(): void {
@@ -582,6 +718,7 @@ export class IntakeArticleEntry {
     this.numberStatus.set(null);
     this.verifiedNumber.set(null);
     this.originalNumber.set(null);
+    this.fieldErrors.set({});
     this.numberFieldSeq++;
     this.prefillNextNumber();
   }

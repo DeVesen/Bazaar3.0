@@ -166,12 +166,33 @@ async function enterNumber(fixture: ReturnType<typeof TestBed.createComponent<In
   fixture.detectChanges(); // Wert ins native <input> schreiben, bevor Enter selektiert
   group.submitted.emit();
   await fixture.whenStable();
+  fixture.detectChanges(); // z. B. „Übernehmen" aktivieren, bevor der Fokus dorthin springt
   await new Promise((resolve) => setTimeout(resolve, 0)); // verzögerte Fokus-/Selektion
   fixture.detectChanges();
 }
 
 function numberInput(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
   return fixture.nativeElement.querySelector('#intake-article-entry-number') as HTMLInputElement;
+}
+
+function pressEnter(element: Element, init: KeyboardEventInit = {}) {
+  const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, ...init });
+  element.dispatchEvent(event);
+  return event;
+}
+
+async function tick(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
+  fixture.detectChanges();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  fixture.detectChanges();
+}
+
+function byId(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>, id: string) {
+  return fixture.nativeElement.querySelector(`#intake-article-entry-${id}`) as HTMLInputElement;
+}
+
+function submitButton(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
+  return fixture.nativeElement.querySelector('.intake-article-entry__actions button') as HTMLButtonElement;
 }
 
 function appInputById(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>, inputId: string) {
@@ -554,6 +575,177 @@ describe('IntakeArticleEntry', () => {
 
       expect(component.items()).toEqual([]);
       expect(bookedSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Fokus-Sequenz und Enter-Validierung', () => {
+    // Der Fokus auf Kategorie/Marke öffnet das PrimeNG-Overlay (`completeOnFocus`), das in jsdom
+    // `matchMedia` braucht.
+    beforeEach(() => {
+      Object.defineProperty(window, 'matchMedia', {
+        configurable: true,
+        value: (query: string) => ({
+          matches: false,
+          media: query,
+          addEventListener: () => undefined,
+          removeEventListener: () => undefined,
+          addListener: () => undefined,
+          removeListener: () => undefined,
+        }),
+      });
+    });
+
+    function fillAll(component: IntakeArticleEntry) {
+      component.onNameChange('Winterjacke');
+      component.category.set('Kleidung');
+      component.brand.set('Lego');
+      component.onPriceChange(12.5);
+    }
+
+    it('Artikelwandlung: after a new free number the focus jumps to "Übernehmen"', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockImplementation((number: number) =>
+        number === 1
+          ? of(articleByNumberStub({ number: 1, sellerId: SELLER_ID, status: 'registered' }))
+          : throwError(() => new HttpErrorResponse({ status: 404 })),
+      );
+      const { fixture } = await setup({ articlesApi });
+      await enterNumber(fixture, '1');
+      expect(document.activeElement).toBe(numberInput(fixture));
+
+      await enterNumber(fixture, '6');
+
+      expect(document.activeElement).toBe(submitButton(fixture));
+    });
+
+    it('Enter again on the loaded number (unchanged) also jumps to "Übernehmen"', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(
+        of(articleByNumberStub({ number: 1, sellerId: SELLER_ID, status: 'registered' })),
+      );
+      const { fixture } = await setup({ articlesApi });
+      await enterNumber(fixture, '1');
+
+      await enterNumber(fixture, '1');
+
+      expect(document.activeElement).toBe(submitButton(fixture));
+    });
+
+    it('after a successful "Übernehmen" the number field is focused with the new free number fully selected', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getNextNumber.mockReturnValueOnce(of({ nextNumber: 1043 })).mockReturnValue(of({ nextNumber: 1044 }));
+      const { fixture } = await setup({ articlesApi });
+      fillAll(fixture.componentInstance);
+
+      fixture.componentInstance.onSubmitEntry();
+      await fixture.whenStable();
+      await tick(fixture);
+
+      const input = numberInput(fixture);
+      expect(input.value).toBe('1044');
+      expect(document.activeElement).toBe(input);
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(4);
+    });
+
+    it('Enter in an invalid Bezeichnung stays, selects the text and shows the error', async () => {
+      const { fixture } = await setup();
+      const name = byId(fixture, 'name');
+      name.focus();
+
+      const event = pressEnter(name);
+      await tick(fixture);
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(document.activeElement).toBe(name);
+      expect(fixture.componentInstance.fieldErrors().name).toBe('Bitte eine Bezeichnung eingeben');
+      expect(fixture.nativeElement.textContent).toContain('Bitte eine Bezeichnung eingeben');
+    });
+
+    it('typing a valid value clears the field error again', async () => {
+      const { fixture } = await setup();
+      pressEnter(byId(fixture, 'name'));
+
+      fixture.componentInstance.onNameChange('Jacke');
+
+      expect(fixture.componentInstance.fieldErrors().name).toBeUndefined();
+    });
+
+    it('walks Bezeichnung → Kategorie → Marke → Preis → Größe → Farbe → Beschreibung → Übernehmen with Enter', async () => {
+      const { fixture } = await setup();
+      const component = fixture.componentInstance;
+      fillAll(component);
+      component.onSizeChange('128');
+      component.onColorChange('Blau');
+      component.description.set('Text');
+      fixture.detectChanges();
+
+      const order = ['name', 'category', 'brand', 'price', 'size', 'color', 'description'];
+      for (let i = 0; i < order.length; i++) {
+        const current = byId(fixture, order[i]);
+        current.focus();
+        pressEnter(current);
+        await tick(fixture);
+        if (i + 1 < order.length) {
+          const next = byId(fixture, order[i + 1]);
+          expect(document.activeElement).toBe(next);
+          expect(next.selectionEnd).toBe(next.value.length);
+        } else {
+          expect(document.activeElement).toBe(submitButton(fixture));
+        }
+      }
+    });
+
+    it('Enter in an empty Kategorie/Marke stays and shows an error', async () => {
+      const { fixture } = await setup();
+
+      pressEnter(byId(fixture, 'category'));
+      pressEnter(byId(fixture, 'brand'));
+      await tick(fixture);
+
+      expect(fixture.componentInstance.fieldErrors().category).toBe('Bitte eine Kategorie wählen');
+      expect(fixture.componentInstance.fieldErrors().brand).toBe('Bitte eine Marke wählen');
+    });
+
+    it('Enter in Kategorie with text matching an existing entry accepts it (case-insensitive) and moves on', async () => {
+      const { fixture } = await setup();
+      const category = byId(fixture, 'category');
+      category.value = CATEGORIES[0].name.toUpperCase();
+
+      pressEnter(category);
+      await tick(fixture);
+
+      expect(fixture.componentInstance.category()).toBe(CATEGORIES[0].name);
+      expect(document.activeElement).toBe(byId(fixture, 'brand'));
+    });
+
+    it('Enter in an invalid Preis (0/empty) stays and shows the error', async () => {
+      const { fixture } = await setup();
+      const price = byId(fixture, 'price');
+      price.focus();
+
+      pressEnter(price);
+      await tick(fixture);
+
+      expect(fixture.componentInstance.fieldErrors().price).toBe('Bitte einen Preis größer 0 eingeben');
+      expect(document.activeElement).toBe(price);
+    });
+
+    it('Shift+Enter in Beschreibung is left alone (line break), plain Enter goes to "Übernehmen"', async () => {
+      const { fixture } = await setup();
+      fillAll(fixture.componentInstance);
+      fixture.detectChanges();
+      const description = byId(fixture, 'description');
+      description.focus();
+
+      const shifted = pressEnter(description, { shiftKey: true });
+      await tick(fixture);
+      expect(shifted.defaultPrevented).toBe(false);
+      expect(document.activeElement).toBe(description);
+
+      pressEnter(description);
+      await tick(fixture);
+      expect(document.activeElement).toBe(submitButton(fixture));
     });
   });
 

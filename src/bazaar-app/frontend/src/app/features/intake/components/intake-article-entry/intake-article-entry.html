@@ -1,6 +1,6 @@
 <div class="intake-article-entry">
   <div class="intake-article-entry__form">
-    <div class="intake-article-entry__grid">
+    <div class="intake-article-entry__grid" (keydown.enter)="onFieldEnter($event)">
       <div class="intake-article-entry__field">
         <label for="intake-article-entry-number">Artikelnummer <span class="intake-article-entry__required">*</span></label>
         <app-input-group
@@ -35,6 +35,9 @@
           (keyUp)="onNameKeyUp($event)"
           (addonClick)="onNameAddonClick($event)"
         />
+        @if (fieldErrors().name; as message) {
+          <small class="intake-article-entry__error">{{ message }}</small>
+        }
       </div>
 
       <div class="intake-article-entry__field">
@@ -47,6 +50,9 @@
           entityLabel="Kategorie"
           (entryCreated)="onCategoryCreated($event)"
         />
+        @if (fieldErrors().category; as message) {
+          <small class="intake-article-entry__error">{{ message }}</small>
+        }
       </div>
 
       <div class="intake-article-entry__field">
@@ -59,6 +65,9 @@
           entityLabel="Marke"
           (entryCreated)="onBrandCreated($event)"
         />
+        @if (fieldErrors().brand; as message) {
+          <small class="intake-article-entry__error">{{ message }}</small>
+        }
       </div>
 
       <div class="intake-article-entry__field intake-article-entry__field--full">
@@ -80,6 +89,9 @@
             (cleared)="onPriceNumpadClear()"
             (submitted)="onSubmitEntry()"
           />
+        }
+        @if (fieldErrors().price; as message) {
+          <small class="intake-article-entry__error">{{ message }}</small>
         }
       </div>
 

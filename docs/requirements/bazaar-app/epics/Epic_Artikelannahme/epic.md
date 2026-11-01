@@ -135,7 +135,7 @@ Pflichtfelder mit `*` markiert. **„Übernehmen"-Button** deaktiviert solange P
 
 | Ergebnis der Prüfung | Reaktion |
 |---|---|
-| Nummer unbekannt (frei) | animiertes grünes OK-Icon am Feld, Fokus springt in „Bezeichnung" |
+| Nummer unbekannt (frei) | animiertes grünes OK-Icon am Feld, Fokus springt in „Bezeichnung" (bei Artikelwandlung direkt auf „Übernehmen") |
 | Nummer gehört einem anderen Verkäufer **oder** dem aktuellen Verkäufer mit Status ≠ „Registriert" | animiertes rotes X-Icon, roter Feldrahmen, Eingabe komplett selektiert, Fehlertext unter dem Feld („Artikelnummer bereits vergeben …"), „Übernehmen" disabled |
 | Nummer gehört dem aktuellen Verkäufer mit Status „Registriert" (Import aus der Voranmeldung) | **Artikelwandlung:** Alle Felder werden mit den Artikeldaten befüllt (weiter bearbeitbar), kein Fehlertext, Nummer komplett selektiert, damit direkt eine neue Nummer eingegeben werden kann |
 
@@ -145,7 +145,11 @@ Bei einer geladenen Voranmeldung zeigt ein Hinweistext unter dem Feld die Artike
 
 **Sonderfall neue Nummer:** Artikelnummer wird auf **systemweite Eindeutigkeit** geprüft (Abschnitt 3).
 
-Nach Pflichtfelder-Ausfüllung: Klick **„Übernehmen"** → Artikel erscheint in der Übersicht rechts; Felder leeren sich; Fokus zurück auf Artikelnummer.
+Nach Pflichtfelder-Ausfüllung: Klick **„Übernehmen"** → Artikel erscheint in der Übersicht rechts; Felder leeren sich; Fokus zurück auf Artikelnummer, in der der neue freie Nummernvorschlag komplett markiert steht (direkt überschreibbar).
+
+**Enter-/Tab-Sequenz:** Bezeichnung → Kategorie → Marke → Preis → Größe → Farbe → Beschreibung → „Übernehmen". **Enter** in einem Feld validiert es: gültig → Fokus ins nächste Feld, Inhalt komplett markiert; ungültig → Fokus bleibt, Inhalt komplett markiert, Fehlertext unter dem Feld (Bezeichnung leer, Preis ≤ 0, Kategorie/Marke leer). Bei Kategorie/Marke übernimmt Enter einen zu einem Eintrag passenden Text (Groß-/Kleinschreibung egal); passt der Text zu keinem Eintrag, öffnet Enter wie bisher den Anlegen-Dialog. In der Beschreibung fügt Umschalt+Enter einen Zeilenumbruch ein, Enter geht weiter zu „Übernehmen". Enter erneut auf der unveränderten, geladenen Voranmeldungs-Nummer springt ebenfalls zu „Übernehmen".
+
+> Entscheidung 2026-11-01: Enter-Navigation mit Feldvalidierung und Fokus-Rückgabe nach „Übernehmen" auf Wunsch des Anwenders (schnelle Tastatur-Erfassung).
 
 #### Übersicht (rechts)
 
