@@ -1,4 +1,5 @@
 using Bazaar.Domain.Articles;
+using Bazaar.Domain.BlankLabels;
 using Bazaar.Domain.Brands;
 using Bazaar.Domain.Categories;
 using Bazaar.Domain.Sellers;
@@ -24,6 +25,10 @@ public sealed class BazaarDbContext(DbContextOptions<BazaarDbContext> options) :
     public DbSet<Article> Articles { get; set; } = null!;
 
     public DbSet<SettingsAggregate> Settings { get; set; } = null!;
+
+    public DbSet<LabelSheetFormat> LabelSheetFormats { get; set; } = null!;
+
+    public DbSet<LabelPrintDefaults> LabelPrintDefaults { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

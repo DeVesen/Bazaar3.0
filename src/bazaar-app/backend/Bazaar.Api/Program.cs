@@ -82,6 +82,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryArticleLink, CategoryArticleLink>();
 builder.Services.AddScoped<ISellerTypeRepository, SellerTypeRepository>();
 builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
+builder.Services.AddScoped<ILabelSheetFormatRepository, LabelSheetFormatRepository>();
+builder.Services.AddScoped<ILabelPrintDefaultsRepository, LabelPrintDefaultsRepository>();
 builder.Services.AddScoped<ISellerCountBySellerTypeQuery, SellerCountBySellerTypeQuery>();
 builder.Services.AddScoped<ISellerRepository, SellerRepository>();
 builder.Services.AddScoped<ISellerSearchQuery, SellerSearchQuery>();

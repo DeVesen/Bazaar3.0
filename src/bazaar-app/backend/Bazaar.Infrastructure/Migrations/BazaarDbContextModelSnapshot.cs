@@ -90,6 +90,105 @@ namespace Bazaar.Infrastructure.Migrations
                     b.ToTable("Articles");
                 });
 
+            modelBuilder.Entity("Bazaar.Domain.BlankLabels.LabelPrintDefaults", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CurrencySymbol")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("character varying(6)");
+
+                    b.Property<string>("LogoKind")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("LogoValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SellerSymbolKind")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("SellerSymbolValue")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LabelPrintDefaults", (string)null);
+                });
+
+            modelBuilder.Entity("Bazaar.Domain.BlankLabels.LabelSheetFormat", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Geometry", "Bazaar.Domain.BlankLabels.LabelSheetFormat.Geometry#LabelSheetGeometry", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<int>("Columns")
+                                .HasColumnType("integer");
+
+                            b1.Property<decimal>("GapHorizontal")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)");
+
+                            b1.Property<decimal>("GapVertical")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)");
+
+                            b1.Property<decimal>("LabelHeight")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)");
+
+                            b1.Property<decimal>("LabelWidth")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)");
+
+                            b1.Property<decimal>("MarginBottom")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)");
+
+                            b1.Property<decimal>("MarginLeft")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)");
+
+                            b1.Property<decimal>("MarginRight")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)");
+
+                            b1.Property<decimal>("MarginTop")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)");
+
+                            b1.Property<int>("Rows")
+                                .HasColumnType("integer");
+
+                            b1.Property<decimal>("SheetHeight")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)");
+
+                            b1.Property<decimal>("SheetWidth")
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)");
+                        });
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("LabelSheetFormats", (string)null);
+                });
+
             modelBuilder.Entity("Bazaar.Domain.Brands.Brand", b =>
                 {
                     b.Property<string>("Id")
