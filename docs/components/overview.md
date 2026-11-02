@@ -61,6 +61,7 @@ Die Bazaar Suite verwendet ausschließlich **PrimeNG** als UI-Bibliothek.
 | **Page** | Seitenrahmen der Haupt-App: Page-Header (Titel + Actions) und 75vw-Begrenzung ab 769 px | [page/](page/component.md) |
 | **Table** | Listenansicht für Datensätze mit Sortierung, Paginierung, Aktionsspalte und Toolbar | [table/](table/component.md) |
 | **Barcode-Scanner** | Schlanker Kamera-Wrapper: Live-Videostream + kontinuierliche Barcode-/QR-Dekodierung via `@zxing/browser`; kein eigenes UI, kein Feedback | [barcode-scanner/](barcode-scanner/component.md) |
+| **Etikett / Etikettenbogen** | Etikett mit QR-Code, Logo, Preisfeld und Verkäufer-Symbol sowie Bogen mit Raster; skaliert in der Vorschau, druckt in mm | [label-sheet/](label-sheet/component.md) |
 | **QR-Code** | Erzeugt aus einem Rohstring einen scanbaren QR-Code als Inline-SVG (`@zxing/library`, clientseitig); Gegenstück zum Barcode-Scanner | [qr-code/](qr-code/component.md) |
 | **Scan-Dialog** | Barcode-/Kamera-Scanner-Popup zum Setzen von Artikel-Zeitstempeln (Freigeben / Zurückgeben) | [scan-dialog/](scan-dialog/component.md) |
 | **Result-Overlay** | Ergebnis-Einblendung: großes Icon (roter X, grüner/gelber Haken, grüner Einkaufswagen) mit Ton und Vibration über Verkauf-Seite bzw. Scan-Dialog | [result-overlay/](result-overlay/component.md) |

@@ -122,6 +122,11 @@
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-14
 
+### Etiketten-Vordruck (Haupt-App)
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/blank-labels/` — Seite „Etiketten-Vordruck" (Route `/blank-labels`, nur Admin) mit den Bereichen Bogenformat, Etiketten-Inhalt und Angebrochener Bogen; Etikett und Etikettenbogen als Komponenten in `shared/components/label-sheet/`, Backend `Features/BlankLabels`.
+- **Confidence:** user-confirmed
+- **First seen:** 2026-11-02
+
 ### Einstellungs-Tabs (Haupt-App)
 - **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/pages/settings-page/settings-tabs.ts` — vier Tabs der Einstellungsseite: „Basis-Einstellungen" (`general`, Scan-Pause, Freigabe-Schalter, Standard-Verkäufer-Typ), „User" (`users`, Benutzerverwaltung), „Beleg Druck" (`print`, Freitexte der Belege), „Sonstiges" (`misc`, JSON-Import und nur im Development-Modus „Datenbank zurücksetzen"); aktiver Tab im Query-Parameter `tab`.
 - **Confidence:** user-confirmed

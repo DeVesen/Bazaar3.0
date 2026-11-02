@@ -8,7 +8,7 @@
 **Last updated:** 2026-10-15
 
 ## Responsibilities
-- Entities: `Article`, `Brand`, `Category`, `Seller`, `SellerType`, `Settings`, `User` (+ `Role`, `ArticleStatus`), `SettlementCalculation`
+- Entities: `Article`, `LabelSheetFormat` (+ `LabelSheetGeometry`), `LabelPrintDefaults` (+ `LabelGraphic`), `Brand`, `Category`, `Seller`, `SellerType`, `Settings`, `User` (+ `Role`, `ArticleStatus`), `SettlementCalculation`
 - All repository/query/infrastructure-port interfaces (`Ports/I*`) — 19 interfaces, e.g. `IUserRepository`, `IUnitOfWork`, `IPasswordHasher`, `ITokenIssuer`, `IIdGenerator`, plus one dedicated read-model query interface per non-trivial read (`ISellerCardsQuery`, `IStatisticsQuery`, etc.)
 - `DomainException` (base for domain-level errors)
 - Not responsible for: persistence, HTTP, validation rules beyond what the entities enforce themselves

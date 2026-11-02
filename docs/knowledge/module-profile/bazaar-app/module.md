@@ -8,7 +8,7 @@
 **Last updated:** 2026-10-13
 
 ## Responsibilities
-- Gesamtes Bedien-UI der Haupt-App: Setup-Wizard, Login, Intake, Checkout, Settlement, Sellers, Articles, Brands, Categories, Seller-Types, Statistics, Settings (inkl. User-Management, Import, Dev-Tools)
+- Gesamtes Bedien-UI der Haupt-App: Setup-Wizard, Login, Intake, Checkout, Settlement, Sellers, Articles, Brands, Categories, Seller-Types, Statistics, Etiketten-Vordruck (blank-labels), Settings (inkl. User-Management, Import, Dev-Tools)
 - Auth-State, Routing-Guards (`core/auth/`, `core/bootstrap/`), App-Shell (`core/shell/`), Theming (`core/theme/`), Print-Support (`core/print/`)
 - Nicht zuständig: Geschäftslogik/Validierung, die serverseitig entschieden werden muss (Backend ist alleinige Quelle der Wahrheit) — Frontend spiegelt nur
 
@@ -16,14 +16,14 @@
 - Niemand im Sinne von Code-Referenzen — Endpunkt ist der Browser der Basar-Mitarbeiter, kein anderes System bindet dieses Bundle ein
 
 ## Public Surface
-- Es gibt keine exportierte API — Konsumenten sind Menschen über den Browser. Die einzige "Schnittstelle" ist die Routen-Tabelle (`app.routes.ts`): `/setup`, `/login`, `/intake`, `/checkout`, `/settlement`, `/sellers`, `/articles`, `/brands`, `/categories`, `/seller-types`, `/statistics`, `/settings`, `/change-password`
+- Es gibt keine exportierte API — Konsumenten sind Menschen über den Browser. Die einzige "Schnittstelle" ist die Routen-Tabelle (`app.routes.ts`): `/setup`, `/login`, `/intake`, `/checkout`, `/settlement`, `/sellers`, `/articles`, `/brands`, `/categories`, `/seller-types`, `/statistics`, `/blank-labels`, `/settings`, `/change-password`
 
 ## Talks To
 - `Bazaar.Api` (Backend) — über `/api/*` per HTTP; im Dev-Server per `proxy.conf.json` auf `https://localhost:7006` geproxied, im Insel-Betrieb (`docker-compose.local.yml`, Service `frontend`) leitet ein Nginx-Container auf Port 80/443 `/api/` und `/health` an `http://backend:5000` weiter und liefert die SPA mit Fallback auf `index.html` (`nginx/nginx.conf.template`, per Volume als `/etc/nginx/templates/default.conf.template` gemountet)
 
 ## Structure
 - `src/app/core/` — `auth/` (Guards: `auth.guard`, `admin.guard`, `guest.guard`, `password-change.guard`), `bootstrap/` (`no-admin.guard`, `admin-exists.guard` — Setup-Wizard-Routing), `shell/` (App-Rahmen), `theme/`, `print/`
-- `src/app/features/<name>/` — je Feature: `pages/`, `components/`, `data/` (API-Clients), eigene `<name>.routes.ts`; 13 Features: articles, brands, categories, change-password, checkout, intake, login, seller-types, sellers, settings, settlement, setup, statistics (+ `not-found` als Fallback-Route)
+- `src/app/features/<name>/` — je Feature: `pages/`, `components/`, `data/` (API-Clients), eigene `<name>.routes.ts`; 14 Features: articles, blank-labels, brands, categories, change-password, checkout, intake, login, seller-types, sellers, settings, settlement, setup, statistics (+ `not-found` als Fallback-Route)
 - `src/app/shared/components/` — cross-feature UI-Bausteine (z. B. `barcode-scanner`)
   - `input/` (`app-input`) — eigenständiges Text-Input nach dem PrimeNG-`p-iftalabel`-Muster (`input.ts`); `addonLeft`/`addonRight` mit `addonClick(key)`, entprelltes `valueChange` (`debounceMs`, Default 800 ms, `0` = sofort), Outputs `enter`/`keyUp`/`keyDown`/`blurred`. Konsumenten: `features/intake/components/intake-article-entry/`, `features/intake/components/intake-renumber-lookup-popup/`, `features/checkout/pages/checkout-page/`, `shared/components/payment-panel/`
   - `input-group/` (`app-input-group`) — zusätzlich `addonActionButtons`, `extraModeButton` (`{icon, badge}`, optionaler dritter Mode-Button mit Badge) + Output `extraModeClicked` (aktuell ohne Verwender), `status` (`'ok'|'error'`, animiertes Ergebnis-Icon + roter Rahmen), `submitOnEnter` (Enter/Kamera-Scan lösen `submitted` aus), Methode `focusAndSelect()` (`input-group.ts`, seit `94734ed`)

@@ -10,7 +10,7 @@
 ## Responsibilities
 - Composition root: ~70 `AddScoped`/`AddSingleton` lines in `Program.cs` wiring every `Domain.Ports` interface to its `Infrastructure` implementation, and every `Application` handler
 - Auth: JWT bearer authentication (`Microsoft.AspNetCore.Authentication.JwtBearer`) + one authorization policy (`"admin"`, `RequireClaim("role", "admin")`)
-- 16 endpoint-mapping groups (`Features/*/`: Admin, ArticleImport, Articles, Auth, Brands, Categories, Import, Intake, Public (Bootstrap+Health), Release, Sales, SellerTypes, Sellers, Settings, Settlement, Statistics, Users)
+- 17 endpoint-mapping groups (`Features/*/`: Admin, ArticleImport, Articles, Auth, BlankLabels, Brands, Categories, Import, Intake, Public (Bootstrap+Health), Release, Sales, SellerTypes, Sellers, Settings, Settlement, Statistics, Users)
 - Exception handling: `DomainExceptionHandler` (`IExceptionHandler`) + `AddProblemDetails`
 - Health check at `/health` (`Features/Public/HealthEndpoints.cs`), DB-context-aware
 - Not responsible for: business logic (delegates to Application handlers) or persistence details (delegates to Infrastructure)
@@ -22,7 +22,7 @@
 - Frontend (`src/bazaar-app/frontend`) — not a project-reference consumer; talks over HTTP only (`/api/*`), proxied via `proxy.conf.json` → `https://localhost:7006` in dev
 
 ## Public Surface
-The full HTTP endpoint surface — every `Map*Endpoints()` call in `Program.cs`, e.g. `/api/public/bootstrap-status`, `/api/public/bootstrap-admin`, `/api/public/setup-complete`, `/api/admin/dev-tools/status`+`/reset-database` (dev-only), `/api/auth/*`, `/api/brands`, `/api/categories`, `/api/seller-types`, `/api/settings`, `/api/sellers`, `/api/articles`, `/api/intake`, `/api/release`, `/api/sales`, `/api/settlement`, `/api/statistics`, `/api/import`, `/api/users`, `/health`; seit 2026-10: `POST /api/sellers/{id}/articles/import` (`Features/ArticleImport`, Policy `admin`, multipart `file` + `locale`, 2-MB-Grenze) und `GET`/`PUT /api/settings/print-texts` (Freitexte der Belege, `Features/Settings`).
+The full HTTP endpoint surface — every `Map*Endpoints()` call in `Program.cs`, e.g. `/api/public/bootstrap-status`, `/api/public/bootstrap-admin`, `/api/public/setup-complete`, `/api/admin/dev-tools/status`+`/reset-database` (dev-only), `/api/auth/*`, `/api/brands`, `/api/categories`, `/api/seller-types`, `/api/settings`, `/api/sellers`, `/api/articles`, `/api/intake`, `/api/release`, `/api/sales`, `/api/settlement`, `/api/statistics`, `/api/import`, `/api/users`, `/health`; seit 2026-10: `POST /api/sellers/{id}/articles/import` (`Features/ArticleImport`, Policy `admin`, multipart `file` + `locale`, 2-MB-Grenze) und `GET`/`PUT /api/settings/print-texts` (Freitexte der Belege, `Features/Settings`). Seit 2026-11: `/api/label-sheet-formats` und `/api/label-print-defaults` (`Features/BlankLabels`, Policy `admin`).
 
 ## Talks To
 - `Bazaar.Domain`, `Bazaar.Application`, `Bazaar.Infrastructure` — direct (project references, composition root)

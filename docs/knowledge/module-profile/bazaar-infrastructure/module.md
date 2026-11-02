@@ -8,7 +8,7 @@
 **Last updated:** 2026-10-15
 
 ## Responsibilities
-- `Persistence/BazaarDbContext` + 7 `Configurations/` (one per entity needing EF Core fluent config) + `Migrations/` (6 migrations so far, `InitialCreate` → `AddSettings`)
+- `Persistence/BazaarDbContext` + 9 `Configurations/` (one per entity needing EF Core fluent config) + `Migrations/` (6 migrations so far, `InitialCreate` → `AddSettings`)
 - `Persistence/Repositories/` — 19 implementations, one per `Domain.Ports` repository/query interface
 - `Persistence/EfUnitOfWork` — implements `IUnitOfWork`, wraps a retry-safe DB transaction (`CreateExecutionStrategy`)
 - `Persistence/DatabaseResetService` — dev-only `EnsureDeleted`+`Migrate`+`AdminBootstrapState.Initialize(false)`, used by the Settings "DB zurücksetzen" button

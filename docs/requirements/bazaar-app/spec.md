@@ -82,6 +82,7 @@ Die Haupt-App unterstützt drei operative Kernprozesse:
   ─────────────── (Trennlinie)
 ── System ────────────────────
   Statistik
+  Etiketten-Vordruck         (nur Admin)
   Einstellungen              (nur Admin)
 ──────────────────────────────
   Sidebar-Footer: Avatar · Benutzername · Rolle · Abmelden
@@ -89,11 +90,11 @@ Die Haupt-App unterstützt drei operative Kernprozesse:
 
 **Druckfunktionen haben keinen Menüpunkt und keine Route** — der Ausdruck startet automatisch nach dem Buchen in der Artikelannahme bzw. per Button in der Abrechnung (siehe [Epic_Druckfunktionen](epics/Epic_Druckfunktionen/epic.md)).
 
-**Routen-Pfade sind englisch** (`/intake`, `/checkout`, `/settlement`, `/sellers`, `/articles`, `/brands`, `/categories`, `/seller-types`, `/statistics`, `/settings`) — Sprachregel siehe Abschnitt 7.0.1. Die deutschen Menü-Labels oben sind Anzeigetexte, keine Pfade. Vollständige Tabelle → BSHELL-S03.
+**Routen-Pfade sind englisch** (`/intake`, `/checkout`, `/settlement`, `/sellers`, `/articles`, `/brands`, `/categories`, `/seller-types`, `/statistics`, `/blank-labels`, `/settings`) — Sprachregel siehe Abschnitt 7.0.1. Die deutschen Menü-Labels oben sind Anzeigetexte, keine Pfade. Vollständige Tabelle → BSHELL-S03.
 
 **Home** leitet automatisch auf **Artikelannahme** weiter — kein eigener Seiteninhalt.
 
-Die Sidebar ist **rollenabhängig**: Kassenpersonal sieht den Eintrag **Einstellungen** nicht. Einen Role-Toggle wie in der Voranmelde-App gibt es **nicht** — der Admin hat ohnehin alle Rechte des Kassenpersonals, ein Toggle würde ihm nur künstlich Rechte wegnehmen.
+Die Sidebar ist **rollenabhängig**: Kassenpersonal sieht die Einträge **Etiketten-Vordruck** und **Einstellungen** nicht. Einen Role-Toggle wie in der Voranmelde-App gibt es **nicht** — der Admin hat ohnehin alle Rechte des Kassenpersonals, ein Toggle würde ihm nur künstlich Rechte wegnehmen.
 
 Die Login-Seite (`/login`) läuft außerhalb der AppShell — ohne Sidebar und ohne Titelleiste.
 
@@ -113,6 +114,7 @@ Verbindlich für alle Epics. Ein Epic, das davon abweichen will, ändert diese T
 | Marken / Kategorien / Verkäufer-Typen | ✅ | ✅ lesen; Marken und Kategorien zusätzlich implizit über AutoComplete anlegen (Abschnitt 9.3) |
 | Statistik | ✅ | ✅ lesen |
 | Einstellungen (inkl. Import und Benutzerverwaltung) | ✅ | ❌ |
+| Etiketten-Vordruck (Blanko-Etiketten drucken, Bogenformate verwalten) | ✅ | ❌ |
 | Abrechnung stornieren, Artikel löschen | ✅ | ❌ |
 
 Leitgedanke: Kassenpersonal darf am Basar-Tag alles Operative ohne Nachfragen, aber nichts Zerstörendes und nichts Konfigurierendes. Das implizite Anlegen von Marken und Kategorien ist bewusst erlaubt — sonst blockiert die Artikelannahme an der erstbesten unbekannten Marke.

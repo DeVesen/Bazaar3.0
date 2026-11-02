@@ -8,7 +8,7 @@
 **Last updated:** 2026-10-15
 
 ## Responsibilities
-- One folder per bounded capability area, each holding `*Command`, `*CommandValidator` (FluentValidation), `*Handler`: `Articles`, `ArticleImport`, `Auth` (Login/BootstrapAdmin/ChangePassword/CompleteSetup), `Brands`, `Categories`, `Import`, `Intake`, `Release`, `Sales`, `SellerTypes`, `Sellers`, `Settings`, `Settlement`, `Statistics`, `Users`
+- One folder per bounded capability area, each holding `*Command`, `*CommandValidator` (FluentValidation), `*Handler`: `Articles`, `ArticleImport`, `Auth` (Login/BootstrapAdmin/ChangePassword/CompleteSetup), `BlankLabels`, `Brands`, `Categories`, `Import`, `Intake`, `Release`, `Sales`, `SellerTypes`, `Sellers`, `Settings`, `Settlement`, `Statistics`, `Users`
 - `Auth/AdminBootstrapState` — the in-memory singleton tracking whether an admin exists (`Initialize`/`MarkAdminCreated`, also reset by `Bazaar.Infrastructure`'s `DatabaseResetService`)
 - Not responsible for: HTTP concerns (status codes, routing — that's Api), persistence implementation (that's Infrastructure)
 
