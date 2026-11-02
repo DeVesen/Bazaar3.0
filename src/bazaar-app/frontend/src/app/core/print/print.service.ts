@@ -22,6 +22,10 @@ import { PrintDocument } from '../../shared/components/print-document/print-docu
 // Sanctioned `core` → `shared` boundary crossing, same justification as above.
 // eslint-disable-next-line boundaries/dependencies
 import { ArticleAushang } from '../../shared/components/print-document/article-aushang';
+// Sanctioned `core` → `shared` boundary crossing, same justification as above: the label sheets
+// document is the presentation component of the Etiketten-Vordruck print.
+// eslint-disable-next-line boundaries/dependencies
+import { LabelSheetsDocument, LabelSheetsPrintModel } from '../../shared/components/label-sheet/label-sheets-document';
 // eslint-disable-next-line boundaries/dependencies
 import { AushangModel, buildArticleAushangModel } from '../../shared/components/print-document/article-aushang.model';
 import {
@@ -48,19 +52,25 @@ export interface SellerSummaryPrintData {
 const PRINT_HOST_ATTRIBUTE = 'data-print-host';
 const PRINT_STYLE_ATTRIBUTE = 'data-print-style';
 
+/** Seitengröße der Belege und des Aushangs. */
+const A4_PAGE_SIZE = 'A4 portrait';
+
 /**
- * Gilt nur, solange das Druckdokument im DOM hängt: A4 hochkant ohne Seitenrand, und im Druck
- * bleibt von der Seite nur das Dokument übrig — alles andere im `body` (App, Overlays, Toasts)
- * entfällt, der Host rückt aus dem Off-Canvas-Bereich in den normalen Fluss.
+ * Gilt nur, solange das Druckdokument im DOM hängt: Seite ohne Rand in der übergebenen Größe
+ * (A4 hochkant für Belege, Bogengröße für Etiketten), und im Druck bleibt von der Seite nur das
+ * Dokument übrig — alles andere im `body` (App, Overlays, Toasts) entfällt, der Host rückt aus dem
+ * Off-Canvas-Bereich in den normalen Fluss.
  */
-const PRINT_STYLE = `
-@page { size: A4 portrait; margin: 0; }
+function printStyle(pageSize: string): string {
+  return `
+@page { size: ${pageSize}; margin: 0; }
 @media print {
   html, body { margin: 0 !important; background: #fff !important; }
   body > *:not([data-print-host]) { display: none !important; }
   body > [data-print-host] { position: static !important; left: auto !important; top: auto !important; visibility: visible !important; }
 }
 `;
+}
 
 /** iPadOS meldet sich als „Macintosh", erkennbar nur an den Touchpoints. */
 function isIos(): boolean {
@@ -223,15 +233,28 @@ export class PrintService {
     this.mountAndPrint(ArticleAushang, (ref) => ref.setInput('model', model));
   }
 
+  /** Etiketten-Vordruck: alle Bögen eines Drucks; Seitengröße = Bogengröße, keine Falzlinie. */
+  printLabelSheets(model: LabelSheetsPrintModel): void {
+    const { sheetWidth, sheetHeight } = model.geometry;
+    this.mountAndPrint(
+      LabelSheetsDocument,
+      (ref) => ref.setInput('model', model),
+      undefined,
+      `${sheetWidth}mm ${sheetHeight}mm`,
+    );
+  }
+
   /**
    * Hängt ein Druckdokument (beliebige Komponente) ein, öffnet den Druckdialog und baut es wieder
    * ab. `measure` läuft einmal nach dem ersten Rendern und vor dem Druck (nur der Beleg misst
-   * Freitext 3; der Aushang hat feste Maße und braucht es nicht).
+   * Freitext 3; der Aushang hat feste Maße und braucht es nicht). `pageSize` ist der Wert von
+   * `@page size` (Standard A4 hochkant).
    */
   private mountAndPrint<T>(
     type: Type<T>,
     configure: (componentRef: ComponentRef<T>) => void,
     measure?: (instance: T) => void,
+    pageSize: string = A4_PAGE_SIZE,
   ): void {
     // Ein Dokument aus einem früheren Druck, dessen `afterprint` ausblieb (Android/iOS) oder das
     // nach einem Doppelklick noch hängt, wird zuerst abgebaut — es hängt immer höchstens eins.
@@ -257,7 +280,7 @@ export class PrintService {
 
     const styleElement = document.createElement('style');
     styleElement.setAttribute(PRINT_STYLE_ATTRIBUTE, '');
-    styleElement.textContent = PRINT_STYLE;
+    styleElement.textContent = printStyle(pageSize);
     document.head.appendChild(styleElement);
 
     this.appRef.attachView(componentRef.hostView);

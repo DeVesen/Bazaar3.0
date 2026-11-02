@@ -10,6 +10,10 @@ import { SellerSettlement, SettlementApi } from '../../features/settlement/data/
 import { ArticlePrintItem, ArticlesApi } from '../../features/articles/data/articles-api';
 // eslint-disable-next-line boundaries/dependencies -- see print.service.ts's own justification
 import { PrintTexts, PrintTextsApi, emptyPrintTexts } from '../../features/settings/data/print-texts-api';
+// eslint-disable-next-line boundaries/dependencies -- see print.service.ts's own justification
+import { AVERY_16_GEOMETRY } from '../../shared/components/label-sheet/label-geometry';
+// eslint-disable-next-line boundaries/dependencies -- see print.service.ts's own justification
+import { placeLabels } from '../../shared/components/label-sheet/label-slots';
 
 const seller: SellerDetail = {
   id: 'seller-1',
@@ -448,6 +452,77 @@ describe('PrintService', () => {
       expect(receiptHasText).toBe(true);
       expect(printHost()?.textContent ?? '').not.toContain('Nur im Beleg');
       expect(printHost()?.querySelector('.print-doc__freitext3')).toBeNull();
+    });
+  });
+
+  describe('printLabelSheets', () => {
+    function labelHost(): HTMLElement | null {
+      return document.querySelector<HTMLElement>('app-label-sheets-document[data-print-host]');
+    }
+
+    it('printLabelSheets_count12FromPosition7_mountsBothSheetsAndOpensPrintDialog', () => {
+      // Arrange
+      const service = setup();
+
+      // Act
+      service.printLabelSheets({
+          geometry: AVERY_16_GEOMETRY,
+          sheets: placeLabels(1000, 12, 7, 16),
+          content: { logo: null, sellerSymbol: null, currencySymbol: '€' },
+        });
+
+      // Assert
+      expect(labelHost()?.querySelectorAll('app-label-sheet')).toHaveLength(2);
+      expect(printSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('printLabelSheets_avery16_setsPageSizeToSheetSize', () => {
+      // Arrange
+      const service = setup();
+
+      // Act
+      service.printLabelSheets({
+          geometry: AVERY_16_GEOMETRY,
+          sheets: placeLabels(1000, 4, 1, 16),
+          content: { logo: null, sellerSymbol: null, currencySymbol: '€' },
+        });
+
+      // Assert
+      const css = document.querySelector('style[data-print-style]')?.textContent ?? '';
+      expect(css).toContain('size: 210mm 297mm');
+      expect(css).not.toContain('A4 portrait');
+    });
+
+    it('printLabelSheets_always_printsNoFoldLine', () => {
+      // Arrange
+      const service = setup();
+
+      // Act
+      service.printLabelSheets({
+          geometry: AVERY_16_GEOMETRY,
+          sheets: placeLabels(1000, 4, 1, 16),
+          content: { logo: null, sellerSymbol: null, currencySymbol: '€' },
+        });
+
+      // Assert
+      expect(labelHost()?.querySelector('.label-card__fold')).toBeNull();
+    });
+
+    it('printLabelSheets_afterPrint_removesDocumentAndPrintStyle', () => {
+      // Arrange
+      const service = setup();
+      service.printLabelSheets({
+          geometry: AVERY_16_GEOMETRY,
+          sheets: placeLabels(1000, 4, 1, 16),
+          content: { logo: null, sellerSymbol: null, currencySymbol: '€' },
+        });
+
+      // Act
+      window.dispatchEvent(new Event('afterprint'));
+
+      // Assert
+      expect(labelHost()).toBeNull();
+      expect(document.querySelector('style[data-print-style]')).toBeNull();
     });
   });
 
