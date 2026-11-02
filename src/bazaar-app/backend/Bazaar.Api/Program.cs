@@ -124,6 +124,8 @@ builder.Services.AddScoped<UpdatePrintTextsHandler>();
 builder.Services.AddScoped<GetLabelSheetFormatsHandler>();
 builder.Services.AddScoped<SaveLabelSheetFormatHandler>();
 builder.Services.AddScoped<DeleteLabelSheetFormatHandler>();
+builder.Services.AddScoped<GetLabelPrintDefaultsHandler>();
+builder.Services.AddScoped<UpdateLabelPrintDefaultsHandler>();
 builder.Services.AddScoped<GetSellerCardsHandler>();
 builder.Services.AddScoped<GetSellerByIdHandler>();
 builder.Services.AddScoped<SearchSellersHandler>();
