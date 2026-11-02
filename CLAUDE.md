@@ -70,9 +70,9 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 - Worktree-Ordner: C:/wt/<repo>
 - Worktree-Hinweis: Pfad kurz halten (Windows-Pfadlänge), `node_modules` im Worktree per `npm ci`.
 - Planungs-Skills: dv-craft:craft-design-principles, dv-craft:craft-unit-testing, dv-dotnet:dotnet @src/*/backend, dv-angular:angular @src/*/frontend, primeng:primeng-component-implementation @src/*/frontend
-- Build:
-- Test:
-- Lint:
+- Build: dotnet build src/bazaar-app/backend/Bazaar.slnx ; npm --prefix src/bazaar-app/frontend run build
+- Test: cd src/bazaar-app/backend && dotnet test --solution Bazaar.slnx ; npm --prefix src/bazaar-app/frontend run test -- --watch=false
+- Lint: npm --prefix src/bazaar-app/frontend run lint
 - Suche: dev-mcp
 - Commit-Konvention: Conventional Commits (type(scope): Beschreibung), Text deutsch
 - Arbeitsort: Worktree mit Feature-Branch nur für die Implementation (Code-Änderungen). Spec-, Plan-, Review- und Capture-Sessions laufen ohne Worktree und ohne Feature-Branch im aktuellen Checkout auf dem aktuellen Branch, auch ein Review am Code. Ein Review innerhalb einer Implementation bleibt in deren Worktree.
