@@ -29,9 +29,14 @@ Bogenformate und eigene Bilder liegen im Backend und stehen auf jedem Gerät zur
 - Startnummer 1 bis 2147483646, und Startnummer + Anzahl − 1 höchstens 2147483646; Anzahl Etiketten 1 bis 5000; Währungssymbol 1 bis 3 Zeichen; Startposition 1 bis Anzahl pro Seite, leer = 1. · Aussage
 - Eigene Bilder: PNG, JPEG oder SVG, höchstens 1 MB. · Aussage
 - Die Falzlinie erscheint nur in der Vorschau, nicht im Druck. · Aussage
-- Inhalt eines Etiketts skaliert mit der Etikettgröße; die Maße 105 × 35 mm sind der Maßstab 1. Bei anderem Seitenverhältnis gilt das kleinere der beiden Verhältnisse. · ungeklärt
+- Inhalt eines Etiketts skaliert mit der Etikettgröße; die Maße 105 × 35 mm sind der Maßstab 1. Bei anderem Seitenverhältnis gilt das kleinere der beiden Verhältnisse. · Aussage
 - Die Bogenformat-Namen sind eindeutig (exakt gleicher Name = gleiches Format). Beim Start ist kein Bogenformat gespeichert; die Felder sind mit Avery 16er vorbelegt (A4 210 × 297, Etikett 105 × 35, Ränder oben/unten 8,5, links/rechts 0, Abstand 0, 2 Spalten × 8 Zeilen). · Aussage
 - Die Seite prüft keine Nummern gegen Artikel und legt keine Artikel an oder ändert sie. · Aussage
+- Leere Pflichtfelder gelten als ungültig: Ein leeres Maßfeld in Bereich A, eine leere Startnummer oder eine leere Anzahl zeigt einen Fehler am Feld; „Drucken" ist gesperrt, bei Maßfeldern auch „Speichern". · Aussage
+- Logo und Verkäufer-Symbol dürfen leer bleiben; das Element entfällt dann im Etikett, sein Platz bleibt leer. · Aussage
+- Der Name eines Bogenformats wird an den Enden von Leerzeichen befreit; ein Name nur aus Leerzeichen gilt als leer; höchstens 50 Zeichen. · Aussage
+- Die Icon-Liste bietet mindestens ein wählbares Icon für Verkäufer-Symbol und Logo; ihr Inhalt ist nicht Teil dieser Spec. · Aussage
+- Speichert ein Admin unter einem Namen, den ein anderer Admin inzwischen gespeichert hat, erscheint die Rückfrage „Überschreiben?" wie in AC-11. · Aussage
 
 ## Akzeptanzkriterien
 - **AC-01** Gegeben ein angemeldeter Admin, wenn er das Menü der Haupt-App öffnet, dann steht „Etiketten-Vordruck" in der Gruppe „System" direkt über „Einstellungen". · Aussage
@@ -66,6 +71,12 @@ Bogenformate und eigene Bilder liegen im Backend und stehen auf jedem Gerät zur
 - **AC-30** Gegeben die Seite, wenn sie die Nummer 1000 druckt und ein Artikel mit Nummer 1000 existiert oder nicht, dann druckt sie in beiden Fällen ohne Fehler und legt keinen Artikel an und ändert keinen. · Aussage
 - **AC-31** Gegeben die geöffnete Seite, wenn sich die Breite des Vorschau-Bereichs ändert (z. B. Fenster halbiert), dann ändert sich die Vorschau proportional mit, bleibt vollständig sichtbar und behält das Seitenverhältnis des Bogens bzw. Etiketts. · Aussage
 - **AC-32** Gegeben die Etikettgröße 105 × 17,5 mm (Breite wie Maßstab, Höhe halb so groß), wenn die Vorschau erscheint, dann ist jedes Element halb so groß wie bei 105 × 35 mm (kleineres Verhältnis 0,5) und liegt vollständig innerhalb des Etiketts. · Aussage
+- **AC-33** Gegeben ein erstes Öffnen mit leerer Startnummer und leerer Anzahl, wenn der Admin Bereich B ansieht, dann erscheint an beiden Feldern ein Fehler und „Drucken" ist gesperrt. · Aussage
+- **AC-34** Gegeben Bereich A, wenn der Admin ein Maßfeld leert, dann erscheint ein Fehler am Feld und „Speichern" und „Drucken" sind gesperrt. · Aussage
+- **AC-35** Gegeben ein gültiges Bogenformat, gültige Angaben in Bereich B, leeres Logo und leeres Verkäufer-Symbol, wenn der Admin „Drucken" wählt, dann öffnet sich der Druckdialog und die Etiketten tragen weder Logo noch Verkäufer-Symbol. · Aussage
+- **AC-36** Gegeben Bereich A, wenn der Admin als Namen nur Leerzeichen oder mehr als 50 Zeichen einträgt, dann ist „Speichern" gesperrt. · Aussage
+- **AC-37** Gegeben ein gültiges Bogenformat, wenn der Admin den Namen „ Avery 12er " (mit Leerzeichen an beiden Enden) speichert, dann erscheint das Format als „Avery 12er" im Auswahlfeld. · Aussage
+- **AC-38** Gegeben zwei Geräte mit geöffneter Seite und noch kein Format „Avery 12er", wenn Admin A dort „Avery 12er" speichert und danach Admin B ohne Neuladen unter demselben Namen speichert, dann fragt die Seite bei B „Überschreiben?"; bei Bestätigung gilt das Format von B, bei Abbruch bleibt das von A. · Aussage
 
 ## Entscheidungen
 - **W · Menü-Position** · Aussage — Eigener Eintrag in der Gruppe „System" direkt über „Einstellungen" (Q1).
@@ -91,6 +102,13 @@ Bogenformate und eigene Bilder liegen im Backend und stehen auf jedem Gerät zur
 - **W · Währungssymbol** · Aussage — Das Währungssymbol ist reiner Text, kein Bild.
 - **W · Sperre** · Aussage — Bei ungültiger Eingabe ist die Schaltfläche sofort gesperrt, der Fehler steht am Feld.
 - **W · Klartext-Lage** · Aussage — Der Klartext steht unter dem QR-Code, das Logo neben dem QR-Code.
+- **W · Skalierung-Zeile** · Aussage — Die Soll-Vorgabe zu Maßstab 105 × 35 mm und „kleineres Verhältnis" gilt als bestätigt (Q1 Grill).
+- **W · Leere Pflichtfelder** · Aussage — Leere Maßfelder, leere Startnummer und leere Anzahl sind ungültig; Fehler am Feld, „Drucken" gesperrt, bei Maßfeldern auch „Speichern" (Q2 Grill).
+- **W · Logo/Symbol leer** · Aussage — Beide dürfen leer bleiben; das Element entfällt beim Druck (Q3 Grill).
+- **W · Format-Name** · Aussage — Name wird getrimmt, nur Leerzeichen gilt als leer, höchstens 50 Zeichen (Q4 Grill).
+- **W · Icon-Liste-Umfang** · Aussage — Die Spec verlangt mindestens ein wählbares Icon; der Inhalt entsteht in der Umsetzung (Q5 Grill).
+- **W · Gleichzeitiges Speichern** · Aussage — Die Rückfrage „Überschreiben?" aus AC-11 greift auch, wenn ein anderer Admin den Namen inzwischen angelegt hat (Q6 Grill).
 - **R1 · AC-03** — geändert — Neues Verhalten, Beleg: Spec · Was, wie, wo, warum — Das Skalieren der Vorschau mit der Breite ihres Containers ist dort festgelegt, aber von keinem Kriterium abgedeckt; neues Kriterium AC-31 prüft es beobachtbar.
 - **R1 · Soll-Vorgaben** — geändert — Neues Verhalten, Beleg: Spec · Soll-Vorgaben — Die Regel „bei anderem Seitenverhältnis gilt das kleinere der beiden Verhältnisse" ist dort festgelegt, AC-21 deckt nur gleiches Seitenverhältnis ab; neues Kriterium AC-32 prüft den Fall 105 × 17,5 mm.
 - **R2 · Soll-Vorgaben** — geändert — Klarstellung: Der Widerspruch zwischen „Ränder und Abstände ≥ 0" und „Maße > 0" der Entscheidung Eingabegrenzen löst sich aus der Spec selbst: Die Entscheidung Abstand legt die Vorgabe 0 fest, die Entscheidung Maßbegriffe nennt nur Etikett- und Bogengröße als Maße, und das Standardformat (AC-04, AC-07) setzt Ränder 0 voraus. Die Soll-Vorgabe hält jetzt fest, dass „> 0" nur für Etikett- und Bogengröße gilt; der W-Eintrag bleibt unverändert.
+- **R3 · Entscheidungen** — nicht geändert — W-Eintrag ist bindend
