@@ -1,0 +1,28 @@
+<div class="label-card" [style.aspect-ratio]="aspectRatio()">
+  @if (showFoldLine()) {
+    <div class="label-card__fold" [style]="styles().fold"></div>
+  }
+  @if (numberText(); as text) {
+    <div class="label-card__qr" [style]="styles().qr">
+      <app-qr-code [value]="text" [size]="128" />
+    </div>
+    <div class="label-card__number" [style]="styles().numberText">{{ text }}</div>
+  }
+  @if (logo(); as logoGraphic) {
+    <app-label-graphic class="label-card__logo" [graphic]="logoGraphic" [style]="styles().logo" />
+  }
+  @if (sellerSymbol(); as symbol) {
+    <app-label-graphic
+      class="label-card__symbol label-card__symbol--top-right"
+      [graphic]="symbol"
+      [style]="styles().sellerSymbolTopRight"
+    />
+    <app-label-graphic
+      class="label-card__symbol label-card__symbol--bottom-left"
+      [graphic]="symbol"
+      [style]="styles().sellerSymbolBottomLeft"
+    />
+  }
+  <div class="label-card__price-line" [style]="styles().priceLine"></div>
+  <div class="label-card__currency" [style]="styles().currency">{{ currencySymbol() }}</div>
+</div>

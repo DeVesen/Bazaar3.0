@@ -1,0 +1,22 @@
+<div class="label-sheet" [class.label-sheet--outlined]="outlineSlots()" [style]="sheetStyle()">
+  @for (placed of placedSlots(); track placed.position) {
+    <div
+      class="label-sheet__slot"
+      [class.label-sheet__slot--skipped]="placed.skipped"
+      [attr.data-slot]="placed.position"
+      [style]="placed.style"
+    >
+      @if (placed.number !== null) {
+        <app-label-card
+          [width]="geometry().labelWidth"
+          [height]="geometry().labelHeight"
+          [number]="placed.number"
+          [logo]="content().logo"
+          [sellerSymbol]="content().sellerSymbol"
+          [currencySymbol]="content().currencySymbol"
+          [showFoldLine]="showFoldLines()"
+        />
+      }
+    </div>
+  }
+</div>

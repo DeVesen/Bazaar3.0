@@ -1,0 +1,53 @@
+:host {
+  display: block;
+}
+
+.label-card {
+  position: relative;
+  width: 100%;
+  container-type: inline-size;
+  overflow: hidden;
+  background: #fff;
+  color: #000;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+
+.label-card__fold,
+.label-card__qr,
+.label-card__number,
+.label-card__logo,
+.label-card__symbol,
+.label-card__price-line,
+.label-card__currency {
+  position: absolute;
+}
+
+.label-card__fold {
+  top: 0;
+  bottom: 0;
+  border-left: 0.2mm dashed #888;
+}
+
+.label-card__qr ::ng-deep app-qr-code,
+.label-card__qr ::ng-deep .qr-code,
+.label-card__qr ::ng-deep .qr-code__image,
+.label-card__qr ::ng-deep .qr-code__image svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.label-card__number,
+.label-card__currency {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.label-card__number {
+  font-weight: 600;
+}
+
+.label-card__price-line {
+  height: 0;
+  border-bottom: 0.3mm solid #000;
+}

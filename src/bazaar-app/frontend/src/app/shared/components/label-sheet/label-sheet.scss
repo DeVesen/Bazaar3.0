@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+
+.label-sheet {
+  position: relative;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.label-sheet--outlined {
+  outline: 1px solid var(--p-content-border-color, #ccc);
+}
+
+.label-sheet__slot {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.label-sheet--outlined .label-sheet__slot {
+  outline: 1px dashed #999;
+}
+
+.label-sheet__slot--skipped {
+  background: #d9d9d9;
+}

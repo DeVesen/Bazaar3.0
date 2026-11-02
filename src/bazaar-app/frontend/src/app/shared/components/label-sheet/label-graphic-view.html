@@ -1,0 +1,36 @@
+@switch (graphic().kind) {
+  @case ('image') {
+    <img class="label-graphic__image" [src]="graphic().value" alt="" />
+  }
+  @default {
+    @switch (graphic().value) {
+      @case ('star') {
+        <svg lucideStar></svg>
+      }
+      @case ('heart') {
+        <svg lucideHeart></svg>
+      }
+      @case ('sun') {
+        <svg lucideSun></svg>
+      }
+      @case ('moon') {
+        <svg lucideMoon></svg>
+      }
+      @case ('flower') {
+        <svg lucideFlower></svg>
+      }
+      @case ('leaf') {
+        <svg lucideLeaf></svg>
+      }
+      @case ('crown') {
+        <svg lucideCrown></svg>
+      }
+      @case ('gift') {
+        <svg lucideGift></svg>
+      }
+      @case ('cloud') {
+        <svg lucideCloud></svg>
+      }
+    }
+  }
+}
