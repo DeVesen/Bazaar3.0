@@ -26,6 +26,7 @@ export const routes: Routes = [
       { path: 'categories', canActivate: [authGuard, passwordChangeGuard], loadChildren: () => import('./features/categories/categories.routes').then((m) => m.CATEGORIES_ROUTES) },
       { path: 'seller-types', canActivate: [authGuard, passwordChangeGuard], loadChildren: () => import('./features/seller-types/seller-types.routes').then((m) => m.SELLER_TYPES_ROUTES) },
       { path: 'statistics', canActivate: [authGuard, passwordChangeGuard], loadChildren: () => import('./features/statistics/statistics.routes').then((m) => m.STATISTICS_ROUTES) },
+      { path: 'blank-labels', canActivate: [authGuard, adminGuard, passwordChangeGuard], loadChildren: () => import('./features/blank-labels/blank-labels.routes').then((m) => m.BLANK_LABELS_ROUTES) },
       { path: 'settings', canActivate: [authGuard, adminGuard, passwordChangeGuard], loadChildren: () => import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES) },
       { path: '**', loadChildren: () => import('./features/not-found/not-found.routes').then((m) => m.NOT_FOUND_ROUTES) },
     ],

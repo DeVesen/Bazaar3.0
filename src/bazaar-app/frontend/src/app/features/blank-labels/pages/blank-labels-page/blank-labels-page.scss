@@ -1,0 +1,26 @@
+.blank-labels__print-hint {
+  margin: 0 0 1rem;
+}
+
+/* Eingaben ein Drittel, Vorschau zwei Drittel der Breite. */
+.blank-labels__area {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 1.5rem;
+  align-items: start;
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--p-content-border-color);
+}
+
+.blank-labels__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+}
+
+.blank-labels__preview {
+  min-width: 0;
+}
+
+.blank-labels__label-preview {
+  max-width: 100%;
+}

@@ -55,6 +55,29 @@ describe('Sidebar', () => {
     expect(compiled.textContent).toContain('Einstellungen');
   });
 
+  it('visibleGroups_admin_listsEtikettenVordruckDirectlyAboveEinstellungen', async () => {
+    // Arrange
+    const { fixture } = createSidebar('admin');
+
+    // Act
+    await fixture.whenStable();
+
+    // Assert
+    const system = fixture.componentInstance.visibleGroups().find((group) => group.label === 'System');
+    expect(system?.items.map((item) => item.label)).toEqual(['Statistik', 'Etiketten-Vordruck', 'Einstellungen']);
+  });
+
+  it('render_cashier_hidesEtikettenVordruck', async () => {
+    // Arrange
+    const { fixture } = createSidebar('cashier');
+
+    // Act
+    await fixture.whenStable();
+
+    // Assert
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Etiketten-Vordruck');
+  });
+
   it('renders no p-badge since openArticlesCount has no external data source yet', async () => {
     const { fixture } = createSidebar('admin');
     await fixture.whenStable();

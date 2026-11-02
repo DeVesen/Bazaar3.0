@@ -19,4 +19,12 @@ describe('routes', () => {
     // Assert
     expect(settingsRoute?.canActivate).toContain(adminGuard);
   });
+
+  it('blankLabelsRoute_always_isGuardedByAdminGuard', () => {
+    // Arrange & Act
+    const blankLabelsRoute = findRoute(routes, 'blank-labels');
+
+    // Assert
+    expect(blankLabelsRoute?.canActivate).toContain(adminGuard);
+  });
 });

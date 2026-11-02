@@ -1,0 +1,82 @@
+<app-page title="Etiketten-Vordruck">
+  <p-button pageActions label="Drucken" [disabled]="!canPrint()" (onClick)="onPrint()" />
+
+  <p class="blank-labels__print-hint">Im Druckdialog „Skalierung 100 %, keine Seitenränder" einstellen.</p>
+
+  <section class="blank-labels__area" data-area="sheet-format">
+    <div class="blank-labels__inputs">
+      <h2 class="blank-labels__title">Bogenformat</h2>
+      <app-sheet-format-form
+        [texts]="formatTexts()"
+        [errors]="formatValidation().errors"
+        [formats]="formats()"
+        [selectedFormatId]="selectedFormatId()"
+        [name]="formatName()"
+        [nameError]="nameError()"
+        [perSheet]="perSheet()"
+        [canSave]="canSave()"
+        (fieldChange)="onFormatFieldChange($event)"
+        (formatSelected)="onFormatSelected($event)"
+        (nameChange)="formatName.set($event)"
+        (save)="onSaveFormat()"
+        (remove)="onDeleteFormat()"
+      />
+    </div>
+    <div class="blank-labels__preview">
+      @if (geometry(); as sheetGeometry) {
+        <app-label-sheet [geometry]="sheetGeometry" [slots]="emptySheetSlots()" [outlineSlots]="true" maxHeight="70vh" />
+      } @else {
+        <p class="blank-labels__preview-hint">Die Vorschau erscheint, sobald das Bogenformat gültig ist.</p>
+      }
+    </div>
+  </section>
+
+  <section class="blank-labels__area" data-area="label-content">
+    <div class="blank-labels__inputs">
+      <h2 class="blank-labels__title">Etiketten-Inhalt</h2>
+      <app-label-content-form
+        [texts]="contentTexts()"
+        [errors]="contentValidation().errors"
+        [logo]="logo()"
+        [sellerSymbol]="sellerSymbol()"
+        (fieldChange)="onContentFieldChange($event)"
+        (logoChange)="logo.set($event)"
+        (sellerSymbolChange)="sellerSymbol.set($event)"
+        (imageChosen)="onImageChosen($event)"
+      />
+    </div>
+    <div class="blank-labels__preview">
+      <app-label-card
+        class="blank-labels__label-preview"
+        [width]="previewLabelSize().labelWidth"
+        [height]="previewLabelSize().labelHeight"
+        [number]="previewNumber()"
+        [logo]="logo()"
+        [sellerSymbol]="sellerSymbol()"
+        [currencySymbol]="contentTexts().currencySymbol"
+        [showFoldLine]="true"
+      />
+    </div>
+  </section>
+
+  <section class="blank-labels__area" data-area="start-position">
+    <div class="blank-labels__inputs">
+      <h2 class="blank-labels__title">Angebrochener Bogen</h2>
+      <app-start-position-form
+        [text]="contentTexts().startPosition"
+        [error]="contentValidation().errors.startPosition ?? null"
+        [perSheet]="perSheet()"
+        (textChange)="onContentFieldChange({ field: 'startPosition', text: $event })"
+      />
+    </div>
+    <div class="blank-labels__preview">
+      @if (geometry(); as sheetGeometry) {
+        <app-label-sheet [geometry]="sheetGeometry" [slots]="startPositionSlots()" [outlineSlots]="true" maxHeight="70vh" />
+      } @else {
+        <p class="blank-labels__preview-hint">Die Vorschau erscheint, sobald das Bogenformat gültig ist.</p>
+      }
+    </div>
+  </section>
+
+  <p-confirmdialog key="blankLabels" />
+</app-page>

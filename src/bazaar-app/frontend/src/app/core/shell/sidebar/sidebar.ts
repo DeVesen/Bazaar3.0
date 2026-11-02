@@ -15,6 +15,7 @@ import {
   LucideFolder,
   LucideUserCog,
   LucideBarChart3,
+  LucidePrinter,
   LucideSettings,
 } from '@lucide/angular';
 import { AuthService } from '../../auth/auth.service';
@@ -23,6 +24,8 @@ import { RoleService } from '../../auth/role.service';
 interface NavItem {
   label: string;
   route: string;
+  /** Nur für Admin sichtbar (Rechte-Matrix, spec.md §4.1). */
+  adminOnly?: boolean;
 }
 
 interface NavGroup {
@@ -49,6 +52,7 @@ interface NavGroup {
     LucideFolder,
     LucideUserCog,
     LucideBarChart3,
+  LucidePrinter,
     LucideSettings,
   ],
   templateUrl: './sidebar.html',
@@ -82,23 +86,20 @@ export class Sidebar {
     ]},
     { label: 'System', items: [
       { label: 'Statistik', route: '/statistics' },
-      { label: 'Einstellungen', route: '/settings' },
+      { label: 'Etiketten-Vordruck', route: '/blank-labels', adminOnly: true },
+      { label: 'Einstellungen', route: '/settings', adminOnly: true },
     ]},
   ];
 
   readonly visibleGroups = computed(() =>
     this.navGroups.map((group) => ({
       ...group,
-      items: group.items.filter((item) => this.isAdmin() || !this.isSettingsItem(item)),
+      items: group.items.filter((item) => this.isAdmin() || !item.adminOnly),
     })),
   );
 
   logout(): void {
     this.authService.logout();
     this.router.navigateByUrl('/login');
-  }
-
-  private isSettingsItem(item: NavItem): boolean {
-    return item.route === '/settings';
   }
 }
