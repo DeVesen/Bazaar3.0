@@ -2,7 +2,7 @@
   @for (placed of placedSlots(); track placed.position) {
     <div
       class="label-sheet__slot"
-      [class.label-sheet__slot--skipped]="placed.skipped"
+      [class.label-sheet__slot--skipped]="placed.skipped && outlineSlots()"
       [attr.data-slot]="placed.position"
       [style]="placed.style"
     >

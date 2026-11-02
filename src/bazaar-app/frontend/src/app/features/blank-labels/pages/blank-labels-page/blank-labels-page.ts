@@ -70,6 +70,8 @@ export class BlankLabelsPage {
   readonly contentTexts = signal<LabelContentTexts>(INITIAL_CONTENT_TEXTS);
   readonly logo = signal<LabelGraphic | null>(null);
   readonly sellerSymbol = signal<LabelGraphic | null>(null);
+  /** Ladefehler der gemerkten Werte: Dann nichts speichern, sonst überschreiben Initialwerte die gemerkten. */
+  private readonly defaultsLoadFailed = signal(false);
   private readonly lastEditedFormatField = signal<SheetFormatField | null>(null);
   private readonly lastEditedContentField = signal<LabelContentField | null>(null);
 
@@ -107,7 +109,7 @@ export class BlankLabelsPage {
     this.store.loadFormats();
     this.store.loadDefaults().subscribe({
       next: (defaults) => this.applyDefaults(defaults),
-      error: () => this.messageService.add({ severity: 'warn', summary: 'Letzte Werte konnten nicht geladen werden' }),
+      error: () => this.onDefaultsLoadFailed(),
     });
   }
 
@@ -173,7 +175,17 @@ export class BlankLabelsPage {
     });
   }
 
+  private onDefaultsLoadFailed(): void {
+    this.defaultsLoadFailed.set(true);
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Letzte Werte konnten nicht geladen werden',
+      detail: 'Eingaben werden nicht gemerkt.',
+    });
+  }
+
   private applyDefaults(defaults: LabelPrintDefaults): void {
+    this.defaultsLoadFailed.set(false);
     this.logo.set(defaults.logo);
     this.sellerSymbol.set(defaults.sellerSymbol);
     this.contentTexts.update((texts) => ({ ...texts, currencySymbol: defaults.currencySymbol }));
@@ -223,6 +235,7 @@ export class BlankLabelsPage {
   }
 
   private rememberDefaults(content: LabelContent): void {
+    if (this.defaultsLoadFailed()) return;
     this.store.saveDefaults(content).subscribe({
       error: () => this.messageService.add({ severity: 'warn', summary: 'Logo, Symbol und Währung konnten nicht gemerkt werden' }),
     });

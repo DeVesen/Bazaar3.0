@@ -353,6 +353,19 @@ describe('BlankLabelsPage', () => {
     expect(store.deleteFormat).not.toHaveBeenCalled();
   });
 
+  it('onPrint_defaultsLoadFailed_printsButDoesNotOverwriteRememberedDefaults', async () => {
+    // Arrange
+    const { page } = await setup({ defaults: throwError(() => new Error('offline')) });
+    enterValidRun(page, '1000', '4', '');
+
+    // Act
+    page.onPrint();
+
+    // Assert
+    expect(printLabelSheets).toHaveBeenCalledTimes(1);
+    expect(store.saveDefaults).not.toHaveBeenCalled();
+  });
+
   it('onPrint_invalidInput_doesNotPrint', async () => {
     // Arrange
     const { page } = await setup();

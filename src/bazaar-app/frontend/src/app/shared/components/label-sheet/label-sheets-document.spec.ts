@@ -50,6 +50,15 @@ describe('LabelSheetsDocument', () => {
     expect([7, 8, 9, 10].map((slot) => numberIn(sheet, slot))).toEqual(['1000', '1001', '1002', '1003']);
   });
 
+  it('render_startPosition7_leavesSlotsOneToSixWithoutGreyMark', async () => {
+    // Arrange & Act
+    const fixture = await render(model(1000, 4, 7));
+
+    // Assert
+    const sheet = (fixture.nativeElement as HTMLElement).querySelector('app-label-sheet') as Element;
+    expect(sheet.querySelectorAll('.label-sheet__slot--skipped')).toHaveLength(0);
+  });
+
   it('render_always_printsNoFoldLine', async () => {
     // Arrange & Act
     const fixture = await render(model(1000, 4, 1));

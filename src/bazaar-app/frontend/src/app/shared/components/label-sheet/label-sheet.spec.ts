@@ -37,13 +37,22 @@ describe('LabelSheet', () => {
     expect(slots[6].getAttribute('data-slot')).toBe('7');
   });
 
-  it('render_startPosition7_greysSlotsOneToSix', async () => {
+  it('render_startPosition7WithOutline_greysSlotsOneToSix', async () => {
     // Arrange & Act
-    const fixture = await render(startPositionPreview(7, 16));
+    const fixture = await render(startPositionPreview(7, 16), { outlineSlots: true });
 
     // Assert
     const skipped = slotElements(fixture).filter((slot) => slot.classList.contains('label-sheet__slot--skipped'));
     expect(skipped.map((slot) => slot.getAttribute('data-slot'))).toEqual(['1', '2', '3', '4', '5', '6']);
+  });
+
+  it('render_startPosition7WithoutOutline_leavesSlotsOneToSixUnmarked', async () => {
+    // Arrange & Act
+    const fixture = await render(startPositionPreview(7, 16), { outlineSlots: false });
+
+    // Assert
+    const skipped = slotElements(fixture).filter((slot) => slot.classList.contains('label-sheet__slot--skipped'));
+    expect(skipped).toHaveLength(0);
   });
 
   it('sheetStyle_previewWidth_scalesWithContainerAndKeepsSheetAspectRatio', async () => {
