@@ -493,7 +493,7 @@ describe('PrintService', () => {
       expect(css).not.toContain('A4 portrait');
     });
 
-    it('printLabelSheets_always_printsNoFoldLine', () => {
+    it('printLabelSheets_always_printsFoldLine', () => {
       // Arrange
       const service = setup();
 
@@ -505,7 +505,7 @@ describe('PrintService', () => {
         });
 
       // Assert
-      expect(labelHost()?.querySelector('.label-card__fold')).toBeNull();
+      expect(labelHost()?.querySelector('.label-card__fold')).not.toBeNull();
     });
 
     it('printLabelSheets_afterPrint_removesDocumentAndPrintStyle', () => {

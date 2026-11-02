@@ -233,7 +233,7 @@ export class PrintService {
     this.mountAndPrint(ArticleAushang, (ref) => ref.setInput('model', model));
   }
 
-  /** Etiketten-Vordruck: alle Bögen eines Drucks; Seitengröße = Bogengröße, keine Falzlinie. */
+  /** Etiketten-Vordruck: alle Bögen eines Drucks; Seitengröße = Bogengröße, mit Falzlinie. */
   printLabelSheets(model: LabelSheetsPrintModel): void {
     const { sheetWidth, sheetHeight } = model.geometry;
     this.mountAndPrint(

@@ -80,8 +80,20 @@ describe('label-layout', () => {
     expect(layout.priceLine.x1).toBeGreaterThan(layout.foldX);
     expect(layout.currency.x).toBeGreaterThan(layout.priceLine.x2);
     expect(layout.sellerSymbolTopRight.x).toBeGreaterThan(layout.foldX);
-    expect(layout.sellerSymbolBottomLeft.y).toBeGreaterThan(layout.numberText.y + layout.numberText.fontSize);
+    expect(layout.numberText.x).toBeGreaterThan(layout.sellerSymbolBottomLeft.x + layout.sellerSymbolBottomLeft.size);
+    expect(layout.numberText.x).toBeLessThan(layout.foldX);
     expect(layout.sellerSymbolBottomLeft.y + layout.sellerSymbolBottomLeft.size).toBeLessThanOrEqual(35);
+  });
+
+  it('labelLayout_base_alignsNumberPriceLineAndCurrencyWithBottomLeftSymbol', () => {
+    // Arrange & Act
+    const layout = labelLayout(105, 35);
+
+    // Assert
+    const symbolBottom = layout.sellerSymbolBottomLeft.y + layout.sellerSymbolBottomLeft.size;
+    expect(layout.numberText.y + layout.numberText.fontSize).toBeCloseTo(symbolBottom);
+    expect(layout.currency.y + layout.currency.fontSize).toBeCloseTo(symbolBottom);
+    expect(layout.priceLine.y + 0.3).toBeCloseTo(symbolBottom);
     expect(layout.foldX).toBe(52.5);
   });
 });

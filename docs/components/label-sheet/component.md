@@ -14,7 +14,7 @@ PrimeNG liefert dafür keine Komponente — eigene Leaf-Komponenten (Grundregel 
 |---|---|---|
 | Etikett | `app-label-card` | QR-Code (Nummer) mit Klartext darunter, Logo daneben, Preisfeld (Schreiblinie + Währungssymbol) rechts, Verkäufer-Symbol oben rechts und unten links, optional Falzlinie in der Mitte |
 | Etikettenbogen | `app-label-sheet` | Bogen mit Rand und Raster; Plätze leer, ausgegraut (vor der Startposition) oder mit Etikett |
-| Druckdokument | `app-label-sheets-document` | Alle Bögen eines Drucks in Originalgröße, ohne Falzlinie |
+| Druckdokument | `app-label-sheets-document` | Alle Bögen eines Drucks in Originalgröße, mit Falzlinie |
 | Logo/Symbol | `app-label-graphic` | Icon der Icon-Liste oder eigenes Bild (Data-URL) |
 
 ## Skalierung

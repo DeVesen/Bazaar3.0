@@ -44,7 +44,7 @@ describe('LabelCard', () => {
     expect(qrCode.value()).toBe('1000');
   });
 
-  it('render_number1000_showsPlainText1000DirectlyBelowQrCode', async () => {
+  it('render_number1000_showsPlainText1000BelowQrCodeInLeftHalf', async () => {
     // Arrange & Act
     const fixture = await render({ number: 1000 });
 
@@ -53,7 +53,7 @@ describe('LabelCard', () => {
     expect(element(fixture, '.label-card__number')?.textContent?.trim()).toBe('1000');
     expect(percent(styles.numberText['top'])).toBeGreaterThan(percent(styles.qr['top']) + percent(styles.qr['height']));
     expect(percent(styles.numberText['left'])).toBeGreaterThan(percent(styles.qr['left']));
-    expect(percent(styles.numberText['left'])).toBeLessThan(percent(styles.qr['left']) + percent(styles.qr['width']));
+    expect(percent(styles.numberText['left'])).toBeLessThan(50);
   });
 
   it('render_logoSymbolAndDollar_placesLogoBesideQrSymbolsInCornersAndPriceRight', async () => {

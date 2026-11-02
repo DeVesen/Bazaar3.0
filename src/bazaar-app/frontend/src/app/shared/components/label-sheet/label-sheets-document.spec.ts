@@ -59,12 +59,12 @@ describe('LabelSheetsDocument', () => {
     expect(sheet.querySelectorAll('.label-sheet__slot--skipped')).toHaveLength(0);
   });
 
-  it('render_always_printsNoFoldLine', async () => {
+  it('render_always_printsFoldLineOnEveryLabel', async () => {
     // Arrange & Act
     const fixture = await render(model(1000, 4, 1));
 
     // Assert
-    expect((fixture.nativeElement as HTMLElement).querySelector('.label-card__fold')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.label-card__fold')).toHaveLength(4);
   });
 
   it('sheetWidth_avery16_isSheetWidthInMm', async () => {

@@ -46,15 +46,21 @@ export function labelScale(width: number, height: number): number {
  */
 export function labelLayout(width: number, height: number): LabelLayout {
   const k = labelScale(width, height);
+  const foldX = width / 2;
+  // Gemeinsame Unterkante von Verkäufer-Symbol unten links, Klartext, Schreiblinie und Währungssymbol.
+  const bottom = height - 1.5 * k;
+  const numberFontSize = 10.5 * k;
+  const currencyFontSize = 12 * k;
   return {
     scale: k,
-    foldX: width / 2,
-    qr: { x: 4 * k, y: 2 * k, size: 20 * k },
-    numberText: { x: 14 * k, y: 23 * k, fontSize: 3.5 * k },
+    foldX,
+    qr: { x: 1.5 * k, y: 1 * k, size: 21.5 * k },
+    // Horizontal mittig zwischen Verkäufer-Symbol unten links und Falzlinie.
+    numberText: { x: (8 * k + foldX - 1.5 * k) / 2, y: bottom - numberFontSize, fontSize: numberFontSize },
     logo: { x: 26 * k, y: 2 * k, size: 20 * k },
     sellerSymbolTopRight: { x: width - 6.5 * k, y: 1.5 * k, size: 5 * k },
-    sellerSymbolBottomLeft: { x: 1.5 * k, y: height - 6.5 * k, size: 5 * k },
-    priceLine: { x1: width - 48 * k, x2: width - 14 * k, y: height - 11 * k },
-    currency: { x: width - 12.5 * k, y: height - 17 * k, fontSize: 6 * k },
+    sellerSymbolBottomLeft: { x: 1.5 * k, y: bottom - 5 * k, size: 5 * k },
+    priceLine: { x1: width - 48 * k, x2: width - 14.5 * k, y: bottom - 0.3 * k },
+    currency: { x: width - 13 * k, y: bottom - currencyFontSize, fontSize: currencyFontSize },
   };
 }

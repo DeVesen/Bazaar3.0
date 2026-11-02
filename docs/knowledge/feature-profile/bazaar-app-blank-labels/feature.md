@@ -19,7 +19,7 @@
 - Admin gibt die Startposition ein; Plätze davor erscheinen in der Vorschau grau — `shared/components/label-sheet/label-slots.ts` (`startPositionPreview`)
 
 ### Drucken
-- „Drucken" öffnet den Browser-Druckdialog mit allen Bögen in Bogengröße, ohne Falzlinie; Hinweis „Skalierung 100 %, keine Seitenränder" — `core/print/print.service.ts` (`printLabelSheets`), `shared/components/label-sheet/label-sheets-document.ts`
+- „Drucken" öffnet den Browser-Druckdialog mit allen Bögen in Bogengröße, mit Falzlinie; Hinweis „Skalierung 100 %, keine Seitenränder" — `core/print/print.service.ts` (`printLabelSheets`), `shared/components/label-sheet/label-sheets-document.ts`
 - Logo, Verkäufer-Symbol und Währungssymbol werden bei jedem Druck im Backend gemerkt und beim nächsten Öffnen auf jedem Gerät vorbelegt — `PUT /api/label-print-defaults`
 
 ## Spans
