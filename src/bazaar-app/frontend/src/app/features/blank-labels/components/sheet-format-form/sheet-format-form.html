@@ -1,0 +1,55 @@
+<div class="sheet-format-form">
+  <div class="sheet-format-form__row">
+    <label for="sheet-format-select">Gespeichertes Bogenformat</label>
+    <p-select
+      inputId="sheet-format-select"
+      appendTo="body"
+      [options]="formats()"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Bogenformat wählen"
+      [ngModel]="selectedFormatId()"
+      (ngModelChange)="formatSelected.emit($event)"
+    />
+  </div>
+
+  <div class="sheet-format-form__row">
+    <label for="sheet-format-name">Name</label>
+    <input
+      pInputText
+      id="sheet-format-name"
+      [invalid]="nameError() !== null"
+      [ngModel]="name()"
+      (ngModelChange)="nameChange.emit($event)"
+    />
+    @if (nameError(); as error) {
+      <small class="sheet-format-form__error" data-error-for="name">{{ error }}</small>
+    }
+  </div>
+
+  <div class="sheet-format-form__actions">
+    <p-button label="Speichern" [disabled]="!canSave()" (onClick)="save.emit()" />
+    <p-button label="Löschen" severity="secondary" [disabled]="selectedFormatId() === null" (onClick)="remove.emit()" />
+  </div>
+
+  <div class="sheet-format-form__fields">
+    @for (item of fields; track item.field) {
+      <div class="sheet-format-form__field">
+        <label [for]="item.inputId">{{ item.label }}</label>
+        <input
+          pInputText
+          [id]="item.inputId"
+          [attr.data-field]="item.field"
+          [invalid]="!!errors()[item.field]"
+          [ngModel]="texts()[item.field]"
+          (ngModelChange)="fieldChange.emit({ field: item.field, text: $event })"
+        />
+        @if (errors()[item.field]; as error) {
+          <small class="sheet-format-form__error" [attr.data-error-for]="item.field">{{ error }}</small>
+        }
+      </div>
+    }
+  </div>
+
+  <p class="sheet-format-form__per-sheet">{{ perSheetText() }}</p>
+</div>

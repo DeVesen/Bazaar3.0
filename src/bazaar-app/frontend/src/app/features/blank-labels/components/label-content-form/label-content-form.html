@@ -1,0 +1,32 @@
+<div class="label-content-form">
+  <div class="label-content-form__fields">
+    @for (item of fields; track item.field) {
+      <div class="label-content-form__field">
+        <label [for]="item.inputId">{{ item.label }}</label>
+        <input
+          pInputText
+          [id]="item.inputId"
+          [attr.data-field]="item.field"
+          [invalid]="!!errors()[item.field]"
+          [ngModel]="texts()[item.field]"
+          (ngModelChange)="fieldChange.emit({ field: item.field, text: $event })"
+        />
+        @if (errors()[item.field]; as error) {
+          <small class="label-content-form__error" [attr.data-error-for]="item.field">{{ error }}</small>
+        }
+      </div>
+    }
+  </div>
+  <app-graphic-picker
+    label="Verkäufer-Symbol"
+    [value]="sellerSymbol()"
+    (valueChange)="sellerSymbolChange.emit($event)"
+    (fileChosen)="imageChosen.emit({ target: 'sellerSymbol', file: $event })"
+  />
+  <app-graphic-picker
+    label="Logo"
+    [value]="logo()"
+    (valueChange)="logoChange.emit($event)"
+    (fileChosen)="imageChosen.emit({ target: 'logo', file: $event })"
+  />
+</div>

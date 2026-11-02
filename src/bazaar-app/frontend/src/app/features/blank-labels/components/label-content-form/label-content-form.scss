@@ -1,0 +1,21 @@
+.label-content-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label-content-form__fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.label-content-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.label-content-form__error {
+  color: var(--p-red-500);
+}

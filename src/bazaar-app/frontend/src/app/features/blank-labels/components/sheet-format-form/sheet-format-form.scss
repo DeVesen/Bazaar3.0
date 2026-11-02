@@ -1,0 +1,32 @@
+.sheet-format-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sheet-format-form__row,
+.sheet-format-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sheet-format-form__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sheet-format-form__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.sheet-format-form__error {
+  color: var(--p-red-500);
+}
+
+.sheet-format-form__per-sheet {
+  margin: 0;
+  font-weight: 600;
+}

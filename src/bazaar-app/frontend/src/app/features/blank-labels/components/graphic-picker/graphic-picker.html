@@ -1,0 +1,26 @@
+<fieldset class="graphic-picker">
+  <legend class="graphic-picker__legend">{{ label() }}</legend>
+  <div class="graphic-picker__icons">
+    <button pButton type="button" data-icon="none" [outlined]="value() !== null" (click)="valueChange.emit(null)">Keins</button>
+    @for (icon of icons; track icon.key) {
+      <button
+        pButton
+        type="button"
+        class="graphic-picker__icon-button"
+        [outlined]="selectedIconKey() !== icon.key"
+        [attr.aria-label]="icon.title"
+        [attr.title]="icon.title"
+        [attr.data-icon]="icon.key"
+        (click)="valueChange.emit(icon.graphic)"
+      >
+        <app-label-graphic class="graphic-picker__icon" [graphic]="icon.graphic" />
+      </button>
+    }
+  </div>
+  <app-file-dropzone [accept]="accept" (filesChosen)="onFilesChosen($event)">
+    Eigenes Bild (PNG, JPEG oder SVG bis 1 MB)
+  </app-file-dropzone>
+  @if (currentImage(); as image) {
+    <app-label-graphic class="graphic-picker__current" [graphic]="image" />
+  }
+</fieldset>
