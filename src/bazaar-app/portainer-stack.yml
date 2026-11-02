@@ -1,0 +1,154 @@
+# Portainer-Stack für die Haupt-App (Inselbetrieb): nginx-Frontend (HTTPS) + Backend + PostgreSQL.
+#
+# Stack-Umgebungsvariablen in Portainer setzen:
+#   POSTGRES_PASSWORD   Pflicht
+#   JWT_SIGNING_KEY     Pflicht, mindestens 32 Zeichen
+#   CERT_HOSTS          Pflicht, Adressen, unter denen die App im LAN aufgerufen wird,
+#                       z. B. "IP:192.168.178.50,DNS:bazaar.local"
+#   HTTP_PORT           Standard 80
+#   HTTPS_PORT          Standard 443
+#
+# HTTPS ist Pflicht: Kamera (getUserMedia) und crypto.randomUUID laufen nur im Secure Context.
+#
+# Zertifikat: Der Dienst "certs" erzeugt beim ersten Start eine eigene CA und ein davon signiertes
+# Server-Zertifikat (wie mkcert) und legt beides in Docker-Volumes ab. Ändert sich CERT_HOSTS,
+# wird nur das Server-Zertifikat neu ausgestellt, die CA bleibt. Das CA-Zertifikat steht unter
+# http://<adresse>/bazaar-ca.crt zum Download; einmal pro Gerät als vertrauenswürdig installiert,
+# zeigt der Browser keine Warnung mehr.
+#
+# Die nginx-Konfiguration entspricht nginx/nginx.conf.template und wird beim Start geschrieben,
+# weil das Frontend-Image keine eigene Konfiguration mitbringt. "$$" ist ein escaptes "$".
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: bazaar
+      POSTGRES_USER: bazaar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD muss gesetzt sein}
+    volumes:
+      - bazaar-db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bazaar -d bazaar"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  backend:
+    image: devesen/bazaar-app-backend:latest
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=bazaar;Username=bazaar;Password=${POSTGRES_PASSWORD}"
+      Jwt__Issuer: bazaar-app
+      Jwt__Audience: bazaar-app
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?JWT_SIGNING_KEY muss gesetzt sein (min. 32 Zeichen)}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  certs:
+    image: alpine/openssl:latest
+    environment:
+      CERT_HOSTS: ${CERT_HOSTS:?CERT_HOSTS muss gesetzt sein, z. B. IP:192.168.178.50,DNS:bazaar.local}
+    volumes:
+      - bazaar-ca:/ca
+      - bazaar-certs:/certs
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        if [ ! -f /ca/bazaar-ca.pem ]; then
+          openssl req -x509 -newkey rsa:2048 -nodes -days 3650 -sha256 \
+            -subj "/CN=Bazaar Local CA" \
+            -addext "basicConstraints=critical,CA:TRUE" \
+            -addext "keyUsage=critical,keyCertSign,cRLSign" \
+            -keyout /ca/bazaar-ca-key.pem -out /ca/bazaar-ca.pem
+          rm -f /certs/bazaar.pem
+        fi
+        if [ ! -f /certs/bazaar.pem ] || [ "$$(cat /certs/hosts.txt 2>/dev/null)" != "$$CERT_HOSTS" ]; then
+          printf 'subjectAltName=%s\nbasicConstraints=CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\n' "$$CERT_HOSTS" > /tmp/ext.cnf
+          openssl req -newkey rsa:2048 -nodes -subj "/CN=Bazaar" \
+            -keyout /certs/bazaar-key.pem -out /tmp/bazaar.csr
+          openssl x509 -req -in /tmp/bazaar.csr -CA /ca/bazaar-ca.pem -CAkey /ca/bazaar-ca-key.pem \
+            -CAcreateserial -days 820 -sha256 -extfile /tmp/ext.cnf -out /certs/bazaar.pem
+          printf '%s' "$$CERT_HOSTS" > /certs/hosts.txt
+        fi
+        cp /ca/bazaar-ca.pem /certs/bazaar-ca.pem
+        echo "Zertifikat gültig für: $$CERT_HOSTS"
+    restart: "no"
+
+  frontend:
+    image: devesen/bazaar-app-frontend:latest
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - bazaar-certs:/etc/nginx/certs:ro
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        cat > /etc/nginx/conf.d/default.conf <<'EOF'
+        server {
+            listen 80;
+
+            location = /bazaar-ca.crt {
+                alias /etc/nginx/certs/bazaar-ca.pem;
+                default_type application/x-x509-ca-cert;
+            }
+
+            location / {
+                return 301 https://$$host:${HTTPS_PORT:-443}$$request_uri;
+            }
+        }
+
+        server {
+            listen 443 ssl;
+            root /usr/share/nginx/html;
+            index index.html;
+
+            ssl_certificate     /etc/nginx/certs/bazaar.pem;
+            ssl_certificate_key /etc/nginx/certs/bazaar-key.pem;
+
+            location = /bazaar-ca.crt {
+                alias /etc/nginx/certs/bazaar-ca.pem;
+                default_type application/x-x509-ca-cert;
+            }
+
+            location /api/ {
+                proxy_pass http://backend:5000;
+                proxy_http_version 1.1;
+                client_max_body_size 2100k;
+                proxy_read_timeout 180s;
+                proxy_send_timeout 180s;
+                proxy_set_header Host $$host;
+                proxy_set_header X-Real-IP $$remote_addr;
+            }
+
+            location /health {
+                proxy_pass http://backend:5000/health;
+                proxy_http_version 1.1;
+                proxy_set_header Host $$host;
+                proxy_set_header X-Real-IP $$remote_addr;
+            }
+
+            location / {
+                try_files $$uri $$uri/ /index.html;
+            }
+        }
+        EOF
+        exec nginx -g 'daemon off;'
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+      backend:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  bazaar-db-data:
+  bazaar-ca:
+  bazaar-certs:
