@@ -102,6 +102,15 @@ PrimeNG reserviert die Sidebar-Breite im Layout über den Selektor `.p-sidebar:n
 
 **Deshalb:** `p-sidebar-spacer` gehört direkt unter `p-sidebar` im Template (aktuell in `shell.html`), **nicht** in die eigene `app-sidebar`-Komponente hinein — die liefert nur noch den Inhalt von `p-sidebar-aside`. Nachfahren-Selektoren (z. B. für `p-sidebar-aside` selbst) sind von dieser Einschränkung nicht betroffen.
 
+## Scrollverhalten und Höhe (Voranmelde-App)
+
+Stand 2026-11-03, Ursache: Menü auf Laptop/Tablet ohne sichtbaren Scrollbalken, im Burger-Menü war der Footer (Abmelden) abgeschnitten.
+
+- **Sichtbarer Scrollbalken:** PrimeNG setzt auf `.p-sidebar-content` `scrollbar-width: none`. `sidebar.scss` überschreibt das mit `thin` — sonst ist auf Laptop/Tablet nicht erkennbar, dass die Menüliste scrollt.
+- **Niedrige Viewports (`max-height: 640px`):** Kopf, Menü und Footer (Avatar, Rollenumschalter, Abmelden) passen nicht übereinander. Dann scrollt das ganze `p-sidebar-panel` statt nur der Menüliste, damit der Footer erreichbar bleibt.
+- **Offcanvas ≤ 1024 px:** Das Panel beginnt bei `top: 56px` unter der Titelleiste. PrimeNG gibt `p-sidebar-aside` zusätzlich `height: 100%` — das Panel ragte dadurch 56 px unter den Viewport. `height: auto` lässt `inset-block` (bottom 0) greifen.
+- **Shell-Höhe:** `100dvh` (Fallback `100vh`) statt nur `100vh`, und `min-height: 0` gegen PrimeNGs `min-height: 100svh` am Layout — auf iOS/Android war die Shell sonst höher als der sichtbare Bereich, das Dokument scrollte zusätzlich zur Seite. `p-sidebar-main` bekommt `min-width: 0` (wie Haupt-App), damit nur die Tabelle waagerecht scrollt, nie die Seite.
+
 ## Bewusst nicht verwendet
 
 - **`pSidebarRail`** — Zweck in der PrimeNG-Doku nicht als Fließtext dokumentiert (nur eine CSS-Klassen-Zeile gefunden). Unser Trigger-Button deckt das Ein-/Ausklappen bereits ab (YAGNI).

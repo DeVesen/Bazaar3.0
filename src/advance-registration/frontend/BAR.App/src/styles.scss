@@ -46,7 +46,13 @@ h1, h2, h3, h4, h5, h6 {
 // Zoomen auf Touch-Geräten aus: iOS ignoriert `user-scalable=no` im Viewport-Meta und zoomt per
 // Doppeltipp/Pinch trotzdem. `touch-action` sperrt beides (Scrollen bleibt erlaubt); `manipulation`
 // als Fallback für Browser ohne `pan-x pan-y`-Auswertung (nur Doppeltipp).
-html {
+// Anders als die Haupt-App scrollt hier nicht das Dokument, sondern innere Container (Shell,
+// PageLayout, Sidebar, Tabelle); ein Wert allein auf `html` greift in diesen Scroll-Containern
+// auf iOS nicht zuverlässig (Pinch-Zoom blieb möglich). Daher auf jedes Element;
+// `*` hat Spezifität 0, Komponenten mit eigenem `touch-action` (Slider, Drag) behalten ihren Wert.
+html,
+body,
+* {
   touch-action: manipulation;
   touch-action: pan-x pan-y;
 }

@@ -29,10 +29,38 @@ hr:last-of-type {
   display: none;
 }
 
+// PrimeNG blendet den Scrollbalken der Menueliste aus (`scrollbar-width: none`) — auf Laptop und
+// Tablet ist dann nicht erkennbar, dass sich die Liste scrollen laesst. Hier sichtbar (schmal).
+// Doppelte Klasse + Attribut schlaegt `.p-sidebar[data-collapsible="icon"] .p-sidebar-content`.
+p-sidebar-content.p-sidebar-content {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+}
+
+// Niedrige Viewports (Laptop-Fenster, Tablet/Smartphone quer): Kopf, Menue und Footer (Avatar,
+// Rollenumschalter, Abmelden) passen nicht uebereinander. Dann scrollt das ganze Panel, damit auch
+// der Footer erreichbar bleibt, statt die Menueliste auf wenige Pixel zu quetschen.
+@media (max-height: 640px) {
+  p-sidebar-panel.p-sidebar-panel {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    overscroll-behavior: contain;
+  }
+
+  p-sidebar-content.p-sidebar-content {
+    flex: none;
+    overflow: visible;
+  }
+}
+
 // Tablet/Mobile (<= 1024px): Sidebar slide-in beginnt unter der Titelleiste
-// (56px hoch), statt sie zu ueberdecken — spec.md §10.1.
+// (56px hoch), statt sie zu ueberdecken — spec.md §10.1. PrimeNG setzt `height: 100%`; mit
+// `top: 56px` ragte das Panel sonst 56px unter den Viewport und der Footer (Abmelden) war
+// abgeschnitten. `height: auto` laesst `inset-block`-bottom 0 greifen.
 @include breakpoints.tablet {
-  p-sidebar-aside {
+  p-sidebar-aside.p-sidebar-aside {
     top: 56px;
+    height: auto;
   }
 }
