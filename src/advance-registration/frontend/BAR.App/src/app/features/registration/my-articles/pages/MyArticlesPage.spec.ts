@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -9,6 +9,8 @@ import { MyArticlesPage } from './MyArticlesPage';
 import { ArticlesApiService } from '../articles-api.service';
 import { MasterDataApiService } from '../../master-data-api.service';
 import { ArticlesImportExportApiService } from '../articles-import-export-api.service';
+import { PrintService } from '@core/print/print.service';
+import { MyArticlesPrint } from '../components/my-articles-print';
 
 const DE_TRANSLATIONS = {
   common: { cancel: 'Abbrechen', save: 'Speichern', create: 'Anlegen', delete: 'Löschen', edit: 'Bearbeiten', ok: 'OK' },
@@ -37,7 +39,8 @@ const DE_TRANSLATIONS = {
       generalError: 'Import fehlgeschlagen — Datei konnte nicht verarbeitet werden.',
       exportError: 'Export fehlgeschlagen — Datei konnte nicht heruntergeladen werden.',
       templateError: 'Vorlage konnte nicht heruntergeladen werden.'
-    }
+    },
+    print: { button: 'Drucken', filter: 'Filter', search: 'Suche', count: '{{count}} Artikel', error: 'Druck fehlgeschlagen' }
   },
   articleDialog: {
     createHeader: 'Artikel anlegen',
@@ -140,6 +143,10 @@ function create() {
 }
 
 describe('MyArticlesPage', () => {
+  // Die Download-Tests ersetzen `URL` per `vi.stubGlobal`; ohne Rücksetzen bricht das Angular-
+  // Testing (`new URL(...)`) in allen folgenden Tests und Dateien desselben Workers.
+  afterEach(() => vi.unstubAllGlobals());
+
   it('loads articles, brands and categories on init', () => {
     const { fixture, articlesApi, masterDataApi } = create();
 
@@ -397,5 +404,54 @@ describe('MyArticlesPage', () => {
 
     expect(fixture.componentInstance.importDialogVisible()).toBe(false);
     expect(articlesApi.getMine).not.toHaveBeenCalled();
+  });
+
+  describe('Drucken', () => {
+    const items = [{ id: 'a1', number: 101, price: 5 }, { id: 'a2', number: 102, price: 7 }] as never[];
+
+    function setup() {
+      const ctx = create();
+      const printService = TestBed.inject(PrintService);
+      const printSpy = vi.spyOn(printService, 'print').mockImplementation(() => undefined);
+      return { ...ctx, printService, printSpy };
+    }
+
+    it('disables the print button while the list is empty', () => {
+      const { fixture } = setup();
+
+      const button = (fixture.nativeElement as HTMLElement).querySelector('[data-testid=print-button] button') as HTMLButtonElement;
+      expect(button.disabled).toBe(true);
+    });
+
+    it('loads all articles with the current filters and sort and prints them', () => {
+      const { fixture, articlesApi, printSpy } = setup();
+      const getAllMine = vi.spyOn(articlesApi, 'getAllMine').mockReturnValue(of(items));
+      const page = fixture.componentInstance;
+      page.filters.set({ brand: 'Nike', search: 'jacke' });
+      page.sort.set('number:-1');
+
+      page.onPrint();
+
+      expect(getAllMine).toHaveBeenCalledWith({ sort: 'number:-1', brand: 'Nike', search: 'jacke' });
+      expect(printSpy).toHaveBeenCalledTimes(1);
+      expect(printSpy.mock.calls[0][0]).toBe(MyArticlesPrint);
+      const setInput = vi.fn();
+      (printSpy.mock.calls[0][1] as (ref: unknown) => void)({ setInput });
+      expect(setInput).toHaveBeenCalledWith('model', expect.objectContaining({ articles: items, filterText: 'Marke: Nike · Suche: jacke' }));
+      expect(page.printing()).toBe(false);
+    });
+
+    it('shows an error toast and does not print when loading fails', () => {
+      const { fixture, articlesApi, printSpy } = setup();
+      vi.spyOn(articlesApi, 'getAllMine').mockReturnValue(throwError(() => new Error('boom')));
+      const messageService = fixture.debugElement.injector.get(MessageService);
+      const add = vi.spyOn(messageService, 'add');
+
+      fixture.componentInstance.onPrint();
+
+      expect(printSpy).not.toHaveBeenCalled();
+      expect(add).toHaveBeenCalledWith({ severity: 'error', summary: 'Druck fehlgeschlagen' });
+      expect(fixture.componentInstance.printing()).toBe(false);
+    });
   });
 });

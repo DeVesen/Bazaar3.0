@@ -11,7 +11,7 @@
 
 ## Responsibilities
 - Gesamtes UI der Voranmelde-App: Login, Home, Master-Data-Verwaltung (Brands/Categories/SellerTypes), Registration (Articles/Number-Blocks/My-Articles), Seller-Management (Profile/Register/Sellers/Set-Password), Export, Countdown-Embed, Operations/Settings
-- `core/`: `auth/`, `public-info/`, `shell/` (inkl. `page-layout/`, `sidebar/`), `theme/`
+- `core/`: `auth/`, `print/` (`PrintService` — Druckdokument einhängen, Druckdialog, iOS-Handling), `public-info/`, `shell/` (inkl. `page-layout/`, `sidebar/`), `theme/`
 
 ## Consumed By
 - Endanwender über Browser — kein Code-Konsument innerhalb der Solution (Frontend ist Blatt im Abhängigkeitsgraphen)
@@ -23,7 +23,7 @@ HTTP-Client-Aufrufe gegen `BAR.Host`s Endpoints — kein eigener Vertrag, den an
 - `BAR.Host` (REST, per Angular `HttpClient`)
 
 ## Structure
-`src/app/features/<feature>/`, `src/app/core/{auth,public-info,shell,theme}/`, `public/i18n/{de,en}.json` (Übersetzungen).
+`src/app/features/<feature>/`, `src/app/core/{auth,print,public-info,shell,theme}/`, `public/i18n/{de,en}.json` (Übersetzungen).
 
 ## Layout & Routing
 Kein `MainLayout` im Code — zwei Layouts:

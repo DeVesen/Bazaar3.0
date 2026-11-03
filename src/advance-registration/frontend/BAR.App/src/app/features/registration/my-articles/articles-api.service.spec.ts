@@ -89,4 +89,31 @@ describe('ArticlesApiService', () => {
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });
+
+  it('getAllMine() loads page after page with pageSize 100 until totalCount is reached', () => {
+    let result: unknown;
+    service.getAllMine({ sort: 'number:1', brand: 'Nike' }).subscribe((r) => (result = r));
+    const item = (n: number) => ({ id: `a${n}`, number: n });
+
+    const first = httpMock.expectOne((r) => r.url === '/api/articles/mine' && r.params.get('page') === '1');
+    expect(first.request.params.get('pageSize')).toBe('100');
+    expect(first.request.params.get('sort')).toBe('number:1');
+    expect(first.request.params.get('brand')).toBe('Nike');
+    first.flush({ items: Array.from({ length: 100 }, (_, i) => item(i)), totalCount: 150, page: 1, pageSize: 100 });
+
+    const second = httpMock.expectOne((r) => r.url === '/api/articles/mine' && r.params.get('page') === '2');
+    second.flush({ items: Array.from({ length: 50 }, (_, i) => item(100 + i)), totalCount: 150, page: 2, pageSize: 100 });
+
+    expect((result as unknown[]).length).toBe(150);
+    expect((result as { number: number }[])[149].number).toBe(149);
+  });
+
+  it('getAllMine() stops after one request when everything fits on the first page', () => {
+    let result: unknown;
+    service.getAllMine().subscribe((r) => (result = r));
+
+    httpMock.expectOne((r) => r.url === '/api/articles/mine').flush({ items: [{ id: 'a1' }], totalCount: 1, page: 1, pageSize: 100 });
+
+    expect(result).toEqual([{ id: 'a1' }]);
+  });
 });
