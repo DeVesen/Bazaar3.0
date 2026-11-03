@@ -33,8 +33,8 @@ nicht stillschweigend übersetzt.
 {
   "name": "Industry",
   "palette": { "hue": 210, "band": "light", "scheme": "mono", "sat": 0.3,
-    "bg": "#f2f2f3", "surface": "#e9e9ea", "text": "#1d1f20",
-    "accent": "#5980a6", "accent2": "#728fab" },
+    "bg": "#f7f7f8", "surface": "#dfe3e8", "text": "#1d1f20",
+    "accent": "#416180", "accent2": "#486077" },
   "fonts": {
     "heading": { "family": "Barlow Condensed", "weights": [400,600] },
     "body":    { "family": "Barlow", "weights": [400,500,700] }
@@ -54,12 +54,13 @@ nicht stillschweigend übersetzt.
 
 | Rolle | Wert |
 |---|---|
-| `--color-bg` | `#f2f2f3` (Grundfläche der App) |
-| `--color-surface` | `#e9e9ea` (Alternative Fläche) |
+| `--color-bg` | `#f7f7f8` (Grundfläche der App) |
+| `--color-surface` | `#dfe3e8` (Alternative Fläche, Sidebar) |
 | `--color-text` | `#1d1f20` |
-| `--color-accent` | `#5980a6` (Basis-Akzent, Steel Blue) |
-| `--color-accent-2` | `#728fab` (mono — verhält sich wie accent) |
-| `--color-divider` | `color-mix(in srgb, #1d1f20 16%, transparent)` |
+| `--color-text-muted` | `#5d5d60` (= Neutral 700, gedämpfter Text) |
+| `--color-accent` | `#416180` (Basis-Akzent, Steel Blue = Accent 700) |
+| `--color-accent-2` | `#486077` (mono — verhält sich wie accent, = Accent-2 700) |
+| `--color-divider` | `color-mix(in srgb, #1d1f20 24%, transparent)` |
 
 **Tonale Ramps** (100 = hell/Tint, 500 = Basis, 900 = dunkel/Text-auf-Tint), in OKLCH
 generiert, gleiche Helligkeitsstufe = gleicher visueller Wert über alle Ramps hinweg:
@@ -68,8 +69,12 @@ generiert, gleiche Helligkeitsstufe = gleicher visueller Wert über alle Ramps h
 - Accent: 100 `#eef6ff` · 200 `#d6ebff` · 300 `#b5d9fd` · 400 `#94bce3` · 500 `#749dc4` · 600 `#597ea3` · 700 `#416180` · 800 `#2c455d` · 900 `#1d2d3d`
 - Accent-2: 100 `#eef6ff` · 200 `#d6ebff` · 300 `#bdd8f2` · 400 `#9ebbd8` · 500 `#7e9cb8` · 600 `#627d98` · 700 `#486077` · 800 `#314457` · 900 `#1f2d3a`
 
-Nutzung: helle Stufen (100–300) für Tint-Flächen/Hover/Border, 500 als Basisfarbe, dunkle
-Stufen (700–900) für Text auf Tint-Flächen und Pressed-States.
+Nutzung: helle Stufen (100–300) für Tint-Flächen/Hover/Border, dunkle Stufen (700–900) für
+Text, gefüllte Flächen mit weißem Text und Pressed-States. 500 ist nur noch Referenzwert der Ramp.
+
+**Kontrast-Regel (seit 2026-11-03, siehe Abschnitt 7):** Text ≥ 4,5:1, Rahmen/Icons ≥ 3:1 (WCAG AA).
+Daraus folgt für die Ramps: Text höchstens Neutral 700, Primär-Füllung Accent 700 (Weiß darauf
+6,5:1), Neutral 500/600 nur für Rahmen, Placeholder und deaktivierte Elemente.
 
 ---
 
@@ -159,10 +164,10 @@ Kernstück des Systems — das Motiv „Demo: Admin" mit den vier Eck-Kreuzen.
 
 | Element | Industry-Token | Wert |
 |---|---|---|
-| Sidebar-Hintergrund | `--color-surface` | `#e9e9ea`, 1px `--color-divider` als rechte Kante |
-| Titelleiste | = Sidebar-Farbe | `#e9e9ea` |
-| Akzentfarbe | Accent 500/600 | `#5980a6` |
-| Content-Hintergrund | `--color-bg` | `#f2f2f3` |
+| Sidebar-Hintergrund | `--color-surface` | `#dfe3e8`, 1px `--color-divider` als rechte Kante |
+| Titelleiste | = Sidebar-Farbe | `#dfe3e8` |
+| Akzentfarbe | Accent 700 | `#416180` |
+| Content-Hintergrund | `--color-bg` | `#f7f7f8` |
 | Titel-Farbe | `--color-text` | `#1d1f20` |
 | Sidebar-Logo | Barlow Condensed 600 | „Bazaar **Suite**" — zweites Wort in `--color-accent` |
 
@@ -170,6 +175,27 @@ Abweichung zur Vorgängerfassung: Die Sidebar ist **nicht mehr dunkel** — ents
 2026-08-18. Industry kennt keine dunkle Fläche; die Kopf-/Seitenleiste ist flache Linienoptik
 auf `--color-surface`. Accent 800 (`#2c455d`) wäre der Ersatzwert für eine dunkle Variante,
 wird aber nicht verwendet.
+
+**Kontrast angehoben — entschieden am 2026-11-03.** Grund: Test der Haupt-App auf älteren
+Laptops (Lenovo E325, Acer Aspire V5, 1366×768, TN-Panel) — Gruppenlabels, gedämpfter Text und
+Primär-Buttons waren schwer lesbar. Gemessen vorher: Weiß auf Primär 500 2,85:1, gedämpfter Text
+(Neutral 500) 2,88:1, Gruppenlabels auf der Sidebar 2,37:1, Sidebar gegen Hintergrund 1,08:1.
+Änderungen (Farbton bleibt Steel Blue, Sidebar bleibt hell):
+
+| Element | vorher | jetzt | Kontrast jetzt |
+|---|---|---|---|
+| Primär-Füllung (Buttons) | Accent 500 `#749dc4` | Accent 700 `#416180`, Hover 800 | 6,5:1 (Weiß) |
+| Text / gedämpfter Text (PrimeNG) | Neutral 700 / 500 | Neutral 900 / 700 | 14:1 / 6,6:1 |
+| Feldrahmen, Placeholder | Neutral 300 / 500 | Neutral 600 | 4,3:1 |
+| Sekundär-Buttons (Text) | Neutral 500/600 | Neutral 800 | ≥ 7:1 |
+| Sidebar-Fläche / App-Hintergrund | `#e9e9ea` / `#f2f2f3` | `#dfe3e8` / `#f7f7f8` | 1,2:1 |
+| Sidebar-Menüeintrag | 13,5 px, Neutral 700 | 14 px/500, Neutral 800 | 7,8:1 |
+| Sidebar-Gruppenlabel | 10 px, Neutral 500 | 12 px, Neutral 700 | 5,1:1 |
+| Aktiver Menüeintrag | Surface 100 | `#c9d6e3`, Text Accent 800 | 6,7:1 |
+| Fokusring | 1 px | 2 px | — |
+
+Zusätzlich ist die Sidebar auf Fensterhöhe fixiert: Nur die Menüliste scrollt, Logo und
+Benutzer-Footer bleiben sichtbar. Unter 800 px Fensterhöhe wird sie kompakter.
 
 ---
 

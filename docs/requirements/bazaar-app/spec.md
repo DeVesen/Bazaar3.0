@@ -453,16 +453,20 @@ helle Stahlblau-Palette. Die Tabelle unten ist die Ableitung daraus.
 
 | Element | Wert | Industry-Token |
 |---|---|---|
-| Sidebar-Hintergrund | `#e9e9ea`, rechte Kante 1px Divider | `--color-surface` |
-| Titelleiste | `#e9e9ea` (= Sidebar-Farbe) | `--color-surface` |
-| Akzentfarbe | Steel Blue `#5980a6` | Accent 500/600 |
+| Sidebar-Hintergrund | `#dfe3e8`, rechte Kante 1px Divider | `--color-surface` |
+| Titelleiste | `#dfe3e8` (= Sidebar-Farbe) | `--color-surface` |
+| Akzentfarbe | Steel Blue `#416180` | Accent 700 |
 | Sidebar-Logo | „Bazaar **Suite**" (Wort „Suite" in Akzentfarbe) | Barlow Condensed 600 |
 | Topbar-Text | „Bazaar Haupt-App" | Barlow Condensed 600 |
-| Content-Hintergrund | `#f2f2f3` | `--color-bg` |
+| Content-Hintergrund | `#f7f7f8` | `--color-bg` |
 | Titel-Farbe | `#1d1f20` | `--color-text` |
 
 Die frühere Navy/Blau-Palette (`#1a2e4a` / `#2e86c1`) ist damit abgelöst. Die Sidebar ist
 nicht mehr dunkel — Begründung und Rückfallwert in Abschnitt 7 des Styleguides.
+
+**Kontrast (2026-11-03):** Text ≥ 4,5:1, Rahmen/Icons ≥ 3:1 (WCAG AA), damit die App auch auf
+älteren Laptop-Displays (1366×768, TN-Panel) lesbar ist; Werte vorher/nachher im Styleguide,
+Abschnitt 7. Die Sidebar ist auf Fensterhöhe fixiert, ihre Menüliste scrollt bei Bedarf.
 
 ### 10.2 Toast-Benachrichtigungen
 

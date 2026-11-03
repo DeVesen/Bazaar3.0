@@ -6,12 +6,15 @@
 @use '@fontsource/barlow-condensed/600.css' as *;
 
 :root {
-  --color-bg: #f2f2f3;
-  --color-surface: #e9e9ea;
+  // Kontrast für ältere Laptop-Displays (WCAG AA): Sidebar hebt sich vom Hintergrund ab (1,2:1),
+  // Akzent als Text 5:1 auf der Sidebar, 6:1 auf dem Hintergrund.
+  --color-bg: #f7f7f8;
+  --color-surface: #dfe3e8;
   --color-text: #1d1f20;
-  --color-accent: #5980a6;
-  --color-accent-2: #728fab;
-  --color-divider: color-mix(in srgb, #1d1f20 16%, transparent);
+  --color-text-muted: #5d5d60;
+  --color-accent: #416180;
+  --color-accent-2: #486077;
+  --color-divider: color-mix(in srgb, #1d1f20 24%, transparent);
 
   --font-heading: 'Barlow Condensed', sans-serif;
   --font-body: 'Barlow', sans-serif;

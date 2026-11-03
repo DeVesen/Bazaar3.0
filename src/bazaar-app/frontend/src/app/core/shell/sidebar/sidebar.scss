@@ -2,9 +2,33 @@
   display: block;
 }
 
+// PrimeNG positioniert die Aside absolut über die volle Höhe von `.p-sidebar` — die wächst mit
+// dem Seiteninhalt (Layout `min-height: 100svh`). Bei langen Seiten wird die Sidebar so hoch wie
+// die Seite, ihr eigener Scrollbereich (`.p-sidebar-content`, `overflow: auto`) greift nie und
+// das Menü ist auf kleinen Displays (z. B. 1366×768) unten abgeschnitten. Fixiert auf die
+// Fensterhöhe scrollt nur die Menüliste; Logo und Benutzer-Footer bleiben sichtbar. Der
+// `.p-sidebar-spacer` hält die Breite im Layout frei.
+p-sidebar-aside {
+  position: fixed;
+  height: 100dvh;
+}
+
 p-sidebar-panel {
   --p-sidebar-panel-background: var(--color-surface);
+  --p-sidebar-panel-color: var(--p-surface-800);
+  --p-sidebar-menu-button-color: var(--p-surface-800); // 7,8:1 auf der Sidebar
+  --p-sidebar-menu-button-focus-background: color-mix(in srgb, var(--p-primary-700) 10%, var(--color-surface));
+  --p-sidebar-menu-button-focus-color: var(--color-text);
+  --p-sidebar-menu-button-active-background: #c9d6e3;
+  --p-sidebar-menu-button-active-color: var(--p-primary-800); // 6,7:1 auf #c9d6e3
+  --p-sidebar-group-label-color: var(--color-text-muted); // 5,1:1 auf der Sidebar
   background: var(--color-surface);
+}
+
+p-sidebar-content {
+  // Dezente, aber sichtbare Scrollleiste, damit erkennbar ist, dass unten noch Einträge folgen.
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-surface-500) transparent;
 }
 
 .logo-block {
@@ -16,10 +40,10 @@ p-sidebar-panel {
 }
 
 p-sidebar-group-label {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1.2px;
+  letter-spacing: 1px;
 }
 
 hr {
@@ -28,7 +52,32 @@ hr {
   margin: 0 14px;
 }
 
+// Avatar links, Name und Rolle rechts daneben — zwei Zeilen statt drei, mehr Platz fürs Menü.
 p-sidebar-footer {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 10px;
+  row-gap: 0;
+  align-items: center;
+  border-top: 1px solid var(--color-divider);
+
+  p-avatar {
+    grid-row: span 2;
+  }
+
+  .sidebar-username {
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: 1.2;
+  }
+
+  .sidebar-role {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    line-height: 1.2;
+  }
+
   &.sidebar-footer-trigger {
     cursor: pointer;
   }
@@ -55,7 +104,8 @@ p-sidebar-menu-item {
     display: flex;
     align-items: center;
     padding: 9px 18px;
-    font-size: 13.5px;
+    font-size: 14px;
+    font-weight: 500;
 
     svg {
       flex-shrink: 0;
@@ -66,5 +116,21 @@ p-sidebar-menu-item {
     svg:first-child {
       margin-right: 2px;
     }
+  }
+}
+
+// Niedrige Displays (z. B. 1366×768 abzüglich Browser-Leisten): kompakter, damit möglichst das
+// ganze Menü ohne Scrollen sichtbar ist.
+@media (max-height: 800px) {
+  .logo-block {
+    padding: 12px 18px 8px;
+  }
+
+  p-sidebar-group-label {
+    height: 1.5rem;
+  }
+
+  p-sidebar-menu-item button[pSidebarMenuButton] {
+    padding-block: 5px;
   }
 }
