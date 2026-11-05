@@ -314,7 +314,7 @@ export class BlankLabelsPage {
   private rememberDefaults(content: LabelContent): void {
     if (this.defaultsLoadFailed()) return;
     this.store.saveDefaults(printDefaultsOf(content)).subscribe({
-      error: () => this.messageService.add({ severity: 'warn', summary: 'Logo, Symbol und Währung konnten nicht gemerkt werden' }),
+      error: () => this.messageService.add({ severity: 'warn', summary: 'Logo, Symbol, Währung und Größen konnten nicht gemerkt werden' }),
     });
   }
 
