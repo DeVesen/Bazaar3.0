@@ -23,7 +23,7 @@ Lage in Prozent der Etikett- bzw. Bogengröße, Schrift in `cqw` des Etiketts. D
 skaliert in der Vorschau mit der Containerbreite (Seitenverhältnis über `aspect-ratio`) und liegt
 im Druck in mm (Breite `<Bogenbreite>mm`). Ränder und Anker eines Etiketts skalieren mit der
 Etikettgröße (Maßstab k): 105 × 35 mm = 1, bei anderem Seitenverhältnis gilt das kleinere Verhältnis.
-Die Elementgrößen (`sizes`) und die 1,5 mm um QR-Code und Logo-Fläche gelten dagegen absolut in mm.
+Die Elementgrößen (`sizes`) und die 1,5 mm um die Logo-Fläche gelten dagegen absolut in mm.
 
 ## Layout
 
@@ -32,7 +32,7 @@ Kollisionsprüfung: Elemente dürfen sich überlappen.
 
 | Element | Lage | Größe |
 |---|---|---|
-| QR-Code | oben links, 1,5 mm vom linken und oberen Rand; wächst nach unten rechts | `sizes.qrCode` (Breite = Höhe) |
+| QR-Code | oben links, links auf einer Linie mit dem Verkäufer-Symbol unten links (Rand 1,5 mm × Maßstab), oben derselbe Abstand; ohne Ruhezone gezeichnet (`app-qr-code` mit `size` 0, `margin` 0), damit die Module an der Box-Kante beginnen; wächst nach unten rechts | `sizes.qrCode` (Breite = Höhe) |
 | Logo | füllt die freie Fläche: links rechte Kante QR-Code + 1,5 mm, rechts Falzlinie − 1,5 mm, oben Rand + 1,5 mm, unten Oberkante Artikel-Nummer − 1,5 mm; darin so groß wie möglich, nie verzerrt (`object-fit: contain` bzw. `preserveAspectRatio`), zentriert | aus der Fläche; ist sie 0 breit oder hoch, entfällt das Logo |
 | Artikel-Nummer (`numberText`) | feste horizontale Mitte `(8 k + Falzlinie − 1,5 k) / 2`, abgeleitet aus Vorgabe-Symbol 5 k + Rändern (hängt nicht von `sizes.sellerSymbol` ab); Unterkante fest (Rand − 1,5 k) | Schriftgröße = `sizes.numberHeight` |
 | Verkäufer-Symbol oben rechts | rechte und obere Kante 1,5 k vom Rand; wächst nach unten links | `sizes.sellerSymbol` |

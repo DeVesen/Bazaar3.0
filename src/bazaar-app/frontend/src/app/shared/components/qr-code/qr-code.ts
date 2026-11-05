@@ -32,6 +32,11 @@ export class QrCode {
   readonly size = input<number>(128);
   readonly caption = input<string | null>(null);
   readonly errorCorrection = input<'L' | 'M' | 'Q' | 'H'>('M');
+  /**
+   * Ruhezone in Modulen; `null` = ZXing-Standard (4). Mit `margin` 0 und `size` 0 enthält das
+   * SVG genau die Module ohne weißen Rand, die Größe kommt dann aus dem CSS (viewBox).
+   */
+  readonly margin = input<number | null>(null);
 
   /**
    * `computed` on the input signals per the doc ("SVG wird neu erzeugt (`computed` auf
@@ -49,6 +54,10 @@ export class QrCode {
     const hints = new Map<EncodeHintType, unknown>([
       [EncodeHintType.ERROR_CORRECTION, QRCodeDecoderErrorCorrectionLevel.fromString(this.errorCorrection())],
     ]);
+    const margin = this.margin();
+    if (margin !== null) {
+      hints.set(EncodeHintType.MARGIN, margin);
+    }
     const svgElement = this.writer.write(value, size, size, hints);
     this.addBackground(svgElement);
 

@@ -4,7 +4,7 @@
   }
   @if (numberText(); as text) {
     <div class="label-card__qr" [style]="styles().qr">
-      <app-qr-code [value]="text" [size]="128" />
+      <app-qr-code [value]="text" [size]="0" [margin]="0" />
     </div>
     <div class="label-card__number" [style]="styles().numberText">{{ text }}</div>
   }

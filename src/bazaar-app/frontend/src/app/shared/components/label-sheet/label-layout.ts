@@ -17,7 +17,7 @@ export interface LabelElementSizes {
 /** Vorgaben = frühere feste Werte bei 105 × 35 mm. */
 export const DEFAULT_LABEL_ELEMENT_SIZES: LabelElementSizes = { qrCode: 21.5, sellerSymbol: 5, numberHeight: 10.5, currencyHeight: 12 };
 
-/** Abstand um QR-Code und Logo-Fläche in mm, absolut (nicht mit `labelScale` skaliert). */
+/** Abstand um die Logo-Fläche in mm, absolut (nicht mit `labelScale` skaliert). */
 const GAP_MM = 1.5;
 
 /**
@@ -72,7 +72,8 @@ export function labelScale(width: number, height: number): number {
 /**
  * Lage aller Elemente in mm. Linke Elemente hängen an der linken, rechte an der rechten
  * Kante, untere an der Unterkante. Größen kommen absolut aus `sizes`; Ränder und Anker skalieren
- * mit `labelScale`, außer den 1,5 mm um QR-Code und Logo-Fläche. Keine Kollisionsprüfung.
+ * mit `labelScale`, außer den 1,5 mm um die Logo-Fläche. Der QR-Code steht links auf einer Linie
+ * mit dem Verkäufer-Symbol unten links und hat oben denselben Abstand. Keine Kollisionsprüfung.
  */
 export function labelLayout(width: number, height: number, sizes: LabelElementSizes): LabelLayout {
   const k = labelScale(width, height);
@@ -85,12 +86,13 @@ export function labelLayout(width: number, height: number, sizes: LabelElementSi
     y: bottom - sizes.numberHeight,
     fontSize: sizes.numberHeight,
   };
-  const logoX = GAP_MM + sizes.qrCode + GAP_MM;
+  const edge = 1.5 * k;
+  const logoX = edge + sizes.qrCode + GAP_MM;
   const priceLeft = width - 48 * k;
   return {
     scale: k,
     foldX,
-    qr: { x: GAP_MM, y: GAP_MM, size: sizes.qrCode },
+    qr: { x: edge, y: edge, size: sizes.qrCode },
     numberText,
     logo: {
       x: logoX,
@@ -99,7 +101,7 @@ export function labelLayout(width: number, height: number, sizes: LabelElementSi
       height: Math.max(0, numberText.y - GAP_MM - GAP_MM),
     },
     sellerSymbolTopRight: { x: width - 1.5 * k - sizes.sellerSymbol, y: 1.5 * k, size: sizes.sellerSymbol },
-    sellerSymbolBottomLeft: { x: 1.5 * k, y: bottom - sizes.sellerSymbol, size: sizes.sellerSymbol },
+    sellerSymbolBottomLeft: { x: edge, y: bottom - sizes.sellerSymbol, size: sizes.sellerSymbol },
     priceRow: {
       x: priceLeft,
       y: bottom - sizes.currencyHeight,

@@ -72,6 +72,7 @@ grün-getönter Code fällt bei schlechter Kamera aus.
 | `size` | `number` | `@Input` | `128` | Kantenlänge in px |
 | `caption` | `string \| null` | `@Input` | `null` | Klartext unter dem Code |
 | `errorCorrection` | `'L' \| 'M' \| 'Q' \| 'H'` | `@Input` | `'M'` | Fehlerkorrektur-Level |
+| `margin` | `number \| null` | `@Input` | `null` | Ruhezone in Modulen; `null` = ZXing-Standard 4. Mit `margin` 0 und `size` 0 enthält das SVG nur die Module ohne weißen Rand (Etikett: QR-Code bündig mit dem Verkäufer-Symbol) |
 
 Keine Outputs. Leaf-Komponente: kein Service, kein HTTP, keine Fachlogik
 (Dumb-Component-Grundregel → [overview.md](../overview.md)).

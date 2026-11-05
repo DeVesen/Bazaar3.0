@@ -45,6 +45,16 @@ describe('LabelCard', () => {
     expect(qrCode.value()).toBe('1000');
   });
 
+  it('render_number1000_drawsQrCodeWithoutQuietZoneSoModulesStartAtBoxEdge', async () => {
+    // Arrange & Act
+    const fixture = await render({ number: 1000 });
+
+    // Assert
+    const qrCode = fixture.debugElement.query(By.directive(QrCode)).componentInstance as QrCode;
+    expect(qrCode.margin()).toBe(0);
+    expect(qrCode.size()).toBe(0);
+  });
+
   it('render_number1000_showsPlainText1000BelowQrCodeInLeftHalf', async () => {
     // Arrange & Act
     const fixture = await render({ number: 1000 });

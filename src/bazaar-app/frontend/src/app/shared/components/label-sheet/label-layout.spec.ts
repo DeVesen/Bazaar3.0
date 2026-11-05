@@ -45,12 +45,16 @@ describe('label-layout', () => {
   it.each([
     [105, 35],
     [70, 37],
-  ])('labelLayout_%sx%s_placesQrAt1_5mmFromLeftAndTopWithGivenSize', (width, height) => {
-    // Arrange & Act
+  ])('labelLayout_%sx%s_placesQrOnLeftEdgeOfBottomLeftSymbolWithSameTopGap', (width, height) => {
+    // Arrange
+    const k = labelScale(width, height);
+
+    // Act
     const layout = labelLayout(width, height, sizes({ qrCode: 18 }));
 
     // Assert
-    expect(layout.qr).toEqual({ x: 1.5, y: 1.5, size: 18 });
+    expect(layout.qr.x).toBeCloseTo(layout.sellerSymbolBottomLeft.x);
+    expect(layout.qr).toEqual({ x: 1.5 * k, y: 1.5 * k, size: 18 });
   });
 
   it('labelLayout_largerQrCode_changesOnlyQrSize', () => {
