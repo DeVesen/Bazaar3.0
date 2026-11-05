@@ -8,7 +8,6 @@ import { Page } from '../../../../shared/components/page/page';
 import { LabelCard } from '../../../../shared/components/label-sheet/label-card';
 import { LabelContent, LabelGraphic } from '../../../../shared/components/label-sheet/label-graphic';
 import { AVERY_16_GEOMETRY, labelsPerSheet } from '../../../../shared/components/label-sheet/label-geometry';
-import { LabelElementSizes } from '../../../../shared/components/label-sheet/label-layout';
 import { LabelSheet } from '../../../../shared/components/label-sheet/label-sheet';
 import { LabelSlot, placeLabels, startPositionPreview } from '../../../../shared/components/label-sheet/label-slots';
 import { BlankLabelsStore } from '../../blank-labels-store';
@@ -47,27 +46,6 @@ interface ProblemDetailsBody {
 function errorCodeOf(error: unknown): string | undefined {
   if (!(error instanceof HttpErrorResponse)) return undefined;
   return (error.error as ProblemDetailsBody | null)?.errorCode;
-}
-
-function elementSizesOf(defaults: LabelPrintDefaults): LabelElementSizes {
-  return {
-    qrCode: defaults.qrCodeSize,
-    sellerSymbol: defaults.sellerSymbolSize,
-    numberHeight: defaults.numberHeight,
-    currencyHeight: defaults.currencyHeight,
-  };
-}
-
-function printDefaultsOf(content: LabelContent): LabelPrintDefaults {
-  return {
-    logo: content.logo,
-    sellerSymbol: content.sellerSymbol,
-    currencySymbol: content.currencySymbol,
-    qrCodeSize: content.sizes.qrCode,
-    sellerSymbolSize: content.sizes.sellerSymbol,
-    numberHeight: content.sizes.numberHeight,
-    currencyHeight: content.sizes.currencyHeight,
-  };
 }
 
 /**
@@ -241,7 +219,7 @@ export class BlankLabelsPage {
     this.contentTexts.update((texts) => ({
       ...texts,
       currencySymbol: defaults.currencySymbol,
-      ...sizeTexts(elementSizesOf(defaults)),
+      ...sizeTexts(defaults.sizes),
     }));
   }
 
@@ -311,9 +289,9 @@ export class BlankLabelsPage {
     });
   }
 
-  private rememberDefaults(content: LabelContent): void {
+  private rememberDefaults({ logo, sellerSymbol, currencySymbol, sizes }: LabelContent): void {
     if (this.defaultsLoadFailed()) return;
-    this.store.saveDefaults(printDefaultsOf(content)).subscribe({
+    this.store.saveDefaults({ logo, sellerSymbol, currencySymbol, sizes }).subscribe({
       error: () => this.messageService.add({ severity: 'warn', summary: 'Logo, Symbol, Währung und Größen konnten nicht gemerkt werden' }),
     });
   }

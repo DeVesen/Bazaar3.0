@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LabelGraphic } from '../../../shared/components/label-sheet/label-graphic';
 import { LabelSheetGeometry } from '../../../shared/components/label-sheet/label-geometry';
+import { LabelElementSizes } from '../../../shared/components/label-sheet/label-layout';
 
 export const SHEET_FORMATS_URL = '/api/label-sheet-formats';
 export const PRINT_DEFAULTS_URL = '/api/label-print-defaults';
@@ -22,15 +23,12 @@ export interface SaveSheetFormatRequest extends LabelSheetGeometry {
   overwrite: boolean;
 }
 
-/** Logo, Verkäufer-Symbol, Währungssymbol und Elementgrößen (mm) des letzten Drucks, flach wie im JSON-Vertrag. */
+/** Logo, Verkäufer-Symbol, Währungssymbol und Elementgrößen (mm) des letzten Drucks, wie im JSON-Vertrag. */
 export interface LabelPrintDefaults {
   logo: LabelGraphic | null;
   sellerSymbol: LabelGraphic | null;
   currencySymbol: string;
-  qrCodeSize: number;
-  sellerSymbolSize: number;
-  numberHeight: number;
-  currencyHeight: number;
+  sizes: LabelElementSizes;
 }
 
 /** Bild der Bibliothek ohne Inhalt (Liste). */

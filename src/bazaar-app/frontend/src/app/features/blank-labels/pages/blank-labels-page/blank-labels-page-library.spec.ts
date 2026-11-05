@@ -8,6 +8,7 @@ import { PrintService } from '../../../../core/print/print.service';
 import { BlankLabelsStore } from '../../blank-labels-store';
 import { LIBRARY_FULL_ERROR_CODE, LabelImageSummary } from '../../data/blank-labels-api';
 import { BlankLabelsPage } from './blank-labels-page';
+import { DEFAULT_LABEL_ELEMENT_SIZES } from '../../../../shared/components/label-sheet/label-layout';
 
 const PNG_DATA_URL = 'data:image/png;base64,AAAA';
 
@@ -40,7 +41,7 @@ describe('BlankLabelsPage library', () => {
       loadImages: vi.fn(),
       uploadImage: vi.fn(),
       deleteImage: vi.fn(),
-      loadDefaults: vi.fn().mockReturnValue(of({ logo: null, sellerSymbol: null, currencySymbol: '€', qrCodeSize: 21.5, sellerSymbolSize: 5, numberHeight: 10.5, currencyHeight: 12 })),
+      loadDefaults: vi.fn().mockReturnValue(of({ logo: null, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES })),
       saveDefaults: vi.fn().mockReturnValue(of(undefined)),
     };
     const confirmationService = new ConfirmationService();

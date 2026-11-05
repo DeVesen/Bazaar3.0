@@ -8,7 +8,7 @@ const MIN_ELEMENT_SIZE = 0.1;
 const MAX_ELEMENT_SIZE = 100;
 const MAX_ELEMENT_SIZE_DECIMALS = 1;
 
-/** Größenfelder in mm; Namen wie im JSON-Vertrag von `/api/label-print-defaults`. */
+/** Formularfelder der Elementgrößen in mm; Zuordnung zu `LabelElementSizes` über `SIZE_FIELDS`. */
 export type LabelSizeField = 'qrCodeSize' | 'sellerSymbolSize' | 'numberHeight' | 'currencyHeight';
 export type LabelContentField = 'startNumber' | 'count' | 'currencySymbol' | LabelSizeField | 'startPosition';
 export type LabelContentTexts = Record<LabelContentField, string>;
@@ -23,13 +23,20 @@ export interface LabelRun {
   sizes: LabelElementSizes;
 }
 
-/** Welches Größenfeld welche Elementgröße liefert. */
+/** Einzige Zuordnung Größenfeld → Elementgröße; alle Größen-Funktionen iterieren darüber. */
 const SIZE_FIELDS: Record<LabelSizeField, keyof LabelElementSizes> = {
   qrCodeSize: 'qrCode',
   sellerSymbolSize: 'sellerSymbol',
   numberHeight: 'numberHeight',
   currencyHeight: 'currencyHeight',
 };
+
+const SIZE_FIELD_ENTRIES = Object.entries(SIZE_FIELDS) as [LabelSizeField, keyof LabelElementSizes][];
+
+/** Wendet `map` auf jedes Größenfeld (mit seiner Elementgröße) an. */
+function mapSizeFields<T>(map: (field: LabelSizeField, key: keyof LabelElementSizes) => T): Record<LabelSizeField, T> {
+  return Object.fromEntries(SIZE_FIELD_ENTRIES.map(([field, key]) => [field, map(field, key)])) as Record<LabelSizeField, T>;
+}
 
 export interface LabelContentValidation {
   errors: LabelContentErrors;
@@ -38,12 +45,7 @@ export interface LabelContentValidation {
 
 /** Größen als Texte der Größenfelder („21,5"). */
 export function sizeTexts(sizes: LabelElementSizes): Record<LabelSizeField, string> {
-  return {
-    qrCodeSize: formatDecimal(sizes.qrCode),
-    sellerSymbolSize: formatDecimal(sizes.sellerSymbol),
-    numberHeight: formatDecimal(sizes.numberHeight),
-    currencyHeight: formatDecimal(sizes.currencyHeight),
-  };
+  return mapSizeFields((_, key) => formatDecimal(sizes[key]));
 }
 
 /** Erstes Öffnen: Währungssymbol und Größen sind vorbelegt; Startnummer, Anzahl und Startposition nie. */
@@ -61,7 +63,7 @@ const MESSAGES = {
   countRange: `Zahl von 1 bis ${MAX_LABEL_COUNT}`,
   lastNumberTooLarge: `Letzte Nummer darf ${MAX_LABEL_NUMBER} nicht überschreiten`,
   currencyLength: `1 bis ${CURRENCY_SYMBOL_MAX_LENGTH} Zeichen`,
-  sizeRange: 'Zahl von 0,1 bis 100 mit höchstens 1 Nachkommastelle',
+  sizeRange: `Zahl von ${formatDecimal(MIN_ELEMENT_SIZE)} bis ${formatDecimal(MAX_ELEMENT_SIZE)} mit höchstens ${MAX_ELEMENT_SIZE_DECIMALS} Nachkommastelle`,
 } as const;
 
 interface NumberCheck {
@@ -138,29 +140,19 @@ function checkSize(text: string): NumberCheck {
 }
 
 function checkSizes(texts: LabelContentTexts): Record<LabelSizeField, NumberCheck> {
-  return {
-    qrCodeSize: checkSize(texts.qrCodeSize),
-    sellerSymbolSize: checkSize(texts.sellerSymbolSize),
-    numberHeight: checkSize(texts.numberHeight),
-    currencyHeight: checkSize(texts.currencyHeight),
-  };
+  return mapSizeFields((field) => checkSize(texts[field]));
 }
 
-function sizeErrorsOf(checks: Record<LabelSizeField, NumberCheck>): Partial<Record<LabelSizeField, string | null>> {
-  return {
-    qrCodeSize: checks.qrCodeSize.error,
-    sellerSymbolSize: checks.sellerSymbolSize.error,
-    numberHeight: checks.numberHeight.error,
-    currencyHeight: checks.currencyHeight.error,
-  };
+function sizeErrorsOf(checks: Record<LabelSizeField, NumberCheck>): Record<LabelSizeField, string | null> {
+  return mapSizeFields((field) => checks[field].error);
 }
 
 /** Gültige Werte übernehmen, sonst die Größe aus `fallback`. */
 function sizesOf(checks: Record<LabelSizeField, NumberCheck>, fallback: LabelElementSizes): LabelElementSizes {
   const sizes = { ...fallback };
-  for (const field of Object.keys(SIZE_FIELDS) as LabelSizeField[]) {
+  for (const [field, key] of SIZE_FIELD_ENTRIES) {
     const check = checks[field];
-    if (check.error === null) sizes[SIZE_FIELDS[field]] = check.value;
+    if (check.error === null) sizes[key] = check.value;
   }
   return sizes;
 }

@@ -87,17 +87,18 @@ describe('label-content-rules', () => {
   });
 
   it.each([
-    ['qrCodeSize', '0,1', 0.1],
-    ['sellerSymbolSize', '100', 100],
-    ['numberHeight', '8,5', 8.5],
-  ] as const)('validateLabelContent_%s=%s_isValid', (field, text, expected) => {
+    ['qrCodeSize', '0,1', 0.1, 'qrCode'],
+    ['sellerSymbolSize', '100', 100, 'sellerSymbol'],
+    ['numberHeight', '8,5', 8.5, 'numberHeight'],
+    ['currencyHeight', '9', 9, 'currencyHeight'],
+  ] as const)('validateLabelContent_%s=%s_isValid', (field, text, expected, key) => {
     // Arrange & Act
     const validation = validateLabelContent(texts({ [field]: text }), 16, field);
 
     // Assert
     expect(validation.errors).toEqual({});
     expect(validation.run).not.toBeNull();
-    expect(Object.values(validation.run?.sizes ?? {})).toContain(expected);
+    expect(validation.run?.sizes[key]).toBe(expected);
   });
 
   it('validateLabelContent_emptyStartNumberAndCount_errorsAtBoth', () => {

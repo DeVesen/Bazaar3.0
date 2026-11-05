@@ -31,9 +31,7 @@ const AVERY_12: SheetFormat = {
   offsetY: 3,
 };
 
-const DEFAULT_SIZES_JSON = { qrCodeSize: 21.5, sellerSymbolSize: 5, numberHeight: 10.5, currencyHeight: 12 };
-
-const INITIAL_DEFAULTS: LabelPrintDefaults = { logo: null, sellerSymbol: null, currencySymbol: '€', ...DEFAULT_SIZES_JSON };
+const INITIAL_DEFAULTS: LabelPrintDefaults = { logo: null, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES };
 
 interface StoreStub {
   formats: ReturnType<typeof signal<SheetFormat[]>>;
@@ -134,10 +132,7 @@ describe('BlankLabelsPage', () => {
       logo: { kind: 'image', value: 'data:image/png;base64,AAAA' },
       sellerSymbol: { kind: 'icon', value: 'star' },
       currencySymbol: '$',
-      qrCodeSize: 18,
-      sellerSymbolSize: 6.5,
-      numberHeight: 9,
-      currencyHeight: 7.5,
+      sizes: { qrCode: 18, sellerSymbol: 6.5, numberHeight: 9, currencyHeight: 7.5 },
     };
 
     // Act
@@ -156,20 +151,6 @@ describe('BlankLabelsPage', () => {
       currencyHeight: '7,5',
       startPosition: '',
     });
-  });
-
-  it('render_rememberedDefaults_showsSizesInFormFields', async () => {
-    // Arrange
-    const defaults: LabelPrintDefaults = { ...INITIAL_DEFAULTS, qrCodeSize: 18, sellerSymbolSize: 6.5 };
-
-    // Act
-    const { fixture } = await setup({ defaults: of(defaults) });
-    await fixture.whenStable();
-
-    // Assert
-    const root = fixture.nativeElement as HTMLElement;
-    expect((root.querySelector('input[data-field="qrCodeSize"]') as HTMLInputElement).value).toBe('18');
-    expect((root.querySelector('input[data-field="sellerSymbolSize"]') as HTMLInputElement).value).toBe('6,5');
   });
 
   it('onContentFieldChange_qrCodeSize18_previewLabelGetsChangedSizes', async () => {
@@ -443,32 +424,7 @@ describe('BlankLabelsPage', () => {
     expect(model.sheets[0][6]).toEqual({ kind: 'label', number: 1000 });
     expect(model.sheets[1][1]).toEqual({ kind: 'label', number: 1011 });
     expect(model.content).toEqual({ logo: { kind: 'icon', value: 'star' }, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES });
-    expect(store.saveDefaults).toHaveBeenCalledWith({ logo: { kind: 'icon', value: 'star' }, sellerSymbol: null, currencySymbol: '€', ...DEFAULT_SIZES_JSON });
-  });
-
-  it('onPrint_changedSizes_printsWithSizesAndRemembersThemFlat', async () => {
-    // Arrange
-    const { page } = await setup();
-    enterValidRun(page, '1000', '4', '');
-    page.onContentFieldChange({ field: 'qrCodeSize', text: '18' });
-    page.onContentFieldChange({ field: 'sellerSymbolSize', text: '6.5' });
-    page.onContentFieldChange({ field: 'numberHeight', text: '8,5' });
-    page.onContentFieldChange({ field: 'currencyHeight', text: '9' });
-
-    // Act
-    page.onPrint();
-
-    // Assert
-    expect(printLabelSheets.mock.calls[0][0].content.sizes).toEqual({ qrCode: 18, sellerSymbol: 6.5, numberHeight: 8.5, currencyHeight: 9 });
-    expect(store.saveDefaults).toHaveBeenCalledWith({
-      logo: null,
-      sellerSymbol: null,
-      currencySymbol: '€',
-      qrCodeSize: 18,
-      sellerSymbolSize: 6.5,
-      numberHeight: 8.5,
-      currencyHeight: 9,
-    });
+    expect(store.saveDefaults).toHaveBeenCalledWith({ logo: { kind: 'icon', value: 'star' }, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES });
   });
 
   it('onPrint_withoutLogoAndSymbol_printsLabelsWithoutGraphics', async () => {

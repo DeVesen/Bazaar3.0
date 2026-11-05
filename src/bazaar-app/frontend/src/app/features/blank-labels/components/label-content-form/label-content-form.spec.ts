@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { outputToObservable } from '@angular/core/rxjs-interop';
 import { By } from '@angular/platform-browser';
 import { INITIAL_CONTENT_TEXTS } from '../../model/label-content-rules';
 import { GraphicPicker } from '../graphic-picker/graphic-picker';
-import { LabelContentForm } from './label-content-form';
+import { LabelContentFieldChange, LabelContentForm } from './label-content-form';
 
 async function render(inputs: Record<string, unknown> = {}): Promise<ComponentFixture<LabelContentForm>> {
   const fixture = TestBed.createComponent(LabelContentForm);
@@ -88,8 +89,8 @@ describe('LabelContentForm', () => {
   it('input_qrCodeSize18_emitsFieldChange', async () => {
     // Arrange
     const fixture = await render();
-    const changes = vi.fn();
-    fixture.componentInstance.fieldChange.subscribe(changes);
+    const changes: LabelContentFieldChange[] = [];
+    outputToObservable(fixture.componentInstance.fieldChange).subscribe((change) => changes.push(change));
     const qrCodeSize = fieldInput(fixture, 'qrCodeSize');
 
     // Act
@@ -97,7 +98,7 @@ describe('LabelContentForm', () => {
     qrCodeSize.dispatchEvent(new Event('input'));
 
     // Assert
-    expect(changes).toHaveBeenCalledWith({ field: 'qrCodeSize', text: '18' });
+    expect(changes).toEqual([{ field: 'qrCodeSize', text: '18' }]);
   });
 
   it('input_startNumber1000_emitsFieldChange', async () => {

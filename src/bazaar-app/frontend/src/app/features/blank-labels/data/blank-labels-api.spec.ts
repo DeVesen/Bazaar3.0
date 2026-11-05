@@ -59,7 +59,7 @@ describe('BlankLabelsApi', () => {
     // Assert
     const req = httpMock.expectOne(PRINT_DEFAULTS_URL);
     expect(req.request.method).toBe('GET');
-    req.flush({ logo: null, sellerSymbol: null, currencySymbol: '€', qrCodeSize: 21.5, sellerSymbolSize: 5, numberHeight: 10.5, currencyHeight: 12 });
+    req.flush({ logo: null, sellerSymbol: null, currencySymbol: '€', sizes: { qrCode: 21.5, sellerSymbol: 5, numberHeight: 10.5, currencyHeight: 12 } });
   });
 
   it('getImages_always_hitsGetLabelImages', () => {
@@ -112,10 +112,7 @@ describe('BlankLabelsApi', () => {
       logo: null,
       sellerSymbol: { kind: 'icon' as const, value: 'star' as const },
       currencySymbol: '$',
-      qrCodeSize: 18,
-      sellerSymbolSize: 6.5,
-      numberHeight: 9,
-      currencyHeight: 7.5,
+      sizes: { qrCode: 18, sellerSymbol: 6.5, numberHeight: 9, currencyHeight: 7.5 },
     };
 
     // Act
