@@ -21,12 +21,25 @@ public sealed class LabelPrintDefaultsConfiguration : IEntityTypeConfiguration<L
         builder.Property(d => d.SellerSymbolValue);
         // Drei Runes können als Surrogatpaare bis zu sechs UTF-16-Zeichen belegen.
         builder.Property(d => d.CurrencySymbol).IsRequired().HasMaxLength(LabelPrintDefaults.CurrencySymbolMaxLength * 2);
-        // Datenbank-Vorgabe = Domain-Vorgabe, damit eine schon gespeicherte Zeile beim Migrieren gültige Größen bekommt.
-        builder.Property(d => d.QrCodeSize).HasPrecision(SizePrecision, SizeScale).HasDefaultValue(LabelPrintDefaults.DefaultQrCodeSize);
-        builder.Property(d => d.SellerSymbolSize).HasPrecision(SizePrecision, SizeScale).HasDefaultValue(LabelPrintDefaults.DefaultSellerSymbolSize);
-        builder.Property(d => d.NumberHeight).HasPrecision(SizePrecision, SizeScale).HasDefaultValue(LabelPrintDefaults.DefaultNumberHeight);
-        builder.Property(d => d.CurrencyHeight).HasPrecision(SizePrecision, SizeScale).HasDefaultValue(LabelPrintDefaults.DefaultCurrencyHeight);
+        builder.ComplexProperty(d => d.Sizes, ConfigureSizes);
         builder.Ignore(d => d.Logo);
         builder.Ignore(d => d.SellerSymbol);
+    }
+
+    /// <summary>
+    /// Spaltennamen wie vor dem Wertobjekt; Datenbank-Vorgabe = Domain-Vorgabe, damit eine schon
+    /// gespeicherte Zeile beim Migrieren gültige Größen bekommt.
+    /// </summary>
+    private static void ConfigureSizes(ComplexPropertyBuilder<LabelElementSizes> builder)
+    {
+        var defaults = LabelElementSizes.Default;
+        builder.Property(s => s.QrCode).HasColumnName("QrCodeSize")
+            .HasPrecision(SizePrecision, SizeScale).HasDefaultValue(defaults.QrCode);
+        builder.Property(s => s.SellerSymbol).HasColumnName("SellerSymbolSize")
+            .HasPrecision(SizePrecision, SizeScale).HasDefaultValue(defaults.SellerSymbol);
+        builder.Property(s => s.NumberHeight).HasColumnName("NumberHeight")
+            .HasPrecision(SizePrecision, SizeScale).HasDefaultValue(defaults.NumberHeight);
+        builder.Property(s => s.CurrencyHeight).HasColumnName("CurrencyHeight")
+            .HasPrecision(SizePrecision, SizeScale).HasDefaultValue(defaults.CurrencyHeight);
     }
 }

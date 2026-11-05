@@ -27,7 +27,7 @@ public class LabelPrintDefaultsTests
         var defaults = LabelPrintDefaults.CreateInitial();
 
         // Act
-        defaults.Update(PngImage, StarIcon, "$", 21.5m, 5m, 10.5m, 12m);
+        defaults.Update(PngImage, StarIcon, "$", LabelElementSizes.Default);
 
         // Assert
         Assert.Equal(PngImage, defaults.Logo);
@@ -40,10 +40,10 @@ public class LabelPrintDefaultsTests
     {
         // Arrange
         var defaults = LabelPrintDefaults.CreateInitial();
-        defaults.Update(PngImage, StarIcon, "€", 21.5m, 5m, 10.5m, 12m);
+        defaults.Update(PngImage, StarIcon, "€", LabelElementSizes.Default);
 
         // Act
-        defaults.Update(null, null, "€", 21.5m, 5m, 10.5m, 12m);
+        defaults.Update(null, null, "€", LabelElementSizes.Default);
 
         // Assert
         Assert.Null(defaults.Logo);
@@ -59,7 +59,7 @@ public class LabelPrintDefaultsTests
         var defaults = LabelPrintDefaults.CreateInitial();
 
         // Act & Assert
-        Assert.ThrowsAny<ArgumentException>(() => defaults.Update(null, null, currencySymbol, 21.5m, 5m, 10.5m, 12m));
+        Assert.ThrowsAny<ArgumentException>(() => defaults.Update(null, null, currencySymbol, LabelElementSizes.Default));
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class LabelPrintDefaultsTests
         var gif = new LabelGraphic(LabelGraphicKind.Image, "data:image/gif;base64,AAAA");
 
         // Act & Assert
-        Assert.ThrowsAny<ArgumentException>(() => defaults.Update(gif, null, "€", 21.5m, 5m, 10.5m, 12m));
+        Assert.ThrowsAny<ArgumentException>(() => defaults.Update(gif, null, "€", LabelElementSizes.Default));
         Assert.Null(defaults.Logo);
     }
 
@@ -81,10 +81,7 @@ public class LabelPrintDefaultsTests
         var defaults = LabelPrintDefaults.CreateInitial();
 
         // Assert
-        Assert.Equal(21.5m, defaults.QrCodeSize);
-        Assert.Equal(5m, defaults.SellerSymbolSize);
-        Assert.Equal(10.5m, defaults.NumberHeight);
-        Assert.Equal(12m, defaults.CurrencyHeight);
+        Assert.Equal(LabelElementSizes.Default, defaults.Sizes);
     }
 
     [Fact]
@@ -92,15 +89,13 @@ public class LabelPrintDefaultsTests
     {
         // Arrange
         var defaults = LabelPrintDefaults.CreateInitial();
+        var sizes = new LabelElementSizes(QrCode: 25m, SellerSymbol: 0.1m, NumberHeight: 100m, CurrencyHeight: 8.5m);
 
         // Act
-        defaults.Update(null, null, "€", qrCodeSize: 25m, sellerSymbolSize: 0.1m, numberHeight: 100m, currencyHeight: 8.5m);
+        defaults.Update(null, null, "€", sizes);
 
         // Assert
-        Assert.Equal(25m, defaults.QrCodeSize);
-        Assert.Equal(0.1m, defaults.SellerSymbolSize);
-        Assert.Equal(100m, defaults.NumberHeight);
-        Assert.Equal(8.5m, defaults.CurrencyHeight);
+        Assert.Equal(sizes, defaults.Sizes);
     }
 
     [Theory]
@@ -112,28 +107,24 @@ public class LabelPrintDefaultsTests
     {
         // Arrange
         var defaults = LabelPrintDefaults.CreateInitial();
+        var valid = LabelElementSizes.Default;
 
         // Act & Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => defaults.Update(null, null, "€", size, 5m, 10.5m, 12m));
-        Assert.Throws<ArgumentOutOfRangeException>(() => defaults.Update(null, null, "€", 21.5m, size, 10.5m, 12m));
-        Assert.Throws<ArgumentOutOfRangeException>(() => defaults.Update(null, null, "€", 21.5m, 5m, size, 12m));
-        Assert.Throws<ArgumentOutOfRangeException>(() => defaults.Update(null, null, "€", 21.5m, 5m, 10.5m, size));
-        Assert.Equal(21.5m, defaults.QrCodeSize);
+        Assert.Throws<ArgumentOutOfRangeException>(() => defaults.Update(null, null, "€", valid with { QrCode = size }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => defaults.Update(null, null, "€", valid with { SellerSymbol = size }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => defaults.Update(null, null, "€", valid with { NumberHeight = size }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => defaults.Update(null, null, "€", valid with { CurrencyHeight = size }));
+        Assert.Equal(LabelElementSizes.Default, defaults.Sizes);
     }
 
-    [Theory]
-    [InlineData(0.1, true)]
-    [InlineData(100, true)]
-    [InlineData(8.5, true)]
-    [InlineData(0, false)]
-    [InlineData(100.1, false)]
-    [InlineData(1.25, false)]
-    public void IsValidSize_Value_MatchesRangeAndOneDecimal(decimal size, bool expected)
+    [Fact]
+    public void Update_NullSizes_ThrowsAndKeepsValues()
     {
-        // Act
-        var valid = LabelPrintDefaults.IsValidSize(size);
+        // Arrange
+        var defaults = LabelPrintDefaults.CreateInitial();
 
-        // Assert
-        Assert.Equal(expected, valid);
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => defaults.Update(null, null, "$", null!));
+        Assert.Equal("€", defaults.CurrencySymbol);
     }
 }

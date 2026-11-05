@@ -51,18 +51,8 @@ public sealed record LabelPrintDefaultsDto(
     LabelGraphic? Logo,
     LabelGraphic? SellerSymbol,
     string CurrencySymbol,
-    decimal QrCodeSize,
-    decimal SellerSymbolSize,
-    decimal NumberHeight,
-    decimal CurrencyHeight)
+    LabelElementSizes Sizes)
 {
     public static LabelPrintDefaultsDto From(LabelPrintDefaults defaults) =>
-        new(
-            defaults.Logo,
-            defaults.SellerSymbol,
-            defaults.CurrencySymbol,
-            defaults.QrCodeSize,
-            defaults.SellerSymbolSize,
-            defaults.NumberHeight,
-            defaults.CurrencyHeight);
+        new(defaults.Logo, defaults.SellerSymbol, defaults.CurrencySymbol, defaults.Sizes);
 }

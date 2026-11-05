@@ -8,8 +8,6 @@ public sealed class UpdateLabelPrintDefaultsCommand
     public LabelGraphic? Logo { get; set; }
     public LabelGraphic? SellerSymbol { get; set; }
     public string CurrencySymbol { get; set; } = string.Empty;
-    public decimal QrCodeSize { get; set; }
-    public decimal SellerSymbolSize { get; set; }
-    public decimal NumberHeight { get; set; }
-    public decimal CurrencyHeight { get; set; }
+    /// <summary>Pflicht; fehlt das Objekt im Body, lehnt der Validator mit 400 ab.</summary>
+    public LabelElementSizes? Sizes { get; set; }
 }

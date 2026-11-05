@@ -29,8 +29,5 @@ public sealed class UpdateLabelPrintDefaultsHandler(ILabelPrintDefaultsRepositor
             command.Logo,
             command.SellerSymbol,
             command.CurrencySymbol,
-            command.QrCodeSize,
-            command.SellerSymbolSize,
-            command.NumberHeight,
-            command.CurrencyHeight);
+            command.Sizes!);
 }

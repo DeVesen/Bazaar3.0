@@ -36,7 +36,7 @@ public class ImportLabelPrintDefaultImagesHandlerTests
     private void GivenDefaults(LabelGraphic? logo, LabelGraphic? sellerSymbol)
     {
         var defaults = LabelPrintDefaults.CreateInitial();
-        defaults.Update(logo, sellerSymbol, "€", 21.5m, 5m, 10.5m, 12m);
+        defaults.Update(logo, sellerSymbol, "€", LabelElementSizes.Default);
         _defaultsRepository.Setup(r => r.Find()).ReturnsAsync(defaults);
     }
 

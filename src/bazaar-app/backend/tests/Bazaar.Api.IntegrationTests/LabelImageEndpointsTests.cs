@@ -209,10 +209,7 @@ public class LabelImageEndpointsTests : IAsyncLifetime
             logo = new { kind = "image", value = dataUrl },
             sellerSymbol = (object?)null,
             currencySymbol = "€",
-            qrCodeSize = 21.5m,
-            sellerSymbolSize = 5m,
-            numberHeight = 10.5m,
-            currencyHeight = 12m,
+            sizes = new { qrCode = 21.5m, sellerSymbol = 5m, numberHeight = 10.5m, currencyHeight = 12m },
         };
         (await client.PutAsJsonAsync(DefaultsUrl, defaults, TestContext.Current.CancellationToken)).EnsureSuccessStatusCode();
 

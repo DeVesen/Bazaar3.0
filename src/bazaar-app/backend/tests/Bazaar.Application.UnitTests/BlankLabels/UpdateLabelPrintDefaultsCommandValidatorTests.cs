@@ -16,10 +16,7 @@ public class UpdateLabelPrintDefaultsCommandValidatorTests
             Logo = new LabelGraphic(LabelGraphicKind.Image, "data:image/png;base64,AAAA"),
             SellerSymbol = new LabelGraphic(LabelGraphicKind.Icon, "star"),
             CurrencySymbol = "€",
-            QrCodeSize = 21.5m,
-            SellerSymbolSize = 5m,
-            NumberHeight = 10.5m,
-            CurrencyHeight = 12m,
+            Sizes = LabelElementSizes.Default,
         };
 
         // Act
@@ -82,10 +79,7 @@ public class UpdateLabelPrintDefaultsCommandValidatorTests
     {
         // Arrange
         var command = ValidCommand();
-        command.QrCodeSize = size;
-        command.SellerSymbolSize = size;
-        command.NumberHeight = size;
-        command.CurrencyHeight = size;
+        command.Sizes = new LabelElementSizes(size, size, size, size);
 
         // Act
         var result = _sut.Validate(command);
@@ -94,24 +88,55 @@ public class UpdateLabelPrintDefaultsCommandValidatorTests
         Assert.True(result.IsValid);
     }
 
-    [Theory]
-    [InlineData(nameof(UpdateLabelPrintDefaultsCommand.QrCodeSize), 0)]
-    [InlineData(nameof(UpdateLabelPrintDefaultsCommand.SellerSymbolSize), 100.1)]
-    [InlineData(nameof(UpdateLabelPrintDefaultsCommand.NumberHeight), 1.25)]
-    [InlineData(nameof(UpdateLabelPrintDefaultsCommand.CurrencyHeight), -1)]
-    public void Validate_InvalidSize_HasSizeErrorWithRangeMessage(string propertyName, decimal size)
+    [Fact]
+    public void Validate_SizesMissing_HasSizesError()
     {
         // Arrange
         var command = ValidCommand();
-        typeof(UpdateLabelPrintDefaultsCommand).GetProperty(propertyName)!.SetValue(command, size);
+        command.Sizes = null;
 
         // Act
         var result = _sut.Validate(command);
 
         // Assert
         var error = Assert.Single(result.Errors);
-        Assert.Equal(propertyName, error.PropertyName);
+        Assert.Equal(nameof(UpdateLabelPrintDefaultsCommand.Sizes), error.PropertyName);
+    }
+
+    [Theory]
+    [InlineData(UpdateLabelPrintDefaultsCommandValidator.QrCodeKey, 0)]
+    [InlineData(UpdateLabelPrintDefaultsCommandValidator.SellerSymbolKey, 100.1)]
+    [InlineData(UpdateLabelPrintDefaultsCommandValidator.NumberHeightKey, 1.25)]
+    [InlineData(UpdateLabelPrintDefaultsCommandValidator.CurrencyHeightKey, -1)]
+    public void Validate_InvalidSize_HasSizeErrorWithRangeMessage(string errorKey, decimal size)
+    {
+        // Arrange
+        var command = ValidCommand();
+        command.Sizes = errorKey switch
+        {
+            UpdateLabelPrintDefaultsCommandValidator.QrCodeKey => LabelElementSizes.Default with { QrCode = size },
+            UpdateLabelPrintDefaultsCommandValidator.SellerSymbolKey => LabelElementSizes.Default with { SellerSymbol = size },
+            UpdateLabelPrintDefaultsCommandValidator.NumberHeightKey => LabelElementSizes.Default with { NumberHeight = size },
+            _ => LabelElementSizes.Default with { CurrencyHeight = size },
+        };
+
+        // Act
+        var result = _sut.Validate(command);
+
+        // Assert
+        var error = Assert.Single(result.Errors);
+        Assert.Equal(errorKey, error.PropertyName);
         Assert.Equal(SizeMessage, error.ErrorMessage);
+    }
+
+    [Fact]
+    public void SizeKeys_Always_NameNestedCamelCaseField()
+    {
+        // Assert
+        Assert.Equal("sizes.qrCode", UpdateLabelPrintDefaultsCommandValidator.QrCodeKey);
+        Assert.Equal("sizes.sellerSymbol", UpdateLabelPrintDefaultsCommandValidator.SellerSymbolKey);
+        Assert.Equal("sizes.numberHeight", UpdateLabelPrintDefaultsCommandValidator.NumberHeightKey);
+        Assert.Equal("sizes.currencyHeight", UpdateLabelPrintDefaultsCommandValidator.CurrencyHeightKey);
     }
 
     private const string SizeMessage = "Zahl von 0,1 bis 100 mit höchstens 1 Nachkommastelle";
@@ -121,9 +146,6 @@ public class UpdateLabelPrintDefaultsCommandValidatorTests
         Logo = null,
         SellerSymbol = null,
         CurrencySymbol = "€",
-        QrCodeSize = 21.5m,
-        SellerSymbolSize = 5m,
-        NumberHeight = 10.5m,
-        CurrencyHeight = 12m,
+        Sizes = LabelElementSizes.Default,
     };
 }

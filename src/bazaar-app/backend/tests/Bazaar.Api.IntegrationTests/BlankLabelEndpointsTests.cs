@@ -179,10 +179,7 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
         Assert.Equal("€", defaults!.CurrencySymbol);
         Assert.Null(defaults.Logo);
         Assert.Null(defaults.SellerSymbol);
-        Assert.Equal(21.5m, defaults.QrCodeSize);
-        Assert.Equal(5m, defaults.SellerSymbolSize);
-        Assert.Equal(10.5m, defaults.NumberHeight);
-        Assert.Equal(12m, defaults.CurrencyHeight);
+        Assert.Equal(new SizesBody(21.5m, 5m, 10.5m, 12m), defaults.Sizes);
     }
 
     [Fact]
@@ -195,10 +192,7 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
             logo = new { kind = "image", value = "data:image/png;base64,AAAA" },
             sellerSymbol = new { kind = "icon", value = "star" },
             currencySymbol = "$",
-            qrCodeSize = 25.5m,
-            sellerSymbolSize = 6m,
-            numberHeight = 9.5m,
-            currencyHeight = 11m,
+            sizes = new { qrCode = 25.5m, sellerSymbol = 6m, numberHeight = 9.5m, currencyHeight = 11m },
         };
         (await client.PutAsJsonAsync(DefaultsUrl, body, TestContext.Current.CancellationToken)).EnsureSuccessStatusCode();
 
@@ -209,10 +203,7 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
         Assert.Equal(new GraphicBody("image", "data:image/png;base64,AAAA"), defaults!.Logo);
         Assert.Equal(new GraphicBody("icon", "star"), defaults.SellerSymbol);
         Assert.Equal("$", defaults.CurrencySymbol);
-        Assert.Equal(25.5m, defaults.QrCodeSize);
-        Assert.Equal(6m, defaults.SellerSymbolSize);
-        Assert.Equal(9.5m, defaults.NumberHeight);
-        Assert.Equal(11m, defaults.CurrencyHeight);
+        Assert.Equal(new SizesBody(25.5m, 6m, 9.5m, 11m), defaults.Sizes);
     }
 
     [Fact]
@@ -225,10 +216,7 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
             logo = new { kind = "image", value = "data:image/gif;base64,AAAA" },
             sellerSymbol = (object?)null,
             currencySymbol = "€",
-            qrCodeSize = 21.5m,
-            sellerSymbolSize = 5m,
-            numberHeight = 10.5m,
-            currencyHeight = 12m,
+            sizes = new { qrCode = 21.5m, sellerSymbol = 5m, numberHeight = 10.5m, currencyHeight = 12m },
         };
 
         // Act
@@ -239,7 +227,7 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task PutDefaults_SizeWithTwoDecimals_ReturnsBadRequest()
+    public async Task PutDefaults_SizeWithTwoDecimals_ReturnsBadRequestWithNestedKey()
     {
         // Arrange
         var client = await AdminClient();
@@ -248,10 +236,7 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
             logo = (object?)null,
             sellerSymbol = (object?)null,
             currencySymbol = "€",
-            qrCodeSize = 21.55m,
-            sellerSymbolSize = 5m,
-            numberHeight = 10.5m,
-            currencyHeight = 12m,
+            sizes = new { qrCode = 21.55m, sellerSymbol = 5m, numberHeight = 10.5m, currencyHeight = 12m },
         };
 
         // Act
@@ -259,6 +244,29 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ValidationBody>(TestContext.Current.CancellationToken);
+        Assert.Equal(["sizes.qrCode"], problem!.Errors.Keys);
+    }
+
+    [Fact]
+    public async Task PutDefaults_WithoutSizes_ReturnsBadRequest()
+    {
+        // Arrange
+        var client = await AdminClient();
+        var body = new
+        {
+            logo = (object?)null,
+            sellerSymbol = (object?)null,
+            currencySymbol = "€",
+        };
+
+        // Act
+        var response = await client.PutAsJsonAsync(DefaultsUrl, body, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ValidationBody>(TestContext.Current.CancellationToken);
+        Assert.Equal(["sizes"], problem!.Errors.Keys);
     }
 
     private static object Avery16(
@@ -332,8 +340,7 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
         GraphicBody? Logo,
         GraphicBody? SellerSymbol,
         string CurrencySymbol,
-        decimal QrCodeSize,
-        decimal SellerSymbolSize,
-        decimal NumberHeight,
-        decimal CurrencyHeight);
+        SizesBody Sizes);
+
+    private sealed record SizesBody(decimal QrCode, decimal SellerSymbol, decimal NumberHeight, decimal CurrencyHeight);
 }
