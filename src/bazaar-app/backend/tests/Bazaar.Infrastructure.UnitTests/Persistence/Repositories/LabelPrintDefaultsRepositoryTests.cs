@@ -34,7 +34,7 @@ public class LabelPrintDefaultsRepositoryTests
         await using (var writeContext = CreateContext(databaseName))
         {
             var defaults = LabelPrintDefaults.CreateInitial();
-            defaults.Update(logo, symbol, "$");
+            defaults.Update(logo, symbol, "$", 21.5m, 5m, 10.5m, 12m);
             await new LabelPrintDefaultsRepository(writeContext).Add(defaults);
         }
         await using var readContext = CreateContext(databaseName);
@@ -49,7 +49,7 @@ public class LabelPrintDefaultsRepositoryTests
     }
 
     [Fact]
-    public async Task Update_ChangedCurrency_IsPersisted()
+    public async Task Update_ChangedCurrencyAndSizes_ArePersisted()
     {
         // Arrange
         var databaseName = Guid.NewGuid().ToString();
@@ -58,7 +58,7 @@ public class LabelPrintDefaultsRepositoryTests
             var repository = new LabelPrintDefaultsRepository(writeContext);
             var defaults = LabelPrintDefaults.CreateInitial();
             await repository.Add(defaults);
-            defaults.Update(null, null, "CHF");
+            defaults.Update(null, null, "CHF", 25.5m, 6m, 9.5m, 11m);
             await repository.Update(defaults);
         }
         await using var readContext = CreateContext(databaseName);
@@ -68,5 +68,9 @@ public class LabelPrintDefaultsRepositoryTests
 
         // Assert
         Assert.Equal("CHF", found!.CurrencySymbol);
+        Assert.Equal(25.5m, found.QrCodeSize);
+        Assert.Equal(6m, found.SellerSymbolSize);
+        Assert.Equal(9.5m, found.NumberHeight);
+        Assert.Equal(11m, found.CurrencyHeight);
     }
 }

@@ -13,14 +13,24 @@ public sealed class UpdateLabelPrintDefaultsHandler(ILabelPrintDefaultsRepositor
             await AddInitial(command);
             return;
         }
-        existing.Update(command.Logo, command.SellerSymbol, command.CurrencySymbol);
+        Apply(existing, command);
         await repository.Update(existing);
     }
 
     private async Task AddInitial(UpdateLabelPrintDefaultsCommand command)
     {
         var defaults = LabelPrintDefaults.CreateInitial();
-        defaults.Update(command.Logo, command.SellerSymbol, command.CurrencySymbol);
+        Apply(defaults, command);
         await repository.Add(defaults);
     }
+
+    private static void Apply(LabelPrintDefaults defaults, UpdateLabelPrintDefaultsCommand command) =>
+        defaults.Update(
+            command.Logo,
+            command.SellerSymbol,
+            command.CurrencySymbol,
+            command.QrCodeSize,
+            command.SellerSymbolSize,
+            command.NumberHeight,
+            command.CurrencyHeight);
 }

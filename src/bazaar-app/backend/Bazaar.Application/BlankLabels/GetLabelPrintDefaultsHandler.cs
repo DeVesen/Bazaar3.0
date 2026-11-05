@@ -5,7 +5,7 @@ namespace Bazaar.Application.BlankLabels;
 
 public sealed class GetLabelPrintDefaultsHandler(ILabelPrintDefaultsRepository repository)
 {
-    /// <summary>Ohne gespeicherte Zeile gelten „€" und leeres Logo/Symbol (erstes Öffnen).</summary>
+    /// <summary>Ohne gespeicherte Zeile gelten „€", leeres Logo/Symbol und die Vorgabegrößen (erstes Öffnen).</summary>
     public async Task<LabelPrintDefaults> Handle() =>
         await repository.Find() ?? LabelPrintDefaults.CreateInitial();
 }
