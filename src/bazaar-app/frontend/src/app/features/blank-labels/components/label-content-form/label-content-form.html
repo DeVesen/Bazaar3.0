@@ -20,13 +20,19 @@
   <app-graphic-picker
     label="Verkäufer-Symbol"
     [value]="sellerSymbol()"
+    [libraryImages]="libraryImages()"
     (valueChange)="sellerSymbolChange.emit($event)"
+    (imageSelected)="sellerSymbolChange.emit($event)"
+    (imageDeleteRequested)="imageDeleteRequested.emit($event)"
     (fileChosen)="imageChosen.emit({ target: 'sellerSymbol', file: $event })"
   />
   <app-graphic-picker
     label="Logo"
     [value]="logo()"
+    [libraryImages]="libraryImages()"
     (valueChange)="logoChange.emit($event)"
+    (imageSelected)="logoChange.emit($event)"
+    (imageDeleteRequested)="imageDeleteRequested.emit($event)"
     (fileChosen)="imageChosen.emit({ target: 'logo', file: $event })"
   />
 </div>

@@ -31,21 +31,26 @@ public sealed partial record LabelGraphic(LabelGraphicKind Kind, string Value)
 
     private static bool IsValidIconKey(string? value) => value is not null && IconKeyPattern().IsMatch(value);
 
-    private static bool IsValidImageDataUrl(string? value)
+    /// <summary>Prüft Medientyp (PNG, JPEG, SVG), Base64 und die Größe bis <see cref="MaxImageBytes"/>.</summary>
+    public static bool IsValidImageDataUrl(string? value) => TryDecodeImageDataUrl(value, out _, out _);
+
+    /// <summary>Zerlegt eine gültige Bild-Data-URL in Medientyp und Bytes; sonst false.</summary>
+    public static bool TryDecodeImageDataUrl(string? value, out string mediaType, out byte[] content)
     {
+        mediaType = string.Empty;
+        content = [];
         if (value is null || !value.StartsWith(DataPrefix, StringComparison.Ordinal)) return false;
         var markerIndex = value.IndexOf(Base64Marker, StringComparison.Ordinal);
         if (markerIndex < 0) return false;
-        var mediaType = value[DataPrefix.Length..markerIndex];
+        var candidateType = value[DataPrefix.Length..markerIndex];
+        if (!ImageMediaTypes.Contains(candidateType)) return false;
         var payload = value[(markerIndex + Base64Marker.Length)..];
-        return ImageMediaTypes.Contains(mediaType) && HasAllowedPayloadSize(payload);
-    }
-
-    private static bool HasAllowedPayloadSize(string base64Payload)
-    {
-        if (base64Payload.Length > MaxBase64Length) return false;
-        var buffer = new byte[base64Payload.Length];
-        return Convert.TryFromBase64String(base64Payload, buffer, out var byteCount) && byteCount <= MaxImageBytes;
+        if (payload.Length > MaxBase64Length) return false;
+        var buffer = new byte[payload.Length];
+        if (!Convert.TryFromBase64String(payload, buffer, out var byteCount) || byteCount > MaxImageBytes) return false;
+        mediaType = candidateType;
+        content = buffer[..byteCount];
+        return true;
     }
 
     [GeneratedRegex("^[a-z0-9-]{1,30}$")]

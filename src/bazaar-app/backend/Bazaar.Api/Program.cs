@@ -18,6 +18,7 @@ using Bazaar.Api.Features.Settings;
 using Bazaar.Api.Features.Settlement;
 using Bazaar.Api.Features.Statistics;
 using Bazaar.Api.Features.Users;
+using Bazaar.Api.Startup;
 using Bazaar.Application.ArticleImport;
 using Bazaar.Application.Articles;
 using Bazaar.Application.Auth;
@@ -86,6 +87,8 @@ builder.Services.AddScoped<ISellerTypeRepository, SellerTypeRepository>();
 builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
 builder.Services.AddScoped<ILabelSheetFormatRepository, LabelSheetFormatRepository>();
 builder.Services.AddScoped<ILabelPrintDefaultsRepository, LabelPrintDefaultsRepository>();
+builder.Services.AddScoped<ILabelImageRepository, LabelImageRepository>();
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ISellerCountBySellerTypeQuery, SellerCountBySellerTypeQuery>();
 builder.Services.AddScoped<ISellerRepository, SellerRepository>();
 builder.Services.AddScoped<ISellerSearchQuery, SellerSearchQuery>();
@@ -127,6 +130,11 @@ builder.Services.AddScoped<SaveLabelSheetFormatHandler>();
 builder.Services.AddScoped<DeleteLabelSheetFormatHandler>();
 builder.Services.AddScoped<GetLabelPrintDefaultsHandler>();
 builder.Services.AddScoped<UpdateLabelPrintDefaultsHandler>();
+builder.Services.AddScoped<GetLabelImagesHandler>();
+builder.Services.AddScoped<GetLabelImageHandler>();
+builder.Services.AddScoped<UploadLabelImageHandler>();
+builder.Services.AddScoped<DeleteLabelImageHandler>();
+builder.Services.AddScoped<ImportLabelPrintDefaultImagesHandler>();
 builder.Services.AddScoped<GetSellerCardsHandler>();
 builder.Services.AddScoped<GetSellerByIdHandler>();
 builder.Services.AddScoped<SearchSellersHandler>();
@@ -215,6 +223,7 @@ app.MapCategoryEndpoints();
 app.MapSellerTypeEndpoints();
 app.MapSettingsEndpoints();
 app.MapBlankLabelEndpoints();
+app.MapLabelImageEndpoints();
 app.MapSellerEndpoints();
 app.MapArticleEndpoints();
 app.MapIntakeEndpoints();
@@ -227,6 +236,7 @@ app.MapArticleImportEndpoints();
 app.MapUserEndpoints();
 
 await ApplyMigrationsAsync(app);
+await ImportLabelPrintDefaultImagesAsync(app);
 await InitializeAdminBootstrapStateAsync(app);
 
 app.Run();
@@ -282,6 +292,16 @@ static async Task ApplyMigrationsAsync(WebApplication app)
         logger.LogCritical(ex, "Migration {Migration} failed: {Message}", pending, ex.Message);
         Environment.Exit(1);
     }
+}
+
+static async Task ImportLabelPrintDefaultImagesAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await OptionalStartupTask.RunAsync(
+        () => scope.ServiceProvider.GetRequiredService<ImportLabelPrintDefaultImagesHandler>().Handle(),
+        logger,
+        "Import der Standard-Bilder in die Bibliothek");
 }
 
 static async Task InitializeAdminBootstrapStateAsync(WebApplication app)

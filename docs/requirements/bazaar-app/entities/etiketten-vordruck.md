@@ -5,7 +5,7 @@ updated: 2026-11-05
 
 # Entität: Etiketten-Vordruck
 
-Zwei Tabellen der Seite „Etiketten-Vordruck". Keine Beziehung zu Artikeln.
+Drei Tabellen der Seite „Etiketten-Vordruck". Keine Beziehung zu Artikeln.
 
 ## Bogenformat (`LabelSheetFormats`)
 
@@ -34,3 +34,22 @@ Der Druckversatz verschiebt den gesamten Druck (Plus: nach rechts bzw. unten, Mi
 | `currencySymbol` | string | 1 bis 3 Zeichen, Standard „€" |
 
 Startnummer, Anzahl und Startposition werden nie gespeichert.
+
+## Bilder-Bibliothek (`LabelImages`)
+
+Gemeinsame Bibliothek eigener Bilder für Logo und Verkäufer-Symbol (kein getrenntes Fach je Feld).
+
+| Feld | Typ | Beschreibung |
+|---|---|---|
+| `id` | string(8) | ID nach Abschnitt 9.5 der App-Spec |
+| `name` | string(50) | 1 bis 50 Zeichen, an den Enden getrimmt; nicht eindeutig; kein Umbenennen. Das Frontend schlägt den Dateinamen ohne Endung vor, gekürzt auf 50 Zeichen |
+| `dataUrl` | text | Bild als Base64-Data-URL: PNG, JPEG oder SVG, höchstens 1 MB |
+| `mediaType` | string(20) | `image/png`, `image/jpeg` oder `image/svg+xml` |
+| `sizeBytes` | int | Größe der Bildbytes |
+| `contentHash` | string(64) | SHA-256 der Bildbytes als Hex; **eindeutig** (Unique-Index) |
+| `createdAt` | timestamp | Zeitpunkt des Hochladens; die Liste ist nach `createdAt` absteigend sortiert |
+
+- Höchstens 50 Bilder. Ein inhaltsgleiches Bild (gleicher `contentHash`) legt keinen zweiten Eintrag an; der vorhandene Eintrag wird zurückgegeben, auch bei voller Bibliothek.
+- Die Bibliothek ist **Kopierquelle, keine Referenz**: Beim Wählen kopiert die Seite die Data-URL in `logoValue` bzw. `sellerSymbolValue` von `LabelPrintDefaults`. `LabelPrintDefaults` verweist nicht auf `LabelImages`; Löschen eines Bildes ändert kein gewähltes Logo oder Symbol.
+- Einmalige Übernahme beim Start: Bilder, die schon als Logo oder Verkäufer-Symbol in `LabelPrintDefaults` stehen (`Image`), kommen mit den Namen „Logo“ bzw. „Verkäufer-Symbol“ in die Bibliothek, sofern ihr Hash dort fehlt (wiederholbar ohne Wirkung; ohne Höchstzahl-Prüfung, höchstens zwei Bilder).
+- Keine Beziehung zu Artikeln.

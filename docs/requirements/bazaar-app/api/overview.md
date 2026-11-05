@@ -113,6 +113,10 @@ Es gibt **kein** `POST /api/auth/logout` und keinen Refresh-Endpoint — ein Acc
 | `DELETE /api/label-sheet-formats/{id}` | `admin` | [blank-labels.md](blank-labels.md) |
 | `GET /api/label-print-defaults` | `admin` | [blank-labels.md](blank-labels.md) |
 | `PUT /api/label-print-defaults` | `admin` | [blank-labels.md](blank-labels.md) |
+| `GET /api/label-images` | `admin` | [blank-labels.md](blank-labels.md) |
+| `GET /api/label-images/{id}` | `admin` | [blank-labels.md](blank-labels.md) |
+| `POST /api/label-images` | `admin` | [blank-labels.md](blank-labels.md) |
+| `DELETE /api/label-images/{id}` | `admin` | [blank-labels.md](blank-labels.md) |
 | `GET /api/users` | `admin` | [users.md](users.md) |
 | `POST /api/users` | `admin` | [users.md](users.md) |
 | `PUT /api/users/{id}` | `admin` | [users.md](users.md) |

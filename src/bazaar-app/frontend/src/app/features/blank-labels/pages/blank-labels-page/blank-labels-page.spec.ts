@@ -6,7 +6,7 @@ import { Confirmation, ConfirmationService, MessageService } from 'primeng/api';
 import { Observable, of, throwError } from 'rxjs';
 import { PrintService } from '../../../../core/print/print.service';
 import { BlankLabelsStore } from '../../blank-labels-store';
-import { LabelPrintDefaults, NAME_TAKEN_ERROR_CODE, SheetFormat } from '../../data/blank-labels-api';
+import { LabelImageSummary, LabelPrintDefaults, NAME_TAKEN_ERROR_CODE, SheetFormat } from '../../data/blank-labels-api';
 import { BlankLabelsPage } from './blank-labels-page';
 
 const AVERY_12: SheetFormat = {
@@ -32,6 +32,9 @@ const INITIAL_DEFAULTS: LabelPrintDefaults = { logo: null, sellerSymbol: null, c
 
 interface StoreStub {
   formats: ReturnType<typeof signal<SheetFormat[]>>;
+  images: ReturnType<typeof signal<LabelImageSummary[]>>;
+  imageContents: ReturnType<typeof signal<Record<string, string>>>;
+  loadImages: ReturnType<typeof vi.fn>;
   loadFormats: ReturnType<typeof vi.fn>;
   saveFormat: ReturnType<typeof vi.fn>;
   deleteFormat: ReturnType<typeof vi.fn>;
@@ -51,6 +54,9 @@ describe('BlankLabelsPage', () => {
   ): Promise<{ fixture: ComponentFixture<BlankLabelsPage>; page: BlankLabelsPage }> {
     store = {
       formats: signal(options.formats ?? []),
+      images: signal<LabelImageSummary[]>([]),
+      imageContents: signal<Record<string, string>>({}),
+      loadImages: vi.fn(),
       loadFormats: vi.fn(),
       saveFormat: vi.fn(),
       deleteFormat: vi.fn(),
@@ -95,13 +101,26 @@ describe('BlankLabelsPage', () => {
     httpMock.verify();
   });
 
-  it('constructor_always_loadsFormatsAndDefaults', async () => {
+  it('constructor_always_loadsFormatsDefaultsAndLibraryImages', async () => {
     // Arrange & Act
     await setup();
 
     // Assert
     expect(store.loadFormats).toHaveBeenCalledTimes(1);
     expect(store.loadDefaults).toHaveBeenCalledTimes(1);
+    expect(store.loadImages).toHaveBeenCalledTimes(1);
+  });
+
+  it('constructor_libraryLoadFails_showsErrorToast', async () => {
+    // Arrange
+    await setup();
+    const onError = store.loadImages.mock.calls[0][0] as () => void;
+
+    // Act
+    onError();
+
+    // Assert
+    expect(messageAdd).toHaveBeenCalledWith({ severity: 'error', summary: 'Bibliothek konnte nicht geladen werden' });
   });
 
   it('constructor_rememberedDefaults_prefillsGraphicsAndCurrencyButNoNumbers', async () => {
@@ -422,30 +441,5 @@ describe('BlankLabelsPage', () => {
     // Assert
     expect(printLabelSheets).not.toHaveBeenCalled();
     expect(store.saveDefaults).not.toHaveBeenCalled();
-  });
-
-  it('onImageChosen_gifFile_showsErrorAndKeepsLogo', async () => {
-    // Arrange
-    const { page } = await setup();
-    const gif = new File(['x'], 'logo.gif', { type: 'image/gif' });
-
-    // Act
-    page.onImageChosen({ target: 'logo', file: gif });
-
-    // Assert
-    expect(messageAdd).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', detail: 'Nur PNG, JPEG oder SVG' }));
-    expect(page.logo()).toBeNull();
-  });
-
-  it('onImageChosen_pngFile_setsSellerSymbolToItsDataUrl', async () => {
-    // Arrange
-    const { page } = await setup();
-    const png = new File([new Uint8Array(3)], 'symbol.png', { type: 'image/png' });
-
-    // Act
-    page.onImageChosen({ target: 'sellerSymbol', file: png });
-
-    // Assert
-    await vi.waitFor(() => expect(page.sellerSymbol()).toEqual({ kind: 'image', value: 'data:image/png;base64,AAAA' }));
   });
 });

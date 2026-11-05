@@ -20,6 +20,47 @@
   <app-file-dropzone [accept]="accept" (filesChosen)="onFilesChosen($event)">
     Eigenes Bild (PNG, JPEG oder SVG bis 1 MB)
   </app-file-dropzone>
+  @if (libraryImages().length > 0) {
+    <div class="graphic-picker__library" role="group" aria-label="Bibliothek">
+      <div class="graphic-picker__library-header">
+        <span class="graphic-picker__library-title">Bibliothek</span>
+        <span class="graphic-picker__library-count">{{ libraryImages().length }} von {{ libraryMax }} Bildern</span>
+      </div>
+      <ul class="graphic-picker__library-list">
+        @for (image of libraryImages(); track image.id) {
+          <li class="graphic-picker__library-item">
+            <button
+              pButton
+              type="button"
+              class="graphic-picker__library-button"
+              [outlined]="image.dataUrl === null || currentImage()?.value !== image.dataUrl"
+              [disabled]="image.dataUrl === null"
+              [attr.aria-pressed]="image.dataUrl !== null && currentImage()?.value === image.dataUrl"
+              [attr.title]="image.name"
+              [attr.data-library-image]="image.id"
+              (click)="selectLibraryImage(image)"
+            >
+              @if (image.dataUrl !== null) {
+                <app-label-graphic class="graphic-picker__library-thumb" [graphic]="{ kind: 'image', value: image.dataUrl }" />
+              }
+              <span class="graphic-picker__library-name">{{ image.name }}</span>
+            </button>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-trash"
+              severity="danger"
+              size="small"
+              [text]="true"
+              [attr.aria-label]="'Bild „' + image.name + '“ löschen'"
+              [attr.data-library-delete]="image.id"
+              (click)="imageDeleteRequested.emit(image.id)"
+            ></button>
+          </li>
+        }
+      </ul>
+    </div>
+  }
   @if (currentImage(); as image) {
     <app-label-graphic class="graphic-picker__current" [graphic]="image" />
   }

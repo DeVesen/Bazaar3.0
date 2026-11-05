@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { LabelGraphic } from '../../../../shared/components/label-sheet/label-graphic';
 import { LabelContentErrors, LabelContentField, LabelContentTexts } from '../../model/label-content-rules';
-import { GraphicPicker } from '../graphic-picker/graphic-picker';
+import { GraphicPicker, LibraryImageOption } from '../graphic-picker/graphic-picker';
 
 export interface LabelContentFieldChange {
   field: LabelContentField;
@@ -30,11 +30,14 @@ export class LabelContentForm {
   readonly errors = input<LabelContentErrors>({});
   readonly logo = input<LabelGraphic | null>(null);
   readonly sellerSymbol = input<LabelGraphic | null>(null);
+  readonly libraryImages = input<LibraryImageOption[]>([]);
 
   readonly fieldChange = output<LabelContentFieldChange>();
   readonly logoChange = output<LabelGraphic | null>();
   readonly sellerSymbolChange = output<LabelGraphic | null>();
   readonly imageChosen = output<ImageChoice>();
+  /** Id des Bibliotheksbilds, dessen Löschen der Admin angestoßen hat. */
+  readonly imageDeleteRequested = output<string>();
 
   readonly fields: { field: TextField; label: string; inputId: string }[] = [
     { field: 'startNumber', label: 'Startnummer', inputId: 'label-content-start-number' },

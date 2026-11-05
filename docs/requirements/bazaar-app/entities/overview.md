@@ -19,7 +19,7 @@ mit vollständiger Feldtabelle; dieses Verzeichnis ist damit ohne Dokumente auß
 | Kategorie | [kategorie.md](kategorie.md) | Stammdatum, denormalisiert im Artikel |
 | Benutzer | [benutzer.md](benutzer.md) | Konto zum Anmelden, Rolle Admin oder Kassenpersonal |
 | Einstellungen | [einstellungen.md](einstellungen.md) | Systemparameter, eine Zeile |
-| Etiketten-Vordruck | [etiketten-vordruck.md](etiketten-vordruck.md) | Bogenformate und Werte des letzten Etikettendrucks |
+| Etiketten-Vordruck | [etiketten-vordruck.md](etiketten-vordruck.md) | Bogenformate, Bilder-Bibliothek und Werte des letzten Etikettendrucks |
 | Import-Format | [import-format.md](import-format.md) | JSON-Schema der Datei aus der Voranmelde-App |
 
 **Sprachregel:** Feldnamen englisch, Doku-Prosa deutsch — siehe

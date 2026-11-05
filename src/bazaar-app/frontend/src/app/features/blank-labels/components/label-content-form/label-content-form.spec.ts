@@ -91,4 +91,43 @@ describe('LabelContentForm', () => {
     // Assert
     expect(choices).toHaveBeenCalledWith({ target: 'logo', file });
   });
+
+  it('selectLibraryImage_logoPicker_emitsLogoChangeWithImage', async () => {
+    // Arrange
+    const fixture = await render();
+    const changes = vi.fn();
+    fixture.componentInstance.logoChange.subscribe(changes);
+    const [, logoPicker] = pickers(fixture);
+
+    // Act
+    logoPicker.imageSelected.emit({ kind: 'image', value: 'data:image/png;base64,AAAA' });
+
+    // Assert
+    expect(changes).toHaveBeenCalledWith({ kind: 'image', value: 'data:image/png;base64,AAAA' });
+  });
+
+  it('requestDelete_libraryImage_emitsImageDeleteRequestedWithId', async () => {
+    // Arrange
+    const fixture = await render();
+    const requests = vi.fn();
+    fixture.componentInstance.imageDeleteRequested.subscribe(requests);
+    const [sellerSymbolPicker] = pickers(fixture);
+
+    // Act
+    sellerSymbolPicker.imageDeleteRequested.emit('LIM00001');
+
+    // Assert
+    expect(requests).toHaveBeenCalledWith('LIM00001');
+  });
+
+  it('render_libraryImages_passedToBothPickers', async () => {
+    // Arrange
+    const libraryImages = [{ id: 'A', name: 'Sonne', dataUrl: 'data:image/png;base64,AAAA' }];
+
+    // Act
+    const fixture = await render({ libraryImages });
+
+    // Assert
+    expect(pickers(fixture).map((picker) => picker.libraryImages())).toEqual([libraryImages, libraryImages]);
+  });
 });

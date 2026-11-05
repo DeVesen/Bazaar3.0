@@ -11,17 +11,30 @@ Neu ist die Seite „Etiketten-Vordruck": ein eigener Menüeintrag in der Gruppe
 
 Die Seite hat drei Bereiche. Jeder Bereich zeigt links die Eingaben (ein Drittel der Breite) und rechts die Vorschau (zwei Drittel), die mit der Breite ihres Containers skaliert. · Aussage
 - **Bereich A, Bogenformat:** Etikettgröße (Etikettbreite, Etiketthöhe), Bogengröße (Bogenbreite, Bogenhöhe), leerer Rand (oben, rechts, unten, links), Abstand zwischen den Etiketten (waagerecht, senkrecht), Spalten und Zeilen; die Anzahl Etiketten pro Seite ist Spalten × Zeilen und wird berechnet angezeigt. Alle Maße in mm. Bogenformate lassen sich unter einem Namen speichern, über ein Auswahlfeld laden, überschreiben und löschen. Die Vorschau zeigt den Bogen mit Rand und Etikettenraster. · Aussage
-- **Bereich B, Etiketten-Inhalt (pro Druck):** Startnummer, Anzahl Etiketten, Verkäufer-Symbol, Logo, Währungssymbol (Standard „€"). Verkäufer-Symbol und Logo wählt man aus einer Icon-Liste oder lädt ein eigenes Bild hoch. Das Währungssymbol ist reiner Text (1 bis 3 Zeichen). Die Vorschau zeigt ein einzelnes Etikett mit allen Elementen. · Aussage
+- **Bereich B, Etiketten-Inhalt (pro Druck):** Startnummer, Anzahl Etiketten, Verkäufer-Symbol, Logo, Währungssymbol (Standard „€"). Verkäufer-Symbol und Logo wählt man aus einer Icon-Liste, aus der Bilder-Bibliothek oder lädt ein eigenes Bild hoch, das dabei in die Bibliothek kommt (Abschnitt „Bilder-Bibliothek“). Das Währungssymbol ist reiner Text (1 bis 3 Zeichen). Die Vorschau zeigt ein einzelnes Etikett mit allen Elementen. · Aussage
 - **Bereich C, Angebrochener Bogen:** Ein Eingabefeld „Startposition" für den ersten Bogen. Die Plätze davor bleiben leer und erscheinen in der Vorschau ausgegraut. · Aussage
 
 Aufbau eines Etiketts (105 × 35 mm, quer): Eine senkrechte Mittellinie ist die Falzlinie (manche Etiketten werden um einen Kabelbinder gefaltet, z. B. an Jacken). Links stehen der QR-Code (kodiert die Artikelnummer) mit der Artikelnummer im Klartext darunter (groß, unten mittig in der linken Hälfte), QR-Code und Klartext sind derselbe Wert, und neben dem QR-Code das Logo. Rechts steht das Preisfeld: eine Schreiblinie plus Währungssymbol. Das Verkäufer-Symbol steht oben rechts und unten links. · Aussage
 
 Ausgegeben wird über den Druckdialog des Browsers, wie bei den Belegen; die Seite weist auf „Skalierung 100 %, keine Seitenränder" hin. · Aussage
 
+## Bilder-Bibliothek
+Ergänzung vom 2026-11-05. Eigene Bilder für Logo und Verkäufer-Symbol sammelt eine gemeinsame Bibliothek im Backend (nur Admin). Wer in Bereich B ein eigenes Bild hochlädt, legt es dort ab und wählt es für das Feld; später wählt er es bei Logo oder Verkäufer-Symbol erneut aus. Im Picker erscheint dafür der Abschnitt „Bibliothek“ mit Vorschaubild und Namen je Bild und der Anzeige „{n} von 50 Bildern“; er erscheint nur, wenn mindestens ein Bild vorhanden ist. Ein Bild, das noch nicht geladen ist, steht als deaktivierter Button mit seinem Namen da. Jedes Bild hat einen Lösch-Button („Bild „{Name}“ löschen“) mit Bestätigung. · Aussage
+
+Die Bibliothek ist **Kopierquelle, keine Referenz**: Wählen kopiert das Bild in das Etikett und in die gemerkten Werte des letzten Drucks; es gibt keinen Verweis auf das Bibliotheks-Bild. · Aussage
+
+Soll-Vorgaben der Bibliothek:
+- Bilder: PNG, JPEG oder SVG, höchstens 1 MB (wie AC-15); Name 1 bis 50 Zeichen, an den Enden getrimmt, vorgeschlagen wird der Dateiname ohne Endung, kein Umbenennen. · Aussage
+- Höchstens 50 Bilder; eine gemeinsame Bibliothek für Logo und Verkäufer-Symbol. Bei gleichzeitigen Uploads kann die Grenze kurzzeitig um wenige Bilder überschritten werden; für einen lokalen Admin bewusst hingenommen. · Aussage
+- Inhaltsgleiche Bilder (SHA-256 der Bildbytes) legen keinen zweiten Eintrag an; das vorhandene Bild wird gewählt, auch bei voller Bibliothek. · Aussage
+- Beim ersten Start nach dem Update werden Bilder, die schon als Logo oder Verkäufer-Symbol gemerkt sind, mit den Namen „Logo“ bzw. „Verkäufer-Symbol“ in die Bibliothek übernommen, sofern ihr Inhalt dort fehlt. · Aussage
+- Meldungen: Bibliothek voll → „Bibliothek voll“ / „Bitte zuerst ein Bild löschen.“; Upload-Fehler → „Bild nicht übernommen“; Löschfehler → „Bild konnte nicht gelöscht werden“; Lösch-Bestätigung „Bild löschen“ / „Bild „{Name}“ aus der Bibliothek löschen?“ mit „Löschen“ und „Abbrechen“. · Aussage
+- Alle Endpunkte der Bibliothek sind nur für Admin; Kassenpersonal erhält 403. · Aussage
+
 ## Theoretisches Verhalten nach Umsetzung
 Der Admin öffnet „Etiketten-Vordruck", wählt oder erfasst ein Bogenformat, trägt Startnummer, Anzahl, Symbol, Logo und Währung ein und gibt bei einem angebrochenen Bogen die Startposition an. Mit „Drucken" öffnet sich der Druckdialog mit allen Etikettenbögen. Die Etiketten werden zeilenweise gesetzt (in der Zeile von links nach rechts, dann die nächste Zeile); die Nummern laufen in derselben Reihenfolge ab der Startnummer hoch. Folgebögen beginnen bei Platz 1. Beispiel 16er-Bogen (2 Spalten × 8 Zeilen): Zeile 1 = Platz 1 und 2, Zeile 2 = Platz 3 und 4; Startposition 7 beginnt in Zeile 4 links. · Aussage
 
-Bogenformate und eigene Bilder liegen im Backend und stehen auf jedem Gerät zur Verfügung. Logo, Verkäufer-Symbol und Währungssymbol des letzten Drucks sind beim nächsten Öffnen vorbelegt; Startnummer, Anzahl und Startposition nie. · Aussage
+Bogenformate und die Bilder-Bibliothek liegen im Backend und stehen auf jedem Gerät zur Verfügung. Logo, Verkäufer-Symbol und Währungssymbol des letzten Drucks sind beim nächsten Öffnen vorbelegt; Startnummer, Anzahl und Startposition nie. · Aussage
 
 ## Soll-Vorgaben
 - Alle Maße sind in mm; Etikettgröße und Bogengröße > 0, Ränder und Abstände ≥ 0, höchstens eine Nachkommastelle; Spalten und Zeilen ganzzahlig ≥ 1. Die Grenze „Maße > 0" aus der Entscheidung zu den Eingabegrenzen gilt für Etikettgröße und Bogengröße; Ränder und Abstände dürfen 0 sein, die Grenze „höchstens eine Nachkommastelle" gilt für alle Maße. · Aussage
@@ -77,6 +90,14 @@ Bogenformate und eigene Bilder liegen im Backend und stehen auf jedem Gerät zur
 - **AC-36** Gegeben Bereich A, wenn der Admin als Namen nur Leerzeichen oder mehr als 50 Zeichen einträgt, dann ist „Speichern" gesperrt. · Aussage
 - **AC-37** Gegeben ein gültiges Bogenformat, wenn der Admin den Namen „ Avery 12er " (mit Leerzeichen an beiden Enden) speichert, dann erscheint das Format als „Avery 12er" im Auswahlfeld. · Aussage
 - **AC-38** Gegeben zwei Geräte mit geöffneter Seite und noch kein Format „Avery 12er", wenn Admin A dort „Avery 12er" speichert und danach Admin B ohne Neuladen unter demselben Namen speichert, dann fragt die Seite bei B „Überschreiben?"; bei Bestätigung gilt das Format von B, bei Abbruch bleibt das von A. · Aussage
+- **B-1** Gegeben die Seite „Etiketten-Vordruck", wenn der Admin bei Logo oder Verkäufer-Symbol ein PNG, JPEG oder SVG bis 1 MB hochlädt, dann liegt das Bild in der Bibliothek und ist für dieses Feld gewählt. · Aussage
+- **B-2** Gegeben ein Bild in der Bibliothek, wenn der Admin die Seite auf einem anderen Gerät öffnet, dann zeigt die Auswahl bei Logo und Verkäufer-Symbol dieses Bild als Vorschaubild mit Namen. · Aussage
+- **B-3** Gegeben ein Bild in der Bibliothek, wenn der Admin es bei Logo oder Verkäufer-Symbol anklickt, dann zeigt die Etikett-Vorschau dieses Bild im jeweiligen Feld. · Aussage
+- **B-4** Gegeben eine andere Dateiart oder ein Bild über 1 MB, wenn der Admin es hochlädt, dann erscheint eine Fehlermeldung und die Bibliothek bleibt unverändert (wie AC-15). · Aussage
+- **B-5** Gegeben ein Bild in der Bibliothek, wenn der Admin es löscht und bestätigt, dann fehlt es in der Auswahl; ein damit bereits gewähltes Logo oder Symbol bleibt im Etikett erhalten. · Aussage
+- **B-6** Gegeben ein Bild, das inhaltsgleich schon in der Bibliothek liegt, wenn der Admin es erneut hochlädt, dann entsteht kein zweiter Eintrag; das vorhandene Bild wird gewählt. · Aussage
+- **B-7** Gegeben die Bibliothek ist voll (50 Bilder), wenn der Admin ein weiteres Bild hochlädt, dann erscheint eine Fehlermeldung „Bibliothek voll" und nichts wird gespeichert. · Aussage
+- **B-8** Gegeben ein Kassenpersonal-Konto, wenn es die Bibliotheks-Endpunkte aufruft, dann antwortet das Backend mit 403. · Aussage
 
 ## Entscheidungen
 - **W · Menü-Position** · Aussage — Eigener Eintrag in der Gruppe „System" direkt über „Einstellungen" (Q1).
@@ -114,3 +135,5 @@ Bogenformate und eigene Bilder liegen im Backend und stehen auf jedem Gerät zur
 - **R1 · Soll-Vorgaben** — geändert — Neues Verhalten, Beleg: Spec · Soll-Vorgaben — Die Regel „bei anderem Seitenverhältnis gilt das kleinere der beiden Verhältnisse" ist dort festgelegt, AC-21 deckt nur gleiches Seitenverhältnis ab; neues Kriterium AC-32 prüft den Fall 105 × 17,5 mm.
 - **R2 · Soll-Vorgaben** — geändert — Klarstellung: Der Widerspruch zwischen „Ränder und Abstände ≥ 0" und „Maße > 0" der Entscheidung Eingabegrenzen löst sich aus der Spec selbst: Die Entscheidung Abstand legt die Vorgabe 0 fest, die Entscheidung Maßbegriffe nennt nur Etikett- und Bogengröße als Maße, und das Standardformat (AC-04, AC-07) setzt Ränder 0 voraus. Die Soll-Vorgabe hält jetzt fest, dass „> 0" nur für Etikett- und Bogengröße gilt; der W-Eintrag bleibt unverändert.
 - **R3 · Entscheidungen** — nicht geändert — W-Eintrag ist bindend
+- **Bilder-Bibliothek ist Kopierquelle, keine Referenz (2026-11-05)** · Aussage — Die Bibliothek ergänzt W · Speicherort und W · Bilder (Q7, Q9); AC-15 und AC-17 gelten weiter. Wählen kopiert die Data-URL in das Etikett (`LabelGraphic` mit `kind: 'image'`) und in die gemerkten Werte; `LabelPrintDefaults`, Druck und Etikett-Darstellung bleiben unverändert, Löschen eines Bibliotheks-Bildes kann kein gewähltes Logo oder Symbol zerstören (B-5). Kosten: Das Bild liegt bis zu zweimal in der Datenbank (je höchstens 1 MB), vertretbar. Bestätigt von Sven Reichert am 2026-11-05 (Plan `docs/forge/2026-11-05-etiketten-bilder-bibliothek/plan.md`). Projekt führt keine ADR-Ablage, daher hier.
+- **Bilder-Bibliothek, bestätigte Defaults (2026-11-05)** · Aussage — F-1 Löschen eines gewählten Bildes erlaubt, Logo/Symbol bleibt (Kopie); F-2 höchstens 50 Bilder; F-3 Name = Dateiname ohne Endung, gekürzt auf 50 Zeichen, kein Umbenennen; F-4 eine gemeinsame Bibliothek für Logo und Verkäufer-Symbol; F-5 hochgeladenes Bild kommt sofort in die Bibliothek und ist gewählt; F-6 vorhandene Logo-/Symbol-Bilder werden beim Start einmalig übernommen (Duplikat-Regel greift). Schutzbedarf der Bilder: normal (F-7).

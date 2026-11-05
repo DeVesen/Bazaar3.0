@@ -1,6 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { BlankLabelsApi, LabelPrintDefaults, SaveSheetFormatRequest, SheetFormat } from './data/blank-labels-api';
+import {
+  BlankLabelsApi,
+  LabelImageSummary,
+  LabelPrintDefaults,
+  SaveSheetFormatRequest,
+  SheetFormat,
+  UploadLabelImageRequest,
+} from './data/blank-labels-api';
 
 function sortedByName(formats: SheetFormat[]): SheetFormat[] {
   return [...formats].sort((a, b) => a.name.localeCompare(b.name));
@@ -41,5 +48,59 @@ export class BlankLabelsStore {
 
   saveDefaults(defaults: LabelPrintDefaults): Observable<void> {
     return this.api.saveDefaults(defaults);
+  }
+
+  /** Bilder der Bibliothek, neueste zuerst. */
+  readonly images = signal<LabelImageSummary[]>([]);
+  /** Data-URLs der Vorschaubilder je Id; fehlt eine Id, lädt oder scheiterte ihr Bild. */
+  readonly imageContents = signal<Record<string, string>>({});
+  private readonly requestedImageIds = new Set<string>();
+
+  /**
+   * Lädt die Liste und die Inhalte jedes Bilds einmal; ein Fehler bei einem Bild betrifft nur dieses.
+   * Scheitert das Laden der Liste, ruft der Store `onError` auf, damit die Seite es melden kann.
+   */
+  loadImages(onError?: () => void): void {
+    this.api.getImages().subscribe({
+      next: (images) => {
+        this.images.set(images);
+        images.forEach((image) => this.loadImageContent(image.id));
+      },
+      error: () => {
+        this.images.set([]);
+        onError?.();
+      },
+    });
+  }
+
+  /** Ein inhaltsgleich vorhandenes Bild (Duplikat) behält seine Position in der Liste. */
+  uploadImage(request: UploadLabelImageRequest): Observable<LabelImageSummary> {
+    return this.api.uploadImage(request).pipe(
+      tap((saved) => {
+        const current = this.images();
+        this.images.set(current.some((image) => image.id === saved.id) ? current.map((image) => (image.id === saved.id ? saved : image)) : [saved, ...current]);
+        this.requestedImageIds.add(saved.id);
+        this.imageContents.update((contents) => ({ ...contents, [saved.id]: request.dataUrl }));
+      }),
+    );
+  }
+
+  deleteImage(id: string): Observable<void> {
+    return this.api.deleteImage(id).pipe(
+      tap(() => {
+        this.images.set(this.images().filter((image) => image.id !== id));
+        this.requestedImageIds.delete(id);
+        this.imageContents.update((contents) => Object.fromEntries(Object.entries(contents).filter(([contentId]) => contentId !== id)));
+      }),
+    );
+  }
+
+  private loadImageContent(id: string): void {
+    if (this.requestedImageIds.has(id)) return;
+    this.requestedImageIds.add(id);
+    this.api.getImage(id).subscribe({
+      next: (image) => this.imageContents.update((contents) => ({ ...contents, [id]: image.dataUrl })),
+      error: () => this.requestedImageIds.delete(id),
+    });
   }
 }

@@ -38,11 +38,13 @@
         [texts]="contentTexts()"
         [errors]="contentValidation().errors"
         [logo]="logo()"
+        [libraryImages]="libraryImages()"
         [sellerSymbol]="sellerSymbol()"
         (fieldChange)="onContentFieldChange($event)"
         (logoChange)="logo.set($event)"
         (sellerSymbolChange)="sellerSymbol.set($event)"
         (imageChosen)="onImageChosen($event)"
+        (imageDeleteRequested)="onImageDeleteRequested($event)"
       />
     </div>
     <div class="blank-labels__preview">

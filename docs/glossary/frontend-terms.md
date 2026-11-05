@@ -132,6 +132,12 @@
 - **Confidence:** user-confirmed
 - **First seen:** 2026-11-05
 
+### Bilder-Bibliothek (Haupt-App)
+- **Maps to:** `LabelImage` (`src/bazaar-app/backend/Bazaar.Domain/BlankLabels/LabelImage.cs`) — eigenes Bild (PNG, JPEG oder SVG, höchstens 1 MB, Name 1 bis 50 Zeichen) in der gemeinsamen Bibliothek für Logo und Verkäufer-Symbol des Etiketten-Vordrucks, höchstens 50 Bilder, inhaltsgleiche Bilder (SHA-256) nur einmal; Tabelle `LabelImages`, Endpoints `GET/POST /api/label-images`, `GET/DELETE /api/label-images/{id}` (`Bazaar.Api/Features/BlankLabels/LabelImageEndpoints.cs`); `GraphicPicker` (`src/bazaar-app/frontend/src/app/features/blank-labels/components/graphic-picker/graphic-picker.html`) — Abschnitt „Bibliothek“ mit Vorschaubildern, Löschen und „n von 50 Bildern“. Die Bibliothek ist Kopierquelle: Wählen kopiert die Data-URL in das Etikett, `LabelPrintDefaults` verweist nicht auf die `id`.
+- **Aliases:** Bildbibliothek, Label-Image-Library
+- **Confidence:** user-confirmed
+- **First seen:** 2026-11-05
+
 ### Einstellungs-Tabs (Haupt-App)
 - **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/pages/settings-page/settings-tabs.ts` — vier Tabs der Einstellungsseite: „Basis-Einstellungen" (`general`, Scan-Pause, Freigabe-Schalter, Standard-Verkäufer-Typ), „User" (`users`, Benutzerverwaltung), „Beleg Druck" (`print`, Freitexte der Belege), „Sonstiges" (`misc`, JSON-Import und nur im Development-Modus „Datenbank zurücksetzen"); aktiver Tab im Query-Parameter `tab`.
 - **Confidence:** user-confirmed

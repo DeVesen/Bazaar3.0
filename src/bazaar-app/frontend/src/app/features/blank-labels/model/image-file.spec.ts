@@ -1,10 +1,43 @@
-import { MAX_IMAGE_BYTES, imageFileError, readFileAsDataUrl } from './image-file';
+import { IMAGE_NAME_MAX_LENGTH, MAX_IMAGE_BYTES, imageFileError, imageNameOf, readFileAsDataUrl } from './image-file';
 
 function fileOf(type: string, size: number): File {
   return new File([new Uint8Array(size)], 'bild', { type });
 }
 
 describe('image-file', () => {
+  it('imageNameOf_fileNameWithExtension_returnsNameWithoutExtension', () => {
+    // Arrange
+    const file = new File(['x'], 'Mein Logo.final.png', { type: 'image/png' });
+
+    // Act
+    const name = imageNameOf(file);
+
+    // Assert
+    expect(name).toBe('Mein Logo.final');
+  });
+
+  it('imageNameOf_veryLongName_isTruncatedToMaxLength', () => {
+    // Arrange
+    const file = new File(['x'], `${'a'.repeat(80)}.png`, { type: 'image/png' });
+
+    // Act
+    const name = imageNameOf(file);
+
+    // Assert
+    expect(name).toHaveLength(IMAGE_NAME_MAX_LENGTH);
+  });
+
+  it('imageNameOf_onlyExtension_returnsFallbackName', () => {
+    // Arrange
+    const file = new File(['x'], '.png', { type: 'image/png' });
+
+    // Act
+    const name = imageNameOf(file);
+
+    // Assert
+    expect(name).toBe('Bild');
+  });
+
   it.each(['image/png', 'image/jpeg', 'image/svg+xml'])('imageFileError_%sUpTo1Mb_returnsNull', (type) => {
     // Arrange
     const file = fileOf(type, MAX_IMAGE_BYTES);
