@@ -8,6 +8,7 @@ import { Page } from '../../../../shared/components/page/page';
 import { LabelCard } from '../../../../shared/components/label-sheet/label-card';
 import { LabelContent, LabelGraphic } from '../../../../shared/components/label-sheet/label-graphic';
 import { AVERY_16_GEOMETRY, labelsPerSheet } from '../../../../shared/components/label-sheet/label-geometry';
+import { DEFAULT_LABEL_ELEMENT_SIZES } from '../../../../shared/components/label-sheet/label-layout';
 import { LabelSheet } from '../../../../shared/components/label-sheet/label-sheet';
 import { LabelSlot, placeLabels, startPositionPreview } from '../../../../shared/components/label-sheet/label-slots';
 import { BlankLabelsStore } from '../../blank-labels-store';
@@ -109,6 +110,7 @@ export class BlankLabelsPage {
     logo: this.logo(),
     sellerSymbol: this.sellerSymbol(),
     currencySymbol: this.contentTexts().currencySymbol,
+    sizes: DEFAULT_LABEL_ELEMENT_SIZES,
   }));
 
   constructor() {

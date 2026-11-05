@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { QrCode } from '../qr-code/qr-code';
 import { LabelGraphic } from './label-graphic';
 import { LabelGraphicView } from './label-graphic-view';
-import { LabelBox, LabelLine, LabelText, labelLayout } from './label-layout';
+import { DEFAULT_LABEL_ELEMENT_SIZES, LabelBox, LabelElementSizes, LabelPriceRow, LabelRect, LabelText, labelLayout } from './label-layout';
 
 type Style = Record<string, string>;
 
 export type LabelCardStyles = Record<
-  'fold' | 'qr' | 'numberText' | 'logo' | 'sellerSymbolTopRight' | 'sellerSymbolBottomLeft' | 'priceLine' | 'currency',
+  'fold' | 'qr' | 'numberText' | 'logo' | 'sellerSymbolTopRight' | 'sellerSymbolBottomLeft' | 'priceRow',
   Style
 >;
 
@@ -16,6 +16,7 @@ export type LabelCardStyles = Record<
  * Etikettgröße, Schrift in `cqw` des Etiketts: Dasselbe Markup skaliert in der Vorschau mit der
  * Containerbreite und liegt im Druck exakt in mm. Ohne Nummer (Vorschau vor gültiger
  * Startnummer) entfallen QR-Code und Klartext; ohne Logo oder Symbol bleibt deren Platz leer.
+ * Das Logo füllt eingepasst die freie Fläche; ist sie 0 breit oder hoch, entfällt es.
  */
 @Component({
   selector: 'app-label-card',
@@ -32,6 +33,7 @@ export class LabelCard {
   readonly sellerSymbol = input<LabelGraphic | null>(null);
   readonly currencySymbol = input<string>('€');
   readonly showFoldLine = input<boolean>(false);
+  readonly sizes = input<LabelElementSizes>(DEFAULT_LABEL_ELEMENT_SIZES);
 
   /** Derselbe Wert für QR-Code und Klartext — genau die Nummer, ohne weitere Zeichen. */
   readonly numberText = computed(() => {
@@ -41,19 +43,26 @@ export class LabelCard {
 
   readonly aspectRatio = computed(() => `${this.width()} / ${this.height()}`);
 
+  private readonly layout = computed(() => labelLayout(this.width(), this.height(), this.sizes()));
+
+  /** Logo nur, wenn seine freie Fläche nicht leer ist. */
+  readonly hasLogoArea = computed(() => {
+    const logo = this.layout().logo;
+    return logo.width > 0 && logo.height > 0;
+  });
+
   readonly styles = computed<LabelCardStyles>(() => {
     const width = this.width();
     const height = this.height();
-    const layout = labelLayout(width, height);
+    const layout = this.layout();
     return {
       fold: { left: percentOf(layout.foldX, width) },
       qr: boxStyle(layout.qr, width, height),
       numberText: { ...textStyle(layout.numberText, width, height), transform: 'translateX(-50%)' },
-      logo: boxStyle(layout.logo, width, height),
+      logo: rectStyle(layout.logo, width, height),
       sellerSymbolTopRight: boxStyle(layout.sellerSymbolTopRight, width, height),
       sellerSymbolBottomLeft: boxStyle(layout.sellerSymbolBottomLeft, width, height),
-      priceLine: lineStyle(layout.priceLine, width, height),
-      currency: textStyle(layout.currency, width, height),
+      priceRow: priceRowStyle(layout.priceRow, width, height),
     };
   });
 }
@@ -63,27 +72,31 @@ function percentOf(value: number, total: number): string {
 }
 
 function boxStyle(box: LabelBox, width: number, height: number): Style {
+  return rectStyle({ x: box.x, y: box.y, width: box.size, height: box.size }, width, height);
+}
+
+function rectStyle(rect: LabelRect, width: number, height: number): Style {
   return {
-    left: percentOf(box.x, width),
-    top: percentOf(box.y, height),
-    width: percentOf(box.size, width),
-    height: percentOf(box.size, height),
+    left: percentOf(rect.x, width),
+    top: percentOf(rect.y, height),
+    width: percentOf(rect.width, width),
+    height: percentOf(rect.height, height),
   };
 }
 
 /** `cqw` bezieht sich auf die Breite des Etiketts (`container-type: inline-size` in `.label-card`). */
+function fontSizeOf(fontSize: number, width: number): string {
+  return `${(fontSize / width) * 100}cqw`;
+}
+
 function textStyle(text: LabelText, width: number, height: number): Style {
   return {
     left: percentOf(text.x, width),
     top: percentOf(text.y, height),
-    'font-size': `${(text.fontSize / width) * 100}cqw`,
+    'font-size': fontSizeOf(text.fontSize, width),
   };
 }
 
-function lineStyle(line: LabelLine, width: number, height: number): Style {
-  return {
-    left: percentOf(line.x1, width),
-    width: percentOf(line.x2 - line.x1, width),
-    top: percentOf(line.y, height),
-  };
+function priceRowStyle(row: LabelPriceRow, width: number, height: number): Style {
+  return { ...rectStyle(row, width, height), 'font-size': fontSizeOf(row.fontSize, width) };
 }

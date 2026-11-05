@@ -2,12 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LabelSheetsDocument, LabelSheetsPrintModel } from './label-sheets-document';
 import { AVERY_16_GEOMETRY } from './label-geometry';
 import { placeLabels } from './label-slots';
+import { DEFAULT_LABEL_ELEMENT_SIZES } from './label-layout';
 
 function model(startNumber: number, count: number, startPosition: number, geometry = AVERY_16_GEOMETRY): LabelSheetsPrintModel {
   return {
     geometry,
     sheets: placeLabels(startNumber, count, startPosition, 16),
-    content: { logo: null, sellerSymbol: null, currencySymbol: '€' },
+    content: { logo: null, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES },
   };
 }
 

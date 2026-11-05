@@ -1,3 +1,5 @@
+import { DEFAULT_LABEL_ELEMENT_SIZES, LabelElementSizes } from './label-layout';
+
 /** Icon-Liste für Logo und Verkäufer-Symbol; Schlüssel wie im Backend (`^[a-z0-9-]{1,30}$`). */
 export const LABEL_ICON_KEYS = ['star', 'heart', 'sun', 'moon', 'flower', 'leaf', 'crown', 'gift', 'cloud'] as const;
 
@@ -23,6 +25,12 @@ export interface LabelContent {
   logo: LabelGraphic | null;
   sellerSymbol: LabelGraphic | null;
   currencySymbol: string;
+  sizes: LabelElementSizes;
 }
 
-export const EMPTY_LABEL_CONTENT: LabelContent = { logo: null, sellerSymbol: null, currencySymbol: '€' };
+export const EMPTY_LABEL_CONTENT: LabelContent = {
+  logo: null,
+  sellerSymbol: null,
+  currencySymbol: '€',
+  sizes: DEFAULT_LABEL_ELEMENT_SIZES,
+};

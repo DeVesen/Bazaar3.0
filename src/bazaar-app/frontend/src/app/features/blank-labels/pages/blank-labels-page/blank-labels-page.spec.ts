@@ -8,6 +8,7 @@ import { PrintService } from '../../../../core/print/print.service';
 import { BlankLabelsStore } from '../../blank-labels-store';
 import { LabelImageSummary, LabelPrintDefaults, NAME_TAKEN_ERROR_CODE, SheetFormat } from '../../data/blank-labels-api';
 import { BlankLabelsPage } from './blank-labels-page';
+import { DEFAULT_LABEL_ELEMENT_SIZES } from '../../../../shared/components/label-sheet/label-layout';
 
 const AVERY_12: SheetFormat = {
   id: 'LSF00001',
@@ -381,8 +382,8 @@ describe('BlankLabelsPage', () => {
     expect(model.sheets).toHaveLength(2);
     expect(model.sheets[0][6]).toEqual({ kind: 'label', number: 1000 });
     expect(model.sheets[1][1]).toEqual({ kind: 'label', number: 1011 });
-    expect(model.content).toEqual({ logo: { kind: 'icon', value: 'star' }, sellerSymbol: null, currencySymbol: '€' });
-    expect(store.saveDefaults).toHaveBeenCalledWith({ logo: { kind: 'icon', value: 'star' }, sellerSymbol: null, currencySymbol: '€' });
+    expect(model.content).toEqual({ logo: { kind: 'icon', value: 'star' }, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES });
+    expect(store.saveDefaults).toHaveBeenCalledWith({ logo: { kind: 'icon', value: 'star' }, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES });
   });
 
   it('onPrint_withoutLogoAndSymbol_printsLabelsWithoutGraphics', async () => {
@@ -394,7 +395,7 @@ describe('BlankLabelsPage', () => {
     page.onPrint();
 
     // Assert
-    expect(printLabelSheets.mock.calls[0][0].content).toEqual({ logo: null, sellerSymbol: null, currencySymbol: '€' });
+    expect(printLabelSheets.mock.calls[0][0].content).toEqual({ logo: null, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES });
   });
 
   // AC-30: Die Seite kennt keine Artikel. Ob ein Artikel 1000 existiert, kann den Druck nicht beeinflussen,

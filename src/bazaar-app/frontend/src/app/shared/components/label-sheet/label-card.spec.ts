@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { LabelCard } from './label-card';
 import { LabelGraphic } from './label-graphic';
+import { DEFAULT_LABEL_ELEMENT_SIZES } from './label-layout';
 import { QrCode } from '../qr-code/qr-code';
 
 const STAR: LabelGraphic = { kind: 'icon', value: 'star' };
@@ -51,7 +52,8 @@ describe('LabelCard', () => {
     // Assert
     const styles = fixture.componentInstance.styles();
     expect(element(fixture, '.label-card__number')?.textContent?.trim()).toBe('1000');
-    expect(percent(styles.numberText['top'])).toBeGreaterThan(percent(styles.qr['top']) + percent(styles.qr['height']));
+    // Vorgaben auf 105 × 35: Artikel-Nummer beginnt genau an der Unterkante des QR-Codes (23 mm).
+    expect(percent(styles.numberText['top'])).toBeCloseTo(percent(styles.qr['top']) + percent(styles.qr['height']));
     expect(percent(styles.numberText['left'])).toBeGreaterThan(percent(styles.qr['left']));
     expect(percent(styles.numberText['left'])).toBeLessThan(50);
   });
@@ -68,9 +70,9 @@ describe('LabelCard', () => {
     expect(percent(styles.sellerSymbolTopRight['top'])).toBeLessThan(50);
     expect(percent(styles.sellerSymbolBottomLeft['left'])).toBeLessThan(50);
     expect(percent(styles.sellerSymbolBottomLeft['top'])).toBeGreaterThan(50);
-    expect(percent(styles.priceLine['left'])).toBeGreaterThan(50);
-    expect(element(fixture, '.label-card__price-line')).not.toBeNull();
-    expect(element(fixture, '.label-card__currency')?.textContent?.trim()).toBe('$');
+    expect(percent(styles.priceRow['left'])).toBeGreaterThan(50);
+    expect(element(fixture, '.label-card__price-row .label-card__price-line')).not.toBeNull();
+    expect(element(fixture, '.label-card__price-row .label-card__currency')?.textContent?.trim()).toBe('$');
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('.label-card__symbol')).toHaveLength(2);
   });
 
@@ -136,7 +138,7 @@ describe('LabelCard', () => {
     expect(element(fixture, '.label-card__number')).toBeNull();
   });
 
-  it('styles_halfSizeLabel_keepsSamePercentagesAsFullSize', async () => {
+  it('styles_halfSizeLabel_keepsElementSizesInMm', async () => {
     // Arrange
     const full = await render({ number: 1000 });
     const fullStyles = full.componentInstance.styles();
@@ -146,8 +148,44 @@ describe('LabelCard', () => {
 
     // Assert
     const halfStyles = half.componentInstance.styles();
-    expect(percent(halfStyles.qr['width'])).toBeCloseTo(percent(fullStyles.qr['width']));
-    expect(halfStyles.numberText['font-size']).toBe(fullStyles.numberText['font-size']);
+    expect(percent(halfStyles.qr['width'])).toBeCloseTo(percent(fullStyles.qr['width']) * 2);
+    expect(percent(halfStyles.numberText['font-size'])).toBeCloseTo(percent(fullStyles.numberText['font-size']) * 2);
     expect(half.componentInstance.aspectRatio()).toBe('52.5 / 17.5');
+  });
+
+  // A2
+  it('styles_defaultSizes_logoBoxFillsFreeAreaBesideQrCode', async () => {
+    // Arrange & Act
+    const fixture = await render({ number: 1000, logo: PNG_LOGO });
+
+    // Assert
+    const logo = fixture.componentInstance.styles().logo;
+    expect(percent(logo['left'])).toBeCloseTo((24.5 / 105) * 100);
+    expect(percent(logo['top'])).toBeCloseTo((1.5 / 35) * 100);
+    expect(percent(logo['width'])).toBeCloseTo((26.5 / 105) * 100);
+    expect(percent(logo['height'])).toBeCloseTo((20 / 35) * 100);
+    expect(element(fixture, '.label-card__logo')).not.toBeNull();
+  });
+
+  it('render_qrCodeBeyondFold_rendersNoLogo', async () => {
+    // Arrange & Act
+    const fixture = await render({ number: 1000, logo: PNG_LOGO, sizes: { ...DEFAULT_LABEL_ELEMENT_SIZES, qrCode: 60 } });
+
+    // Assert
+    expect(element(fixture, '.label-card__logo')).toBeNull();
+  });
+
+  // A5
+  it('render_currencyHeight9_priceRowHasLineThenCurrencyWithFontInCqw', async () => {
+    // Arrange & Act
+    const fixture = await render({ currencySymbol: '€', sizes: { ...DEFAULT_LABEL_ELEMENT_SIZES, currencyHeight: 9 } });
+
+    // Assert
+    const row = element(fixture, '.label-card__price-row');
+    const children = Array.from(row?.children ?? []).map((child) => child.className);
+    expect(children).toEqual(['label-card__price-line', 'label-card__currency']);
+    expect(row?.style.fontSize).toBe(`${(9 / 105) * 100}cqw`);
+    const styles = fixture.componentInstance.styles().priceRow;
+    expect(percent(styles['left']) + percent(styles['width'])).toBeCloseTo((103.5 / 105) * 100);
   });
 });

@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LabelSheet } from './label-sheet';
+import { By } from '@angular/platform-browser';
 import { AVERY_16_GEOMETRY } from './label-geometry';
+import { LabelCard } from './label-card';
+import { DEFAULT_LABEL_ELEMENT_SIZES } from './label-layout';
 import { LabelSlot, startPositionPreview } from './label-slots';
 
 async function render(slots: LabelSlot[], inputs: Record<string, unknown> = {}): Promise<ComponentFixture<LabelSheet>> {
@@ -80,13 +83,25 @@ describe('LabelSheet', () => {
     const slots: LabelSlot[] = [{ kind: 'label', number: 1000 }, ...startPositionPreview(1, 15)];
 
     // Act
-    const fixture = await render(slots, { content: { logo: null, sellerSymbol: null, currencySymbol: '$' } });
+    const fixture = await render(slots, { content: { logo: null, sellerSymbol: null, currencySymbol: '$', sizes: DEFAULT_LABEL_ELEMENT_SIZES } });
 
     // Assert
     const first = slotElements(fixture)[0];
     expect(first.querySelector('.label-card__number')?.textContent?.trim()).toBe('1000');
     expect(first.querySelector('.label-card__currency')?.textContent?.trim()).toBe('$');
     expect(slotElements(fixture)[1].querySelector('app-label-card')).toBeNull();
+  });
+
+  it('render_contentWithSizes_passesSizesToLabelCard', async () => {
+    // Arrange
+    const sizes = { qrCode: 18, sellerSymbol: 7, numberHeight: 9, currencyHeight: 10 };
+
+    // Act
+    const fixture = await render([{ kind: 'label', number: 1000 }], { content: { logo: null, sellerSymbol: null, currencySymbol: '€', sizes } });
+
+    // Assert
+    const card = fixture.debugElement.query(By.directive(LabelCard)).componentInstance as LabelCard;
+    expect(card.sizes()).toEqual(sizes);
   });
 
   it('render_offsetWithoutApplyOffset_previewIsNotShifted', async () => {

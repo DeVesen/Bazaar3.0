@@ -14,6 +14,8 @@ import { PrintTexts, PrintTextsApi, emptyPrintTexts } from '../../features/setti
 import { AVERY_16_GEOMETRY } from '../../shared/components/label-sheet/label-geometry';
 // eslint-disable-next-line boundaries/dependencies -- see print.service.ts's own justification
 import { placeLabels } from '../../shared/components/label-sheet/label-slots';
+// eslint-disable-next-line boundaries/dependencies -- see print.service.ts's own justification
+import { DEFAULT_LABEL_ELEMENT_SIZES } from '../../shared/components/label-sheet/label-layout';
 
 const seller: SellerDetail = {
   id: 'seller-1',
@@ -468,7 +470,7 @@ describe('PrintService', () => {
       service.printLabelSheets({
           geometry: AVERY_16_GEOMETRY,
           sheets: placeLabels(1000, 12, 7, 16),
-          content: { logo: null, sellerSymbol: null, currencySymbol: '€' },
+          content: { logo: null, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES },
         });
 
       // Assert
@@ -484,7 +486,7 @@ describe('PrintService', () => {
       service.printLabelSheets({
           geometry: AVERY_16_GEOMETRY,
           sheets: placeLabels(1000, 4, 1, 16),
-          content: { logo: null, sellerSymbol: null, currencySymbol: '€' },
+          content: { logo: null, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES },
         });
 
       // Assert
@@ -501,7 +503,7 @@ describe('PrintService', () => {
       service.printLabelSheets({
           geometry: AVERY_16_GEOMETRY,
           sheets: placeLabels(1000, 4, 1, 16),
-          content: { logo: null, sellerSymbol: null, currencySymbol: '€' },
+          content: { logo: null, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES },
         });
 
       // Assert
@@ -514,7 +516,7 @@ describe('PrintService', () => {
       service.printLabelSheets({
           geometry: AVERY_16_GEOMETRY,
           sheets: placeLabels(1000, 4, 1, 16),
-          content: { logo: null, sellerSymbol: null, currencySymbol: '€' },
+          content: { logo: null, sellerSymbol: null, currencySymbol: '€', sizes: DEFAULT_LABEL_ELEMENT_SIZES },
         });
 
       // Act

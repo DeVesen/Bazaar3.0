@@ -1,7 +1,7 @@
-import { LabelBox, LabelLayout, labelLayout, labelScale } from './label-layout';
+import { DEFAULT_LABEL_ELEMENT_SIZES, LabelElementSizes, labelLayout, labelScale } from './label-layout';
 
-function boxes(layout: LabelLayout): LabelBox[] {
-  return [layout.qr, layout.logo, layout.sellerSymbolTopRight, layout.sellerSymbolBottomLeft];
+function sizes(overrides: Partial<LabelElementSizes>): LabelElementSizes {
+  return { ...DEFAULT_LABEL_ELEMENT_SIZES, ...overrides };
 }
 
 describe('label-layout', () => {
@@ -21,79 +21,165 @@ describe('label-layout', () => {
     expect(scale).toBe(0.5);
   });
 
-  it('labelLayout_halfSize52_5x17_5_everyElementIsHalfAsLarge', () => {
-    // Arrange
-    const full = labelLayout(105, 35);
-
-    // Act
-    const half = labelLayout(52.5, 17.5);
-
-    // Assert
-    expect(half.qr.size).toBeCloseTo(full.qr.size / 2);
-    expect(half.qr.x).toBeCloseTo(full.qr.x / 2);
-    expect(half.qr.y).toBeCloseTo(full.qr.y / 2);
-    expect(half.logo.size).toBeCloseTo(full.logo.size / 2);
-    expect(half.logo.x).toBeCloseTo(full.logo.x / 2);
-    expect(half.sellerSymbolTopRight.size).toBeCloseTo(full.sellerSymbolTopRight.size / 2);
-    expect(half.sellerSymbolTopRight.x).toBeCloseTo(full.sellerSymbolTopRight.x / 2);
-    expect(half.sellerSymbolBottomLeft.y).toBeCloseTo(full.sellerSymbolBottomLeft.y / 2);
-    expect(half.numberText.fontSize).toBeCloseTo(full.numberText.fontSize / 2);
-    expect(half.numberText.y).toBeCloseTo(full.numberText.y / 2);
-    expect(half.priceLine.x1).toBeCloseTo(full.priceLine.x1 / 2);
-    expect(half.priceLine.x2).toBeCloseTo(full.priceLine.x2 / 2);
-    expect(half.currency.fontSize).toBeCloseTo(full.currency.fontSize / 2);
-    expect(half.foldX).toBeCloseTo(full.foldX / 2);
-  });
-
-  it('labelLayout_105x17_5_elementsHalfSizeAndInsideLabel', () => {
-    // Arrange
-    const full = labelLayout(105, 35);
-
-    // Act
-    const flat = labelLayout(105, 17.5);
-
-    // Assert
-    expect(flat.qr.size).toBeCloseTo(full.qr.size / 2);
-    expect(flat.logo.size).toBeCloseTo(full.logo.size / 2);
-    expect(flat.numberText.fontSize).toBeCloseTo(full.numberText.fontSize / 2);
-    for (const box of boxes(flat)) {
-      expect(box.x).toBeGreaterThanOrEqual(0);
-      expect(box.y).toBeGreaterThanOrEqual(0);
-      expect(box.x + box.size).toBeLessThanOrEqual(105);
-      expect(box.y + box.size).toBeLessThanOrEqual(17.5);
-    }
-    expect(flat.numberText.y + flat.numberText.fontSize).toBeLessThanOrEqual(17.5);
-    expect(flat.priceLine.x2).toBeLessThanOrEqual(105);
-    expect(flat.priceLine.y).toBeLessThanOrEqual(17.5);
-    expect(flat.currency.x + flat.currency.fontSize).toBeLessThanOrEqual(105);
-    expect(flat.currency.y + flat.currency.fontSize).toBeLessThanOrEqual(17.5);
-  });
-
-  it('labelLayout_base_placesQrLeftLogoBesideAndPriceRight', () => {
+  it('DEFAULT_LABEL_ELEMENT_SIZES_always_matchesFormerConstants', () => {
     // Arrange & Act
-    const layout = labelLayout(105, 35);
+    const defaults = DEFAULT_LABEL_ELEMENT_SIZES;
 
     // Assert
-    expect(layout.logo.x).toBeGreaterThan(layout.qr.x + layout.qr.size);
-    expect(layout.logo.x + layout.logo.size).toBeLessThan(layout.foldX);
-    expect(layout.numberText.y).toBeGreaterThan(layout.qr.y + layout.qr.size);
-    expect(layout.priceLine.x1).toBeGreaterThan(layout.foldX);
-    expect(layout.currency.x).toBeGreaterThan(layout.priceLine.x2);
-    expect(layout.sellerSymbolTopRight.x).toBeGreaterThan(layout.foldX);
-    expect(layout.numberText.x).toBeGreaterThan(layout.sellerSymbolBottomLeft.x + layout.sellerSymbolBottomLeft.size);
-    expect(layout.numberText.x).toBeLessThan(layout.foldX);
-    expect(layout.sellerSymbolBottomLeft.y + layout.sellerSymbolBottomLeft.size).toBeLessThanOrEqual(35);
+    expect(defaults).toEqual({ qrCode: 21.5, sellerSymbol: 5, numberHeight: 10.5, currencyHeight: 12 });
   });
 
-  it('labelLayout_base_alignsNumberPriceLineAndCurrencyWithBottomLeftSymbol', () => {
+  it('labelLayout_base105x35WithDefaults_keepsQrNumberAndBottomLeftSymbolAsBefore', () => {
     // Arrange & Act
-    const layout = labelLayout(105, 35);
+    const layout = labelLayout(105, 35, DEFAULT_LABEL_ELEMENT_SIZES);
 
     // Assert
-    const symbolBottom = layout.sellerSymbolBottomLeft.y + layout.sellerSymbolBottomLeft.size;
-    expect(layout.numberText.y + layout.numberText.fontSize).toBeCloseTo(symbolBottom);
-    expect(layout.currency.y + layout.currency.fontSize).toBeCloseTo(symbolBottom);
-    expect(layout.priceLine.y + 0.3).toBeCloseTo(symbolBottom);
+    expect(layout.qr.size).toBe(21.5);
+    expect(layout.numberText.fontSize).toBe(10.5);
+    expect(layout.numberText.y).toBeCloseTo(23);
+    expect(layout.sellerSymbolBottomLeft).toEqual({ x: 1.5, y: 28.5, size: 5 });
     expect(layout.foldX).toBe(52.5);
+  });
+
+  // A1
+  it.each([
+    [105, 35],
+    [70, 37],
+  ])('labelLayout_%sx%s_placesQrAt1_5mmFromLeftAndTopWithGivenSize', (width, height) => {
+    // Arrange & Act
+    const layout = labelLayout(width, height, sizes({ qrCode: 18 }));
+
+    // Assert
+    expect(layout.qr).toEqual({ x: 1.5, y: 1.5, size: 18 });
+  });
+
+  it('labelLayout_largerQrCode_changesOnlyQrSize', () => {
+    // Arrange
+    const small = labelLayout(105, 35, sizes({ qrCode: 15 }));
+
+    // Act
+    const large = labelLayout(105, 35, sizes({ qrCode: 25 }));
+
+    // Assert
+    expect(large.qr).toEqual({ ...small.qr, size: 25 });
+  });
+
+  // A2
+  it('labelLayout_base105x35WithDefaults_logoAreaBetweenQrFoldTopAndNumber', () => {
+    // Arrange & Act
+    const layout = labelLayout(105, 35, DEFAULT_LABEL_ELEMENT_SIZES);
+
+    // Assert
+    expect(layout.logo.x).toBeCloseTo(24.5);
+    expect(layout.logo.y).toBeCloseTo(1.5);
+    expect(layout.logo.width).toBeCloseTo(26.5);
+    expect(layout.logo.height).toBeCloseTo(20);
+  });
+
+  it('labelLayout_largerQrCode_shiftsLogoRightAndNarrowsIt', () => {
+    // Arrange
+    const base = labelLayout(105, 35, DEFAULT_LABEL_ELEMENT_SIZES);
+
+    // Act
+    const layout = labelLayout(105, 35, sizes({ qrCode: 25.5 }));
+
+    // Assert
+    expect(layout.logo.x).toBeCloseTo(base.logo.x + 4);
+    expect(layout.logo.width).toBeCloseTo(base.logo.width - 4);
+    expect(layout.logo.height).toBeCloseTo(base.logo.height);
+  });
+
+  it('labelLayout_largerNumberHeight_lowersLogoHeight', () => {
+    // Arrange
+    const base = labelLayout(105, 35, DEFAULT_LABEL_ELEMENT_SIZES);
+
+    // Act
+    const layout = labelLayout(105, 35, sizes({ numberHeight: 13.5 }));
+
+    // Assert
+    expect(layout.logo.height).toBeCloseTo(base.logo.height - 3);
+    expect(layout.logo.width).toBeCloseTo(base.logo.width);
+  });
+
+  it('labelLayout_qrCodeBeyondFold_logoWidthIs0', () => {
+    // Arrange & Act
+    const layout = labelLayout(105, 35, sizes({ qrCode: 60 }));
+
+    // Assert
+    expect(layout.logo.width).toBe(0);
+  });
+
+  it('labelLayout_numberHigherThanLabel_logoHeightIs0', () => {
+    // Arrange & Act
+    const layout = labelLayout(105, 35, sizes({ numberHeight: 40 }));
+
+    // Assert
+    expect(layout.logo.height).toBe(0);
+  });
+
+  // A3
+  it('labelLayout_largerSellerSymbol_topRightKeepsRightEdgeAndTopBottomLeftKeepsLeftEdgeAndBottom', () => {
+    // Arrange
+    const small = labelLayout(105, 35, sizes({ sellerSymbol: 5 }));
+
+    // Act
+    const large = labelLayout(105, 35, sizes({ sellerSymbol: 8 }));
+
+    // Assert
+    expect(large.sellerSymbolTopRight.size).toBe(8);
+    expect(large.sellerSymbolBottomLeft.size).toBe(8);
+    expect(large.sellerSymbolTopRight.x + large.sellerSymbolTopRight.size).toBeCloseTo(103.5);
+    expect(large.sellerSymbolTopRight.y).toBeCloseTo(small.sellerSymbolTopRight.y);
+    expect(large.sellerSymbolBottomLeft.x).toBeCloseTo(small.sellerSymbolBottomLeft.x);
+    expect(large.sellerSymbolBottomLeft.y + large.sellerSymbolBottomLeft.size).toBeCloseTo(33.5);
+  });
+
+  // A4
+  it('labelLayout_largerNumberHeight_fontFollowsHeightCenterAndBottomStay', () => {
+    // Arrange
+    const base = labelLayout(105, 35, DEFAULT_LABEL_ELEMENT_SIZES);
+
+    // Act
+    const layout = labelLayout(105, 35, sizes({ numberHeight: 14 }));
+
+    // Assert
+    expect(layout.numberText.fontSize).toBe(14);
+    expect(layout.numberText.x).toBeCloseTo(base.numberText.x);
+    expect(layout.numberText.y + layout.numberText.fontSize).toBeCloseTo(base.numberText.y + base.numberText.fontSize);
+  });
+
+  // A5
+  it('labelLayout_base105x35_priceRowFromWidthMinus48ToRightMarginWithCurrencyHeight', () => {
+    // Arrange & Act
+    const layout = labelLayout(105, 35, sizes({ currencyHeight: 9 }));
+
+    // Assert
+    expect(layout.priceRow.x).toBeCloseTo(57);
+    expect(layout.priceRow.x + layout.priceRow.width).toBeCloseTo(103.5);
+    expect(layout.priceRow.y + layout.priceRow.height).toBeCloseTo(33.5);
+    expect(layout.priceRow.height).toBe(9);
+    expect(layout.priceRow.fontSize).toBe(9);
+  });
+
+  // E7: Größen absolut in mm, Anker skalieren mit k.
+  it('labelLayout_70x37_sizesStayAbsoluteWhileAnchorsScale', () => {
+    // Arrange
+    const k = labelScale(70, 37);
+
+    // Act
+    const layout = labelLayout(70, 37, DEFAULT_LABEL_ELEMENT_SIZES);
+
+    // Assert
+    expect(layout.qr.size).toBe(21.5);
+    expect(layout.sellerSymbolTopRight.size).toBe(5);
+    expect(layout.sellerSymbolBottomLeft.size).toBe(5);
+    expect(layout.numberText.fontSize).toBe(10.5);
+    expect(layout.priceRow.fontSize).toBe(12);
+    expect(layout.sellerSymbolTopRight.x).toBeCloseTo(70 - 1.5 * k - 5);
+    expect(layout.sellerSymbolTopRight.y).toBeCloseTo(1.5 * k);
+    expect(layout.sellerSymbolBottomLeft.x).toBeCloseTo(1.5 * k);
+    expect(layout.numberText.y + layout.numberText.fontSize).toBeCloseTo(37 - 1.5 * k);
+    expect(layout.priceRow.x).toBeCloseTo(70 - 48 * k);
+    expect(layout.priceRow.x + layout.priceRow.width).toBeCloseTo(70 - 1.5 * k);
   });
 });

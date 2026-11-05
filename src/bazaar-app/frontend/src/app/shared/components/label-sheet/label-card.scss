@@ -17,8 +17,7 @@
 .label-card__number,
 .label-card__logo,
 .label-card__symbol,
-.label-card__price-line,
-.label-card__currency {
+.label-card__price-row {
   position: absolute;
 }
 
@@ -47,7 +46,19 @@
   font-weight: 600;
 }
 
+/* Schreiblinie füllt den Platz links vom Währungssymbol und schrumpft bei großem Symbol bis auf 0. */
+.label-card__price-row {
+  display: flex;
+  align-items: flex-end;
+}
+
 .label-card__price-line {
+  flex: 1;
+  min-width: 0;
   height: 0;
   border-bottom: 0.3mm solid #000;
+}
+
+.label-card__currency {
+  flex: none;
 }

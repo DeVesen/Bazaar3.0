@@ -8,7 +8,7 @@
     </div>
     <div class="label-card__number" [style]="styles().numberText">{{ text }}</div>
   }
-  @if (logo(); as logoGraphic) {
+  @if (hasLogoArea() && logo(); as logoGraphic) {
     <app-label-graphic class="label-card__logo" [graphic]="logoGraphic" [style]="styles().logo" />
   }
   @if (sellerSymbol(); as symbol) {
@@ -23,6 +23,8 @@
       [style]="styles().sellerSymbolBottomLeft"
     />
   }
-  <div class="label-card__price-line" [style]="styles().priceLine"></div>
-  <div class="label-card__currency" [style]="styles().currency">{{ currencySymbol() }}</div>
+  <div class="label-card__price-row" [style]="styles().priceRow">
+    <div class="label-card__price-line"></div>
+    <div class="label-card__currency">{{ currencySymbol() }}</div>
+  </div>
 </div>
