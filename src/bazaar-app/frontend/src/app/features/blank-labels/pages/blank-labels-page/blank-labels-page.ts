@@ -194,7 +194,7 @@ export class BlankLabelsPage {
     const geometry = this.geometry();
     const run = this.contentValidation().run;
     if (geometry === null || run === null) return;
-    const content: LabelContent = { ...this.content(), sizes: run.sizes };
+    const content = this.content();
     this.rememberDefaults(content);
     this.printService.printLabelSheets({
       geometry,
