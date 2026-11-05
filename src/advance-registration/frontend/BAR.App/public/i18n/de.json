@@ -233,6 +233,13 @@
         "missingField": "Zeile {{row}}: Bezeichnung, Kategorie und Marke sind Pflichtfelder.",
         "invalidPrice": "Zeile {{row}}: Preis fehlt oder ist ungültig."
       }
+    },
+    "print": {
+      "button": "Drucken",
+      "filter": "Filter",
+      "search": "Suche",
+      "count": "{{count}} Artikel",
+      "error": "Druck fehlgeschlagen — Artikel konnten nicht geladen werden."
     }
   },
   "articleDialog": {

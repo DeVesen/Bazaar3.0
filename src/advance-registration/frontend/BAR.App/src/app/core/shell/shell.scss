@@ -1,18 +1,27 @@
 @use '../../../styles/breakpoints';
 
+// `100dvh` statt nur `100vh`: Auf iOS/Android ist `100vh` die Hoehe OHNE eingeblendete
+// Browserleisten — die Shell war dann hoeher als der sichtbare Bereich, das Dokument scrollte
+// zusaetzlich zur Seite und das Seitenende (Paginator) lag hinter der Leiste. `100vh` bleibt
+// Fallback fuer Browser ohne `dvh`.
 :host {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
-p-sidebar-layout {
+// PrimeNG setzt `min-height: 100svh` — auf Mobile ueberlaeuft das die `100dvh`-Shell.
+p-sidebar-layout.p-sidebar-layout {
   height: 100%;
   min-height: 0;
 }
 
+// Flex-Item ohne `min-width: 0` waechst sonst auf die Inhaltsbreite (breite Tabelle) und die
+// ganze Seite scrollt waagerecht — wie in der Haupt-App (shell.scss): nur die Tabelle scrollt.
 p-sidebar-main {
   min-height: 0;
+  min-width: 0;
 }
 
 // Desktop (> 1024px): Titelleiste ist gemaess spec.md §10.1 nicht vorhanden.

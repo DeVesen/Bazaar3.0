@@ -233,6 +233,13 @@
         "missingField": "Row {{row}}: name, category and brand are required fields.",
         "invalidPrice": "Row {{row}}: price is missing or invalid."
       }
+    },
+    "print": {
+      "button": "Print",
+      "filter": "Filter",
+      "search": "Search",
+      "count": "{{count}} articles",
+      "error": "Print failed — articles could not be loaded."
     }
   },
   "articleDialog": {

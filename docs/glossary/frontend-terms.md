@@ -112,6 +112,11 @@
 - **Confidence:** user-confirmed
 - **First seen:** 2026-10-31
 
+### Druck „Meine Artikel"
+- **Maps to:** `src/advance-registration/frontend/BAR.App/src/app/features/registration/my-articles/components/my-articles-print.ts` — Druckdokument der Seite „Meine Artikel" in der Voranmelde-App: die Liste 1:1 (Spalten Nr., Bezeichnung, Kategorie, Marke, Preis; Filter und Sortierung der Tabelle, alle Seiten), Komponente `MyArticlesPrint`, gedruckt über `PrintService.print` (`core/print/print.service.ts`, iOS-Handling aus der Haupt-App). Kein Aushang (nicht gruppiert, keine Freitexte).
+- **Confidence:** inferred
+- **First seen:** 2026-11-03
+
 ### Kennzahl-Kachel
 - **Maps to:** `src/bazaar-app/frontend/src/app/shared/components/print-document/print-document.html` — Infoblock auf dem Beleg (Titel links oben, darunter größerer, dickerer Wert, linksbündig), Klassen `.print-doc__tile`, Zeilen `.print-doc__tiles--a|--b`. „Kachel" allein bleibt die Verkäufer-Kachel.
 - **Confidence:** user-confirmed

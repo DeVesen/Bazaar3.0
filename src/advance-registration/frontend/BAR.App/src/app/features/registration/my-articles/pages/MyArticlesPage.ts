@@ -9,10 +9,14 @@ import { AppTable, ActionClickEvent, ActionColumnConfig, ColumnConfig, SortMeta,
 import { FilterPanel, FilterPanelSearch } from '@shared/filter-panel/filter-panel';
 import { ArticlesImportExportApiService, ImportRowError } from '../articles-import-export-api.service';
 import { ImportResultDialog, ImportResultData } from '../components/import-result-dialog';
+import { MyArticlesPrint } from '../components/my-articles-print';
+import { PrintService } from '@core/print/print.service';
+import { AuthService } from '@core/auth/auth.service';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-my-articles-page',
-  imports: [FilterPanel, AppTable, ArticleDialog, ImportResultDialog, TranslatePipe],
+  imports: [FilterPanel, AppTable, ArticleDialog, ImportResultDialog, ButtonModule, TranslatePipe],
   template: `
     <app-filter-panel
       [brands]="brands()"
@@ -22,7 +26,20 @@ import { ImportResultDialog, ImportResultData } from '../components/import-resul
       [splitButtonItems]="importExportMenuItems"
       (search)="onFilterSearch($event)"
       (create)="openCreateDialog()"
-    />
+    >
+      <p-button
+        filterPanelEnd
+        data-testid="print-button"
+        icon="pi pi-print"
+        severity="secondary"
+        [outlined]="true"
+        [label]="'myArticles.print.button' | translate"
+        [ariaLabel]="'myArticles.print.button' | translate"
+        [loading]="printing()"
+        [disabled]="isEmpty() || printing()"
+        (onClick)="onPrint()"
+      />
+    </app-filter-panel>
 
     <input #fileInput type="file" accept=".csv,.xlsx" style="display: none" (change)="onFileSelected($event)" />
 
@@ -70,6 +87,8 @@ export class MyArticlesPage implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
   private readonly importExportApi = inject(ArticlesImportExportApiService);
+  private readonly printService = inject(PrintService);
+  private readonly authService = inject(AuthService);
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
   readonly importDialogVisible = signal(false);
@@ -86,6 +105,43 @@ export class MyArticlesPage implements OnInit {
       { separator: true },
       { label: this.translate.instant('myArticles.importExport.template'), icon: 'pi pi-file', command: () => this.onTemplate() }
     ];
+  }
+
+  readonly printing = signal(false);
+
+  /**
+   * Druckt die Liste so, wie sie gerade gefiltert und sortiert ist — alle Treffer, nicht nur die
+   * angezeigte Seite. Die Daten werden frisch geladen, damit der Druck nicht von der Seitengröße
+   * der Tabelle abhängt.
+   */
+  onPrint(): void {
+    this.printing.set(true);
+    this.articlesApi.getAllMine({ sort: this.sort(), ...this.filters() }).subscribe({
+      next: (articles) => {
+        this.printing.set(false);
+        this.printService.print(MyArticlesPrint, (ref) =>
+          ref.setInput('model', {
+            articles,
+            owner: this.authService.currentUser()?.sub ?? '',
+            filterText: this.describeFilters(),
+            printedAt: new Date()
+          })
+        );
+      },
+      error: () => {
+        this.printing.set(false);
+        this.messageService.add({ severity: 'error', summary: this.translate.instant('myArticles.print.error') });
+      }
+    });
+  }
+
+  private describeFilters(): string {
+    const f = this.filters();
+    return [
+      f.category ? `${this.translate.instant('myArticles.columnCategory')}: ${f.category}` : null,
+      f.brand ? `${this.translate.instant('myArticles.columnBrand')}: ${f.brand}` : null,
+      f.search ? `${this.translate.instant('myArticles.print.search')}: ${f.search}` : null
+    ].filter((part): part is string => part !== null).join(' · ');
   }
 
   triggerImport(): void {

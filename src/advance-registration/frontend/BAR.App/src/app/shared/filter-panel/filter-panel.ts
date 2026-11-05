@@ -114,13 +114,17 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
         }
       </ng-template>
       <ng-template #end>
-        @if (canAdd()) {
-          @if (splitButtonItems(); as items) {
-            <p-splitbutton data-testid="add-split-button" [label]="createLabel()" [model]="items" (onClick)="create.emit()" />
-          } @else {
-            <button pButton type="button" data-testid="add-button" (click)="create.emit()">{{ createLabel() }}</button>
+        <div class="filter-panel-end">
+          <!-- Zusätzliche Aktionen der Seite (z. B. Drucken) links vom Anlegen-Button. -->
+          <ng-content select="[filterPanelEnd]" />
+          @if (canAdd()) {
+            @if (splitButtonItems(); as items) {
+              <p-splitbutton data-testid="add-split-button" [label]="createLabel()" [model]="items" (onClick)="create.emit()" />
+            } @else {
+              <button pButton type="button" data-testid="add-button" (click)="create.emit()">{{ createLabel() }}</button>
+            }
           }
-        }
+        </div>
       </ng-template>
     </p-toolbar>
   `

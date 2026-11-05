@@ -2,7 +2,7 @@
 id: F-AR-004
 status: draft
 reviewed-date: 2026-08-17
-updated: 2026-09-17
+updated: 2026-11-03
 ---
 
 # Epic: Meine Artikel
@@ -15,6 +15,7 @@ updated: 2026-09-17
 - 4. Nummernblock-Logik — Nummernvergabe
 - 5. Backend & API — Endpoints
 - 6. Import/Export — CSV/XLSX-Massenpflege
+- 7. Drucken — Artikelliste auf Papier
 - Akzeptanzkriterien — EARS-Kriterien
 - Tags & Piles — Ablage
 
@@ -51,6 +52,8 @@ Details → [`filter-panel`](../../../../components/filter-panel/component.md).
 **Suche auslösen:** explizites Absenden, kein Live-Filter beim Tippen — Enter im Freitext- oder Select-Feld, oder Klick auf den „Suchen"-Button (`p-button` mit `pi-search` links + Text „Suchen") ganz rechts im Filter-Panel.
 
 **Responsive:** ≥ Tablet zeigt das Panel alle Filterfelder nebeneinander, „+ Neu" ganz rechts. < Tablet kollabiert das Panel zu einem „Filter"-Button, „+ Neu" bleibt sichtbar. Details → [`filter-panel`](../../../../components/filter-panel/component.md) Abschnitt „Responsive".
+
+**„Drucken"-Button:** links neben „+ Neu", auf allen Breakpoints sichtbar — Details → Abschnitt 7 „Drucken".
 
 **„+ Neu" als SplitButton:** trägt zusätzlich ein Dropdown-Menü Import/Trennlinie/Export/Trennlinie/Vorlage — Details → Abschnitt 6 „Import/Export".
 
@@ -206,6 +209,41 @@ beim einzelnen Löschen), kein Import über den eigenen Nummernkreis hinaus.
 
 ---
 
+## 7. Drucken
+
+**Zugriff:** Button „Drucken" (`p-button`, Icon `pi-print`, secondary/outlined) im
+Filter-Panel links neben „+ Neu". Deaktiviert, solange die Liste leer ist, und während
+die Daten geladen werden.
+
+**Inhalt — die Liste 1:1:** dieselben Spalten wie die Tabelle (Nr., Bezeichnung,
+Kategorie, Marke, Preis), dieselbe Sortierung und dieselben Filter — aber **alle**
+Treffer, nicht nur die angezeigte Tabellenseite. Das Frontend lädt dafür
+`GET /api/articles/mine` Seite für Seite mit `pageSize` 100 (Maximum des Endpoints),
+bis `totalCount` erreicht ist; kein eigener Druck-Endpoint.
+
+**Druckdokument:** A4 hochkant. Kopf mit Titel „Meine Artikel", E-Mail des
+angemeldeten Benutzers, Datum/Uhrzeit des Drucks und — nur bei aktiven Filtern — eine
+Zeile „Filter: …". Fuß der Tabelle: Anzahl der Artikel und Summe der Preise. Der
+Tabellenkopf wiederholt sich auf jeder Druckseite, Zeilen brechen nicht über Seiten.
+
+**Druckweg:** Browser-Druckdialog (`window.print()`), Dokument über den
+`PrintService` (`core/print/`) — übernommen aus der Haupt-App mit deren
+iOS-Gepflogenheiten:
+
+- iOS feuert `afterprint`, bevor die Vorschau gerendert ist. Auf iOS bleibt das
+  Druckdokument deshalb bis zum nächsten Druck eingehängt (sonst zeigte die Vorschau
+  die normale App-Seite).
+- Das Dokument liegt unsichtbar bei `left: 0`, nicht weit außerhalb des Viewports —
+  iOS rendert off-screen positionierte Inhalte leer.
+- Im Druck blendet ein temporäres `@media print`-Stylesheet alles außer dem Dokument
+  aus und hebt die Viewport-Höhenbegrenzung der Shell auf — sonst käme nur die erste
+  Seite aufs Papier.
+
+**Ausdrücklich nicht Teil:** keine Druckvorschau in der App, kein PDF-Download, keine
+Freitexte wie in der Haupt-App.
+
+---
+
 ## Akzeptanzkriterien
 
 1. **AC-1** — WHEN „+ Neu" geklickt wird, THEN SHALL das System ein Formular zum Anlegen eines neuen Artikels öffnen mit allen Feldern aus Abschnitt 3 (Bezeichnung, Kategorie, Marke, Größe, Farbe, Preis, Beschreibung) sowie der über `GET /api/articles/next-number` geholten Artikelnummer in einem schreibgeschützten Feld mit dem Hinweistext „wird beim Speichern endgültig vergeben".
@@ -221,8 +259,12 @@ beim einzelnen Löschen), kein Import über den eigenen Nummernkreis hinaus.
 11. **AC-11** — WHEN „Export" oder „Vorlage" im SplitButton-Dropdown geklickt wird, THEN SHALL das System sofort einen CSV-Download auslösen, ohne Zwischenbestätigung.
 12. **AC-12** — WHEN „Import" geklickt und eine Datei ausgewählt wird UND mindestens eine Zeile der Datei fehlerhaft ist, THEN SHALL das System nichts speichern und einen Dialog mit Zeile und übersetzter Fehlermeldung je fehlerhafter Zeile anzeigen.
 13. **AC-13** — WHEN eine Importdatei ohne Zeilenfehler hochgeladen wird, THEN SHALL das System alle Zeilen anlegen/aktualisieren/löschen wie in Abschnitt 6 beschrieben, einen Dialog mit der Anzahl angelegter/aktualisierter/gelöschter Artikel anzeigen und die Artikelliste neu laden.
+14. **AC-14** — WHEN „Drucken" geklickt wird, THEN SHALL das System alle Artikel laden, die zu den aktiven Filtern passen, in der aktuellen Sortierung der Tabelle, und den Druckdialog des Geräts mit einem A4-Dokument öffnen, das die Spalten Nr., Bezeichnung, Kategorie, Marke und Preis zeigt — unabhängig davon, welche Tabellenseite gerade angezeigt wird.
+15. **AC-15** — WHILE die Artikelliste leer ist oder die Druckdaten geladen werden, SHALL das System den „Drucken"-Button deaktiviert halten.
+16. **AC-16** — IF das Laden der Druckdaten fehlschlägt, THEN SHALL das System keinen Druckdialog öffnen und die Meldung „Druck fehlgeschlagen — Artikel konnten nicht geladen werden." als Toast anzeigen.
+17. **AC-17** — WHILE die App auf iOS läuft, SHALL das System das Druckdokument nach `afterprint` nicht sofort entfernen, sondern erst beim nächsten Druck, damit die iOS-Druckvorschau das Dokument statt der App-Seite zeigt.
 
 ## Tags & Piles
 
 **Piles:** #pile/advance-registration
-**Tags:** #meine-artikel #verkäufer #artikel-erfassung #voranmeldung #serien-erfassung #import #export #csv
+**Tags:** #meine-artikel #verkäufer #artikel-erfassung #voranmeldung #serien-erfassung #import #export #csv #drucken

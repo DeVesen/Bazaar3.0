@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable, expand, map, reduce } from 'rxjs';
 
 export interface ArticleResponse {
   id: string;
@@ -53,6 +53,9 @@ export interface CreateArticlePayload extends ArticlePayload {
 
 export type UpdateArticlePayload = ArticlePayload;
 
+/** Größte Seite, die `GET /api/articles/mine` liefert (Backend klemmt `pageSize` auf 1–100). */
+const MAX_PAGE_SIZE = 100;
+
 @Injectable({ providedIn: 'root' })
 export class ArticlesApiService {
   private readonly http = inject(HttpClient);
@@ -66,6 +69,21 @@ export class ArticlesApiService {
     if (query.category) params = params.set('category', query.category);
     if (query.search) params = params.set('search', query.search);
     return this.http.get<ArticleListResponse>('/api/articles/mine', { params });
+  }
+
+  /**
+   * Alle Artikel zu Filter und Sortierung der Liste, ohne Seiten — lädt Seite für Seite
+   * (`pageSize` 100), bis `totalCount` erreicht ist. Für den Druck der Liste.
+   */
+  getAllMine(query: Omit<ArticleListQuery, 'page' | 'pageSize'> = {}): Observable<ArticleResponse[]> {
+    const loadPage = (page: number) => this.getMine({ ...query, page, pageSize: MAX_PAGE_SIZE });
+    return loadPage(1).pipe(
+      expand((result) =>
+        result.page * MAX_PAGE_SIZE < result.totalCount && result.items.length > 0 ? loadPage(result.page + 1) : EMPTY
+      ),
+      map((result) => result.items),
+      reduce((all, items) => [...all, ...items], [] as ArticleResponse[])
+    );
   }
 
   getNextNumber(): Observable<{ number: number }> {
