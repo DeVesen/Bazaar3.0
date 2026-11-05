@@ -175,6 +175,29 @@ describe('LabelCard', () => {
     expect(element(fixture, '.label-card__logo')).toBeNull();
   });
 
+  it('render_numberHigherThanLabel_rendersNoLogo', async () => {
+    // Arrange & Act
+    const fixture = await render({ number: 1000, logo: PNG_LOGO, sizes: { ...DEFAULT_LABEL_ELEMENT_SIZES, numberHeight: 40 } });
+
+    // Assert
+    expect(element(fixture, '.label-card__logo')).toBeNull();
+  });
+
+  // A5: Schreiblinie füllt den Rest der Preiszeile, das Währungssymbol behält seine Breite.
+  it('render_priceRow_lineGrowsAndCurrencyKeepsItsWidth', async () => {
+    // Arrange & Act
+    const fixture = await render({ currencySymbol: '€' });
+
+    // Assert
+    const row = getComputedStyle(element(fixture, '.label-card__price-row') as HTMLElement);
+    const line = getComputedStyle(element(fixture, '.label-card__price-line') as HTMLElement);
+    const currency = getComputedStyle(element(fixture, '.label-card__currency') as HTMLElement);
+    expect(row.display).toBe('flex');
+    expect(line.flexGrow).toBe('1');
+    expect(line.minWidth).toBe('0px');
+    expect(currency.flexShrink).toBe('0');
+  });
+
   // A5
   it('render_currencyHeight9_priceRowHasLineThenCurrencyWithFontInCqw', async () => {
     // Arrange & Act
