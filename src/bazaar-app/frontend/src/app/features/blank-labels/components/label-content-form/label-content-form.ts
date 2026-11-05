@@ -43,5 +43,9 @@ export class LabelContentForm {
     { field: 'startNumber', label: 'Startnummer', inputId: 'label-content-start-number' },
     { field: 'count', label: 'Anzahl Etiketten', inputId: 'label-content-count' },
     { field: 'currencySymbol', label: 'Währungssymbol', inputId: 'label-content-currency' },
+    { field: 'qrCodeSize', label: 'Größe QR-Code (mm)', inputId: 'label-content-qr-code-size' },
+    { field: 'sellerSymbolSize', label: 'Größe Verkäufer-Symbol (mm)', inputId: 'label-content-seller-symbol-size' },
+    { field: 'numberHeight', label: 'Höhe Artikel-Nummer (mm)', inputId: 'label-content-number-height' },
+    { field: 'currencyHeight', label: 'Höhe Währungssymbol (mm)', inputId: 'label-content-currency-height' },
   ];
 }

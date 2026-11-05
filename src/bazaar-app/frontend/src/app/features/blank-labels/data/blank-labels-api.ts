@@ -22,11 +22,15 @@ export interface SaveSheetFormatRequest extends LabelSheetGeometry {
   overwrite: boolean;
 }
 
-/** Logo, Verkäufer-Symbol und Währungssymbol des letzten Drucks. */
+/** Logo, Verkäufer-Symbol, Währungssymbol und Elementgrößen (mm) des letzten Drucks, flach wie im JSON-Vertrag. */
 export interface LabelPrintDefaults {
   logo: LabelGraphic | null;
   sellerSymbol: LabelGraphic | null;
   currencySymbol: string;
+  qrCodeSize: number;
+  sellerSymbolSize: number;
+  numberHeight: number;
+  currencyHeight: number;
 }
 
 /** Bild der Bibliothek ohne Inhalt (Liste). */

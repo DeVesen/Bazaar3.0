@@ -8,7 +8,7 @@ import { Page } from '../../../../shared/components/page/page';
 import { LabelCard } from '../../../../shared/components/label-sheet/label-card';
 import { LabelContent, LabelGraphic } from '../../../../shared/components/label-sheet/label-graphic';
 import { AVERY_16_GEOMETRY, labelsPerSheet } from '../../../../shared/components/label-sheet/label-geometry';
-import { DEFAULT_LABEL_ELEMENT_SIZES } from '../../../../shared/components/label-sheet/label-layout';
+import { LabelElementSizes } from '../../../../shared/components/label-sheet/label-layout';
 import { LabelSheet } from '../../../../shared/components/label-sheet/label-sheet';
 import { LabelSlot, placeLabels, startPositionPreview } from '../../../../shared/components/label-sheet/label-slots';
 import { BlankLabelsStore } from '../../blank-labels-store';
@@ -18,8 +18,10 @@ import {
   INITIAL_CONTENT_TEXTS,
   LabelContentField,
   LabelContentTexts,
+  previewElementSizes,
   previewStartNumber,
   previewStartPosition,
+  sizeTexts,
   validateLabelContent,
 } from '../../model/label-content-rules';
 import {
@@ -45,6 +47,27 @@ interface ProblemDetailsBody {
 function errorCodeOf(error: unknown): string | undefined {
   if (!(error instanceof HttpErrorResponse)) return undefined;
   return (error.error as ProblemDetailsBody | null)?.errorCode;
+}
+
+function elementSizesOf(defaults: LabelPrintDefaults): LabelElementSizes {
+  return {
+    qrCode: defaults.qrCodeSize,
+    sellerSymbol: defaults.sellerSymbolSize,
+    numberHeight: defaults.numberHeight,
+    currencyHeight: defaults.currencyHeight,
+  };
+}
+
+function printDefaultsOf(content: LabelContent): LabelPrintDefaults {
+  return {
+    logo: content.logo,
+    sellerSymbol: content.sellerSymbol,
+    currencySymbol: content.currencySymbol,
+    qrCodeSize: content.sizes.qrCode,
+    sellerSymbolSize: content.sizes.sellerSymbol,
+    numberHeight: content.sizes.numberHeight,
+    currencyHeight: content.sizes.currencyHeight,
+  };
 }
 
 /**
@@ -106,11 +129,13 @@ export class BlankLabelsPage {
   /** Etikett der Vorschau: Maße des gültigen Bogenformats, sonst Avery 16er. */
   readonly previewLabelSize = computed(() => this.geometry() ?? AVERY_16_GEOMETRY);
   readonly previewNumber = computed(() => previewStartNumber(this.contentTexts().startNumber));
+  /** Größen der Vorschau: ungültige oder leere Felder zeigen die Vorgabe. */
+  readonly previewSizes = computed(() => previewElementSizes(this.contentTexts()));
   readonly content = computed<LabelContent>(() => ({
     logo: this.logo(),
     sellerSymbol: this.sellerSymbol(),
     currencySymbol: this.contentTexts().currencySymbol,
-    sizes: DEFAULT_LABEL_ELEMENT_SIZES,
+    sizes: this.previewSizes(),
   }));
 
   constructor() {
@@ -186,12 +211,12 @@ export class BlankLabelsPage {
     });
   }
 
-  /** Merkt Logo, Symbol und Währung im Backend und öffnet den Druckdialog mit allen Bögen. */
+  /** Merkt Logo, Symbol, Währung und Größen im Backend und öffnet den Druckdialog mit allen Bögen. */
   onPrint(): void {
     const geometry = this.geometry();
     const run = this.contentValidation().run;
     if (geometry === null || run === null) return;
-    const content = this.content();
+    const content: LabelContent = { ...this.content(), sizes: run.sizes };
     this.rememberDefaults(content);
     this.printService.printLabelSheets({
       geometry,
@@ -213,7 +238,11 @@ export class BlankLabelsPage {
     this.defaultsLoadFailed.set(false);
     this.logo.set(defaults.logo);
     this.sellerSymbol.set(defaults.sellerSymbol);
-    this.contentTexts.update((texts) => ({ ...texts, currencySymbol: defaults.currencySymbol }));
+    this.contentTexts.update((texts) => ({
+      ...texts,
+      currencySymbol: defaults.currencySymbol,
+      ...sizeTexts(elementSizesOf(defaults)),
+    }));
   }
 
   private saveFormat(overwrite: boolean): void {
@@ -284,7 +313,7 @@ export class BlankLabelsPage {
 
   private rememberDefaults(content: LabelContent): void {
     if (this.defaultsLoadFailed()) return;
-    this.store.saveDefaults(content).subscribe({
+    this.store.saveDefaults(printDefaultsOf(content)).subscribe({
       error: () => this.messageService.add({ severity: 'warn', summary: 'Logo, Symbol und Währung konnten nicht gemerkt werden' }),
     });
   }

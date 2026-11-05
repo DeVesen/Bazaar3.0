@@ -48,6 +48,58 @@ describe('LabelContentForm', () => {
     expect(root.querySelector('[data-error-for="count"]')?.textContent?.trim()).toBe('Pflichtfeld');
   });
 
+  it('render_always_showsSizeFieldsAfterCurrencyAndBeforeGraphicPickers', async () => {
+    // Arrange & Act
+    const fixture = await render();
+
+    // Assert
+    const root = fixture.nativeElement as HTMLElement;
+    const fields = Array.from(root.querySelectorAll('input[data-field]')).map((input) => input.getAttribute('data-field'));
+    expect(fields).toEqual(['startNumber', 'count', 'currencySymbol', 'qrCodeSize', 'sellerSymbolSize', 'numberHeight', 'currencyHeight']);
+    const labels = Array.from(root.querySelectorAll('.label-content-form__field label')).map((label) => label.textContent?.trim());
+    expect(labels.slice(3)).toEqual([
+      'Größe QR-Code (mm)',
+      'Größe Verkäufer-Symbol (mm)',
+      'Höhe Artikel-Nummer (mm)',
+      'Höhe Währungssymbol (mm)',
+    ]);
+    expect(fieldInput(fixture, 'qrCodeSize').value).toBe('21,5');
+    const lastSizeField = fieldInput(fixture, 'currencyHeight');
+    const firstPicker = root.querySelector('app-graphic-picker') as HTMLElement;
+    expect(lastSizeField.compareDocumentPosition(firstPicker) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it.each(['qrCodeSize', 'sellerSymbolSize', 'numberHeight', 'currencyHeight'])(
+    'render_errorAt%s_showsErrorAtThatFieldOnly',
+    async (field) => {
+      // Arrange
+      const message = 'Zahl von 0,1 bis 100 mit höchstens 1 Nachkommastelle';
+
+      // Act
+      const fixture = await render({ errors: { [field]: message } });
+
+      // Assert
+      const root = fixture.nativeElement as HTMLElement;
+      expect(root.querySelector(`[data-error-for="${field}"]`)?.textContent?.trim()).toBe(message);
+      expect(root.querySelectorAll('[data-error-for]')).toHaveLength(1);
+    },
+  );
+
+  it('input_qrCodeSize18_emitsFieldChange', async () => {
+    // Arrange
+    const fixture = await render();
+    const changes = vi.fn();
+    fixture.componentInstance.fieldChange.subscribe(changes);
+    const qrCodeSize = fieldInput(fixture, 'qrCodeSize');
+
+    // Act
+    qrCodeSize.value = '18';
+    qrCodeSize.dispatchEvent(new Event('input'));
+
+    // Assert
+    expect(changes).toHaveBeenCalledWith({ field: 'qrCodeSize', text: '18' });
+  });
+
   it('input_startNumber1000_emitsFieldChange', async () => {
     // Arrange
     const fixture = await render();

@@ -2,21 +2,34 @@ import {
   INITIAL_CONTENT_TEXTS,
   LabelContentTexts,
   previewStartNumber,
+  previewElementSizes,
   previewStartPosition,
   validateLabelContent,
 } from './label-content-rules';
+import { DEFAULT_LABEL_ELEMENT_SIZES } from '../../../shared/components/label-sheet/label-layout';
+
+const SIZE_RANGE_MESSAGE = 'Zahl von 0,1 bis 100 mit höchstens 1 Nachkommastelle';
 
 function texts(overrides: Partial<LabelContentTexts>): LabelContentTexts {
   return { ...INITIAL_CONTENT_TEXTS, startNumber: '1000', count: '4', ...overrides };
 }
 
 describe('label-content-rules', () => {
-  it('INITIAL_CONTENT_TEXTS_firstOpen_euroAndEverythingElseEmpty', () => {
+  it('INITIAL_CONTENT_TEXTS_firstOpen_euroAndDefaultSizesAndEverythingElseEmpty', () => {
     // Arrange & Act
     const initial = INITIAL_CONTENT_TEXTS;
 
     // Assert
-    expect(initial).toEqual({ startNumber: '', count: '', currencySymbol: '€', startPosition: '' });
+    expect(initial).toEqual({
+      startNumber: '',
+      count: '',
+      currencySymbol: '€',
+      qrCodeSize: '21,5',
+      sellerSymbolSize: '5',
+      numberHeight: '10,5',
+      currencyHeight: '12',
+      startPosition: '',
+    });
   });
 
   it('validateLabelContent_valid_returnsRunWithStartPosition1ForEmpty', () => {
@@ -25,7 +38,66 @@ describe('label-content-rules', () => {
 
     // Assert
     expect(validation.errors).toEqual({});
-    expect(validation.run).toEqual({ startNumber: 1000, count: 4, startPosition: 1, currencySymbol: '€' });
+    expect(validation.run).toEqual({
+      startNumber: 1000,
+      count: 4,
+      startPosition: 1,
+      currencySymbol: '€',
+      sizes: DEFAULT_LABEL_ELEMENT_SIZES,
+    });
+  });
+
+  it('validateLabelContent_changedSizesWithCommaAndPoint_runContainsSizes', () => {
+    // Arrange & Act
+    const validation = validateLabelContent(
+      texts({ qrCodeSize: '18', sellerSymbolSize: '6.5', numberHeight: '8,5', currencyHeight: '9' }),
+      16,
+      null,
+    );
+
+    // Assert
+    expect(validation.run?.sizes).toEqual({ qrCode: 18, sellerSymbol: 6.5, numberHeight: 8.5, currencyHeight: 9 });
+  });
+
+  it.each(['qrCodeSize', 'sellerSymbolSize', 'numberHeight', 'currencyHeight'] as const)(
+    'validateLabelContent_%sEmpty_requiredError',
+    (field) => {
+      // Arrange & Act
+      const validation = validateLabelContent(texts({ [field]: '  ' }), 16, field);
+
+      // Assert
+      expect(validation.errors).toEqual({ [field]: 'Pflichtfeld' });
+      expect(validation.run).toBeNull();
+    },
+  );
+
+  it.each([
+    ['qrCodeSize', '0'],
+    ['sellerSymbolSize', '100,1'],
+    ['numberHeight', '1,25'],
+    ['currencyHeight', 'abc'],
+    ['qrCodeSize', '-5'],
+  ] as const)('validateLabelContent_%s=%s_sizeRangeError', (field, text) => {
+    // Arrange & Act
+    const validation = validateLabelContent(texts({ [field]: text }), 16, field);
+
+    // Assert
+    expect(validation.errors).toEqual({ [field]: SIZE_RANGE_MESSAGE });
+    expect(validation.run).toBeNull();
+  });
+
+  it.each([
+    ['qrCodeSize', '0,1', 0.1],
+    ['sellerSymbolSize', '100', 100],
+    ['numberHeight', '8,5', 8.5],
+  ] as const)('validateLabelContent_%s=%s_isValid', (field, text, expected) => {
+    // Arrange & Act
+    const validation = validateLabelContent(texts({ [field]: text }), 16, field);
+
+    // Assert
+    expect(validation.errors).toEqual({});
+    expect(validation.run).not.toBeNull();
+    expect(Object.values(validation.run?.sizes ?? {})).toContain(expected);
   });
 
   it('validateLabelContent_emptyStartNumberAndCount_errorsAtBoth', () => {
@@ -102,6 +174,22 @@ describe('label-content-rules', () => {
 
     // Assert
     expect(value).toBeNull();
+  });
+
+  it('previewElementSizes_validTexts_returnsTheirSizes', () => {
+    // Arrange & Act
+    const sizes = previewElementSizes(texts({ qrCodeSize: '15', sellerSymbolSize: '7', numberHeight: '9,5', currencyHeight: '6' }));
+
+    // Assert
+    expect(sizes).toEqual({ qrCode: 15, sellerSymbol: 7, numberHeight: 9.5, currencyHeight: 6 });
+  });
+
+  it('previewElementSizes_invalidOrEmptyTexts_fallBackToDefaultsPerField', () => {
+    // Arrange & Act
+    const sizes = previewElementSizes(texts({ qrCodeSize: '', sellerSymbolSize: '0', numberHeight: 'abc', currencyHeight: '8' }));
+
+    // Assert
+    expect(sizes).toEqual({ ...DEFAULT_LABEL_ELEMENT_SIZES, currencyHeight: 8 });
   });
 
   it('previewStartPosition_outOfRange_fallsBackTo1', () => {

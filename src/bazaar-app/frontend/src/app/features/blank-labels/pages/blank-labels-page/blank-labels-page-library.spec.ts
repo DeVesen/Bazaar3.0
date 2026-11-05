@@ -40,7 +40,7 @@ describe('BlankLabelsPage library', () => {
       loadImages: vi.fn(),
       uploadImage: vi.fn(),
       deleteImage: vi.fn(),
-      loadDefaults: vi.fn().mockReturnValue(of({ logo: null, sellerSymbol: null, currencySymbol: '€' })),
+      loadDefaults: vi.fn().mockReturnValue(of({ logo: null, sellerSymbol: null, currencySymbol: '€', qrCodeSize: 21.5, sellerSymbolSize: 5, numberHeight: 10.5, currencyHeight: 12 })),
       saveDefaults: vi.fn().mockReturnValue(of(undefined)),
     };
     const confirmationService = new ConfirmationService();
