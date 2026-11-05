@@ -36,13 +36,15 @@ export class LabelSheet {
   readonly maxHeight = input<string | null>(null);
   readonly outlineSlots = input<boolean>(false);
   readonly showFoldLines = input<boolean>(false);
+  /** Druck: Offset X/Y des Bogenformats anwenden; die Vorschau bleibt unverschoben. */
+  readonly applyOffset = input<boolean>(false);
 
   readonly sheetStyle = computed(() => sheetStyleOf(this.geometry(), this.width(), this.maxHeight()));
 
   readonly placedSlots = computed<PlacedSlot[]>(() => {
     const geometry = this.geometry();
     const slots = this.slots();
-    return slotRects(geometry).map((rect, index) => placeSlot(slots[index] ?? EMPTY_SLOT, rect, index, geometry));
+    return slotRects(geometry, { applyOffset: this.applyOffset() }).map((rect, index) => placeSlot(slots[index] ?? EMPTY_SLOT, rect, index, geometry));
   });
 }
 

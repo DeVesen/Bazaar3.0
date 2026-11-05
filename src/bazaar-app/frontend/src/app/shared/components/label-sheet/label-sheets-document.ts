@@ -13,7 +13,7 @@ export interface LabelSheetsPrintModel {
 
 /**
  * Leaf: Druckdokument des Etiketten-Vordrucks — je Bogen eine Druckseite in Originalgröße
- * (Breite in mm), mit Falzlinie und ohne Rasterlinien.
+ * (Breite in mm), mit Falzlinie, ohne Rasterlinien und um Offset X/Y verschoben.
  */
 @Component({
   selector: 'app-label-sheets-document',
@@ -27,6 +27,7 @@ export interface LabelSheetsPrintModel {
         [content]="model().content"
         [width]="sheetWidth()"
         [showFoldLines]="true"
+        [applyOffset]="true"
       />
     }
   `,

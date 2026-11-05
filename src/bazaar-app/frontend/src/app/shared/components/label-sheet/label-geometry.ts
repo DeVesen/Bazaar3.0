@@ -12,6 +12,10 @@ export interface LabelSheetGeometry {
   gapVertical: number;
   columns: number;
   rows: number;
+  /** Druckversatz in mm (plus: nach rechts); verschiebt nur den Druck, nicht das Raster. */
+  offsetX: number;
+  /** Druckversatz in mm (plus: nach unten); verschiebt nur den Druck, nicht das Raster. */
+  offsetY: number;
 }
 
 /** Vorbelegung ohne gespeichertes Bogenformat: Avery 16er auf A4. */
@@ -28,6 +32,8 @@ export const AVERY_16_GEOMETRY: LabelSheetGeometry = {
   gapVertical: 0,
   columns: 2,
   rows: 8,
+  offsetX: 0,
+  offsetY: 0,
 };
 
 /** So weit darf das Raster den Bogen überragen, ohne als widersprüchlich zu gelten. */
@@ -63,17 +69,24 @@ export function fitsSheetHeight(geometry: LabelSheetGeometry): boolean {
   return roundToTenth(required) <= geometry.sheetHeight + FIT_TOLERANCE_MM;
 }
 
-/** Alle Plätze eines Bogens zeilenweise: in der Zeile von links nach rechts, dann die nächste Zeile. */
-export function slotRects(geometry: LabelSheetGeometry): SlotRect[] {
-  return Array.from({ length: labelsPerSheet(geometry) }, (_, index) => slotRectAt(geometry, index));
+export interface SlotRectOptions {
+  /** true im Druck: Offset X/Y verschiebt alle Plätze; die Vorschau bleibt unverschoben. */
+  applyOffset?: boolean;
 }
 
-function slotRectAt(geometry: LabelSheetGeometry, index: number): SlotRect {
+/** Alle Plätze eines Bogens zeilenweise: in der Zeile von links nach rechts, dann die nächste Zeile. */
+export function slotRects(geometry: LabelSheetGeometry, options: SlotRectOptions = {}): SlotRect[] {
+  const shiftX = options.applyOffset ? geometry.offsetX : 0;
+  const shiftY = options.applyOffset ? geometry.offsetY : 0;
+  return Array.from({ length: labelsPerSheet(geometry) }, (_, index) => slotRectAt(geometry, index, shiftX, shiftY));
+}
+
+function slotRectAt(geometry: LabelSheetGeometry, index: number, shiftX: number, shiftY: number): SlotRect {
   const column = index % geometry.columns;
   const row = Math.floor(index / geometry.columns);
   return {
-    left: geometry.marginLeft + column * (geometry.labelWidth + geometry.gapHorizontal),
-    top: geometry.marginTop + row * (geometry.labelHeight + geometry.gapVertical),
+    left: shiftX + geometry.marginLeft + column * (geometry.labelWidth + geometry.gapHorizontal),
+    top: shiftY + geometry.marginTop + row * (geometry.labelHeight + geometry.gapVertical),
     width: geometry.labelWidth,
     height: geometry.labelHeight,
   };

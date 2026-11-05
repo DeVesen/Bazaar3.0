@@ -88,4 +88,28 @@ describe('LabelSheet', () => {
     expect(first.querySelector('.label-card__currency')?.textContent?.trim()).toBe('$');
     expect(slotElements(fixture)[1].querySelector('app-label-card')).toBeNull();
   });
+
+  it('render_offsetWithoutApplyOffset_previewIsNotShifted', async () => {
+    // Arrange & Act
+    const fixture = await render(startPositionPreview(1, 16));
+    fixture.componentRef.setInput('geometry', { ...AVERY_16_GEOMETRY, offsetX: 2, offsetY: 2 });
+    await fixture.whenStable();
+
+    // Assert
+    const first = slotElements(fixture)[0];
+    expect(Number.parseFloat(first.style.left)).toBeCloseTo(0);
+    expect(Number.parseFloat(first.style.top)).toBeCloseTo((8.5 / 297) * 100);
+  });
+
+  it('render_offsetWithApplyOffset_shiftsSlots', async () => {
+    // Arrange & Act
+    const fixture = await render(startPositionPreview(1, 16), { applyOffset: true });
+    fixture.componentRef.setInput('geometry', { ...AVERY_16_GEOMETRY, offsetX: 2, offsetY: -2 });
+    await fixture.whenStable();
+
+    // Assert
+    const first = slotElements(fixture)[0];
+    expect(Number.parseFloat(first.style.left)).toBeCloseTo((2 / 210) * 100);
+    expect(Number.parseFloat(first.style.top)).toBeCloseTo((6.5 / 297) * 100);
+  });
 });

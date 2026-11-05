@@ -24,6 +24,8 @@ const FIELD_LABELS: Record<SheetFormatField, string> = {
   gapVertical: 'Abstand senkrecht (mm)',
   columns: 'Spalten',
   rows: 'Zeilen',
+  offsetX: 'Offset X (mm)',
+  offsetY: 'Offset Y (mm)',
 };
 
 /** Leaf: Eingaben von Bereich A (Bogenformat) samt Auswahl, Name, Speichern und Löschen. */

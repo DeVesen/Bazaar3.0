@@ -3,9 +3,9 @@ import { LabelSheetsDocument, LabelSheetsPrintModel } from './label-sheets-docum
 import { AVERY_16_GEOMETRY } from './label-geometry';
 import { placeLabels } from './label-slots';
 
-function model(startNumber: number, count: number, startPosition: number): LabelSheetsPrintModel {
+function model(startNumber: number, count: number, startPosition: number, geometry = AVERY_16_GEOMETRY): LabelSheetsPrintModel {
   return {
-    geometry: AVERY_16_GEOMETRY,
+    geometry,
     sheets: placeLabels(startNumber, count, startPosition, 16),
     content: { logo: null, sellerSymbol: null, currencySymbol: '€' },
   };
@@ -73,5 +73,15 @@ describe('LabelSheetsDocument', () => {
 
     // Assert
     expect(fixture.componentInstance.sheetWidth()).toBe('210mm');
+  });
+
+  it('render_offsetX2_shiftsFirstSlotInPrint', async () => {
+    // Arrange & Act
+    const fixture = await render(model(1000, 4, 1, { ...AVERY_16_GEOMETRY, offsetX: 2, offsetY: 3 }));
+
+    // Assert
+    const first = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[data-slot="1"]') as HTMLElement;
+    expect(Number.parseFloat(first.style.left)).toBeCloseTo((2 / 210) * 100);
+    expect(Number.parseFloat(first.style.top)).toBeCloseTo((11.5 / 297) * 100);
   });
 });

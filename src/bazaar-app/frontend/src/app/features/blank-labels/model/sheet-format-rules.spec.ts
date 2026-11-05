@@ -14,7 +14,7 @@ function avery16Texts(overrides: Partial<SheetFormatTexts> = {}): SheetFormatTex
 }
 
 describe('sheet-format-rules', () => {
-  it('textsFromGeometry_avery16_formatsAllTwelveFieldsGerman', () => {
+  it('textsFromGeometry_avery16_formatsAllFourteenFieldsGerman', () => {
     // Arrange & Act
     const texts = textsFromGeometry(AVERY_16_GEOMETRY);
 
@@ -32,6 +32,8 @@ describe('sheet-format-rules', () => {
       gapVertical: '0',
       columns: '2',
       rows: '8',
+      offsetX: '0',
+      offsetY: '0',
     });
   });
 
@@ -99,6 +101,12 @@ describe('sheet-format-rules', () => {
     ['marginLeft', '10001', SHEET_FORMAT_MESSAGES.maxMeasure],
     ['columns', '1001', SHEET_FORMAT_MESSAGES.maxCount],
     ['rows', '1001', SHEET_FORMAT_MESSAGES.maxCount],
+    ['offsetX', '-2,55', SHEET_FORMAT_MESSAGES.oneDecimal],
+    ['offsetX', '21', SHEET_FORMAT_MESSAGES.offsetRange],
+    ['offsetY', '-21', SHEET_FORMAT_MESSAGES.offsetRange],
+    ['offsetY', '20,1', SHEET_FORMAT_MESSAGES.offsetRange],
+    ['offsetX', '', SHEET_FORMAT_MESSAGES.required],
+    ['offsetY', 'abc', SHEET_FORMAT_MESSAGES.notANumber],
   ] as const)('validateSheetFormat_%s=%s_errorAtThatFieldAndNoGeometry', (field, text, message) => {
     // Arrange & Act
     const validation = validateSheetFormat(avery16Texts({ [field]: text }), field);
@@ -171,5 +179,44 @@ describe('sheet-format-rules', () => {
 
     // Assert
     expect(name).toBe('Avery 12er');
+  });
+
+  it.each([
+    ['offsetX', '-2', -2],
+    ['offsetX', '-20', -20],
+    ['offsetY', '20', 20],
+    ['offsetY', '-2,5', -2.5],
+  ] as const)('validateSheetFormat_%s=%s_isValidSignedOffset', (field, text, value) => {
+    // Arrange & Act
+    const validation = validateSheetFormat(avery16Texts({ [field]: text }), field);
+
+    // Assert
+    expect(validation.errors).toEqual({});
+    expect(validation.geometry?.[field]).toBe(value);
+  });
+
+  it('offsetRangeMessage_matchesBackendText', () => {
+    // Arrange & Act
+    const message = SHEET_FORMAT_MESSAGES.offsetRange;
+
+    // Assert
+    expect(message).toBe('Zwischen −20 und 20 mm');
+  });
+
+  it('validateSheetFormat_tightFormatWithMaxOffset_staysValid', () => {
+    // Arrange & Act
+    const validation = validateSheetFormat(avery16Texts({ marginTop: '9', offsetX: '20', offsetY: '-20' }), 'offsetY');
+
+    // Assert
+    expect(validation.errors).toEqual({});
+    expect(validation.geometry).not.toBeNull();
+  });
+
+  it('validateSheetFormat_overflowWhileOffsetLastEdited_errorAtRows', () => {
+    // Arrange & Act
+    const validation = validateSheetFormat(avery16Texts({ rows: '9' }), 'offsetY');
+
+    // Assert
+    expect(validation.errors).toEqual({ rows: SHEET_FORMAT_MESSAGES.heightOverflow });
   });
 });

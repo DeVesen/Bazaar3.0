@@ -24,6 +24,8 @@ const AVERY_12: SheetFormat = {
   gapVertical: 0,
   columns: 2,
   rows: 6,
+  offsetX: -2.5,
+  offsetY: 3,
 };
 
 const INITIAL_DEFAULTS: LabelPrintDefaults = { logo: null, sellerSymbol: null, currencySymbol: '€' };
@@ -188,6 +190,49 @@ describe('BlankLabelsPage', () => {
     expect(page.formatTexts().marginTop).toBe('4,5');
     expect(page.formatName()).toBe('Avery 12er');
     expect(page.perSheet()).toBe(12);
+  });
+
+  it('onFormatSelected_savedFormatWithOffset_fillsOffsetTexts', async () => {
+    // Arrange
+    const { page } = await setup({ formats: [AVERY_12] });
+
+    // Act
+    page.onFormatSelected('LSF00001');
+
+    // Assert
+    expect(page.formatTexts().offsetX).toBe('-2,5');
+    expect(page.formatTexts().offsetY).toBe('3');
+    expect(page.geometry()).toEqual(expect.objectContaining({ offsetX: -2.5, offsetY: 3 }));
+  });
+
+  it('onSaveFormat_offsetEntered_sendsOffsetInRequest', async () => {
+    // Arrange
+    const { page } = await setup();
+    store.saveFormat.mockReturnValue(of(AVERY_12));
+    page.formatName.set('Mein Drucker');
+    page.onFormatFieldChange({ field: 'offsetX', text: '2' });
+    page.onFormatFieldChange({ field: 'offsetY', text: '-1,5' });
+
+    // Act
+    page.onSaveFormat();
+
+    // Assert
+    expect(store.saveFormat).toHaveBeenCalledWith(expect.objectContaining({ offsetX: 2, offsetY: -1.5 }));
+  });
+
+  it('onFormatFieldChange_offsetOutOfRange_errorAtOffsetAndSaveAndPrintBlocked', async () => {
+    // Arrange
+    const { page } = await setup();
+    page.formatName.set('Mein Drucker');
+    enterValidRun(page, '1000', '4', '');
+
+    // Act
+    page.onFormatFieldChange({ field: 'offsetX', text: '21' });
+
+    // Assert
+    expect(page.formatValidation().errors.offsetX).toBe('Zwischen −20 und 20 mm');
+    expect(page.canSave()).toBe(false);
+    expect(page.canPrint()).toBe(false);
   });
 
   it('canSave_emptyName_isFalse', async () => {

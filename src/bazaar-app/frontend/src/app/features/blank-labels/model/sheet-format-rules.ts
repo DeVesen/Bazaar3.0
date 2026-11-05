@@ -28,6 +28,8 @@ export const SHEET_FORMAT_FIELDS: readonly SheetFormatField[] = [
   'gapVertical',
   'columns',
   'rows',
+  'offsetX',
+  'offsetY',
 ];
 
 export const FORMAT_NAME_MAX_LENGTH = 50;
@@ -35,6 +37,8 @@ export const FORMAT_NAME_MAX_LENGTH = 50;
 /** Obergrenzen des Backend-Validators: jedes Maß höchstens 10000 mm, Spalten und Zeilen höchstens 1000. */
 export const MAX_MEASURE_MM = 10000;
 export const MAX_GRID_COUNT = 1000;
+/** Betrag des Druckversatzes höchstens 20 mm (wie Backend `LabelSheetGeometry.MaxOffsetMm`). */
+export const MAX_OFFSET_MM = 20;
 
 export const SHEET_FORMAT_MESSAGES = {
   required: 'Pflichtfeld',
@@ -45,12 +49,15 @@ export const SHEET_FORMAT_MESSAGES = {
   wholeNumber: 'Ganze Zahl ab 1',
   maxMeasure: `Höchstens ${MAX_MEASURE_MM} mm`,
   maxCount: `Höchstens ${MAX_GRID_COUNT}`,
+  offsetRange: `Zwischen −${MAX_OFFSET_MM} und ${MAX_OFFSET_MM} mm`,
   widthOverflow: 'Etiketten passen nicht in die Bogenbreite',
   heightOverflow: 'Etiketten passen nicht in die Bogenhöhe',
 } as const;
 
 const POSITIVE_FIELDS: ReadonlySet<SheetFormatField> = new Set(['sheetWidth', 'sheetHeight', 'labelWidth', 'labelHeight']);
 const COUNT_FIELDS: ReadonlySet<SheetFormatField> = new Set(['columns', 'rows']);
+/** Vorzeichenbehaftet, nicht Teil der Rasterprüfung (nicht in WIDTH_FIELDS/HEIGHT_FIELDS). */
+const OFFSET_FIELDS: ReadonlySet<SheetFormatField> = new Set(['offsetX', 'offsetY']);
 const WIDTH_FIELDS: readonly SheetFormatField[] = ['sheetWidth', 'labelWidth', 'marginLeft', 'marginRight', 'gapHorizontal', 'columns'];
 const HEIGHT_FIELDS: readonly SheetFormatField[] = ['sheetHeight', 'labelHeight', 'marginTop', 'marginBottom', 'gapVertical', 'rows'];
 
@@ -99,7 +106,14 @@ function checkField(field: SheetFormatField, text: string): FieldCheck {
 }
 
 function rangeErrorOf(field: SheetFormatField, value: number, decimals: number): string | null {
-  return COUNT_FIELDS.has(field) ? countErrorOf(value, decimals) : measureErrorOf(field, value, decimals);
+  if (COUNT_FIELDS.has(field)) return countErrorOf(value, decimals);
+  if (OFFSET_FIELDS.has(field)) return offsetErrorOf(value, decimals);
+  return measureErrorOf(field, value, decimals);
+}
+
+function offsetErrorOf(value: number, decimals: number): string | null {
+  if (decimals > 1) return SHEET_FORMAT_MESSAGES.oneDecimal;
+  return Math.abs(value) > MAX_OFFSET_MM ? SHEET_FORMAT_MESSAGES.offsetRange : null;
 }
 
 function countErrorOf(value: number, decimals: number): string | null {

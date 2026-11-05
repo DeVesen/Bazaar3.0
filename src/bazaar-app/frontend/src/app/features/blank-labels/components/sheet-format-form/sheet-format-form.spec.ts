@@ -27,12 +27,12 @@ describe('SheetFormatForm', () => {
     await TestBed.configureTestingModule({ imports: [SheetFormatForm] }).compileComponents();
   });
 
-  it('render_avery16Texts_showsAllTwelveFieldsWithTheirValues', async () => {
+  it('render_avery16Texts_showsAllFourteenFieldsWithTheirValues', async () => {
     // Arrange & Act
     const fixture = await render({ perSheet: 16 });
 
     // Assert
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('input[data-field]')).toHaveLength(12);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('input[data-field]')).toHaveLength(14);
     expect(fieldInput(fixture, 'sheetWidth').value).toBe('210');
     expect(fieldInput(fixture, 'marginTop').value).toBe('8,5');
     expect(fieldInput(fixture, 'columns').value).toBe('2');
@@ -110,5 +110,44 @@ describe('SheetFormatForm', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-error-for="name"]')?.textContent?.trim()).toBe(
       'Höchstens 50 Zeichen',
     );
+  });
+
+  it('render_always_showsOffsetFieldsLastAfterRowsWithLabelsAndZero', async () => {
+    // Arrange & Act
+    const fixture = await render();
+
+    // Assert
+    const root = fixture.nativeElement as HTMLElement;
+    const fields = Array.from(root.querySelectorAll<HTMLInputElement>('input[data-field]')).map((input) => input.dataset['field']);
+    expect(fields.slice(-3)).toEqual(['rows', 'offsetX', 'offsetY']);
+    expect(root.querySelector('label[for="sheet-format-offsetX"]')?.textContent?.trim()).toBe('Offset X (mm)');
+    expect(root.querySelector('label[for="sheet-format-offsetY"]')?.textContent?.trim()).toBe('Offset Y (mm)');
+    expect(fieldInput(fixture, 'offsetX').value).toBe('0');
+    expect(fieldInput(fixture, 'offsetY').value).toBe('0');
+  });
+
+  it('render_always_showsOffsetHint', async () => {
+    // Arrange & Act
+    const fixture = await render();
+
+    // Assert
+    expect((fixture.nativeElement as HTMLElement).querySelector('.sheet-format-form__offset-hint')?.textContent?.trim()).toBe(
+      'Offset verschiebt nur den Druck. Plus: nach rechts/unten, Minus: nach links/oben.',
+    );
+  });
+
+  it('input_offsetXMinus2_emitsFieldChange', async () => {
+    // Arrange
+    const fixture = await render();
+    const changes = vi.fn();
+    fixture.componentInstance.fieldChange.subscribe(changes);
+    const offsetX = fieldInput(fixture, 'offsetX');
+
+    // Act
+    offsetX.value = '-2';
+    offsetX.dispatchEvent(new Event('input'));
+
+    // Assert
+    expect(changes).toHaveBeenCalledWith({ field: 'offsetX', text: '-2' });
   });
 });
