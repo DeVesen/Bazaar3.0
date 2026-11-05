@@ -30,6 +30,8 @@ public sealed class BazaarDbContext(DbContextOptions<BazaarDbContext> options) :
 
     public DbSet<LabelPrintDefaults> LabelPrintDefaults { get; set; } = null!;
 
+    public DbSet<LabelImage> LabelImages { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("citext");

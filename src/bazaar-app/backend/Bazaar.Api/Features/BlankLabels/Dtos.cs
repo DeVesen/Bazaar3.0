@@ -29,6 +29,21 @@ public sealed record LabelSheetFormatDto(
     }
 }
 
+public sealed record LabelImageSummaryDto(string Id, string Name, string MediaType, int SizeBytes, DateTimeOffset CreatedAt)
+{
+    public static LabelImageSummaryDto From(LabelImageSummary summary) =>
+        new(summary.Id, summary.Name, summary.MediaType, summary.SizeBytes, summary.CreatedAt);
+
+    public static LabelImageSummaryDto From(LabelImage image) =>
+        new(image.Id, image.Name, image.MediaType, image.SizeBytes, image.CreatedAt);
+}
+
+/// <summary>Einzelnes Bild mit Inhalt; wird nur als JSON ausgeliefert, nie als eigenes Dokument.</summary>
+public sealed record LabelImageDto(string Id, string Name, string DataUrl)
+{
+    public static LabelImageDto From(LabelImage image) => new(image.Id, image.Name, image.DataUrl);
+}
+
 public sealed record LabelPrintDefaultsDto(LabelGraphic? Logo, LabelGraphic? SellerSymbol, string CurrencySymbol)
 {
     public static LabelPrintDefaultsDto From(LabelPrintDefaults defaults) =>
