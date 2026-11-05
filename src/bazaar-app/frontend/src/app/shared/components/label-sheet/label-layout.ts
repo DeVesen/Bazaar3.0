@@ -20,6 +20,12 @@ export const DEFAULT_LABEL_ELEMENT_SIZES: LabelElementSizes = { qrCode: 21.5, se
 /** Abstand um QR-Code und Logo-Fläche in mm, absolut (nicht mit `labelScale` skaliert). */
 const GAP_MM = 1.5;
 
+/**
+ * Linke Grenze für die Mitte der Artikel-Nummer bei Maßstab 1 (mm): Vorgabe-Symbol 5 + Rand 1,5 +
+ * Abstand 1,5. Fest, hängt nicht von `sizes.sellerSymbol` ab.
+ */
+const NUMBER_CENTER_LEFT_BASE_MM = 8;
+
 /** Quadratisches Element (QR-Code, Verkäufer-Symbol) in mm. */
 export interface LabelBox {
   x: number;
@@ -74,8 +80,8 @@ export function labelLayout(width: number, height: number, sizes: LabelElementSi
   // Gemeinsame Unterkante von Verkäufer-Symbol unten links, Artikel-Nummer und Preiszeile.
   const bottom = height - 1.5 * k;
   const numberText: LabelText = {
-    // Horizontal mittig zwischen Verkäufer-Symbol unten links und Falzlinie.
-    x: (8 * k + foldX - 1.5 * k) / 2,
+    // Feste Mitte, abgeleitet aus Vorgabe-Symbol 5 k + Rändern; wandert nicht mit der Symbolgröße.
+    x: (NUMBER_CENTER_LEFT_BASE_MM * k + foldX - 1.5 * k) / 2,
     y: bottom - sizes.numberHeight,
     fontSize: sizes.numberHeight,
   };

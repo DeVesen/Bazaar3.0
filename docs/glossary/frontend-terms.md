@@ -156,7 +156,7 @@
 - **First seen:** 2026-11-05
 
 ### Elementgrößen (Etiketten-Vordruck, Haupt-App)
-- **Maps to:** `LabelElementSizes` (`src/bazaar-app/frontend/src/app/shared/components/label-sheet/label-layout.ts`) — Felder „Größe QR-Code (mm)“, „Größe Verkäufer-Symbol (mm)“, „Höhe Artikel-Nummer (mm)“, „Höhe Währungssymbol (mm)“ im Bereich Etiketten-Inhalt; absolut in mm, 0,1 bis 100; gemerkt in `LabelPrintDefaults` (`qrCodeSize`, `sellerSymbolSize`, `numberHeight`, `currencyHeight`). Das Logo hat keine Größe, es füllt die freie Fläche.
+- **Maps to:** `LabelElementSizes` (`src/bazaar-app/frontend/src/app/shared/components/label-sheet/label-layout.ts`) — Felder „Größe QR-Code (mm)“, „Größe Verkäufer-Symbol (mm)“, „Höhe Artikel-Nummer (mm)“, „Höhe Währungssymbol (mm)“ im Bereich Etiketten-Inhalt; absolut in mm, 0,1 bis 100; gemerkt in `LabelPrintDefaults.sizes` (`qrCode`, `sellerSymbol`, `numberHeight`, `currencyHeight`). Das Logo hat keine Größe, es füllt die freie Fläche.
 - **Confidence:** user-confirmed
 - **First seen:** 2026-11-05
 

@@ -34,7 +34,7 @@ Kollisionsprüfung: Elemente dürfen sich überlappen.
 |---|---|---|
 | QR-Code | oben links, 1,5 mm vom linken und oberen Rand; wächst nach unten rechts | `sizes.qrCode` (Breite = Höhe) |
 | Logo | füllt die freie Fläche: links rechte Kante QR-Code + 1,5 mm, rechts Falzlinie − 1,5 mm, oben Rand + 1,5 mm, unten Oberkante Artikel-Nummer − 1,5 mm; darin so groß wie möglich, nie verzerrt (`object-fit: contain` bzw. `preserveAspectRatio`), zentriert | aus der Fläche; ist sie 0 breit oder hoch, entfällt das Logo |
-| Artikel-Nummer (`numberText`) | horizontal mittig zwischen Verkäufer-Symbol unten links und Falzlinie; Unterkante fest (Rand − 1,5 k) | Schriftgröße = `sizes.numberHeight` |
+| Artikel-Nummer (`numberText`) | feste horizontale Mitte `(8 k + Falzlinie − 1,5 k) / 2`, abgeleitet aus Vorgabe-Symbol 5 k + Rändern (hängt nicht von `sizes.sellerSymbol` ab); Unterkante fest (Rand − 1,5 k) | Schriftgröße = `sizes.numberHeight` |
 | Verkäufer-Symbol oben rechts | rechte und obere Kante 1,5 k vom Rand; wächst nach unten links | `sizes.sellerSymbol` |
 | Verkäufer-Symbol unten links | linke und untere Kante 1,5 k vom Rand; wächst nach oben rechts | `sizes.sellerSymbol` |
 | Preiszeile (`priceRow`) | von `width − 48 k` bis `width − 1,5 k`, Unterkante wie Artikel-Nummer; Flex-Zeile aus Schreiblinie (`flex: 1`) und rechtsbündigem Währungssymbol | Höhe = Schriftgröße = `sizes.currencyHeight`; die Schreiblinie schrumpft auf den Restplatz, bis 0 |

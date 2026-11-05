@@ -26,7 +26,7 @@
 
 ### Drucken
 - „Drucken" öffnet den Browser-Druckdialog mit allen Bögen in Bogengröße, mit Falzlinie; Hinweis „Skalierung 100 %, keine Seitenränder" — `core/print/print.service.ts` (`printLabelSheets`), `shared/components/label-sheet/label-sheets-document.ts`
-- Logo, Verkäufer-Symbol, Währungssymbol und die vier Elementgrößen werden bei jedem Druck im Backend gemerkt und beim nächsten Öffnen auf jedem Gerät vorbelegt; scheitert das Merken, erscheint die Warnung „Logo, Symbol, Währung und Größen konnten nicht gemerkt werden", gedruckt wird trotzdem — `PUT /api/label-print-defaults`
+- Logo, Verkäufer-Symbol, Währungssymbol und die vier Elementgrößen werden bei jedem Druck im Backend gemerkt und beim nächsten Öffnen auf jedem Gerät vorbelegt; scheitert das Merken, erscheint die Warnung „Logo, Symbol, Währung und Größen konnten nicht gemerkt werden", gedruckt wird trotzdem; die Größen stehen im Vertrag als Objekt `sizes` (`LabelElementSizes`) — `PUT /api/label-print-defaults`
 
 ## Spans
 - **Frontend:** `features/blank-labels/` (Seite, Store, Api, Prüfregeln, Eingabe-Komponenten), `shared/components/label-sheet/` (Geometrie, Layout, Platzierung, Etikett, Bogen, Druckdokument), `core/print/print.service.ts`, Menüeintrag in `core/shell/sidebar/`
