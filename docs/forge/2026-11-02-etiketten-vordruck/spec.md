@@ -47,7 +47,7 @@ Bogenformate und die Bilder-Bibliothek liegen im Backend und stehen auf jedem Ge
 - Startnummer 1 bis 2147483646, und Startnummer + Anzahl − 1 höchstens 2147483646; Anzahl Etiketten 1 bis 5000; Währungssymbol 1 bis 3 Zeichen; Startposition 1 bis Anzahl pro Seite, leer = 1. · Aussage
 - Eigene Bilder: PNG, JPEG oder SVG, höchstens 1 MB. · Aussage
 - Die Falzlinie erscheint in der Vorschau und im Druck. · Aussage
-- Inhalt eines Etiketts skaliert mit der Etikettgröße; die Maße 105 × 35 mm sind der Maßstab 1. Bei anderem Seitenverhältnis gilt das kleinere der beiden Verhältnisse. · Aussage
+- Ränder und Anker eines Etiketts skalieren mit der Etikettgröße; die Maße 105 × 35 mm sind der Maßstab 1. Bei anderem Seitenverhältnis gilt das kleinere der beiden Verhältnisse. Ausgenommen sind die 1,5 mm um QR-Code und Logo-Fläche; sie sind absolut. Die Elementgrößen (QR-Code, Verkäufer-Symbol, Artikel-Nummer, Währungssymbol) sind absolut in mm und skalieren nicht; das Logo füllt die freie Fläche neben dem QR-Code. · Aussage
 - Die Bogenformat-Namen sind eindeutig (exakt gleicher Name = gleiches Format). Beim Start ist kein Bogenformat gespeichert; die Felder sind mit Avery 16er vorbelegt (A4 210 × 297, Etikett 105 × 35, Ränder oben/unten 8,5, links/rechts 0, Abstand 0, 2 Spalten × 8 Zeilen). · Aussage
 - Die Seite prüft keine Nummern gegen Artikel und legt keine Artikel an oder ändert sie. · Aussage
 - Leere Pflichtfelder gelten als ungültig: Ein leeres Maßfeld in Bereich A, eine leere Startnummer oder eine leere Anzahl zeigt einen Fehler am Feld; „Drucken" ist gesperrt, bei Maßfeldern auch „Speichern". · Aussage
@@ -77,7 +77,7 @@ Bogenformate und die Bilder-Bibliothek liegen im Backend und stehen auf jedem Ge
 - **AC-18** Gegeben Startnummer 1000 und das Avery-16er-Format, wenn Bereich B die Vorschau zeigt, dann zeigt sie ein Etikett mit QR-Code links und dem Klartext „1000" darunter, unten mittig in der linken Hälfte auf der Unterkante des Verkäufer-Symbols unten links, dem Logo neben dem QR-Code, der Schreiblinie plus Währungssymbol rechts und dem Verkäufer-Symbol oben rechts und unten links. · Aussage
 - **AC-19** Gegeben ein Etikett mit Nummer 1000, wenn der QR-Code gescannt wird, dann liefert er genau „1000" ohne weitere Zeichen. · Aussage
 - **AC-20** Gegeben die Vorschau des Etiketts, wenn sie angezeigt wird, dann ist die senkrechte Mittellinie (Falzlinie) sichtbar; im Druck erscheint sie ebenfalls. · Aussage
-- **AC-21** Gegeben die Etikettgröße 52,5 × 17,5 mm (halb so groß wie 105 × 35), wenn die Vorschau erscheint, dann ist jedes Element halb so groß wie bei 105 × 35 mm. · Aussage
+- **AC-21** Gegeben die Etikettgröße 52,5 × 17,5 mm (halb so groß wie 105 × 35) und unveränderte Elementgrößen, wenn die Vorschau erscheint, dann sind die skalierenden Ränder und Anker halb so groß wie bei 105 × 35 mm, QR-Code, Verkäufer-Symbol, Artikel-Nummer und Währungssymbol behalten ihre Größe in mm. · Aussage
 - **AC-22** Gegeben das Avery-16er-Format, Startnummer 1000, Anzahl 4 und Startposition 7, wenn der Admin druckt, dann stehen auf dem Bogen 1000 in Zeile 4 links, 1001 in Zeile 4 rechts, 1002 in Zeile 5 links, 1003 in Zeile 5 rechts, und die Plätze 1 bis 6 bleiben leer. · Aussage
 - **AC-23** Gegeben das Avery-16er-Format, Startnummer 1000, Anzahl 4 und leere Startposition, wenn der Admin druckt, dann stehen 1000 und 1001 in Zeile 1, 1002 und 1003 in Zeile 2. · Aussage
 - **AC-24** Gegeben das Avery-16er-Format, Startnummer 1000, Anzahl 12 und Startposition 7, wenn der Admin druckt, dann trägt Bogen 1 die Plätze 7 bis 16 mit 1000 bis 1009, und Bogen 2 trägt die Plätze 1 und 2 mit 1010 und 1011. · Aussage
@@ -88,7 +88,7 @@ Bogenformate und die Bilder-Bibliothek liegen im Backend und stehen auf jedem Ge
 - **AC-29** Gegeben eine gültige Eingabe in allen Bereichen, wenn der Admin „Drucken" wählt, dann öffnet sich der Druckdialog des Browsers mit allen Etikettenbögen; die Seite zeigt den Hinweis „Skalierung 100 %, keine Seitenränder". · Aussage
 - **AC-30** Gegeben die Seite, wenn sie die Nummer 1000 druckt und ein Artikel mit Nummer 1000 existiert oder nicht, dann druckt sie in beiden Fällen ohne Fehler und legt keinen Artikel an und ändert keinen. · Aussage
 - **AC-31** Gegeben die geöffnete Seite, wenn sich die Breite des Vorschau-Bereichs ändert (z. B. Fenster halbiert), dann ändert sich die Vorschau proportional mit, bleibt vollständig sichtbar und behält das Seitenverhältnis des Bogens bzw. Etiketts. · Aussage
-- **AC-32** Gegeben die Etikettgröße 105 × 17,5 mm (Breite wie Maßstab, Höhe halb so groß), wenn die Vorschau erscheint, dann ist jedes Element halb so groß wie bei 105 × 35 mm (kleineres Verhältnis 0,5) und liegt vollständig innerhalb des Etiketts. · Aussage
+- **AC-32** Gegeben die Etikettgröße 105 × 17,5 mm (Breite wie Maßstab, Höhe halb so groß) und unveränderte Elementgrößen, wenn die Vorschau erscheint, dann sind die skalierenden Ränder und Anker halb so groß wie bei 105 × 35 mm (kleineres Verhältnis 0,5), QR-Code, Verkäufer-Symbol, Artikel-Nummer und Währungssymbol behalten ihre Größe in mm; Elemente dürfen sich überlappen (keine Kollisionsprüfung). · Aussage
 - **AC-33** Gegeben ein erstes Öffnen mit leerer Startnummer und leerer Anzahl, wenn der Admin Bereich B ansieht, dann erscheint an beiden Feldern ein Fehler und „Drucken" ist gesperrt. · Aussage
 - **AC-34** Gegeben Bereich A, wenn der Admin ein Maßfeld leert, dann erscheint ein Fehler am Feld und „Speichern" und „Drucken" sind gesperrt. · Aussage
 - **AC-35** Gegeben ein gültiges Bogenformat, gültige Angaben in Bereich B, leeres Logo und leeres Verkäufer-Symbol, wenn der Admin „Drucken" wählt, dann öffnet sich der Druckdialog und die Etiketten tragen weder Logo noch Verkäufer-Symbol. · Aussage
@@ -110,12 +110,12 @@ Bogenformate und die Bilder-Bibliothek liegen im Backend und stehen auf jedem Ge
 - **W · Anzahl pro Seite** · Aussage — Spalten und Zeilen sind Eingaben, die Anzahl pro Seite wird berechnet (Q3).
 - **W · Bogengröße** · Aussage — Breite und Höhe einstellbar, Vorgabe A4 (Q4).
 - **W · Abstand** · Aussage — Abstand waagerecht und senkrecht einstellbar, Vorgabe 0 (Q5).
-- **W · Persistenz Inhalt** · Aussage — Logo, Verkäufer-Symbol, Währungssymbol bleiben als letzte Werte gespeichert; Startnummer, Anzahl, Startposition nie (Q6).
+- **W · Persistenz Inhalt** · Aussage — Logo, Verkäufer-Symbol, Währungssymbol und die vier Elementgrößen bleiben als letzte Werte gespeichert; Startnummer, Anzahl, Startposition nie (Q6; geändert 2026-11-05, siehe Elementgrößen einstellbar).
 - **W · Speicherort** · Aussage — Bogenformate und eigene Bilder im Backend (Q7).
 - **W · Ausgabe** · Aussage — Browser-Druckdialog wie bei den Belegen, mit Hinweis auf 100 % Skalierung (Q8).
 - **W · Bilder** · Aussage — PNG, JPEG, SVG bis 1 MB (Q9).
 - **W · Falzlinie** · Aussage — in Vorschau und Druck (Q10; geändert 2026-11-02, siehe Abweichung Falzlinie).
-- **W · Skalierung** · Aussage — Etikett-Inhalt skaliert proportional mit der Etikettgröße (Q11).
+- **W · Skalierung** · Aussage — Ränder und Anker skalieren proportional mit der Etikettgröße; QR-Code, Verkäufer-Symbol, Artikel-Nummer und Währungssymbol sind absolut in mm, das Logo füllt die freie Fläche (Q11; geändert 2026-11-05, siehe Elementgrößen einstellbar).
 - **W · Toleranz** · Aussage — Maße-Widerspruch mit 0,5 mm Toleranz (Q12).
 - **W · Eingabegrenzen** · Aussage — Startnummer 1 bis 2147483646, Anzahl 1 bis 5000, Währung höchstens 3 Zeichen, Maße > 0 mit einer Nachkommastelle (Q13).
 - **W · Bogenformat-Verwaltung** · Aussage — Eindeutiger Name, Überschreiben mit Rückfrage, Löschen mit Bestätigung, kein vorinstalliertes Format (Q14).
