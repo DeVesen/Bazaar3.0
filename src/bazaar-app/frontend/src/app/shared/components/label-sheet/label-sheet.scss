@@ -8,6 +8,11 @@
   background: #fff;
 }
 
+.label-sheet--clipped {
+  /* Druck: per Offset über den Bogenrand geschobene Etiketten abschneiden statt die Seite zu vergrößern. */
+  overflow: hidden;
+}
+
 .label-sheet--outlined {
   outline: 1px solid var(--p-content-border-color, #ccc);
 }

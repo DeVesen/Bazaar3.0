@@ -32,7 +32,7 @@ im Druck in mm (Breite `<Bogenbreite>mm`). Der Inhalt eines Etiketts skaliert mi
 `app-label-sheet`: `geometry` und `slots` (Pflicht), `content`, `width` (CSS-Länge, Standard `100%`),
 `maxHeight` (Vorschau), `outlineSlots`, `showFoldLines`, `applyOffset` (Standard `false`).
 
-Der Druckversatz (`offsetX`/`offsetY` der Geometrie) wird nur mit `applyOffset` angewendet: `app-label-sheets-document` setzt es auf `true`, die Vorschau nicht. Die Platzberechnung `slotRects(geometry, { applyOffset })` verschiebt dann alle Plätze um den Versatz.
+Der Druckversatz (`offsetX`/`offsetY` der Geometrie) wird nur mit `applyOffset` angewendet: `app-label-sheets-document` setzt es auf `true`, die Vorschau nicht. Die Platzberechnung `slotRects(geometry, { applyOffset })` verschiebt dann alle Plätze um den Versatz. Mit `applyOffset` schneidet der Bogen über seinen Rand ragende Etiketten ab (`overflow: hidden`), damit der Druck nicht verkleinert oder umbrochen wird; Größe und Abstände bleiben exakt.
 
 Eigene Bilder (auch SVG) werden nur über `<img [src]>` mit der Data-URL gerendert, nie per
 `innerHTML` oder inline-SVG.

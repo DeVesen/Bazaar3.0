@@ -112,4 +112,22 @@ describe('LabelSheet', () => {
     expect(Number.parseFloat(first.style.left)).toBeCloseTo((2 / 210) * 100);
     expect(Number.parseFloat(first.style.top)).toBeCloseTo((6.5 / 297) * 100);
   });
+
+  it('render_withApplyOffset_clipsSheetAtItsEdge', async () => {
+    // Arrange & Act
+    const fixture = await render(startPositionPreview(1, 16), { applyOffset: true });
+
+    // Assert
+    const sheet = (fixture.nativeElement as HTMLElement).querySelector('.label-sheet') as HTMLElement;
+    expect(sheet.classList).toContain('label-sheet--clipped');
+  });
+
+  it('render_withoutApplyOffset_doesNotClipSheet', async () => {
+    // Arrange & Act
+    const fixture = await render(startPositionPreview(1, 16));
+
+    // Assert
+    const sheet = (fixture.nativeElement as HTMLElement).querySelector('.label-sheet') as HTMLElement;
+    expect(sheet.classList).not.toContain('label-sheet--clipped');
+  });
 });

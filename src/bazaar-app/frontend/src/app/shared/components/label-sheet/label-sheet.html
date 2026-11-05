@@ -1,4 +1,4 @@
-<div class="label-sheet" [class.label-sheet--outlined]="outlineSlots()" [style]="sheetStyle()">
+<div class="label-sheet" [class.label-sheet--outlined]="outlineSlots()" [class.label-sheet--clipped]="applyOffset()" [style]="sheetStyle()">
   @for (placed of placedSlots(); track placed.position) {
     <div
       class="label-sheet__slot"

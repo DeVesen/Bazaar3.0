@@ -84,4 +84,16 @@ describe('LabelSheetsDocument', () => {
     expect(Number.parseFloat(first.style.left)).toBeCloseTo((2 / 210) * 100);
     expect(Number.parseFloat(first.style.top)).toBeCloseTo((11.5 / 297) * 100);
   });
+
+  it('render_always_clipsEverySheetAtItsEdge', async () => {
+    // Arrange & Act
+    const fixture = await render(model(1000, 12, 7, { ...AVERY_16_GEOMETRY, offsetX: 2, offsetY: 3 }));
+
+    // Assert
+    const sheets = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.label-sheet'));
+    expect(sheets).toHaveLength(2);
+    for (const sheet of sheets) {
+      expect(sheet.classList).toContain('label-sheet--clipped');
+    }
+  });
 });
