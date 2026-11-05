@@ -46,10 +46,12 @@
   font-weight: 600;
 }
 
-/* Schreiblinie füllt den Platz links vom Währungssymbol und schrumpft bei großem Symbol bis auf 0. */
+/* Schreiblinie füllt den Platz links vom Währungssymbol und schrumpft bei großem Symbol bis auf 0.
+   flex-end: Ein überbreites Symbol läuft nach links über, die rechte Kante bleibt fest. */
 .label-card__price-row {
   display: flex;
   align-items: flex-end;
+  justify-content: flex-end;
 }
 
 .label-card__price-line {

@@ -211,4 +211,15 @@ describe('LabelCard', () => {
     const styles = fixture.componentInstance.styles().priceRow;
     expect(percent(styles['left']) + percent(styles['width'])).toBeCloseTo((103.5 / 105) * 100);
   });
+
+  // A5: Ein überbreites Währungssymbol läuft nach links über, die rechte Kante bleibt bei width − 1,5 k.
+  // jsdom rechnet kein Layout, daher Prüfung über die Ausrichtung der Flex-Zeile.
+  it('render_oversizedCurrency_keepsCurrencyRightAligned', async () => {
+    // Arrange & Act
+    const fixture = await render({ currencySymbol: 'EUR', sizes: { ...DEFAULT_LABEL_ELEMENT_SIZES, currencyHeight: 100 } });
+
+    // Assert
+    const row = getComputedStyle(element(fixture, '.label-card__price-row') as HTMLElement);
+    expect(row.justifyContent).toBe('flex-end');
+  });
 });
