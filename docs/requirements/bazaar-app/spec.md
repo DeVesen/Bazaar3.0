@@ -114,7 +114,7 @@ Verbindlich für alle Epics. Ein Epic, das davon abweichen will, ändert diese T
 | Marken / Kategorien / Verkäufer-Typen | ✅ | ✅ lesen; Marken und Kategorien zusätzlich implizit über AutoComplete anlegen (Abschnitt 9.3) |
 | Statistik | ✅ | ✅ lesen |
 | Einstellungen (inkl. Import und Benutzerverwaltung) | ✅ | ❌ |
-| Etiketten-Vordruck (Blanko-Etiketten drucken, Bogenformate verwalten) | ✅ | ❌ |
+| Etiketten-Vordruck (Blanko-Etiketten drucken, Bogenformate und Bilder-Bibliothek verwalten) | ✅ | ❌ |
 | Abrechnung stornieren, Artikel löschen | ✅ | ❌ |
 
 Leitgedanke: Kassenpersonal darf am Basar-Tag alles Operative ohne Nachfragen, aber nichts Zerstörendes und nichts Konfigurierendes. Das implizite Anlegen von Marken und Kategorien ist bewusst erlaubt — sonst blockiert die Artikelannahme an der erstbesten unbekannten Marke.
