@@ -11,7 +11,7 @@ public class GetLabelSheetFormatsHandlerTests
     public async Task Handle_UnsortedFormats_ReturnsThemSortedByName()
     {
         // Arrange
-        var geometry = new LabelSheetGeometry(210m, 297m, 105m, 35m, 8.5m, 0m, 8.5m, 0m, 0m, 0m, 2, 8);
+        var geometry = new LabelSheetGeometry(210m, 297m, 105m, 35m, 8.5m, 0m, 8.5m, 0m, 0m, 0m, 2, 8, 0m, 0m);
         var repository = new Mock<ILabelSheetFormatRepository>();
         repository.Setup(r => r.GetAll()).ReturnsAsync(new List<LabelSheetFormat>
         {

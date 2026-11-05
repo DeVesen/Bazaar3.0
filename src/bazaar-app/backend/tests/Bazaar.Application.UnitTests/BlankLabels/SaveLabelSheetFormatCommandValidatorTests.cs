@@ -178,4 +178,87 @@ public class SaveLabelSheetFormatCommandValidatorTests
         // Assert
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(SaveLabelSheetFormatCommand.LabelWidth));
     }
+
+    [Theory]
+    [InlineData(-20)]
+    [InlineData(20)]
+    [InlineData(-2.5)]
+    [InlineData(0)]
+    public void Validate_OffsetWithinRange_IsValid(decimal offset)
+    {
+        // Arrange
+        var command = Avery16();
+        command.OffsetX = offset;
+        command.OffsetY = offset;
+
+        // Act
+        var result = _sut.Validate(command);
+
+        // Assert
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData(-20.1)]
+    [InlineData(20.1)]
+    [InlineData(1.25)]
+    public void Validate_InvalidOffsetX_HasOffsetXError(decimal offset)
+    {
+        // Arrange
+        var command = Avery16();
+        command.OffsetX = offset;
+
+        // Act
+        var result = _sut.Validate(command);
+
+        // Assert
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(SaveLabelSheetFormatCommand.OffsetX));
+    }
+
+    [Theory]
+    [InlineData(-20.1)]
+    [InlineData(20.1)]
+    [InlineData(1.25)]
+    public void Validate_InvalidOffsetY_HasOffsetYError(decimal offset)
+    {
+        // Arrange
+        var command = Avery16();
+        command.OffsetY = offset;
+
+        // Act
+        var result = _sut.Validate(command);
+
+        // Assert
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(SaveLabelSheetFormatCommand.OffsetY));
+    }
+
+    [Fact]
+    public void Validate_OffsetBeyondRange_HasRangeMessage()
+    {
+        // Arrange
+        var command = Avery16();
+        command.OffsetX = 21m;
+
+        // Act
+        var result = _sut.Validate(command);
+
+        // Assert
+        var error = Assert.Single(result.Errors);
+        Assert.Equal("Zwischen −20 und 20 mm", error.ErrorMessage);
+    }
+
+    [Fact]
+    public void Validate_ThreeColumnsWithOffset_StillHasColumnsError()
+    {
+        // Arrange
+        var command = Avery16();
+        command.Columns = 3;
+        command.OffsetX = -20m;
+
+        // Act
+        var result = _sut.Validate(command);
+
+        // Assert
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(SaveLabelSheetFormatCommand.Columns));
+    }
 }

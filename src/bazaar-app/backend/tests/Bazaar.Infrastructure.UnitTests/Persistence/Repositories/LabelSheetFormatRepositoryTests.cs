@@ -13,7 +13,7 @@ public class LabelSheetFormatRepositoryTests
         new(new DbContextOptionsBuilder<BazaarDbContext>().UseSqlite(connection).Options);
 
     private static LabelSheetGeometry Avery16() =>
-        new(210m, 297m, 105m, 35m, 8.5m, 0m, 8.5m, 0m, 0m, 0m, 2, 8);
+        new(210m, 297m, 105m, 35m, 8.5m, 0m, 8.5m, 0m, 0m, 0m, 2, 8, 0m, 0m);
 
     private static async Task<SqliteConnection> OpenDatabase()
     {
@@ -83,7 +83,7 @@ public class LabelSheetFormatRepositoryTests
     {
         // Arrange
         await using var connection = await OpenDatabase();
-        var avery12 = new LabelSheetGeometry(210m, 297m, 105m, 48m, 4.5m, 0m, 4.5m, 0m, 0m, 0m, 2, 6);
+        var avery12 = new LabelSheetGeometry(210m, 297m, 105m, 48m, 4.5m, 0m, 4.5m, 0m, 0m, 0m, 2, 6, 0m, 0m);
         await using (var writeContext = CreateContext(connection))
         {
             var repository = new LabelSheetFormatRepository(writeContext);
@@ -116,5 +116,51 @@ public class LabelSheetFormatRepositoryTests
 
         // Assert
         Assert.Empty(await sut.GetAll());
+    }
+
+    [Fact]
+    public async Task Add_NegativeOffset_IsReadBackUnchanged()
+    {
+        // Arrange
+        await using var connection = await OpenDatabase();
+        var shifted = Avery16() with { OffsetX = -2.5m, OffsetY = 3m };
+        await using (var writeContext = CreateContext(connection))
+        {
+            await new LabelSheetFormatRepository(writeContext).Add(LabelSheetFormat.Create("LSF00001", "Versetzt", shifted));
+        }
+        await using var readContext = CreateContext(connection);
+
+        // Act
+        var found = await new LabelSheetFormatRepository(readContext).GetById("LSF00001");
+
+        // Assert
+        Assert.Equal(-2.5m, found!.Geometry.OffsetX);
+        Assert.Equal(3m, found.Geometry.OffsetY);
+    }
+
+    [Fact]
+    public async Task GetById_RowWithoutOffsetColumnsSet_ReadsZeroOffset()
+    {
+        // Arrange
+        await using var connection = await OpenDatabase();
+        await using (var writeContext = CreateContext(connection))
+        {
+            await writeContext.Database.ExecuteSqlRawAsync(
+                """
+                INSERT INTO "LabelSheetFormats" ("Id", "Name",
+                    "Geometry_SheetWidth", "Geometry_SheetHeight", "Geometry_LabelWidth", "Geometry_LabelHeight",
+                    "Geometry_MarginTop", "Geometry_MarginRight", "Geometry_MarginBottom", "Geometry_MarginLeft",
+                    "Geometry_GapHorizontal", "Geometry_GapVertical", "Geometry_Columns", "Geometry_Rows")
+                VALUES ('LSF00001', 'Alt', 210, 297, 105, 35, 8.5, 0, 8.5, 0, 0, 0, 2, 8)
+                """,
+                TestContext.Current.CancellationToken);
+        }
+        await using var readContext = CreateContext(connection);
+
+        // Act
+        var found = await new LabelSheetFormatRepository(readContext).GetById("LSF00001");
+
+        // Assert
+        Assert.Equal(Avery16(), found!.Geometry);
     }
 }

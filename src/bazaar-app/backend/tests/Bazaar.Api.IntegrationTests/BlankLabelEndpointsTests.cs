@@ -73,6 +73,36 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task PostFormat_WithOffset_IsListedWithOffset()
+    {
+        // Arrange
+        var client = await AdminClient();
+        var post = await client.PostAsJsonAsync(FormatsUrl, Avery16("Versetzt", offsetX: -2.5m, offsetY: 3m), TestContext.Current.CancellationToken);
+        post.EnsureSuccessStatusCode();
+
+        // Act
+        var formats = await client.GetFromJsonAsync<FormatBody[]>(FormatsUrl, TestContext.Current.CancellationToken);
+
+        // Assert
+        var format = Assert.Single(formats!);
+        Assert.Equal(-2.5m, format.OffsetX);
+        Assert.Equal(3m, format.OffsetY);
+    }
+
+    [Fact]
+    public async Task PostFormat_OffsetBeyond20_ReturnsBadRequest()
+    {
+        // Arrange
+        var client = await AdminClient();
+
+        // Act
+        var response = await client.PostAsJsonAsync(FormatsUrl, Avery16("Zu weit", offsetX: 20.1m), TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task PostFormat_SameNameWithoutOverwrite_ReturnsConflictNameTaken()
     {
         // Arrange
@@ -187,7 +217,8 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
-    private static object Avery16(string name, int columns = 2, int rows = 8, bool overwrite = false) => new
+    private static object Avery16(
+        string name, int columns = 2, int rows = 8, bool overwrite = false, decimal offsetX = 0m, decimal offsetY = 0m) => new
     {
         name,
         sheetWidth = 210m,
@@ -202,6 +233,8 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
         gapVertical = 0m,
         columns,
         rows,
+        offsetX,
+        offsetY,
         overwrite,
     };
 
@@ -243,7 +276,7 @@ public class BlankLabelEndpointsTests : IAsyncLifetime
 
     private sealed record TokenBody(string AccessToken);
 
-    private sealed record FormatBody(string Id, string Name, int Columns, int Rows);
+    private sealed record FormatBody(string Id, string Name, int Columns, int Rows, decimal OffsetX, decimal OffsetY);
 
     private sealed record ProblemBody(string? ErrorCode);
 

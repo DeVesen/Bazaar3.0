@@ -169,6 +169,18 @@ namespace Bazaar.Infrastructure.Migrations
                                 .HasPrecision(6, 1)
                                 .HasColumnType("numeric(6,1)");
 
+                            b1.Property<decimal>("OffsetX")
+                                .ValueGeneratedOnAdd()
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)")
+                                .HasDefaultValue(0m);
+
+                            b1.Property<decimal>("OffsetY")
+                                .ValueGeneratedOnAdd()
+                                .HasPrecision(6, 1)
+                                .HasColumnType("numeric(6,1)")
+                                .HasDefaultValue(0m);
+
                             b1.Property<int>("Rows")
                                 .HasColumnType("integer");
 

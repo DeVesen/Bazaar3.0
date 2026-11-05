@@ -16,7 +16,9 @@ public sealed record LabelSheetFormatDto(
     decimal GapHorizontal,
     decimal GapVertical,
     int Columns,
-    int Rows)
+    int Rows,
+    decimal OffsetX,
+    decimal OffsetY)
 {
     public static LabelSheetFormatDto From(LabelSheetFormat format)
     {
@@ -25,7 +27,8 @@ public sealed record LabelSheetFormatDto(
             format.Id, format.Name,
             geometry.SheetWidth, geometry.SheetHeight, geometry.LabelWidth, geometry.LabelHeight,
             geometry.MarginTop, geometry.MarginRight, geometry.MarginBottom, geometry.MarginLeft,
-            geometry.GapHorizontal, geometry.GapVertical, geometry.Columns, geometry.Rows);
+            geometry.GapHorizontal, geometry.GapVertical, geometry.Columns, geometry.Rows,
+            geometry.OffsetX, geometry.OffsetY);
     }
 }
 

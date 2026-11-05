@@ -5,7 +5,7 @@ namespace Bazaar.Domain.UnitTests;
 public class LabelSheetFormatTests
 {
     private static LabelSheetGeometry Avery16() =>
-        new(210m, 297m, 105m, 35m, 8.5m, 0m, 8.5m, 0m, 0m, 0m, 2, 8);
+        new(210m, 297m, 105m, 35m, 8.5m, 0m, 8.5m, 0m, 0m, 0m, 2, 8, 0m, 0m);
 
     private static LabelSheetGeometry InvalidGeometry(string caseName) => caseName switch
     {
@@ -15,6 +15,9 @@ public class LabelSheetFormatTests
         "negative-margin" => Avery16() with { MarginTop = -1m },
         "zero-columns" => Avery16() with { Columns = 0 },
         "zero-rows" => Avery16() with { Rows = 0 },
+        "offset-x-beyond-20" => Avery16() with { OffsetX = 20.1m },
+        "offset-y-beyond-minus-20" => Avery16() with { OffsetY = -20.1m },
+        "offset-two-decimals" => Avery16() with { OffsetX = 1.25m },
         _ => throw new ArgumentOutOfRangeException(nameof(caseName)),
     };
 
@@ -73,6 +76,9 @@ public class LabelSheetFormatTests
     [InlineData("negative-margin")]
     [InlineData("zero-columns")]
     [InlineData("zero-rows")]
+    [InlineData("offset-x-beyond-20")]
+    [InlineData("offset-y-beyond-minus-20")]
+    [InlineData("offset-two-decimals")]
     public void Create_InvalidMeasure_Throws(string caseName)
     {
         // Arrange
@@ -135,7 +141,7 @@ public class LabelSheetFormatTests
     {
         // Arrange
         var format = LabelSheetFormat.Create("LSF00001", "Avery 12er", Avery16());
-        var avery12 = new LabelSheetGeometry(210m, 297m, 105m, 48m, 4.5m, 0m, 4.5m, 0m, 0m, 0m, 2, 6);
+        var avery12 = new LabelSheetGeometry(210m, 297m, 105m, 48m, 4.5m, 0m, 4.5m, 0m, 0m, 0m, 2, 6, 0m, 0m);
 
         // Act
         format.ReplaceGeometry(avery12);
@@ -153,5 +159,52 @@ public class LabelSheetFormatTests
         // Act & Assert
         Assert.ThrowsAny<ArgumentException>(() => format.ReplaceGeometry(Avery16() with { Rows = 9 }));
         Assert.Equal(8, format.Geometry.Rows);
+    }
+
+    [Theory]
+    [InlineData(-20, 20)]
+    [InlineData(20, -20)]
+    [InlineData(-2.5, 3)]
+    public void Create_OffsetWithinRange_KeepsOffset(decimal offsetX, decimal offsetY)
+    {
+        // Arrange
+        var geometry = Avery16() with { OffsetX = offsetX, OffsetY = offsetY };
+
+        // Act
+        var format = LabelSheetFormat.Create("LSF00001", "Versatz", geometry);
+
+        // Assert
+        Assert.Equal(offsetX, format.Geometry.OffsetX);
+        Assert.Equal(offsetY, format.Geometry.OffsetY);
+    }
+
+    [Theory]
+    [InlineData(-20)]
+    [InlineData(20)]
+    public void FitsSheet_FlushFittingFormatWithMaxOffset_StillFits(decimal offset)
+    {
+        // Arrange
+        var geometry = Avery16() with { OffsetX = offset, OffsetY = offset };
+
+        // Act
+        var fitsWidth = geometry.FitsSheetWidth();
+        var fitsHeight = geometry.FitsSheetHeight();
+
+        // Assert
+        Assert.True(fitsWidth);
+        Assert.True(fitsHeight);
+    }
+
+    [Fact]
+    public void FitsSheetWidth_TooWideFormatWithNegativeOffset_StillDoesNotFit()
+    {
+        // Arrange
+        var geometry = Avery16() with { Columns = 3, OffsetX = -20m };
+
+        // Act
+        var fits = geometry.FitsSheetWidth();
+
+        // Assert
+        Assert.False(fits);
     }
 }

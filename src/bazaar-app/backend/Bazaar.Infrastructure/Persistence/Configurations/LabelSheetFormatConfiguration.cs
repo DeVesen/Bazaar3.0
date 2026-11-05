@@ -33,5 +33,7 @@ public sealed class LabelSheetFormatConfiguration : IEntityTypeConfiguration<Lab
         builder.Property(g => g.GapVertical).HasPrecision(MeasurePrecision, MeasureScale);
         builder.Property(g => g.Columns);
         builder.Property(g => g.Rows);
+        builder.Property(g => g.OffsetX).HasPrecision(MeasurePrecision, MeasureScale).HasDefaultValue(0m);
+        builder.Property(g => g.OffsetY).HasPrecision(MeasurePrecision, MeasureScale).HasDefaultValue(0m);
     }
 }

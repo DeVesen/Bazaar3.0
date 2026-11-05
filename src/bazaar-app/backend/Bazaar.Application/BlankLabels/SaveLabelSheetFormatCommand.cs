@@ -21,10 +21,13 @@ public sealed class SaveLabelSheetFormatCommand
     public decimal GapVertical { get; set; }
     public int Columns { get; set; }
     public int Rows { get; set; }
+    public decimal OffsetX { get; set; }
+    public decimal OffsetY { get; set; }
     public bool Overwrite { get; set; }
 
     public LabelSheetGeometry ToGeometry() => new(
         SheetWidth, SheetHeight, LabelWidth, LabelHeight,
         MarginTop, MarginRight, MarginBottom, MarginLeft,
-        GapHorizontal, GapVertical, Columns, Rows);
+        GapHorizontal, GapVertical, Columns, Rows,
+        OffsetX, OffsetY);
 }

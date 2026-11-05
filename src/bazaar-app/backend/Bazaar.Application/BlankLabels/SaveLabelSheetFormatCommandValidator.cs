@@ -33,6 +33,8 @@ public sealed class SaveLabelSheetFormatCommandValidator : AbstractValidator<Sav
         NonNegativeMeasure(x => x.GapVertical);
         RuleFor(x => x.Columns).InclusiveBetween(1, MaxGridCount);
         RuleFor(x => x.Rows).InclusiveBetween(1, MaxGridCount);
+        OffsetMeasure(x => x.OffsetX);
+        OffsetMeasure(x => x.OffsetY);
 
         When(IsWithinBoundsAndValid, () =>
         {
@@ -57,6 +59,12 @@ public sealed class SaveLabelSheetFormatCommandValidator : AbstractValidator<Sav
         command.MarginTop, command.MarginRight, command.MarginBottom, command.MarginLeft,
         command.GapHorizontal, command.GapVertical,
     ];
+
+    private void OffsetMeasure(Expression<Func<SaveLabelSheetFormatCommand, decimal>> measure) =>
+        RuleFor(measure)
+            .InclusiveBetween(-LabelSheetGeometry.MaxOffsetMm, LabelSheetGeometry.MaxOffsetMm)
+            .WithMessage($"Zwischen −{LabelSheetGeometry.MaxOffsetMm:0} und {LabelSheetGeometry.MaxOffsetMm:0} mm")
+            .Must(LabelSheetGeometry.HasAtMostOneDecimal).WithMessage(OneDecimalMessage);
 
     private void PositiveMeasure(Expression<Func<SaveLabelSheetFormatCommand, decimal>> measure) =>
         RuleFor(measure).GreaterThan(0).LessThanOrEqualTo(MaxMeasureMm)

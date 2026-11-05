@@ -3,7 +3,9 @@ namespace Bazaar.Domain.BlankLabels;
 /// <summary>
 /// Maße eines Etikettenbogens in mm (Bogenformat ohne Namen). Etikett- und Bogengröße sind
 /// größer als 0, Ränder und Abstände mindestens 0, alle Maße mit höchstens einer
-/// Nachkommastelle; Spalten und Zeilen ganzzahlig ab 1.
+/// Nachkommastelle; Spalten und Zeilen ganzzahlig ab 1. Der Druckversatz (Offset X/Y) verschiebt
+/// nur den Druck, darf negativ sein (Betrag höchstens <see cref="MaxOffsetMm"/>) und fließt nicht
+/// in die Rasterprüfung ein.
 /// </summary>
 public sealed record LabelSheetGeometry(
     decimal SheetWidth,
@@ -17,16 +19,22 @@ public sealed record LabelSheetGeometry(
     decimal GapHorizontal,
     decimal GapVertical,
     int Columns,
-    int Rows)
+    int Rows,
+    decimal OffsetX,
+    decimal OffsetY)
 {
     /// <summary>So weit darf das Raster den Bogen überragen, ohne als widersprüchlich zu gelten.</summary>
     public const decimal FitToleranceMm = 0.5m;
+
+    /// <summary>Größter erlaubter Betrag des Druckversatzes in mm.</summary>
+    public const decimal MaxOffsetMm = 20m;
 
     public bool HasValidMeasures() =>
         AreAll(IsPositiveMeasure, SheetWidth, SheetHeight, LabelWidth, LabelHeight)
         && AreAll(IsNonNegativeMeasure, MarginTop, MarginRight, MarginBottom, MarginLeft, GapHorizontal, GapVertical)
         && Columns >= 1
-        && Rows >= 1;
+        && Rows >= 1
+        && AreAll(IsOffset, OffsetX, OffsetY);
 
     public bool FitsSheetWidth() =>
         Columns * LabelWidth + (Columns - 1) * GapHorizontal + MarginLeft + MarginRight
@@ -41,6 +49,8 @@ public sealed record LabelSheetGeometry(
     private static bool IsPositiveMeasure(decimal value) => value > 0 && HasAtMostOneDecimal(value);
 
     private static bool IsNonNegativeMeasure(decimal value) => value >= 0 && HasAtMostOneDecimal(value);
+
+    private static bool IsOffset(decimal value) => Math.Abs(value) <= MaxOffsetMm && HasAtMostOneDecimal(value);
 
     private static bool AreAll(Func<decimal, bool> rule, params decimal[] values) => values.All(rule);
 }

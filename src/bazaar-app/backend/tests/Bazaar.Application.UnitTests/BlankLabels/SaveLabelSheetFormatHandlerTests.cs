@@ -32,7 +32,7 @@ public class SaveLabelSheetFormatHandlerTests
     };
 
     private static LabelSheetFormat StoredAvery16(string name) =>
-        LabelSheetFormat.Create("LSF00001", name, new LabelSheetGeometry(210m, 297m, 105m, 35m, 8.5m, 0m, 8.5m, 0m, 0m, 0m, 2, 8));
+        LabelSheetFormat.Create("LSF00001", name, new LabelSheetGeometry(210m, 297m, 105m, 35m, 8.5m, 0m, 8.5m, 0m, 0m, 0m, 2, 8, 0m, 0m));
 
     [Fact]
     public async Task Handle_NewPaddedName_AddsFormatWithTrimmedName()
@@ -86,5 +86,25 @@ public class SaveLabelSheetFormatHandlerTests
         Assert.Equal(6, saved.Geometry.Rows);
         _repository.Verify(r => r.Update(stored), Times.Once);
         _repository.Verify(r => r.Add(It.IsAny<LabelSheetFormat>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_CommandWithOffset_SavesOffsetInGeometry()
+    {
+        // Arrange
+        _repository.Setup(r => r.FindByName("Avery 12er")).ReturnsAsync((LabelSheetFormat?)null);
+        _idGenerator.Setup(g => g.Generate()).Returns("LSF00002");
+        var command = Avery12Command("Avery 12er", overwrite: false);
+        command.OffsetX = -2.5m;
+        command.OffsetY = 3m;
+        var sut = CreateSut();
+
+        // Act
+        await sut.Handle(command);
+
+        // Assert
+        _repository.Verify(
+            r => r.Add(It.Is<LabelSheetFormat>(f => f.Geometry.OffsetX == -2.5m && f.Geometry.OffsetY == 3m)),
+            Times.Once);
     }
 }

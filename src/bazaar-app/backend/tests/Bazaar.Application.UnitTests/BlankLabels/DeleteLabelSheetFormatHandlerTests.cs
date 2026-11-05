@@ -15,7 +15,7 @@ public class DeleteLabelSheetFormatHandlerTests
     {
         // Arrange
         var format = LabelSheetFormat.Create("LSF00001", "Avery 12er",
-            new LabelSheetGeometry(210m, 297m, 105m, 48m, 4.5m, 0m, 4.5m, 0m, 0m, 0m, 2, 6));
+            new LabelSheetGeometry(210m, 297m, 105m, 48m, 4.5m, 0m, 4.5m, 0m, 0m, 0m, 2, 6, 0m, 0m));
         _repository.Setup(r => r.GetById("LSF00001")).ReturnsAsync(format);
         var sut = new DeleteLabelSheetFormatHandler(_repository.Object);
 

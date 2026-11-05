@@ -24,7 +24,10 @@ Auch das Lesen ist Admin-Sache: Die Seite gibt es für Kassenpersonal nicht.
 ## Bogenformate
 
 `GET` liefert alle Formate nach Name sortiert:
-`[{ id, name, sheetWidth, sheetHeight, labelWidth, labelHeight, marginTop, marginRight, marginBottom, marginLeft, gapHorizontal, gapVertical, columns, rows }]` (Maße in mm).
+`[{ id, name, sheetWidth, sheetHeight, labelWidth, labelHeight, marginTop, marginRight, marginBottom, marginLeft, gapHorizontal, gapVertical, columns, rows, offsetX, offsetY }]` (Maße in mm).
+`offsetX`/`offsetY` sind der Druckversatz: positiv nach rechts/unten, negativ nach links/oben,
+Betrag höchstens 20 mm, eine Nachkommastelle; sie zählen nicht zur Rasterprüfung. Formate von vor
+dem Offset haben `0`.
 
 `POST` speichert unter einem Namen; Body wie oben ohne `id`, dazu `overwrite`:
 
@@ -33,7 +36,7 @@ Auch das Lesen ist Admin-Sache: Die Seite gibt es für Kassenpersonal nicht.
 | Name neu | `200` mit dem gespeicherten Format |
 | Name vorhanden (exakt gleich, nach Trimmen), `overwrite: false` | `409` `label_sheet_format.name_taken` — die Seite fragt „Überschreiben?" |
 | Name vorhanden, `overwrite: true` | `200`, das vorhandene Format behält seine `id` und bekommt die neuen Maße |
-| Formatfehler (Name leer oder > 50 Zeichen, Maß ≤ 0 bzw. < 0 oder > 10000 mm, mehr als eine Nachkommastelle, Spalten/Zeilen < 1 oder > 1000, Raster überragt den Bogen um mehr als 0,5 mm) | `400` mit `errors` |
+| Formatfehler (Name leer oder > 50 Zeichen, Maß ≤ 0 bzw. < 0 oder > 10000 mm, mehr als eine Nachkommastelle, Spalten/Zeilen < 1 oder > 1000, Offset außerhalb −20…20 mm, Raster überragt den Bogen um mehr als 0,5 mm) | `400` mit `errors` |
 
 Die Obergrenzen (jedes Maß höchstens 10000 mm, Spalten und Zeilen höchstens 1000) schützen die
 Rasterprüfung vor Überlauf; die Seite prüft sie vorab mit den Fehlertexten „Höchstens 10000 mm"
