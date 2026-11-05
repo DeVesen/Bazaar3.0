@@ -135,6 +135,12 @@ namespace Bazaar.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("integer");
 
+                    b.Property<decimal>("CurrencyHeight")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(5, 1)
+                        .HasColumnType("numeric(5,1)")
+                        .HasDefaultValue(12m);
+
                     b.Property<string>("CurrencySymbol")
                         .IsRequired()
                         .HasMaxLength(6)
@@ -147,9 +153,27 @@ namespace Bazaar.Infrastructure.Migrations
                     b.Property<string>("LogoValue")
                         .HasColumnType("text");
 
+                    b.Property<decimal>("NumberHeight")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(5, 1)
+                        .HasColumnType("numeric(5,1)")
+                        .HasDefaultValue(10.5m);
+
+                    b.Property<decimal>("QrCodeSize")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(5, 1)
+                        .HasColumnType("numeric(5,1)")
+                        .HasDefaultValue(21.5m);
+
                     b.Property<string>("SellerSymbolKind")
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
+
+                    b.Property<decimal>("SellerSymbolSize")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(5, 1)
+                        .HasColumnType("numeric(5,1)")
+                        .HasDefaultValue(5m);
 
                     b.Property<string>("SellerSymbolValue")
                         .HasColumnType("text");

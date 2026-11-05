@@ -47,8 +47,22 @@ public sealed record LabelImageDto(string Id, string Name, string DataUrl)
     public static LabelImageDto From(LabelImage image) => new(image.Id, image.Name, image.DataUrl);
 }
 
-public sealed record LabelPrintDefaultsDto(LabelGraphic? Logo, LabelGraphic? SellerSymbol, string CurrencySymbol)
+public sealed record LabelPrintDefaultsDto(
+    LabelGraphic? Logo,
+    LabelGraphic? SellerSymbol,
+    string CurrencySymbol,
+    decimal QrCodeSize,
+    decimal SellerSymbolSize,
+    decimal NumberHeight,
+    decimal CurrencyHeight)
 {
     public static LabelPrintDefaultsDto From(LabelPrintDefaults defaults) =>
-        new(defaults.Logo, defaults.SellerSymbol, defaults.CurrencySymbol);
+        new(
+            defaults.Logo,
+            defaults.SellerSymbol,
+            defaults.CurrencySymbol,
+            defaults.QrCodeSize,
+            defaults.SellerSymbolSize,
+            defaults.NumberHeight,
+            defaults.CurrencyHeight);
 }

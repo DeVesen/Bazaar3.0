@@ -204,7 +204,16 @@ public class LabelImageEndpointsTests : IAsyncLifetime
         var dataUrl = PngDataUrl(4);
         var post = await client.PostAsJsonAsync(ImagesUrl, new { name = "Logo", dataUrl }, TestContext.Current.CancellationToken);
         var created = await post.Content.ReadFromJsonAsync<SummaryBody>(TestContext.Current.CancellationToken);
-        var defaults = new { logo = new { kind = "image", value = dataUrl }, sellerSymbol = (object?)null, currencySymbol = "€" };
+        var defaults = new
+        {
+            logo = new { kind = "image", value = dataUrl },
+            sellerSymbol = (object?)null,
+            currencySymbol = "€",
+            qrCodeSize = 21.5m,
+            sellerSymbolSize = 5m,
+            numberHeight = 10.5m,
+            currencyHeight = 12m,
+        };
         (await client.PutAsJsonAsync(DefaultsUrl, defaults, TestContext.Current.CancellationToken)).EnsureSuccessStatusCode();
 
         // Act
