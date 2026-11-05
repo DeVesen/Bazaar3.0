@@ -23,3 +23,55 @@
   width: 4rem;
   height: 4rem;
 }
+
+.graphic-picker__library {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.graphic-picker__library-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.graphic-picker__library-count {
+  color: var(--p-text-muted-color);
+}
+
+.graphic-picker__library-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.graphic-picker__library-item {
+  display: flex;
+  align-items: flex-start;
+}
+
+.graphic-picker__library-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 5rem;
+}
+
+.graphic-picker__library-thumb {
+  width: 3rem;
+  height: 3rem;
+}
+
+.graphic-picker__library-name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -11,8 +11,8 @@ import { AVERY_16_GEOMETRY, labelsPerSheet } from '../../../../shared/components
 import { LabelSheet } from '../../../../shared/components/label-sheet/label-sheet';
 import { LabelSlot, placeLabels, startPositionPreview } from '../../../../shared/components/label-sheet/label-slots';
 import { BlankLabelsStore } from '../../blank-labels-store';
-import { LabelPrintDefaults, NAME_TAKEN_ERROR_CODE, SheetFormat } from '../../data/blank-labels-api';
-import { imageFileError, readFileAsDataUrl } from '../../model/image-file';
+import { LIBRARY_FULL_ERROR_CODE, LabelPrintDefaults, NAME_TAKEN_ERROR_CODE, SheetFormat } from '../../data/blank-labels-api';
+import { imageFileError, imageNameOf, readFileAsDataUrl } from '../../model/image-file';
 import {
   INITIAL_CONTENT_TEXTS,
   LabelContentField,
@@ -31,6 +31,7 @@ import {
   validateSheetFormat,
 } from '../../model/sheet-format-rules';
 import { ImageChoice, LabelContentFieldChange, LabelContentForm } from '../../components/label-content-form/label-content-form';
+import { LibraryImageOption } from '../../components/graphic-picker/graphic-picker';
 import { SheetFormatFieldChange, SheetFormatForm } from '../../components/sheet-format-form/sheet-format-form';
 import { StartPositionForm } from '../../components/start-position-form/start-position-form';
 
@@ -64,6 +65,11 @@ export class BlankLabelsPage {
   private readonly messageService = inject(MessageService);
 
   readonly formats = this.store.formats;
+  /** Bibliotheksbilder für die Auswahl; `dataUrl` ist `null`, bis das Vorschaubild geladen ist. */
+  readonly libraryImages = computed<LibraryImageOption[]>(() => {
+    const contents = this.store.imageContents();
+    return this.store.images().map((image) => ({ id: image.id, name: image.name, dataUrl: contents[image.id] ?? null }));
+  });
   readonly formatTexts = signal<SheetFormatTexts>(textsFromGeometry(AVERY_16_GEOMETRY));
   readonly selectedFormatId = signal<string | null>(null);
   readonly formatName = signal('');
@@ -107,6 +113,7 @@ export class BlankLabelsPage {
 
   constructor() {
     this.store.loadFormats();
+    this.store.loadImages();
     this.store.loadDefaults().subscribe({
       next: (defaults) => this.applyDefaults(defaults),
       error: () => this.onDefaultsLoadFailed(),
@@ -149,6 +156,7 @@ export class BlankLabelsPage {
     this.lastEditedContentField.set(change.field);
   }
 
+  /** Prüfen wie bisher, dann in die Bibliothek legen und für das Feld wählen (kopiert die Data-URL, kein Verweis). */
   onImageChosen(choice: ImageChoice): void {
     const error = imageFileError(choice.file);
     if (error !== null) {
@@ -156,9 +164,22 @@ export class BlankLabelsPage {
       return;
     }
     readFileAsDataUrl(choice.file).then(
-      (dataUrl) => this.graphicOf(choice.target).set({ kind: 'image', value: dataUrl }),
+      (dataUrl) => this.uploadImage(choice, dataUrl),
       () => this.messageService.add({ severity: 'error', summary: 'Bild konnte nicht gelesen werden' }),
     );
+  }
+
+  onImageDeleteRequested(id: string): void {
+    const image = this.store.images().find((candidate) => candidate.id === id);
+    if (image === undefined) return;
+    this.confirmationService.confirm({
+      key: CONFIRM_KEY,
+      header: 'Bild löschen',
+      message: `Bild „${image.name}" aus der Bibliothek löschen?`,
+      acceptLabel: 'Löschen',
+      rejectLabel: 'Abbrechen',
+      accept: () => this.deleteImage(id),
+    });
   }
 
   /** Merkt Logo, Symbol und Währung im Backend und öffnet den Druckdialog mit allen Bögen. */
@@ -231,6 +252,29 @@ export class BlankLabelsPage {
     this.store.deleteFormat(format.id).subscribe({
       next: () => this.selectedFormatId.set(null),
       error: () => this.messageService.add({ severity: 'error', summary: 'Bogenformat konnte nicht gelöscht werden' }),
+    });
+  }
+
+  private uploadImage(choice: ImageChoice, dataUrl: string): void {
+    this.store.uploadImage({ name: imageNameOf(choice.file), dataUrl }).subscribe({
+      next: () => this.graphicOf(choice.target).set({ kind: 'image', value: dataUrl }),
+      error: (error: unknown) => this.onImageUploadFailed(error),
+    });
+  }
+
+  /** 409: Die Bibliothek ist voll; alles andere (z. B. 400) meldet das Bild als nicht übernommen. */
+  private onImageUploadFailed(error: unknown): void {
+    if (errorCodeOf(error) === LIBRARY_FULL_ERROR_CODE) {
+      this.messageService.add({ severity: 'error', summary: 'Bibliothek voll', detail: 'Bitte zuerst ein Bild löschen.' });
+      return;
+    }
+    this.messageService.add({ severity: 'error', summary: 'Bild nicht übernommen' });
+  }
+
+  /** Ein damit gewähltes Logo oder Symbol bleibt erhalten: Die Auswahl hält eine Kopie der Data-URL. */
+  private deleteImage(id: string): void {
+    this.store.deleteImage(id).subscribe({
+      error: () => this.messageService.add({ severity: 'error', summary: 'Bild konnte nicht gelöscht werden' }),
     });
   }
 

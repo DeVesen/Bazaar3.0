@@ -21,3 +21,19 @@ export function readFileAsDataUrl(file: File): Promise<string> {
     reader.readAsDataURL(file);
   });
 }
+
+/** Höchstzahl der Bilder in der Bibliothek, gleicher Wert wie `LabelImage.MaxCount` im Backend. */
+export const LIBRARY_MAX_IMAGES = 50;
+
+/** Längster Bildname, gleicher Wert wie `LabelImage.NameMaxLength` im Backend. */
+export const IMAGE_NAME_MAX_LENGTH = 50;
+
+const FALLBACK_IMAGE_NAME = 'Bild';
+
+/** Name in der Bibliothek: Dateiname ohne Endung, auf die Höchstlänge gekürzt. */
+export function imageNameOf(file: File): string {
+  const dot = file.name.lastIndexOf('.');
+  const base = dot > 0 ? file.name.slice(0, dot) : dot === 0 ? '' : file.name;
+  const name = base.trim().slice(0, IMAGE_NAME_MAX_LENGTH).trim();
+  return name === '' ? FALLBACK_IMAGE_NAME : name;
+}
