@@ -50,20 +50,22 @@ bzw. „Höchstens 1000".
 
 ## Werte des letzten Drucks
 
-`GET` → `{ logo, sellerSymbol, currencySymbol, qrCodeSize, sellerSymbolSize, numberHeight, currencyHeight }`;
+`GET` → `{ logo, sellerSymbol, currencySymbol, sizes: { qrCode, sellerSymbol, numberHeight, currencyHeight } }`;
 `logo` und `sellerSymbol` sind `null` oder
 `{ kind: "icon", value: "<icon-schlüssel>" }` bzw. `{ kind: "image", value: "data:image/png;base64,…" }`.
-Die vier Größen sind Zahlen in mm, absolut auf dem gedruckten Etikett (nicht mit der Etikettgröße
+Die vier Größen in `sizes` sind Zahlen in mm, absolut auf dem gedruckten Etikett (nicht mit der Etikettgröße
 skaliert): Breite = Höhe des QR-Codes, Breite = Höhe beider Verkäufer-Symbole, Höhe der Artikel-Nummer,
 Höhe des Währungssymbols. Ohne bisherigen Druck: `{ logo: null, sellerSymbol: null, currencySymbol: "€",
-qrCodeSize: 21.5, sellerSymbolSize: 5, numberHeight: 10.5, currencyHeight: 12 }`.
+sizes: { qrCode: 21.5, sellerSymbol: 5, numberHeight: 10.5, currencyHeight: 12 } }`.
+Das äußere `sellerSymbol` ist die Grafik, `sizes.sellerSymbol` ihre Größe.
 
-`PUT` mit demselben Body → `204`; die Seite sendet ihn bei jedem Druck. Die vier Größen sind Pflicht.
+`PUT` mit demselben Body → `204`; die Seite sendet ihn bei jedem Druck. `sizes` und die vier Größen darin sind Pflicht.
 `400`, wenn ein Bild kein
 PNG/JPEG/SVG als Base64-Data-URL oder größer als 1 MB ist, ein Icon-Schlüssel nicht `^[a-z0-9-]{1,30}$`
-entspricht, das Währungssymbol nicht 1 bis 3 Zeichen hat oder eine Größe fehlt, außerhalb 0,1 bis 100 mm
-liegt oder mehr als eine Nachkommastelle hat (Fehlertext „Zahl von 0,1 bis 100 mit höchstens 1
-Nachkommastelle“). Das Backend prüft nur Medientyp und
+entspricht, das Währungssymbol nicht 1 bis 3 Zeichen hat, `sizes` fehlt (Fehler-Schlüssel `sizes`) oder
+eine Größe außerhalb 0,1 bis 100 mm liegt oder mehr als eine Nachkommastelle hat (Fehlertext „Zahl von 0,1
+bis 100 mit höchstens 1 Nachkommastelle“, Fehler-Schlüssel `sizes.qrCode`, `sizes.sellerSymbol`,
+`sizes.numberHeight`, `sizes.currencyHeight`). Das Backend prüft nur Medientyp und
 Größe, nicht den Inhalt; ein Bild ohne Nutzdaten (0 Byte) gilt als gültig. Der nginx-Proxy lässt
 dafür 3000k zu.
 

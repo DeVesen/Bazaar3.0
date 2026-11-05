@@ -42,10 +42,11 @@
 - E3 Preiszeile als Flex-Zeile statt absolut berechneter Linie – Breite des Währungssymbols (1–3 Zeichen, Schrift-Metrik) ist in mm nicht vorab berechenbar.
 - E4 Rechter Rand des Währungssymbols = `width − 1,5 k` (gleicher Rand wie Symbol oben rechts) – heute endet „€“ etwa bei `width − 6,4 k`; sichtbare Verschiebung nach rechts um ca. 5 mm bei 105 × 35; Entscheidung des Nutzers im Chat, 2026-11-05 (F2).
 - E5 Wertebereich 0,1 bis 100 mm, 1 Nachkommastelle, Pflicht – wie Bogenformat-Maße; ohne Kollisionsprüfung (A8) gibt es keine engere fachliche Obergrenze.
-- E6 Persistenzschema ändert sich (4 Spalten) und API-Vertrag (`label-print-defaults` erweitert) – folgenreich nach AI-SE-4303; festgehalten in diesem Plan und in `docs/requirements/bazaar-app/api/blank-labels.md` sowie `entities/etiketten-vordruck.md`, kein eigenes ADR (gleiches Muster wie Offset X/Y).
+- E6 Persistenzschema ändert sich (4 Spalten) und API-Vertrag (`label-print-defaults` um das Objekt `sizes` erweitert, siehe E10) – folgenreich nach AI-SE-4303; festgehalten in diesem Plan und in `docs/requirements/bazaar-app/api/blank-labels.md` sowie `entities/etiketten-vordruck.md`, kein eigenes ADR (gleiches Muster wie Offset X/Y).
 - E7 Größen absolut in mm, nicht × k – Feld zeigt, was gedruckt wird; Entscheidung des Nutzers im Chat, 2026-11-05.
 - E8 Logo in der freien Fläche so groß wie möglich, nie gestreckt, zentriert – Fläche ist selten quadratisch, ein verzerrtes Logo ist nicht gewollt; Entscheidung des Nutzers im Chat, 2026-11-05.
 - E9 Die 1,5 mm aus A1/A2 sind absolut, übrige Abstände skalieren wie bisher mit k – passt zu absoluten Größen (E7); Entscheidung des Nutzers im Chat, 2026-11-05.
+- E10 Größen im Backend als Wertobjekt `LabelElementSizes` (Owned Type, gleiche Spalten) und im JSON-Vertrag als Objekt `sizes` – Review-Finding AI-SE-3103/AI-SE-3305, 2026-11-05. Umgesetzt als EF Complex Type (`ComplexProperty`) statt `OwnsOne`, wie `LabelSheetGeometry` im Bestand; Spalten, Typen und Defaults unverändert, Migration `AddLabelPrintDefaultsSizes` bleibt.
 
 ## Implementierungsschritte
 1. Backend Domain: `LabelPrintDefaults` um vier Größen mit Konstanten-Vorgaben, `IsValidSize`, erweitertes `Update(...)`.

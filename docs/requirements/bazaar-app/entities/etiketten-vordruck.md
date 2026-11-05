@@ -32,12 +32,13 @@ Der Druckversatz verschiebt den gesamten Druck (Plus: nach rechts bzw. unten, Mi
 | `logoKind`, `logoValue` | string?, text? | Logo: `Icon` + Icon-Schlüssel oder `Image` + Data-URL (PNG/JPEG/SVG, ≤ 1 MB); leer = kein Logo |
 | `sellerSymbolKind`, `sellerSymbolValue` | string?, text? | Verkäufer-Symbol, gleiche Regeln |
 | `currencySymbol` | string | 1 bis 3 Zeichen, Standard „€" |
-| `qrCodeSize` | decimal(5,1) | Breite = Höhe des QR-Codes in mm, Standard 21,5 |
-| `sellerSymbolSize` | decimal(5,1) | Breite = Höhe beider Verkäufer-Symbole in mm, Standard 5 |
-| `numberHeight` | decimal(5,1) | Höhe (= Schriftgröße) der Artikel-Nummer in mm, Standard 10,5 |
-| `currencyHeight` | decimal(5,1) | Höhe (= Schriftgröße) des Währungssymbols in mm, Standard 12 |
+| `sizes.qrCode` | decimal(5,1) | Breite = Höhe des QR-Codes in mm, Standard 21,5; DB-Spalte `QrCodeSize` |
+| `sizes.sellerSymbol` | decimal(5,1) | Breite = Höhe beider Verkäufer-Symbole in mm, Standard 5; DB-Spalte `SellerSymbolSize` |
+| `sizes.numberHeight` | decimal(5,1) | Höhe (= Schriftgröße) der Artikel-Nummer in mm, Standard 10,5; DB-Spalte `NumberHeight` |
+| `sizes.currencyHeight` | decimal(5,1) | Höhe (= Schriftgröße) des Währungssymbols in mm, Standard 12; DB-Spalte `CurrencyHeight` |
 
-Die vier Größen sind Pflicht, 0,1 bis 100 mm mit höchstens einer Nachkommastelle, und gelten absolut
+`sizes` ist das Wertobjekt `LabelElementSizes` (in EF als Complex Type in derselben Zeile, die vier
+Spalten `NOT NULL` mit den Standardwerten als Spalten-Default). Die vier Größen sind Pflicht, 0,1 bis 100 mm mit höchstens einer Nachkommastelle, und gelten absolut
 auf dem gedruckten Etikett (nicht mit der Etikettgröße skaliert). Eine schon gespeicherte Zeile bekommt
 beim Migrieren (`AddLabelPrintDefaultsSizes`) die Standardwerte. Das Logo hat keine eigene Größe: Es füllt
 die freie Fläche neben dem QR-Code (→ [`docs/components/label-sheet/component.md`](../../../components/label-sheet/component.md)).
