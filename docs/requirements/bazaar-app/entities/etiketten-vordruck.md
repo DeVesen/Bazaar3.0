@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-02
+updated: 2026-11-05
 ---
 
 # Entität: Etiketten-Vordruck
@@ -18,9 +18,12 @@ Zwei Tabellen der Seite „Etiketten-Vordruck". Keine Beziehung zu Artikeln.
 | `marginTop`, `marginRight`, `marginBottom`, `marginLeft` | decimal(6,1) | Leerer Rand in mm, ≥ 0, höchstens 10000 |
 | `gapHorizontal`, `gapVertical` | decimal(6,1) | Abstand zwischen den Etiketten in mm, ≥ 0, höchstens 10000 |
 | `columns`, `rows` | int | 1 bis 1000; Anzahl pro Seite = `columns × rows` |
+| `offsetX`, `offsetY` | decimal(6,1) | Druckversatz in mm, −20 bis +20, höchstens eine Nachkommastelle, Pflicht, Standard 0 (auch für Bestandsformate); DB-Spalten `Geometry_OffsetX`, `Geometry_OffsetY` |
 
 Spalten × Etikettbreite + (Spalten − 1) × waagerechter Abstand + Rand links + Rand rechts darf die
 Bogenbreite um höchstens 0,5 mm übersteigen (Höhe analog). Beim Start ist kein Format gespeichert.
+
+Der Druckversatz verschiebt den gesamten Druck (Plus: nach rechts bzw. unten, Minus: nach links bzw. oben), z. B. wenn der Drucker links abschneidet. Er wirkt nur im Druck, nicht in der Vorschau, und ändert weder die Rasterprüfung noch „Etiketten pro Seite“ noch die Lage der Etiketten zueinander. Fehlermeldung: „Zwischen −20 und 20 mm“.
 
 ## Werte des letzten Drucks (`LabelPrintDefaults`, eine Zeile, `id = 1`)
 

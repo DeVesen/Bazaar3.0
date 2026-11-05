@@ -127,6 +127,11 @@
 - **Confidence:** user-confirmed
 - **First seen:** 2026-11-02
 
+### Druckversatz / Offset (Haupt-App)
+- **Maps to:** `src/bazaar-app/frontend/src/app/features/blank-labels/` — Felder „Offset X (mm)“ und „Offset Y (mm)“ im Bogenformat (`offsetX`/`offsetY`, −20 bis +20 mm); verschieben nur den Druck (Plus: rechts/unten, Minus: links/oben), nicht die Vorschau; Komponente `LabelSheet` Input `applyOffset`.
+- **Confidence:** user-confirmed
+- **First seen:** 2026-11-05
+
 ### Einstellungs-Tabs (Haupt-App)
 - **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/pages/settings-page/settings-tabs.ts` — vier Tabs der Einstellungsseite: „Basis-Einstellungen" (`general`, Scan-Pause, Freigabe-Schalter, Standard-Verkäufer-Typ), „User" (`users`, Benutzerverwaltung), „Beleg Druck" (`print`, Freitexte der Belege), „Sonstiges" (`misc`, JSON-Import und nur im Development-Modus „Datenbank zurücksetzen"); aktiver Tab im Query-Parameter `tab`.
 - **Confidence:** user-confirmed

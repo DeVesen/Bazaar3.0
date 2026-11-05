@@ -11,7 +11,7 @@ Fachbegriffe der Bazaar Suite, die keinen einzelnen Code-Ort haben.
 | **Ergebnis-Einblendung** | Ein großes Icon in Rot, Gelb oder Grün, das nach einer Artikelnummer-Eingabe kurz über der Arbeitsfläche ein- und wieder ausblendet und so den Ausgang meldet. Abzugrenzen vom Scan-Feedback (Ton, Vibration, Countdown-Ring der Kamera). | Flash, Overlay, Feedback-Overlay |
 | **Etikett** | Der Aufkleber mit Artikelnummer (QR-Code und Klartext), der auf einen Artikel geklebt wird; der Preis wird von Hand eingetragen. Wird als Blanko-Vordruck auf Etikettenbögen gedruckt. | Label, Aufkleber |
 | **Etikettenbogen** | Der Druckbogen, auf dem mehrere Etiketten in Spalten und Zeilen nebeneinanderstehen. Abzugrenzen von der Druckseite des Browsers. | Bogen (ohne Zusatz), Etikettenseite |
-| **Bogenformat** | Die unter einem Namen gespeicherten Maße eines Etikettenbogens: Bogengröße, Etikettgröße, Ränder, Abstände, Spalten und Zeilen. | Bogenvorlage, Layout |
+| **Bogenformat** | Die unter einem Namen gespeicherten Maße eines Etikettenbogens: Bogengröße, Etikettgröße, Ränder, Abstände, Spalten, Zeilen und Druckversatz (Offset X/Y). | Bogenvorlage, Layout |
 | **Etiketten-Vordruck** | Die Seite der Haupt-App, auf der ein Admin Blanko-Etiketten auf Etikettenbögen druckt, ohne Bezug zu Artikeln. Auch der Druck selbst. | Etikettendruck, Label-Druck |
 | **Startposition** | Der Platz des ersten gedruckten Etiketts auf dem ersten Etikettenbogen (1-basiert, zeilenweise gezählt); die Plätze davor bleiben leer. Gilt nur für den ersten Bogen. | Offset, Anzahl verbrauchter Plätze |
 | **Verkäufer-Symbol** | Ein frei wählbares Zeichen oder Bild auf dem Etikett ohne feste Bedeutung; unterscheidet große Verkäufer voneinander. | Händler-Symbol, Händler-Icon |

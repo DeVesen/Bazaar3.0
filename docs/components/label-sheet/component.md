@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-02
+updated: 2026-11-05
 ---
 
 # Component: Etikett und Etikettenbogen
@@ -30,7 +30,9 @@ im Druck in mm (Breite `<Bogenbreite>mm`). Der Inhalt eines Etiketts skaliert mi
 `logo`, `sellerSymbol` (`null` = Platz bleibt leer), `currencySymbol`, `showFoldLine`.
 
 `app-label-sheet`: `geometry` und `slots` (Pflicht), `content`, `width` (CSS-Länge, Standard `100%`),
-`maxHeight` (Vorschau), `outlineSlots`, `showFoldLines`.
+`maxHeight` (Vorschau), `outlineSlots`, `showFoldLines`, `applyOffset` (Standard `false`).
+
+Der Druckversatz (`offsetX`/`offsetY` der Geometrie) wird nur mit `applyOffset` angewendet: `app-label-sheets-document` setzt es auf `true`, die Vorschau nicht. Die Platzberechnung `slotRects(geometry, { applyOffset })` verschiebt dann alle Plätze um den Versatz.
 
 Eigene Bilder (auch SVG) werden nur über `<img [src]>` mit der Data-URL gerendert, nie per
 `innerHTML` oder inline-SVG.
