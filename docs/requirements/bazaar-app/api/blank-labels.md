@@ -59,7 +59,7 @@ dafür 3000k zu.
 
 ## Bilder-Bibliothek
 
-Gemeinsame Bibliothek für Logo und Verkäufer-Symbol, höchstens 50 Bilder. Sie ist Kopierquelle:
+Gemeinsame Bibliothek für Logo und Verkäufer-Symbol, höchstens 50 Bilder. Bei gleichzeitigen Uploads kann die Grenze kurzzeitig um wenige Bilder überschritten werden; für einen lokalen Admin bewusst hingenommen. Sie ist Kopierquelle:
 die Seite übernimmt die Data-URL in den Wert des letzten Drucks (`kind: "image"`), es gibt keinen
 Verweis auf die `id`. Löschen eines Bildes ändert deshalb kein gewähltes Logo oder Symbol.
 

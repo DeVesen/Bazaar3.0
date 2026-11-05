@@ -152,7 +152,7 @@ describe('BlankLabelsPage library', () => {
     lastConfirmation().accept?.();
 
     // Assert
-    expect(lastConfirmation().message).toBe('Bild „Sonne" aus der Bibliothek löschen?');
+    expect(lastConfirmation().message).toBe('Bild „Sonne“ aus der Bibliothek löschen?');
     expect(store.deleteImage).toHaveBeenCalledWith('LIM00001');
     expect(page.logo()).toEqual({ kind: 'image', value: PNG_DATA_URL });
   });

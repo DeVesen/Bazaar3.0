@@ -113,7 +113,9 @@ export class BlankLabelsPage {
 
   constructor() {
     this.store.loadFormats();
-    this.store.loadImages();
+    this.store.loadImages(() =>
+      this.messageService.add({ severity: 'error', summary: 'Bibliothek konnte nicht geladen werden' }),
+    );
     this.store.loadDefaults().subscribe({
       next: (defaults) => this.applyDefaults(defaults),
       error: () => this.onDefaultsLoadFailed(),
@@ -175,7 +177,7 @@ export class BlankLabelsPage {
     this.confirmationService.confirm({
       key: CONFIRM_KEY,
       header: 'Bild löschen',
-      message: `Bild „${image.name}" aus der Bibliothek löschen?`,
+      message: `Bild „${image.name}“ aus der Bibliothek löschen?`,
       acceptLabel: 'Löschen',
       rejectLabel: 'Abbrechen',
       accept: () => this.deleteImage(id),

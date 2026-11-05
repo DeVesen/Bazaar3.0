@@ -56,22 +56,29 @@ export class BlankLabelsStore {
   readonly imageContents = signal<Record<string, string>>({});
   private readonly requestedImageIds = new Set<string>();
 
-  /** Lädt die Liste und die Inhalte jedes Bilds einmal; ein Fehler bei einem Bild betrifft nur dieses. */
-  loadImages(): void {
+  /**
+   * Lädt die Liste und die Inhalte jedes Bilds einmal; ein Fehler bei einem Bild betrifft nur dieses.
+   * Scheitert das Laden der Liste, ruft der Store `onError` auf, damit die Seite es melden kann.
+   */
+  loadImages(onError?: () => void): void {
     this.api.getImages().subscribe({
       next: (images) => {
         this.images.set(images);
         images.forEach((image) => this.loadImageContent(image.id));
       },
-      error: () => this.images.set([]),
+      error: () => {
+        this.images.set([]);
+        onError?.();
+      },
     });
   }
 
-  /** Ein inhaltsgleich vorhandenes Bild (Duplikat) ersetzt seinen Eintrag, statt doppelt zu erscheinen. */
+  /** Ein inhaltsgleich vorhandenes Bild (Duplikat) behält seine Position in der Liste. */
   uploadImage(request: UploadLabelImageRequest): Observable<LabelImageSummary> {
     return this.api.uploadImage(request).pipe(
       tap((saved) => {
-        this.images.set([saved, ...this.images().filter((image) => image.id !== saved.id)]);
+        const current = this.images();
+        this.images.set(current.some((image) => image.id === saved.id) ? current.map((image) => (image.id === saved.id ? saved : image)) : [saved, ...current]);
         this.requestedImageIds.add(saved.id);
         this.imageContents.update((contents) => ({ ...contents, [saved.id]: request.dataUrl }));
       }),

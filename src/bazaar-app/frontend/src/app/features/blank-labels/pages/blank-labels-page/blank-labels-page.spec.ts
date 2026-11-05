@@ -109,6 +109,18 @@ describe('BlankLabelsPage', () => {
     expect(store.loadImages).toHaveBeenCalledTimes(1);
   });
 
+  it('constructor_libraryLoadFails_showsErrorToast', async () => {
+    // Arrange
+    await setup();
+    const onError = store.loadImages.mock.calls[0][0] as () => void;
+
+    // Act
+    onError();
+
+    // Assert
+    expect(messageAdd).toHaveBeenCalledWith({ severity: 'error', summary: 'Bibliothek konnte nicht geladen werden' });
+  });
+
   it('constructor_rememberedDefaults_prefillsGraphicsAndCurrencyButNoNumbers', async () => {
     // Arrange
     const defaults: LabelPrintDefaults = {

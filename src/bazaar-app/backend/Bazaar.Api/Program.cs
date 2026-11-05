@@ -18,6 +18,7 @@ using Bazaar.Api.Features.Settings;
 using Bazaar.Api.Features.Settlement;
 using Bazaar.Api.Features.Statistics;
 using Bazaar.Api.Features.Users;
+using Bazaar.Api.Startup;
 using Bazaar.Application.ArticleImport;
 using Bazaar.Application.Articles;
 using Bazaar.Application.Auth;
@@ -296,7 +297,11 @@ static async Task ApplyMigrationsAsync(WebApplication app)
 static async Task ImportLabelPrintDefaultImagesAsync(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
-    await scope.ServiceProvider.GetRequiredService<ImportLabelPrintDefaultImagesHandler>().Handle();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await OptionalStartupTask.RunAsync(
+        () => scope.ServiceProvider.GetRequiredService<ImportLabelPrintDefaultImagesHandler>().Handle(),
+        logger,
+        "Import der Standard-Bilder in die Bibliothek");
 }
 
 static async Task InitializeAdminBootstrapStateAsync(WebApplication app)

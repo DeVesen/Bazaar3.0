@@ -79,6 +79,32 @@ describe('BlankLabelsStore', () => {
     expect(store.images()).toEqual([]);
   });
 
+  it('loadImages_listFails_callsOnError', () => {
+    // Arrange
+    api.getImages.mockReturnValue(throwError(() => new Error('offline')));
+    const onError = vi.fn();
+
+    // Act
+    store.loadImages(onError);
+
+    // Assert
+    expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it('uploadImage_duplicateInMiddle_keepsItsPosition', () => {
+    // Arrange
+    api.getImages.mockReturnValue(of([image('A', 'Eins'), image('B', 'Zwei'), image('C', 'Drei')]));
+    api.getImage.mockImplementation((id: string) => of({ id, name: id, dataUrl: `data:image/png;base64,${id}` }));
+    store.loadImages();
+    api.uploadImage.mockReturnValue(of(image('B', 'Zwei')));
+
+    // Act
+    store.uploadImage({ name: 'Zwei', dataUrl: 'data:image/png;base64,B' }).subscribe();
+
+    // Assert
+    expect(store.images().map((i) => i.id)).toEqual(['A', 'B', 'C']);
+  });
+
   it('uploadImage_newImage_isAddedFirstWithItsContentWithoutReload', () => {
     // Arrange
     api.getImages.mockReturnValue(of([image('A', 'Alt')]));

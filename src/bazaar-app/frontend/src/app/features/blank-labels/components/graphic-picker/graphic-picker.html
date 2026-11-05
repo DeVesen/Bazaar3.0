@@ -52,7 +52,7 @@
               severity="danger"
               size="small"
               [text]="true"
-              [attr.aria-label]="'Bild „' + image.name + '&quot; löschen'"
+              [attr.aria-label]="'Bild „' + image.name + '“ löschen'"
               [attr.data-library-delete]="image.id"
               (click)="imageDeleteRequested.emit(image.id)"
             ></button>
