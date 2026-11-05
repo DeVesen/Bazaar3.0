@@ -18,18 +18,19 @@
 - Admin sieht im Picker den Abschnitt „Bibliothek“ (nur wenn mindestens ein Bild vorhanden ist) mit Vorschaubild und Namen je Bild, der Anzeige „{n} von 50 Bildern“ und wählt ein Bild per Klick, auf jedem Gerät; ein noch nicht geladenes Bild erscheint als deaktivierter Button mit Namen — `components/graphic-picker/`, `blank-labels-store.ts` (Inhalte je Bild einzeln geladen und zwischengespeichert)
 - Admin löscht ein Bild über den Lösch-Button („Bild „{Name}“ löschen“) nach Bestätigung („Bild löschen“ / „Bild „{Name}“ aus der Bibliothek löschen?“, „Löschen“/„Abbrechen“); ein damit schon gewähltes Logo oder Symbol bleibt im Etikett erhalten, da die Bibliothek nur Kopierquelle ist
 - Meldungen: voll → „Bibliothek voll“ / „Bitte zuerst ein Bild löschen.“ (409); Upload-Fehler → „Bild nicht übernommen“; Löschfehler → „Bild konnte nicht gelöscht werden“; Laden der Bibliothek scheitert → „Bibliothek konnte nicht geladen werden“
-- Vorschau eines Etiketts mit Falzlinie — `shared/components/label-sheet/label-card.ts`
+- Admin stellt nach „Währungssymbol" die Pflichtfelder „Größe QR-Code (mm)", „Größe Verkäufer-Symbol (mm)", „Höhe Artikel-Nummer (mm)" und „Höhe Währungssymbol (mm)" ein (0,1 bis 100, höchstens eine Nachkommastelle, Fehler „Zahl von 0,1 bis 100 mit höchstens 1 Nachkommastelle"; Vorgaben 21,5 / 5 / 10,5 / 12); die Werte gelten absolut in mm, nicht mit der Etikettgröße skaliert; ungültige Felder zeigen in der Vorschau die Vorgabe und sperren „Drucken" — `components/label-content-form/`, `model/label-content-rules.ts` (`LabelSizeField`, `previewElementSizes`)
+- Vorschau eines Etiketts mit Falzlinie; QR-Code oben links 1,5 mm vom Rand, Verkäufer-Symbole an ihrer Ecke verankert, Artikel-Nummer mittig mit fester Unterkante, Währungssymbol rechtsbündig mit schrumpfender Schreiblinie (Preiszeile), Logo füllt eingepasst und zentriert die freie Fläche neben dem QR-Code und entfällt ohne Fläche; keine Kollisionsprüfung — `shared/components/label-sheet/label-card.ts`, `label-layout.ts`
 
 ### Bereich C — Angebrochener Bogen (`start-position-form`)
 - Admin gibt die Startposition ein; Plätze davor erscheinen in der Vorschau grau — `shared/components/label-sheet/label-slots.ts` (`startPositionPreview`)
 
 ### Drucken
 - „Drucken" öffnet den Browser-Druckdialog mit allen Bögen in Bogengröße, mit Falzlinie; Hinweis „Skalierung 100 %, keine Seitenränder" — `core/print/print.service.ts` (`printLabelSheets`), `shared/components/label-sheet/label-sheets-document.ts`
-- Logo, Verkäufer-Symbol und Währungssymbol werden bei jedem Druck im Backend gemerkt und beim nächsten Öffnen auf jedem Gerät vorbelegt — `PUT /api/label-print-defaults`
+- Logo, Verkäufer-Symbol, Währungssymbol und die vier Elementgrößen werden bei jedem Druck im Backend gemerkt und beim nächsten Öffnen auf jedem Gerät vorbelegt; scheitert das Merken, erscheint die Warnung „Logo, Symbol, Währung und Größen konnten nicht gemerkt werden", gedruckt wird trotzdem — `PUT /api/label-print-defaults`
 
 ## Spans
 - **Frontend:** `features/blank-labels/` (Seite, Store, Api, Prüfregeln, Eingabe-Komponenten), `shared/components/label-sheet/` (Geometrie, Layout, Platzierung, Etikett, Bogen, Druckdokument), `core/print/print.service.ts`, Menüeintrag in `core/shell/sidebar/`
-- **Backend:** `Bazaar.Api/Features/BlankLabels/`, `Bazaar.Application/BlankLabels/`, `Bazaar.Domain/BlankLabels/`, Repositories `LabelSheetFormatRepository`, `LabelPrintDefaultsRepository`, `LabelImageRepository`, Migrationen `AddBlankLabels`, `AddLabelImages`; Endpoints `/api/label-images` (`LabelImageEndpoints.cs`)
+- **Backend:** `Bazaar.Api/Features/BlankLabels/`, `Bazaar.Application/BlankLabels/`, `Bazaar.Domain/BlankLabels/`, Repositories `LabelSheetFormatRepository`, `LabelPrintDefaultsRepository`, `LabelImageRepository`, Migrationen `AddBlankLabels`, `AddLabelImages`, `AddLabelSheetOffset`, `AddLabelPrintDefaultsSizes`; Endpoints `/api/label-images` (`LabelImageEndpoints.cs`)
 
 ## Notes
 - Route `/blank-labels` und alle Endpoints nur für Admin; Kassenpersonal sieht den Menüeintrag nicht.

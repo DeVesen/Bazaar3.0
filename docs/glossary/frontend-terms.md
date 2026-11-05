@@ -143,6 +143,23 @@
 - **Confidence:** user-confirmed
 - **First seen:** 2026-11-05
 
+### Artikel-Nummer (Etikett, Haupt-App)
+- **Maps to:** `numberText` in `src/bazaar-app/frontend/src/app/shared/components/label-sheet/label-layout.ts` und `label-card.ts` — die Nummer im Klartext unter dem QR-Code, horizontal mittig zwischen Verkäufer-Symbol unten links und Falzlinie; Schriftgröße = Feld „Höhe Artikel-Nummer (mm)“ (`numberHeight`).
+- **Aliases:** Klartext, Artikelnummer im Klartext
+- **Confidence:** user-confirmed
+- **First seen:** 2026-11-05
+
+### Preiszeile (Etikett, Haupt-App)
+- **Maps to:** `priceRow` in `src/bazaar-app/frontend/src/app/shared/components/label-sheet/label-layout.ts`, Markup `.label-card__price-row` in `label-card.html` — Flex-Zeile aus Schreiblinie und rechtsbündigem Währungssymbol; die Schreiblinie schrumpft auf den Platz links vom Symbol; Höhe = Schriftgröße = Feld „Höhe Währungssymbol (mm)“ (`currencyHeight`).
+- **Aliases:** Preisfeld
+- **Confidence:** inferred
+- **First seen:** 2026-11-05
+
+### Elementgrößen (Etiketten-Vordruck, Haupt-App)
+- **Maps to:** `LabelElementSizes` (`src/bazaar-app/frontend/src/app/shared/components/label-sheet/label-layout.ts`) — Felder „Größe QR-Code (mm)“, „Größe Verkäufer-Symbol (mm)“, „Höhe Artikel-Nummer (mm)“, „Höhe Währungssymbol (mm)“ im Bereich Etiketten-Inhalt; absolut in mm, 0,1 bis 100; gemerkt in `LabelPrintDefaults` (`qrCodeSize`, `sellerSymbolSize`, `numberHeight`, `currencyHeight`). Das Logo hat keine Größe, es füllt die freie Fläche.
+- **Confidence:** user-confirmed
+- **First seen:** 2026-11-05
+
 ### Einstellungs-Tabs (Haupt-App)
 - **Maps to:** `src/bazaar-app/frontend/src/app/features/settings/pages/settings-page/settings-tabs.ts` — vier Tabs der Einstellungsseite: „Basis-Einstellungen" (`general`, Scan-Pause, Freigabe-Schalter, Standard-Verkäufer-Typ), „User" (`users`, Benutzerverwaltung), „Beleg Druck" (`print`, Freitexte der Belege), „Sonstiges" (`misc`, JSON-Import und nur im Development-Modus „Datenbank zurücksetzen"); aktiver Tab im Query-Parameter `tab`.
 - **Confidence:** user-confirmed
