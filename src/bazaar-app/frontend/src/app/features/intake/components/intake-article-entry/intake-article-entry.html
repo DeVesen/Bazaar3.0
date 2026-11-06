@@ -1,7 +1,7 @@
 <div class="intake-article-entry">
   <div class="intake-article-entry__form">
     <div class="intake-article-entry__grid">
-      <div class="intake-article-entry__field">
+      <div class="intake-article-entry__field" (focusout)="onNumberFieldFocusOut($event)">
         <label for="intake-article-entry-number">Artikelnummer <span class="intake-article-entry__required">*</span></label>
         <app-input-group
           #numberGroup

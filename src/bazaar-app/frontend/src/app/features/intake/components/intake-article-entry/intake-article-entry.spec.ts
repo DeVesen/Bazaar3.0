@@ -407,6 +407,162 @@ describe('IntakeArticleEntry', () => {
     });
   });
 
+  describe('Artikelnummer-Prüfung beim Verlassen des Felds', () => {
+    /** Tippt eine Nummer (ohne Enter) und verlässt das Feld Richtung `relatedTarget`. */
+    async function typeAndLeave(
+      fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>,
+      value: string,
+      relatedTarget: Element | null,
+    ) {
+      numberInputGroup(fixture).applyExternalValue(value);
+      fixture.detectChanges();
+      leaveNumberField(fixture, relatedTarget);
+      await tick(fixture);
+    }
+
+    function leaveNumberField(
+      fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>,
+      relatedTarget: Element | null,
+    ) {
+      numberInput(fixture).dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget }));
+    }
+
+    function fillRequiredFields(component: IntakeArticleEntry) {
+      component.name.set('X');
+      component.category.set('Kleidung');
+      component.brand.set('Lego');
+      component.onPriceChange(5);
+    }
+
+    it('checks a typed number when focus moves to another field and enables "Übernehmen"', async () => {
+      const articlesApi = articlesApiStub();
+      const { fixture } = await setup({ articlesApi });
+      const component = fixture.componentInstance;
+      fillRequiredFields(component);
+
+      await typeAndLeave(fixture, '1099', byId(fixture, 'price'));
+
+      expect(articlesApi.getByNumber).toHaveBeenCalledWith(1099);
+      expect(component.numberStatus()).toBe('ok');
+      expect(component.canSave()).toBe(true);
+    });
+
+    it('does not move the focus (free number: no jump into Bezeichnung)', async () => {
+      const { fixture } = await setup();
+      const price = byId(fixture, 'price');
+      price.focus();
+
+      await typeAndLeave(fixture, '1099', price);
+
+      expect(document.activeElement).toBe(price);
+    });
+
+    it('taken number: red X and error text, but the focus stays where the user went', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ sellerId: 'SEL00099' })));
+      const { fixture } = await setup({ articlesApi });
+      const price = byId(fixture, 'price');
+      price.focus();
+
+      await typeAndLeave(fixture, '1042', price);
+
+      expect(fixture.componentInstance.numberStatus()).toBe('error');
+      expect(fixture.componentInstance.numberTakenMessage()).toBe('Artikelnummer bereits vergeben');
+      expect(document.activeElement).toBe(price);
+      expect(fixture.componentInstance.canSave()).toBe(false);
+    });
+
+    it('own pre-registered article: loads it (Artikelwandlung) without moving the focus', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(
+        of(articleByNumberStub({ number: 1, name: 'Sommerkleid', sellerId: SELLER_ID, status: 'registered' })),
+      );
+      const { fixture } = await setup({ articlesApi });
+      const name = byId(fixture, 'name');
+      name.focus();
+
+      await typeAndLeave(fixture, '1', name);
+
+      expect(fixture.componentInstance.name()).toBe('Sommerkleid');
+      expect(fixture.componentInstance.originalNumber()).toBe(1);
+      expect(document.activeElement).toBe(name);
+    });
+
+    it('does not check again after Enter (focus jump into Bezeichnung leaves the field)', async () => {
+      const articlesApi = articlesApiStub();
+      const { fixture } = await setup({ articlesApi });
+      await enterNumber(fixture, '1099');
+      expect(articlesApi.getByNumber).toHaveBeenCalledTimes(1);
+
+      leaveNumberField(fixture, byId(fixture, 'name'));
+      await tick(fixture);
+
+      expect(articlesApi.getByNumber).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not check the unchanged suggested number', async () => {
+      const articlesApi = articlesApiStub();
+      const { fixture } = await setup({ articlesApi });
+
+      leaveNumberField(fixture, byId(fixture, 'name'));
+      await tick(fixture);
+
+      expect(articlesApi.getByNumber).not.toHaveBeenCalled();
+    });
+
+    it('does not check an empty field', async () => {
+      const articlesApi = articlesApiStub();
+      const { fixture } = await setup({ articlesApi });
+
+      await typeAndLeave(fixture, '', byId(fixture, 'name'));
+
+      expect(articlesApi.getByNumber).not.toHaveBeenCalled();
+    });
+
+    it('ignores focus moving to a control inside the number field (↩, mode buttons, Nummernblock)', async () => {
+      const articlesApi = articlesApiStub();
+      const { fixture } = await setup({ articlesApi });
+      const innerButton = fixture.nativeElement.querySelector(
+        '.intake-article-entry__field app-input-group button',
+      ) as HTMLButtonElement;
+      expect(innerButton).not.toBeNull();
+
+      await typeAndLeave(fixture, '12', innerButton);
+
+      expect(articlesApi.getByNumber).not.toHaveBeenCalled();
+    });
+
+    it('ignores focus going nowhere while the Nummernblock is active (tapped keys get no focus on iPad)', async () => {
+      const articlesApi = articlesApiStub();
+      const { fixture } = await setup({ articlesApi });
+      numberInputGroup(fixture).switchMode('numpad');
+      fixture.detectChanges();
+
+      await typeAndLeave(fixture, '12', null);
+
+      expect(articlesApi.getByNumber).not.toHaveBeenCalled();
+    });
+
+    it('checks when focus goes nowhere in keyboard mode (click on an empty area)', async () => {
+      const articlesApi = articlesApiStub();
+      const { fixture } = await setup({ articlesApi });
+
+      await typeAndLeave(fixture, '1099', null);
+
+      expect(articlesApi.getByNumber).toHaveBeenCalledWith(1099);
+    });
+
+    it('checks again after the number was changed', async () => {
+      const articlesApi = articlesApiStub();
+      const { fixture } = await setup({ articlesApi });
+      await typeAndLeave(fixture, '1099', byId(fixture, 'name'));
+      await typeAndLeave(fixture, '1100', byId(fixture, 'name'));
+
+      expect(articlesApi.getByNumber).toHaveBeenNthCalledWith(1, 1099);
+      expect(articlesApi.getByNumber).toHaveBeenNthCalledWith(2, 1100);
+    });
+  });
+
   describe('"Übernehmen"', () => {
     it('appends the current form values to items() and resets the form (with next-number prefill)', async () => {
       const articlesApi = articlesApiStub();

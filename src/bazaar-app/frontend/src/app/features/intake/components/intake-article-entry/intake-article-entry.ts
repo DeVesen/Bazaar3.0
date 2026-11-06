@@ -186,6 +186,12 @@ export class IntakeArticleEntry {
    * eine ungeprüft getippte Nummer nie übernommen. */
   private readonly verifiedNumber = signal<string | null>(null);
 
+  /** Die Nummer, für die zuletzt eine Prüfung gestartet wurde (läuft noch oder ist erledigt) —
+   * verhindert, dass das Verlassen des Felds dieselbe Nummer ein zweites Mal prüft (z. B. direkt
+   * nach Enter, wenn der Fokus in die Bezeichnung springt). Jede Änderung der Nummer setzt sie
+   * zurück. */
+  private checkedNumber: string | null = null;
+
   /** Gesetzt, sobald ein vorregistrierter Artikel (Status „Registriert", aktueller Verkäufer) per
    * Nummerneingabe geladen wurde — die Ursprungsnummer, die beim finalen Buchen als
    * `deleteArticleNumber` mitgeschickt wird, falls die Nummer danach geändert wird. */
@@ -279,7 +285,8 @@ export class IntakeArticleEntry {
   }
 
   /** Tippen/Scannen/Setzen im Nummernfeld: ein geänderter Wert macht das letzte Prüfergebnis
-   * ungültig. Die eigentliche Prüfung läuft erst auf Enter/Scan/↩ (`onArticleNumberSubmit()`). */
+   * ungültig. Die eigentliche Prüfung läuft erst auf Enter/Scan/↩ (`onArticleNumberSubmit()`) oder
+   * beim Verlassen des Felds (`onNumberFieldFocusOut()`). */
   onArticleNumberChange(value: string | number): void {
     const raw = String(value);
     // Das (entprellte) valueChange kann nach Enter noch nachlaufen — ein unveränderter Wert darf
@@ -290,6 +297,7 @@ export class IntakeArticleEntry {
     }
     this.articleNumber.set(raw);
     this.numberFieldSeq++;
+    this.checkedNumber = null;
     this.numberTakenMessage.set(null);
     this.numberStatus.set(null);
     if (raw.trim().length === 0 && this.originalNumber() !== null) {
@@ -302,7 +310,32 @@ export class IntakeArticleEntry {
   onArticleNumberSubmit(): void {
     const raw = this.numberInputGroup()?.rawValue() ?? this.articleNumber();
     this.articleNumber.set(raw);
-    this.checkArticleNumber(raw);
+    this.checkArticleNumber(raw, true);
+  }
+
+  /**
+   * Verlassen des Nummernfelds: dieselbe Prüfung wie bei Enter, aber ohne Fokuswechsel — der
+   * Fokus bleibt dort, wohin der Anwender geklickt/getabbt hat; Ergebnis nur als Status-Icon,
+   * Fehlertext bzw. geladene Voranmeldung. Übersprungen wird,
+   * - wenn der Fokus innerhalb des Felds bleibt (↩-, Kamera-, Nummernblock-Button, Nummernblock-Tasten),
+   * - wenn der Fokus nirgendwohin geht, während Kamera oder Nummernblock aktiv sind (iPad/Safari
+   *   gibt Buttons beim Antippen keinen Fokus — sonst würde eine halb eingegebene Nummer geprüft),
+   * - bei leerem Feld und bei einer bereits geprüften/vorgeschlagenen oder gerade in Prüfung
+   *   befindlichen Nummer.
+   */
+  onNumberFieldFocusOut(event: FocusEvent): void {
+    const container = event.currentTarget as HTMLElement | null;
+    const next = event.relatedTarget as Node | null;
+    if (next && container?.contains(next)) return;
+    const group = this.numberInputGroup();
+    if (!next && group && group.activeMode() !== 'keyboard') return;
+
+    const raw = group?.rawValue() ?? this.articleNumber();
+    const trimmed = raw.trim();
+    if (!trimmed || trimmed === this.verifiedNumber() || trimmed === this.checkedNumber) return;
+
+    this.articleNumber.set(raw);
+    this.checkArticleNumber(raw, false);
   }
 
   onNameChange(value: string): void {
@@ -511,11 +544,12 @@ export class IntakeArticleEntry {
    *   Eingabe voll selektiert, Fehlertext;
    * - eigener Artikel mit Status „Registriert" (Voranmeldung): Felder werden befüllt
    *   (Artikelwandlung), Nummer voll selektiert zum direkten Überschreiben. */
-  private checkArticleNumber(raw: string): void {
+  private checkArticleNumber(raw: string, moveFocus: boolean): void {
     // Jede echte Prüfung macht noch laufende Antworten (Nummernvorschlag, ältere Prüfung) ungültig.
     const seq = ++this.numberFieldSeq;
 
     const trimmed = raw.trim();
+    this.checkedNumber = trimmed || null;
     this.numberTakenMessage.set(null);
     this.numberStatus.set(null);
     this.verifiedNumber.set(null);
@@ -523,28 +557,28 @@ export class IntakeArticleEntry {
 
     const number = Number.parseInt(trimmed, 10);
     if (!/^\d+$/.test(trimmed) || !Number.isSafeInteger(number)) {
-      this.markNumberTaken('Bitte eine gültige Artikelnummer eingeben');
+      this.markNumberTaken('Bitte eine gültige Artikelnummer eingeben', moveFocus);
       return;
     }
 
     this.articlesApi.getByNumber(number).subscribe({
       next: (article: ArticleByNumberResult) => {
-        if (seq === this.numberFieldSeq) this.handleArticleFound(article, trimmed);
+        if (seq === this.numberFieldSeq) this.handleArticleFound(article, trimmed, moveFocus);
       },
       error: (error: unknown) => {
-        if (seq === this.numberFieldSeq) this.handleArticleLookupError(error, trimmed);
+        if (seq === this.numberFieldSeq) this.handleArticleLookupError(error, trimmed, moveFocus);
       },
     });
   }
 
-  private handleArticleFound(article: ArticleByNumberResult, typed: string): void {
+  private handleArticleFound(article: ArticleByNumberResult, typed: string, moveFocus: boolean): void {
     if (article.sellerId !== this.sellerId()) {
-      this.markNumberTaken('Artikelnummer bereits vergeben');
+      this.markNumberTaken('Artikelnummer bereits vergeben', moveFocus);
       return;
     }
     // Round-15 status model: `'registered'` ist der einzige noch nicht freigegebene Zustand.
     if (article.status !== 'registered') {
-      this.markNumberTaken('Artikelnummer bereits vergeben (Artikel bereits freigegeben)');
+      this.markNumberTaken('Artikelnummer bereits vergeben (Artikel bereits freigegeben)', moveFocus);
       return;
     }
 
@@ -552,18 +586,19 @@ export class IntakeArticleEntry {
     // weiter zu „Übernehmen" (Übernahme unter gleicher Nummer).
     if (this.originalNumber() === article.number) {
       this.verifiedNumber.set(typed);
-      this.focusSubmitButton();
+      if (moveFocus) this.focusSubmitButton();
       return;
     }
     this.loadPreRegisteredArticle(article);
     this.verifiedNumber.set(typed);
-    this.selectNumberField();
+    if (moveFocus) this.selectNumberField();
   }
 
-  private handleArticleLookupError(error: unknown, typed: string): void {
+  private handleArticleLookupError(error: unknown, typed: string, moveFocus: boolean): void {
     if (error instanceof HttpErrorResponse && error.status === 404) {
       this.verifiedNumber.set(typed);
       this.numberStatus.set('ok');
+      if (!moveFocus) return;
       // Artikelwandlung (geladener Voranmeldungs-Artikel, neue freie Nummer): alles ist befüllt →
       // direkt zu „Übernehmen"; sonst Neuerfassung → Bezeichnung.
       if (this.originalNumber() !== null) {
@@ -574,10 +609,10 @@ export class IntakeArticleEntry {
     }
   }
 
-  private markNumberTaken(message: string): void {
+  private markNumberTaken(message: string, moveFocus: boolean): void {
     this.numberTakenMessage.set(message);
     this.numberStatus.set('error');
-    this.selectNumberField();
+    if (moveFocus) this.selectNumberField();
   }
 
   /** Befüllt alle Formularfelder (außer der Nummer, die der Anwender gerade selbst eingegeben
@@ -720,6 +755,7 @@ export class IntakeArticleEntry {
     this.numberTakenMessage.set(null);
     this.numberStatus.set(null);
     this.verifiedNumber.set(null);
+    this.checkedNumber = null;
     this.originalNumber.set(null);
     this.fieldErrors.set({});
     this.numberFieldSeq++;
