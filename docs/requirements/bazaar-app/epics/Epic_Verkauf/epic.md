@@ -68,7 +68,7 @@ Abschnitt 3; hier stehen nur die Verkauf-spezifischen Ausprägungen.
 | Modus | Ausprägung im Verkauf |
 |---|---|
 | Tastatur | Startmodus. Der **USB-Barcode-Scanner** tippt die Nummer hierhin und bestätigt mit Enter |
-| Kamera | Inline-Kamerabild an der Position des Feldes ([Barcode-Scanner](../../../../components/barcode-scanner/component.md)) — kein Modal. Nach dem ersten Treffer kehrt das Feld in den zuvor aktiven Modus zurück |
+| Kamera | Inline-Kamerabild an der Position des Feldes ([Barcode-Scanner](../../../../components/barcode-scanner/component.md)) — kein Modal. Nach dem ersten Treffer kehrt das Feld in den zuvor aktiven Modus zurück und der Artikel-Lookup startet — wie ENTER (Entscheidung 2026-11-06: Kamera-Scan wirkt überall wie ENTER, Wunsch Fachseite, einheitlich mit Freigabe/Rückgabe; ein Scan derselben Nummer nach gefundenem Artikel verhält sich wie zweites ENTER) |
 | Numpad | `showDecimal="false"` (Artikelnummern sind ganzzahlig), `showEnter="true"`; `⏎` löst den Artikel-Lookup aus |
 
 **Die Kamera verlässt sich nach einem Treffer selbst.** Anders als beim Dauerscan der

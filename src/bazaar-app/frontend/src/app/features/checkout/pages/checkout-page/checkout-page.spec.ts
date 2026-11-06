@@ -481,18 +481,41 @@ describe('CheckoutPage', () => {
   });
 
   describe('camera wiring', () => {
-    it('a detected code fills the field and switches back to keyboard mode, without triggering a lookup', async () => {
+    it('onCodeDetected_codeDetected_fillsFieldSwitchesToKeyboardAndStartsLookup', async () => {
+      // Arrange
       const articlesApi = articlesApiStub();
       const { fixture, component } = await setup(articlesApi);
       component.activeMode.set('camera');
       fixture.detectChanges();
       const scanner = fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
 
+      // Act
       scanner.codeDetected.emit('1042');
 
+      // Assert
       expect(component.articleNumber()).toBe('1042');
       expect(component.activeMode()).toBe('keyboard');
-      expect(articlesApi.getByNumber).not.toHaveBeenCalled();
+      expect(articlesApi.getByNumber).toHaveBeenCalledTimes(1);
+      expect(articlesApi.getByNumber).toHaveBeenCalledWith(1042);
+    });
+
+    it('onCodeDetected_sameNumberAfterArticleFound_addsToCartLikeSecondEnter', async () => {
+      // Arrange
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ status: 'selling', number: 1042 })));
+      const { fixture, component } = await setup(articlesApi);
+      component.onTyped('1042');
+      component.onEnterPressed();
+      component.activeMode.set('camera');
+      fixture.detectChanges();
+      const scanner = fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;
+
+      // Act
+      scanner.codeDetected.emit('1042');
+
+      // Assert
+      expect(articlesApi.getByNumber).toHaveBeenCalledTimes(1);
+      expect(component.cartItems().map((i) => i.number)).toEqual([1042]);
     });
   });
 

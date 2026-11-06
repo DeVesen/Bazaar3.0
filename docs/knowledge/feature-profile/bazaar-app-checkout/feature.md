@@ -9,7 +9,7 @@
 - User can enter an Artikelnummer per Tastatur in ein `app-input` mit Addons Kamera/Numpad/Clear/Enter — `checkout-page.html`, `checkout-page.ts` (`inputAddons`)
 - User can toggle Kamera-Scanner bzw. Numpad als Panel unterhalb des Feldes (jeweils nur eins aktiv); der Numpad übernimmt nur Ziffern — `checkout-page.ts` (`onAddonClick`, `activeMode`, `onNumpadKey`)
 - User sees im "Artikel gefunden"-Zustand nur noch die Addons Clear und Enter — `checkout-page.ts` (`inputAddons`)
-- User can start the lookup nur per Enter (Tastatur, Enter-Addon, Numpad-⏎) — kein Auto-Lookup beim Tippen oder Scannen — `checkout-page.ts` (`onEnterPressed`, `onTyped`, `onCodeDetected`)
+- User can start the lookup per Enter (Tastatur, Enter-Addon, Numpad-⏎) oder Kamera-Scan (wirkt wie Enter, seit 2026-11-06) — kein Auto-Lookup beim Tippen — `checkout-page.ts` (`onEnterPressed`, `onTyped`, `onCodeDetected`)
 - User sees Enter während einer laufenden Suche wirkungslos (Enter-Addon ausgegraut, Numpad-⏎ gesperrt) — `checkout-page.ts` (`onEnterPressed`: `if (this.searching()) return`)
 - User sees eine InfoArea mit Icon+Text für jeden möglichen Such-Zustand (Erfolg/schon im Warenkorb/noch nicht freigegeben/bereits verkauft/zurückgegeben/unbekannt/Fehler) — `checkout-page.ts` (`infoState`, `handleArticleFound`/`handleArticleLookupError`)
 - User sees eine gelbe Info "Bitte Artikelnummer eingeben" initial sowie nach Warenkorb-Leeren und nach erfolgreicher Buchung — `checkout-page.ts` (`INITIAL_INFO_STATE`, `onCartClear`, `onPaymentConfirmed`)

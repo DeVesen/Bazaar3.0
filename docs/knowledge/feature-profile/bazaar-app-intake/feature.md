@@ -5,7 +5,7 @@
 **Last reviewed:** 2026-10-30
 
 ## Capabilities
-- User can search for an existing seller or create a new one from the search text — `pages/intake-page/intake-page.ts` (`onSellerSelected`/`onCreateRequested`), delegiert an `shared/components/seller-search`
+- User can search for an existing seller or create a new one from the search text (Kamera-Scan in der Verkäufersuche wirkt wie Enter: 1 Treffer wählt aus, 0 Treffer öffnet Anlegen) — `pages/intake-page/intake-page.ts` (`onSellerSelected`/`onCreateRequested`), delegiert an `shared/components/seller-search`
 - User sees a hint text "ENTER bei 1 Treffer öffnet Wizard · Kein Treffer: Anlegen-Button erscheint" — `intake-page.ts` (`hint`)
 - User can fill in seller master data (Vorname*, Nachname*, Anschrift, PLZ, Ort*, Telefon, E-Mail, Verkäufer-Typ*, Gebühr*, Provision*) in Wizard-Schritt 1; "Weiter" bleibt gesperrt, solange ein Pflichtfeld leer ist, und unter einem verlassenen leeren Pflichtfeld erscheint eine Meldung — `components/intake-wizard/intake-wizard.html`, `intake-wizard.ts` (`canSave`, `requiredErrors`)
 - User sees Gebühr-je-Stück/Provision aus dem gewählten Verkäufer-Typ vorbefüllt, aber gesperrt (`[disabled]`, nie editierbar — bewusst anders als im Verkäufer-Bearbeiten-Dialog) — `intake-wizard.ts` (`conditionsEditable` fix `false`, `onTypeChange`)

@@ -229,14 +229,56 @@ describe('SellerSearch', () => {
     expect(emitted).toEqual(['SEL00001']);
   });
 
-  it('keeps the camera active when a scan matches 0 sellers', () => {
-    const fixture = create([seller({ id: 'SEL00001' })], { showScanButton: true });
-
+  it('onScanDetected_zeroMatchesWithCreateButton_emitsCreateRequestedAndSwitchesToKeyboard', () => {
+    // Arrange
+    const fixture = create([seller({ id: 'SEL00001' })], { showScanButton: true, showCreateButton: true });
+    const created: string[] = [];
+    fixture.componentInstance.createRequested.subscribe((v) => created.push(v));
     enterMode(fixture, 'camera');
+
+    // Act
     scannerOf(fixture).codeDetected.emit('NOPE');
     fixture.detectChanges();
 
+    // Assert
+    expect(created).toEqual(['NOPE']);
+    expect(fixture.componentInstance.mode.active()).toBe('keyboard');
+  });
+
+  it('onScanDetected_zeroMatchesWithoutCreateButton_keepsCameraAndEmitsNothing', () => {
+    // Arrange
+    const fixture = create([seller({ id: 'SEL00001' })], { showScanButton: true });
+    const created: string[] = [];
+    fixture.componentInstance.createRequested.subscribe((v) => created.push(v));
+    enterMode(fixture, 'camera');
+
+    // Act
+    scannerOf(fixture).codeDetected.emit('NOPE');
+    fixture.detectChanges();
+
+    // Assert
+    expect(created).toEqual([]);
     expect(fixture.componentInstance.mode.active()).toBe('camera');
+  });
+
+  it('onScanDetected_multipleMatches_doesNotSelectOrCreate', () => {
+    // Arrange
+    const fixture = create(
+      [seller({ id: 'SEL1', lastName: 'Meier' }), seller({ id: 'SEL2', lastName: 'Meierhof' })],
+      { showScanButton: true, showCreateButton: true },
+    );
+    const selected: SellerSummary[] = [];
+    const created: string[] = [];
+    fixture.componentInstance.sellerSelected.subscribe((s) => selected.push(s));
+    fixture.componentInstance.createRequested.subscribe((v) => created.push(v));
+    enterMode(fixture, 'camera');
+
+    // Act
+    scannerOf(fixture).codeDetected.emit('Meier');
+
+    // Assert
+    expect(selected).toEqual([]);
+    expect(created).toEqual([]);
   });
 
   it('returns to the keyboard when a scan matches more than one seller', () => {

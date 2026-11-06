@@ -96,18 +96,21 @@ export class SellerSearch {
   }
 
   /**
-   * Doc Abschnitt 6 "Scan-Ablauf": Wert ins Feld, dann Moduswechsel nach Trefferzahl —
-   * 1 Treffer: auswählen + Tastatur; mehrere: zurück zum vorherigen Modus; 0: Kamera bleibt.
+   * Doc Abschnitt 6 "Scan-Ablauf": Wert ins Feld, dann dieselbe Aktion wie ENTER (`onSubmit`),
+   * danach Moduswechsel nach Trefferzahl — 1 Treffer: Tastatur; mehrere: zurück zum vorherigen
+   * Modus; 0 mit Anlegen-Button: Tastatur (Anlegen-Dialog öffnet); 0 ohne Anlegen-Button: Kamera bleibt.
    */
   onScanDetected(value: string): void {
     this.onTyped(value);
+    this.onSubmit();
 
-    const results = this.filteredSellers();
-    if (results.length === 1) {
-      this.trySelect(results[0]);
+    const count = this.filteredSellers().length;
+    if (count === 1) {
       this.mode.switchTo('keyboard');
-    } else if (results.length > 1) {
+    } else if (count > 1) {
       this.mode.switchTo(this.mode.previousMode());
+    } else if (this.showCreateButton()) {
+      this.mode.switchTo('keyboard');
     }
   }
 

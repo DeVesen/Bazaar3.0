@@ -184,8 +184,10 @@ export class CheckoutPage {
   }
 
   onCodeDetected(code: string): void {
+    // Kamera-Scan wirkt wie Wert eintippen + ENTER (inkl. „2. Enter legt in den Warenkorb“).
     this.onTyped(code);
     this.activeMode.set('keyboard');
+    this.onEnterPressed();
   }
 
   onEnterPressed(): void {

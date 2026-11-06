@@ -197,13 +197,16 @@ wieder und alle MediaStream-Tracks werden freigegeben.
 1. Kamera erkennt einen QR-Code oder Barcode — dieser enthält die **Verkäufer-ID**.
 2. Erkannter Wert **ersetzt** den gesamten Feldinhalt (kein Anhängen).
 3. `searchChanged` wird emittiert → Filterlogik läuft durch.
-4. Ergebnis entscheidet den nächsten Schritt:
+4. Danach wirkt der Scan wie ENTER (siehe ENTER-Verhalten oben): Ergebnis entscheidet den nächsten Schritt:
 
 | Treffer nach Scan | Verhalten |
 |---|---|
-| **Genau 1** | Auto-ENTER: `sellerSelected` emittiert, Kamera stoppt |
-| **Mehrere** | Kamera stoppt, Rückkehr in den zuvor aktiven Modus, Trefferliste erscheint |
-| **0** | Wert bleibt im Feld sichtbar (implizites Feedback), Kamera bleibt aktiv |
+| **Genau 1** | Wie ENTER: `sellerSelected` emittiert, Kamera stoppt (Rückkehr auf Tastatur) |
+| **Mehrere** | Keine Aktion; Kamera stoppt, Rückkehr in den zuvor aktiven Modus, Trefferliste erscheint |
+| **0 mit `showCreateButton`** | Wie ENTER: `createRequested` emittiert, Kamera stoppt (Rückkehr auf Tastatur), damit sie nicht hinter dem Anlegen-Dialog weiterläuft |
+| **0 ohne `showCreateButton`** | Wert bleibt im Feld sichtbar (implizites Feedback), Kamera bleibt aktiv |
+
+**Entscheidung 2026-11-06:** Kamera-Scan wirkt überall wie ENTER (Wunsch Fachseite, einheitlich mit Freigabe/Rückgabe). Bisher löste der Scan bei 0 Treffern nichts aus.
 
 ### Scan-Technik
 
