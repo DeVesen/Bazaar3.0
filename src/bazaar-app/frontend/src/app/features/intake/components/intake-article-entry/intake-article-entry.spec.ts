@@ -3,13 +3,13 @@ import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject, of, throwError } from 'rxjs';
 // eslint-disable-next-line boundaries/dependencies
-import { ArticleByNumberResult, ArticlesApi } from '../../../articles/data/articles-api';
+import { ArticleByNumberResult, ArticleDetail, ArticlesApi } from '../../../articles/data/articles-api';
 // eslint-disable-next-line boundaries/dependencies
 import { Category, CategoriesApi } from '../../../categories/data/categories-api';
 // eslint-disable-next-line boundaries/dependencies
 import { Brand, BrandsApi } from '../../../brands/data/brands-api';
 // eslint-disable-next-line boundaries/dependencies
-import { SellerDetail, SellersApi } from '../../../sellers/data/sellers-api';
+import { ArticleSummary, SellerDetail, SellersApi } from '../../../sellers/data/sellers-api';
 import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
 import { InputGroup } from '../../../../shared/components/input-group/input-group';
 import { Input } from '../../../../shared/components/input/input';
@@ -25,6 +25,7 @@ import '../../../../shared/components/barcode-scanner/testing/zxing-browser.mock
 import { PrintService } from '../../../../core/print/print.service';
 import { IntakeApi } from '../../data/intake-api';
 import { IntakeSessionList } from '../intake-session-list/intake-session-list';
+import { PreRegisteredArticlesDialog } from '../pre-registered-articles-dialog/pre-registered-articles-dialog';
 import { IntakeArticleEntry, SessionArticle } from './intake-article-entry';
 
 const SELLER_ID = 'SEL00001';
@@ -70,10 +71,58 @@ function articleByNumberStub(overrides: Partial<ArticleByNumberResult> = {}): Ar
   };
 }
 
+function articleDetailStub(overrides: Partial<ArticleDetail> = {}): ArticleDetail {
+  return {
+    id: 'ART00001',
+    number: 1,
+    name: 'Sommerkleid',
+    brand: 'Vertbaudet',
+    category: 'Kleider',
+    price: 8,
+    size: '110',
+    color: 'Rot',
+    description: 'Mit Blumen',
+    status: 'registered',
+    soldManually: false,
+    sellerId: SELLER_ID,
+    sellerName: 'Max Mustermann',
+    createdAt: '2026-11-01T10:00:00Z',
+    releasedAt: null,
+    soldAt: null,
+    returnedAt: null,
+    sellerSettledAt: null,
+    ...overrides,
+  };
+}
+
+function articleSummaryStub(overrides: Partial<ArticleSummary> = {}): ArticleSummary {
+  return {
+    id: 'ART00001',
+    number: 1,
+    name: 'Sommerkleid',
+    brand: 'Vertbaudet',
+    category: 'Kleider',
+    size: '110',
+    color: 'Rot',
+    price: 8,
+    status: 'registered',
+    soldManually: false,
+    ...overrides,
+  };
+}
+
 function articlesApiStub() {
   return {
     getNextNumber: vi.fn().mockReturnValue(of({ nextNumber: 1043 })),
     getByNumber: vi.fn().mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 }))),
+    getById: vi.fn().mockReturnValue(of(articleDetailStub())),
+  };
+}
+
+function sellersApiStub(articles: ArticleSummary[] = []) {
+  return {
+    getById: vi.fn().mockReturnValue(of(sellerDetailStub())),
+    getArticles: vi.fn().mockReturnValue(of(articles)),
   };
 }
 
@@ -121,12 +170,13 @@ async function setup(
     brandsApi?: ReturnType<typeof brandsApiStub>;
     intakeApi?: ReturnType<typeof intakeApiStub>;
     printService?: ReturnType<typeof printServiceStub>;
+    sellersApi?: ReturnType<typeof sellersApiStub>;
   } = {},
 ) {
   const articlesApi = options.articlesApi ?? articlesApiStub();
   const categoriesApi = options.categoriesApi ?? categoriesApiStub();
   const brandsApi = options.brandsApi ?? brandsApiStub();
-  const sellersApi = { getById: vi.fn().mockReturnValue(of(sellerDetailStub())) };
+  const sellersApi = options.sellersApi ?? sellersApiStub();
   const intakeApi = options.intakeApi ?? intakeApiStub();
   const printService = options.printService ?? printServiceStub();
 
@@ -168,6 +218,21 @@ async function enterNumber(fixture: ReturnType<typeof TestBed.createComponent<In
   await fixture.whenStable();
   fixture.detectChanges(); // z. B. „Übernehmen" aktivieren, bevor der Fokus dorthin springt
   await new Promise((resolve) => setTimeout(resolve, 0)); // verzögerte Fokus-/Selektion
+  fixture.detectChanges();
+}
+
+/** Übernimmt einen Artikel über den Dialog „Aus Voranmeldung übernehmen" (Auswahl nach Schließen). */
+async function loadFromDialog(
+  fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>,
+  articlesApi: ReturnType<typeof articlesApiStub>,
+  detail: ArticleDetail = articleDetailStub(),
+) {
+  articlesApi.getById.mockReturnValue(of(detail));
+  const summary = articleSummaryStub({ id: detail.id, number: detail.number, name: detail.name });
+  fixture.componentInstance.onPreRegisteredArticleSelected(summary);
+  await fixture.whenStable();
+  fixture.detectChanges();
+  await new Promise((resolve) => setTimeout(resolve, 0));
   fixture.detectChanges();
 }
 
@@ -472,7 +537,7 @@ describe('IntakeArticleEntry', () => {
       expect(fixture.componentInstance.canSave()).toBe(false);
     });
 
-    it('own pre-registered article: loads it (Artikelwandlung) without moving the focus', async () => {
+    it('own pre-registered article: does not load it, shows the hint to the dialog, focus stays', async () => {
       const articlesApi = articlesApiStub();
       articlesApi.getByNumber.mockReturnValue(
         of(articleByNumberStub({ number: 1, name: 'Sommerkleid', sellerId: SELLER_ID, status: 'registered' })),
@@ -483,8 +548,10 @@ describe('IntakeArticleEntry', () => {
 
       await typeAndLeave(fixture, '1', name);
 
-      expect(fixture.componentInstance.name()).toBe('Sommerkleid');
-      expect(fixture.componentInstance.originalNumber()).toBe(1);
+      expect(fixture.componentInstance.name()).toBe('');
+      expect(fixture.componentInstance.originalNumber()).toBeNull();
+      expect(fixture.componentInstance.numberStatus()).toBe('error');
+      expect(fixture.componentInstance.numberTakenMessage()).toContain('Aus Voranmeldung übernehmen');
       expect(document.activeElement).toBe(name);
     });
 
@@ -766,7 +833,7 @@ describe('IntakeArticleEntry', () => {
           : throwError(() => new HttpErrorResponse({ status: 404 })),
       );
       const { fixture } = await setup({ articlesApi });
-      await enterNumber(fixture, '1');
+      await loadFromDialog(fixture, articlesApi);
       expect(document.activeElement).toBe(numberInput(fixture));
 
       await enterNumber(fixture, '6');
@@ -780,7 +847,7 @@ describe('IntakeArticleEntry', () => {
         of(articleByNumberStub({ number: 1, sellerId: SELLER_ID, status: 'registered' })),
       );
       const { fixture } = await setup({ articlesApi });
-      await enterNumber(fixture, '1');
+      await loadFromDialog(fixture, articlesApi);
 
       await enterNumber(fixture, '1');
 
@@ -905,7 +972,7 @@ describe('IntakeArticleEntry', () => {
     });
   });
 
-  describe('Artikelwandlung: vorregistrierter Artikel per Nummerneingabe laden', () => {
+  describe('Artikelwandlung: vorregistrierter Artikel über den Dialog „Aus Voranmeldung übernehmen"', () => {
     function preRegistered(overrides: Partial<ArticleByNumberResult> = {}) {
       return articleByNumberStub({
         number: 1,
@@ -925,18 +992,41 @@ describe('IntakeArticleEntry', () => {
         number === 1 ? of(preRegistered()) : throwError(() => new HttpErrorResponse({ status: 404 })),
       );
       const ctx = await setup({ articlesApi });
-      await enterNumber(ctx.fixture, '1');
+      await loadFromDialog(ctx.fixture, articlesApi);
       return ctx;
     }
 
-    it('fills all fields, remembers the original number, shows no error and no status icon', async () => {
-      const { fixture } = await setupLoaded();
+    it('typing the number of an own pre-registered article no longer loads it but points to the dialog', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(preRegistered()));
+      const { fixture } = await setup({ articlesApi });
       const component = fixture.componentInstance;
 
+      await enterNumber(fixture, '1');
+
+      expect(component.name()).toBe('');
+      expect(component.originalNumber()).toBeNull();
+      expect(component.numberStatus()).toBe('error');
+      expect(component.numberTakenMessage()).toBe(
+        'Artikel aus der Voranmeldung — bitte über „Aus Voranmeldung übernehmen" laden',
+      );
+      expect(component.canSave()).toBe(false);
+      expect(document.activeElement).toBe(numberInput(fixture));
+    });
+
+    it('fills all fields incl. number and description, remembers the original number, shows no error', async () => {
+      const { fixture, articlesApi } = await setupLoaded();
+      const component = fixture.componentInstance;
+
+      expect(articlesApi.getById).toHaveBeenCalledWith('ART00001');
+      expect(component.articleNumber()).toBe('1');
       expect(component.name()).toBe('Sommerkleid');
       expect(component.brand()).toBe('Vertbaudet');
       expect(component.category()).toBe('Kleider');
       expect(component.price()).toBe(8);
+      expect(component.size()).toBe('110');
+      expect(component.color()).toBe('Rot');
+      expect(component.description()).toBe('Mit Blumen');
       expect(component.originalNumber()).toBe(1);
       expect(component.numberTakenMessage()).toBeNull();
       expect(component.numberStatus()).toBeNull();
@@ -953,10 +1043,40 @@ describe('IntakeArticleEntry', () => {
       expect(input.selectionEnd).toBe(1);
     });
 
-    it('shows the "aus Voranmeldung geladen" hint under the number field', async () => {
+    it('replaces previously typed values and stays unchecked by a late number suggestion', async () => {
+      const articlesApi = articlesApiStub();
+      const nextNumber$ = new Subject<{ nextNumber: number }>();
+      articlesApi.getNextNumber.mockReturnValue(nextNumber$); // Vorschlag beim Start läuft noch
+      const { fixture } = await setup({ articlesApi });
+      const component = fixture.componentInstance;
+      component.onNameChange('Handgetippt');
+
+      await loadFromDialog(fixture, articlesApi);
+      nextNumber$.next({ nextNumber: 1099 });
+      await tick(fixture);
+
+      expect(component.name()).toBe('Sommerkleid');
+      expect(component.articleNumber()).toBe('1');
+      expect(component.canSave()).toBe(true);
+    });
+
+    it('an article released in the meantime is not loaded but shows the error', async () => {
+      const articlesApi = articlesApiStub();
+      const { fixture } = await setup({ articlesApi });
+      const component = fixture.componentInstance;
+
+      await loadFromDialog(fixture, articlesApi, articleDetailStub({ status: 'released' }));
+
+      expect(component.name()).toBe('');
+      expect(component.originalNumber()).toBeNull();
+      expect(component.numberStatus()).toBe('error');
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('shows the "aus Voranmeldung übernommen" hint under the number field', async () => {
       const { fixture } = await setupLoaded();
 
-      expect(fixture.componentInstance.numberHint()).toContain('Aus Voranmeldung geladen (Nr. 1)');
+      expect(fixture.componentInstance.numberHint()).toContain('Aus Voranmeldung übernommen (Nr. 1)');
       expect(fixture.nativeElement.querySelector('.intake-article-entry__hint')?.textContent).toContain('Nr. 1');
     });
 
@@ -1002,7 +1122,7 @@ describe('IntakeArticleEntry', () => {
         of(number === 1 ? preRegistered() : articleByNumberStub({ number, sellerId: 'SEL00099' })),
       );
       const { fixture } = await setup({ articlesApi });
-      await enterNumber(fixture, '1');
+      await loadFromDialog(fixture, articlesApi);
 
       await enterNumber(fixture, '7');
 
@@ -1051,6 +1171,79 @@ describe('IntakeArticleEntry', () => {
       await fixture.whenStable();
 
       expect(component.items()[0].originalNumberToDelete).toBeUndefined();
+    });
+  });
+
+  describe('Schaltfläche und Dialog „Aus Voranmeldung übernehmen"', () => {
+    function dialog(fixture: ReturnType<typeof TestBed.createComponent<IntakeArticleEntry>>) {
+      return fixture.debugElement.query(By.directive(PreRegisteredArticlesDialog))
+        .componentInstance as PreRegisteredArticlesDialog;
+    }
+
+    it('renders the button in the action area next to the number field with the open-article count', async () => {
+      const sellersApi = sellersApiStub([
+        articleSummaryStub({ id: 'A1', number: 1 }),
+        articleSummaryStub({ id: 'A2', number: 2 }),
+        articleSummaryStub({ id: 'A3', number: 3, status: 'released' }),
+      ]);
+      const { fixture } = await setup({ sellersApi });
+
+      const button = fixture.nativeElement.querySelector('.intake-article-entry__number-actions button');
+      expect(button).not.toBeNull();
+      expect(button.getAttribute('aria-label')).toBe('Aus Voranmeldung übernehmen');
+      expect(fixture.componentInstance.preRegisteredBadge()).toBe('2');
+    });
+
+    it('opens the dialog with only the seller\'s registered articles, reloading the list', async () => {
+      const sellersApi = sellersApiStub([
+        articleSummaryStub({ id: 'A1', number: 1 }),
+        articleSummaryStub({ id: 'A3', number: 3, status: 'released' }),
+      ]);
+      const { fixture } = await setup({ sellersApi });
+      sellersApi.getArticles.mockClear();
+
+      fixture.componentInstance.onOpenPreRegisteredDialog();
+      fixture.detectChanges();
+
+      expect(sellersApi.getArticles).toHaveBeenCalledWith(SELLER_ID);
+      expect(dialog(fixture).visible()).toBe(true);
+      expect(dialog(fixture).articles().map((article) => article.number)).toEqual([1]);
+    });
+
+    it('hides articles already taken into this session (same or renumbered)', async () => {
+      const sellersApi = sellersApiStub([
+        articleSummaryStub({ id: 'A1', number: 1 }),
+        articleSummaryStub({ id: 'A2', number: 2 }),
+        articleSummaryStub({ id: 'A3', number: 3 }),
+      ]);
+      const { fixture } = await setup({ sellersApi });
+      fixture.componentInstance.items.set([
+        sessionArticleStub({ localId: 'l1', number: 1 }),
+        sessionArticleStub({ localId: 'l2', number: 50, originalNumberToDelete: 2 }),
+      ]);
+
+      expect(fixture.componentInstance.preRegisteredArticles().map((article) => article.number)).toEqual([3]);
+      expect(fixture.componentInstance.preRegisteredBadge()).toBe('1');
+    });
+
+    it('no badge when there is no open pre-registered article', async () => {
+      const { fixture } = await setup();
+
+      expect(fixture.componentInstance.preRegisteredBadge()).toBeUndefined();
+    });
+
+    it('selecting an article in the dialog loads it into the form', async () => {
+      const articlesApi = articlesApiStub();
+      const { fixture } = await setup({ articlesApi });
+      fixture.componentInstance.onOpenPreRegisteredDialog();
+      fixture.detectChanges();
+
+      dialog(fixture).articleSelected.emit(articleSummaryStub());
+      await fixture.whenStable();
+      await tick(fixture);
+
+      expect(fixture.componentInstance.name()).toBe('Sommerkleid');
+      expect(document.activeElement).toBe(numberInput(fixture));
     });
   });
 

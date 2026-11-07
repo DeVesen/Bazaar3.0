@@ -90,7 +90,7 @@ async function setup(options: {
         provide: SettingsService,
         useValue: { load: () => Promise.resolve(), defaultSellerTypeId: signal(options.defaultSellerTypeId ?? null) },
       },
-      { provide: SellersApi, useValue: { create, remove, getById } },
+      { provide: SellersApi, useValue: { create, remove, getById, getArticles: () => of([]) } },
       {
         provide: ArticlesApi,
         useValue: {
