@@ -1,0 +1,61 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  (onHide)="onHide()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  header="Aus Voranmeldung übernehmen"
+  styleClass="pre-registered-articles-dialog"
+  [style]="{ width: '80vw', height: '80vh', maxHeight: '80vh' }"
+  [contentStyle]="{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: '0' }"
+>
+  <p class="pre-registered-articles-dialog__hint">
+    Noch nicht freigegebene Artikel dieses Verkäufers. Zum Übernehmen einen Artikel anklicken.
+  </p>
+  <div class="pre-registered-articles-dialog__table">
+    <p-table
+      [value]="articles()"
+      [loading]="loading()"
+      selectionMode="single"
+      dataKey="id"
+      [metaKeySelection]="false"
+      [rowHover]="true"
+      [stripedRows]="true"
+      [scrollable]="true"
+      scrollHeight="flex"
+      (onRowSelect)="onRowSelect($event)"
+    >
+      <ng-template #header>
+        <tr>
+          <th class="pre-registered-articles-dialog__col--right">Nr.</th>
+          <th>Bezeichnung</th>
+          <th>Kategorie</th>
+          <th>Marke</th>
+          <th>Größe</th>
+          <th>Farbe</th>
+          <th class="pre-registered-articles-dialog__col--right">Preis</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-article>
+        <tr [pSelectableRow]="article" class="pre-registered-articles-dialog__row">
+          <td class="pre-registered-articles-dialog__col--right">{{ article.number }}</td>
+          <td>{{ article.name }}</td>
+          <td>{{ article.category }}</td>
+          <td>{{ article.brand }}</td>
+          <td>{{ article.size }}</td>
+          <td>{{ article.color }}</td>
+          <td class="pre-registered-articles-dialog__col--right">{{ article.price | currency: 'EUR' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="pre-registered-articles-dialog__empty">
+            Keine Artikel aus der Voranmeldung vorhanden.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
