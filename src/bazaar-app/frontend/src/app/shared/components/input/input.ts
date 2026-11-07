@@ -1,8 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
 import { NgStyle, NgTemplateOutlet } from '@angular/common';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { debounce, filter, of, timer } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
@@ -82,31 +80,48 @@ export class Input {
   private readonly _rawValue = signal<string>('');
   readonly rawValue = this._rawValue.asReadonly();
 
-  /** Keystroke stream feeding the debounced valueChange emit; undefined until first keystroke. */
-  private readonly typed = signal<string | undefined>(undefined);
+  /**
+   * Pending debounced `valueChange` emit (`debounceMs > 0`), `undefined` when nothing is pending.
+   *
+   * `valueChange` is emitted synchronously from the keystroke handler (debounceMs=0) or from a
+   * plain timer — deliberately NOT via a signal + `toObservable()`: that path emits only when
+   * Angular next flushes effects, so a USB barcode scanner (keyboard wedge) that types the digits
+   * and Enter within a few milliseconds delivered `enter` before the parent knew the last digits
+   * and the parent looked up a truncated number.
+   */
+  private pendingEmit: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     effect(() => {
       this._rawValue.set(this.value());
     });
 
-    toObservable(this.typed)
-      .pipe(
-        filter((v): v is string => v !== undefined),
-        // `of(undefined)` emits synchronously; `timer(0)` still schedules via a macrotask (a
-        // real, if tiny, delay) — the spec requires debounceMs=0 to emit immediately, no delay.
-        debounce(() => {
-          const ms = this.debounceMs();
-          return ms === 0 ? of(undefined) : timer(ms);
-        }),
-        takeUntilDestroyed(),
-      )
-      .subscribe((v) => this.valueChange.emit(v));
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.pendingEmit));
   }
 
   onTyped(value: string): void {
     this._rawValue.set(value);
-    this.typed.set(value);
+    clearTimeout(this.pendingEmit);
+    this.pendingEmit = undefined;
+
+    const ms = this.debounceMs();
+    if (ms === 0) {
+      this.valueChange.emit(value);
+      return;
+    }
+    this.pendingEmit = setTimeout(() => {
+      this.pendingEmit = undefined;
+      this.valueChange.emit(value);
+    }, ms);
+  }
+
+  /** Emits a still-pending debounced value right away, so a parent reacting to `enter` always
+   * sees the field's current content. */
+  private flushPendingEmit(): void {
+    if (this.pendingEmit === undefined) return;
+    clearTimeout(this.pendingEmit);
+    this.pendingEmit = undefined;
+    this.valueChange.emit(this._rawValue());
   }
 
   onAddonClick(addon: InputAddon): void {
@@ -114,6 +129,7 @@ export class Input {
   }
 
   onEnter(): void {
+    this.flushPendingEmit();
     this.enter.emit();
   }
 

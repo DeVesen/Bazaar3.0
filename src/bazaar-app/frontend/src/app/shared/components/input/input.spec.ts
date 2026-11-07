@@ -123,6 +123,57 @@ describe('Input', () => {
     });
   });
 
+  describe('valueChange before enter (USB-Barcode-Scanner)', () => {
+    afterEach(() => vi.useRealTimers());
+
+    function typeLikeScanner(fixture: ReturnType<typeof create>, text: string) {
+      const input = fixture.debugElement.query(By.css('input[pInputText]')).nativeElement as HTMLInputElement;
+      for (const ch of text) {
+        input.value += ch;
+        input.dispatchEvent(new Event('input'));
+      }
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    }
+
+    it('emits every keystroke synchronously when debounceMs is 0, so enter follows the complete value', () => {
+      const fixture = create(undefined, undefined, 0);
+      const events: string[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => events.push(`value:${v}`));
+      fixture.componentInstance.enter.subscribe(() => events.push('enter'));
+
+      typeLikeScanner(fixture, '1234');
+
+      expect(events).toEqual(['value:1', 'value:12', 'value:123', 'value:1234', 'enter']);
+    });
+
+    it('flushes a pending debounced value before enter and does not emit it a second time later', async () => {
+      vi.useFakeTimers();
+      const fixture = create(undefined, undefined, 300);
+      const events: string[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => events.push(`value:${v}`));
+      fixture.componentInstance.enter.subscribe(() => events.push('enter'));
+
+      typeLikeScanner(fixture, '1234');
+      await vi.advanceTimersByTimeAsync(300);
+
+      expect(events).toEqual(['value:1234', 'enter']);
+    });
+
+    it('emits only enter when no debounced value is pending', async () => {
+      vi.useFakeTimers();
+      const fixture = create(undefined, undefined, 300);
+      const events: string[] = [];
+      fixture.componentInstance.valueChange.subscribe((v) => events.push(`value:${v}`));
+      fixture.componentInstance.enter.subscribe(() => events.push('enter'));
+      fixture.componentInstance.onTyped('42');
+      await vi.advanceTimersByTimeAsync(300);
+
+      fixture.componentInstance.onEnter();
+
+      expect(events).toEqual(['value:42', 'enter']);
+    });
+  });
+
   describe('addons', () => {
     function createWithAddons(addonLeft: InputAddon[], addonRight: InputAddon[] = []) {
       const fixture = TestBed.createComponent(Input);

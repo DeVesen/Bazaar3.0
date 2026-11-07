@@ -15,6 +15,7 @@
 - User sees eine gelbe Info "Bitte Artikelnummer eingeben" initial sowie nach Warenkorb-Leeren und nach erfolgreicher Buchung — `checkout-page.ts` (`INITIAL_INFO_STATE`, `onCartClear`, `onPaymentConfirmed`)
 - User sees bei einem verkaufbaren Treffer "Artikel gültig – x € – Enter zum Übernehmen" — `checkout-page.ts` (`handleArticleFound`)
 - User can add the found article to the cart per zweitem Enter auf dieselbe Nummer (kein Preis-Button mehr) — `checkout-page.ts` (`onEnterPressed` → `addToCart`)
+- User can add the found article per erneutem USB-Scan derselben Nummer: die Zwischenstände beim Überschreiben verwerfen den Treffer, die vollständige Nummer stellt ihn wieder her (Clear vergisst ihn) — `checkout-page.ts` (`onTyped`, `invalidatedFind`, seit 2026-11-07)
 - User sees a warning wenn die Nummer bereits im Warenkorb liegt (lokale Prüfung, kein Server-Call) — `checkout-page.ts` (`checkArticleNumber`)
 - User sees ab 769px Breite ein zweispaltiges Layout (Eingabe 1fr / Warenkorb 2fr, max. 75vw zentriert), darunter einspaltig — `checkout-page.scss`
 - User sees den Warenkorb ab 769px höhenbegrenzt (`calc(100vh - 96px)`), die Zeilenliste scrollt intern — `checkout-page.scss` (`&__column--right`), `components/cart/cart.scss` (`&__items`)

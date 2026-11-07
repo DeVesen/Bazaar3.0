@@ -303,6 +303,41 @@ describe('ScanDialog', () => {
     });
   });
 
+  describe('USB-Barcode-Scanner (Tastatur-Emulation)', () => {
+    const pending: PendingArticleFixture[] = [
+      { id: 'A12', number: 12, name: 'Mütze', status: 'registered' },
+      { id: 'A123', number: 123, name: 'Jacke blau', status: 'registered' },
+    ];
+
+    /** Scanner tippt alle Ziffern und sofort Enter — ohne Change Detection dazwischen. */
+    function scanWithUsbScanner(fixture: Awaited<ReturnType<typeof create>>, code: string) {
+      const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+      for (const digit of code) {
+        input.value += digit;
+        input.dispatchEvent(new Event('input'));
+      }
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    }
+
+    it('enter_rightAfterScannedDigits_validatesTheCompleteNumber', async () => {
+      // Arrange
+      const article: ByNumberFixture = { id: 'A123', number: 123, name: 'Jacke blau', sellerId: 'SEL1', status: 'registered' };
+      const http = httpClientMock({ pending, byNumber: { 123: article } });
+      const fixture = await create(http);
+      await fixture.whenStable();
+      const scanCompletes: ScanCompleteEvent[] = [];
+      fixture.componentInstance.scanComplete.subscribe((e) => scanCompletes.push(e));
+
+      // Act
+      scanWithUsbScanner(fixture, '123');
+
+      // Assert
+      expect(http.get).toHaveBeenCalledWith('/api/articles/by-number/123');
+      expect(http.get).not.toHaveBeenCalledWith('/api/articles/by-number/12');
+      expect(scanCompletes).toEqual([{ articleId: 'A123', result: 'success' }]);
+    });
+  });
+
   describe('Feedback colors per result (camera mode)', () => {
     function scannerOf(fixture: Awaited<ReturnType<typeof create>>): BarcodeScanner {
       return fixture.debugElement.query(By.directive(BarcodeScanner)).componentInstance as BarcodeScanner;

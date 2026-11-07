@@ -20,7 +20,13 @@ Quelle: [docs/spec/2026-09-22-app-input.md](../../spec/2026-09-22-app-input.md).
 - Jedes Addon ist unabhängig vom `type` klickbar; Klick emittiert `addonClick` mit dem
   Addon-`key`.
 - `valueChange` ist der gedämpfte Werte-Stream, Default-Debounce 800ms, einstellbar über
-  `debounceMs` (`0` = kein Debounce).
+  `debounceMs` (`0` = kein Debounce). Bei `0` feuert `valueChange` synchron im selben
+  Tastendruck, nicht erst beim nächsten Angular-Durchlauf.
+- Enter gibt vor `enter` einen noch ausstehenden (gedämpften) Wert sofort als `valueChange` aus;
+  der Timer entfällt, der Wert kommt nicht doppelt. Ein Parent, der auf `enter` reagiert, kennt
+  damit immer den vollständigen Feldinhalt — nötig für USB-Barcode-Scanner, die Ziffern und
+  Enter innerhalb weniger Millisekunden tippen (Fix 2026-11-07: vorher kam Enter vor den
+  letzten Ziffern an, gesucht wurde eine abgeschnittene Nummer).
 - `enter`, `keyUp`, `keyDown`, `blurred` reichen das native Browser-Event sofort und ungedämpft
   durch.
 - Enter im Feld löst sowohl `(keydown.enter)` als auch `(keydown)` auf demselben nativen Event
@@ -42,7 +48,7 @@ Quelle: [docs/spec/2026-09-22-app-input.md](../../spec/2026-09-22-app-input.md).
 |---|---|---|---|
 | `label` | `string \| undefined` | `undefined` | Float-Label-Text; steuert `p-iftalabel` vs. nacktes Feld |
 | `value` | `string` | `''` | Aktueller Wert (Parent-gehalten, kein Zweiwege-Binding) |
-| `debounceMs` | `number` | `800` | Verzögerung für `valueChange`, `0` = sofort |
+| `debounceMs` | `number` | `800` | Verzögerung für `valueChange`, `0` = sofort (synchron) |
 | `addonLeft` | `InputAddon[]` | `[]` | Addons links vom Feld |
 | `addonRight` | `InputAddon[]` | `[]` | Addons rechts vom Feld |
 | `inputId` | `string \| undefined` | `undefined` | `id` des nativen `<input>` |
@@ -60,7 +66,7 @@ Icon-Werte folgen der Projekt-Konvention `pi pi-...`-CSS-Klasse.
 
 | Event | Payload | Auslöser |
 |---|---|---|
-| `valueChange` | `string` | gedämpfter Werte-Stream |
+| `valueChange` | `string` | gedämpfter Werte-Stream; vor `enter` sofort nachgereicht, falls noch ausstehend |
 | `enter` | — | Enter-Taste im Feld |
 | `keyUp` | `KeyboardEvent` | natives `keyup` |
 | `keyDown` | `KeyboardEvent` | natives `keydown` |

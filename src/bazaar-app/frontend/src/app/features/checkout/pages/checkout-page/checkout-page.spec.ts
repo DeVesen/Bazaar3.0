@@ -372,6 +372,37 @@ describe('CheckoutPage', () => {
       expect(articlesApi.getByNumber).toHaveBeenLastCalledWith(1043);
       expect(component.cartItems()).toEqual([]);
     });
+    it('typing back to the found number after a change restores the find — next Enter adds to cart', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ status: 'selling', number: 1042 })));
+      const { component } = await setup(articlesApi);
+      component.onTyped('1042');
+      component.onEnterPressed();
+
+      component.onTyped('1');
+      component.onTyped('10');
+      component.onTyped('104');
+      component.onTyped('1042');
+      component.onEnterPressed();
+
+      expect(articlesApi.getByNumber).toHaveBeenCalledTimes(1);
+      expect(component.cartItems().map((item) => item.number)).toEqual([1042]);
+    });
+
+    it('clearing the field after a find forgets it — re-entering the number starts a new lookup', async () => {
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub({ status: 'selling', number: 1042 })));
+      const { component } = await setup(articlesApi);
+      component.onTyped('1042');
+      component.onEnterPressed();
+
+      component.onAddonClick('clear');
+      component.onTyped('1042');
+      component.onEnterPressed();
+
+      expect(articlesApi.getByNumber).toHaveBeenCalledTimes(2);
+      expect(component.cartItems()).toEqual([]);
+    });
   });
 
   describe('mode toggling & addon clicks', () => {
@@ -477,6 +508,50 @@ describe('CheckoutPage', () => {
 
       expect(articlesApi.getByNumber).toHaveBeenCalledTimes(1);
       expect(numpad.enterDisabled()).toBe(true);
+    });
+  });
+
+  describe('USB-Barcode-Scanner (Tastatur-Emulation)', () => {
+    /** Scanner tippt alle Ziffern und sofort Enter — ohne Change Detection dazwischen. */
+    function scanWithUsbScanner(fixture: ReturnType<typeof TestBed.createComponent<CheckoutPage>>, code: string) {
+      const input = nativeInput(fixture);
+      for (const digit of code) {
+        input.value += digit;
+        input.dispatchEvent(new Event('input'));
+      }
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    }
+
+    it('enter_rightAfterScannedDigits_looksUpTheCompleteNumber', async () => {
+      // Arrange
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub()));
+      const { fixture } = await setup(articlesApi);
+
+      // Act
+      scanWithUsbScanner(fixture, '1042');
+
+      // Assert
+      expect(articlesApi.getByNumber).toHaveBeenCalledExactlyOnceWith(1042);
+    });
+
+    it('secondScan_sameNumberAfterArticleFound_addsToCart', async () => {
+      // Arrange
+      const articlesApi = articlesApiStub();
+      articlesApi.getByNumber.mockReturnValue(of(articleByNumberStub()));
+      const { fixture, component } = await setup(articlesApi);
+      scanWithUsbScanner(fixture, '1042');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      // Feld ist nach dem Treffer markiert — die erste gescannte Ziffer ersetzt den Inhalt.
+      nativeInput(fixture).value = '';
+
+      // Act
+      scanWithUsbScanner(fixture, '1042');
+
+      // Assert
+      expect(articlesApi.getByNumber).toHaveBeenCalledTimes(1);
+      expect(component.cartItems().map((item) => item.number)).toEqual([1042]);
     });
   });
 

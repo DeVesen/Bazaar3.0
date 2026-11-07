@@ -82,6 +82,11 @@ export class CheckoutPage {
   /** Raw field value at the moment `foundArticle` was set — typing away from it invalidates the
    * find (spec.md "Tippen nach Valid": the next Enter becomes a new lookup, not a cart add). */
   readonly resultNumber = signal<string | null>(null);
+  /** Treffer, den Tippen gerade verworfen hat. Ein USB-Scanner überschreibt das markierte Feld
+   * Ziffer für Ziffer — erst die Zwischenstände („1", „10" …) verwerfen den Treffer, die letzte
+   * Ziffer stellt ihn wieder her. So wirkt ein Scan derselben Nummer wie ein zweites ENTER
+   * (epic.md §2, Entscheidung 2026-11-06), genau wie beim Kamera-Scan. */
+  private invalidatedFind: { article: ArticleByNumberResult; number: string } | null = null;
 
   readonly cartTotal = computed(() => this.cartItems().reduce((sum, item) => sum + item.price, 0));
 
@@ -140,9 +145,18 @@ export class CheckoutPage {
 
   onTyped(value: string): void {
     this.articleNumber.set(value);
-    if (this.foundArticle() && value !== this.resultNumber()) {
+    const found = this.foundArticle();
+    const number = this.resultNumber();
+    if (found && number !== null && value !== number) {
+      this.invalidatedFind = { article: found, number };
       this.foundArticle.set(null);
       this.resultNumber.set(null);
+      return;
+    }
+    if (!found && this.invalidatedFind && value.trim() === this.invalidatedFind.number) {
+      this.foundArticle.set(this.invalidatedFind.article);
+      this.resultNumber.set(this.invalidatedFind.number);
+      this.invalidatedFind = null;
     }
   }
 
@@ -158,6 +172,7 @@ export class CheckoutPage {
         return;
       case 'clear':
         this.onTyped('');
+        this.invalidatedFind = null;
         return;
       case 'enter':
         this.onEnterPressed();
@@ -181,6 +196,7 @@ export class CheckoutPage {
 
   onNumpadClear(): void {
     this.onTyped('');
+    this.invalidatedFind = null;
   }
 
   onCodeDetected(code: string): void {
@@ -208,6 +224,7 @@ export class CheckoutPage {
     if (!trimmed) return;
     const number = Number.parseInt(trimmed, 10);
     if (!Number.isFinite(number)) return;
+    this.invalidatedFind = null;
 
     // Storno-Button "verschwindet, sobald der nächste Artikel gescannt wird" (epic.md §5) — this
     // is the single entry point every keyboard/camera/numpad lookup funnels through, so one reset
@@ -314,6 +331,7 @@ export class CheckoutPage {
     ]);
     this.foundArticle.set(null);
     this.resultNumber.set(null);
+    this.invalidatedFind = null;
     this.articleNumber.set('');
     this.infoState.set({ type: 'success', text: 'Nächsten Artikel eingeben …' });
     this.showResult('cart');
@@ -434,6 +452,7 @@ export class CheckoutPage {
     this.articleNumber.set('');
     this.foundArticle.set(null);
     this.resultNumber.set(null);
+    this.invalidatedFind = null;
   }
 
   /** Extracted since it is called from multiple places (init, after found/error results,
