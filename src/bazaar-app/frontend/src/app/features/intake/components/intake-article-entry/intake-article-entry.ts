@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
+import { TooltipModule } from 'primeng/tooltip';
 import { AutocompleteCreate } from '../../../../shared/components/autocomplete-create/autocomplete-create';
 import { InputGroup, InputGroupStatus } from '../../../../shared/components/input-group/input-group';
 import { Input, InputAddon } from '../../../../shared/components/input/input';
@@ -13,7 +14,7 @@ import { Numpad } from '../../../../shared/components/numpad/numpad';
 // Artikelnummer-Prüfung/Nummernvorschlag — same sanctioned pattern as the other cross-feature
 // imports below (`CategoriesApi`/`BrandsApi`/`SellersApi`).
 // eslint-disable-next-line boundaries/dependencies
-import { ArticleByNumberResult, ArticlesApi } from '../../../articles/data/articles-api';
+import { ArticleByNumberResult, ArticleDetail, ArticlesApi } from '../../../articles/data/articles-api';
 // Cross-feature import, read-only: `CategoriesApi.getAll()`/`.create()` populates the category
 // field, same sanctioned pattern `artikel-dialog.ts` already uses.
 // eslint-disable-next-line boundaries/dependencies
@@ -26,6 +27,7 @@ import { Brand, BrandsApi } from '../../../brands/data/brands-api';
 import { SellersApi } from '../../../sellers/data/sellers-api';
 import { BookingConflict, IntakeSessionList } from '../intake-session-list/intake-session-list';
 import { SessionItemFormValue } from '../session-item-popup/session-item-popup';
+import { PreRegisteredArticle, PreRegisteredArticlesDialog } from '../pre-registered-articles-dialog/pre-registered-articles-dialog';
 
 /**
  * A single article entered into THIS intake session, held locally until the whole session is
@@ -86,12 +88,14 @@ export interface SessionArticle {
     FormsModule,
     ButtonModule,
     TextareaModule,
+    TooltipModule,
     AutocompleteCreate,
     InputGroup,
     Input,
     Numpad,
     IntakeSessionList,
     ResultOverlay,
+    PreRegisteredArticlesDialog,
   ],
   templateUrl: './intake-article-entry.html',
   styleUrl: './intake-article-entry.scss',
@@ -192,9 +196,9 @@ export class IntakeArticleEntry {
    * zurück. */
   private checkedNumber: string | null = null;
 
-  /** Gesetzt, sobald ein vorregistrierter Artikel (Status „Registriert", aktueller Verkäufer) per
-   * Nummerneingabe geladen wurde — die Ursprungsnummer, die beim finalen Buchen als
-   * `deleteArticleNumber` mitgeschickt wird, falls die Nummer danach geändert wird. */
+  /** Gesetzt, sobald ein vorregistrierter Artikel (Status „Registriert", aktueller Verkäufer) über
+   * den Dialog „Aus Voranmeldung übernehmen" geladen wurde — die Ursprungsnummer, die beim finalen
+   * Buchen als `deleteArticleNumber` mitgeschickt wird, falls die Nummer danach geändert wird. */
   readonly originalNumber = signal<number | null>(null);
 
   /** Hinweistext unter dem Nummernfeld, solange ein vorregistrierter Artikel geladen ist
@@ -204,7 +208,7 @@ export class IntakeArticleEntry {
     if (original === null) return null;
     const typed = this.articleNumber().trim();
     if (typed.length === 0 || typed === String(original)) {
-      return `Aus Voranmeldung geladen (Nr. ${original}). Andere Nummer eingeben und Enter drücken, um den Artikel umzunummerieren.`;
+      return `Aus Voranmeldung übernommen (Nr. ${original}). Andere Nummer eingeben oder scannen, um den Artikel umzunummerieren.`;
     }
     return `Artikelwandlung: Wird als Nr. ${typed} neu angelegt, Nr. ${original} wird gelöscht.`;
   });
@@ -221,6 +225,25 @@ export class IntakeArticleEntry {
    * re-fetching.
    */
   readonly feePerItem = signal(0);
+
+  /** Alle Artikel des Verkäufers mit Status „Registriert" (Voranmeldung), geladen beim Start und
+   * bei jedem Öffnen des Dialogs „Aus Voranmeldung übernehmen". */
+  private readonly registeredArticles = signal<PreRegisteredArticle[]>([]);
+  readonly preRegisteredLoading = signal(false);
+  readonly preRegisteredDialogVisible = signal(false);
+
+  /** Dialog-Liste ohne Artikel, die in dieser Sitzung schon übernommen wurden (gleiche Nummer
+   * bzw. umnummeriert, `originalNumberToDelete`) — sonst würde derselbe Artikel doppelt gebucht. */
+  readonly preRegisteredArticles = computed(() => {
+    const taken = new Set(this.items().map((item) => item.originalNumberToDelete ?? item.number));
+    return this.registeredArticles().filter((article) => !taken.has(article.number));
+  });
+
+  /** Badge an der Voranmeldungs-Schaltfläche: Anzahl noch offener Artikel, leer bei 0. */
+  readonly preRegisteredBadge = computed(() => {
+    const count = this.preRegisteredArticles().length;
+    return count > 0 ? String(count) : undefined;
+  });
 
   private readonly pendingNumberValue = signal<string | null>(null);
 
@@ -261,6 +284,7 @@ export class IntakeArticleEntry {
       const id = this.sellerId();
       if (!id) return;
       this.sellersApi.getById(id).subscribe((seller) => this.feePerItem.set(seller.feePerItem));
+      this.loadRegisteredArticles(id);
     });
 
     // Nummernvorschlag (spec.md): pre-fill Artikelnummer once on init.
@@ -495,6 +519,88 @@ export class IntakeArticleEntry {
     this.resultEvent.set(createResultEvent('success'));
   }
 
+  /** Schaltfläche „Aus Voranmeldung übernehmen": Liste frisch laden und Dialog öffnen. */
+  onOpenPreRegisteredDialog(): void {
+    this.loadRegisteredArticles(this.sellerId());
+    this.preRegisteredDialogVisible.set(true);
+  }
+
+  onPreRegisteredDialogVisibleChange(visible: boolean): void {
+    this.preRegisteredDialogVisible.set(visible);
+  }
+
+  /**
+   * Auswahl im Dialog (feuert erst nach dessen Schließen): Stammdaten inkl. Beschreibung frisch
+   * laden, alle Felder samt Artikelnummer befüllen, Nummer als geprüft markieren und komplett
+   * markiert ins Nummernfeld fokussieren — direkt „Übernehmen" oder eine neue Nummer eingeben/
+   * scannen (Artikelwandlung). Ist der Artikel inzwischen nicht mehr „Registriert", erscheint der
+   * Fehler wie bei der Nummernprüfung.
+   */
+  onPreRegisteredArticleSelected(selected: PreRegisteredArticle): void {
+    // Laufende Nummernvorschläge/-prüfungen dürfen den übernommenen Artikel nicht überschreiben.
+    const seq = ++this.numberFieldSeq;
+    this.articlesApi.getById(selected.id).subscribe({
+      next: (article) => {
+        if (seq !== this.numberFieldSeq) return;
+        if (article.sellerId !== this.sellerId() || article.status !== 'registered') {
+          this.loadRegisteredArticles(this.sellerId());
+          this.applyNumberToField(String(article.number));
+          this.markNumberTaken('Artikelnummer bereits vergeben (Artikel bereits freigegeben)', true);
+          return;
+        }
+        this.applyPreRegisteredArticle(article);
+      },
+      error: () => {
+        if (seq === this.numberFieldSeq) this.loadRegisteredArticles(this.sellerId());
+      },
+    });
+  }
+
+  private applyPreRegisteredArticle(article: ArticleDetail): void {
+    this.numberTakenMessage.set(null);
+    this.numberStatus.set(null);
+    this.fieldErrors.set({});
+    this.priceNumpadVisible.set(false);
+    this.loadPreRegisteredArticle(article);
+    const number = String(article.number);
+    this.applyNumberToField(number);
+    this.checkedNumber = number;
+    this.verifiedNumber.set(number);
+    this.selectNumberField();
+  }
+
+  /** Setzt die Nummer direkt ins Feld (ohne Prüfung) — `articleNumber` vorab gesetzt, damit das
+   * nachlaufende `valueChange` des Felds als unverändert erkannt wird. */
+  private applyNumberToField(number: string): void {
+    this.articleNumber.set(number);
+    this.numberInputGroup()?.applyExternalValue(number);
+  }
+
+  private loadRegisteredArticles(sellerId: string): void {
+    if (!sellerId) return;
+    this.preRegisteredLoading.set(true);
+    this.sellersApi.getArticles(sellerId).subscribe({
+      next: (articles) => {
+        this.registeredArticles.set(
+          articles
+            .filter((article) => article.status === 'registered')
+            .map(({ id, number, name, category, brand, size, color, price }) => ({
+              id,
+              number,
+              name,
+              category,
+              brand,
+              size,
+              color,
+              price,
+            })),
+        );
+        this.preRegisteredLoading.set(false);
+      },
+      error: () => this.preRegisteredLoading.set(false),
+    });
+  }
+
   /** `intake-session-list`'s `itemDeleted` — pure in-memory session state, no confirm dialog
    * needed (unlike the Round-15 artikel-dialog's DB-backed delete). */
   onItemDeleted(localId: string): void {
@@ -538,12 +644,13 @@ export class IntakeArticleEntry {
     this.pendingNumberValue.set(String(event.nextNumber));
   }
 
-  /** Artikelnummer-Prüfung (Epic_Artikelannahme), vier Fälle:
+  /** Artikelnummer-Prüfung (Epic_Artikelannahme):
    * - unbekannt (404): frei → grünes OK, Fokus in die Bezeichnung (bei Artikelwandlung auf „Übernehmen");
    * - anderer Verkäufer ODER eigener Artikel mit Status ungleich „Registriert": rotes X,
    *   Eingabe voll selektiert, Fehlertext;
-   * - eigener Artikel mit Status „Registriert" (Voranmeldung): Felder werden befüllt
-   *   (Artikelwandlung), Nummer voll selektiert zum direkten Überschreiben. */
+   * - eigener Artikel mit Status „Registriert" (Voranmeldung): rotes X mit Verweis auf den Dialog
+   *   „Aus Voranmeldung übernehmen" — außer es ist die Nummer des dort geladenen Artikels selbst
+   *   (dann weiter zu „Übernehmen"). */
   private checkArticleNumber(raw: string, moveFocus: boolean): void {
     // Jede echte Prüfung macht noch laufende Antworten (Nummernvorschlag, ältere Prüfung) ungültig.
     const seq = ++this.numberFieldSeq;
@@ -582,16 +689,19 @@ export class IntakeArticleEntry {
       return;
     }
 
-    // Wiederholtes Enter auf der bereits geladenen Nummer: nichts neu laden, Eingaben behalten,
-    // weiter zu „Übernehmen" (Übernahme unter gleicher Nummer).
+    // Enter auf der Nummer des über den Dialog geladenen Artikels: Eingaben behalten, weiter zu
+    // „Übernehmen" (Übernahme unter gleicher Nummer).
     if (this.originalNumber() === article.number) {
       this.verifiedNumber.set(typed);
       if (moveFocus) this.focusSubmitButton();
       return;
     }
-    this.loadPreRegisteredArticle(article);
-    this.verifiedNumber.set(typed);
-    if (moveFocus) this.selectNumberField();
+    // Voranmeldungs-Artikel werden nicht mehr über die Nummerneingabe geladen, sondern nur noch über
+    // den Dialog „Aus Voranmeldung übernehmen".
+    this.markNumberTaken(
+      'Artikel aus der Voranmeldung — bitte über „Aus Voranmeldung übernehmen" laden',
+      moveFocus,
+    );
   }
 
   private handleArticleLookupError(error: unknown, typed: string, moveFocus: boolean): void {
@@ -615,9 +725,9 @@ export class IntakeArticleEntry {
     if (moveFocus) this.selectNumberField();
   }
 
-  /** Befüllt alle Formularfelder (außer der Nummer, die der Anwender gerade selbst eingegeben
-   * hat) aus dem vorregistrierten Artikel und merkt dessen Nummer als Löschkandidat. */
-  private loadPreRegisteredArticle(article: ArticleByNumberResult): void {
+  /** Befüllt alle Formularfelder außer der Nummer aus dem vorregistrierten Artikel und merkt
+   * dessen Nummer als Löschkandidat. */
+  private loadPreRegisteredArticle(article: ArticleDetail): void {
     this.originalNumber.set(article.number);
     this.onNameChange(article.name);
     this.category.set(article.category);

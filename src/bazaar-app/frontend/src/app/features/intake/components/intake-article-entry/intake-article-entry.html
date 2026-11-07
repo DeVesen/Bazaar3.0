@@ -23,6 +23,21 @@
         }
       </div>
 
+      <div class="intake-article-entry__number-actions">
+        <p-button
+          icon="pi pi-cloud-download"
+          [outlined]="true"
+          severity="secondary"
+          ariaLabel="Aus Voranmeldung übernehmen"
+          pTooltip="Aus Voranmeldung übernehmen"
+          tooltipPosition="top"
+          [badge]="preRegisteredBadge()"
+          badgeSeverity="info"
+          styleClass="intake-article-entry__pre-registered-button"
+          (onClick)="onOpenPreRegisteredDialog()"
+        />
+      </div>
+
       <div class="intake-article-entry__field intake-article-entry__field--full">
         <label for="intake-article-entry-name">Bezeichnung <span class="intake-article-entry__required">*</span></label>
         <app-input
@@ -155,6 +170,14 @@
       (brandCreated)="onBrandCreated($event)"
     />
   </div>
+
+  <app-pre-registered-articles-dialog
+    [visible]="preRegisteredDialogVisible()"
+    [articles]="preRegisteredArticles()"
+    [loading]="preRegisteredLoading()"
+    (visibleChange)="onPreRegisteredDialogVisibleChange($event)"
+    (articleSelected)="onPreRegisteredArticleSelected($event)"
+  />
 
   <app-result-overlay [event]="resultEvent()" />
 </div>

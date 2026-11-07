@@ -54,7 +54,7 @@ describe('IntakePage', () => {
     await TestBed.configureTestingModule({
       imports: [IntakePage],
       providers: [
-        { provide: SellersApi, useValue: { search, getById: () => of({ feePerItem: 0 }) } },
+        { provide: SellersApi, useValue: { search, getById: () => of({ feePerItem: 0 }), getArticles: () => of([]) } },
         { provide: SellerTypesApi, useValue: { getAll: () => of([]) } },
         { provide: RoleService, useValue: { isAdmin: () => false } },
         { provide: MessageService, useValue: { add: vi.fn() } },

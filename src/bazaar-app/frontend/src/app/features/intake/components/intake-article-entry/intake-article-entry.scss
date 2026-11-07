@@ -26,6 +26,22 @@
     }
   }
 
+  // Aktionsbereich rechts neben der Artikelnummer: Schaltflächen auf Höhe des Eingabefelds
+  // (unter der Label-Zeile), linksbündig.
+  &__number-actions {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    // Label-Zeile des Nachbarfelds überspringen (Zeilenhöhe + Feld-Gap).
+    padding-top: calc(1lh + 0.25rem);
+
+    // Gleiche Höhe wie das Artikelnummer-Eingabefeld (37 px bei 16 px Root).
+    ::ng-deep .intake-article-entry__pre-registered-button {
+      height: 2.3125rem;
+      min-width: 2.75rem;
+    }
+  }
+
   &__required {
     color: var(--p-red-500);
   }
@@ -60,6 +76,10 @@
 
     &__grid {
       grid-template-columns: 1fr;
+    }
+
+    &__number-actions {
+      padding-top: 0;
     }
 
     &__actions {

@@ -1,0 +1,28 @@
+.pre-registered-articles-dialog {
+  &__hint {
+    margin: 0 0 0.75rem;
+    color: var(--p-text-muted-color);
+  }
+
+  // Füllt den restlichen Dialog-Body; `scrollHeight="flex"` lässt die Tabelle darin scrollen
+  // (Kopfzeile bleibt stehen).
+  &__table {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  &__row {
+    cursor: pointer;
+  }
+
+  &__col--right {
+    text-align: right;
+  }
+
+  &__empty {
+    text-align: center;
+    color: var(--p-text-muted-color);
+  }
+}
