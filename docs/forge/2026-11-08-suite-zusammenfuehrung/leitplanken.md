@@ -33,6 +33,7 @@ bewährt und ausgereifter. Die Voranmelde-App gilt nur dort, wo die Haupt-App ni
 - **Eine Codebasis**, fachlich in Module gegliedert (modularer Monolith in Hexagonal-Architektur), mit einem Modul je Fachbereich.
 - Für die Lastisolation wird sie in **mehrere Container** ausgeliefert (siehe [Zielbild](architektur/zielbild.md), E2). Keine feingranularen Microservices.
 - Module sprechen einander nur über ihre veröffentlichten Schnittstellen an. Die Datenhoheit liegt je Modul in einem eigenen Schema.
+- **Für die Fachplanung gesetzt:** Das Backend ist ein **hexagonaler Monolith**. Seine technische Architektur ist nicht Gegenstand der Fachgespräche. Fachlich geklärt wird nur, was Frontend (Anzeige, Bedienung) und was Backend (Regeln, Daten) ist.
 
 ## L4 – Öffentliches ist strikt getrennt
 

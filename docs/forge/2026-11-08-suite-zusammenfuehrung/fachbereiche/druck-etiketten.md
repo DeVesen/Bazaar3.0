@@ -1,9 +1,9 @@
 # Fachbereich Druck und Etiketten
 
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
-Lesen zusammen mit: [nummern](../querschnitt/nummern.md) · [annahme](annahme.md)
+Lesen zusammen mit: [nummern](../querschnitt/nummern.md) · [annahme](annahme.md) · [datenfluesse](../querschnitt/datenfluesse.md)
 Entscheidungen: E3, E4
-Schlagworte: Druck, Etikett, Etiketten-Vordruck, Blanko-Etikett, Selbstdruck, Bogenformat, Abgabe-Beleg, Abrechnungsbeleg, Artikel-Aushang, QR-Inhalt
+Schlagworte: Druck, Etikett, Etiketten-Vordruck, Blanko-Etikett, Selbstdruck, Bogenformat, Abgabe-Beleg, Abrechnungsbeleg, Artikel-Aushang, QR-Inhalt, Datenfluss
 
 ## Zweck und Abgrenzung
 
@@ -30,6 +30,15 @@ Abrechnungsbeleg, Artikel-Aushang.
 
 - Etiketten-Layouts und Bogenformate sind Admin-Einstellungen, ab jetzt in einem Bestand für alle Basare.
 - **QR-Inhalt:** Heute ist es nur die Zahl. Zu klären ist, ob er künftig eine Basar-Kennung enthält, als Schutz gegen Vorjahres-Etiketten ([nummern](../querschnitt/nummern.md)).
+
+## Datenflüsse: rein / raus
+
+Nummern laut [datenfluesse](../querschnitt/datenfluesse.md). Änderungen an Flüssen werden dort eingetragen, nicht hier.
+
+| Richtung | Flüsse |
+|---|---|
+| **rein** (nutzt) | D6 Artikelliste, D9 Abgabe-Beleg, D12/D14 vorläufiger Beleg, D16 Abrechnungsbeleg, D1 Nummernbereiche (Blanko-Etiketten) |
+| **raus** (liefert) | – (Druckstücke auf Papier; keine Daten an andere Bereiche) |
 
 ## Berührungspunkte
 

@@ -60,7 +60,8 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 
 ## Suite-Planung (Zusammenführung der Apps)
 
-- Planungs-Hub: [`docs/forge/2026-11-08-suite-zusammenfuehrung/README.md`](docs/forge/2026-11-08-suite-zusammenfuehrung/README.md); Arbeit daran über Skill `suite-plan`.
+- Planungs-Hub: [`docs/forge/2026-11-08-suite-zusammenfuehrung/README.md`](docs/forge/2026-11-08-suite-zusammenfuehrung/README.md); Pflege und Struktur über Skill `suite-plan`, Fachbereiche und Datenflüsse besprechen über Skill `suite-fachgespraech`.
+- Technische Architektur ist dort gesetzt (Backend = hexagonaler Monolith) und nicht Gegenstand der Fachplanung.
 - Bei Unklarheiten zwischen den Apps ist für die Suite-Planung die Haupt-App federführend (E25).
 
 ## dv-forge

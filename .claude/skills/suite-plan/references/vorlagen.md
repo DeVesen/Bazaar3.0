@@ -24,6 +24,17 @@ Schlagworte: ⟨Stichwort, Synonym, englischer Code-Name, …⟩
 
 ⟨Soll der Suite. Regeln aus Querschnitt nur verlinken, nicht wiederholen.⟩
 
+## Datenflüsse: rein / raus
+
+(nur in Fachbereich-Dokumenten)
+
+Nummern laut [datenfluesse](../querschnitt/datenfluesse.md). Änderungen an Flüssen werden dort eingetragen, nicht hier.
+
+| Richtung | Flüsse |
+|---|---|
+| **rein** (nutzt) | D⟨n⟩ ⟨Kurzname⟩, … |
+| **raus** (liefert) | D⟨n⟩ ⟨Kurzname⟩, … |
+
 ## Berührungspunkte
 
 - [⟨dokument⟩](⟨pfad⟩): ⟨worin⟩
@@ -35,6 +46,12 @@ Schlagworte: ⟨Stichwort, Synonym, englischer Code-Name, …⟩
 ## Nächste Planungsschritte
 
 - ⟨Schritt⟩
+```
+
+## Datenfluss (Zeile in `querschnitt/datenfluesse.md`, Landkarte)
+
+```markdown
+| D⟨n⟩ | ⟨Daten⟩ | ⟨von: Fachbereich/Rolle⟩ | ⟨an⟩ | ⟨Auslöser / wann⟩ | ⟨Zustand danach⟩ | ⟨wer darf danach ändern⟩ |
 ```
 
 ## Entscheidung (Zeile in `entscheidungen.md`)

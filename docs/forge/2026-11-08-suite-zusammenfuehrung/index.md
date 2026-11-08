@@ -19,8 +19,8 @@ Pfade relativ zu diesem Ordner. `E…` = [entscheidungen](entscheidungen.md), `L
 | Abholung durch Dritte | Legitimation, abgeholt durch | fachbereiche/rueckgabe-abrechnung.md | – |
 | Abrechnung | Settlement, Auszahlung, Payout | fachbereiche/rueckgabe-abrechnung.md | querschnitt/datenmodell.md, E9 |
 | Admin | Administrator, Organisator | querschnitt/identitaet-rollen.md | fachbereiche/verwaltung.md, E11 |
-| Änderungssperre | Sperre, gesperrt, Lock, read-only | querschnitt/artikel-lebenszyklus.md | E5, E5b, Z6 |
 | Altlasten | Befunde, technische Schulden, V1–V10, B1 | architektur/migration.md | roadmap.md (Etappe 1) |
+| Änderungssperre | Sperre, gesperrt, Lock, read-only | querschnitt/artikel-lebenszyklus.md | E5, E5b, Z6 |
 | Annahme | Artikelannahme, Intake, Abgabe, Freigabe-Scan, Übergabe | fachbereiche/annahme.md | querschnitt/artikel-lebenszyklus.md, L2 |
 | Annahmegebühr | Abgabegebühr, IntakeFee, Gebühr pro Stück, feePerItem | glossar.md | fachbereiche/annahme.md, E9 |
 | API-Konventionen | Schnittstelle, Endpunkt, Route, cross-cutting | querschnitt/api-konventionen.md | L8, E26 |
@@ -43,6 +43,7 @@ Pfade relativ zu diesem Ordner. `E…` = [entscheidungen](entscheidungen.md), `L
 | Container | Image, Baustein, Deployable | architektur/zielbild.md | E2, glossar-technik.md |
 | Countdown | Termin-Anzeige, Countdown-Widget | fachbereiche/voranmeldung.md | fachbereiche/oeffentlicher-katalog.md |
 | Datenbank | DB, PostgreSQL, Schema | architektur/zielbild.md | querschnitt/datenmodell.md, E0 |
+| Datenfluss | Datenaustausch, D-Nummer, liefert, nutzt, rein/raus, Zusammenspiel | querschnitt/datenfluesse.md | alle fachbereiche/* (Abschnitt Datenflüsse) |
 | Datenhoheit | Ownership, wer schreibt, Verantwortung | querschnitt/datenmodell.md | querschnitt/artikel-lebenszyklus.md |
 | Datenmodell | Entität, Entity, Tabelle | querschnitt/datenmodell.md | – |
 | Datenschutz | DSGVO, AVV, Löschkonzept, Privacy | querschnitt/datenschutz.md | L11 |
@@ -57,14 +58,16 @@ Pfade relativ zu diesem Ordner. `E…` = [entscheidungen](entscheidungen.md), `L
 | Etappe | Phase, Meilenstein, Roadmap | roadmap.md | – |
 | Etikett | Label, Preisschild, QR | querschnitt/nummern.md | fachbereiche/druck-etiketten.md, E3 |
 | Export / Import (JSON) | Datei-Übergabe, Stammdaten-Import | architektur/migration.md | E0 (entfällt), roadmap.md Etappe 3 |
+| Fachgespräch | Stimmen, Fachpersonal, Projektleiter, Projektmanager, fachlicher Architekt | README.md §6 | Skill suite-fachgespraech |
 | Feld-Katalog | Formularfelder, gleiche Felder | querschnitt/auswahlfelder-stammdaten.md | L6 |
 | Frontend | Oberfläche, UI, Portal, Basar, Katalog | querschnitt/ui-grundlagen.md | E19, Z7 |
+| Frontend oder Backend | Anzeige vs. Regel, wo gilt die Regel | leitplanken.md (L3, L7) | Skill suite-fachgespraech |
 | Generalprobe | Probelauf, Staging, Testumgebung | architektur/betrieb.md | roadmap.md |
 | Gespendet | Spende, Abholfrist | querschnitt/artikel-lebenszyklus.md | fachbereiche/rueckgabe-abrechnung.md, E18 |
 | Glossar | Begriffe, Definitionen | glossar.md | glossar-technik.md |
 | Händler | Dealer, Gewerblich, Verkäufer-Typ | fachbereiche/voranmeldung.md | querschnitt/identitaet-rollen.md |
 | Haupt-App führend | Unklarheit, Widerspruch, maßgeblich | leitplanken.md (L0) | E25 |
-| Hexagonal | Ports & Adapter, Clean Architecture | architektur/zielbild.md | L3, glossar-technik.md |
+| Hexagonal | Ports & Adapter, Clean Architecture, hexagonaler Monolith (gesetzt) | architektur/zielbild.md | L3, glossar-technik.md |
 | Im Verkauf | Selling, released, freigegeben | querschnitt/artikel-lebenszyklus.md | fachbereiche/oeffentlicher-katalog.md |
 | Inselmodus | Offline, Notbetrieb lokal | architektur/betrieb.md | E1b |
 | Internet am Basar-Ort | Leitung, Konnektivität, Uplink, WLAN | architektur/betrieb.md | E1, E1b, R1 |
@@ -77,8 +80,8 @@ Pfade relativ zu diesem Ordner. `E…` = [entscheidungen](entscheidungen.md), `L
 | Konditionen | Provision, Gebühr, commission, feePerItem | querschnitt/auswahlfelder-stammdaten.md | fachbereiche/rueckgabe-abrechnung.md, E9 |
 | Konto | Account, Benutzer, User | querschnitt/identitaet-rollen.md | E11 |
 | Kosten | Budget, laufende Kosten | architektur/betrieb.md | E13, R9 |
-| Laufkunde | Walk-in, vor Ort angelegt | fachbereiche/annahme.md | querschnitt/identitaet-rollen.md, E8 |
 | Lastisolation | Last, Traffic, Skalierung | architektur/zielbild.md | L4, L5, E2 |
+| Laufkunde | Walk-in, vor Ort angelegt | fachbereiche/annahme.md | querschnitt/identitaet-rollen.md, E8 |
 | Lebenszyklus | Zustand, Status, State | querschnitt/artikel-lebenszyklus.md | – |
 | Leitplanken | Grundsätze, Regeln, Ein Guss | leitplanken.md | – |
 | Löschkonzept | Löschfrist, Aufbewahrung, Anonymisierung | querschnitt/datenschutz.md | E7 |

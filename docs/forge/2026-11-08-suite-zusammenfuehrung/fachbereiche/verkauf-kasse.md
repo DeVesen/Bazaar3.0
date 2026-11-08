@@ -1,9 +1,9 @@
 # Fachbereich Verkauf / Kasse
 
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
-Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [betrieb](../architektur/betrieb.md) · [leitplanken](../leitplanken.md) (L5)
+Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [betrieb](../architektur/betrieb.md) · [leitplanken](../leitplanken.md) (L5) · [datenfluesse](../querschnitt/datenfluesse.md)
 Entscheidungen: E1, E1b, E12
-Schlagworte: Kasse, Verkauf, Warenkorb, Kassenvorgang, Storno, Doppelverkauf, Scan, Antwortzeit, Notbetrieb, Nacherfassung, Preisaktion
+Schlagworte: Kasse, Verkauf, Warenkorb, Kassenvorgang, Storno, Doppelverkauf, Scan, Antwortzeit, Notbetrieb, Nacherfassung, Preisaktion, Datenfluss
 
 ## Zweck und Abgrenzung
 
@@ -37,6 +37,15 @@ Haupt-App: [`Epic_Verkauf`](../../../requirements/bazaar-app/epics/Epic_Verkauf/
 - **Wirkung nach außen:**
   - Ein verkaufter Artikel verschwindet innerhalb etwa einer Minute aus dem Katalog.
   - Der Verkäufer sieht „verkauft“.
+
+## Datenflüsse: rein / raus
+
+Nummern laut [datenfluesse](../querschnitt/datenfluesse.md). Änderungen an Flüssen werden dort eingetragen, nicht hier.
+
+| Richtung | Flüsse |
+|---|---|
+| **rein** (nutzt) | D9 Artikel im Verkauf mit Basar-Tag-Nummer und Preis |
+| **raus** (liefert) | **D12 Kassenvorgang**, D13 Sicht für den Verkäufer, D11 öffentliche Liste (verkauft → weg) |
 
 ## Berührungspunkte
 

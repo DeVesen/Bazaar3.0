@@ -1,9 +1,9 @@
 # Fachbereich Annahme – Übergabe Verkäufer → Basar-Team
 
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
-Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [nummern](../querschnitt/nummern.md) · [druck-etiketten](druck-etiketten.md)
+Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [nummern](../querschnitt/nummern.md) · [druck-etiketten](druck-etiketten.md) · [datenfluesse](../querschnitt/datenfluesse.md)
 Entscheidungen: E3, E4, E8, E9, E12
-Schlagworte: Annahme, Artikelannahme, Abgabe, Freigabe-Scan, Übergabe, Annahmetisch, Annahmegebühr, Abgabe-Beleg, Ablehnen, Laufkunde, Nachmeldung, Massenannahme
+Schlagworte: Annahme, Artikelannahme, Abgabe, Freigabe-Scan, Übergabe, Annahmetisch, Annahmegebühr, Abgabe-Beleg, Ablehnen, Laufkunde, Nachmeldung, Massenannahme, Datenfluss
 
 ## Zweck und Abgrenzung
 
@@ -43,6 +43,15 @@ Haupt-App: [`Epic_Artikelannahme`](../../../requirements/bazaar-app/epics/Epic_A
 
 - Massenannahme ist möglich: alle Artikel eines Verkäufers per Scan-Serie, ohne Dialog je Artikel.
 - Der Dialog öffnet nur bei Abweichungen.
+
+## Datenflüsse: rein / raus
+
+Nummern laut [datenfluesse](../querschnitt/datenfluesse.md). Änderungen an Flüssen werden dort eingetragen, nicht hier.
+
+| Richtung | Flüsse |
+|---|---|
+| **rein** (nutzt) | D1, D2, D4 Konditionen-Vorlage, D5 Verkäufer und Teilnahme, D6 Artikel im Entwurf |
+| **raus** (liefert) | D7 Laufkunde, D8 Nachmeldung, **D9 Annahme**, D10 Sicht für den Verkäufer, D11 öffentliche Liste (neu im Verkauf) |
 
 ## Berührungspunkte
 

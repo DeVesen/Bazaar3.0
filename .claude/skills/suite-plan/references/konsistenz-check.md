@@ -16,6 +16,7 @@ Ziel: Der Plan bleibt aus einem Guss. Mit Grep, Glob und Read prüfen (plattform
 | K9 | **Prüfvermerke offen** | Grep `⚠ prüfen` | dem Nutzer melden, abarbeiten oder bewusst stehen lassen |
 | K10 | **Länge** | Zeilen der geänderten Teildokumente zählen (Read zeigt Zeilennummern) | über ~150 Zeilen aufteilen (Ablauf F); Nachschlagewerke ausgenommen |
 | K11 | **Ebene** | Nach Implementierungsdetails suchen (Klassennamen, Spaltentypen, HTTP-Verben in Ziel-Abschnitten) | auf Stakeholder-Ebene zurückführen oder als „Hinweis für die Umsetzung“ kennzeichnen |
+| K12 | **Datenflüsse stimmig** | Jede D-Nummer aus den Tabellen „Datenflüsse: rein / raus“ per Grep `^\| D⟨n⟩ ` in `querschnitt/datenfluesse.md` prüfen. Steht D⟨n⟩ bei A unter „raus“, muss es beim Empfänger unter „rein“ stehen. | Landkarte bzw. Fachbereich angleichen |
 
 Ergebnis an den Nutzer: Tabelle der Befunde mit Datei, Prüfung und Vorschlag. Behoben wird erst nach Zustimmung, außer bei
 reinen Formfehlern (K1, K2, K8).

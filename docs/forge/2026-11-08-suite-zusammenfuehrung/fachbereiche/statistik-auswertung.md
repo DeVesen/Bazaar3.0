@@ -1,9 +1,9 @@
 # Fachbereich Statistik und Auswertung
 
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
-Lesen zusammen mit: [datenmodell](../querschnitt/datenmodell.md) · [leitplanken](../leitplanken.md) (L5)
+Lesen zusammen mit: [datenmodell](../querschnitt/datenmodell.md) · [leitplanken](../leitplanken.md) (L5) · [datenfluesse](../querschnitt/datenfluesse.md)
 Entscheidungen: E6, E7
-Schlagworte: Statistik, Auswertung, Kennzahl, KPI, Dashboard, Umsatz, Vergleich über Basare, Heatmap
+Schlagworte: Statistik, Auswertung, Kennzahl, KPI, Dashboard, Umsatz, Vergleich über Basare, Heatmap, Datenfluss
 
 ## Zweck und Abgrenzung
 
@@ -27,6 +27,15 @@ Kennzahlen und Dashboards für Admin, Team und Verkäufer, vor, während und nac
 
 - **Kasse hat Vorrang (L5):** Teure Auswertungen dürfen die Kasse nicht bremsen. Sie werden vorberechnet oder laufen gedrosselt.
 - **Grundlage sind die Kassenvorgänge** als eigene Datensätze ([verkauf-kasse](verkauf-kasse.md)).
+
+## Datenflüsse: rein / raus
+
+Nummern laut [datenfluesse](../querschnitt/datenfluesse.md). Änderungen an Flüssen werden dort eingetragen, nicht hier.
+
+| Richtung | Flüsse |
+|---|---|
+| **rein** (nutzt) | D9, D12, D14, D16 (Ereignisse des Basar-Tags), D5/D6/D7 (Verkäufer und Artikel) |
+| **raus** (liefert) | D18 Kennzahlen an Verwaltung (Dashboard), Voranmeldung (eigene Kennzahlen) und Katalog (nur Aggregate) |
 
 ## Berührungspunkte
 

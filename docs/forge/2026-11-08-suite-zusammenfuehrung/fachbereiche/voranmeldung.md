@@ -1,9 +1,9 @@
 # Fachbereich Voranmeldung (Portal für Verkäufer und Händler)
 
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
-Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [nummern](../querschnitt/nummern.md) · [identitaet-rollen](../querschnitt/identitaet-rollen.md)
+Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [nummern](../querschnitt/nummern.md) · [identitaet-rollen](../querschnitt/identitaet-rollen.md) · [datenfluesse](../querschnitt/datenfluesse.md)
 Entscheidungen: E5, E5b, E6, E11
-Schlagworte: Voranmeldung, Portal, Registrierung, Profil, Meine Artikel, Händler, Privatverkäufer, Artikel erfassen, Import CSV, Countdown, Status-Sicht, Ergebnis, Wiederverwenden
+Schlagworte: Voranmeldung, Portal, Registrierung, Profil, Meine Artikel, Händler, Privatverkäufer, Artikel erfassen, Import CSV, Countdown, Status-Sicht, Ergebnis, Wiederverwenden, Datenfluss
 
 ## Zweck und Abgrenzung
 
@@ -46,6 +46,15 @@ Login, Profil, Meine_Artikel, Nummernbloecke, Home_Verkaeufer, Countdown_Widget.
 - Countdown bis zum nächsten Termin.
 - Kennzahlen: Artikel, angenommen, verkauft, vorläufiger Wert.
 - Nach dem Basar: Ergebnis und Beleg.
+
+## Datenflüsse: rein / raus
+
+Nummern laut [datenfluesse](../querschnitt/datenfluesse.md). Änderungen an Flüssen werden dort eingetragen, nicht hier.
+
+| Richtung | Flüsse |
+|---|---|
+| **rein** (nutzt) | D1 Basar/Termine, D2 Stammdaten, D3 Konto, D4 Konditionen-Vorlage (Anzeige); Sichten D10 Annahme, D13 Verkauf, D15 Rückgabe, D17 Ergebnis, D18 eigene Kennzahlen |
+| **raus** (liefert) | D3 Selbstregistrierung, D5 Verkäufer, Teilnahme und Nummernblöcke, D6 Artikel im Entwurf |
 
 ## Berührungspunkte
 

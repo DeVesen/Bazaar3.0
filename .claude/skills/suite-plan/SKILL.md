@@ -9,6 +9,14 @@ argument-hint: "[Thema oder Aufgabe, z. B. 'Annahme ausarbeiten' oder 'E5 entsch
 Hub: `docs/forge/2026-11-08-suite-zusammenfuehrung/` (im Folgenden `HUB/`).
 Ebene: Projektleitung und Fachplanung, **kein Entwicklungsplan**: keine Klassen, Spalten oder Endpunkt-Details, außer der Nutzer will sie ausdrücklich.
 
+**Arbeitsteilung:** Dieser Skill kennt den **Aufbau** des Plans: wo etwas steht, wie man sucht, lädt und speichert.
+Für das **Besprechen von Fachbereichen** (Abläufe, Ausnahmen, Datenflüsse, Übergaben) gibt es den aufsetzenden Skill
+**`suite-fachgespraech`**. Er nutzt diesen hier zum Laden und Speichern.
+
+**Gesetzt, nicht Gegenstand der Planung:**
+- **Technische Architektur** von Backend und Frontend. Das Backend ist ein **hexagonaler Monolith** mit einer Datenbank (E0, E2, L3). `architektur/` dokumentiert das nur.
+- Erlaubt und erwünscht ist die Frage „Backend oder Frontend?“ im fachlichen Sinn: Das Frontend zeigt an und nimmt Eingaben auf, das Backend entscheidet die Regeln und hält die Daten.
+
 ## Goldene Regeln
 
 1. **Haupt-App führt bei Unklarheiten** (`HUB/leitplanken.md` L0, E25). Bei Widersprüchen zwischen `docs/requirements/bazaar-app/` und `docs/requirements/advance-registration/` gilt die Haupt-App. Das betrifft Spec, Komponenten, Styleguide „Industry“, Breakpoints, Rechte und Begriffe.
@@ -50,11 +58,15 @@ In dieser Reihenfolge suchen und beim ersten Treffer aufhören:
 
 ## C – Thema ausarbeiten
 
+Geht es um einen **Fachbereich oder Datenfluss**, Skill `suite-fachgespraech` verwenden. Er führt das Gespräch und nutzt die
+Schritte hier zum Speichern. Für alle anderen Themen gilt:
+
 1. Ablauf A für das Thema durchführen.
 2. Offene Fragen des Dokuments mit dem Nutzer klären:
    - Für echte Entscheidungen strukturiert fragen: Optionen, Folgen, Empfehlung.
    - Fakten selbst aus Specs und Code klären, bevor gefragt wird.
-3. Ergebnisse ins Teildokument schreiben. Das Schema bleibt fest: *Zweck und Abgrenzung · Heute · Ziel · Berührungspunkte · Offene Fragen · Nächste Planungsschritte*.
+3. Ergebnisse ins Teildokument schreiben. Das Schema bleibt fest: *Zweck und Abgrenzung · Heute · Ziel · (nur Fachbereiche: Datenflüsse: rein / raus) · Berührungspunkte · Offene Fragen · Nächste Planungsschritte*.
+   - Datenflüsse stehen nur in `HUB/querschnitt/datenfluesse.md` (D-Nummern). Fachbereiche nennen nur die Nummern.
 4. Neue oder geänderte Entscheidungen → Ablauf D. Neue Begriffe → Ablauf E.
 5. **Berührungspunkte prüfen:** Für jedes dort verlinkte Dokument per Grep prüfen, ob es der Änderung widerspricht.
    - Widerspricht es, und gehört das Dokument nicht zum Auftrag: unter dessen „Offene Fragen“ eintragen: `⚠ prüfen (JJJJ-MM-TT): <Grund>, siehe <Dokument>`.
@@ -110,5 +122,6 @@ Auf Wunsch oder vor dem Abschluss größerer Änderungen: Checkliste und Grep-Mu
 - Eine Entscheidung nur im Fachbereich festhalten, ohne Eintrag in `entscheidungen.md`.
 - Eine Regel der Voranmelde-App übernehmen, obwohl die Haupt-App es anders regelt.
 - Einen Begriff neu erfinden statt den aus dem Glossar zu verwenden.
-- Implementierungsdetails in den Plan schreiben.
+- Implementierungsdetails in den Plan schreiben oder die gesetzte Architektur (hexagonaler Monolith) neu diskutieren.
+- Einen Datenfluss im Fachbereich ausformulieren statt in `datenfluesse.md`.
 - Querschnittsregeln in einem Fachbereich wiederholen statt darauf zu verweisen.

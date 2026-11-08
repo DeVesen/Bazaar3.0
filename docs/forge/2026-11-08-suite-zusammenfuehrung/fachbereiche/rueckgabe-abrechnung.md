@@ -1,9 +1,9 @@
 # Fachbereich Rückgabe und Abrechnung – Übergabe zurück an den Verkäufer
 
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
-Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [druck-etiketten](druck-etiketten.md)
+Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [druck-etiketten](druck-etiketten.md) · [datenfluesse](../querschnitt/datenfluesse.md)
 Entscheidungen: E5b, E6, E9, E18
-Schlagworte: Rückgabe, Rückgabe-Scan, Abrechnung, Auszahlung, Provision, Beleg, vorläufiger Beleg, Verlust, Spende, Abholfrist, Abholung durch Dritte
+Schlagworte: Rückgabe, Rückgabe-Scan, Abrechnung, Auszahlung, Provision, Beleg, vorläufiger Beleg, Verlust, Spende, Abholfrist, Abholung durch Dritte, Datenfluss
 
 ## Zweck und Abgrenzung
 
@@ -39,6 +39,15 @@ Nicht abgegebene Artikel werden standardmäßig **gelöscht** (V3). Danach ist a
 - Nicht abgegebene Artikel werden **markiert, nicht gelöscht**.
 - Der Beleg wird gedruckt und erscheint online beim Verkäufer (E6).
 - Danach ist die Teilnahme abgeschlossen und unveränderlich. Stornieren darf nur der Admin.
+
+## Datenflüsse: rein / raus
+
+Nummern laut [datenfluesse](../querschnitt/datenfluesse.md). Änderungen an Flüssen werden dort eingetragen, nicht hier.
+
+| Richtung | Flüsse |
+|---|---|
+| **rein** (nutzt) | D9 Annahme (Konditionen, Gebühr), D12 Kassenvorgänge, D7 Laufkunden |
+| **raus** (liefert) | **D14 Rückgabe**, D15 Sicht für den Verkäufer, D11 öffentliche Liste (zurückgegeben → weg), **D16 Abrechnung**, D17 Ergebnis für den Verkäufer |
 
 ## Berührungspunkte
 
