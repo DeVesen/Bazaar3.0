@@ -3,6 +3,7 @@
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [datenschutz](../querschnitt/datenschutz.md) · [zielbild](../architektur/zielbild.md) · [leitplanken](../leitplanken.md) (L4)
 Entscheidungen: E10, E10a, E17
+Schlagworte: Katalog, öffentliche Liste, Live-Liste, ohne Anmeldung, Interessent, Homepage, Cache, CDN, Verkaufsöffnung, Reservierung, Aushang
 
 ## Zweck und Abgrenzung
 

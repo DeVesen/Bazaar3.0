@@ -3,6 +3,7 @@
 Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [leitplanken](../leitplanken.md) (L4, L11) · [datenmodell](datenmodell.md)
 Entscheidungen: E7, E8, E10, E14, E17, E20
+Schlagworte: Datenschutz, DSGVO, AVV, Auftragsverarbeitung, Rechtsgrundlage, Positivliste, öffentliche Felder, Löschkonzept, Löschfrist, Aufbewahrung, Laufkunde, Cookies, Tracking, Verschlüsselung
 
 ## Zweck und Abgrenzung
 

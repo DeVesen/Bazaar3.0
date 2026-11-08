@@ -3,6 +3,7 @@
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [datenmodell](../querschnitt/datenmodell.md) · [leitplanken](../leitplanken.md) (L5)
 Entscheidungen: E6, E7
+Schlagworte: Statistik, Auswertung, Kennzahl, KPI, Dashboard, Umsatz, Vergleich über Basare, Heatmap
 
 ## Zweck und Abgrenzung
 

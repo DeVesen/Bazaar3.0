@@ -3,6 +3,7 @@
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [identitaet-rollen](../querschnitt/identitaet-rollen.md) · [auswahlfelder-stammdaten](../querschnitt/auswahlfelder-stammdaten.md) · [datenmodell](../querschnitt/datenmodell.md)
 Entscheidungen: E4, E7, E9, E11, E22, E24
+Schlagworte: Verwaltung, Admin, Basar anlegen, Termine, Einstellungen, Benutzer, Team-Konten, Stammdaten-Pflege, Alle Artikel, Dashboard
 
 ## Zweck und Abgrenzung
 

@@ -3,6 +3,7 @@
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [druck-etiketten](druck-etiketten.md)
 Entscheidungen: E5b, E6, E9, E18
+Schlagworte: Rückgabe, Rückgabe-Scan, Abrechnung, Auszahlung, Provision, Beleg, vorläufiger Beleg, Verlust, Spende, Abholfrist, Abholung durch Dritte
 
 ## Zweck und Abgrenzung
 

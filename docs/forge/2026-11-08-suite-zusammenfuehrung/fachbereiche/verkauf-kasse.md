@@ -3,6 +3,7 @@
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [betrieb](../architektur/betrieb.md) · [leitplanken](../leitplanken.md) (L5)
 Entscheidungen: E1, E1b, E12
+Schlagworte: Kasse, Verkauf, Warenkorb, Kassenvorgang, Storno, Doppelverkauf, Scan, Antwortzeit, Notbetrieb, Nacherfassung, Preisaktion
 
 ## Zweck und Abgrenzung
 

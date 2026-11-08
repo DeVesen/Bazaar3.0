@@ -2,7 +2,8 @@
 
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [leitplanken](../leitplanken.md) (L8) · [identitaet-rollen](identitaet-rollen.md) · [zielbild](../architektur/zielbild.md)
-Entscheidungen: E2
+Entscheidungen: E2, E25, E26
+Schlagworte: API, Endpunkt, Route, ProblemDetails, errorCode, Fehler, 409, Paginierung, Suche, Sortierung, Auth-Stufe, ID, Kennung, Vertrag, Kompatibilität
 
 ## Zweck und Abgrenzung
 
@@ -11,7 +12,7 @@ die spätere Spec der jeweiligen Module.
 
 ## Heute
 
-Beide Apps haben eine eigene, weitgehend ähnliche Querschnittsdatei:
+Beide Apps haben eine eigene, weitgehend ähnliche Querschnittsdatei. **Führend ist die Haupt-App (E25):**
 [`advance-registration/api/cross-cutting.md`](../../../requirements/advance-registration/api/cross-cutting.md) und
 [`bazaar-app/api/cross-cutting.md`](../../../requirements/bazaar-app/api/cross-cutting.md).
 
@@ -32,10 +33,11 @@ Beide Apps haben eine eigene, weitgehend ähnliche Querschnittsdatei:
   - Portal-API und Basar-API teilen die Konventionen, nicht zwingend die Routen.
   - Öffentliches liegt immer unter `/api/public/` und wird vom Katalog-Container bedient.
 - **Fehler:**
-  - ProblemDetails mit **einem** errorCode-Katalog.
-  - Grundsatz: Der `errorCode` ist ein stabiler Schlüssel für Programmlogik **und** für Texte im Frontend.
-  - Den Widerspruch zwischen den beiden heutigen Regeln auflösen.
-- **Paginierung, Suche, Sortierung:** eine Regel. Basis ist die Voranmeldung, ergänzt um die Haupt-App-Sonderfälle.
+  - ProblemDetails (RFC 9457) mit **einem** errorCode-Katalog.
+  - **Regel der Haupt-App (E26):** Die Suite ist einsprachig deutsch. Der deutsche Meldungstext steht in `detail`, der `errorCode` (z. B. `article.number_taken`) dient der **Programmlogik**, also besonderen Reaktionen im Frontend, nicht der Übersetzung.
+  - Validierungsfehler kommen zusätzlich in `errors`, Schlüssel ist der englische DTO-Feldname.
+  - Die Abbildung erfolgt zentral an einer Stelle im Backend.
+- **Paginierung, Suche, Sortierung:** eine Regel. Basis ist die Haupt-App, ergänzt um Fälle, die nur die Voranmeldung kennt (z. B. `/mine`, `/api/public/`).
 - **Zustandsabhängige Sperren:** Antwort `409` mit errorCode, z. B. „Artikel liegt beim Basar-Team“ ([lebenszyklus](artikel-lebenszyklus.md)).
 - **Gleichzeitigkeit:** Konflikte bei paralleler Änderung werden erkannt und mit `409` beantwortet.
 - **Auth-Stufen:** anonym / angemeldet / Rolle (Verkäufer, Team, Admin) je Endpunkt, passend zur [Rechte-Matrix](identitaet-rollen.md).
@@ -50,8 +52,7 @@ Beide Apps haben eine eigene, weitgehend ähnliche Querschnittsdatei:
 
 ## Offene Fragen
 
-1. errorCode: Ist er künftig die Übersetzungsgrundlage? Wo liegen die Texte (Frontend oder Backend)?
-2. Paginierung: serverseitig überall, auch an der Kasse?
+1. Paginierung: serverseitig überall, auch an der Kasse?
 
 ## Nächste Planungsschritte
 

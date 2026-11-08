@@ -3,6 +3,7 @@
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [nummern](../querschnitt/nummern.md) · [annahme](annahme.md)
 Entscheidungen: E3, E4
+Schlagworte: Druck, Etikett, Etiketten-Vordruck, Blanko-Etikett, Selbstdruck, Bogenformat, Abgabe-Beleg, Abrechnungsbeleg, Artikel-Aushang, QR-Inhalt
 
 ## Zweck und Abgrenzung
 

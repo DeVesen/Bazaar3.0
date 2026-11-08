@@ -3,6 +3,7 @@
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [ui-grundlagen](ui-grundlagen.md) · [leitplanken](../leitplanken.md) (L6)
 Entscheidungen: E9, E11
+Schlagworte: AutoComplete, AutoComplete-Create, Auswahlfeld, Feld-Katalog, Marke, Kategorie, Verkäufer-Typ, Größe, Farbe, Preis, Verkäufer-Suche, original, Original/Neu, Dublette, Zusammenführen, Konditionen
 
 ## Zweck und Abgrenzung
 
@@ -23,10 +24,10 @@ Einträge, Pflege der Stammdaten. Die Verwaltungsseiten selbst beschreibt [verwa
 
 | Feld | Komponente | Verhalten | Neu anlegen |
 |---|---|---|---|
-| Marke | `autocomplete-create` | öffnet beim Anklicken, filtert beim Tippen | ja, über das Modal (alle angemeldeten Rollen); Eintrag „ungeprüft“ |
+| Marke | `autocomplete-create` | öffnet beim Anklicken, filtert beim Tippen | ja, über das Modal (alle angemeldeten Rollen); Eintrag „Neu“ (`original = false`) |
 | Kategorie | `autocomplete-create` | wie Marke | wie Marke |
 | Verkäufer-Typ | Select (Dropdown) | nur bestehende Typen | nein (Admin in der Verwaltung) |
-| Verkäufer | `seller-search` | Suche nach Name, Kennung, Nummer | Team/Admin: Laufkunde anlegen |
+| Verkäufer | `seller-search` | Suche nach Name, Kennung, Nummer | Kassenpersonal/Admin: Laufkunde anlegen |
 | Größe | Text bzw. offen | – | offen: freie Eingabe oder Liste? |
 | Farbe | Text bzw. offen | – | offen |
 | Preis | InputNumber/Numpad | Euro, zwei Nachkommastellen, Schrittweite offen | – |
@@ -37,7 +38,7 @@ Einträge, Pflege der Stammdaten. Die Verwaltungsseiten selbst beschreibt [verwa
 
 - **Suite-weit eine Liste** je Stammdatum. Die Unterscheidung je Basar ist noch offen, siehe [datenmodell](datenmodell.md).
 - Namen sind eindeutig ohne Rücksicht auf Groß- und Kleinschreibung (DB-abgesichert).
-- `original` wird abgelöst durch **„geprüft“**: vom Admin angelegt oder bestätigt. Von Nutzern angelegte Einträge sind „ungeprüft“, und der Admin kann sie prüfen, zusammenführen oder umbenennen.
+- **`original` mit der Bedeutung der Haupt-App (E25):** `true` heißt vom Admin angelegt oder bestätigt (Badge „✓ Original“), `false` heißt über das AutoComplete nachträglich angelegt (Badge „Neu“). Der Admin kann Neu-Einträge bestätigen, zusammenführen oder umbenennen. Die abweichende Bedeutung der Voranmelde-App entfällt.
 - **Zusammenführen von Dubletten** (z. B. „H&M“ und „H & M“) wird eine Admin-Funktion. Die Artikel ziehen dabei mit.
 - **Konditionen:** Der Verkäufer-Typ liefert die Vorlage, sie wird ab der ersten Annahme je Teilnahme eingefroren (E9). Der Admin darf sie je Teilnahme überschreiben.
 
@@ -52,7 +53,7 @@ Einträge, Pflege der Stammdaten. Die Verwaltungsseiten selbst beschreibt [verwa
 
 1. Größe und Farbe als freie Eingabe oder als gepflegte Liste (Kinderkleidung: 50–176, S–XXL, Schuhgrößen)?
 2. Werden Kategorien hierarchisch (z. B. Kleidung › Jacken)? Das wäre für Katalog-Filter nützlich.
-3. Werden neue ungeprüfte Einträge sofort im öffentlichen Katalog sichtbar?
+3. Werden „Neu“-Einträge sofort im öffentlichen Katalog sichtbar?
 
 ## Nächste Planungsschritte
 

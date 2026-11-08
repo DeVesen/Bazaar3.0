@@ -58,6 +58,11 @@ update) — Code-Ist-Zustand, nicht Anforderung:
 - Epic = Verzeichnis `docs/requirements/<app>/epics/<Epic-Name>/` (`epic.md`, `stories/`).
 - Fachliches Epic = vollständiger Durchstich FE+BE (Ausnahme: `Epic_Projektanlage`, `Epic_App_Shell`); Details: Spec §10.0.2 / §7.0.2.
 
+## Suite-Planung (Zusammenführung der Apps)
+
+- Planungs-Hub: [`docs/forge/2026-11-08-suite-zusammenfuehrung/README.md`](docs/forge/2026-11-08-suite-zusammenfuehrung/README.md); Arbeit daran über Skill `suite-plan`.
+- Bei Unklarheiten zwischen den Apps ist für die Suite-Planung die Haupt-App federführend (E25).
+
 ## dv-forge
 
 - Spec-Ablage: `docs/forge/<datum>-<slug>/spec.md`

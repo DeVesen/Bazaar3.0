@@ -3,6 +3,7 @@
 Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [leitplanken](../leitplanken.md) (L1, L3, L4, L5) · [datenmodell](../querschnitt/datenmodell.md)
 Entscheidungen: E0 (entschieden), E1, E2, E10a, E19, E20
+Schlagworte: Zielbild, Infrastruktur, Container, Portal-API, Basar-API, Katalog, Datenbank, Schema, Modul, Modularer Monolith, Hexagonal, Microservices, Lastisolation, Cloud, Docker, Betriebsart
 
 ## Zweck und Abgrenzung
 

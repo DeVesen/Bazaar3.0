@@ -1,12 +1,20 @@
 # Leitplanken – Ein-Guss-Regeln der Suite
 
 Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](README.md)
-Lesen zusammen mit: [glossar](glossar.md) · Entscheidungen: E0, E2, E7, E11, E21
+Lesen zusammen mit: [glossar](glossar.md) · Entscheidungen: E0, E2, E7, E11, E21, E25
+Schlagworte: Grundsätze, Ein Guss, Haupt-App führend, eine Datenbank, Container, Kasse Vorrang, PrimeNG, Rechte-Matrix, Datenschutz
 
 Diese Regeln gelten für **jedes** Teildokument und später für jede Umsetzung. Wer davon abweichen
 will, ändert diese Datei und loggt die Entscheidung. Das passiert bewusst und nie nebenbei.
 
 ---
+
+## L0 – Bei Unklarheiten führt die Haupt-App (E25)
+
+Widersprechen sich die heutigen Apps oder ist eine Regel unklar, gilt die **Haupt-App**. Das betrifft
+Spec, Epics, Komponenten, Styleguide, Breakpoints, Rechte-Matrix, API-Querschnitt und Begriffe. Sie ist
+bewährt und ausgereifter. Die Voranmelde-App gilt nur dort, wo die Haupt-App nichts regelt
+(z. B. Selbstregistrierung, Nummernblöcke). Bewusste Ausnahmen werden als Entscheidung geloggt.
 
 ## L1 – Eine Suite, ein Datenbestand
 
@@ -41,7 +49,7 @@ will, ändert diese Datei und loggt die Entscheidung. Das passiert bewusst und n
 
 - Es gelten die Begriffe aus dem [Glossar](glossar.md). Die heutigen Doppelbegriffe werden abgelöst.
 - **Nur PrimeNG**, Dumb Components und geteilte Komponenten aus `docs/components/` (Grundregel aus [`docs/components/overview.md`](../../components/overview.md)).
-- **Ein** Breakpoint-Satz, **ein** Branding, **ein** Feedback-Muster (Toasts, Dialoge) für alle Frontends ([UI-Grundlagen](querschnitt/ui-grundlagen.md), E21).
+- **Ein** Breakpoint-Satz, **ein** Branding und **ein** Feedback-Muster (Toasts, Dialoge) für alle Frontends. Maßstab ist jeweils die Haupt-App (L0): Shell-Breakpoint 768 px und Styleguide „Industry“ ([UI-Grundlagen](querschnitt/ui-grundlagen.md), E21, E23).
 - Gleiches Feld heißt gleich, sieht gleich aus und verhält sich gleich. Beispiele: Marke/Kategorie per AutoComplete, Preis, Größe, Verkäufer-Suche ([Auswahlfelder](querschnitt/auswahlfelder-stammdaten.md)).
 
 ## L7 – Eine Identität, klare Rollen

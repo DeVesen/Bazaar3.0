@@ -3,6 +3,7 @@
 Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [leitplanken](../leitplanken.md) (L1, L2) · [nummern](nummern.md) · [glossar](../glossar.md)
 Entscheidungen: E0, E5, E5b, E6, E12, E18
+Schlagworte: Lebenszyklus, Zustand, Status, Entwurf, Im Verkauf, Verkauft, Zurückgegeben, Abgelehnt, Nicht abgegeben, Verlust, Gespendet, Abgerechnet, Änderungssperre, Sperre, Übergabe, Wiederverwenden
 
 > **Herzstück der Suite.** Jeder Fachbereich richtet sich nach diesem Dokument. Braucht ein
 > Fachbereich einen weiteren Zustand oder eine andere Regel, wird sie **hier** ergänzt.
@@ -46,7 +47,7 @@ was ändern darf. Wie die Nummern vergeben werden, steht in [nummern](nummern.md
 | **Verkauft** | Basar-Team | an der Kasse bezahlt | Kasse (Storno führt zurück zu Im Verkauf) |
 | **Zurückgegeben** | Verkäufer | an den Verkäufer zurückgegeben | Rückgabe |
 | **Nicht abgegeben** | Verkäufer | angemeldet, aber nie gebracht | automatisch zum Basar-Ende bzw. bei der Abrechnung |
-| **Verlust** | Basar-Team | nicht auffindbar, blockiert die Abrechnung nicht | Team / Admin |
+| **Verlust** | Basar-Team | nicht auffindbar, blockiert die Abrechnung nicht | Kassenpersonal / Admin |
 | **Gespendet** (optional) | – | Spenden statt Rückgabe oder Abholfrist abgelaufen | Rückgabe / Admin (E18) |
 
 **Abgerechnet** ist ein Zustand des **Verkäufers je Basar**, nicht des Artikels. Danach ist im Basar
@@ -54,7 +55,7 @@ nichts mehr änderbar.
 
 ### Wer darf was (Änderungsrechte)
 
-| Zustand | Verkäufer (Portal) | Basar-Team | Admin |
+| Zustand | Verkäufer (Portal) | Kassenpersonal | Admin |
 |---|---|---|---|
 | Entwurf (vor Voranmeldeschluss) | alles ändern, löschen, neu anlegen | lesen | alles |
 | Entwurf (nach Voranmeldeschluss) | ändern und löschen, **nicht neu anlegen**. Bei Preisänderung erscheint der Hinweis „Etikett anpassen“ (E5). | lesen | alles |

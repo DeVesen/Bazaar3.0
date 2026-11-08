@@ -3,6 +3,7 @@
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [leitplanken](../leitplanken.md) (L1, L3, L9) · [artikel-lebenszyklus](artikel-lebenszyklus.md) · [nummern](nummern.md)
 Entscheidungen: E0, E7, E9
+Schlagworte: Datenmodell, Entität, Basar, Konto, Verkäufer-Teilnahme, Artikel, Kassenvorgang, Abrechnung, Stammdaten, Datenhoheit, Fremdschlüssel, Eindeutigkeit, Concurrency
 
 ## Zweck und Abgrenzung
 

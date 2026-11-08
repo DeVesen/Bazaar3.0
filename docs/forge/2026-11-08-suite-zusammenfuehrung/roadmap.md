@@ -3,6 +3,7 @@
 Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](README.md)
 Lesen zusammen mit: [migration](architektur/migration.md) · [risiken](risiken.md) · [leitplanken](leitplanken.md) (L10)
 Entscheidungen: E0, E15
+Schlagworte: Etappe, Meilenstein, Reihenfolge, Abhängigkeit, Go/No-Go, Größe, Basar-Kalender, Einfrierfenster
 
 **Leitplanke:** Der nächste Basar wird nicht gefährdet. Jede Etappe bringt einen eigenen Nutzen, wird vor dem
 Echtbetrieb in einer Generalprobe erprobt und hat eine Rückfallebene. Bis Etappe 4 abgenommen ist, bleiben die

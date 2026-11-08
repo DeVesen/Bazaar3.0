@@ -2,6 +2,7 @@
 
 Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](README.md)
 Lesen zusammen mit: [betrieb](architektur/betrieb.md) · [roadmap](roadmap.md)
+Schlagworte: Risiko, Wahrscheinlichkeit, Gegenmaßnahme, Verantwortlich
 
 | # | Risiko | Wahrsch. | Wirkung | Gegenmaßnahme | Verantwortlich | Siehe |
 |---|---|---|---|---|---|---|

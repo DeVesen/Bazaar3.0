@@ -3,6 +3,7 @@
 Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [zielbild](zielbild.md) · [leitplanken](../leitplanken.md) (L5, L11)
 Entscheidungen: E1, E1b, E13, E14, E16, E20
+Schlagworte: Betrieb, Hosting, Azure, VPS, Docker Compose, Backup, Datensicherung, Monitoring, Update, Einfrierfenster, Generalprobe, Internet, Leitung, Mobilfunk, Notbetrieb, Inselmodus, Papier-Kassenliste, Technik-Rolle, Kosten
 
 ## Zweck und Abgrenzung
 

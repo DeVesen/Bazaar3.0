@@ -1,6 +1,7 @@
 # Planung Bazaar Suite 2 – Einstieg
 
 Status: Planung läuft · Stand: 2026-11-08 · Ebene: Projektleitung / Fachplanung, **kein Entwicklungsplan**
+Schlagworte: Einstieg, Landkarte, Ladeprofil, Arbeitsregeln, Planungsstand, Prompt-Vorlage, frischer Agent
 
 Dieser Ordner ist der **Planungs-Hub** für die zusammengeführte Bazaar Suite. Die Planung ist in
 kleine, referenzierte Teildokumente zerlegt. So lässt sich jedes Thema einzeln besprechen und
@@ -27,7 +28,9 @@ README.md  ← du bist hier
 ├── uebersichtsplan.md        Gesamtbild für Stakeholder (kurz)
 ├── leitplanken.md            Ein-Guss-Regeln – gelten für ALLE Teilpläne
 ├── entscheidungen.md         Entscheidungslog – einzige Quelle für Entscheidungen (E-Nummern)
-├── glossar.md                Soll-Begriffe der Suite
+├── glossar.md                Fachbegriffe der Suite (Soll)
+├── glossar-technik.md        Technik-Schlagwörter in Klartext (inkl. verworfener Konzepte)
+├── index.md                  Stichwortindex: Stichwort → Hauptstelle (Suche hier starten)
 ├── roadmap.md                Etappen
 ├── risiken.md                Risikoliste
 │
@@ -62,7 +65,12 @@ README.md  ← du bist hier
 ## 3. Ladeprofile – was lade ich für welches Thema?
 
 **Immer laden (Grundpaket, klein):** `README.md` → `leitplanken.md` → `glossar.md`.
-In `entscheidungen.md` nur die Zeilen der im Teildokument genannten E-Nummern lesen.
+In `entscheidungen.md` nur die Zeilen der im Teildokument genannten E-Nummern lesen (Grep nach `^\| E5 `).
+
+**Thema unbekannt?** Erst suchen, dann laden:
+1. Grep in `index.md` nach dem Stichwort → Hauptstelle.
+2. Kein Treffer → Grep nach `^Schlagworte:.*<wort>` über den Hub (jedes Teildokument hat diese Kopfzeile).
+3. Immer noch nichts → Grep im Volltext des Hubs. Danach Index und Schlagworte ergänzen.
 
 | Ich will planen / besprechen … | Zusätzlich laden |
 |---|---|
@@ -84,29 +92,35 @@ Jedes Teildokument nennt im Kopf selbst, was es voraussetzt (Zeile **„Lesen zu
 
 ## 4. Arbeitsregeln (für Menschen und Agenten)
 
+0. **Bei Unklarheiten führt die Haupt-App** (L0, E25): Spec, Komponenten, Styleguide, Breakpoints, Rechte und Begriffe der Haupt-App gehen vor.
 1. **Eine Quelle je Wahrheit.** Entscheidungen stehen nur in `entscheidungen.md`. Begriffe stehen nur in `glossar.md`. Gemeinsame Regeln stehen nur im `querschnitt/`. Teildokumente **verweisen** darauf (z. B. „gemäß E5“) und schreiben nichts ab.
 2. **Querschnitt vor Fachbereich.** Braucht ein Fachbereich eine Abweichung von einer Querschnittsregel, wird die **Querschnittsregel** geändert und eine Entscheidung geloggt. Lokale Sonderwege gibt es nicht.
 3. **Berührungspunkte pflegen.** Ändert sich ein Teildokument, prüft man dessen Abschnitt „Berührungspunkte“ und markiert die betroffenen Dokumente mit „⚠ prüfen (Datum, Grund)“ unter „Offene Fragen“.
-4. **Kopf aktuell halten.** Jedes Teildokument hat den Kopf `Status · Stand · Lesen zusammen mit · Entscheidungen`. Die Status sind: `Skizze` → `Entwurf` → `abgestimmt` → `freigegeben`.
+4. **Kopf aktuell halten.** Jedes Teildokument hat den Kopf `Status · Stand · Lesen zusammen mit · Entscheidungen · Schlagworte`. Die Status sind: `Skizze` → `Entwurf` → `abgestimmt` → `freigegeben`.
 5. **Gleicher Aufbau.** Jedes Teildokument folgt dem Schema: *Zweck und Abgrenzung · Heute · Ziel · Berührungspunkte · Offene Fragen · Nächste Planungsschritte*.
-6. **Länge begrenzen.** Ein Teildokument sollte ungefähr 150 Zeilen nicht überschreiten. Ein größeres Thema wird in ein Unterverzeichnis aufgeteilt (`fachbereiche/annahme/…`), und die Landkarte oben wird ergänzt.
+6. **Länge begrenzen.** Ein Teildokument sollte ungefähr 150 Zeilen nicht überschreiten. Nachschlagewerke (`index.md`, Glossare, `entscheidungen.md`) sind ausgenommen, denn sie werden per Grep gelesen, nicht ganz. Ein größeres Thema wird in ein Unterverzeichnis aufgeteilt (`fachbereiche/annahme/…`), und die Landkarte oben wird ergänzt.
 7. **Ist vs. Soll.** Bestehende Anforderungen der heutigen Apps stehen unter `docs/requirements/<app>/`. Der Ist-Stand des Codes steht unter `docs/knowledge/`. Hier steht nur das **Soll der Suite** mit Verweis auf das Ist.
-8. **Neue Entscheidung:** Zeile in `entscheidungen.md` mit nächster freier E-Nummer, Status `offen`. Wird entschieden, ändert sich nur der Status samt Datum. Danach werden die verweisenden Dokumente aktualisiert.
+8. **Index pflegen.** Neue Begriffe oder Themen bekommen eine Zeile in `index.md` und gegebenenfalls in einem Glossar. Die `Schlagworte:` des betroffenen Dokuments werden ergänzt.
+9. **Neue Entscheidung:** Zeile in `entscheidungen.md` mit nächster freier E-Nummer, Status `offen`. Wird entschieden, ändert sich nur der Status samt Datum. Danach werden die verweisenden Dokumente aktualisiert.
 
 ## 5. Planungsstand
 
 | Dokument | Status |
 |---|---|
-| uebersichtsplan, leitplanken, entscheidungen, glossar | Entwurf |
+| uebersichtsplan, leitplanken, entscheidungen, glossar, glossar-technik, index | Entwurf |
 | architektur/* | Entwurf |
-| querschnitt/artikel-lebenszyklus, nummern, identitaet-rollen | Entwurf |
+| querschnitt/artikel-lebenszyklus, nummern, identitaet-rollen, ui-grundlagen, datenschutz | Entwurf |
 | querschnitt/übrige | Skizze |
 | fachbereiche/* | Skizze |
 | roadmap, risiken | Entwurf |
 
-## 6. Prompt-Vorlage für einen frischen Agenten
+## 6. Skill und Prompt-Vorlage für einen frischen Agenten
 
-> Lies `docs/forge/2026-11-08-suite-zusammenfuehrung/README.md`, dann das Grundpaket
+Der Projekt-Skill **`suite-plan`** (`.claude/skills/suite-plan/`) führt durch Einstieg, Suche, Entscheidungen,
+Glossar, neue Teildokumente und den Sitzungsabschluss. Er funktioniert in Claude Code am PC und in der Cloud.
+Aufruf: `/suite-plan <Thema oder Aufgabe>`.
+
+> Nutze den Skill `suite-plan`. Lies `docs/forge/2026-11-08-suite-zusammenfuehrung/README.md`, dann das Grundpaket
 > (Abschnitt 3) und das Ladeprofil für **⟨Thema⟩**. Lade sonst nichts. Halte die Arbeitsregeln
 > aus Abschnitt 4 ein. Ziel dieser Sitzung: **⟨z. B. offene Fragen in fachbereiche/annahme.md
 > klären und das Dokument auf Status „Entwurf“ bringen⟩**. Neue oder geänderte Entscheidungen

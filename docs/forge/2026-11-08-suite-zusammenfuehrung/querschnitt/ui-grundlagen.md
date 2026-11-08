@@ -1,77 +1,76 @@
 # UI-Grundlagen: Komponenten, Breakpoints, Shell, Feedback
 
-Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
-Lesen zusammen mit: [leitplanken](../leitplanken.md) (L6) · [auswahlfelder-stammdaten](auswahlfelder-stammdaten.md)
-Entscheidungen: E19, E21, E22, E23
+Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](../README.md)
+Lesen zusammen mit: [leitplanken](../leitplanken.md) (L0, L6) · [auswahlfelder-stammdaten](auswahlfelder-stammdaten.md)
+Entscheidungen: E19, E21, E22, E23, E25
+Schlagworte: Breakpoint, Responsive, Mobile, Desktop, Tablet, Sidebar, Burger, Shell, Modal, Toast, Result-Overlay, Branding, Styleguide, Industry, PrimeNG, Dumb Component, Page, Form-Grid
 
 ## Zweck und Abgrenzung
 
 Hier stehen die **gemeinsamen Gestaltungs- und Bedienregeln** aller Frontends der Suite (Voranmeldung, Basar,
-Katalog). Einzelne Komponenten sind unter [`docs/components/`](../../../components/overview.md) beschrieben,
-und seitenbezogene Ausprägungen gehören in die Fachbereiche.
+Katalog). Einzelne Komponenten sind unter [`docs/components/`](../../../components/overview.md) beschrieben.
+Seitenbezogene Ausprägungen gehören in die Fachbereiche.
+
+**Maßstab ist die Haupt-App (L0, E25).** Ihre Regeln sind bewährt. Die Voranmeldung wird angeglichen.
 
 ## Heute
 
-| Thema | Voranmeldung | Haupt-App |
+| Thema | Haupt-App (**führend**) | Voranmeldung (wird angeglichen) |
 |---|---|---|
-| UI-Bibliothek | PrimeNG, Dumb Components | PrimeNG, Dumb Components |
-| Breakpoints | **drei** Stufen: Mobile ≤ 768, Tablet ≤ 1024, Desktop > 1024 (`spec.md` §10/§11) | **zwei** Stufen: Mobile ≤ 768, Desktop > 768 (`spec.md` §7.1) |
-| Shell | Sidebar, Burger ab Tablet, Role-Toggle | Sidebar, Burger ab Mobile, kein Toggle |
-| Modals | 80 % / 90 vh, Mobile Vollbild | gleich |
-| Branding | offen, vermutlich abweichend (prüfen) | Farben und Schrift in `spec.md` §10.1 |
-| Seitenrahmen | – | Page-Komponente, 75vw ab 769 px |
-| Feedback | Toasts | Toasts (§10.2), Result-Overlay mit Ton und Vibration an Kasse und Scan |
-
-Hinweis: [`docs/style-guide/`](../../../style-guide/README.md) beschreibt ein **fremdes Projekt** (ATLAS/MyTRUMPF,
-Angular Material) und passt nicht zur PrimeNG-Regel. Zu klären in E23.
+| UI-Bibliothek | PrimeNG, Dumb Components | gleich |
+| Shell-Breakpoints | **zwei Stufen:** Mobile ≤ 768 / Desktop > 768 (`bazaar-app/spec.md` §7.1) | drei Stufen (zusätzlich Tablet ≤ 1024) |
+| Shell | Sidebar fest ab 769 px, Titelleiste nur Mobile, **kein Role-Toggle** (§4) | Sidebar, Burger ab Tablet, Role-Toggle |
+| Seitenrahmen | [Page](../../../components/page/component.md): 75vw ab 769 px | – |
+| Modals | 80 % / 90 vh, Mobile 100 % ohne Radius | gleich |
+| Branding | Styleguide **„Industry“** ([`bazaar-app/design/industry-styleguide.md`](../../../requirements/bazaar-app/design/industry-styleguide.md)), §10.1 | abweichend bzw. ungeprüft |
+| Feedback | Toasts (§10.2), Result-Overlay mit Ton und Vibration an Kasse und Scan | Toasts |
 
 ## Ziel
 
-### Gemeinsame Regeln
+### Regeln
 
-- **Nur PrimeNG**, ein eigener Wrapper nur dort, wo PrimeNG nichts Passendes hat (Grundregel aus `docs/components/overview.md`).
-- **Ein geteilter Komponenten-Bestand** für alle Frontends. Heute liegen die Komponenten doppelt im Code. Zu klären ist, wie sie geteilt werden (z. B. eine gemeinsame Angular-Bibliothek).
-- **Ein Breakpoint-Satz** (E21, Empfehlung):
+- **Nur PrimeNG.** Ein eigener Wrapper nur, wo PrimeNG nichts Passendes hat (Grundregel aus `docs/components/overview.md`).
+- **Ein geteilter Komponenten-Bestand** für alle Frontends. Heute liegen die Komponenten doppelt im Code. Wie sie geteilt werden, ist noch offen (z. B. eine gemeinsame Angular-Bibliothek).
+- **Breakpoints (E21, entschieden):**
 
-| Stufe | Breite | Navigation | Modals |
-|---|---|---|---|
-| Mobile | ≤ 768 px | Burger, slide-in | Vollbild, kein Radius |
-| Tablet | ≤ 1024 px | Burger, slide-in | 80 % / 90 vh |
-| Desktop | > 1024 px | Sidebar fest | 80 % / 90 vh |
+| Ebene | Regel | Quelle |
+|---|---|---|
+| Shell (Navigation, Titelleiste) | Mobile ≤ 768 px: Burger, slide-in, Titelleiste · Desktop > 768 px: Sidebar fest | Haupt-App §7.1 |
+| Seitenrahmen | ≤ 768 px volle Breite · ≥ 769 px max. 75vw zentriert | [Page](../../../components/page/component.md) |
+| Komponenten | eigene Stufen laut Komponenten-Doku, z. B. Form-Grid einspaltig ≤ 1024 px ([Card](../../../components/card/component.md)), Modal gestuft ([Modal](../../../components/modal/component.md)), Filter-Panel kollabiert < 768 px | `docs/components/` |
 
-- **Ein Branding:** eine Farbpalette, eine Schrift und ein Logo „Bazaar Suite“ für alle drei Frontends. Der Katalog darf sich an die Homepage des Vereins anlehnen (offen).
+  Die Tablet-Stufe der Voranmelde-**Shell** entfällt.
+- **Branding (E23, entschieden):** Styleguide „Industry“ der Haupt-App für alle drei Frontends: Farben, Schrift (Barlow Condensed), Logo „Bazaar **Suite**“ und Kontrastvorgaben (WCAG AA, auch für ältere Laptop-Displays). Der Katalog darf sich zusätzlich an die Vereins-Homepage anlehnen (offen). `docs/style-guide/` gilt **nicht**, es beschreibt ein fremdes Projekt.
+- **Kein Role-Toggle (E22).** Die rollenabhängige Navigation folgt der [Rechte-Matrix](identitaet-rollen.md).
 - **Ein Feedback-Muster:**
   - Toast für Erfolg und Fehler
-  - Bestätigungsdialog für Zerstörendes
-  - Result-Overlay für Scan- und Kassenvorgänge
-  - Fehlertexte aus dem errorCode-Katalog ([api-konventionen](api-konventionen.md))
-- **Gleiche Seitenmuster:** Liste mit Filter-Panel und Tabelle, Dialog zum Anlegen und Bearbeiten, KPI-Kacheln, Formular-Seite mit gleichem Raster.
-- **Sprache:** UI deutsch, Datums- und Zahlenformat deutsch, Währung Euro.
-- **Barrierearmut:** Tastaturbedienung, Kontraste auch auf älteren Laptop-Displays (Vorgabe aus der Haupt-App §10.1).
+  - Bestätigungsdialog bei zerstörenden Aktionen
+  - Result-Overlay für Scan und Kasse
+  - Fehlermeldungen: Der deutsche Text kommt aus dem Backend (`detail`). Der `errorCode` steuert nur besondere Reaktionen im Frontend ([api-konventionen](api-konventionen.md), E26)
+- **Gleiche Seitenmuster:** Liste mit Filter-Panel und Tabelle, Dialog zum Anlegen und Bearbeiten, KPI-Kacheln, Formularseite im Form-Grid.
+- **Sprache:** UI deutsch, Datum und Zahlen im deutschen Format, Euro.
 - **Geräte am Basar-Tag:** Touch-tauglich (Numpad), Scanner per Tastatur-Emulation oder Kamera, Druck über den Browser.
 
 ### Frontends (E19)
 
-| Frontend | Nutzer | Besonderheit |
+| Frontend | Nutzer | Schwerpunkt |
 |---|---|---|
-| Voranmeldung (Portal) | Verkäufer, Händler, Admin | Mobile-first, denn viele Verkäufer erfassen am Handy |
-| Basar | Team, Admin | Tablet- und Desktop-first, Kasse und Scan optimiert |
-| Katalog | Interessenten | Mobile-first, ohne Anmeldung, sehr schlank |
+| Voranmeldung (Portal) | Verkäufer, Händler | häufig am Handy genutzt. Mobile-Stufe besonders sorgfältig. |
+| Basar | Team, Admin | Desktop und Tablet im Querformat, Kasse und Scan optimiert (heutige Haupt-App) |
+| Katalog | Interessenten | Mobile-Stufe, ohne Anmeldung, sehr schlank |
 
 ## Berührungspunkte
 
 - [auswahlfelder-stammdaten](auswahlfelder-stammdaten.md): Feld-Katalog
-- [identitaet-rollen](identitaet-rollen.md): rollenabhängige Navigation, Login-Layout, E22
+- [identitaet-rollen](identitaet-rollen.md): rollenabhängige Navigation, Login-Layout
 - alle Fachbereiche: verwenden nur diese Muster
 
 ## Offene Fragen
 
-1. E21: Übernimmt die Haupt-App die Tablet-Stufe? Wirkt sich das auf die Kassenansicht aus?
+1. Welche Seiten der Voranmeldung nutzen heute die Tablet-Stufe der Shell (z. B. Verkäufernummer-Panel, Profil) und wie werden sie angeglichen?
 2. Wie wird der gemeinsame Komponenten-Bestand technisch geteilt?
-3. Branding der Voranmeldung abgleichen: Weicht es von der Haupt-App ab?
-4. E23: Was passiert mit `docs/style-guide/`?
+3. Wird `docs/style-guide/` (fremdes Projekt) entfernt?
 
 ## Nächste Planungsschritte
 
-- Abgleich beider App-Shells und Brandings (Ist) als Tabelle.
-- Danach dieses Dokument auf den Status „Entwurf“ bringen.
+- Abgleich der Voranmelde-Oberfläche mit Styleguide und Shell der Haupt-App als Liste der Abweichungen.

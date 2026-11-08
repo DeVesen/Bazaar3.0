@@ -1,8 +1,9 @@
 # Glossar der Suite (Soll-Begriffe)
 
 Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](README.md)
+Schlagworte: Begriff, Fachbegriff, Definition, löst ab, Code-Name
 
-Verbindliche Begriffe für die Suite-Planung. Heutige Doppelbegriffe sind als „löst ab“ vermerkt.
+Verbindliche Begriffe für die Suite-Planung. Heutige Doppelbegriffe sind als „löst ab“ vermerkt. **Bei Unklarheit gilt der Begriff der Haupt-App (E25).** Technische Schlagwörter stehen in [glossar-technik](glossar-technik.md), die Stichwortsuche in [index](index.md).
 Mit der Umsetzung wandern die Einträge in [`docs/glossary/`](../../glossary/) (Code-Ist).
 Code-Namen sind englisch; die Spalte „Code“ ist ein Vorschlag.
 
@@ -15,7 +16,8 @@ Code-Namen sind englisch; die Spalte „Code“ ist ein Vorschlag.
 | Verkäufer | `Seller` | Person oder Firma, die Artikel abgibt. Privatverkäufer und Händler sind Ausprägungen über den Verkäufer-Typ. | – |
 | Händler | `SellerType` (Ausprägung) | Verkäufer mit Händler-Typ (eigene Konditionen, oft viele Artikel) | – |
 | Laufkunde | `Seller` ohne Login | Verkäufer, den das Team erst am Basar-Tag anlegt | – |
-| Basar-Team | Rolle `team` | Personal für Annahme, Kasse, Rückgabe und Abrechnung | Kassenpersonal |
+| Kassenpersonal | Rolle `cashier` | Helfer für Artikelannahme, Verkauf, Rückgabe und Abrechnung (Begriff der Haupt-App) | – |
+| Basar-Team | – (Oberbegriff) | Kassenpersonal und Admin am Basar-Tag, also „die Organisationsseite“, die ab der Annahme verantwortlich ist | – |
 | Admin | Rolle `admin` | Organisator, darf alles | Admin (BAR) und Admin (Haupt-App) |
 | Interessent | – (anonym) | Besucher der öffentlichen Liste | – |
 
@@ -37,7 +39,7 @@ Code-Namen sind englisch; die Spalte „Code“ ist ein Vorschlag.
 | Voranmelde-Nummer | `PreRegistrationNumber` | Nummer aus dem Nummernblock des Verkäufers, beim Erfassen vergeben | „Artikelnummer“ (BAR) |
 | Basar-Tag-Nummer | `BazaarNumber` | Nummer, unter der Kasse, Rückgabe und Abrechnung den Artikel kennen; bei der Annahme vergeben | „Artikelnummer“ (Haupt-App) |
 | Nummernblock | `NumberBlock` | Zusammenhängender Bereich von Voranmelde-Nummern je Verkäufer und Basar | – |
-| Annahme | `Intake` | Physische Übergabe am Tisch; der Artikel wechselt in die Verantwortung des Teams | Abgabe, Artikelannahme, Freigabe-Scan |
+| Artikelannahme (kurz: Annahme) | `Intake` | Physische Übergabe am Tisch; der Artikel wechselt in die Verantwortung des Basar-Teams | Abgabe, Freigabe-Scan |
 | Rückgabe | `Return` | Physische Rückgabe an den Verkäufer; die Verantwortung wechselt zurück | – |
 | Artikel-Zustand | `ArticleState` | Siehe [Lebenszyklus](querschnitt/artikel-lebenszyklus.md) | „Status“ (Haupt-App), „kein Status“ (BAR) |
 | Änderungssperre | – | Der Verkäufer darf nicht ändern, solange das Team verantwortlich ist | – |
@@ -57,7 +59,7 @@ Code-Namen sind englisch; die Spalte „Code“ ist ein Vorschlag.
 | Begriff | Code | Bedeutung | Löst ab |
 |---|---|---|---|
 | Marke, Kategorie | `Brand`, `Category` | Auswahllisten, per AutoComplete auch von Nutzern anlegbar | – |
-| Geprüft | `Curated` | Der Admin hat den Eintrag geprüft bzw. angelegt | `original`-Flag mit zwei Bedeutungen |
+| Original / Neu | `original` | `true` = vom Admin angelegt bzw. bestätigt („✓ Original“), `false` = nachträglich über AutoComplete angelegt („Neu“). Das ist die Bedeutung der Haupt-App (§9.2). | abweichende Bedeutung in der Voranmelde-App |
 | Verkäufer-Typ | `SellerType` | Vorlage für Konditionen (z. B. Privat, Händler) | – |
 
 ## Technik (für Stakeholder erklärt)

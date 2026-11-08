@@ -3,6 +3,7 @@
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [nummern](../querschnitt/nummern.md) · [identitaet-rollen](../querschnitt/identitaet-rollen.md)
 Entscheidungen: E5, E5b, E6, E11
+Schlagworte: Voranmeldung, Portal, Registrierung, Profil, Meine Artikel, Händler, Privatverkäufer, Artikel erfassen, Import CSV, Countdown, Status-Sicht, Ergebnis, Wiederverwenden
 
 ## Zweck und Abgrenzung
 

@@ -3,6 +3,7 @@
 Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [artikel-lebenszyklus](artikel-lebenszyklus.md) · [glossar](../glossar.md)
 Entscheidungen: E3, E4, E12
+Schlagworte: Nummer, Artikelnummer, Voranmelde-Nummer, Basar-Tag-Nummer, Etikett, QR, Nummernblock, Zahlenbereich, Ausnahme-Bereich, Verwechslung, Vorjahres-Etikett, Blanko-Etikett
 
 ## Zweck und Abgrenzung
 
@@ -24,7 +25,7 @@ Etikett steht. Die Kennung des Verkäufers (QR am Profil) gehört zu [identitaet
 | Vergabe | Portal, beim Anlegen, aus dem Nummernblock | Annahme |
 | Pflicht | nein (Laufkunden haben keine) | ab „Im Verkauf“ |
 | Eindeutig | je Basar (DB-Constraint) | je Basar (DB-Constraint) |
-| Änderbar | nein | nur durch Team/Admin, solange nicht verkauft |
+| Änderbar | nein | nur durch Kassenpersonal/Admin, solange nicht verkauft |
 | Genutzt von | Verkäufer, Annahme (Zuordnung) | Kasse, Rückgabe, Abrechnung, Statistik |
 | Sieht der Verkäufer | immer | ab Annahme |
 

@@ -3,6 +3,7 @@
 Status: Entwurf v3 · Stand: 2026-11-08 · Teil von: [README](README.md)
 Ebene: Vorstand / Basar-Orga / Projektleitung, **kein Entwicklungsplan**
 Vorgänger: [v1](historie/uebersichtsplan-v1.md), [v2](historie/uebersichtsplan-v2.md)
+Schlagworte: Stakeholder, Vorstand, Gesamtbild, Ziele, Nutzen, Erfolgskriterien, Nicht-Ziele, Kurzfassung
 
 ---
 

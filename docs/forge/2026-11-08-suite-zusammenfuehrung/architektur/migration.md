@@ -3,6 +3,7 @@
 Status: Entwurf · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [zielbild](zielbild.md) · [roadmap](../roadmap.md) · [leitplanken](../leitplanken.md) (L10)
 Entscheidungen: E0, E2, E15
+Schlagworte: Migration, Umzug, Altlasten, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, B1, Doppelverkauf, Import-Fehler, Umnummerieren, Präfix, Datenübernahme, Rückfallebene, Strangler
 
 ## Zweck und Abgrenzung
 

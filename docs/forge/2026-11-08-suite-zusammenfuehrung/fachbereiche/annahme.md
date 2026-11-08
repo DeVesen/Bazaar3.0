@@ -3,6 +3,7 @@
 Status: Skizze · Stand: 2026-11-08 · Teil von: [README](../README.md)
 Lesen zusammen mit: [artikel-lebenszyklus](../querschnitt/artikel-lebenszyklus.md) · [nummern](../querschnitt/nummern.md) · [druck-etiketten](druck-etiketten.md)
 Entscheidungen: E3, E4, E8, E9, E12
+Schlagworte: Annahme, Artikelannahme, Abgabe, Freigabe-Scan, Übergabe, Annahmetisch, Annahmegebühr, Abgabe-Beleg, Ablehnen, Laufkunde, Nachmeldung, Massenannahme
 
 ## Zweck und Abgrenzung
 
